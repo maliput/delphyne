@@ -4,14 +4,12 @@ This is the repository for Drakaina.  As of right now, the only supported platfo
 
 # Setup instructions
 
-1.  You first need to install Bazel.  The instructions are [here](https://docs.bazel.build/versions/master/install-ubuntu.html), but in brief:
+1.  You first need to install the dependencies for Drake.  While Drakaina doesn't directly depend on Drake right now, it may in the future and the build system aims to be compatible.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
 
 ```
-$ sudo apt-get install openjdk-8-jdk
-$ echo "deb [arch=amd64] http://storage.googleapis.com/bazel-apt stable jdk1.8" | sudo tee /etc/apt/sources.list.d/bazel.list
-$ curl https://bazel.build/bazel-release.pub.gpg | sudo apt-key add -
-$ sudo apt-get update
-$ sudo apt-get install bazel
+$ git clone git@github.com:RobotLocomotion/drake.git drake-distro
+$ cd drake-distro
+$ sudo ./setup/ubuntu/16.04/install_prereqs.sh
 ```
 
 1. Next you need to add the gazebo repositories to your setup.  The canonical instructions are [here](https://ignition-transport.readthedocs.io/en/latest/installation/installation.html#ubuntu-linux), in brief:

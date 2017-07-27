@@ -174,7 +174,7 @@ cc_library(
         'IGN_RENDERING_PLUGIN_PATH=\\"ign-rendering-0/plugins\\"',
         'OGRE_RESOURCE_PATH=\\"/usr/lib/x86_64-linux-gnu/OGRE-1.9.0\\"',
     ],
-    hdrs = public_headers,
+    hdrs = public_headers + public_base_headers + public_ogre_headers,
     includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [

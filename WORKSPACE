@@ -11,8 +11,8 @@ local_repository(
 load("@kythe//tools/build_rules/config:pkg_config.bzl", "pkg_config_package")
 
 pkg_config_package(
-    name = "ignition-transport3",
-    modname = "ignition-transport3",
+    name = "avdevice",
+    modname = "libavdevice-ffmpeg",
 )
 
 pkg_config_package(
@@ -21,8 +21,8 @@ pkg_config_package(
 )
 
 pkg_config_package(
-    name = "Qt5Core",
-    modname = "Qt5Core",
+    name = "ignition-transport3",
+    modname = "ignition-transport3",
 )
 
 pkg_config_package(
@@ -36,16 +36,32 @@ pkg_config_package(
 )
 
 pkg_config_package(
+    name = "Qt5Core",
+    modname = "Qt5Core",
+)
+
+pkg_config_package(
+    name = "Qt5Widgets",
+    modname = "Qt5Widgets",
+)
+
+pkg_config_package(
+    name = "tinyxml2",
+    modname = "tinyxml2",
+)
+
+pkg_config_package(
     name = "uuid",
     modname = "uuid",
 )
 
-github_archive(
-    name = "lcm",
-    repository = "lcm-proj/lcm",
-    commit = "c0a0093a950fc83e12e8d5918a0319b590356e7e",
-    sha256 = "d5bb1a0153b9c1526590e7d65be8ca79e4f5e9bf4ce58178c992eaca49d17fb0",
-    build_file = "tools/lcm.BUILD",
+bitbucket_archive(
+    name = "ignition_common",
+    repository = "ignitionrobotics/ign-common",
+    commit = "67a53f0d1de6",
+    sha256 = "356d9def73d6fe7105fd3a7cbd25a6f66edcaaf47a8d71fccd96c0860999fd28",
+    strip_prefix = "ignitionrobotics-ign-common-67a53f0d1de6",
+    build_file = "tools/ignition_common.BUILD",
 )
 
 bitbucket_archive(
@@ -66,11 +82,10 @@ bitbucket_archive(
     build_file = "tools/ignition_rendering.BUILD",
 )
 
-bitbucket_archive(
-    name = "ignition_common",
-    repository = "ignitionrobotics/ign-common",
-    commit = "67a53f0d1de6",
-    sha256 = "356d9def73d6fe7105fd3a7cbd25a6f66edcaaf47a8d71fccd96c0860999fd28",
-    strip_prefix = "ignitionrobotics-ign-common-67a53f0d1de6",
-    build_file = "tools/ignition_common.BUILD",
+github_archive(
+    name = "lcm",
+    repository = "lcm-proj/lcm",
+    commit = "c0a0093a950fc83e12e8d5918a0319b590356e7e",
+    sha256 = "d5bb1a0153b9c1526590e7d65be8ca79e4f5e9bf4ce58178c992eaca49d17fb0",
+    build_file = "tools/lcm.BUILD",
 )

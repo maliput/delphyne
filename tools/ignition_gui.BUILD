@@ -1,6 +1,7 @@
 # -*- python -*-
 
 load("@//tools:cmake_configure_file.bzl", "cmake_configure_file")
+load("@//tools:qt.bzl", "qt_cc_library", "qt_rcc_library")
 
 # Generates config.hh based on the version numbers in CMake code.
 cmake_configure_file(
@@ -22,11 +23,12 @@ cmake_configure_file(
     ],
 )
 
+iface_header = "include/ignition/gui/Iface.hh"
+mainwindow_header = "include/ignition/gui/MainWindow.hh"
+plugin_header = "include/ignition/gui/Plugin.hh"
+
 public_headers = [
-    "include/ignition/gui/Iface.hh",
     "include/ignition/gui/ign.hh",
-    "include/ignition/gui/MainWindow.hh",
-    "include/ignition/gui/Plugin.hh",
     "include/ignition/gui/plugins/ImageDisplay.hh",
     "include/ignition/gui/plugins/Publisher.hh",
     "include/ignition/gui/plugins/Requester.hh",
@@ -43,7 +45,7 @@ public_headers = [
 # '#include <ignition/gui/Example.hh>' for each non-generated header.
 genrule(
     name = "guihh_genrule",
-    srcs = public_headers,
+    srcs = public_headers + [iface_header, mainwindow_header, plugin_header],
     outs = ["include/ignition/gui.hh"],
     # TODO: centralize this logic, as it is used here, in sdformat.BUILD, and
     # in fcl.BUILD
@@ -54,6 +56,51 @@ genrule(
     ) + ") > '$@'",
 )
 
+qt_cc_library(
+    name = "iface",
+    src = "src/Iface.cc",
+    hdr = iface_header,
+    includes = ["include"],
+    normal_hdrs = public_headers + ["include/ignition/gui/config.hh"],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@ignition_common",
+        "@Qt5Core",
+        ":mainwindow",
+        ":plugin",
+    ],
+)
+
+qt_cc_library(
+    name = "mainwindow",
+    src = "src/MainWindow.cc",
+    hdr = mainwindow_header,
+    includes = ["include"],
+    normal_hdrs = public_headers,
+    visibility = ["//visibility:public"],
+    deps = [
+        "@Qt5Core",
+    ],
+)
+
+qt_cc_library(
+    name = "plugin",
+    src = "src/Plugin.cc",
+    hdr = plugin_header,
+    includes = ["include"],
+    normal_hdrs = public_headers,
+    visibility = ["//visibility:public"],
+    deps = [
+        "@Qt5Core",
+    ],
+)
+
+qt_rcc_library(
+    name = "resources",
+    qrc = "include/ignition/gui/resources.qrc",
+    srcs = ["include/ignition/gui/style.qss", "include/ignition/gui/images/close.svg", "include/ignition/gui/images/undock.svg"],
+)
+
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
@@ -61,16 +108,15 @@ cc_library(
     name = "ignition_gui",
     srcs = [
         "include/ignition/gui/config.hh",  # from cmake_configure_file above
-        "src/Iface.cc",
+        "include/ignition/gui.hh",
         "src/ign.cc",
-        "src/MainWindow.cc",
-        "src/Plugin.cc",
         "src/plugins/ImageDisplay.cc",
         "src/plugins/Publisher.cc",
         "src/plugins/Requester.cc",
         "src/plugins/Responder.cc",
         "src/plugins/TimePanel.cc",
         "src/plugins/TopicEcho.cc",
+        "qrc_resources.cpp",
     ],
     hdrs = public_headers,
     includes = ["include"],
@@ -79,5 +125,12 @@ cc_library(
         "@ignition_common",
         "@ignition-transport3",
         "@Qt5Core",
+        "@tinyxml2",
+        ":iface",
+        ":mainwindow",
+        ":plugin",
+    ],
+    linkopts = [
+        "-lQt5Widgets",
     ],
 )

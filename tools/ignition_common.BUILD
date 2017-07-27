@@ -154,8 +154,9 @@ cc_library(
     includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [
-        "@ignition-transport3",
+        "@avdevice",
         "@glib",
+        "@ignition-transport3",
         "@uuid",
     ],
 )

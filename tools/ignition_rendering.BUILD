@@ -140,6 +140,8 @@ cc_library(
         "include/ignition/rendering/config.hh",  # from cmake_configure_file above
         "include/ignition/rendering/base/base.hh",  # from cmake_configure_file above
         "include/ignition/rendering/ogre/ogre.hh",  # from cmake_configure_file above
+        "include/ignition/rendering.hh",
+        "include/ignition/rendering/RenderTarget.hh",
         "src/base/BaseObject.cc",
         "src/base/BaseRenderEngine.cc",
         "src/base/BaseScene.cc",

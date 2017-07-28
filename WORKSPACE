@@ -51,9 +51,9 @@ github_archive(
 bitbucket_archive(
     name = "ignition_gui",
     repository = "ignitionrobotics/ign-gui",
-    commit = "039f8877d173",
-    sha256 = "7454bf848b5df3d758bc6aace1deb53886cda224248bd97f8bff4ffeef09352d",
-    strip_prefix = "ignitionrobotics-ign-gui-039f8877d173",
+    commit = "4400e7d9210e",
+    sha256 = "eeac30aee85be4214ccb80aaec926c7bf1d7b08f5cbd58ad4da91985a180e4a6",
+    strip_prefix = "ignitionrobotics-ign-gui-4400e7d9210e",
     build_file = "tools/ignition_gui.BUILD",
 )
 

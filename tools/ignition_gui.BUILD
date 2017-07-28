@@ -23,12 +23,16 @@ cmake_configure_file(
 )
 
 public_headers = [
-    "include/ignition/gui/Example.hh",
     "include/ignition/gui/Iface.hh",
     "include/ignition/gui/ign.hh",
     "include/ignition/gui/MainWindow.hh",
     "include/ignition/gui/Plugin.hh",
     "include/ignition/gui/plugins/ImageDisplay.hh",
+    "include/ignition/gui/plugins/Publisher.hh",
+    "include/ignition/gui/plugins/Requester.hh",
+    "include/ignition/gui/plugins/Responder.hh",
+    "include/ignition/gui/plugins/TimePanel.hh",
+    "include/ignition/gui/plugins/TopicEcho.hh",
     "include/ignition/gui/qt.h",
     "include/ignition/gui/System.hh",
 ]
@@ -57,12 +61,16 @@ cc_library(
     name = "ignition_gui",
     srcs = [
         "include/ignition/gui/config.hh",  # from cmake_configure_file above
-        "src/Example.cc",
         "src/Iface.cc",
         "src/ign.cc",
         "src/MainWindow.cc",
         "src/Plugin.cc",
         "src/plugins/ImageDisplay.cc",
+        "src/plugins/Publisher.cc",
+        "src/plugins/Requester.cc",
+        "src/plugins/Responder.cc",
+        "src/plugins/TimePanel.cc",
+        "src/plugins/TopicEcho.cc",
     ],
     hdrs = public_headers,
     includes = ["include"],

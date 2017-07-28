@@ -23,7 +23,7 @@ $ sudo apt-get update
 1. Now you can install additional dependencies
 
 ```
-$ sudo apt-get install mercurial cmake pkg-config python ruby-ronn libprotoc-dev libprotobuf-dev protobuf-compiler uuid-dev libzmq3-dev git libignition-transport3-dev libogre-1.9-dev libglew-dev libignition-common-dev qtbase5-dev libicu-dev libboost-filesystem-dev
+$ sudo apt-get install mercurial cmake pkg-config python ruby-ronn libprotoc-dev libprotobuf-dev protobuf-compiler uuid-dev libzmq3-dev git libignition-transport3-dev libogre-1.9-dev libglew-dev qtbase5-dev libicu-dev libboost-filesystem-dev
 ```
 
 # Repository structure

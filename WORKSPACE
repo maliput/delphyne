@@ -16,11 +16,6 @@ pkg_config_package(
 )
 
 pkg_config_package(
-    name = "ignition-common0",
-    modname = "ignition-common0",
-)
-
-pkg_config_package(
     name = "glib",
     modname = "glib-2.0",
 )
@@ -38,6 +33,11 @@ pkg_config_package(
 pkg_config_package(
     name = "OGRE-Paging",
     modname = "OGRE-Paging",
+)
+
+pkg_config_package(
+    name = "uuid",
+    modname = "uuid",
 )
 
 github_archive(
@@ -64,4 +64,13 @@ bitbucket_archive(
     sha256 = "7ace37f74623e9d49291719de62c92b2ac6670b8647c516a5ddf041393b5bda6",
     strip_prefix = "ignitionrobotics-ign-rendering-1a63ce5e15e9",
     build_file = "tools/ignition_rendering.BUILD",
+)
+
+bitbucket_archive(
+    name = "ignition_common",
+    repository = "ignitionrobotics/ign-common",
+    commit = "67a53f0d1de6",
+    sha256 = "356d9def73d6fe7105fd3a7cbd25a6f66edcaaf47a8d71fccd96c0860999fd28",
+    strip_prefix = "ignitionrobotics-ign-common-67a53f0d1de6",
+    build_file = "tools/ignition_common.BUILD",
 )

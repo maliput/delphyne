@@ -68,7 +68,7 @@ cc_library(
     includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [
-        "@ignition-common0",
+        "@ignition_common",
         "@ignition-transport3",
         "@Qt5Core",
     ],

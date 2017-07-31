@@ -103,6 +103,7 @@ cc_library(
     name = "ignition_common",
     srcs = [
         "include/ignition/common/config.hh",  # from cmake_configure_file above
+        "include/ignition/common.hh",  # from genrule above
         "src/Animation.cc",
         "src/AudioDecoder.cc",
         "src/Base64.cc",
@@ -156,7 +157,5 @@ cc_library(
         "@ignition-transport3",
         "@glib",
         "@uuid",
-    ],
-    linkopts = [
     ],
 )

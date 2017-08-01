@@ -85,34 +85,60 @@ qt_rcc_gen(
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
 cc_library(
-    name = "ignition_gui",
+    name = "_libignition_gui.so",
     srcs = [
         "include/ignition/gui/config.hh",  # from cmake_configure_file above
         "include/ignition/gui.hh",
         "src/Iface.cc",
         "src/ign.cc",
         "src/MainWindow.cc",
-        "src/plugins/ImageDisplay.cc",
-        "src/plugins/Publisher.cc",
-        "src/plugins/Requester.cc",
-        "src/plugins/Responder.cc",
-        "src/plugins/TimePanel.cc",
-        "src/plugins/TopicEcho.cc",
+        # FIXME(clalancette): I removed the building of the plugin files here,
+        # because it was incorrect.  We should be building those plugin files
+        # as actual plugins (i.e. shared objects), but I'll leave that for
+        # another day since we don't need those plugins right now.
         "src/Plugin.cc",
         "qrc_resources.cc",  # from qt_rcc_gen above
         "moc_iface.cc",  # from qt_moc_gen above
         "moc_mainwindow.cc",  # from qt_moc_gen above
         "moc_plugin.cc",  # from qt_moc_gen above
+        "@ignition_common//:libignition_common.so",
     ],
-    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
     includes = ["include"],
-    visibility = ["//visibility:public"],
+    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
     deps = [
-        "@ignition_common",
+        "@gts",
+        "@ignition_common//:ignition_common_shared_library",
         "@ignition-transport3",
         "@Qt5Core",
         "@Qt5Gui",
         "@Qt5Widgets",
         "@tinyxml2",
+    ],
+    linkopts = [
+        # clalancette: Unfortunately, libfreeimage-dev doesn't have a pkg-config
+        # file on Ubuntu, so we hand-link this here.
+        "-lfreeimage",
+    ],
+    linkstatic = 1,
+)
+
+cc_binary(
+    name = "libignition_gui.so",
+    visibility = ["//visibility:public"],
+    linkshared = 1,
+    linkstatic = 1,
+    deps = [
+        ":_libignition_gui.so",
+    ],
+)
+
+cc_library(
+    name = "ignition_gui_shared_library",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":_libignition_gui.so",
+    ],
+    data = [
+        ":libignition_gui.so",
     ],
 )

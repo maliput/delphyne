@@ -16,6 +16,11 @@ pkg_config_package(
 )
 
 pkg_config_package(
+    name = "gts",
+    modname = "gts",
+)
+
+pkg_config_package(
     name = "glib",
     modname = "glib-2.0",
 )

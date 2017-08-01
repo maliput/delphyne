@@ -100,7 +100,7 @@ genrule(
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
 cc_library(
-    name = "ignition_common",
+    name = "_libignition_common.so",
     srcs = [
         "include/ignition/common/config.hh",  # from cmake_configure_file above
         "include/ignition/common.hh",  # from genrule above
@@ -152,11 +152,32 @@ cc_library(
     ],
     hdrs = public_headers,
     includes = ["include"],
-    visibility = ["//visibility:public"],
     deps = [
         "@avdevice",
         "@glib",
         "@ignition-transport3",
         "@uuid",
+    ],
+    linkstatic = 1,
+)
+
+cc_binary(
+    name = "libignition_common.so",
+    visibility = ["//visibility:public"],
+    linkshared = 1,
+    linkstatic = 1,
+    deps = [
+        ":_libignition_common.so",
+    ],
+)
+
+cc_library(
+    name = "ignition_common_shared_library",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":_libignition_common.so",
+    ],
+    data = [
+        ":libignition_common.so",
     ],
 )

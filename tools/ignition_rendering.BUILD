@@ -143,7 +143,7 @@ genrule(
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
 cc_library(
-    name = "ignition_rendering",
+    name = "_libignition_rendering.so",
     srcs = [
         "include/ignition/rendering/config.hh",  # from cmake_configure_file above
         "include/ignition/rendering/base/base.hh",  # from genrule above
@@ -177,16 +177,16 @@ cc_library(
         "src/RenderingIface.cc",
         "src/ShaderType.cc",
         "src/SystemPaths.cc",
+        "@ignition_common//:libignition_common.so",
     ],
+    hdrs = public_headers + public_base_headers + public_ogre_headers,
     defines = [
         # FIXME(clalancette): we should not hard-code this
         'IGN_RENDERING_PLUGIN_PATH=\\"ign-rendering-0/plugins\\"',
     ],
-    hdrs = public_headers + public_base_headers + public_ogre_headers,
     includes = ["include"],
-    visibility = ["//visibility:public"],
     deps = [
-        "@ignition_common",
+        "@ignition_common//:ignition_common_shared_library",
         "@OGRE",
         "@OGRE-Paging",
         "@OGRE-RTShaderSystem",
@@ -194,5 +194,27 @@ cc_library(
     linkopts = [
         "-lboost_system",
         "-lboost_filesystem",
+    ],
+    linkstatic = 1,
+)
+
+cc_binary(
+    name = "libignition_rendering.so",
+    visibility = ["//visibility:public"],
+    linkshared = 1,
+    linkstatic = 1,
+    deps = [
+        ":_libignition_rendering.so",
+    ],
+)
+
+cc_library(
+    name = "ignition_rendering_shared_library",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":_libignition_rendering.so",
+    ],
+    data = [
+        ":libignition_rendering.so",
     ],
 )

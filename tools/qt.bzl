@@ -26,7 +26,7 @@ def qt_ui_library(name, ui, deps):
       deps = deps,
   )
 
-def qt_rcc_library(name, qrc, srcs):
+def qt_rcc_gen(name, qrc, srcs, out):
   """Compiles a QT resource file and makes a .cpp for it.
 
   Args:
@@ -35,11 +35,10 @@ def qt_rcc_library(name, qrc, srcs):
     deps: cc_library dependencies for the library.
   """
   fname_no_ext = basename(qrc).split('.')[0]
-  generated_file = "qrc_%s.cpp" % (fname_no_ext)
   native.genrule(
       name = "%s_qrc" % name,
       srcs = [qrc] + srcs,
-      outs = [generated_file],
+      outs = [out],
       cmd = "rcc -qt=5 --name %s --output $@ $(locations %s)" % (fname_no_ext, qrc),
   )
 

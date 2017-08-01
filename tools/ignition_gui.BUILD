@@ -1,7 +1,7 @@
 # -*- python -*-
 
 load("@//tools:cmake_configure_file.bzl", "cmake_configure_file")
-load("@//tools:qt.bzl", "qt_cc_library", "qt_rcc_library")
+load("@//tools:qt.bzl", "qt_cc_library", "qt_rcc_gen")
 
 # Generates config.hh based on the version numbers in CMake code.
 cmake_configure_file(
@@ -95,10 +95,11 @@ qt_cc_library(
     ],
 )
 
-qt_rcc_library(
+qt_rcc_gen(
     name = "resources",
     qrc = "include/ignition/gui/resources.qrc",
     srcs = ["include/ignition/gui/style.qss", "include/ignition/gui/images/close.svg", "include/ignition/gui/images/undock.svg"],
+    out = "qrc_resources.cpp",
 )
 
 # Generates the library exported to users.  The explicitly listed srcs= matches

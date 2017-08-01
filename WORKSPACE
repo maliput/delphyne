@@ -28,6 +28,7 @@ pkg_config_package(
 pkg_config_package(
     name = "OGRE",
     modname = "OGRE",
+    additional_flag_defines = {"OGRE_RESOURCE_PATH": "--variable=plugindir"},
 )
 
 pkg_config_package(

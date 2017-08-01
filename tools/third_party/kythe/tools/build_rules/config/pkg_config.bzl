@@ -10,6 +10,10 @@ pkg_config_module(name, modname,
     atleast_version: Optional, string. Require at least this version.
     exact_version: Optional, string. Require exactly this version.
     max_version: Optional, string.  Require less than this version.
+    additional_flag_defines: Optional, string_dict.  A dictionary of
+                             the form {"DEFINE": "pkg-config-flag"}
+                             to allow custom defines to be made from
+                             custom pkg-config flags.
 
   The configured repository will have a `cc_library` target with the
   provided `name`.
@@ -142,6 +146,20 @@ def _parse_cflags(repo_ctx, cflags):
   includes = _symlink_directories(repo_ctx, "include", includes)
   return includes, defines
 
+def _additional_flags(repo_ctx, pc_args):
+  additional_flags = []
+  if repo_ctx.attr.additional_flag_defines:
+    for define,flag in repo_ctx.attr.additional_flag_defines.items():
+      result = unwrap(repo_ctx).execute(pc_args + [flag])
+      if result.return_code != 0:
+        return _fail(repo_ctx, "Unable to determine additional flag", result.stderr)
+      stdout = result.stdout
+      if len(stdout.strip().split(" ")) != 1:
+        return _fail(repo_ctx, "Expected single output, got multiple")
+      additional_flags += ["-D" + define + '=\\"' + stdout.strip() + '\\"']
+
+  return success(additional_flags)
+
 def setup_pkg_config_package(repo_ctx):
   pkg_config = _find(repo_ctx)
   if pkg_config.error != None:
@@ -161,7 +179,13 @@ def setup_pkg_config_package(repo_ctx):
   if linkopts.error != None:
     return linkopts
 
-  _write_build(repo_ctx, cflags.value, linkopts.value)
+  add_cflags = _additional_flags(repo_ctx, pc_args)
+  if add_cflags.error != None:
+    return add_cflags
+
+  all_flags = cflags.value + add_cflags.value
+
+  _write_build(repo_ctx, all_flags, linkopts.value)
   return success(True)
 
 def _impl(repo_ctx):
@@ -176,6 +200,7 @@ pkg_config_package = repository_rule(
         "atleast_version": attr.string(),
         "max_version": attr.string(),
         "exact_version": attr.string(),
+        "additional_flag_defines": attr.string_dict(),
         "build_file_template": attr.label(
             default = Label("@kythe//tools/build_rules/config:BUILD.tpl"),
             single_file = True,

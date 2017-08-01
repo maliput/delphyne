@@ -138,9 +138,9 @@ cc_library(
     name = "ignition_rendering",
     srcs = [
         "include/ignition/rendering/config.hh",  # from cmake_configure_file above
-        "include/ignition/rendering/base/base.hh",  # from cmake_configure_file above
-        "include/ignition/rendering/ogre/ogre.hh",  # from cmake_configure_file above
-        "include/ignition/rendering.hh",
+        "include/ignition/rendering/base/base.hh",  # from genrule above
+        "include/ignition/rendering/ogre/ogre.hh",  # from genrule above
+        "include/ignition/rendering.hh",  # from genrule above
         "include/ignition/rendering/RenderTarget.hh",
         "src/base/BaseObject.cc",
         "src/base/BaseRenderEngine.cc",
@@ -171,10 +171,8 @@ cc_library(
         "src/SystemPaths.cc",
     ],
     defines = [
-        # FIXME(clalancette): we should not hard-code these, particularly the second
-        # one which can be found by running "pkg-config --variable-plugindir OGRE"
+        # FIXME(clalancette): we should not hard-code this
         'IGN_RENDERING_PLUGIN_PATH=\\"ign-rendering-0/plugins\\"',
-        'OGRE_RESOURCE_PATH=\\"/usr/lib/x86_64-linux-gnu/OGRE-1.9.0\\"',
     ],
     hdrs = public_headers + public_base_headers + public_ogre_headers,
     includes = ["include"],

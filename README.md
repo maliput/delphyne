@@ -42,3 +42,16 @@ To build the visualizer, run:
 ```
 $ bazel build //visualizer:*
 ```
+
+# Running
+To run the bridge, run:
+
+```
+$ bazel run //bridge:lcm-to-ign-trans-bridge
+```
+
+To run the visualizer, run:
+
+```
+$ bazel run //visualizer:visualizer
+```

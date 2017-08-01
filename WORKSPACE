@@ -42,6 +42,11 @@ pkg_config_package(
 )
 
 pkg_config_package(
+    name = "Qt5Gui",
+    modname = "Qt5Gui",
+)
+
+pkg_config_package(
     name = "Qt5Widgets",
     modname = "Qt5Widgets",
 )

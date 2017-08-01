@@ -126,12 +126,11 @@ cc_library(
         "@ignition_common",
         "@ignition-transport3",
         "@Qt5Core",
+        "@Qt5Gui",
+        "@Qt5Widgets",
         "@tinyxml2",
         ":iface",
         ":mainwindow",
         ":plugin",
-    ],
-    linkopts = [
-        "-lQt5Widgets",
     ],
 )

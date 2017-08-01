@@ -37,6 +37,11 @@ pkg_config_package(
 )
 
 pkg_config_package(
+    name = "OGRE-RTShaderSystem",
+    modname = "OGRE-RTShaderSystem",
+)
+
+pkg_config_package(
     name = "Qt5Core",
     modname = "Qt5Core",
 )

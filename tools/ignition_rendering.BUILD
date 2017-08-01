@@ -17,6 +17,7 @@ cmake_configure_file(
         # just hard code the major version here.
         "PROJECT_NAME=ignition-rendering",
         'IGN_RENDERING_PLUGIN_PATH="ign-rendering-0/plugins"',
+        'HAVE_OGRE',
     ],
 )
 
@@ -181,5 +182,10 @@ cc_library(
         "@ignition_common",
         "@OGRE",
         "@OGRE-Paging",
+        "@OGRE-RTShaderSystem",
+    ],
+    linkopts = [
+        "-lboost_system",
+        "-lboost_filesystem",
     ],
 )

@@ -10,8 +10,8 @@ cmake_configure_file(
     cmakelists = ["CMakeLists.txt"],
     defines = [
         # It would be nice to get this information directly from CMakeLists.txt,
-        # but it ends up being too hard.  ignition-gui sets a project name
-        # as "ignition-gui<version>", and then uses CMake substring to pick
+        # but it ends up being too hard.  ignition-rendering sets a project name
+        # as "ignition-rendering<version>", and then uses CMake substring to pick
         # that version out.  We'd have to extend the cmake_configure_file
         # functionality to do the same, and I'm not sure it is worth it.  We
         # just hard code the major version here.
@@ -91,8 +91,7 @@ public_ogre_headers = [
 ]
 
 # Generates rendering.hh, which consists of #include statements for all of the
-# public headers in the library.  The first line is
-# '#include <ignition/rendering/config.hh>' followed by one line like
+# public headers in the library.  There is one line like
 # '#include <ignition/rendering/ArrowVisual.hh>' for each non-generated header.
 genrule(
     name = "renderinghh_genrule",
@@ -106,6 +105,10 @@ genrule(
     ) + ") > '$@'",
 )
 
+# Generates base.hh, which consists of #include statements for all of the
+# public headers in the library.  The first line is
+# '#include <ignition/rendering/config.hh>' followed by one line like
+# '#include <ignition/rendering/base/BaseArrowVisual.hh>' for each non-generated header.
 genrule(
     name = "basehh_genrule",
     srcs = public_base_headers,
@@ -119,6 +122,10 @@ genrule(
     ) + ") > '$@'",
 )
 
+# Generates ogre.hh, which consists of #include statements for all of the
+# public headers in the library.  The first line is
+# '#include <ignition/rendering/config.hh>' followed by one line like
+# '#include <ignition/rendering/ogre/OgreArrowVisual.hh>' for each non-generated header.
 genrule(
     name = "ogrehh_genrule",
     srcs = public_ogre_headers,

@@ -1,7 +1,7 @@
 # -*- python -*-
 
 load("@//tools:cmake_configure_file.bzl", "cmake_configure_file")
-load("@//tools:qt.bzl", "qt_cc_library", "qt_rcc_gen")
+load("@//tools:qt.bzl", "qt_moc_gen", "qt_rcc_gen")
 
 # Generates config.hh based on the version numbers in CMake code.
 cmake_configure_file(
@@ -56,50 +56,29 @@ genrule(
     ) + ") > '$@'",
 )
 
-qt_cc_library(
+qt_moc_gen(
     name = "iface",
-    src = "src/Iface.cc",
     hdr = iface_header,
-    includes = ["include"],
-    normal_hdrs = public_headers + ["include/ignition/gui/config.hh"],
-    visibility = ["//visibility:public"],
-    deps = [
-        "@ignition_common",
-        "@Qt5Core",
-        ":mainwindow",
-        ":plugin",
-    ],
+    out = "moc_iface.cc",
 )
 
-qt_cc_library(
+qt_moc_gen(
     name = "mainwindow",
-    src = "src/MainWindow.cc",
     hdr = mainwindow_header,
-    includes = ["include"],
-    normal_hdrs = public_headers,
-    visibility = ["//visibility:public"],
-    deps = [
-        "@Qt5Core",
-    ],
+    out = "moc_mainwindow.cc",
 )
 
-qt_cc_library(
+qt_moc_gen(
     name = "plugin",
-    src = "src/Plugin.cc",
     hdr = plugin_header,
-    includes = ["include"],
-    normal_hdrs = public_headers,
-    visibility = ["//visibility:public"],
-    deps = [
-        "@Qt5Core",
-    ],
+    out = "moc_plugin.cc",
 )
 
 qt_rcc_gen(
     name = "resources",
     qrc = "include/ignition/gui/resources.qrc",
     srcs = ["include/ignition/gui/style.qss", "include/ignition/gui/images/close.svg", "include/ignition/gui/images/undock.svg"],
-    out = "qrc_resources.cpp",
+    out = "qrc_resources.cc",
 )
 
 # Generates the library exported to users.  The explicitly listed srcs= matches
@@ -110,16 +89,22 @@ cc_library(
     srcs = [
         "include/ignition/gui/config.hh",  # from cmake_configure_file above
         "include/ignition/gui.hh",
+        "src/Iface.cc",
         "src/ign.cc",
+        "src/MainWindow.cc",
         "src/plugins/ImageDisplay.cc",
         "src/plugins/Publisher.cc",
         "src/plugins/Requester.cc",
         "src/plugins/Responder.cc",
         "src/plugins/TimePanel.cc",
         "src/plugins/TopicEcho.cc",
-        "qrc_resources.cpp",
+        "src/Plugin.cc",
+        "qrc_resources.cc",  # from qt_rcc_gen above
+        "moc_iface.cc",  # from qt_moc_gen above
+        "moc_mainwindow.cc",  # from qt_moc_gen above
+        "moc_plugin.cc",  # from qt_moc_gen above
     ],
-    hdrs = public_headers,
+    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
     includes = ["include"],
     visibility = ["//visibility:public"],
     deps = [
@@ -129,8 +114,5 @@ cc_library(
         "@Qt5Gui",
         "@Qt5Widgets",
         "@tinyxml2",
-        ":iface",
-        ":mainwindow",
-        ":plugin",
     ],
 )

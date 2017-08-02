@@ -23,9 +23,6 @@ load(":common.bzl", "error", "success", "write_build")
 load(":wrapped_ctx.bzl", "unwrap")
 
 def _write_build(repo_ctx, cflags, linkopts):
-  # Silence a warning about unknown cflags.
-  if "-pthread" in cflags and "-pthread" in linkopts:
-    cflags.remove("-pthread")
   includes, defines = _parse_cflags(repo_ctx, cflags)
   write_build(repo_ctx, includes, defines, linkopts)
 
@@ -137,9 +134,14 @@ def _symlink_directories(repo_ctx, basename, pathnames):
 def _parse_cflags(repo_ctx, cflags):
   includes, cflags = _extract_includes(cflags)
   defines, cflags = _extract_defines(cflags)
-  if cflags:
-    print("In pkg-config module {}, unhandled cflags: {}".format(
-          repo_ctx.attr.modname, cflags))
+
+  # clalancette: The original code had a check to see if there were additional cflags
+  # that we didn't handle along with a warning message about it.  That would produce
+  # a few warnings on the libraries we use, and seems useless to me.  What this
+  # module is really meant to do is to find the include directories, defines (which
+  # can affect headers), and libraries required by whatever we are pkg-config'ing.
+  # Thus, if it has additional flags, we don't really care all that much, and
+  # we just ignore additional cflags.
 
   # We can only reliably point to include directories.
   # `linkopts` leak into runtime for dynamic libraries and

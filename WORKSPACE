@@ -12,7 +12,7 @@ load("@kythe//tools/build_rules/config:pkg_config.bzl", "pkg_config_package")
 
 pkg_config_package(
     name = "avdevice",
-    modname = "libavdevice-ffmpeg",
+    modname = "libavdevice",
 )
 
 pkg_config_package(

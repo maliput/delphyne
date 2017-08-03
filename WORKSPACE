@@ -87,9 +87,9 @@ bitbucket_archive(
 bitbucket_archive(
     name = "ignition_rendering",
     repository = "ignitionrobotics/ign-rendering",
-    commit = "1a63ce5e15e9",
-    sha256 = "7ace37f74623e9d49291719de62c92b2ac6670b8647c516a5ddf041393b5bda6",
-    strip_prefix = "ignitionrobotics-ign-rendering-1a63ce5e15e9",
+    commit = "0ead5eb3dc20",
+    sha256 = "43cfdbdef50382ea8a0b820b10320083f2c1257722ec16b7e57949468ba51fd8",
+    strip_prefix = "ignitionrobotics-ign-rendering-0ead5eb3dc20",
     build_file = "tools/ignition_rendering.BUILD",
 )
 

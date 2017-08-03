@@ -1,3 +1,5 @@
+load("@//tools:ign-gui.bzl", "IGN_GUI_PLUGIN_PATH")
+
 cc_library(
     name = "_libRenderWidget.so",
     srcs = [
@@ -50,6 +52,7 @@ cc_binary(
         # directory, which is always one-level down from the PWD when
         # the binary is launched.
         '-DPLUGIN_INSTALL_PATH=\\"visualizer\\"',
+        '-DIGN_GUI_DEFAULT_PLUGIN_PATH=\\"external/ignition_gui/' + IGN_GUI_PLUGIN_PATH + '\\"',
     ],
     data = [
         ":libRenderWidget.so",

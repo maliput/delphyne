@@ -2,6 +2,7 @@
 
 load("@//tools:cmake_configure_file.bzl", "cmake_configure_file")
 load("@//tools:qt.bzl", "qt_moc_gen", "qt_rcc_gen")
+load("@//tools:ign-gui.bzl", "ign_gui_create_plugin", "ign_gui_plugin_dep_name", "IGN_GUI_PLUGIN_PATH")
 
 # Generates config.hh based on the version numbers in CMake code.
 cmake_configure_file(
@@ -19,7 +20,7 @@ cmake_configure_file(
         "PROJECT_NAME=ignition-gui",
         "PROJECT_NAME_NO_VERSION=ignition-gui",
         "PROJECT_NAME_UPPER_NODASH=IGNITION_GUI",
-        "IGN_GUI_PLUGIN_INSTALL_PATH=ign-gui-0/plugins",
+        "IGN_GUI_PLUGIN_INSTALL_PATH=" + IGN_GUI_PLUGIN_PATH,
     ],
 )
 
@@ -81,6 +82,16 @@ qt_rcc_gen(
     out = "qrc_resources.cc",
 )
 
+# Create all of the plugins here as separate shared objects.  The code
+# to do this lives in ign-gui.bzl, since Bazel does not allow functions
+# inside of BUILD files.
+ign_gui_create_plugin("libImageDisplay.so", "src/plugins/ImageDisplay.cc")
+ign_gui_create_plugin("libPublisher.so", "src/plugins/Publisher.cc")
+ign_gui_create_plugin("libRequester.so", "src/plugins/Requester.cc")
+ign_gui_create_plugin("libResponder.so", "src/plugins/Responder.cc")
+ign_gui_create_plugin("libTimePanel.so", "src/plugins/TimePanel.cc")
+ign_gui_create_plugin("libTopicEcho.so", "src/plugins/TopicEcho.cc")
+
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
@@ -92,10 +103,6 @@ cc_library(
         "src/Iface.cc",
         "src/ign.cc",
         "src/MainWindow.cc",
-        # FIXME(clalancette): I removed the building of the plugin files here,
-        # because it was incorrect.  We should be building those plugin files
-        # as actual plugins (i.e. shared objects), but I'll leave that for
-        # another day since we don't need those plugins right now.
         "src/Plugin.cc",
         "qrc_resources.cc",  # from qt_rcc_gen above
         "moc_iface.cc",  # from qt_moc_gen above
@@ -129,6 +136,14 @@ cc_binary(
     linkstatic = 1,
     deps = [
         ":_libignition_gui.so",
+    ],
+    data = [
+        ign_gui_plugin_dep_name("libImageDisplay.so"),
+        ign_gui_plugin_dep_name("libPublisher.so"),
+        ign_gui_plugin_dep_name("libRequester.so"),
+        ign_gui_plugin_dep_name("libResponder.so"),
+        ign_gui_plugin_dep_name("libTimePanel.so"),
+        ign_gui_plugin_dep_name("libTopicEcho.so"),
     ],
 )
 

@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
   // Plugins installed by gazebo end up here
   ignition::gui::addPluginPath(PLUGIN_INSTALL_PATH);
 
-  ignition::gui::loadPlugin("GuiRenderWidget");
+  ignition::gui::loadPlugin("RenderWidget");
 
   // Create main window
   ignition::gui::createMainWindow();

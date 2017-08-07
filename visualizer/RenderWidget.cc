@@ -10,12 +10,12 @@
 #include <ignition/rendering/RenderTarget.hh>
 #include <ignition/rendering/Scene.hh>
 
-#include "GuiRenderWidget.hh"
+#include "RenderWidget.hh"
 
 namespace delphyne {
 namespace gui {
 
-GuiRenderWidget::GuiRenderWidget() : Plugin()
+RenderWidget::RenderWidget() : Plugin()
 {
   this->setAttribute(Qt::WA_OpaquePaintEvent, true);
   this->setAttribute(Qt::WA_PaintOnScreen, true);
@@ -31,11 +31,11 @@ GuiRenderWidget::GuiRenderWidget() : Plugin()
   this->setMinimumHeight(100);
 }
 
-GuiRenderWidget::~GuiRenderWidget()
+RenderWidget::~RenderWidget()
 {
 }
 
-void GuiRenderWidget::CreateRenderWindow()
+void RenderWidget::CreateRenderWindow()
 {
   std::string engineName = "ogre";
   ignition::rendering::RenderEngine *engine =
@@ -98,7 +98,7 @@ void GuiRenderWidget::CreateRenderWindow()
 }
 
 /////////////////////////////////////////////////
-void GuiRenderWidget::showEvent(QShowEvent *_e)
+void RenderWidget::showEvent(QShowEvent *_e)
 {
   QApplication::flush();
 
@@ -115,13 +115,13 @@ void GuiRenderWidget::showEvent(QShowEvent *_e)
 }
 
 /////////////////////////////////////////////////
-QPaintEngine *GuiRenderWidget::paintEngine() const
+QPaintEngine *RenderWidget::paintEngine() const
 {
   return nullptr;
 }
 
 /////////////////////////////////////////////////
-void GuiRenderWidget::paintEvent(QPaintEvent *_e)
+void RenderWidget::paintEvent(QPaintEvent *_e)
 {
   if (this->renderWindow && this->camera)
   {
@@ -132,7 +132,7 @@ void GuiRenderWidget::paintEvent(QPaintEvent *_e)
 }
 
 /////////////////////////////////////////////////
-void GuiRenderWidget::resizeEvent(QResizeEvent *_e)
+void RenderWidget::resizeEvent(QResizeEvent *_e)
 {
   if (!this->renderWindow)
   {
@@ -142,7 +142,7 @@ void GuiRenderWidget::resizeEvent(QResizeEvent *_e)
 }
 
 /////////////////////////////////////////////////
-void GuiRenderWidget::moveEvent(QMoveEvent *_e)
+void RenderWidget::moveEvent(QMoveEvent *_e)
 {
   QWidget::moveEvent(_e);
 
@@ -156,5 +156,5 @@ void GuiRenderWidget::moveEvent(QMoveEvent *_e)
 }  // namespace gui
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::gui::GuiRenderWidget,
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::gui::RenderWidget,
                                   ignition::gui::Plugin);

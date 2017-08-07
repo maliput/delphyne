@@ -9,15 +9,15 @@
 namespace delphyne {
 namespace gui {
 
-class GuiRenderWidget: public ignition::gui::Plugin
+class RenderWidget: public ignition::gui::Plugin
 {
   //Q_OBJECT
 
 /// \brief Constructor
-public: GuiRenderWidget();
+public: RenderWidget();
 
 /// \brief Destructor
-public: virtual ~GuiRenderWidget();
+public: virtual ~RenderWidget();
 
 /// \brief Qt paint event.
 protected: virtual void paintEvent(QPaintEvent *_e);

@@ -6,7 +6,7 @@
 #include <ignition/rendering/RenderTypes.hh>
 #include <ignition/rendering/RenderingIface.hh>
 
-namespace drakaina {
+namespace delphyne {
 namespace gui {
 
 class GuiRenderWidget: public ignition::gui::Plugin
@@ -42,6 +42,6 @@ private: ignition::rendering::CameraPtr camera;
 };
 
 }  // namespace gui
-}  // namespace drakaina
+}  // namespace delphyne
 
 #endif

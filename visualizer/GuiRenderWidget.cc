@@ -1,5 +1,6 @@
 #include <iostream>
 
+#include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
 
 #include <ignition/gui/Iface.hh>
@@ -11,7 +12,7 @@
 
 #include "GuiRenderWidget.hh"
 
-namespace drakaina {
+namespace delphyne {
 namespace gui {
 
 GuiRenderWidget::GuiRenderWidget() : Plugin()
@@ -41,7 +42,7 @@ void GuiRenderWidget::CreateRenderWindow()
       ignition::rendering::get_engine(engineName);
   if (!engine)
   {
-    std::cerr << "Engine '" << engineName << "' is not supported" << std::endl;
+    ignerr << "Engine '" << engineName << "' is not supported" << std::endl;
     return;
   }
 
@@ -153,7 +154,7 @@ void GuiRenderWidget::moveEvent(QMoveEvent *_e)
 }
 
 }  // namespace gui
-}  // namespace drakaina
+}  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(drakaina::gui::GuiRenderWidget,
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::gui::GuiRenderWidget,
                                   ignition::gui::Plugin);

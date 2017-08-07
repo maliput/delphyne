@@ -1,5 +1,5 @@
-#ifndef GUI_RENDER_WIDGET_HH
-#define GUI_RENDER_WIDGET_HH
+#ifndef DELPHYNE_GUI_GUIRENDERWIDGET_HH_
+#define DELPHYNE_GUI_GUIRENDERWIDGET_HH_
 
 #include <ignition/gui/Plugin.hh>
 

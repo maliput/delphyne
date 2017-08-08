@@ -8,9 +8,6 @@ cc_library(
         "@ignition_gui//:libignition_gui.so",
         "@ignition_rendering//:libignition_rendering.so",
     ],
-    hdrs = [
-        "RenderWidget.hh"
-    ],
     deps = [
         "@ignition_common//:ignition_common_shared_library",
         "@ignition_gui//:ignition_gui_shared_library",

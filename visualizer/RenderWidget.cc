@@ -32,16 +32,49 @@
 #include <ignition/common/PluginMacros.hh>
 
 #include <ignition/gui/Iface.hh>
+#include <ignition/gui/Plugin.hh>
 
 #include <ignition/rendering/Camera.hh>
 #include <ignition/rendering/RenderEngine.hh>
 #include <ignition/rendering/RenderTarget.hh>
+#include <ignition/rendering/RenderTypes.hh>
+#include <ignition/rendering/RenderingIface.hh>
 #include <ignition/rendering/Scene.hh>
-
-#include "RenderWidget.hh"
 
 namespace delphyne {
 namespace gui {
+
+class RenderWidget: public ignition::gui::Plugin
+{
+  //Q_OBJECT
+
+/// \brief Constructor
+public: RenderWidget();
+
+/// \brief Destructor
+public: virtual ~RenderWidget();
+
+/// \brief Qt paint event.
+protected: virtual void paintEvent(QPaintEvent *_e);
+
+protected: virtual void showEvent(QShowEvent *_e);
+
+protected: virtual void resizeEvent(QResizeEvent *_e);
+
+protected: virtual void moveEvent(QMoveEvent *_e);
+
+//// \brief Override paintEngine to stop Qt From trying to draw on top of
+/// render window.
+/// \return NULL.
+protected: virtual QPaintEngine *paintEngine() const;
+
+private: void CreateRenderWindow();
+
+private: QTimer *updateTimer = nullptr;
+
+private: ignition::rendering::RenderWindowPtr renderWindow;
+private: ignition::rendering::CameraPtr camera;
+};
 
 RenderWidget::RenderWidget() : Plugin()
 {

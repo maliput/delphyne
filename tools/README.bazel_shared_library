@@ -6,7 +6,7 @@ approach to building.  One thing that falls out naturally from this is that
 Bazel really prefers to build everything statically, with no shared objects.
 Unfortunately, if your project must use shared objects, you basically have to
 trick Bazel into doing the correct thing.  This document describes how that
-trick works, since it is used a few different places in drakaina.
+trick works, since it is used a few different places in delphyne.
 
 Overview
 --------

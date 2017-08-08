@@ -1,4 +1,4 @@
-workspace(name = "drakaina")
+workspace(name = "delphyne")
 
 load("//tools:github.bzl", "github_archive")
 load("//tools:bitbucket.bzl", "bitbucket_archive")

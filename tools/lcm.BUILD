@@ -1,9 +1,9 @@
 # -*- python -*-
 
-load("@drakaina//tools:drake.bzl", "drake_generate_file")
-load("@drakaina//tools:generate_export_header.bzl", "generate_export_header")
+load("@delphyne//tools:drake.bzl", "drake_generate_file")
+load("@delphyne//tools:generate_export_header.bzl", "generate_export_header")
 load(
-    "@drakaina//tools:install.bzl",
+    "@delphyne//tools:install.bzl",
     "cmake_config",
     "install",
     "install_cmake_config",

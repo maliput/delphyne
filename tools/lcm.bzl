@@ -1,10 +1,10 @@
 # -*- python -*-
 
 load(
-    "@drakaina//tools:generate_include_header.bzl",
+    "@delphyne//tools:generate_include_header.bzl",
     "drake_generate_include_header",
 )
-load("@drakaina//tools:pathutils.bzl", "basename", "dirname", "join_paths")
+load("@delphyne//tools:pathutils.bzl", "basename", "dirname", "join_paths")
 
 def _lcm_aggregate_hdr(
         lcm_package,

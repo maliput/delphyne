@@ -1,10 +1,10 @@
-# Drakaina
+# Delphyne
 
-This is the repository for Drakaina.  As of right now, the only supported platform is Ubuntu 16.04 amd64.
+This is the repository for Delphyne.  As of right now, the only supported platform is Ubuntu 16.04 amd64.
 
 # Setup instructions
 
-1.  You first need to install the dependencies for Drake.  While Drakaina doesn't directly depend on Drake right now, it may in the future and the build system aims to be compatible.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
+1.  You first need to install the dependencies for Drake.  While Delphyne doesn't directly depend on Drake right now, it may in the future and the build system aims to be compatible.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
 
     ```
     $ git clone git@github.com:RobotLocomotion/drake.git drake-distro

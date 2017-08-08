@@ -1,6 +1,6 @@
 # -*- python -*-
 
-load("@drakaina//tools:pathutils.bzl", "dirname", "output_path", "join_paths")
+load("@delphyne//tools:pathutils.bzl", "dirname", "output_path", "join_paths")
 
 InstallInfo = provider()
 

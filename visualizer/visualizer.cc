@@ -28,6 +28,8 @@
 
 #include <iostream>
 
+#include <ignition/common/Console.hh>
+
 #ifndef Q_MOC_RUN
 #include <ignition/gui/Iface.hh>
 #endif
@@ -36,7 +38,8 @@ static const char version_str[] = "Visualizer 0.1.0";
 
 int main(int argc, char *argv[])
 {
-  std::cout << version_str << std::endl;
+  ignition::common::Console::SetVerbosity(3);
+  ignmsg << version_str << std::endl;
 
   Q_INIT_RESOURCE(resources);
 

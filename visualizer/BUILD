@@ -4,14 +4,21 @@ cc_library(
     name = "_libRenderWidget.so",
     srcs = [
         "RenderWidget.cc",
-        "@ignition_common//:libignition_common.so",
-        "@ignition_gui//:libignition_gui.so",
         "@ignition_rendering//:libignition_rendering.so",
     ],
     deps = [
-        "@ignition_common//:ignition_common_shared_library",
-        "@ignition_gui//:ignition_gui_shared_library",
-        "@ignition_rendering//:ignition_rendering_shared_library",
+        # clalancette: it is *critical* that we only depend on the headers
+        # from ignition-gui here.  If we use the shared_library dependency,
+        # then a whole extra copy of the ignition-gui code gets linked into
+        # the plugins.  When that plugin gets loaded, it ends up doing static
+        # initialization of C++ global objects again (which ignition-gui uses),
+        # blowing everything up.  In theory, the same situation applies for
+        # ignition-common and ignition-rendering.  We fix ignition-common the
+        # same way as ignition-gui here (by only depending on the headers), but
+        # ignition-rendering is different for reasons I don't fully understand.
+        "@ignition_common//:ignition_common_headers_only",
+        "@ignition_gui//:ignition_gui_headers_only",
+        "@ignition_rendering//:ignition_rendering_headers_only",
     ],
     linkstatic = 1,
 )

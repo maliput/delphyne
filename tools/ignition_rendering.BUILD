@@ -139,6 +139,17 @@ genrule(
     ) + ") > '$@'",
 )
 
+cc_library(
+    name = "ignition_rendering_headers_only",
+    includes = ["include"],
+    hdrs = public_headers + public_base_headers + public_ogre_headers,
+    visibility = ["//visibility:public"],
+    deps = [
+        "@ignition_common//:ignition_common_headers_only",
+        "@ignition-math3",
+    ],
+)
+
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
@@ -179,14 +190,13 @@ cc_library(
         "src/SystemPaths.cc",
         "@ignition_common//:libignition_common.so",
     ],
-    hdrs = public_headers + public_base_headers + public_ogre_headers,
     defines = [
         # FIXME(clalancette): we should not hard-code this
         'IGN_RENDERING_PLUGIN_PATH=\\"ign-rendering-0/plugins\\"',
     ],
-    includes = ["include"],
     deps = [
         "@ignition_common//:ignition_common_shared_library",
+        ":ignition_rendering_headers_only",
         "@OGRE",
         "@OGRE-Paging",
         "@OGRE-RTShaderSystem",

@@ -85,12 +85,22 @@ qt_rcc_gen(
 # Create all of the plugins here as separate shared objects.  The code
 # to do this lives in ign-gui.bzl, since Bazel does not allow functions
 # inside of BUILD files.
-ign_gui_create_plugin("libImageDisplay.so", "src/plugins/ImageDisplay.cc")
-ign_gui_create_plugin("libPublisher.so", "src/plugins/Publisher.cc")
-ign_gui_create_plugin("libRequester.so", "src/plugins/Requester.cc")
-ign_gui_create_plugin("libResponder.so", "src/plugins/Responder.cc")
-ign_gui_create_plugin("libTimePanel.so", "src/plugins/TimePanel.cc")
-ign_gui_create_plugin("libTopicEcho.so", "src/plugins/TopicEcho.cc")
+ign_gui_create_plugin("libImageDisplay.so", "src/plugins/ImageDisplay.cc", "include/ignition/gui/plugins/ImageDisplay.hh")
+ign_gui_create_plugin("libPublisher.so", "src/plugins/Publisher.cc", "include/ignition/gui/plugins/Publisher.hh")
+ign_gui_create_plugin("libRequester.so", "src/plugins/Requester.cc", "include/ignition/gui/plugins/Requester.hh")
+ign_gui_create_plugin("libResponder.so", "src/plugins/Responder.cc", "include/ignition/gui/plugins/Responder.hh")
+ign_gui_create_plugin("libTimePanel.so", "src/plugins/TimePanel.cc", "include/ignition/gui/plugins/TimePanel.hh")
+ign_gui_create_plugin("libTopicEcho.so", "src/plugins/TopicEcho.cc", "include/ignition/gui/plugins/TopicEcho.hh")
+
+cc_library(
+    name = "ignition_gui_headers_only",
+    includes = ["include"],
+    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
+    visibility = ["//visibility:public"],
+    deps = [
+        "@Qt5Core",
+    ],
+)
 
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
@@ -110,11 +120,10 @@ cc_library(
         "moc_plugin.cc",  # from qt_moc_gen above
         "@ignition_common//:libignition_common.so",
     ],
-    includes = ["include"],
-    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
     deps = [
         "@gts",
         "@ignition_common//:ignition_common_shared_library",
+        ":ignition_gui_headers_only",
         "@ignition-transport3",
         "@Qt5Core",
         "@Qt5Gui",

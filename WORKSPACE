@@ -26,6 +26,11 @@ pkg_config_package(
 )
 
 pkg_config_package(
+    name = "ignition-math3",
+    modname = "ignition-math3",
+)
+
+pkg_config_package(
     name = "ignition-transport3",
     modname = "ignition-transport3",
 )

@@ -28,6 +28,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <string>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -88,7 +89,8 @@ class RenderWidget: public ignition::gui::Plugin
   /// \brief Pointer to timer to call update on a periodic basis.
   QTimer *updateTimer = nullptr;
 
-  const int updateTimeFrequency = static_cast<int>(std::round(1000.0 / 60.0));
+  /// \brief The frequency at which we'll do an update on the widget.
+  const int kUpdateTimeFrequency = static_cast<int>(std::round(1000.0 / 60.0));
 
   /// \brief Pointer to the renderWindow created by this class.
   ignition::rendering::RenderWindowPtr renderWindow;
@@ -119,7 +121,6 @@ RenderWidget::RenderWidget() : Plugin()
 
 RenderWidget::~RenderWidget()
 {
-  delete(this->updateTimer);
 }
 
 void RenderWidget::CreateRenderWindow()
@@ -195,12 +196,12 @@ void RenderWidget::CreateRenderWindow()
   this->camera->SetLocalRotation(0.0, 0.0, 0.0);
   this->camera->SetAspectRatio(1.333);
   this->camera->SetHFOV(M_PI/2.0);
-  root->AddChild(camera);
+  root->AddChild(this->camera);
 
   // create render window
   std::string winHandle = std::to_string(
 			static_cast<uint64_t>(this->winId()));
-  this->renderWindow = camera->CreateRenderWindow();
+  this->renderWindow = this->camera->CreateRenderWindow();
   if (this->renderWindow == nullptr)
   {
     ignerr << "Failed to create camera render window" << std::endl;
@@ -222,7 +223,7 @@ void RenderWidget::showEvent(QShowEvent *_e)
   if (!this->renderWindow)
   {
     this->CreateRenderWindow();
-    this->updateTimer->start(this->updateTimeFrequency);
+    this->updateTimer->start(this->kUpdateTimeFrequency);
   }
 
   QWidget::showEvent(_e);

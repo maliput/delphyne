@@ -26,6 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <cmath>
 #include <iostream>
 
 #include <ignition/common/Console.hh>
@@ -44,36 +45,56 @@
 namespace delphyne {
 namespace gui {
 
+/// \class RenderWidget
+/// \brief This is a class that implements a simple ign-gui widget for
+/// rendering a scene, using the ign-rendering functionality.
 class RenderWidget: public ignition::gui::Plugin
 {
-  //Q_OBJECT
+ public:
+  /// \brief Constructor
+  RenderWidget();
 
-/// \brief Constructor
-public: RenderWidget();
+  /// \brief Destructor
+  virtual ~RenderWidget();
 
-/// \brief Destructor
-public: virtual ~RenderWidget();
+ protected:
 
-/// \brief Qt paint event.
-protected: virtual void paintEvent(QPaintEvent *_e);
+  /// \brief Overridden method to receive Qt paint event.
+  /// \param[in] _e  The event that happened
+  virtual void paintEvent(QPaintEvent *_e);
 
-protected: virtual void showEvent(QShowEvent *_e);
+  /// \brief Overridden method to receive Qt show event.
+  /// \param[in] _e  The event that happened
+  virtual void showEvent(QShowEvent *_e);
 
-protected: virtual void resizeEvent(QResizeEvent *_e);
+  /// \brief Overridden method to receive Qt resize event.
+  /// \param[in] _e  The event that happened.
+  virtual void resizeEvent(QResizeEvent *_e);
 
-protected: virtual void moveEvent(QMoveEvent *_e);
+  /// \brief Overridden method to receive Qt move event.
+  /// \param[in] _e  The event that happened.
+  virtual void moveEvent(QMoveEvent *_e);
 
-//// \brief Override paintEngine to stop Qt From trying to draw on top of
-/// render window.
-/// \return NULL.
-protected: virtual QPaintEngine *paintEngine() const;
+  /// \brief Override paintEngine to stop Qt From trying to draw on top of
+  /// render window.
+  /// \return NULL.
+  virtual QPaintEngine *paintEngine() const;
 
-private: void CreateRenderWindow();
+ private:
+  /// \brief Internal method to create the render window the first time
+  /// RenderWidget::showEvent is called.
+  void CreateRenderWindow();
 
-private: QTimer *updateTimer = nullptr;
+  /// \brief Pointer to timer to call update on a periodic basis.
+  QTimer *updateTimer = nullptr;
 
-private: ignition::rendering::RenderWindowPtr renderWindow;
-private: ignition::rendering::CameraPtr camera;
+  const int updateTimeFrequency = static_cast<int>(std::round(1000.0 / 60.0));
+
+  /// \brief Pointer to the renderWindow created by this class.
+  ignition::rendering::RenderWindowPtr renderWindow;
+
+  /// \brief Pointer to the camera created by this class.
+  ignition::rendering::CameraPtr camera;
 };
 
 RenderWidget::RenderWidget() : Plugin()
@@ -86,6 +107,10 @@ RenderWidget::RenderWidget() : Plugin()
   this->setMouseTracking(true);
   this->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
+  // The below block means that every time the updateTime expires, we do an
+  // update on the widget.  Later on, we call the start() method to start this
+  // time at a fixed frequency.  Note that we do not start this timer until the
+  // first time that showEvent() is called.
   this->updateTimer = new QTimer(this);
   QObject::connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(update()));
 
@@ -94,6 +119,7 @@ RenderWidget::RenderWidget() : Plugin()
 
 RenderWidget::~RenderWidget()
 {
+  delete(this->updateTimer);
 }
 
 void RenderWidget::CreateRenderWindow()
@@ -109,16 +135,37 @@ void RenderWidget::CreateRenderWindow()
 
   // Create sample scene
   ignition::rendering::ScenePtr scene = engine->CreateScene("scene");
+  if (scene == nullptr)
+  {
+    ignerr << "Failed to create scene" << std::endl;
+    return;
+  }
+
   scene->SetAmbientLight(0.3, 0.3, 0.3);
   ignition::rendering::VisualPtr root = scene->RootVisual();
+  if (root == nullptr)
+  {
+    ignerr << "Failed to find the root visual" << std::endl;
+    return;
+  }
   ignition::rendering::DirectionalLightPtr light0 =
       scene->CreateDirectionalLight();
+  if (light0 == nullptr)
+  {
+    ignerr << "Failed to create a directional light" << std::endl;
+    return;
+  }
   light0->SetDirection(-0.5, -0.5, -1);
   light0->SetDiffuseColor(0.5, 0.5, 0.5);
   light0->SetSpecularColor(0.5, 0.5, 0.5);
   root->AddChild(light0);
 
   ignition::rendering::MaterialPtr green = scene->CreateMaterial();
+  if (green == nullptr)
+  {
+    ignerr << "Failed to create green material" << std::endl;
+    return;
+  }
   green->SetAmbient(0.0, 0.5, 0.0);
   green->SetDiffuse(0.0, 0.7, 0.0);
   green->SetSpecular(0.5, 0.5, 0.5);
@@ -126,6 +173,11 @@ void RenderWidget::CreateRenderWindow()
   green->SetReflectivity(0);
 
   ignition::rendering::VisualPtr vis = scene->CreateVisual();
+  if (vis == nullptr)
+  {
+    ignerr << "Failed to create visual" << std::endl;
+    return;
+  }
   vis->AddGeometry(scene->CreateBox());
   vis->SetLocalPosition(3, 0, 0);
   vis->SetLocalScale(1, 1, 1);
@@ -134,25 +186,29 @@ void RenderWidget::CreateRenderWindow()
 
   // create user camera
   this->camera = scene->CreateCamera("user_camera");
+  if (this->camera == nullptr)
+  {
+    ignerr << "Failed to create camera" << std::endl;
+    return;
+  }
   this->camera->SetLocalPosition(0.0, 0.0, 0.0);
   this->camera->SetLocalRotation(0.0, 0.0, 0.0);
-  // camera->setImageWidth(800);
-  // camera->setImageHeight(800);
   this->camera->SetAspectRatio(1.333);
   this->camera->SetHFOV(M_PI/2.0);
   root->AddChild(camera);
 
   // create render window
-  // windowhandle() is available in qt5 only
-  //auto main = ignition::gui::mainWindow();
-  //double ratio = main->windowHandle()->devicePixelRatio();
   std::string winHandle = std::to_string(
 			static_cast<uint64_t>(this->winId()));
   this->renderWindow = camera->CreateRenderWindow();
+  if (this->renderWindow == nullptr)
+  {
+    ignerr << "Failed to create camera render window" << std::endl;
+    return;
+  }
   this->renderWindow->SetHandle(winHandle);
   this->renderWindow->SetWidth(this->width());
   this->renderWindow->SetHeight(this->height());
-  //this->renderWindow->SetDevicePixelRatio(ratio);
 
   // render once to create the window.
   this->camera->Update();
@@ -166,7 +222,7 @@ void RenderWidget::showEvent(QShowEvent *_e)
   if (!this->renderWindow)
   {
     this->CreateRenderWindow();
-    this->updateTimer->start(static_cast<int>(std::round(1000.0 / 60.0)));
+    this->updateTimer->start(this->updateTimeFrequency);
   }
 
   QWidget::showEvent(_e);

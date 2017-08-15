@@ -60,23 +60,15 @@ class Launcher(object):
     script, prefixed by process-specific labels.
     """
     def __init__(self):
-        self.dry_run = False
         self.children = []  # list of TrackedProcess
         self.devnull = open('/dev/null')
         self.returncode = None  # First one to exit wins.
         self.name = os.path.basename(__file__)
 
-    def set_dry_run(self, dry_run_value):
-        self.dry_run = dry_run_value
-
     def launch(self, command, label=None):
         """Launch a process to be managed with the group. If no label is
         supplied, a label is synthesized from the supplied command line.
         """
-        if self.dry_run:
-            print ' '.join(command)
-            return
-
         if label is None:
             label = os.path.basename(command[0])
         if not os.path.exists(command[0]):
@@ -147,9 +139,6 @@ class Launcher(object):
         code as that of the first-exiting process, or 0 for keyboard
         interrupt or timeout.
         """
-        if self.dry_run:
-            return
-
         try:
             self._wait(duration)
         except KeyboardInterrupt:

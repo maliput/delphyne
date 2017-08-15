@@ -49,8 +49,7 @@ namespace gui {
 /// \class RenderWidget
 /// \brief This is a class that implements a simple ign-gui widget for
 /// rendering a scene, using the ign-rendering functionality.
-class RenderWidget: public ignition::gui::Plugin
-{
+class RenderWidget : public ignition::gui::Plugin {
  public:
   /// \brief Constructor
   RenderWidget();
@@ -59,27 +58,26 @@ class RenderWidget: public ignition::gui::Plugin
   virtual ~RenderWidget();
 
  protected:
-
   /// \brief Overridden method to receive Qt paint event.
   /// \param[in] _e  The event that happened
-  virtual void paintEvent(QPaintEvent *_e);
+  virtual void paintEvent(QPaintEvent* _e);
 
   /// \brief Overridden method to receive Qt show event.
   /// \param[in] _e  The event that happened
-  virtual void showEvent(QShowEvent *_e);
+  virtual void showEvent(QShowEvent* _e);
 
   /// \brief Overridden method to receive Qt resize event.
   /// \param[in] _e  The event that happened.
-  virtual void resizeEvent(QResizeEvent *_e);
+  virtual void resizeEvent(QResizeEvent* _e);
 
   /// \brief Overridden method to receive Qt move event.
   /// \param[in] _e  The event that happened.
-  virtual void moveEvent(QMoveEvent *_e);
+  virtual void moveEvent(QMoveEvent* _e);
 
   /// \brief Override paintEngine to stop Qt From trying to draw on top of
   /// render window.
   /// \return NULL.
-  virtual QPaintEngine *paintEngine() const;
+  virtual QPaintEngine* paintEngine() const;
 
  private:
   /// \brief Internal method to create the render window the first time
@@ -87,7 +85,7 @@ class RenderWidget: public ignition::gui::Plugin
   void CreateRenderWindow();
 
   /// \brief Pointer to timer to call update on a periodic basis.
-  QTimer *updateTimer = nullptr;
+  QTimer* updateTimer = nullptr;
 
   /// \brief The frequency at which we'll do an update on the widget.
   const int kUpdateTimeFrequency = static_cast<int>(std::round(1000.0 / 60.0));
@@ -99,8 +97,7 @@ class RenderWidget: public ignition::gui::Plugin
   ignition::rendering::CameraPtr camera;
 };
 
-RenderWidget::RenderWidget() : Plugin()
-{
+RenderWidget::RenderWidget() : Plugin() {
   this->setAttribute(Qt::WA_OpaquePaintEvent, true);
   this->setAttribute(Qt::WA_PaintOnScreen, true);
   this->setAttribute(Qt::WA_NoSystemBackground, true);
@@ -119,40 +116,33 @@ RenderWidget::RenderWidget() : Plugin()
   this->setMinimumHeight(100);
 }
 
-RenderWidget::~RenderWidget()
-{
-}
+RenderWidget::~RenderWidget() {}
 
-void RenderWidget::CreateRenderWindow()
-{
+void RenderWidget::CreateRenderWindow() {
   std::string engineName = "ogre";
-  ignition::rendering::RenderEngine *engine =
+  ignition::rendering::RenderEngine* engine =
       ignition::rendering::get_engine(engineName);
-  if (!engine)
-  {
+  if (!engine) {
     ignerr << "Engine '" << engineName << "' is not supported" << std::endl;
     return;
   }
 
   // Create sample scene
   ignition::rendering::ScenePtr scene = engine->CreateScene("scene");
-  if (scene == nullptr)
-  {
+  if (scene == nullptr) {
     ignerr << "Failed to create scene" << std::endl;
     return;
   }
 
   scene->SetAmbientLight(0.3, 0.3, 0.3);
   ignition::rendering::VisualPtr root = scene->RootVisual();
-  if (root == nullptr)
-  {
+  if (root == nullptr) {
     ignerr << "Failed to find the root visual" << std::endl;
     return;
   }
   ignition::rendering::DirectionalLightPtr light0 =
       scene->CreateDirectionalLight();
-  if (light0 == nullptr)
-  {
+  if (light0 == nullptr) {
     ignerr << "Failed to create a directional light" << std::endl;
     return;
   }
@@ -162,8 +152,7 @@ void RenderWidget::CreateRenderWindow()
   root->AddChild(light0);
 
   ignition::rendering::MaterialPtr green = scene->CreateMaterial();
-  if (green == nullptr)
-  {
+  if (green == nullptr) {
     ignerr << "Failed to create green material" << std::endl;
     return;
   }
@@ -174,8 +163,7 @@ void RenderWidget::CreateRenderWindow()
   green->SetReflectivity(0);
 
   ignition::rendering::VisualPtr vis = scene->CreateVisual();
-  if (vis == nullptr)
-  {
+  if (vis == nullptr) {
     ignerr << "Failed to create visual" << std::endl;
     return;
   }
@@ -187,23 +175,20 @@ void RenderWidget::CreateRenderWindow()
 
   // create user camera
   this->camera = scene->CreateCamera("user_camera");
-  if (this->camera == nullptr)
-  {
+  if (this->camera == nullptr) {
     ignerr << "Failed to create camera" << std::endl;
     return;
   }
   this->camera->SetLocalPosition(0.0, 0.0, 0.0);
   this->camera->SetLocalRotation(0.0, 0.0, 0.0);
   this->camera->SetAspectRatio(1.333);
-  this->camera->SetHFOV(M_PI/2.0);
+  this->camera->SetHFOV(M_PI / 2.0);
   root->AddChild(this->camera);
 
   // create render window
-  std::string winHandle = std::to_string(
-			static_cast<uint64_t>(this->winId()));
+  std::string winHandle = std::to_string(static_cast<uint64_t>(this->winId()));
   this->renderWindow = this->camera->CreateRenderWindow();
-  if (this->renderWindow == nullptr)
-  {
+  if (this->renderWindow == nullptr) {
     ignerr << "Failed to create camera render window" << std::endl;
     return;
   }
@@ -216,12 +201,10 @@ void RenderWidget::CreateRenderWindow()
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::showEvent(QShowEvent *_e)
-{
+void RenderWidget::showEvent(QShowEvent* _e) {
   QApplication::flush();
 
-  if (!this->renderWindow)
-  {
+  if (!this->renderWindow) {
     this->CreateRenderWindow();
     this->updateTimer->start(this->kUpdateTimeFrequency);
   }
@@ -233,16 +216,11 @@ void RenderWidget::showEvent(QShowEvent *_e)
 }
 
 /////////////////////////////////////////////////
-QPaintEngine *RenderWidget::paintEngine() const
-{
-  return nullptr;
-}
+QPaintEngine* RenderWidget::paintEngine() const { return nullptr; }
 
 /////////////////////////////////////////////////
-void RenderWidget::paintEvent(QPaintEvent *_e)
-{
-  if (this->renderWindow && this->camera)
-  {
+void RenderWidget::paintEvent(QPaintEvent* _e) {
+  if (this->renderWindow && this->camera) {
     this->camera->Update();
   }
 
@@ -250,22 +228,18 @@ void RenderWidget::paintEvent(QPaintEvent *_e)
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::resizeEvent(QResizeEvent *_e)
-{
-  if (!this->renderWindow)
-  {
+void RenderWidget::resizeEvent(QResizeEvent* _e) {
+  if (!this->renderWindow) {
     return;
   }
   this->renderWindow->OnResize(_e->size().width(), _e->size().height());
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::moveEvent(QMoveEvent *_e)
-{
+void RenderWidget::moveEvent(QMoveEvent* _e) {
   QWidget::moveEvent(_e);
 
-  if (!_e->isAccepted() || !this->renderWindow)
-  {
+  if (!_e->isAccepted() || !this->renderWindow) {
     return;
   }
   this->renderWindow->OnMove();

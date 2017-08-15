@@ -36,8 +36,7 @@
 
 static const char version_str[] = "Visualizer 0.1.0";
 
-int main(int argc, char *argv[])
-{
+int main(int argc, char* argv[]) {
   ignition::common::Console::SetVerbosity(3);
   ignmsg << version_str << std::endl;
 

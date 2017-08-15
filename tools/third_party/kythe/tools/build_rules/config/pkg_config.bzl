@@ -82,7 +82,7 @@ def _cflags(repo_ctx, pc_args):
   return success([arg for arg in stdout.strip().split(" ") if arg])
 
 def _linkopts(repo_ctx, pc_args):
-  result = unwrap(repo_ctx).execute(pc_args + ["--static", "--libs"])
+  result = unwrap(repo_ctx).execute(pc_args + ["--libs"])
   if result.return_code != 0:
     return _fail(repo_ctx, "Unable to determine linkopts", result.stderr)
   stdout = result.stdout

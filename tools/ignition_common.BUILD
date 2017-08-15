@@ -161,7 +161,10 @@ cc_library(
         "src/WorkerPool.cc",
     ],
     deps = [
+        "@avcodec",
         "@avdevice",
+        "@avformat",
+        "@avutil",
         "@glib",
         ":ignition_common_headers_only",
         "@ignition-transport3",

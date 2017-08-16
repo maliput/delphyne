@@ -28,8 +28,8 @@ make, however:
 This will be used later on, but will never be visible to the outside world.
 - The visibility of the cc_library() should be private (i.e. you should not specify
 a "visibility = ["//visibility:public"]" parameter).
-- The library should be marked with linkstatic=1.  This ensures that no .so will
-be produced, which is important because we will be building the .so ourselves later.
+- The library should be marked with linkstatic=0.  This ensures that no .a will
+be produced.
 
 Step 2: Linking of the shared object
 ------------------------------------
@@ -38,12 +38,11 @@ In the second part, the cc_binary() bazel rule is used in a slightly odd
 way.  Here, the "binary" ends up being the shared object that you actually want
 to be built at the end.  This rule must be setup in a very particular way:
 
-- The name of this cc_binary() should be whatever you want other bazel rules to
-depend on.
-- The visibility of this binary should be public (since other rules will depend
-on this).
-- Both linkshared and linkstatic should be set to 1 on this binary; this ensures
-that a shared version will be built.
+- The name of this cc_binary() can be whatever you want, but it is best to
+name it something like "libMyLib.so".
+- The visibility of this binary should be private.
+- Both linkshared should be set to 1 and linkstatic should be set to 0 on this binary;
+this ensures that only a shared version will be built.
 - The binary should have a single dependency on the cc_library() from above.
 
 Step 3: Exporting the headers
@@ -78,7 +77,7 @@ Example
 -------
 Here's a short, complete example of all 4 steps above.
 
-mylib.bzl
+mylib.BUILD
 ======================
 # Step 1
 cc_library(
@@ -92,15 +91,14 @@ cc_library(
         "include/Src2.hh"
     ],
     includes = ["include"],
-    linkstatic = 1,
+    linkstatic = 0,
 )
 
 # Step 2
 cc_binary(
     name = "libmylib.so",
-    visibility = ["//visibility:public"],
     linkshared = 1,
-    linkstatic = 1,
+    linkstatic = 0,
     deps = [
         ":_libmylib.so",
     ],
@@ -126,7 +124,6 @@ cc_binary(
     name = "mybinary",
     src = [
         "binary.cc",
-        "@mylib//:libmylib.so",
     ],
     deps = [
         "@mylib//:mylib_shared_library",

@@ -31,16 +31,10 @@ There are 2 things hosted here right now; the bridge from LCM messages to igniti
 is stored in the visualizer/ subdirectory.
 
 # Building
-To build the bridge, run:
+To build everything, run:
 
 ```
-$ bazel build //bridge:*
-```
-
-To build the visualizer, run:
-
-```
-$ bazel build //visualizer:*
+$ bazel build //...
 ```
 
 # Running

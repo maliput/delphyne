@@ -11,8 +11,23 @@ local_repository(
 load("@kythe//tools/build_rules/config:pkg_config.bzl", "pkg_config_package")
 
 pkg_config_package(
+    name = "avcodec",
+    modname = "libavcodec",
+)
+
+pkg_config_package(
     name = "avdevice",
     modname = "libavdevice",
+)
+
+pkg_config_package(
+    name = "avformat",
+    modname = "libavformat",
+)
+
+pkg_config_package(
+    name = "avutil",
+    modname = "libavutil",
 )
 
 pkg_config_package(

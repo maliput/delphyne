@@ -97,13 +97,6 @@ genrule(
     ) + ") > '$@'",
 )
 
-cc_library(
-    name = "ignition_common_headers_only",
-    includes = ["include"],
-    hdrs = public_headers,
-    visibility = ["//visibility:public"],
-)
-
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
@@ -160,13 +153,14 @@ cc_library(
         "src/VideoEncoder.cc",
         "src/WorkerPool.cc",
     ],
+    hdrs = public_headers,
+    includes = ["include"],
     deps = [
         "@avcodec",
         "@avdevice",
         "@avformat",
         "@avutil",
         "@glib",
-        ":ignition_common_headers_only",
         "@ignition-transport3",
         "@uuid",
     ],

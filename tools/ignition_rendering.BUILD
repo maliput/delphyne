@@ -139,17 +139,6 @@ genrule(
     ) + ") > '$@'",
 )
 
-cc_library(
-    name = "ignition_rendering_headers_only",
-    includes = ["include"],
-    hdrs = public_headers + public_base_headers + public_ogre_headers,
-    visibility = ["//visibility:public"],
-    deps = [
-        "@ignition_common//:ignition_common_headers_only",
-        "@ignition-math3",
-    ],
-)
-
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
@@ -195,11 +184,12 @@ cc_library(
     ],
     deps = [
         "@ignition_common//:ignition_common_shared_library",
-        ":ignition_rendering_headers_only",
         "@OGRE",
         "@OGRE-Paging",
         "@OGRE-RTShaderSystem",
     ],
+    hdrs = public_headers + public_base_headers + public_ogre_headers,
+    includes = ["include"],
     linkopts = [
         "-lboost_system",
         "-lboost_filesystem",

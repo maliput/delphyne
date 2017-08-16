@@ -81,16 +81,6 @@ qt_rcc_gen(
 # inside of BUILD files.
 ign_gui_create_plugins(["ImageDisplay", "Publisher", "Requester", "Responder", "TimePanel", "TopicEcho"], public_headers)
 
-cc_library(
-    name = "ignition_gui_headers_only",
-    includes = ["include"],
-    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
-    visibility = ["//visibility:public"],
-    deps = [
-        "@Qt5Core",
-    ],
-)
-
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
 # listed hdrs= matches upstream's public headers.
@@ -111,13 +101,14 @@ cc_library(
     deps = [
         "@gts",
         "@ignition_common//:ignition_common_shared_library",
-        ":ignition_gui_headers_only",
         "@ignition-transport3",
         "@Qt5Core",
         "@Qt5Gui",
         "@Qt5Widgets",
         "@tinyxml2",
     ],
+    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
+    includes = ["include"],
     linkopts = [
         # clalancette: Unfortunately, libfreeimage-dev doesn't have a pkg-config
         # file on Ubuntu, so we hand-link this here.

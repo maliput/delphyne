@@ -25,7 +25,8 @@ def ign_gui_create_plugins(plugin_list, headers):
                 moc_filename,
                 incfile,
             ],
-            includes = ["include"] + headers,
+            hdrs = headers,
+            includes = ["include"],
             deps = [
                 "@ignition_common//:ignition_common_shared_library",
                 "@Qt5Core",

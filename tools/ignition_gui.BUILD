@@ -32,6 +32,9 @@ public_headers = [
     "include/ignition/gui/ign.hh",
     "include/ignition/gui/qt.h",
     "include/ignition/gui/System.hh",
+    iface_header,
+    mainwindow_header,
+    plugin_header,
 ]
 
 # Generates gui.hh, which consists of #include statements for all of the
@@ -40,7 +43,7 @@ public_headers = [
 # '#include <ignition/gui/Example.hh>' for each non-generated header.
 genrule(
     name = "guihh_genrule",
-    srcs = public_headers + [iface_header, mainwindow_header, plugin_header],
+    srcs = public_headers,
     outs = ["include/ignition/gui.hh"],
     # TODO: centralize this logic, as it is used here, in sdformat.BUILD, and
     # in fcl.BUILD
@@ -107,7 +110,7 @@ cc_library(
         "@Qt5Widgets",
         "@tinyxml2",
     ],
-    hdrs = public_headers + [iface_header, mainwindow_header, plugin_header],
+    hdrs = public_headers,
     includes = ["include"],
     linkopts = [
         # clalancette: Unfortunately, libfreeimage-dev doesn't have a pkg-config

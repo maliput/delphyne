@@ -77,6 +77,9 @@ cc_library(
     ],
     linkstatic = 0,
     deps = ["@glib"],
+    linkopts = [
+        "-lpthread",
+    ],
 )
 
 cc_binary(

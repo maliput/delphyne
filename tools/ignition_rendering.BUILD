@@ -188,7 +188,6 @@ cc_library(
         "src/RenderingIface.cc",
         "src/ShaderType.cc",
         "src/SystemPaths.cc",
-        "@ignition_common//:libignition_common.so",
     ],
     defines = [
         # FIXME(clalancette): we should not hard-code this
@@ -205,14 +204,13 @@ cc_library(
         "-lboost_system",
         "-lboost_filesystem",
     ],
-    linkstatic = 1,
+    linkstatic = 0,
 )
 
 cc_binary(
     name = "libignition_rendering.so",
-    visibility = ["//visibility:public"],
     linkshared = 1,
-    linkstatic = 1,
+    linkstatic = 0,
     deps = [
         ":_libignition_rendering.so",
     ],

@@ -2,7 +2,7 @@
 
 load("@//tools:cmake_configure_file.bzl", "cmake_configure_file")
 load("@//tools:qt.bzl", "qt_moc_gen", "qt_rcc_gen")
-load("@//tools:ign-gui.bzl", "ign_gui_create_plugin", "ign_gui_plugin_dep_name", "IGN_GUI_PLUGIN_PATH")
+load("@//tools:ign-gui.bzl", "ign_gui_create_plugins", "ign_gui_plugin_dep_name", "IGN_GUI_PLUGIN_PATH")
 
 # Generates config.hh based on the version numbers in CMake code.
 cmake_configure_file(
@@ -30,12 +30,6 @@ plugin_header = "include/ignition/gui/Plugin.hh"
 
 public_headers = [
     "include/ignition/gui/ign.hh",
-    "include/ignition/gui/plugins/ImageDisplay.hh",
-    "include/ignition/gui/plugins/Publisher.hh",
-    "include/ignition/gui/plugins/Requester.hh",
-    "include/ignition/gui/plugins/Responder.hh",
-    "include/ignition/gui/plugins/TimePanel.hh",
-    "include/ignition/gui/plugins/TopicEcho.hh",
     "include/ignition/gui/qt.h",
     "include/ignition/gui/System.hh",
 ]
@@ -85,12 +79,7 @@ qt_rcc_gen(
 # Create all of the plugins here as separate shared objects.  The code
 # to do this lives in ign-gui.bzl, since Bazel does not allow functions
 # inside of BUILD files.
-ign_gui_create_plugin("libImageDisplay.so", "src/plugins/ImageDisplay.cc", "include/ignition/gui/plugins/ImageDisplay.hh")
-ign_gui_create_plugin("libPublisher.so", "src/plugins/Publisher.cc", "include/ignition/gui/plugins/Publisher.hh")
-ign_gui_create_plugin("libRequester.so", "src/plugins/Requester.cc", "include/ignition/gui/plugins/Requester.hh")
-ign_gui_create_plugin("libResponder.so", "src/plugins/Responder.cc", "include/ignition/gui/plugins/Responder.hh")
-ign_gui_create_plugin("libTimePanel.so", "src/plugins/TimePanel.cc", "include/ignition/gui/plugins/TimePanel.hh")
-ign_gui_create_plugin("libTopicEcho.so", "src/plugins/TopicEcho.cc", "include/ignition/gui/plugins/TopicEcho.hh")
+ign_gui_create_plugins(["ImageDisplay", "Publisher", "Requester", "Responder", "TimePanel", "TopicEcho"], public_headers)
 
 cc_library(
     name = "ignition_gui_headers_only",
@@ -118,7 +107,6 @@ cc_library(
         "moc_iface.cc",  # from qt_moc_gen above
         "moc_mainwindow.cc",  # from qt_moc_gen above
         "moc_plugin.cc",  # from qt_moc_gen above
-        "@ignition_common//:libignition_common.so",
     ],
     deps = [
         "@gts",
@@ -135,24 +123,23 @@ cc_library(
         # file on Ubuntu, so we hand-link this here.
         "-lfreeimage",
     ],
-    linkstatic = 1,
+    linkstatic = 0,
 )
 
 cc_binary(
     name = "libignition_gui.so",
-    visibility = ["//visibility:public"],
     linkshared = 1,
-    linkstatic = 1,
+    linkstatic = 0,
     deps = [
         ":_libignition_gui.so",
     ],
     data = [
-        ign_gui_plugin_dep_name("libImageDisplay.so"),
-        ign_gui_plugin_dep_name("libPublisher.so"),
-        ign_gui_plugin_dep_name("libRequester.so"),
-        ign_gui_plugin_dep_name("libResponder.so"),
-        ign_gui_plugin_dep_name("libTimePanel.so"),
-        ign_gui_plugin_dep_name("libTopicEcho.so"),
+        ign_gui_plugin_dep_name("ImageDisplay"),
+        ign_gui_plugin_dep_name("Publisher"),
+        ign_gui_plugin_dep_name("Requester"),
+        ign_gui_plugin_dep_name("Responder"),
+        ign_gui_plugin_dep_name("TimePanel"),
+        ign_gui_plugin_dep_name("TopicEcho"),
     ],
 )
 

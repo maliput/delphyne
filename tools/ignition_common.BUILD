@@ -170,14 +170,16 @@ cc_library(
         "@ignition-transport3",
         "@uuid",
     ],
-    linkstatic = 1,
+    linkopts = [
+        "-ldl",
+    ],
+    linkstatic = 0,
 )
 
 cc_binary(
     name = "libignition_common.so",
-    visibility = ["//visibility:public"],
     linkshared = 1,
-    linkstatic = 1,
+    linkstatic = 0,
     deps = [
         ":_libignition_common.so",
     ],

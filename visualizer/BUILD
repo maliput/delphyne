@@ -1,33 +1,23 @@
-load("@//tools:ign-gui.bzl", "IGN_GUI_PLUGIN_PATH")
+load("@//tools:ign-gui.bzl", "ign_gui_plugin_dep_name", "IGN_GUI_PLUGIN_PATH")
 
 cc_library(
     name = "_libRenderWidget.so",
     srcs = [
         "RenderWidget.cc",
-        "@ignition_rendering//:libignition_rendering.so",
     ],
     deps = [
-        # clalancette: it is *critical* that we only depend on the headers
-        # from ignition-gui here.  If we use the shared_library dependency,
-        # then a whole extra copy of the ignition-gui code gets linked into
-        # the plugins.  When that plugin gets loaded, it ends up doing static
-        # initialization of C++ global objects again (which ignition-gui uses),
-        # blowing everything up.  In theory, the same situation applies for
-        # ignition-common and ignition-rendering.  We fix ignition-common the
-        # same way as ignition-gui here (by only depending on the headers), but
-        # ignition-rendering is different for reasons I don't fully understand.
-        "@ignition_common//:ignition_common_headers_only",
-        "@ignition_gui//:ignition_gui_headers_only",
-        "@ignition_rendering//:ignition_rendering_headers_only",
+        "@ignition_common//:ignition_common_shared_library",
+        "@ignition_gui//:ignition_gui_shared_library",
+        "@ignition_rendering//:ignition_rendering_shared_library",
     ],
-    linkstatic = 1,
+    linkstatic = 0,
 )
 
 cc_binary(
     name = "libRenderWidget.so",
     visibility = ["//visibility:public"],
     linkshared = 1,
-    linkstatic = 1,
+    linkstatic = 0,
     deps = [
         ":_libRenderWidget.so",
     ],
@@ -37,11 +27,11 @@ cc_binary(
     name = "visualizer",
     srcs = [
         "visualizer.cc",
-        "@ignition_gui//:libignition_gui.so",
     ],
     deps = [
         "@ignition_gui//:ignition_gui_shared_library",
     ],
+    linkstatic = 0,
     copts = [
         # clalancette: The visualizer binary needs to be able to find the
         # libRenderWidget.so library at runtime so it can dlopen() it.
@@ -60,5 +50,7 @@ cc_binary(
     ],
     data = [
         ":libRenderWidget.so",
+        ign_gui_plugin_dep_name("TimePanel"),
+        ign_gui_plugin_dep_name("TopicEcho"),
     ],
 )

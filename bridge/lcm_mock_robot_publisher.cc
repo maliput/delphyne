@@ -33,6 +33,8 @@
 #include <thread>
 #include <vector>
 
+#include <ignition/common/Console.hh>
+
 #include <lcm/lcm-cpp.hpp>
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_link_data.hpp"
@@ -48,9 +50,12 @@
 // - A mesh loaded from a "package" styled path
 
 int main(int argc, char* argv[]) {
+  ignition::common::Console::SetVerbosity(3);
+  ignmsg << "Starting up mock publisher" << std::endl;
+
   lcm::LCM lcm;
   if (!lcm.good()) {
-    std::cout << "Failed to initialize LCM" << std::endl;
+    ignerr << "Failed to initialize LCM" << std::endl;
     return 1;
   }
   // fixed values used to override the non-initialized variables from the
@@ -199,9 +204,9 @@ int main(int argc, char* argv[]) {
   // Publish a robot message into the lcm_channel every 1 second
   while (1) {
     std::string lcm_channel = "DRAKE_VIEWER_LOAD_ROBOT";
-    std::cout << "Publishing message into " << lcm_channel << std::endl;
+    ignmsg << "Publishing message into " << lcm_channel << std::endl;
     if (lcm.publish(lcm_channel, &robotMsg) == -1) {
-      std::cout << "Failed to publish message into " << lcm_channel
+      ignerr << "Failed to publish message into " << lcm_channel
                 << std::endl;
       return 1;
     }

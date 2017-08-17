@@ -100,9 +100,9 @@ class LcmChannelRepeater {
       translate(*lcm_msg, &ign_msg);
       publisher_.Publish(ign_msg);
     } catch(const delphyne::bridge::TranslateException &e) {
-      std::cout << "An error occurred while trying to translate a message in channel " << chan <<
+      ignerr << "An error occurred while trying to translate a message in channel " << chan <<
       ": " << std::endl;
-      std::cout << e.what() << std::endl;
+      ignerr << e.what() << std::endl;
     }
   }
 };

@@ -54,6 +54,7 @@ cc_binary(
         "drake/lcmt_viewer_load_robot.hpp",
     ],
     deps = [
+        "@ignition_common//:ignition_common_shared_library",
         "@lcm",
     ],
 )

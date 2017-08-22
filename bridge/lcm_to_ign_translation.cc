@@ -105,6 +105,7 @@ void translate(drake::lcmt_viewer_load_robot robot_data,
 void translate(drake::lcmt_viewer_link_data link_data,
                ignition::msgs::Link* link_model) {
   link_model->set_name(link_data.name);
+  link_model->set_id(link_data.robot_num);
   for (int i = 0; i < link_data.num_geom; ++i) {
     translate(link_data.geom[i], link_model->add_visual());
   }

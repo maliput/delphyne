@@ -352,5 +352,24 @@ GTEST_TEST(MeshTest, TestMeshTranslationWithoutScale) {
   ASSERT_FALSE(ign_mesh_geometry.mesh().has_scale());
 }
 
+//////////////////////////////////////////////////
+/// \brief Test that an LCM viewer link message describing a link
+/// properly translates the robot_num to an ignition Geometry message.
+GTEST_TEST(MeshTest, TestLinkTranslationWithRobotNum) {
+  drake::lcmt_viewer_link_data linkMsg;
+  ignition::msgs::Link ign_link;
+
+  linkMsg.name = "test_link";
+  linkMsg.robot_num = 1234;
+  linkMsg.num_geom = 0;
+
+  translate(linkMsg, &ign_link);
+
+  ASSERT_EQ(true, ign_link.has_id());
+  ASSERT_EQ(1234, ign_link.id());
+  ASSERT_EQ(true, ign_link.has_name());
+  ASSERT_EQ("test_link", ign_link.name());
+}
+
 }  // namespace bridge
 }  // namespace delphyne

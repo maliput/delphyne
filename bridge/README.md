@@ -4,7 +4,7 @@
 
 Drake publishes in the `DRAKE_VIEWER_LOAD_ROBOT` channel the model of the robot that should be loaded by the visualizer. This channel uses the `lcmt_viewer_load_robot` type, which transitively spawns to the following types:
 
-``` 
+```
 struct lcmt_viewer_load_robot {
   int32_t num_links;
   lcmt_viewer_link_data link[num_links];

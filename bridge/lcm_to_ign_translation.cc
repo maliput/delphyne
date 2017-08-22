@@ -67,7 +67,7 @@ void translate(drake::lcmt_viewer_draw robot_viewer_data,
   checkVectorSize(robot_viewer_data.quaternion.size(),
                   robot_viewer_data.num_links, "quaternion");
 
-  // Convert from miliseconds to seconds
+  // Convert from milliseconds to seconds
   int64_t sec = robot_viewer_data.timestamp / 1000;
   // Convert the remainder of division above to nanoseconds
   int64_t nsec = robot_viewer_data.timestamp % 1000 * 1000000;

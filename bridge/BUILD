@@ -50,6 +50,7 @@ cc_library(
     hdrs = ["service_to_channel_translation.hh"],
     deps = [
         "@ignition-transport3",
+        "@lcm",
         "//bridge:drake-lcmt-headers",
     ],
 )

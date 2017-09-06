@@ -58,7 +58,7 @@ using namespace delphyne;
 using namespace gui;
 
 /////////////////////////////////////////////////
-static void setLocalPositionFromPose(const ignition::msgs::Visual &_vis,
+static void setPoseFromMessage(const ignition::msgs::Visual &_vis,
   ignition::rendering::VisualPtr _shape)
 {
   double x = 2.0;
@@ -194,7 +194,7 @@ ignition::rendering::VisualPtr RenderWidget::Render(
   const ignition::rendering::MaterialPtr &_material,
   ignition::rendering::VisualPtr &_visual)
 {
-  setLocalPositionFromPose(_vis, _visual);
+  setPoseFromMessage(_vis, _visual);
   _visual->SetLocalScale(_scale.X(), _scale.Y(), _scale.Z());
   _visual->SetMaterial(_material);
   this->scene->RootVisual()->AddChild(_visual);
@@ -301,10 +301,7 @@ ignition::rendering::VisualPtr RenderWidget::RenderMesh(
   ignition::rendering::MeshPtr meshGeom = this->scene->CreateMesh(descriptor);
   mesh->AddGeometry(meshGeom);
 
-  // ToDo: Remove this hardcoded position when we can control the camera.
-  // setLocalPositionFromPose(_vis, mesh);
-  mesh->SetLocalPosition(3, 0, 0);
-  mesh->SetLocalRotation(1.5708, 0, 2.0);
+  setPoseFromMessage(_vis, mesh);
 
   root->AddChild(mesh);
 
@@ -321,7 +318,7 @@ void RenderWidget::SetInitialModel(const ignition::msgs::Model &_msg)
   for (int i = 0; i < _msg.link_size(); ++i) {
     auto link = _msg.link(i);
 
-     // Sanity check: Verify that the model contains the required Id.
+    // Sanity check: Verify that the model contains the required Id.
     if (!link.has_id()) {
       ignerr << "No model Id on link [" << link.name() << "]. Skipping"
              << std::endl;
@@ -437,11 +434,11 @@ void RenderWidget::UpdateScene(const ignition::msgs::PosesStamped &_msg)
     // Update all visuals of this link.
     auto &visuals = visualsIt->second;
     for (auto &visual : visuals) {
-      // The setLocalPositionFromPose() assumes an ignition::msgs::Visual
+      // The setPoseFromMessage() assumes an ignition::msgs::Visual
       // message here, so we setup a dummy one to please it.
       ignition::msgs::Visual tmpvis;
       *tmpvis.mutable_pose() = pose;
-      setLocalPositionFromPose(tmpvis, visual);
+      setPoseFromMessage(tmpvis, visual);
     }
   }
 }

@@ -26,30 +26,73 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <chrono>
-#include <cstdint>
-#include <iostream>
+#ifndef DELPHYNE_GUI_TELEOPWIDGET_HH
+#define DELPHYNE_GUI_TELEOPWIDGET_HH
 
-#include "drake/lcmt_driving_command_t.hpp"
-#include "ign_to_lcm_translation.hh"
-#include "protobuf/headers/automotive_driving_command.pb.h"
+#include <memory>
+
+#include <ignition/gui/Plugin.hh>
+#include <ignition/transport.hh>
 
 namespace delphyne {
-namespace bridge {
+namespace gui {
 
-void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
-              drake::lcmt_driving_command_t* lcmDrivingCommand) {
-  if (ignDrivingCommand.has_time()) {
-    lcmDrivingCommand->timestamp = ignDrivingCommand.time().sec() * 1000 +
-                                   ignDrivingCommand.time().nsec() / 1000000;
-  } else {
-    int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
-                           std::chrono::milliseconds(1);
-    lcmDrivingCommand->timestamp = milliseconds;
-  }
-  lcmDrivingCommand->steering_angle = ignDrivingCommand.theta();
-  lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
+/// \class TeleopWidget
+/// \brief This is a class that implements a simple ign-gui widget for
+/// teleop-ing.
+class TeleopWidget: public ignition::gui::Plugin
+{
+  Q_OBJECT
+
+  public:
+    /// \brief Default constructor.
+    explicit TeleopWidget(QWidget *parent = 0);
+
+    /// \brief Default Destructor.
+    virtual ~TeleopWidget();
+
+  protected slots: void selectModel(int);
+  protected slots: void startDriving();
+
+  protected:
+    virtual void keyPressEvent(QKeyEvent *_event);
+    void mousePressEvent(QMouseEvent *_event);
+
+  private:
+    /// \internal
+    /// \brief A transport node.
+    ignition::transport::Node node_;
+
+    /// \internal
+    /// \brief The ignition publisher used to send the updates
+    std::unique_ptr<ignition::transport::Node::Publisher> publisher_;
+
+    /// \internal
+    /// \brief The current amount of throttle
+    double current_throttle;
+
+    /// \internal
+    /// \brief The current amount of brake
+    double current_brake;
+
+    /// \internal
+    /// \brief The current steering angle
+    double current_steering_angle;
+
+    int current_model_index;
+
+    bool driving;
+
+    QComboBox *combobox;
+    QPushButton *button;
+
+    void computeClampAndSetThrottle(double throttle_gradient);
+    void computeClampAndSetBrake(double brake_gradient);
+    void computeClampAndSetSteeringAngle(double sign, double step);
+
+};
+
+}
 }
 
-}  // namespace bridge
-}  // namespace delphyne
+#endif

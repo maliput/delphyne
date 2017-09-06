@@ -135,6 +135,18 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
+  delphyne::bridge::IgnTopicRepeater<ignition::msgs::AutomotiveDrivingCommand, drake::lcmt_driving_command_t>
+      drivingRepeater(sharedLCM, "DRIVING_COMMAND_0");
+
+  try {
+    drivingRepeater.Start();
+  } catch (const std::runtime_error& error) {
+    ignerr << "Failed to start IGN topic repeater for "
+           << "DRIVING_COMMAND_0" << std::endl;
+    ignerr << "Details: " << error.what() << std::endl;
+    exit(1);
+  }
+
   // Service name
   std::string notifierServiceName = "/visualizer_start_notifier";
   std::string channelName = "DRAKE_VIEWER_STATUS";

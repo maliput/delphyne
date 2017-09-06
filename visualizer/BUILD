@@ -11,7 +11,7 @@ cc_library(
     srcs = [
         "OrbitViewControl.cc",
         "RenderWidget.cc",
-        "moc_renderwidget.cc",  # from qt_moc_gen above
+        "moc_renderwidget.cc", # from qt_moc_gen above
     ],
     hdrs = [
         "OrbitViewControl.hh",
@@ -28,7 +28,6 @@ cc_library(
 
 cc_binary(
     name = "libRenderWidget.so",
-    visibility = ["//visibility:public"],
     linkshared = 1,
     linkstatic = 0,
     deps = [
@@ -36,9 +35,45 @@ cc_binary(
     ],
 )
 
+qt_moc_gen(
+    name = "teleopwidget_moc",
+    hdr = "TeleopWidget.hh",
+    out = "moc_teleopwidget.cc",
+)
+
+cc_library(
+    name = "_libTeleopWidget.so",
+    srcs = [
+        "TeleopWidget.cc",
+        "moc_teleopwidget.cc", # from qt_moc_gen above
+    ],
+    hdrs = [
+        "TeleopWidget.hh",
+    ],
+    deps = [
+        "//bridge:ignition-custom-messages",
+        "@ignition_common//:ignition_common_shared_library",
+        "@ignition_gui//:ignition_gui_shared_library",
+        "@ignition-transport3",
+    ],
+    linkstatic = 0,
+    copts = ["-Ibridge"],  # TODO(clalancette): The dependency from ignition-custom-messages isn't working properly for some reason
+)
+
+cc_binary(
+    name = "libTeleopWidget.so",
+    linkshared = 1,
+    linkstatic = 0,
+    deps = [
+        ":_libTeleopWidget.so",
+    ],
+)
+
 cc_binary(
     name = "visualizer",
-    visibility = ["//visibility:public"],
+    visibility = [
+        "//visibility:public"
+    ],
     srcs = [
         "visualizer.cc",
     ],
@@ -64,6 +99,7 @@ cc_binary(
     ],
     data = [
         ":libRenderWidget.so",
+        ":libTeleopWidget.so",
         ":layout.config",
     ],
 )

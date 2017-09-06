@@ -1,16 +1,18 @@
-load(
-    "//tools:drake.bzl",
-    "drake_cc_googletest",
-)
+load("//tools:drake.bzl", "drake_cc_googletest")
 
 cc_library(
     name = "ignition-custom-messages",
-    srcs = ["protobuf/headers/automotive_driving_command.pb.cc",
+    srcs = [
+        "protobuf/headers/automotive_driving_command.pb.cc",
     ],
-    hdrs = ["protobuf/headers/automotive_driving_command.pb.h",
+    hdrs = [
+        "protobuf/headers/automotive_driving_command.pb.h",
     ],
     deps = [
         "@ignition-transport3",
+    ],
+    visibility = [
+        "//visibility:public"
     ],
 )
 
@@ -50,8 +52,12 @@ cc_library(
 
 cc_library(
     name = "service-to-channel-translation",
-    srcs = ["service_to_channel_translation.cc"],
-    hdrs = ["service_to_channel_translation.hh"],
+    srcs = [
+        "service_to_channel_translation.cc"
+    ],
+    hdrs = [
+        "service_to_channel_translation.hh"
+    ],
     deps = [
         "@ignition-transport3",
         "@lcm",
@@ -61,7 +67,8 @@ cc_library(
 
 cc_library(
     name = "lcm-channel-repeater",
-    hdrs = ["lcm_channel_repeater.hh",
+    hdrs = [
+        "lcm_channel_repeater.hh",
     ],
     deps = [
         "@ignition-transport3",
@@ -77,7 +84,8 @@ cc_library(
         "repeater_manager.hh",
         "abstract_repeater.hh",
     ],
-    srcs = ["repeater_manager.cc",
+    srcs = [
+        "repeater_manager.cc",
     ],
     deps = [
         "@lcm",
@@ -89,7 +97,8 @@ cc_library(
 
 cc_library(
     name = "ign-topic-repeater",
-    hdrs = ["ign_topic_repeater.hh",
+    hdrs = [
+        "ign_topic_repeater.hh",
     ],
     deps = [
         "@ignition-transport3",
@@ -102,7 +111,9 @@ cc_library(
 
 cc_library(
     name = "ign-service-converter",
-    hdrs = ["ign_service_converter.hh"],
+    hdrs = [
+        "ign_service_converter.hh"
+    ],
     deps = [
         "@lcm",
         "//bridge:service-to-channel-translation",
@@ -111,12 +122,13 @@ cc_library(
 
 cc_library(
     name = "drake-lcmt-headers",
-    hdrs = ["drake/lcmt_viewer_command.hpp",
-            "drake/lcmt_viewer_draw.hpp",
-            "drake/lcmt_viewer_geometry_data.hpp",
-            "drake/lcmt_viewer_link_data.hpp",
-            "drake/lcmt_viewer_load_robot.hpp",
-            "drake/lcmt_driving_command_t.hpp",
+    hdrs = [
+        "drake/lcmt_viewer_command.hpp",
+        "drake/lcmt_viewer_draw.hpp",
+        "drake/lcmt_viewer_geometry_data.hpp",
+        "drake/lcmt_viewer_link_data.hpp",
+        "drake/lcmt_viewer_load_robot.hpp",
+        "drake/lcmt_driving_command_t.hpp",
     ],
 )
 
@@ -125,7 +137,8 @@ cc_library(
     srcs = [
         "repeater_factory.cc",
     ],
-    hdrs = ["repeater_factory.hh",
+    hdrs = [
+        "repeater_factory.hh",
     ],
     deps = [
         "//bridge:ign-topic-repeater",
@@ -134,7 +147,8 @@ cc_library(
 
 cc_binary(
     name = "lcm-ign-transport-bridge",
-    srcs = ["lcm_ign_transport_bridge.cc",
+    srcs = [
+        "lcm_ign_transport_bridge.cc",
     ],
     deps = [
         "@ignition-transport3",
@@ -171,7 +185,9 @@ py_library(
 
 py_binary(
     name = "mocked-robot-demo",
-    srcs = ["mocked_robot_demo.py"],
+    srcs = [
+        "mocked_robot_demo.py"
+    ],
     data = [
         ":lcm-mock-robot-publisher",
         ":lcm-ign-transport-bridge",

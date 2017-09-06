@@ -64,19 +64,32 @@ static void setLocalPositionFromPose(const ignition::msgs::Visual &_vis,
   double x = 2.0;
   double y = 0.0;
   double z = 0.0;
+  double qw = 1.0;
+  double qx = 0.0;
+  double qy = 0.0;
+  double qz = 0.0;
 
   if (_vis.has_pose()) {
-    // The default Ogre coordinate system is X left/right,
-    // Y up/down, and Z in/out (of the screen).  However,
-    // ignition-rendering switches that to be consistent with
-    // Gazebo.  Thus, the coordinate system is X in/out, Y
-    // left/right, and Z up/down.
-    x += _vis.pose().position().z();
-    y += -_vis.pose().position().x();
-    z += _vis.pose().position().y();
+    if (_vis.pose().has_position()) {
+      // The default Ogre coordinate system is X left/right, Y up/down,
+      // and Z in/out (of the screen).  However, ignition-rendering switches that
+      // to be consistent with Gazebo.  Thus, the coordinate system is X in/out,
+      // Y left/right, and Z up/down.
+      x += _vis.pose().position().z();
+      y += -_vis.pose().position().x();
+      z += _vis.pose().position().y();
+    }
+    if (_vis.pose().has_orientation()) {
+      qw = _vis.pose().orientation().w();
+      qx = _vis.pose().orientation().x();
+      qy = _vis.pose().orientation().y();
+      qz = _vis.pose().orientation().z();
+    }
   }
 
-  _shape->SetLocalPosition(x, y, z);
+  ignition::math::Pose3d newpose(x, y, z, qw, qx, qy, qz);
+
+  _shape->SetLocalPose(newpose);
 }
 
 /////////////////////////////////////////////////

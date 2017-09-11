@@ -297,7 +297,7 @@ ignition::rendering::VisualPtr RenderWidget::RenderBox(
     scale.Z() = geomBox.size().z();
   }
 
-  _visual->AddGeometry(scene->CreateBox());
+  _visual->AddGeometry(this->scene->CreateBox());
   this->Render(_vis, scale, _material, _visual);
   return _visual;
 }
@@ -314,7 +314,7 @@ ignition::rendering::VisualPtr RenderWidget::RenderSphere(
     scale.Z() *= geomSphere.radius();
   }
 
-  _visual->AddGeometry(scene->CreateSphere());
+  _visual->AddGeometry(this->scene->CreateSphere());
   this->Render(_vis, scale, _material, _visual);
   return _visual;
 }
@@ -333,7 +333,7 @@ ignition::rendering::VisualPtr RenderWidget::RenderCylinder(
     scale.Z() = geomCylinder.length();
   }
 
-  _visual->AddGeometry(scene->CreateCylinder());
+  _visual->AddGeometry(this->scene->CreateCylinder());
   this->Render(_vis, scale, _material, _visual);
   return _visual;
 }

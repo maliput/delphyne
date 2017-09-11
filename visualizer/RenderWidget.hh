@@ -280,6 +280,9 @@ class RenderWidget : public ignition::gui::Plugin {
   std::map<uint32_t, std::map<std::string, ignition::rendering::VisualPtr>>
       allVisuals;
 
+  /// \brief A pointer to the rendering engine
+  ignition::rendering::RenderEngine* engine;
+
   /// \brief Store all the user settings.
   UserSettings userSettings;
 };

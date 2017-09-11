@@ -117,8 +117,8 @@ std::string RenderWidget::FindFile(const std::string& _path) const {
 }
 
 /////////////////////////////////////////////////
-RenderWidget::RenderWidget(QWidget* parent)
-    : Plugin(), initializedScene(false) {
+RenderWidget::RenderWidget(QWidget *parent)
+    : Plugin(), initializedScene(false), engine(nullptr) {
   qRegisterMetaType<ignition::msgs::Model_V>();
 
   this->setAttribute(Qt::WA_OpaquePaintEvent, true);
@@ -160,7 +160,11 @@ RenderWidget::RenderWidget(QWidget* parent)
 }
 
 /////////////////////////////////////////////////
-RenderWidget::~RenderWidget() {}
+RenderWidget::~RenderWidget() {
+  if (this->engine != nullptr) {
+    this->engine->Fini();
+  }
+}
 
 /////////////////////////////////////////////////
 void RenderWidget::LoadConfig(const tinyxml2::XMLElement* _pluginElem) {
@@ -623,8 +627,8 @@ void RenderWidget::CreateRenderWindow() {
   std::string engineName = "ogre";
   ignition::rendering::RenderEngineManager* manager =
       ignition::rendering::RenderEngineManager::Instance();
-  ignition::rendering::RenderEngine* engine = manager->Engine(engineName);
-  if (!engine) {
+  this->engine = manager->Engine(engineName);
+  if (!this->engine) {
     ignerr << "Engine '" << engineName << "' is not supported" << std::endl;
     return;
   }

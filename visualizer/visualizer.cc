@@ -51,7 +51,6 @@ int main(int argc, char* argv[]) {
   // Then look for plugins on compile-time defined path.
   // Plugins installed by gazebo end up here
   ignition::gui::addPluginPath(PLUGIN_INSTALL_PATH);
-  ignition::gui::addPluginPath(IGN_GUI_DEFAULT_PLUGIN_PATH);
 
   // Load window layout from config file
   ignition::gui::loadConfig("visualizer/layout.config");

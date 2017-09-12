@@ -1,4 +1,3 @@
-load("@//tools:ign-gui.bzl", "ign_gui_plugin_dep_name", "IGN_GUI_PLUGIN_PATH")
 load("@//tools:qt.bzl", "qt_moc_gen")
 
 qt_moc_gen(
@@ -12,16 +11,16 @@ cc_library(
     srcs = [
         "OrbitViewControl.cc",
         "RenderWidget.cc",
-        "moc_renderwidget.cc", # from qt_moc_get above
+        "moc_renderwidget.cc",  # from qt_moc_gen above
     ],
     hdrs = [
         "OrbitViewControl.hh",
         "RenderWidget.hh",
     ],
     deps = [
-        "@ignition_common//:ignition_common_shared_library",
-        "@ignition_gui//:ignition_gui_shared_library",
-        "@ignition_rendering//:ignition_rendering_shared_library",
+        "@ignition-common0",
+        "@ignition-gui",
+        "@ignition-rendering",
         "@ignition-transport3",
     ],
     linkstatic = 0,
@@ -44,7 +43,8 @@ cc_binary(
         "visualizer.cc",
     ],
     deps = [
-        "@ignition_gui//:ignition_gui_shared_library",
+        "@ignition-common0",
+        "@ignition-gui",
     ],
     linkstatic = 0,
     copts = [
@@ -60,13 +60,10 @@ cc_binary(
         # to always find libRenderWidget.so is with this hard-coded
         # directory, which is always one-level down from the PWD when
         # the binary is launched.
-        '-DPLUGIN_INSTALL_PATH=\\"visualizer\\"',
-        '-DIGN_GUI_DEFAULT_PLUGIN_PATH=\\"external/ignition_gui/' + IGN_GUI_PLUGIN_PATH + '\\"',
+        "-DPLUGIN_INSTALL_PATH=\\\"visualizer\\\"",
     ],
     data = [
         ":libRenderWidget.so",
-        ign_gui_plugin_dep_name("TopicsStats"),
-        ign_gui_plugin_dep_name("TopicViewer"),
         ":layout.config",
     ],
 )

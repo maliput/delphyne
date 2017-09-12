@@ -12,23 +12,42 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     $ sudo ./setup/ubuntu/16.04/install_prereqs.sh
     ```
 
-1. Next you need to add the gazebo repositories to your setup.  The canonical instructions are [here](https://ignition-transport.readthedocs.io/en/latest/installation/installation.html#ubuntu-linux), in brief:
+1. Next you need to setup ROS dependencies:
 
     ```
-    $ sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable `lsb_release -cs` main" > /etc/apt/sources.list.d/gazebo-stable.list'
-    $ wget http://packages.osrfoundation.org/gazebo.key -O - | sudo apt-key add -
+    $ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+    $ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
     $ sudo apt-get update
     ```
 
 1. Now you can install additional dependencies
 
     ```
-    $ sudo apt-get install mercurial cmake pkg-config python ruby-ronn libprotoc-dev libprotobuf-dev protobuf-compiler uuid-dev libzmq3-dev git libignition-transport3-dev libogre-1.9-dev libglew-dev qtbase5-dev libicu-dev libboost-filesystem-dev libfreeimage-dev libtinyxml2-dev libgts-dev libavdevice-dev
+    $ sudo apt-get install mercurial cmake pkg-config python ruby-ronn libprotoc-dev libprotobuf-dev protobuf-compiler uuid-dev libzmq3-dev git libogre-1.9-dev libglew-dev qtbase5-dev libicu-dev libboost-filesystem-dev libfreeimage-dev libtinyxml2-dev libgts-dev libavdevice-dev python3-vcstool
     ```
 
+# Build dependencies
+
+Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to use, we build them from source and install them into the workspace.  The best way to do this is to run the following script from the top of the delphyne directory:
+
+```
+$ tools/build_deps.sh
+```
+
+This may take a little while to download and build the dependencies.  At the end of the build, a new subdirectory called `deps` will be at the top level of your delphyne repository.
+
+# Setup your environment
+In order to successfully build and use tools here, a few environment variables must be setup.  We recommend putting these in ~/.bashrc (or the equivalent for your shell):
+
+```
+$ export DELPHYNE_MEDIA_PATH=</absolute/path/to/delphyne/media>:</path/to/drake-distro>
+$ export PKG_CONFIG_PATH=</absolute/path/to/delphyne>/deps/installed/lib/pkgconfig
+$ export PATH=</absolute/path/to/delphyne>/deps/installed/bin
+$ export LD_LIBRARY_PATH=</absolute/path/to/delphyne>/deps/installed/lib
+```
+
 # Repository structure
-There are 2 things hosted here right now; the bridge from LCM messages to ignition-transport messages, and the new drake visualizer.  The bridge is stored in the bridge/ subdirectory, and the visualizer
-is stored in the visualizer/ subdirectory.
+There are 2 things hosted here right now; the bridge from LCM messages to ignition-transport messages, and the new drake visualizer.  The bridge is stored in the `bridge/` subdirectory, and the visualizer is stored in the `visualizer/` subdirectory.
 
 # Building
 To build everything, run:
@@ -42,13 +61,6 @@ To run the bridge, run:
 
 ```
 $ bazel run //bridge:lcm-to-ign-trans-bridge
-```
-
-Set the DELPHYNE_PACKAGE_PATH environment variable to the path containing your
-resources (e.g.:meshes). Normally, you should at least add your `<drake-distro>`
-path. You can add multiple directories separated with `:`.
-```
-$ export DELPHYNE_PACKAGE_PATH=/home/caguero/workspace/drake-distro:/home/caguero/workspace/delphyne/media
 ```
 
 To run the visualizer, run:
@@ -66,7 +78,6 @@ $ bazel run //bridge:mocked-robot-demo
 
 To run the demo-launcher, run:
 ```
-$ export DELPHYNE_PACKAGE_PATH=</path/to/drake-distro/drake/automotive/models>
 $ bazel run //bridge:demo-launcher </path/to/drake-distro>
 ```
 Please note that the export paths used here and for the mocked-robot-demo are the same, and should point to drake's "models" directory.

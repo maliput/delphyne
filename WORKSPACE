@@ -98,31 +98,19 @@ python_repository(
     version = "2.7",
 )
 
-bitbucket_archive(
-    name = "ignition_common",
-    repository = "ignitionrobotics/ign-common",
-    commit = "e37329a61646",
-    sha256 = "a9fb45ad2026c5a417a697c0137fa098742e5846bd0b86e1ec63c058c82a6d3f",
-    strip_prefix = "ignitionrobotics-ign-common-e37329a61646",
-    build_file = "tools/ignition_common.BUILD",
+pkg_config_package(
+    name = "ignition-common0",
+    modname = "ignition-common0",
 )
 
-bitbucket_archive(
-    name = "ignition_gui",
-    repository = "ignitionrobotics/ign-gui",
-    commit = "d70426197da1",
-    sha256 = "e4108f1c43fcf1192286a8eb92597371a58450d18b6403155fed06d42aa0517d",
-    strip_prefix = "ignitionrobotics-ign-gui-d70426197da1",
-    build_file = "tools/ignition_gui.BUILD",
+pkg_config_package(
+    name = "ignition-gui",
+    modname = "ignition-gui",
 )
 
-bitbucket_archive(
-    name = "ignition_rendering",
-    repository = "ignitionrobotics/ign-rendering",
-    commit = "0561e60baa04",
-    sha256 = "4cd48ca62ed6aa428392d9f5975c683de02ccb60e78d6a69cde17a51aecf08c3",
-    strip_prefix = "ignitionrobotics-ign-rendering-0561e60baa04",
-    build_file = "tools/ignition_rendering.BUILD",
+pkg_config_package(
+    name = "ignition-rendering",
+    modname = "ignition-rendering",
 )
 
 github_archive(

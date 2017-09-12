@@ -8,6 +8,10 @@ build --crosstool_top=//tools:default-toolchain
 # Only show warnings from Drake, not from externals.
 build --output_filter="^//"
 
+# TODO(clalancette): currently requires that the user export this variable in their environment
+# before calling bazel; can we do better?
+build --action_env=PKG_CONFIG_PATH
+
 # Default test options.
 test --test_output=errors
 test --test_summary=terse

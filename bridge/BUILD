@@ -67,7 +67,7 @@ cc_library(
         "@ignition-transport3",
         "@lcm",
         "//bridge:drake-lcmt-headers",
-        "@ignition_common//:ignition_common_shared_library",
+        "@ignition-common0",
     ],
 )
 
@@ -81,9 +81,9 @@ cc_library(
     ],
     deps = [
         "@lcm",
-        "@ignition_common//:ignition_common_shared_library",
+        "@ignition-common0",
         "@ignition-transport3",
-        "//bridge:repeater-factory"
+        "//bridge:repeater-factory",
     ],
 )
 
@@ -96,7 +96,7 @@ cc_library(
         "@lcm",
         "//bridge:drake-lcmt-headers",
         "//bridge:ign-to-lcm-translation",
-        "@ignition_common//:ignition_common_shared_library",
+        "@ignition-common0",
     ],
 )
 
@@ -139,7 +139,7 @@ cc_binary(
     deps = [
         "@ignition-transport3",
         "@lcm",
-        "@ignition_common//:ignition_common_shared_library",
+        "@ignition-common0",
         "//bridge:lcm-to-ign-translation",
         "//bridge:ign-to-lcm-translation",
         "//bridge:drake-lcmt-headers",
@@ -157,7 +157,7 @@ cc_binary(
         "lcm_mock_robot_publisher.cc",
     ],
     deps = [
-        "@ignition_common//:ignition_common_shared_library",
+        "@ignition-common0",
         "@lcm",
         "//bridge:drake-lcmt-headers",
         "//bridge:ignition-custom-messages",

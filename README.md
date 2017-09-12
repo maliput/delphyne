@@ -37,38 +37,49 @@ To build everything, run:
 $ bazel build //...
 ```
 
-# Running
-To run the bridge, run:
+# Running the mock demo
 
-```
-$ bazel run //bridge:lcm-to-ign-trans-bridge
-```
+The mock demo is completely contained within the Delphyne repository.  It
+consists of the front-end visualizer, the LCM to ignition-transport bridge,
+and a mock backend that sends LCM messages.  To run this demo, do the
+following:
 
 Set the DELPHYNE_PACKAGE_PATH environment variable to the path containing your
 resources (e.g.:meshes). Normally, you should at least add your `<drake-distro>`
 path. You can add multiple directories separated with `:`.
 ```
-$ export DELPHYNE_PACKAGE_PATH=/home/caguero/workspace/drake-distro:/home/caguero/workspace/delphyne/media
-```
-
-To run the visualizer, run:
-
-```
-$ bazel run //visualizer:visualizer
-```
-
-To run the visualizer & bridge bundle, run:
-
-```
+$ export DELPHYNE_PACKAGE_PATH=</path/to/drake-distro>:</path/to/delphyne/media>
 $ bazel run //bridge:mocked-robot-demo
 ```
 
+# Running the full Drake and Delphyne demo
+
+The full Drake and Delphyne demo consists of the front-end and the bridge
+in Delphyne, and the backend from Drake itself.  In order for this to work,
+both Delphyne and Drake need to be compiled and built.
+
 To run the demo-launcher, run:
+
 ```
 $ export DELPHYNE_PACKAGE_PATH=</path/to/drake-distro/drake/automotive/models>
 $ bazel run //bridge:demo-launcher </path/to/drake-distro>
 ```
-Aditionally, you can append the `--no-drake-visualizer` argument option to the command, which will disable the drake visualizer, as well as the lcm-spy and lcm-logger.
+Additionally, you can append the `--no-drake-visualizer` argument option to the command, which will disable the drake visualizer, as well as the lcm-spy and lcm-logger.
+
+
+# Running individual Delphyne parts
+
+To run just the bridge, run:
+
+```
+$ bazel run //bridge:lcm-ign-transport-bridge
+```
+
+To run just the visualizer, run:
+
+```
+$ bazel run //visualizer:visualizer
+```
 
 # Instructions for the clang-format tool
 In order to get all the C++ code in the project compliant with a single style, we strongly recommend you using the auto-formatting tool called clang-format.

@@ -210,6 +210,10 @@ bool RenderWidget::CreateVisual(const ignition::msgs::Visual &_vis,
     }
   }
 
+  if (_vis.has_transparency()) {
+    _material->SetTransparency(_vis.transparency());
+  }
+
   _material->SetShininess(50);
   _material->SetReflectivity(0);
 

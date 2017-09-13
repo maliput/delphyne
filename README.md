@@ -61,7 +61,7 @@ both Delphyne and Drake need to be compiled and built.
 To run the demo-launcher, run:
 
 ```
-$ export DELPHYNE_PACKAGE_PATH=</path/to/drake-distro/drake/automotive/models>
+$ export DELPHYNE_PACKAGE_PATH=</path/to/drake-distro>:</path/to/delphyne/media>
 $ bazel run //bridge:demo-launcher </path/to/drake-distro>
 ```
 Additionally, you can append the `--no-drake-visualizer` argument option to the command, which will disable the drake visualizer, as well as the lcm-spy and lcm-logger.

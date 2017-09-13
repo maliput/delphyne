@@ -192,6 +192,12 @@ class RenderWidget: public ignition::gui::Plugin
     ignition::rendering::VisualPtr RenderMesh(
       const ignition::msgs::Visual &_vis);
 
+    /// \brief Render the ground plane.
+    void RenderGroundPlane();
+
+    /// \brief Render the origin reference frame.
+    void RenderOrigin();
+
     /// \brief Find a file by name.
     /// In the case of an absolute path:
     ///   The function will check if the path exists.

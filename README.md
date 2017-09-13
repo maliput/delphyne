@@ -81,8 +81,8 @@ To run just the visualizer, run:
 $ bazel run //visualizer:visualizer
 ```
 
-# Instructions for the clang-format tool
-In order to get all the C++ code in the project compliant with a single style, we strongly recommend you using the auto-formatting tool called clang-format.
+# Code style
+The code in this repository follows the Drake [code style](http://drake.mit.edu/code_style_guide.html).  In order to get all the C++ code in the project compliant with this style, we strongly recommend you using the auto-formatting tool called clang-format.
 
 You can execute it against your source code by doing:
 ```

@@ -295,7 +295,7 @@ void RenderWidget::RenderGroundPlane()
 {
   auto material = this->scene->CreateMaterial();
   if (!material) {
-    ignerr << "Failed to create material" << std::endl;
+    ignerr << "Failed to create ground plane material" << std::endl;
     return;
   }
 
@@ -304,7 +304,7 @@ void RenderWidget::RenderGroundPlane()
 
   auto groundPlaneVisual = this->scene->CreateVisual();
   if (!groundPlaneVisual) {
-    ignerr << "Failed to create visual" << std::endl;
+    ignerr << "Failed to create ground plane visual" << std::endl;
     return;
   }
 

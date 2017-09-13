@@ -85,6 +85,9 @@ class TeleopWidget: public ignition::gui::Plugin
 
     QComboBox *combobox;
     QPushButton *button;
+    QLabel *steering_angle_label;
+    QLabel *throttle_value_label;
+    QLabel *brake_value_label;
 
     void computeClampAndSetThrottle(double throttle_gradient);
     void computeClampAndSetBrake(double brake_gradient);

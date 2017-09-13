@@ -50,9 +50,23 @@ TeleopWidget::TeleopWidget(QWidget *parent)
 
   this->button = new QPushButton("Start Driving");
 
+  auto steering_angle_fixed = new QLabel("Steering Angle: ");
+  auto throttle_value_fixed = new QLabel("Throttle Value: ");
+  auto brake_value_fixed = new QLabel("Brake Value: ");
+
+  this->steering_angle_label = new QLabel("0.0");
+  this->throttle_value_label = new QLabel("0.0");
+  this->brake_value_label = new QLabel("0.0");
+
   auto layout = new QGridLayout;
   layout->addWidget(this->combobox, 0, 0);
   layout->addWidget(this->button, 0, 1, 1, 2);
+  layout->addWidget(steering_angle_fixed, 1, 0);
+  layout->addWidget(this->steering_angle_label, 1, 1);
+  layout->addWidget(throttle_value_fixed, 2, 0);
+  layout->addWidget(this->throttle_value_label, 2, 1);
+  layout->addWidget(brake_value_fixed, 3, 0);
+  layout->addWidget(this->brake_value_label, 3, 1);
 
   this->setLayout(layout);
 
@@ -224,6 +238,10 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
 
   ignerr << "Publish accel " << this->current_throttle - this->current_brake << ", theta " << this->current_steering_angle << std::endl;
   this->publisher_->Publish(ignMsg);
+
+  this->steering_angle_label->setText(QString("%1").arg(this->current_steering_angle));
+  this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));
+  this->brake_value_label->setText(QString("%1").arg(this->current_brake));
 }
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::gui::TeleopWidget,

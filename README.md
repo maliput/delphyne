@@ -35,7 +35,10 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
 Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to develop with, we build them from source and install them into the workspace.  Right now, this must be done manually, by running the following commands:
 
 ```
-$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering; do pushd src/$igndep ; mkdir build ; cd build ; cmake .. -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
+$ mkdir -p build
+$ pushd build
+$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering; do mkdir -p $igndep ; pushd $igndep ; cmake ../../src/$igndep -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
+$ popd
 ```
 
 This may take a little while to build the dependencies.  At the end of the build, a new subdirectory called `install` will be at the top level of your delphyne workspace.

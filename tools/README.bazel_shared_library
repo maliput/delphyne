@@ -1,0 +1,131 @@
+Building shared objects in Bazel
+--------------------------------
+
+The Bazel build system really goes for a hermetically-sealed, build-the-world
+approach to building.  One thing that falls out naturally from this is that
+Bazel really prefers to build everything statically, with no shared objects.
+Unfortunately, if your project must use shared objects, you basically have to
+trick Bazel into doing the correct thing.  This document describes how that
+trick works, since it is used a few different places in delphyne.
+
+Overview
+--------
+
+The trick works by splitting the building of the library that you want shared
+into three parts: the building of the source, the linking of the shared object,
+and the export of the headers.  Anything that depends on this shared object
+library must then depend on it two different ways.  Each of the parts is
+described in more detail below.
+
+Step 1: Building of the Source
+------------------------------
+
+In the first part, the cc_library() bazel rule is used as usual,
+specifying the srcs, hdrs, deps, etc.  There are a few minor changes you must
+make, however:
+
+- The name of the library should be something private looking, like "_libMyLib.so".
+This will be used later on, but will never be visible to the outside world.
+- The visibility of the cc_library() should be private (i.e. you should not specify
+a "visibility = ["//visibility:public"]" parameter).
+- The library should be marked with linkstatic=0.  This ensures that no .a will
+be produced.
+
+Step 2: Linking of the shared object
+------------------------------------
+
+In the second part, the cc_binary() bazel rule is used in a slightly odd
+way.  Here, the "binary" ends up being the shared object that you actually want
+to be built at the end.  This rule must be setup in a very particular way:
+
+- The name of this cc_binary() can be whatever you want, but it is best to
+name it something like "libMyLib.so".
+- The visibility of this binary should be private.
+- Both linkshared should be set to 1 and linkstatic should be set to 0 on this binary;
+this ensures that only a shared version will be built.
+- The binary should have a single dependency on the cc_library() from above.
+
+Step 3: Exporting the headers
+-----------------------------
+
+In the third part, the cc_library() bazel rule is used to create an export of
+the include files needed to use the shared library.  This rule must be setup
+in a very particular way:
+
+- The name of this cc_library() should be whatever you want other bazel rules to
+depend on.
+- The visibility of this library should be public (since other rules will depend
+on this).
+- This rule should have a dependency on the "internal" library from step 1.
+- This rule should have a data dependency on the "exported" binary from step 2.
+
+Step 4: Depending on the shared library externally
+--------------------------------------------------
+
+Now that the library itself is setup, other things can depend on it.  To depend
+on the shared library, another rule (either cc_library() or cc_binary()) must
+depend on it two different ways:
+
+- In the srcs of the rule to depend on it, it should list the name of the shared
+object rule from step 2.  This ensures that the library is built and available
+during the build step of the current rule.
+- In the deps of the rule to depend on it, it should list the name of the headers
+from step 3.  This ensures that the library will get linked in appropriately
+during the link step.
+
+Example
+-------
+Here's a short, complete example of all 4 steps above.
+
+mylib.BUILD
+======================
+# Step 1
+cc_library(
+    name = "_libmylib.so",
+    srcs = [
+        "src/Src.cc",
+        "src/Src2.cc",
+    ],
+    hdrs = [
+        "include/Src.hh",
+        "include/Src2.hh"
+    ],
+    includes = ["include"],
+    linkstatic = 0,
+)
+
+# Step 2
+cc_binary(
+    name = "libmylib.so",
+    linkshared = 1,
+    linkstatic = 0,
+    deps = [
+        ":_libmylib.so",
+    ],
+)
+
+# Step 3
+cc_library(
+    name = "mylib_shared_library",
+    visibility = ["//visibility:public"],
+    deps = [
+        ":_libmylib.so",
+    ],
+    data = [
+        ":libmylib.so",
+    ],
+)
+
+
+mybinary.BUILD (depending on mylib.so)
+======================================
+# Step 4
+cc_binary(
+    name = "mybinary",
+    src = [
+        "binary.cc",
+    ],
+    deps = [
+        "@mylib//:mylib_shared_library",
+    ],
+)

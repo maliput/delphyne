@@ -6,3 +6,5 @@ repositories:
   ign_rendering   : { type: 'hg', url: 'https://bitbucket.org/ignitionrobotics/ign-rendering.git',     version: 'default' }
   ign_math        : { type: 'hg', url: 'https://bitbucket.org/ignitionrobotics/ign-math.git',          version: 'ign-math3' }
   ign_msgs        : { type: 'hg', url: 'https://bitbucket.org/ignitionrobotics/ign-msgs.git',          version: 'default' }
+  drake           : { type: 'git', url: 'https://github.com/RobotLocomotion/drake.git',                version: 'master' }
+  delphyne        : { type: 'git', url: 'https://github.com/ToyotaResearchInstitute/delphyne.git',     version: 'master' }

@@ -4,81 +4,98 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
 
 # Setup instructions
 
-1.  You first need to install the dependencies for Drake.  While Delphyne doesn't directly depend on Drake right now, it may in the future and the build system aims to be compatible.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
-
-    ```
-    $ git clone git@github.com:RobotLocomotion/drake.git drake-distro
-    $ cd drake-distro
-    $ sudo ./setup/ubuntu/16.04/install_prereqs.sh
-    ```
-
-1. Next you need to setup ROS dependencies:
+1.  Setup and install dependencies:
 
     ```
     $ sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
     $ sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
     $ sudo apt-get update
-    ```
-
-1. Now you can install additional dependencies
-
-    ```
     $ sudo apt-get install mercurial cmake pkg-config python ruby-ronn libprotoc-dev libprotobuf-dev protobuf-compiler uuid-dev libzmq3-dev git libogre-1.9-dev libglew-dev qtbase5-dev libicu-dev libboost-filesystem-dev libfreeimage-dev libtinyxml2-dev libgts-dev libavdevice-dev python3-vcstool
+    ```
+
+1.  Now build a workspace for Delphyne.  If you are familiar with ROS catkin workspaces, this is a similar concept.  The steps to setup the workspace are:
+
+    ```
+    $ mkdir -p delphyne_ws/src
+    $ cd delphyne_ws
+    $ wget https://github.com/ToyotoResearchInstitute/delphyne/delphyne.repos
+    $ vcs import src < delphyne.repos
+    ```
+
+1.  Install the dependencies for Drake.  While Delphyne doesn't directly depend on Drake right now, it may in the future and it depends on many similar components.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
+
+    ```
+    $ pushd src/drake
+    $ sudo ./setup/ubuntu/16.04/install_prereqs.sh
+    $ popd
     ```
 
 # Build dependencies
 
-Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to use, we build them from source and install them into the workspace.  The best way to do this is to run the following script from the top of the delphyne directory:
+Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to develop with, we build them from source and install them into the workspace.  Right now, this must be done manually, by running the following commands:
 
 ```
-$ tools/build_deps.sh
+$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering; do pushd src/$igndep ; mkdir build ; cd build ; cmake .. -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
 ```
 
-This may take a little while to download and build the dependencies.  At the end of the build, a new subdirectory called `deps` will be at the top level of your delphyne repository.
+This may take a little while to build the dependencies.  At the end of the build, a new subdirectory called `install` will be at the top level of your delphyne workspace.
 
 # Setup your environment
-In order to successfully build and use tools here, a few environment variables must be setup.  We recommend putting these in ~/.bashrc (or the equivalent for your shell):
+In order to successfully build and use Delphyne, Drake, or the ignition tools here, a few environment variables must be setup.  These have to be absolute paths, so note that the following will only work from the root of the delphyne workspace:
 
 ```
-$ export DELPHYNE_MEDIA_PATH=</absolute/path/to/delphyne/media>:</path/to/drake-distro>
-$ export PKG_CONFIG_PATH=</absolute/path/to/delphyne>/deps/installed/lib/pkgconfig
-$ export PATH=</absolute/path/to/delphyne>/deps/installed/bin
-$ export LD_LIBRARY_PATH=</absolute/path/to/delphyne>/deps/installed/lib
+$ export PKG_CONFIG_PATH=`pwd`/install/lib/pkgconfig:$PKG_CONFIG_PATH
+$ export PATH=`pwd`/install/bin:$PATH
+$ export LD_LIBRARY_PATH=`pwd`/install/lib:$LD_LIBRARY_PATH
+$ export DELPHYNE_PACKAGE_PATH=`pwd`/src/drake/drake/automotive/models:`pwd`/src/delphyne/media
 ```
 
-# Repository structure
-There are 2 things hosted here right now; the bridge from LCM messages to ignition-transport messages, and the new drake visualizer.  The bridge is stored in the `bridge/` subdirectory, and the visualizer is stored in the `visualizer/` subdirectory.
+Next we can go on and build the rest of the components.
 
-# Building
-To build everything, run:
+# Build drake
+
+Drake must be built using the Bazel build tool.  To build drake, do the following:
 
 ```
+$ pushd src/drake
 $ bazel build //...
+$ bazel run //:install ../../install
+$ popd
+```
+
+Note that this will take a long time to compile.
+
+# Build delphyne
+
+Delphyne itself can now be built with Bazel:
+```
+$ pushd src/delphyne
+$ bazel build //...
+$ popd
 ```
 
 # Running
-To run the bridge, run:
+
+Two different things are hosted in the delphyne repository right now; the bridge and the visualizer.  The bridge is a bi-directional LCM-to-ignition-transport to take messages from/to Drake and translate them to/from ignition-transport messagesthat Delphyne understands.  The visualizer is a new front-end visualizer for the drake simulator.
+
+## Running the mock demo
+
+There is a mock demo hosted in this repository that runs the bridge, the visualizer, and a "mock" backend that simulates the messages that Drake would send.  To run this demo, do the following:
 
 ```
-$ bazel run //bridge:lcm-to-ign-trans-bridge
-```
-
-To run the visualizer, run:
-
-```
-$ bazel run //visualizer:visualizer
-```
-
-To run the visualizer & bridge bundle, run:
-
-```
-$ export DELPHYNE_PACKAGE_PATH=</path/to/drake-distro/drake/automotive/models>
+$ pushd src/delphyne
 $ bazel run //bridge:mocked-robot-demo
+$ popd
 ```
 
-To run the demo-launcher, run:
+## Running the bridge, visualizer, and drake
+
+There is a demonstration here of using Delphyne together with the automotive_demos from drake.  To run this demo, do the following:
+
 ```
+$ pushd src/delphyne
 $ bazel run //bridge:demo-launcher </path/to/drake-distro>
+$ popd
 ```
 Please note that the export paths used here and for the mocked-robot-demo are the same, and should point to drake's "models" directory.
 
@@ -93,6 +110,26 @@ Finally, you can append the `--no-drake-visualizer` argument option to the comma
 
 ```
 $ bazel run //bridge:demo-launcher -- --demo=simple --no-drake-visualizer </path/to/drake-distro>
+```
+
+## Running the bridge standalone
+
+To run just the bridge, run:
+
+```
+$ pushd src/delphyne
+$ bazel run //bridge:lcm-to-ign-trans-bridge
+$ popd
+```
+
+## Running the visualizer standalone:
+
+To run just the visualizer, run:
+
+```
+$ pushd src/delphyne
+$ bazel run //visualizer:visualizer
+$ popd
 ```
 
 # Instructions for the clang-format tool

@@ -54,8 +54,8 @@ int main(int argc, char* argv[]) {
   ignition::gui::addPluginPath(IGN_GUI_DEFAULT_PLUGIN_PATH);
 
   ignition::gui::loadPlugin("RenderWidget");
-  ignition::gui::loadPlugin("TopicsStats");
-  ignition::gui::loadPlugin("TopicViewer");
+  ignition::gui::loadPlugin("TimePanel");
+  ignition::gui::loadPlugin("TopicEcho");
 
   // Create main window
   ignition::gui::createMainWindow();

@@ -82,7 +82,7 @@ qt_rcc_gen(
 # Create all of the plugins here as separate shared objects.  The code
 # to do this lives in ign-gui.bzl, since Bazel does not allow functions
 # inside of BUILD files.
-ign_gui_create_plugins(["ImageDisplay", "Publisher", "Requester", "Responder", "TimePanel", "TopicEcho", "TopicsStats", "TopicViewer"], public_headers)
+ign_gui_create_plugins(["ImageDisplay", "Publisher", "Requester", "Responder", "TimePanel", "TopicEcho"], public_headers)
 
 # Generates the library exported to users.  The explicitly listed srcs= matches
 # upstream's explicitly listed sources plus private headers.  The explicitly
@@ -92,12 +92,10 @@ cc_library(
     srcs = [
         "include/ignition/gui/config.hh",  # from cmake_configure_file above
         "include/ignition/gui.hh",
-        "src/DragDropModel.cc",
         "src/Iface.cc",
         "src/ign.cc",
         "src/MainWindow.cc",
         "src/Plugin.cc",
-        "src/SearchModel.cc",
         "qrc_resources.cc",  # from qt_rcc_gen above
         "moc_iface.cc",  # from qt_moc_gen above
         "moc_mainwindow.cc",  # from qt_moc_gen above
@@ -130,8 +128,6 @@ cc_binary(
         ign_gui_plugin_dep_name("Responder"),
         ign_gui_plugin_dep_name("TimePanel"),
         ign_gui_plugin_dep_name("TopicEcho"),
-        ign_gui_plugin_dep_name("TopicsStats"),
-        ign_gui_plugin_dep_name("TopicViewer"),
     ],
 )
 

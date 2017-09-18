@@ -65,7 +65,7 @@ cc_binary(
     ],
     data = [
         ":libRenderWidget.so",
-        ign_gui_plugin_dep_name("TopicsStats"),
-        ign_gui_plugin_dep_name("TopicViewer"),
+        ign_gui_plugin_dep_name("TimePanel"),
+        ign_gui_plugin_dep_name("TopicEcho"),
     ],
 )

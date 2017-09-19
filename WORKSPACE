@@ -101,9 +101,9 @@ python_repository(
 bitbucket_archive(
     name = "ignition_common",
     repository = "ignitionrobotics/ign-common",
-    commit = "b54a1ff",
-    sha256 = "4c7ec0fbf41f5465adc4d5163436263e3295cb07274b70bf7f974572e17b88bd",
-    strip_prefix = "ignitionrobotics-ign-common-b54a1ff745fa",
+    commit = "e37329a61646",
+    sha256 = "a9fb45ad2026c5a417a697c0137fa098742e5846bd0b86e1ec63c058c82a6d3f",
+    strip_prefix = "ignitionrobotics-ign-common-e37329a61646",
     build_file = "tools/ignition_common.BUILD",
 )
 

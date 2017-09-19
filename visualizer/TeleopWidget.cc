@@ -40,13 +40,12 @@ using namespace gui;
 
 /////////////////////////////////////////////////
 TeleopWidget::TeleopWidget(QWidget *parent)
-  : Plugin(), current_throttle(0.0), current_brake(0.0), current_steering_angle(0.0), current_model_index(0), driving(false)
+  : Plugin(), current_throttle(0.0), current_brake(0.0), current_steering_angle(0.0), driving(false)
 {
   this->title = "TeleopWidget";
 
-  this->combobox = new QComboBox();
-  this->combobox->addItem("Item 1");
-  this->combobox->addItem("Item 2");
+  this->lineedit = new QLineEdit();
+  this->lineedit->setText("DRIVING_COMMAND_0");
 
   this->button = new QPushButton("Start Driving");
 
@@ -59,7 +58,7 @@ TeleopWidget::TeleopWidget(QWidget *parent)
   this->brake_value_label = new QLabel("0.0");
 
   auto layout = new QGridLayout;
-  layout->addWidget(this->combobox, 0, 0);
+  layout->addWidget(this->lineedit, 0, 0);
   layout->addWidget(this->button, 0, 1, 1, 2);
   layout->addWidget(steering_angle_fixed, 1, 0);
   layout->addWidget(this->steering_angle_label, 1, 1);
@@ -70,16 +69,7 @@ TeleopWidget::TeleopWidget(QWidget *parent)
 
   this->setLayout(layout);
 
-  QObject::connect(this->combobox, SIGNAL(currentIndexChanged(int)), this, SLOT(selectModel(int)));
-
   QObject::connect(this->button, SIGNAL(clicked()), this, SLOT(startDriving()));
-}
-
-void TeleopWidget::selectModel(int index)
-{
-  ignerr << "selectModel" << std::endl;
-  ignerr << this->combobox->itemText(index).toStdString() << std::endl;
-  this->current_model_index = index;
 }
 
 void TeleopWidget::startDriving()
@@ -87,15 +77,16 @@ void TeleopWidget::startDriving()
   if (this->driving) {
     ignerr << "Stop Driving" << std::endl;
     this->button->setText("Start Driving");
-    this->combobox->setEnabled(true);
+    this->lineedit->setEnabled(true);
     this->driving = false;
   }
   else {
     ignerr << "Start Driving" << std::endl;
+    auto topic = "/" + this->lineedit->text().toStdString();
     this->publisher_.reset(new ignition::transport::Node::Publisher());
-    *(this->publisher_) = this->node_.Advertise<ignition::msgs::AutomotiveDrivingCommand>("/DRIVING_COMMAND_0");
+    *(this->publisher_) = this->node_.Advertise<ignition::msgs::AutomotiveDrivingCommand>(topic);
     this->button->setText("Stop Driving");
-    this->combobox->setEnabled(false);
+    this->lineedit->setEnabled(false);
     this->driving = true;
   }
   setFocus();

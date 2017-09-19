@@ -79,11 +79,9 @@ class TeleopWidget: public ignition::gui::Plugin
     /// \brief The current steering angle
     double current_steering_angle;
 
-    int current_model_index;
-
     bool driving;
 
-    QComboBox *combobox;
+    QLineEdit *lineedit;
     QPushButton *button;
     QLabel *steering_angle_label;
     QLabel *throttle_value_label;

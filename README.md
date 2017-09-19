@@ -34,20 +34,7 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     $ sudo ./src/drake/setup/ubuntu/16.04/install_prereqs.sh
     ```
 
-# Build dependencies
-
-Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to develop with, we build them from source and install them into the workspace.  Right now, this must be done manually, by running the following commands:
-
-```
-$ mkdir -p build
-$ pushd build
-$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering; do mkdir -p $igndep ; pushd $igndep ; cmake ../../src/$igndep -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
-$ popd
-```
-
-This may take a little while to build the dependencies.  At the end of the build, a new subdirectory called `install` will be at the top level of your delphyne workspace.
-
-# Setup your environment
+# Setup the environment
 In order to successfully build and use Delphyne, Drake, or the ignition tools here, a few environment variables must be setup.  These have to be absolute paths, so note that the following will only work from the root of the delphyne workspace:
 
 ```
@@ -57,7 +44,20 @@ $ export LD_LIBRARY_PATH=`pwd`/install/lib:$LD_LIBRARY_PATH
 $ export DELPHYNE_PACKAGE_PATH=`pwd`/src/drake/drake/automotive/models:`pwd`/src/delphyne/bridge
 ```
 
-Next we can go on and build the rest of the components.
+Next we can go on and build the components.
+
+# Build dependencies
+
+Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to develop with, we build them from source and install them into the workspace.  Right now this is done manually, by running the following commands:
+
+```
+$ mkdir -p build
+$ pushd build
+$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering; do mkdir -p $igndep ; pushd $igndep ; cmake ../../src/$igndep -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
+$ popd
+```
+
+This may take a little while to build the dependencies.  At the end of the build, a new subdirectory called `install` will be at the top level of your delphyne workspace.
 
 # Build drake
 
@@ -75,6 +75,7 @@ Note that this will take a long time to compile.
 # Build delphyne
 
 Delphyne itself can now be built with Bazel:
+
 ```
 $ pushd src/delphyne
 $ bazel build //...

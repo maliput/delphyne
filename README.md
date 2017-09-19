@@ -18,16 +18,20 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     ```
     $ mkdir -p delphyne_ws/src
     $ cd delphyne_ws
-    $ wget https://github.com/ToyotoResearchInstitute/delphyne/delphyne.repos
+    ```
+
+1.  Download the delphyne.repos file from [delphyne.repos](https://github.com/ToyotoResearchInstitute/delphyne/delphyne.repos) into `delphyne_ws/src` (we can't automate this because it is a private repository).
+
+1.  Import the repositories from delphyne.repos:
+
+    ```
     $ vcs import src < delphyne.repos
     ```
 
 1.  Install the dependencies for Drake.  While Delphyne doesn't directly depend on Drake right now, it may in the future and it depends on many similar components.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
 
     ```
-    $ pushd src/drake
-    $ sudo ./setup/ubuntu/16.04/install_prereqs.sh
-    $ popd
+    $ sudo ./src/drake/setup/ubuntu/16.04/install_prereqs.sh
     ```
 
 # Build dependencies

@@ -66,7 +66,6 @@ Drake must be built using the Bazel build tool.  To build drake, do the followin
 ```
 $ pushd src/drake
 $ bazel build //...
-$ bazel run //:install `pwd`/../../install
 $ popd
 ```
 

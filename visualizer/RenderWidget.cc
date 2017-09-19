@@ -473,7 +473,7 @@ void RenderWidget::LoadModel(const ignition::msgs::Model &_msg)
     // Create a single root visual per link which will serve only
     // for hierarchical purposes, so that it can become the parent
     // of each of the "real" visuals of the link.
-    ignition::rendering::VisualPtr linkRootVisual = 
+    ignition::rendering::VisualPtr linkRootVisual =
         RenderWidget::CreateLinkRootVisual(link, _msg.id());
 
     // Iterate through all the visuals of the link and add
@@ -569,7 +569,6 @@ void RenderWidget::UpdateScene(const ignition::msgs::Model_V &_msg)
       ignition::msgs::Visual tmpvis;
       *tmpvis.mutable_pose() = pose;
       setPoseFromMessage(tmpvis, visual);
-      
     }
   }
 }
@@ -623,6 +622,8 @@ void RenderWidget::CreateRenderWindow()
   this->camera->SetAspectRatio(1.333);
   this->camera->SetHFOV(M_PI / 2.0);
   root->AddChild(this->camera);
+
+  this->scene->SetBackgroundColor(0.9, 0.9, 0.9);
 
   // create render window
   std::string winHandle = std::to_string(static_cast<uint64_t>(this->winId()));

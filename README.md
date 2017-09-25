@@ -125,7 +125,7 @@ To run just the bridge, run:
 
 ```
 $ pushd src/delphyne
-$ bazel run //bridge:lcm-to-ign-trans-bridge
+$ bazel run //bridge:lcm-ign-transport-bridge
 $ popd
 ```
 

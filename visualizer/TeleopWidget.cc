@@ -70,6 +70,8 @@ TeleopWidget::TeleopWidget(QWidget *parent)
   this->setLayout(layout);
 
   QObject::connect(this->button, SIGNAL(clicked()), this, SLOT(startDriving()));
+
+  timer.start(1000, this);
 }
 
 void TeleopWidget::startDriving()
@@ -102,6 +104,34 @@ void TeleopWidget::mousePressEvent(QMouseEvent *_event)
 {
   ignerr << "Mouse press!" << std::endl;
   setFocus();
+}
+
+/////////////////////////////////////////////////
+void TeleopWidget::timerEvent(QTimerEvent *event)
+{
+  if (event->timerId() == timer.timerId()) {
+    // do our stuff
+    if (this->driving) {
+      if (this->current_throttle > 0.0) {
+        this->current_throttle -= 0.001;
+      }
+      else if (this->current_throttle < 0.0) {
+        this->current_throttle += 0.001;
+      }
+      this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));
+
+      if (this->current_brake > 0.0) {
+        this->current_brake -= 0.001;
+      }
+      else if (this->current_brake < 0.0) {
+        this->current_brake += 0.001;
+      }
+      this->brake_value_label->setText(QString("%1").arg(this->current_brake));
+    }
+  }
+  else {
+    QWidget::timerEvent(event);
+  }
 }
 
 /////////////////////////////////////////////////
@@ -173,6 +203,7 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
 {
   if (!driving) {
     ignerr << "Not driving, ignoring keypress" << std::endl;
+    Plugin::keyPressEvent(_event);
     return;
   }
 

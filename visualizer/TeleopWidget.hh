@@ -55,8 +55,9 @@ class TeleopWidget: public ignition::gui::Plugin
   protected slots: void startDriving();
 
   protected:
-    virtual void keyPressEvent(QKeyEvent *_event);
-    void mousePressEvent(QMouseEvent *_event);
+    virtual void keyPressEvent(QKeyEvent *_event) override;
+    void mousePressEvent(QMouseEvent *_event) override;
+    void timerEvent(QTimerEvent *event) override;
 
   private:
     /// \internal
@@ -86,6 +87,8 @@ class TeleopWidget: public ignition::gui::Plugin
     QLabel *steering_angle_label;
     QLabel *throttle_value_label;
     QLabel *brake_value_label;
+
+    QBasicTimer timer;
 
     void computeClampAndSetThrottle(double throttle_gradient);
     void computeClampAndSetBrake(double brake_gradient);

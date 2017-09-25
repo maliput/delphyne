@@ -278,12 +278,33 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
   ignMsg.set_acceleration(this->current_throttle - this->current_brake);
   ignMsg.set_theta(this->current_steering_angle);
 
-  ignerr << "Publish accel " << this->current_throttle - this->current_brake << ", theta " << this->current_steering_angle << std::endl;
+  //ignerr << "Publish accel " << this->current_throttle - this->current_brake << ", theta " << this->current_steering_angle << std::endl;
   this->publisher_->Publish(ignMsg);
 
   this->steering_angle_label->setText(QString("%1").arg(this->current_steering_angle));
   this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));
   this->brake_value_label->setText(QString("%1").arg(this->current_brake));
+}
+
+/////////////////////////////////////////////////
+void TeleopWidget::keyReleaseEvent(QKeyEvent *_event)
+{
+  if(!_event->isAutoRepeat()) {
+    if (_event->key() == Qt::Key_Up) {
+      ignerr << "Key UP Release" << std::endl;
+      computeClampAndSetThrottle(-1.0);
+      this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));
+    }
+    else if (_event->key() == Qt::Key_Down) {
+      ignerr << "Key Down Release" << std::endl;
+      computeClampAndSetBrake(-1.0);
+      this->brake_value_label->setText(QString("%1").arg(this->current_brake));
+    }
+    else {
+      Plugin::keyReleaseEvent(_event);
+    }
+  }
+  return;
 }
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::gui::TeleopWidget,

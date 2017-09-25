@@ -56,6 +56,7 @@ class TeleopWidget: public ignition::gui::Plugin
 
   protected:
     virtual void keyPressEvent(QKeyEvent *_event) override;
+    virtual void keyReleaseEvent(QKeyEvent *_event) override;
     void mousePressEvent(QMouseEvent *_event) override;
     void timerEvent(QTimerEvent *event) override;
 

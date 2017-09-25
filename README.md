@@ -83,7 +83,9 @@ $ popd
 
 # Running
 
-Two different things are hosted in the delphyne repository right now; the bridge and the visualizer.  The bridge is a bi-directional LCM-to-ignition-transport to take messages from/to Drake and translate them to/from ignition-transport messagesthat Delphyne understands.  The visualizer is a new front-end visualizer for the drake simulator.
+Two different things are hosted in the delphyne repository right now; the bridge and the visualizer.  The bridge is a bi-directional LCM-to-ignition-transport to take messages from/to Drake and translate them to/from ignition-transport
+messages that Delphyne understands.  The visualizer is a new front-end
+visualizer for the drake simulator.
 
 ## Running the mock demo
 

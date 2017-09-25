@@ -29,7 +29,7 @@
 #ifndef DELPHYNE_BRIDGE_REPEATERMANAGER_HH_
 #define DELPHYNE_BRIDGE_REPEATERMANAGER_HH_
 
-#include <vector>
+#include <map>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
@@ -76,8 +76,8 @@ class RepeaterManager {
   std::shared_ptr<lcm::LCM> lcm_;
 
   /// \internal
-  /// \brief The collection of active repeaters
-  std::vector<std::shared_ptr<delphyne::bridge::AbstractRepeater>> repeaters_;
+  /// \brief The map between topics and repeaters
+  std::map<std::string, std::shared_ptr<delphyne::bridge::AbstractRepeater>> repeaters_;
 
   /// \internal
   /// \brief The transport node used to advertise the ignition service

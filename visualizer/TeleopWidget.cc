@@ -84,9 +84,29 @@ void TeleopWidget::startDriving()
   }
   else {
     ignerr << "Start Driving" << std::endl;
-    auto topic = "/" + this->lineedit->text().toStdString();
+    auto lcmChannel = this->lineedit->text().toStdString();
+    auto ignTopic = "/" + lcmChannel;
+
+    // Ask the bridge to start repeating this channel
+    ignition::msgs::StringMsg_V request;
+    request.add_data(lcmChannel);
+    request.add_data("ign_msgs.AutomotiveDrivingCommand");
+
+    ignition::msgs::Boolean response;
+    bool result;
+    bool executed = this->node_.Request("/repeat_ignition_topic", request, 2000, response, result);
+
+    if (executed) {
+      if (!response.data()) {
+        ignerr << "Repeat request for " << lcmChannel << " failed" << std::endl;
+      }
+    }
+    else {
+      ignerr << "Service call timed out" << std::endl;
+    }
+
     this->publisher_.reset(new ignition::transport::Node::Publisher());
-    *(this->publisher_) = this->node_.Advertise<ignition::msgs::AutomotiveDrivingCommand>(topic);
+    *(this->publisher_) = this->node_.Advertise<ignition::msgs::AutomotiveDrivingCommand>(ignTopic);
     this->button->setText("Stop Driving");
     this->lineedit->setEnabled(false);
     this->driving = true;

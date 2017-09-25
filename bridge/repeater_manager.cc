@@ -69,8 +69,19 @@ void RepeaterManager::IgnitionRepeaterServiceHandler(
       break;
   }
 
+  // We are handling the message. If this fails or not will be recorded in the
+  // response
+  result = true;
+
   std::string topicName = request.data(0);
   std::string messageType = request.data(1);
+
+  // If we are already repeating this topic, do nothing
+  if (repeaters_.count(topicName)) {
+    igndbg << "Already repeating " << topicName << ". Nothing to do here." << std::endl;
+    response.set_data(true);
+    return;
+  }
 
   std::shared_ptr<delphyne::bridge::AbstractRepeater> repeater =
       delphyne::bridge::RepeaterFactory::New(messageType, lcm_, topicName);
@@ -81,8 +92,8 @@ void RepeaterManager::IgnitionRepeaterServiceHandler(
   } else {
     try {
       repeater->Start();
-      repeaters_.push_back(repeater);
-      igndbg << "Repeater for " << topicName << " started " << std::endl;
+      repeaters_[topicName] = repeater;
+      igndbg << "Repeater for " << topicName << " started." << std::endl;
       response.set_data(true);
     } catch (const std::runtime_error& error) {
       ignerr << "Failed to start ignition channel repeater for " << topicName
@@ -91,7 +102,6 @@ void RepeaterManager::IgnitionRepeaterServiceHandler(
       response.set_data(false);
     }
   }
-  result = true;
 }
 
 }  // namespace bridge

@@ -40,69 +40,72 @@ namespace gui {
 /// \class TeleopWidget
 /// \brief This is a class that implements a simple ign-gui widget for
 /// teleop-ing.
-class TeleopWidget: public ignition::gui::Plugin
-{
+class TeleopWidget : public ignition::gui::Plugin {
   Q_OBJECT
 
-  public:
-    /// \brief Default constructor.
-    explicit TeleopWidget(QWidget *parent = 0);
+ public:
+  /// \brief Default constructor.
+  explicit TeleopWidget(QWidget* parent = 0);
 
-    /// \brief Default Destructor.
-    virtual ~TeleopWidget();
+  /// \brief Default Destructor.
+  virtual ~TeleopWidget();
 
-  protected slots: void selectModel(int);
-  protected slots: void startDriving();
+ protected slots:
+  void selectModel(int);
+ protected slots:
+  void startDriving();
 
-  protected:
-    virtual void keyPressEvent(QKeyEvent *_event) override;
-    virtual void keyReleaseEvent(QKeyEvent *_event) override;
-    void mousePressEvent(QMouseEvent *_event) override;
-    void timerEvent(QTimerEvent *event) override;
-    void LoadConfig(const tinyxml2::XMLElement *_pluginElem) override;
+ protected:
+  virtual void keyPressEvent(QKeyEvent* _event) override;
+  virtual void keyReleaseEvent(QKeyEvent* _event) override;
+  void mousePressEvent(QMouseEvent* _event) override;
+  void timerEvent(QTimerEvent* event) override;
+  void LoadConfig(const tinyxml2::XMLElement* _pluginElem) override;
 
+ private:
+  /// \internal
+  /// \brief A transport node.
+  ignition::transport::Node node_;
 
-  private:
-    /// \internal
-    /// \brief A transport node.
-    ignition::transport::Node node_;
+  /// \internal
+  /// \brief The ignition publisher used to send the updates
+  std::unique_ptr<ignition::transport::Node::Publisher> publisher_;
 
-    /// \internal
-    /// \brief The ignition publisher used to send the updates
-    std::unique_ptr<ignition::transport::Node::Publisher> publisher_;
+  /// \internal
+  /// \brief The current amount of throttle
+  double current_throttle;
 
-    /// \internal
-    /// \brief The current amount of throttle
-    double current_throttle;
+  /// \internal
+  /// \brief The current amount of brake
+  double current_brake;
 
-    /// \internal
-    /// \brief The current amount of brake
-    double current_brake;
+  /// \internal
+  /// \brief True if any valid key is pressed
+  bool key_is_pressed = false;
 
-    bool key_is_pressed = false;
+  /// \internal
+  /// \brief True if keeping current throttle or
+  /// brake value without reseting to zero is enabled.
+  bool keep_current_throttle_brake = false;
 
-    bool keep_current_throttle_brake = false;
+  /// \internal
+  /// \brief The current steering angle
+  double current_steering_angle;
 
-    /// \internal
-    /// \brief The current steering angle
-    double current_steering_angle;
+  bool driving;
 
-    bool driving;
+  QLineEdit* lineedit;
+  QPushButton* button;
+  QLabel* steering_angle_label;
+  QLabel* throttle_value_label;
+  QLabel* brake_value_label;
 
-    QLineEdit *lineedit;
-    QPushButton *button;
-    QLabel *steering_angle_label;
-    QLabel *throttle_value_label;
-    QLabel *brake_value_label;
+  QBasicTimer timer;
 
-    QBasicTimer timer;
-
-    void computeClampAndSetThrottle(double throttle_gradient);
-    void computeClampAndSetBrake(double brake_gradient);
-    void computeClampAndSetSteeringAngle(double sign, double step);
-
+  void computeClampAndSetThrottle(double throttle_gradient);
+  void computeClampAndSetBrake(double brake_gradient);
+  void computeClampAndSetSteeringAngle(double sign, double step);
 };
-
 }
 }
 

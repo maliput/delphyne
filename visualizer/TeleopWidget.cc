@@ -42,9 +42,9 @@ using namespace gui;
 /////////////////////////////////////////////////
 TeleopWidget::TeleopWidget(QWidget* parent)
     : Plugin(),
-      current_throttle(0.0),
-      current_brake(0.0),
-      current_steering_angle(0.0),
+      currentThrottle(0.0),
+      currentBrake(0.0),
+      currentSteeringAngle(0.0),
       driving(false) {
   this->title = "TeleopWidget";
 
@@ -53,23 +53,23 @@ TeleopWidget::TeleopWidget(QWidget* parent)
 
   this->button = new QPushButton("Start Driving");
 
-  auto steering_angle_fixed = new QLabel("Steering Angle: ");
-  auto throttle_value_fixed = new QLabel("Throttle Value: ");
-  auto brake_value_fixed = new QLabel("Brake Value: ");
+  auto steeringAngleFixed = new QLabel("Steering Angle: ");
+  auto throttleValueFixed = new QLabel("Throttle Value: ");
+  auto brakeValueFixed = new QLabel("Brake Value: ");
 
-  this->steering_angle_label = new QLabel("0.0");
-  this->throttle_value_label = new QLabel("0.0");
-  this->brake_value_label = new QLabel("0.0");
+  this->steeringAngleLabel = new QLabel("0.0");
+  this->throttleValueLabel = new QLabel("0.0");
+  this->brakeValueLabel = new QLabel("0.0");
 
   auto layout = new QGridLayout;
   layout->addWidget(this->lineedit, 0, 0);
   layout->addWidget(this->button, 0, 1, 1, 2);
-  layout->addWidget(steering_angle_fixed, 1, 0);
-  layout->addWidget(this->steering_angle_label, 1, 1);
-  layout->addWidget(throttle_value_fixed, 2, 0);
-  layout->addWidget(this->throttle_value_label, 2, 1);
-  layout->addWidget(brake_value_fixed, 3, 0);
-  layout->addWidget(this->brake_value_label, 3, 1);
+  layout->addWidget(steeringAngleFixed, 1, 0);
+  layout->addWidget(this->steeringAngleLabel, 1, 1);
+  layout->addWidget(throttleValueFixed, 2, 0);
+  layout->addWidget(this->throttleValueLabel, 2, 1);
+  layout->addWidget(brakeValueFixed, 3, 0);
+  layout->addWidget(this->brakeValueLabel, 3, 1);
 
   this->setLayout(layout);
 
@@ -82,21 +82,21 @@ void TeleopWidget::LoadConfig(const tinyxml2::XMLElement* _pluginElem) {
   // Read configuration
   if (_pluginElem) {
     if (auto channelElem = _pluginElem->FirstChildElement("car_number")) {
-      std::string channel_name =
+      std::string channelName =
           "DRIVING_COMMAND_" + std::string(channelElem->GetText());
-      this->lineedit->setText(QString::fromStdString(channel_name));
+      this->lineedit->setText(QString::fromStdString(channelName));
     }
   }
 }
 
 void TeleopWidget::startDriving() {
   if (this->driving) {
-    ignerr << "Stop Driving" << std::endl;
+    ignmsg << "Stop Driving" << std::endl;
     this->button->setText("Start Driving");
     this->lineedit->setEnabled(true);
     this->driving = false;
   } else {
-    ignerr << "Start Driving" << std::endl;
+    ignmsg << "Start Driving" << std::endl;
     auto lcmChannel = this->lineedit->text().toStdString();
     auto ignTopic = "/" + lcmChannel;
 
@@ -134,7 +134,7 @@ TeleopWidget::~TeleopWidget() {}
 
 /////////////////////////////////////////////////
 void TeleopWidget::mousePressEvent(QMouseEvent* _event) {
-  ignerr << "Mouse press!" << std::endl;
+  ignmsg << "Mouse press!" << std::endl;
   setFocus();
 }
 
@@ -142,13 +142,13 @@ void TeleopWidget::mousePressEvent(QMouseEvent* _event) {
 void TeleopWidget::timerEvent(QTimerEvent* event) {
   if (event->timerId() == timer.timerId()) {
     // do our stuff
-    if (this->driving && !this->key_is_pressed &&
-        !this->keep_current_throttle_brake) {
+    if (this->driving && !this->keyIsPressed &&
+        !this->keepCurrentThrottleBrake) {
       computeClampAndSetThrottle(-5.0);
-      this->throttle_value_label->setText(
-          QString("%1").arg(this->current_throttle));
+      this->throttleValueLabel->setText(
+          QString("%1").arg(this->currentThrottle));
       computeClampAndSetBrake(-5.0);
-      this->brake_value_label->setText(QString("%1").arg(this->current_brake));
+      this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
     }
   } else {
     QWidget::timerEvent(event);
@@ -167,93 +167,88 @@ static void sec_and_nsec_now(int64_t& sec, int32_t& nsec) {
 }
 
 // Target velocity 60mph, i.e. ~26.8224 m/sec
-static const double max_velocity = 26.8224;
-static const double throttle_scale = max_velocity / 300.0;
+static const double maxVelocity = 26.8224;
+static const double throttleScale = maxVelocity / 300.0;
 
-static const double max_brake = max_velocity;
-static const double brake_scale = throttle_scale;
+static const double maxBrake = maxVelocity;
+static const double brakeScale = throttleScale;
 
 // Maximum steering angle is 45 degrees (
 static const double Pi = 3.1415926535897931;
 static const double DegToRad = Pi / 180.0;
-static const double max_steering_angle = 45 * DegToRad;
-static const double steering_button_step_angle = max_steering_angle / 100.0;
+static const double maxSteeringAngle = 45 * DegToRad;
+static const double steeringButtonStepAngle = maxSteeringAngle / 100.0;
 
 /////////////////////////////////////////////////
-void TeleopWidget::computeClampAndSetThrottle(double throttle_gradient) {
-  double throttle = this->current_throttle + throttle_gradient * throttle_scale;
+void TeleopWidget::computeClampAndSetThrottle(double throttleGradient) {
+  double throttle = this->currentThrottle + throttleGradient * throttleScale;
   if (throttle < 0.0) {
     throttle = 0.0;
-  } else if (throttle > max_velocity) {
-    throttle = max_velocity;
+  } else if (throttle > maxVelocity) {
+    throttle = maxVelocity;
   }
-  this->current_throttle = throttle;
+  this->currentThrottle = throttle;
 }
 
 /////////////////////////////////////////////////
-void TeleopWidget::computeClampAndSetBrake(double brake_gradient) {
-  double brake = this->current_brake + brake_gradient * brake_scale;
+void TeleopWidget::computeClampAndSetBrake(double brakeGradient) {
+  double brake = this->currentBrake + brakeGradient * brakeScale;
   if (brake < 0.0) {
     brake = 0.0;
-  } else if (brake > max_brake) {
-    brake = max_brake;
+  } else if (brake > maxBrake) {
+    brake = maxBrake;
   }
-  this->current_brake = brake;
+  this->currentBrake = brake;
 }
 
 /////////////////////////////////////////////////
 void TeleopWidget::computeClampAndSetSteeringAngle(double sign, double step) {
-  double angle = this->current_steering_angle + step * sign;
-  if (angle > max_steering_angle) {
-    angle = max_steering_angle;
-  } else if (angle < -max_steering_angle) {
-    angle = -max_steering_angle;
+  double angle = this->currentSteeringAngle + step * sign;
+  if (angle > maxSteeringAngle) {
+    angle = maxSteeringAngle;
+  } else if (angle < -maxSteeringAngle) {
+    angle = -maxSteeringAngle;
   }
 
-  this->current_steering_angle = angle;
+  this->currentSteeringAngle = angle;
 }
 
 /////////////////////////////////////////////////
 void TeleopWidget::keyPressEvent(QKeyEvent* _event) {
   if (!driving) {
-    ignerr << "Not driving, ignoring keypress" << std::endl;
+    ignwarn << "Not driving, ignoring keypress" << std::endl;
     Plugin::keyPressEvent(_event);
     return;
   }
 
-  double throttle_gradient = 0.0;
-  double brake_gradient = 0.0;
-  double steering_sign = 1.0;
-  double steering_step = 0.0;
+  double throttleGradient = 0.0;
+  double brakeGradient = 0.0;
+  double steeringSign = 1.0;
+  double steeringStep = 0.0;
 
-  this->key_is_pressed = true;
-  this->keep_current_throttle_brake = false;
+  this->keyIsPressed = true;
+  this->keepCurrentThrottleBrake = false;
   // The list of keys is here: http://doc.qt.io/qt-5/qt.html#Key-enum
   if (_event->key() == Qt::Key_Space) {
-    ignerr << "Space" << std::endl;
-    this->keep_current_throttle_brake = true;
-    throttle_gradient = 0.0;
-    brake_gradient = 0.0;
+    this->keepCurrentThrottleBrake = true;
+    throttleGradient = 0.0;
+    brakeGradient = 0.0;
   } else if (_event->key() == Qt::Key_Left) {
-    ignerr << "Left" << std::endl;
-    steering_sign = 1.0;
-    steering_step = steering_button_step_angle;
+    steeringSign = 1.0;
+    steeringStep = steeringButtonStepAngle;
   } else if (_event->key() == Qt::Key_Right) {
-    ignerr << "Right" << std::endl;
-    steering_sign = -1.0;
-    steering_step = steering_button_step_angle;
+    steeringSign = -1.0;
+    steeringStep = steeringButtonStepAngle;
   } else if (_event->key() == Qt::Key_Up) {
-    ignerr << "Up" << std::endl;
-    throttle_gradient = 1.0;
+    throttleGradient = 1.0;
   } else if (_event->key() == Qt::Key_Down) {
-    ignerr << "Down" << std::endl;
-    brake_gradient = 1.0;
+    brakeGradient = 1.0;
   } else {
     // The Qt documentation at http://doc.qt.io/qt-5/qwidget.html#keyPressEvent
     // says that you must call the base class if you don't handle the key, so
     // do that here.
     Plugin::keyPressEvent(_event);
-    this->key_is_pressed = false;
+    this->keyIsPressed = false;
     return;
   }
 
@@ -266,45 +261,41 @@ void TeleopWidget::keyPressEvent(QKeyEvent* _event) {
 
   sec_and_nsec_now(sec, nsec);
 
-  computeClampAndSetThrottle(throttle_gradient);
-  computeClampAndSetBrake(brake_gradient);
-  computeClampAndSetSteeringAngle(steering_sign, steering_step);
+  computeClampAndSetThrottle(throttleGradient);
+  computeClampAndSetBrake(brakeGradient);
+  computeClampAndSetSteeringAngle(steeringSign, steeringStep);
 
   ignMsg.mutable_time()->set_sec(sec);
   ignMsg.mutable_time()->set_nsec(nsec);
 
-  ignMsg.set_acceleration(this->current_throttle - this->current_brake);
-  ignMsg.set_theta(this->current_steering_angle);
+  ignMsg.set_acceleration(this->currentThrottle - this->currentBrake);
+  ignMsg.set_theta(this->currentSteeringAngle);
 
-  // ignerr << "Publish accel " << this->current_throttle - this->current_brake
-  // << ", theta " << this->current_steering_angle << std::endl;
   this->publisher_->Publish(ignMsg);
 
-  this->steering_angle_label->setText(
-      QString("%1").arg(this->current_steering_angle));
-  this->throttle_value_label->setText(
-      QString("%1").arg(this->current_throttle));
-  this->brake_value_label->setText(QString("%1").arg(this->current_brake));
+  this->steeringAngleLabel->setText(
+      QString("%1").arg(this->currentSteeringAngle));
+  this->throttleValueLabel->setText(
+      QString("%1").arg(this->currentThrottle));
+  this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
 }
 
 /////////////////////////////////////////////////
 void TeleopWidget::keyReleaseEvent(QKeyEvent* _event) {
   if (!_event->isAutoRepeat()) {
-    this->key_is_pressed = false;
+    this->keyIsPressed = false;
     if (_event->key() == Qt::Key_Space) {
-      this->keep_current_throttle_brake = true;
+      this->keepCurrentThrottleBrake = true;
     } else if (_event->key() == Qt::Key_Up) {
-      ignerr << "Key UP Release" << std::endl;
       computeClampAndSetThrottle(-1.0);
-      this->throttle_value_label->setText(
-          QString("%1").arg(this->current_throttle));
+      this->throttleValueLabel->setText(
+          QString("%1").arg(this->currentThrottle));
     } else if (_event->key() == Qt::Key_Down) {
-      ignerr << "Key Down Release" << std::endl;
       computeClampAndSetBrake(-1.0);
-      this->brake_value_label->setText(QString("%1").arg(this->current_brake));
+      this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
     } else {
       Plugin::keyReleaseEvent(_event);
-      this->key_is_pressed = true;
+      this->keyIsPressed = true;
     }
   }
   return;

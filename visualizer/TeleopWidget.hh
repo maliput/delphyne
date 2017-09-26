@@ -73,37 +73,37 @@ class TeleopWidget : public ignition::gui::Plugin {
 
   /// \internal
   /// \brief The current amount of throttle
-  double current_throttle;
+  double currentThrottle;
 
   /// \internal
   /// \brief The current amount of brake
-  double current_brake;
+  double currentBrake;
 
   /// \internal
   /// \brief True if any valid key is pressed
-  bool key_is_pressed = false;
+  bool keyIsPressed = false;
 
   /// \internal
   /// \brief True if keeping current throttle or
   /// brake value without reseting to zero is enabled.
-  bool keep_current_throttle_brake = false;
+  bool keepCurrentThrottleBrake = false;
 
   /// \internal
   /// \brief The current steering angle
-  double current_steering_angle;
+  double currentSteeringAngle;
 
   bool driving;
 
   QLineEdit* lineedit;
   QPushButton* button;
-  QLabel* steering_angle_label;
-  QLabel* throttle_value_label;
-  QLabel* brake_value_label;
+  QLabel* steeringAngleLabel;
+  QLabel* throttleValueLabel;
+  QLabel* brakeValueLabel;
 
   QBasicTimer timer;
 
-  void computeClampAndSetThrottle(double throttle_gradient);
-  void computeClampAndSetBrake(double brake_gradient);
+  void computeClampAndSetThrottle(double throttleGradient);
+  void computeClampAndSetBrake(double brakeGradient);
   void computeClampAndSetSteeringAngle(double sign, double step);
 };
 }

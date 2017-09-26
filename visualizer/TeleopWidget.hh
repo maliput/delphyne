@@ -79,6 +79,8 @@ class TeleopWidget: public ignition::gui::Plugin
 
     bool key_is_pressed = false;
 
+    bool keep_current_throttle_brake = false;
+
     /// \internal
     /// \brief The current steering angle
     double current_steering_angle;

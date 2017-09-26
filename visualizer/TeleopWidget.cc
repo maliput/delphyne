@@ -132,7 +132,7 @@ void TeleopWidget::timerEvent(QTimerEvent *event)
 {
   if (event->timerId() == timer.timerId()) {
     // do our stuff
-    if (this->driving && !key_is_pressed) {
+    if (this->driving && !key_is_pressed && !keep_current_throttle_brake) {
       computeClampAndSetThrottle(-5.0);
       this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));
       computeClampAndSetBrake(-5.0);
@@ -223,8 +223,15 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
   double steering_step = 0.0;
 
   key_is_pressed = true;
+  keep_current_throttle_brake = false;
   // The list of keys is here: http://doc.qt.io/qt-5/qt.html#Key-enum
-  if (_event->key() == Qt::Key_Left) {
+  if (_event->key() == Qt::Key_Space) {
+    ignerr << "Space" << std::endl;
+    keep_current_throttle_brake = true;
+    throttle_gradient = 0.0;
+    brake_gradient = 0.0;
+  }
+  else if (_event->key() == Qt::Key_Left) {
     ignerr << "Left" << std::endl;
     steering_sign = 1.0;
     steering_step = steering_button_step_angle;
@@ -283,7 +290,10 @@ void TeleopWidget::keyReleaseEvent(QKeyEvent *_event)
 {
   if(!_event->isAutoRepeat()) {
     key_is_pressed = false;
-    if (_event->key() == Qt::Key_Up) {
+    if (_event->key() == Qt::Key_Space) {
+      keep_current_throttle_brake = true;
+    }
+    else if (_event->key() == Qt::Key_Up) {
       ignerr << "Key UP Release" << std::endl;
       computeClampAndSetThrottle(-1.0);
       this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));

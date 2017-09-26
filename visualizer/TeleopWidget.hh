@@ -92,6 +92,8 @@ class TeleopWidget : public ignition::gui::Plugin {
   /// \brief The current steering angle
   double currentSteeringAngle;
 
+  /// \internal
+  /// \brief The current state of the widget
   bool driving;
 
   QLineEdit* lineedit;
@@ -99,11 +101,18 @@ class TeleopWidget : public ignition::gui::Plugin {
   QLabel* steeringAngleLabel;
   QLabel* throttleValueLabel;
   QLabel* brakeValueLabel;
-
   QBasicTimer timer;
 
+  /// \internal
+  /// \brief Compute and set a valid throttle value
   void computeClampAndSetThrottle(double throttleGradient);
+
+  /// \internal
+  /// \brief Compute and set a valid brake value
   void computeClampAndSetBrake(double brakeGradient);
+
+  /// \internal
+  /// \brief Compute and set a valid steering angle value
   void computeClampAndSetSteeringAngle(double sign, double step);
 };
 }

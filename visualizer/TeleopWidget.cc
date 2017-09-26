@@ -27,6 +27,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <chrono>
+#include <cmath>
 
 #include "protobuf/headers/automotive_driving_command.pb.h"
 
@@ -71,7 +72,7 @@ TeleopWidget::TeleopWidget(QWidget *parent)
 
   QObject::connect(this->button, SIGNAL(clicked()), this, SLOT(startDriving()));
 
-  timer.start(1000, this);
+  timer.start(10, this);
 }
 
 void TeleopWidget::startDriving()
@@ -131,21 +132,10 @@ void TeleopWidget::timerEvent(QTimerEvent *event)
 {
   if (event->timerId() == timer.timerId()) {
     // do our stuff
-    if (this->driving) {
-      if (this->current_throttle > 0.0) {
-        this->current_throttle -= 0.001;
-      }
-      else if (this->current_throttle < 0.0) {
-        this->current_throttle += 0.001;
-      }
+    if (this->driving && !key_is_pressed) {
+      computeClampAndSetThrottle(-5.0);
       this->throttle_value_label->setText(QString("%1").arg(this->current_throttle));
-
-      if (this->current_brake > 0.0) {
-        this->current_brake -= 0.001;
-      }
-      else if (this->current_brake < 0.0) {
-        this->current_brake += 0.001;
-      }
+      computeClampAndSetBrake(-5.0);
       this->brake_value_label->setText(QString("%1").arg(this->current_brake));
     }
   }
@@ -232,6 +222,7 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
   double steering_sign = 1.0;
   double steering_step = 0.0;
 
+  key_is_pressed = true;
   // The list of keys is here: http://doc.qt.io/qt-5/qt.html#Key-enum
   if (_event->key() == Qt::Key_Left) {
     ignerr << "Left" << std::endl;
@@ -256,6 +247,7 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
     // says that you must call the base class if you don't handle the key, so
     // do that here.
     Plugin::keyPressEvent(_event);
+    key_is_pressed = false;
     return;
   }
 
@@ -290,6 +282,7 @@ void TeleopWidget::keyPressEvent(QKeyEvent *_event)
 void TeleopWidget::keyReleaseEvent(QKeyEvent *_event)
 {
   if(!_event->isAutoRepeat()) {
+    key_is_pressed = false;
     if (_event->key() == Qt::Key_Up) {
       ignerr << "Key UP Release" << std::endl;
       computeClampAndSetThrottle(-1.0);
@@ -302,6 +295,7 @@ void TeleopWidget::keyReleaseEvent(QKeyEvent *_event)
     }
     else {
       Plugin::keyReleaseEvent(_event);
+      key_is_pressed = true;
     }
   }
   return;

@@ -77,6 +77,8 @@ class TeleopWidget: public ignition::gui::Plugin
     /// \brief The current amount of brake
     double current_brake;
 
+    bool key_is_pressed = false;
+
     /// \internal
     /// \brief The current steering angle
     double current_steering_angle;

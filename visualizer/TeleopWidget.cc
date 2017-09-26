@@ -75,6 +75,20 @@ TeleopWidget::TeleopWidget(QWidget *parent)
   timer.start(10, this);
 }
 
+void TeleopWidget::LoadConfig(const tinyxml2::XMLElement *_pluginElem)
+{
+  // Read configuration
+  if (_pluginElem)
+  {
+    if (auto channelElem = _pluginElem->FirstChildElement("car_number"))
+    {
+      std::string channel_name = "DRIVING_COMMAND_" + std::string(channelElem->GetText());
+      this->lineedit->setText(QString::fromStdString(channel_name));
+    }
+  }
+}
+
+
 void TeleopWidget::startDriving()
 {
   if (this->driving) {

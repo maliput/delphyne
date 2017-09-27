@@ -41,7 +41,7 @@ In order to successfully build and use Delphyne, Drake, or the ignition tools he
 $ export PKG_CONFIG_PATH=`pwd`/install/lib/pkgconfig:$PKG_CONFIG_PATH
 $ export PATH=`pwd`/install/bin:$PATH
 $ export LD_LIBRARY_PATH=`pwd`/install/lib:$LD_LIBRARY_PATH
-$ export DELPHYNE_PACKAGE_PATH=`pwd`/src/drake/drake/automotive/models:`pwd`/src/delphyne/bridge
+$ export DELPHYNE_PACKAGE_PATH=`pwd`/src/drake/drake/automotive/models:`pwd`/src/delphyne/bridge:`pwd`/src/delphyne
 ```
 
 Next we can go on and build the components.

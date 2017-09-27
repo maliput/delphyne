@@ -95,7 +95,6 @@ class IgnTopicRepeater : public AbstractRepeater {
   void handleMessage(const IGN_TYPE& ignMsg) {
     LCM_TYPE lcmMsg;
     try {
-      //ignerr << "Trying to do translation" << std::endl;
       ignToLcm(ignMsg, &lcmMsg);
       lcm_->publish(topicName_, &lcmMsg);
     } catch (const delphyne::bridge::TranslateException& e) {

@@ -52,8 +52,8 @@ cc_library(
     ],
     deps = [
         "//bridge:ignition-custom-messages",
-        "@ignition_common//:ignition_common_shared_library",
-        "@ignition_gui//:ignition_gui_shared_library",
+        "@ignition-common0",
+        "@ignition-gui",
         "@ignition-transport3",
     ],
     linkstatic = 0,

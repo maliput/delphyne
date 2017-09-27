@@ -28,7 +28,6 @@
 
 #include <chrono>
 #include <cstdint>
-#include <iostream>
 
 #include "drake/lcmt_driving_command_t.hpp"
 #include "ign_to_lcm_translation.hh"

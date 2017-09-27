@@ -35,13 +35,10 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     ```
 
 # Setup the environment
-In order to successfully build and use Delphyne, Drake, or the ignition tools here, a few environment variables must be setup.  These have to be absolute paths, so note that the following will only work from the root of the delphyne workspace:
+In order to successfully build and use Delphyne, Drake, or the ignition tools here, a few environment variables must be setup.  Delphyne provides a script to do this for you; for this to work correctly, you must be in the root of your delphyne workspace:
 
 ```
-$ export PKG_CONFIG_PATH=`pwd`/install/lib/pkgconfig:$PKG_CONFIG_PATH
-$ export PATH=`pwd`/install/bin:$PATH
-$ export LD_LIBRARY_PATH=`pwd`/install/lib:$LD_LIBRARY_PATH
-$ export DELPHYNE_PACKAGE_PATH=`pwd`/src/drake/drake/automotive/models:`pwd`/src/delphyne/bridge:`pwd`/src/delphyne
+$ . src/delphyne/setup.bash
 ```
 
 Next we can go on and build the components.

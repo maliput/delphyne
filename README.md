@@ -20,7 +20,7 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     $ cd delphyne_ws
     ```
 
-1.  Download the delphyne.repos file from [delphyne.repos](https://github.com/ToyotaResearchInstitute/delphyne/delphyne.repos) into `delphyne_ws` (we can't automate this because it is a private repository).
+1.  Download the delphyne.repos file from [delphyne.repos](https://github.com/ToyotaResearchInstitute/delphyne/blob/master/delphyne.repos) into `delphyne_ws` (we can't automate this because it is a private repository).
 
 1.  Import the repositories from delphyne.repos:
 

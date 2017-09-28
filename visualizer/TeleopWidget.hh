@@ -61,6 +61,9 @@ class TeleopWidget : public ignition::gui::Plugin {
   void mousePressEvent(QMouseEvent* _event) override;
   void timerEvent(QTimerEvent* event) override;
   void LoadConfig(const tinyxml2::XMLElement* _pluginElem) override;
+  void OnRepeatIgnitionTopic(const ignition::msgs::Boolean &response, const bool result);
+  void RepeatingDriveTopic(const ignition::msgs::Boolean &response, const bool result);
+
 
  private:
   /// \internal

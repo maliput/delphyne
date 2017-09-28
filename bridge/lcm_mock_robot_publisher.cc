@@ -165,7 +165,7 @@ int main(int argc, char* argv[]) {
   drake::lcmt_viewer_geometry_data meshURLMsg;
   meshURLMsg.type = meshURLMsg.MESH;
   meshURLMsg.string_data =
-      "prius/prius.dae";  // Relative to DELPHYNE_PACKAGE_PATH
+      "media/duck.dae";  // Relative to DELPHYNE_PACKAGE_PATH
                           // or an absolute path.
   meshURLMsg.num_float_data = 3;
   meshURLMsg.float_data.resize(meshURLMsg.num_float_data);
@@ -175,7 +175,10 @@ int main(int argc, char* argv[]) {
   meshURLMsg.position[0] = 6;
   meshURLMsg.position[1] = 3;
   meshURLMsg.position[2] = 0;
-  std::copy(quaternion.begin(), quaternion.end(), meshURLMsg.quaternion);
+  meshURLMsg.quaternion[0] = 0.707;
+  meshURLMsg.quaternion[1] = 0.707;
+  meshURLMsg.quaternion[2] = 0.0;
+  meshURLMsg.quaternion[3] = 0.0;
   std::copy(color.begin(), color.end(), meshURLMsg.color);
 
   // Generate mesh-from-url link message
@@ -191,8 +194,8 @@ int main(int argc, char* argv[]) {
   meshPackageMsg.type = meshPackageMsg.MESH;
   // The following path gets solved by drake's resolvePackageFilename. Requires
   // a package.xml file on each named directory and to append the root dir to
-  // DRAKE_PACKAGE_PATH, in this case, must be relative to drake's models dir
-  meshPackageMsg.string_data = "package://prius/prius.dae";
+  // DELPHYNE_PACKAGE_PATH, in this case, must be relative to drake's models dir
+  meshPackageMsg.string_data = "package://media/duck.dae";
   meshPackageMsg.num_float_data = 3;
   meshPackageMsg.float_data.resize(meshPackageMsg.num_float_data);
   meshPackageMsg.float_data[0] = 1.0;  // scale
@@ -201,7 +204,10 @@ int main(int argc, char* argv[]) {
   meshPackageMsg.position[0] = -6;
   meshPackageMsg.position[1] = 3;
   meshPackageMsg.position[2] = 0;
-  std::copy(quaternion.begin(), quaternion.end(), meshPackageMsg.quaternion);
+  meshPackageMsg.quaternion[0] = 0.707;
+  meshPackageMsg.quaternion[1] = 0.707;
+  meshPackageMsg.quaternion[2] = 0.0;
+  meshPackageMsg.quaternion[3] = 0.0;
   std::copy(color.begin(), color.end(), meshPackageMsg.color);
 
   // Generate mesh-from-package link message

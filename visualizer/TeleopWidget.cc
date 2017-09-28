@@ -301,6 +301,10 @@ void TeleopWidget::keyReleaseEvent(QKeyEvent* _event) {
     } else if (_event->key() == Qt::Key_Down) {
       computeClampAndSetBrake(-1.0);
       this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
+    } else if (_event->key() == Qt::Key_Left || _event->key() == Qt::Key_Right) {
+      // do nothing
+      // this avoids the accel/brake values of not going down
+      // to zero after release when steering at the same time
     } else {
       Plugin::keyReleaseEvent(_event);
       this->keyIsPressed = true;

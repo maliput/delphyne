@@ -50,10 +50,14 @@ class TeleopWidget : public ignition::gui::Plugin {
   /// \brief Default Destructor.
   virtual ~TeleopWidget();
 
+  /// \brief Callback to start the driving setup process
   public slots: void StartDriving();
 
+  /// \brief Notify that the response to the asynchronous service call
+  /// to the bridge returned.
   signals: void RepeatingDriveTopic(const ignition::msgs::Boolean &response, const bool result);
 
+  /// \brief Callback to finish start driving
   public slots: void DriveTopicComplete(const ignition::msgs::Boolean &response, const bool result);
 
  protected:
@@ -83,12 +87,26 @@ class TeleopWidget : public ignition::gui::Plugin {
 
   /// \internal
   /// \brief True if any valid key is pressed
-  bool keyIsPressed = false;
+  bool throttleKeyPressed = false;
 
   /// \internal
-  /// \brief True if keeping current throttle or
-  /// brake value without reseting to zero is enabled.
-  bool keepCurrentThrottleBrake = false;
+  /// \brief Whether the brake key is currently pressed
+  bool brakeKeyPressed = false;
+
+  /// \internal
+  /// \brief True if keeping current throttle value
+  /// without reseting to zero is enabled.
+  bool keepCurrentThrottle = false;
+
+  /// \internal
+  /// \brief True if keeping current brake value
+  /// without reseting to zero is enabled.
+  bool keepCurrentBrake = false;
+
+  /// \internal
+  /// \brief Whether a new steering angle has been
+  /// computed since the last time the timer ran.
+  bool newSteeringAngle = false;
 
   /// \internal
   /// \brief The current steering angle
@@ -115,7 +133,7 @@ class TeleopWidget : public ignition::gui::Plugin {
 
   /// \internal
   /// \brief Compute and set a valid steering angle value
-  void computeClampAndSetSteeringAngle(double sign, double step);
+  void computeClampAndSetSteeringAngle(double sign);
 };
 }
 }

@@ -150,23 +150,6 @@ void TeleopWidget::mousePressEvent(QMouseEvent* _event) {
 }
 
 /////////////////////////////////////////////////
-void TeleopWidget::timerEvent(QTimerEvent* event) {
-  if (event->timerId() == timer.timerId()) {
-    // do our stuff
-    if (this->driving && !this->keyIsPressed &&
-        !this->keepCurrentThrottleBrake) {
-      computeClampAndSetThrottle(-5.0);
-      this->throttleValueLabel->setText(
-          QString("%1").arg(this->currentThrottle));
-      computeClampAndSetBrake(-5.0);
-      this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
-    }
-  } else {
-    QWidget::timerEvent(event);
-  }
-}
-
-/////////////////////////////////////////////////
 static void sec_and_nsec_now(int64_t& sec, int32_t& nsec) {
   std::chrono::time_point<std::chrono::system_clock, std::chrono::nanoseconds>
       now = std::chrono::system_clock::now();
@@ -175,6 +158,63 @@ static void sec_and_nsec_now(int64_t& sec, int32_t& nsec) {
 
   nsec = static_cast<int32_t>(count % 1000000000l);
   sec = (count - nsec) / 1000000000l;
+}
+
+/////////////////////////////////////////////////
+void TeleopWidget::timerEvent(QTimerEvent* event) {
+  if (event->timerId() == timer.timerId()) {
+    // do our stuff
+    if (this->driving) {
+      double last_throttle = this->currentThrottle;
+      double last_brake = this->currentBrake;
+
+      if (!this->keepCurrentThrottle) {
+        if (this->throttleKeyPressed) {
+          computeClampAndSetThrottle(1.0);
+        } else {
+          computeClampAndSetThrottle(-6.0);
+        }
+      }
+
+      if (!this->keepCurrentBrake) {
+        if (this->brakeKeyPressed) {
+          computeClampAndSetBrake(1.0);
+        } else {
+          computeClampAndSetBrake(-6.0);
+        }
+      }
+
+      if (last_throttle != this->currentThrottle || last_brake != this->currentBrake ||
+          this->newSteeringAngle) {
+        ignition::msgs::AutomotiveDrivingCommand ignMsg;
+
+        // We don't set the header here since the bridge completely ignores it
+
+        int32_t nsec;
+        int64_t sec;
+
+        sec_and_nsec_now(sec, nsec);
+
+        ignMsg.mutable_time()->set_sec(sec);
+        ignMsg.mutable_time()->set_nsec(nsec);
+
+        ignMsg.set_acceleration(this->currentThrottle - this->currentBrake);
+        ignMsg.set_theta(this->currentSteeringAngle);
+
+        this->publisher_->Publish(ignMsg);
+
+        this->steeringAngleLabel->setText(
+            QString("%1").arg(this->currentSteeringAngle));
+        this->throttleValueLabel->setText(
+            QString("%1").arg(this->currentThrottle));
+        this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
+
+        this->newSteeringAngle = false;
+      }
+    }
+  } else {
+    QWidget::timerEvent(event);
+  }
 }
 
 // Target velocity 60mph, i.e. ~26.8224 m/sec
@@ -213,14 +253,13 @@ void TeleopWidget::computeClampAndSetBrake(double brakeGradient) {
 }
 
 /////////////////////////////////////////////////
-void TeleopWidget::computeClampAndSetSteeringAngle(double sign, double step) {
-  double angle = this->currentSteeringAngle + step * sign;
+void TeleopWidget::computeClampAndSetSteeringAngle(double sign) {
+  double angle = this->currentSteeringAngle + steeringButtonStepAngle * sign;
   if (angle > maxSteeringAngle) {
     angle = maxSteeringAngle;
   } else if (angle < -maxSteeringAngle) {
     angle = -maxSteeringAngle;
   }
-
   this->currentSteeringAngle = angle;
 }
 
@@ -232,85 +271,44 @@ void TeleopWidget::keyPressEvent(QKeyEvent* _event) {
     return;
   }
 
-  double throttleGradient = 0.0;
-  double brakeGradient = 0.0;
-  double steeringSign = 1.0;
-  double steeringStep = 0.0;
-
-  this->keyIsPressed = true;
-  this->keepCurrentThrottleBrake = false;
   // The list of keys is here: http://doc.qt.io/qt-5/qt.html#Key-enum
-  if (_event->key() == Qt::Key_Space) {
-    this->keepCurrentThrottleBrake = true;
-    throttleGradient = 0.0;
-    brakeGradient = 0.0;
-  } else if (_event->key() == Qt::Key_Left) {
-    steeringSign = 1.0;
-    steeringStep = steeringButtonStepAngle;
+  if (_event->key() == Qt::Key_Left) {
+    computeClampAndSetSteeringAngle(1.0);
+    this->newSteeringAngle = true;
   } else if (_event->key() == Qt::Key_Right) {
-    steeringSign = -1.0;
-    steeringStep = steeringButtonStepAngle;
+    computeClampAndSetSteeringAngle(-1.0);
+    this->newSteeringAngle = true;
   } else if (_event->key() == Qt::Key_Up) {
-    throttleGradient = 1.0;
+    this->throttleKeyPressed = true;
+    this->keepCurrentThrottle = false;
   } else if (_event->key() == Qt::Key_Down) {
-    brakeGradient = 1.0;
+    this->brakeKeyPressed = true;
+    this->keepCurrentBrake = false;
   } else {
     // The Qt documentation at http://doc.qt.io/qt-5/qwidget.html#keyPressEvent
     // says that you must call the base class if you don't handle the key, so
     // do that here.
     Plugin::keyPressEvent(_event);
-    this->keyIsPressed = false;
     return;
   }
-
-  ignition::msgs::AutomotiveDrivingCommand ignMsg;
-
-  // We don't set the header here since the bridge completely ignores it
-
-  int32_t nsec;
-  int64_t sec;
-
-  sec_and_nsec_now(sec, nsec);
-
-  computeClampAndSetThrottle(throttleGradient);
-  computeClampAndSetBrake(brakeGradient);
-  computeClampAndSetSteeringAngle(steeringSign, steeringStep);
-
-  ignMsg.mutable_time()->set_sec(sec);
-  ignMsg.mutable_time()->set_nsec(nsec);
-
-  ignMsg.set_acceleration(this->currentThrottle - this->currentBrake);
-  ignMsg.set_theta(this->currentSteeringAngle);
-
-  this->publisher_->Publish(ignMsg);
-
-  this->steeringAngleLabel->setText(
-      QString("%1").arg(this->currentSteeringAngle));
-  this->throttleValueLabel->setText(
-      QString("%1").arg(this->currentThrottle));
-  this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
 }
 
 /////////////////////////////////////////////////
 void TeleopWidget::keyReleaseEvent(QKeyEvent* _event) {
   if (!_event->isAutoRepeat()) {
-    this->keyIsPressed = false;
     if (_event->key() == Qt::Key_Space) {
-      this->keepCurrentThrottleBrake = true;
+      this->keepCurrentThrottle = true;
+      this->keepCurrentBrake = true;
     } else if (_event->key() == Qt::Key_Up) {
-      computeClampAndSetThrottle(-1.0);
-      this->throttleValueLabel->setText(
-          QString("%1").arg(this->currentThrottle));
+      this->throttleKeyPressed = false;
     } else if (_event->key() == Qt::Key_Down) {
-      computeClampAndSetBrake(-1.0);
-      this->brakeValueLabel->setText(QString("%1").arg(this->currentBrake));
+      this->brakeKeyPressed = false;
     } else if (_event->key() == Qt::Key_Left || _event->key() == Qt::Key_Right) {
       // do nothing
       // this avoids the accel/brake values of not going down
       // to zero after release when steering at the same time
     } else {
       Plugin::keyReleaseEvent(_event);
-      this->keyIsPressed = true;
     }
   }
   return;

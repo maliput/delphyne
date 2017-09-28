@@ -57,7 +57,6 @@ cc_library(
         "@ignition-transport3",
     ],
     linkstatic = 0,
-    copts = ["-Ibridge"],  # TODO(clalancette): The dependency from ignition-custom-messages isn't working properly for some reason
 )
 
 cc_binary(

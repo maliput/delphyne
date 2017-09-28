@@ -50,10 +50,11 @@ class TeleopWidget : public ignition::gui::Plugin {
   /// \brief Default Destructor.
   virtual ~TeleopWidget();
 
- protected slots:
-  void selectModel(int);
- protected slots:
-  void startDriving();
+  public slots: void StartDriving();
+
+  signals: void RepeatingDriveTopic(const ignition::msgs::Boolean &response, const bool result);
+
+  public slots: void DriveTopicComplete(const ignition::msgs::Boolean &response, const bool result);
 
  protected:
   virtual void keyPressEvent(QKeyEvent* _event) override;
@@ -62,8 +63,6 @@ class TeleopWidget : public ignition::gui::Plugin {
   void timerEvent(QTimerEvent* event) override;
   void LoadConfig(const tinyxml2::XMLElement* _pluginElem) override;
   void OnRepeatIgnitionTopic(const ignition::msgs::Boolean &response, const bool result);
-  void RepeatingDriveTopic(const ignition::msgs::Boolean &response, const bool result);
-
 
  private:
   /// \internal

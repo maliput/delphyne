@@ -40,6 +40,8 @@
 using namespace delphyne;
 using namespace gui;
 
+Q_DECLARE_METATYPE(ignition::msgs::Boolean)
+
 /////////////////////////////////////////////////
 TeleopWidget::TeleopWidget(QWidget* parent)
     : Plugin(),
@@ -47,6 +49,8 @@ TeleopWidget::TeleopWidget(QWidget* parent)
       currentBrake(0.0),
       currentSteeringAngle(0.0),
       driving(false) {
+  qRegisterMetaType<ignition::msgs::Boolean>();
+
   this->title = "TeleopWidget";
 
   this->lineedit = new QLineEdit();
@@ -74,7 +78,8 @@ TeleopWidget::TeleopWidget(QWidget* parent)
 
   this->setLayout(layout);
 
-  QObject::connect(this->button, SIGNAL(clicked()), this, SLOT(startDriving()));
+  QObject::connect(this->button, SIGNAL(clicked()), this, SLOT(StartDriving()));
+  QObject::connect(this, SIGNAL(RepeatingDriveTopic(const ignition::msgs::Boolean &, const bool)), this, SLOT(DriveTopicComplete(const ignition::msgs::Boolean &, const bool)));
 
   timer.start(10, this);
 }
@@ -90,7 +95,7 @@ void TeleopWidget::LoadConfig(const tinyxml2::XMLElement* _pluginElem) {
   }
 }
 
-void TeleopWidget::startDriving() {
+void TeleopWidget::StartDriving() {
   if (this->driving) {
     ignmsg << "Stop Driving" << std::endl;
     this->button->setText("Start Driving");
@@ -112,18 +117,17 @@ void TeleopWidget::startDriving() {
 
 /////////////////////////////////////////////////
 void TeleopWidget::OnRepeatIgnitionTopic(const ignition::msgs::Boolean &response, const bool result) {
-  std::cout << "HOLA" << std::endl;
   emit this->RepeatingDriveTopic(response, result);
 }
 
-
 /////////////////////////////////////////////////
-void TeleopWidget::RepeatingDriveTopic(const ignition::msgs::Boolean &response, const bool result) {
+void TeleopWidget::DriveTopicComplete(const ignition::msgs::Boolean &response, const bool result) {
   auto lcmChannel = this->lineedit->text().toStdString();
   auto ignTopic = "/" + lcmChannel;
 
   if (!result || !response.data()) {
     ignerr << "Repeat request for " << lcmChannel << " failed" << std::endl;
+    return;
   }
 
   this->publisher_.reset(new ignition::transport::Node::Publisher());

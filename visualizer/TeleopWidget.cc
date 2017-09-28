@@ -146,7 +146,6 @@ TeleopWidget::~TeleopWidget() {}
 
 /////////////////////////////////////////////////
 void TeleopWidget::mousePressEvent(QMouseEvent* _event) {
-  ignmsg << "Mouse press!" << std::endl;
   setFocus();
 }
 

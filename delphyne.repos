@@ -3,8 +3,8 @@ repositories:
   ign_transport   : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-transport.git',     version: '00b20d88d9a3' }
   ign_tools       : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-tools.git',         version: '22d5bada1e36' }
   ign_gui         : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-gui.git',           version: '25e6a6c72d47' }
-  ign_rendering   : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-rendering.git',     version: 'fc239cfb9590' }
+  ign_rendering   : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-rendering.git',     version: 'dc58c3130eba' }
   ign_math        : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-math.git',          version: 'acae872b0be0' }
-  ign_msgs        : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-msgs.git',          version: '78f6b0d34a04' }
+  ign_msgs        : { type: 'hg', url:  'https://bitbucket.org/ignitionrobotics/ign-msgs.git',          version: 'e7c742063425' }
   drake           : { type: 'git', url: 'https://github.com/RobotLocomotion/drake.git',                 version: 'bc1d854feed2c0db0203197b9f7fe6924cdd6e1c' }
-  delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'v0.2.0' }
+  delphyne        : { type: 'git', url: 'git@github.com:ToyotaResearchInstitute/delphyne.git',          version: 'v0.1.1' }

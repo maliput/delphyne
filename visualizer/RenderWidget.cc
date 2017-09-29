@@ -33,9 +33,9 @@
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/MeshManager.hh>
+#include <ignition/common/PluginMacros.hh>
 #include <ignition/common/StringUtils.hh>
 #include <ignition/common/SystemPaths.hh>
-#include <ignition/common/PluginMacros.hh>
 #include <ignition/gui/Iface.hh>
 #include <ignition/gui/Plugin.hh>
 #include <ignition/math/Helpers.hh>
@@ -59,9 +59,8 @@ using namespace delphyne;
 using namespace gui;
 
 /////////////////////////////////////////////////
-static void setPoseFromMessage(const ignition::msgs::Visual &_vis,
-  ignition::rendering::VisualPtr _shape)
-{
+static void setPoseFromMessage(const ignition::msgs::Visual& _vis,
+                               ignition::rendering::VisualPtr _shape) {
   double x = 0.0;
   double y = 0.0;
   double z = 0.0;
@@ -90,8 +89,7 @@ static void setPoseFromMessage(const ignition::msgs::Visual &_vis,
 }
 
 /////////////////////////////////////////////////
-std::string RenderWidget::FindFile(const std::string &_path) const
-{
+std::string RenderWidget::FindFile(const std::string& _path) const {
   std::string res = "";
   // Case 1: Absolute path. E.g,: "/tmp/my_mesh.dae"
   if (ignition::common::StartsWith(_path, "/")) {
@@ -111,14 +109,13 @@ std::string RenderWidget::FindFile(const std::string &_path) const
   }
 
   // Case 3: Relative path. E.g.: "meshes/my_mesh.dae"
-  return ignition::common::SystemPaths::LocateLocalFile(
-    path, this->packagePaths);
+  return ignition::common::SystemPaths::LocateLocalFile(path,
+                                                        this->packagePaths);
 }
 
 /////////////////////////////////////////////////
-RenderWidget::RenderWidget(QWidget *parent)
-  : Plugin(), initializedScene(false)
-{
+RenderWidget::RenderWidget(QWidget* parent)
+    : Plugin(), initializedScene(false) {
   qRegisterMetaType<ignition::msgs::Model_V>();
 
   this->setAttribute(Qt::WA_OpaquePaintEvent, true);
@@ -137,14 +134,14 @@ RenderWidget::RenderWidget(QWidget *parent)
   // first time that showEvent() is called.
   this->updateTimer = new QTimer(this);
   QObject::connect(this->updateTimer, SIGNAL(timeout()), this, SLOT(update()));
-  QObject::connect(this, SIGNAL(NewInitialModel(const ignition::msgs::Model_V &)),
-    this, SLOT(SetInitialModels(const ignition::msgs::Model_V &)));
-  QObject::connect(this,
-    SIGNAL(NewDraw(const ignition::msgs::Model_V &)), this,
-    SLOT(UpdateScene(const ignition::msgs::Model_V &)));
+  QObject::connect(
+      this, SIGNAL(NewInitialModel(const ignition::msgs::Model_V&)), this,
+      SLOT(SetInitialModels(const ignition::msgs::Model_V&)));
+  QObject::connect(this, SIGNAL(NewDraw(const ignition::msgs::Model_V&)), this,
+                   SLOT(UpdateScene(const ignition::msgs::Model_V&)));
 
   auto paths =
-    ignition::common::SystemPaths::PathsFromEnv("DELPHYNE_PACKAGE_PATH");
+      ignition::common::SystemPaths::PathsFromEnv("DELPHYNE_PACKAGE_PATH");
   if (paths.empty()) {
     ignerr << "DELPHYNE_PACKAGE_PATH environment variable is not set"
            << std::endl;
@@ -152,35 +149,30 @@ RenderWidget::RenderWidget(QWidget *parent)
   std::copy(paths.begin(), paths.end(), std::back_inserter(this->packagePaths));
 
   this->node.Subscribe("/DRAKE_VIEWER_LOAD_ROBOT",
-    &RenderWidget::OnInitialModel, this);
-  this->node.Subscribe("/DRAKE_VIEWER_DRAW",
-    &RenderWidget::OnUpdateScene, this);
+                       &RenderWidget::OnInitialModel, this);
+  this->node.Subscribe("/DRAKE_VIEWER_DRAW", &RenderWidget::OnUpdateScene,
+                       this);
 
   this->setMinimumHeight(100);
 }
 
 /////////////////////////////////////////////////
-RenderWidget::~RenderWidget()
-{
-}
+RenderWidget::~RenderWidget() {}
 
 /////////////////////////////////////////////////
-void RenderWidget::OnInitialModel(const ignition::msgs::Model_V &_msg)
-{
+void RenderWidget::OnInitialModel(const ignition::msgs::Model_V& _msg) {
   emit this->NewInitialModel(_msg);
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::OnUpdateScene(const ignition::msgs::Model_V &_msg)
-{
+void RenderWidget::OnUpdateScene(const ignition::msgs::Model_V& _msg) {
   emit this->NewDraw(_msg);
 }
 
 /////////////////////////////////////////////////
-bool RenderWidget::CreateVisual(const ignition::msgs::Visual &_vis,
-  ignition::rendering::VisualPtr &_visual,
-  ignition::rendering::MaterialPtr &_material) const
-{
+bool RenderWidget::CreateVisual(
+    const ignition::msgs::Visual& _vis, ignition::rendering::VisualPtr& _visual,
+    ignition::rendering::MaterialPtr& _material) const {
   _visual = this->scene->CreateVisual();
   if (!_visual) {
     ignerr << "Failed to create visual" << std::endl;
@@ -194,17 +186,17 @@ bool RenderWidget::CreateVisual(const ignition::msgs::Visual &_vis,
   }
 
   if (_vis.has_material()) {
-    const auto &material = _vis.material();
+    const auto& material = _vis.material();
     if (material.has_diffuse()) {
-      const auto &diffuse = material.diffuse();
+      const auto& diffuse = material.diffuse();
       if (diffuse.has_r() && diffuse.has_g() && diffuse.has_b()) {
         _material->SetDiffuse(diffuse.r(), diffuse.g(), diffuse.b());
       }
-      const auto &ambient = material.ambient();
+      const auto& ambient = material.ambient();
       if (ambient.has_r() && ambient.has_g() && ambient.has_b()) {
         _material->SetAmbient(ambient.r(), ambient.g(), ambient.b());
       }
-      const auto &specular = material.specular();
+      const auto& specular = material.specular();
       if (specular.has_r() && specular.has_g() && specular.has_b()) {
         _material->SetSpecular(specular.r(), specular.g(), specular.b());
       }
@@ -223,11 +215,9 @@ bool RenderWidget::CreateVisual(const ignition::msgs::Visual &_vis,
 
 /////////////////////////////////////////////////
 ignition::rendering::VisualPtr RenderWidget::Render(
-  const ignition::msgs::Visual &_vis,
-  const ignition::math::Vector3d &_scale,
-  const ignition::rendering::MaterialPtr &_material,
-  ignition::rendering::VisualPtr &_visual)
-{
+    const ignition::msgs::Visual& _vis, const ignition::math::Vector3d& _scale,
+    const ignition::rendering::MaterialPtr& _material,
+    ignition::rendering::VisualPtr& _visual) {
   setPoseFromMessage(_vis, _visual);
   _visual->SetLocalScale(_scale.X(), _scale.Y(), _scale.Z());
   _visual->SetMaterial(_material);
@@ -236,10 +226,8 @@ ignition::rendering::VisualPtr RenderWidget::Render(
 
 /////////////////////////////////////////////////
 ignition::rendering::VisualPtr RenderWidget::RenderBox(
-  const ignition::msgs::Visual &_vis,
-  ignition::rendering::VisualPtr &_visual,
-  ignition::rendering::MaterialPtr &_material)
-{
+    const ignition::msgs::Visual& _vis, ignition::rendering::VisualPtr& _visual,
+    ignition::rendering::MaterialPtr& _material) {
   ignition::math::Vector3d scale = ignition::math::Vector3d::One;
   auto geomBox = _vis.geometry().box();
   if (geomBox.has_size()) {
@@ -255,10 +243,8 @@ ignition::rendering::VisualPtr RenderWidget::RenderBox(
 
 /////////////////////////////////////////////////
 ignition::rendering::VisualPtr RenderWidget::RenderSphere(
-  const ignition::msgs::Visual &_vis,
-  ignition::rendering::VisualPtr &_visual,
-  ignition::rendering::MaterialPtr &_material)
-{
+    const ignition::msgs::Visual& _vis, ignition::rendering::VisualPtr& _visual,
+    ignition::rendering::MaterialPtr& _material) {
   ignition::math::Vector3d scale = ignition::math::Vector3d::One;
   auto geomSphere = _vis.geometry().sphere();
   if (geomSphere.has_radius()) {
@@ -274,10 +260,8 @@ ignition::rendering::VisualPtr RenderWidget::RenderSphere(
 
 /////////////////////////////////////////////////
 ignition::rendering::VisualPtr RenderWidget::RenderCylinder(
-  const ignition::msgs::Visual &_vis,
-  ignition::rendering::VisualPtr &_visual,
-  ignition::rendering::MaterialPtr &_material)
-{
+    const ignition::msgs::Visual& _vis, ignition::rendering::VisualPtr& _visual,
+    ignition::rendering::MaterialPtr& _material) {
   ignition::math::Vector3d scale = ignition::math::Vector3d::One;
   auto geomCylinder = _vis.geometry().cylinder();
   if (geomCylinder.has_radius()) {
@@ -294,8 +278,7 @@ ignition::rendering::VisualPtr RenderWidget::RenderCylinder(
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::RenderGroundPlane()
-{
+void RenderWidget::RenderGroundPlane() {
   auto material = this->scene->CreateMaterial();
   if (!material) {
     ignerr << "Failed to create ground plane material" << std::endl;
@@ -319,8 +302,7 @@ void RenderWidget::RenderGroundPlane()
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::RenderGrid()
-{
+void RenderWidget::RenderGrid() {
   ignition::msgs::Visual gridVisual;
   auto* gridGeometry = gridVisual.mutable_geometry();
   gridGeometry->set_type(ignition::msgs::Geometry::MESH);
@@ -334,15 +316,14 @@ void RenderWidget::RenderGrid()
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::RenderOrigin()
-{
+void RenderWidget::RenderOrigin() {
   const double kAxisRadius = 0.02;
   const double kAxisLength = 10000;
   const double kAxisHalfLength = kAxisLength / 2.0;
 
   // Create the visual axes.
   std::array<ignition::rendering::VisualPtr, 3> axes;
-  for (auto &axis : axes) {
+  for (auto& axis : axes) {
     axis = this->scene->CreateVisual();
     if (!axis) {
       ignerr << "Failed to create axis visual" << std::endl;
@@ -352,28 +333,26 @@ void RenderWidget::RenderOrigin()
     axis->AddGeometry(scene->CreateCylinder());
   }
 
-  const ignition::math::Pose3d kAxisPoseX(
-    kAxisHalfLength, 0, 0, 0, IGN_PI_2, 0);
+  const ignition::math::Pose3d kAxisPoseX(kAxisHalfLength, 0, 0, 0, IGN_PI_2,
+                                          0);
   axes[0]->SetLocalPose(kAxisPoseX);
   axes[0]->SetMaterial("Default/TransRed");
-  const ignition::math::Pose3d kAxisPoseY(
-    0, kAxisHalfLength, 0, IGN_PI_2, 0, 0);
+  const ignition::math::Pose3d kAxisPoseY(0, kAxisHalfLength, 0, IGN_PI_2, 0,
+                                          0);
   axes[1]->SetLocalPose(kAxisPoseY);
   axes[1]->SetMaterial("Default/TransGreen");
-  const ignition::math::Pose3d kAxisPoseZ(
-    0, 0, kAxisHalfLength, 0, 0, 0);
+  const ignition::math::Pose3d kAxisPoseZ(0, 0, kAxisHalfLength, 0, 0, 0);
   axes[2]->SetLocalPose(kAxisPoseZ);
   axes[2]->SetMaterial("Default/TransBlue");
 
-  for (auto &axis : axes) {
+  for (auto& axis : axes) {
     this->scene->RootVisual()->AddChild(axis);
   }
 }
 
 /////////////////////////////////////////////////
 ignition::rendering::VisualPtr RenderWidget::RenderMesh(
-  const ignition::msgs::Visual &_vis)
-{
+    const ignition::msgs::Visual& _vis) {
   // Sanity check: Make sure that the message contains all required fields.
   if (!_vis.has_geometry()) {
     ignerr << "Unable to find geometry in message" << std::endl;
@@ -397,12 +376,11 @@ ignition::rendering::VisualPtr RenderWidget::RenderMesh(
   ignition::rendering::MeshDescriptor descriptor;
   descriptor.meshName = this->FindFile(filename);
   if (descriptor.meshName.empty()) {
-    ignerr << "Unable to locate mesh [" << filename << "]"
-           << std::endl;
+    ignerr << "Unable to locate mesh [" << filename << "]" << std::endl;
     return nullptr;
   }
-  ignition::common::MeshManager *meshManager =
-    ignition::common::MeshManager::Instance();
+  ignition::common::MeshManager* meshManager =
+      ignition::common::MeshManager::Instance();
   descriptor.mesh = meshManager->Load(descriptor.meshName);
   if (!descriptor.mesh) {
     return nullptr;
@@ -418,10 +396,8 @@ ignition::rendering::VisualPtr RenderWidget::RenderMesh(
   return mesh;
 }
 
-
 /////////////////////////////////////////////////
-void RenderWidget::SetInitialModels(const ignition::msgs::Model_V &_msg)
-{
+void RenderWidget::SetInitialModels(const ignition::msgs::Model_V& _msg) {
   if (this->initializedScene) {
     return;
   }
@@ -433,25 +409,24 @@ void RenderWidget::SetInitialModels(const ignition::msgs::Model_V &_msg)
 
 /////////////////////////////////////////////////
 ignition::rendering::VisualPtr RenderWidget::CreateLinkRootVisual(
-    ignition::msgs::Link &_link, uint32_t _robotID) {
-
+    ignition::msgs::Link& _link, uint32_t _robotID) {
   ignition::rendering::VisualPtr linkRootVisual = this->scene->CreateVisual();
   // The visual's root pose is initialized to zero because the load message
-  // from LCM doesn't include the link pose but only the poses of the inner visuals.
+  // from LCM doesn't include the link pose but only the poses of the inner
+  // visuals.
   // This value will be updated on each new draw message received.
   ignition::math::Pose3d newpose(0, 0, 0, 1, 0, 0, 0);
   linkRootVisual->SetLocalPose(newpose);
   this->scene->RootVisual()->AddChild(linkRootVisual);
 
   // Assign the visual created above as the root visual of the link
-  auto &links = this->allVisuals[_robotID];
+  auto& links = this->allVisuals[_robotID];
   links.insert(std::make_pair(_link.name(), linkRootVisual));
   return linkRootVisual;
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::LoadModel(const ignition::msgs::Model &_msg)
-{
+void RenderWidget::LoadModel(const ignition::msgs::Model& _msg) {
   // Sanity check: It's required to have a model Id.
   if (!_msg.has_id()) {
     ignerr << "Skipping model without id" << std::endl;
@@ -468,7 +443,7 @@ void RenderWidget::LoadModel(const ignition::msgs::Model &_msg)
     }
 
     // Sanity check: Verify that the visual doesn't exist already.
-    const auto &modelIt = this->allVisuals.find(_msg.id());
+    const auto& modelIt = this->allVisuals.find(_msg.id());
     if (modelIt != this->allVisuals.end()) {
       if (modelIt->second.find(link.name()) != modelIt->second.end()) {
         ignerr << "Duplicated link [" << link.name() << "] for model "
@@ -494,8 +469,7 @@ void RenderWidget::LoadModel(const ignition::msgs::Model &_msg)
     // Iterate through all the visuals of the link and add
     // them as childs of the link's root visual
     for (int j = 0; j < link.visual_size(); ++j) {
-
-      const auto &vis = link.visual(j);
+      const auto& vis = link.visual(j);
       if (!vis.has_geometry()) {
         ignerr << "No geometry in link [" << link.name() << "][" << j
                << "]. Skipping" << std::endl;
@@ -514,17 +488,13 @@ void RenderWidget::LoadModel(const ignition::msgs::Model &_msg)
 
       if (vis.geometry().has_box()) {
         ignvis = this->RenderBox(vis, visual, material);
-      }
-      else if (vis.geometry().has_sphere()) {
+      } else if (vis.geometry().has_sphere()) {
         ignvis = this->RenderSphere(vis, visual, material);
-      }
-      else if (vis.geometry().has_cylinder()) {
+      } else if (vis.geometry().has_cylinder()) {
         ignvis = this->RenderCylinder(vis, visual, material);
-      }
-      else if (vis.geometry().has_mesh()) {
+      } else if (vis.geometry().has_mesh()) {
         ignvis = this->RenderMesh(vis);
-      }
-      else {
+      } else {
         ignerr << "Invalid shape for [" << link.name() << "]. Skipping"
                << std::endl;
         continue;
@@ -538,8 +508,7 @@ void RenderWidget::LoadModel(const ignition::msgs::Model &_msg)
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::UpdateScene(const ignition::msgs::Model_V &_msg)
-{
+void RenderWidget::UpdateScene(const ignition::msgs::Model_V& _msg) {
   for (int j = 0; j < _msg.models_size(); ++j) {
     auto model = _msg.models(j);
 
@@ -578,7 +547,7 @@ void RenderWidget::UpdateScene(const ignition::msgs::Model_V &_msg)
 
       // Update the pose of the root visual only;
       // the relative poses of the children remain the same
-      auto &visual = visualsIt->second;
+      auto& visual = visualsIt->second;
       // The setPoseFromMessage() assumes an ignition::msgs::Visual
       // message here, so we setup a dummy one to please it.
       ignition::msgs::Visual tmpvis;
@@ -589,11 +558,10 @@ void RenderWidget::UpdateScene(const ignition::msgs::Model_V &_msg)
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::CreateRenderWindow()
-{
+void RenderWidget::CreateRenderWindow() {
   std::string engineName = "ogre";
   ignition::rendering::RenderEngineManager* manager =
-    ignition::rendering::RenderEngineManager::Instance();
+      ignition::rendering::RenderEngineManager::Instance();
   ignition::rendering::RenderEngine* engine = manager->Engine(engineName);
   if (!engine) {
     ignerr << "Engine '" << engineName << "' is not supported" << std::endl;
@@ -634,8 +602,8 @@ void RenderWidget::CreateRenderWindow()
   this->camera->SetLocalRotation(0.0, 0.0, -2.35619);
   // Step away from the center of the scene
   this->camera->SetLocalPosition(4.0, 4.0, 1.0);
-  this->camera->SetAspectRatio(
-      static_cast<double>(this->width()) / this->height());
+  this->camera->SetAspectRatio(static_cast<double>(this->width()) /
+                               this->height());
   this->camera->SetHFOV(IGN_DTOR(60));
   root->AddChild(this->camera);
 
@@ -678,9 +646,7 @@ void RenderWidget::showEvent(QShowEvent* _e) {
 }
 
 /////////////////////////////////////////////////
-QPaintEngine* RenderWidget::paintEngine() const {
-  return nullptr;
-}
+QPaintEngine* RenderWidget::paintEngine() const { return nullptr; }
 
 /////////////////////////////////////////////////
 void RenderWidget::paintEvent(QPaintEvent* _e) {
@@ -697,8 +663,8 @@ void RenderWidget::resizeEvent(QResizeEvent* _e) {
     return;
   }
   this->renderWindow->OnResize(_e->size().width(), _e->size().height());
-  this->camera->SetAspectRatio(
-      static_cast<double>(this->width()) / this->height());
+  this->camera->SetAspectRatio(static_cast<double>(this->width()) /
+                               this->height());
   // This is a bit janky. We need to update ign-rendering so that the
   // vertical FOV is auto updated when the aspect ratio is changed
   this->camera->SetHFOV(IGN_DTOR(60));
@@ -715,7 +681,7 @@ void RenderWidget::moveEvent(QMoveEvent* _e) {
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::mousePressEvent(QMouseEvent *_e) {
+void RenderWidget::mousePressEvent(QMouseEvent* _e) {
   if (!this->orbitViewControl) {
     return;
   }
@@ -724,7 +690,7 @@ void RenderWidget::mousePressEvent(QMouseEvent *_e) {
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::mouseReleaseEvent(QMouseEvent *_e) {
+void RenderWidget::mouseReleaseEvent(QMouseEvent* _e) {
   if (!this->orbitViewControl) {
     return;
   }
@@ -733,7 +699,7 @@ void RenderWidget::mouseReleaseEvent(QMouseEvent *_e) {
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::mouseMoveEvent(QMouseEvent *_e) {
+void RenderWidget::mouseMoveEvent(QMouseEvent* _e) {
   if (!this->orbitViewControl) {
     return;
   }
@@ -742,7 +708,7 @@ void RenderWidget::mouseMoveEvent(QMouseEvent *_e) {
 }
 
 /////////////////////////////////////////////////
-void RenderWidget::wheelEvent(QWheelEvent *_e) {
+void RenderWidget::wheelEvent(QWheelEvent* _e) {
   if (!this->orbitViewControl) {
     return;
   }

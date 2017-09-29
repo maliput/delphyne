@@ -40,8 +40,7 @@ namespace delphyne {
 namespace gui {
 
 /// \def ButtonState_t Possible button states.
-enum class ButtonState_t
-{
+enum class ButtonState_t {
   /// \brief Button has been pressed.
   PRESSED,
   /// \brief Button has been released.
@@ -49,8 +48,7 @@ enum class ButtonState_t
 };
 
 /// \brief Stores the mouse state.
-struct MouseButton
-{
+struct MouseButton {
   /// \brief The active button.
   Qt::MouseButton button = Qt::NoButton;
   /// \brief Pressed or released.
@@ -80,62 +78,59 @@ struct MouseButton
 /// \class OrbitViewControl
 /// \brief Modifies the camera view according to the mouse events received.
 /// Note that the mouse events need to be captured outside of this class.
-class OrbitViewControl
-{
-  public:
-    /// \brief Default constructor.
-    /// \param[in] _cam The camera to be controlled by this class.
-    explicit OrbitViewControl(const ignition::rendering::CameraPtr &_cam);
+class OrbitViewControl {
+ public:
+  /// \brief Default constructor.
+  /// \param[in] _cam The camera to be controlled by this class.
+  explicit OrbitViewControl(const ignition::rendering::CameraPtr& _cam);
 
-    /// \brief Default Destructor.
-    virtual ~OrbitViewControl();
+  /// \brief Default Destructor.
+  virtual ~OrbitViewControl();
 
-    /// \brief Callback executed after a mouse press event.
-    /// \param[in] _e The Qt mouse event.
-    void OnMousePress(const QMouseEvent *_e);
+  /// \brief Callback executed after a mouse press event.
+  /// \param[in] _e The Qt mouse event.
+  void OnMousePress(const QMouseEvent* _e);
 
-    /// \brief Callback executed after a mouse release event.
-    /// \param[in] _e The Qt mouse event.
-    void OnMouseRelease(const QMouseEvent *_e);
+  /// \brief Callback executed after a mouse release event.
+  /// \param[in] _e The Qt mouse event.
+  void OnMouseRelease(const QMouseEvent* _e);
 
-    /// \brief Callback executed after a mouse move event.
-    /// \param[in] _e The Qt mouse event.
-    void OnMouseMove(const QMouseEvent *_e);
+  /// \brief Callback executed after a mouse move event.
+  /// \param[in] _e The Qt mouse event.
+  void OnMouseMove(const QMouseEvent* _e);
 
-    /// \brief Callback executed after a mouse wheel event.
-    /// \param[in] _e The Qt mouse event.
-    void OnMouseWheel(const QWheelEvent *_e);
+  /// \brief Callback executed after a mouse wheel event.
+  /// \param[in] _e The Qt mouse event.
+  void OnMouseWheel(const QWheelEvent* _e);
 
-  private:
-    /// \brief Update the camera view.
-    void Update();
+ private:
+  /// \brief Update the camera view.
+  void Update();
 
-    /// \brief Callback executed after a mouse click event.
-    /// \param[in] _e The Qt mouse event.
-    /// \param[in] _state The state of the button.
-    void OnMouseButtonAction(const QMouseEvent *_e,
-                             const ButtonState_t &_state);
+  /// \brief Callback executed after a mouse click event.
+  /// \param[in] _e The Qt mouse event.
+  /// \param[in] _state The state of the button.
+  void OnMouseButtonAction(const QMouseEvent* _e, const ButtonState_t& _state);
 
-    /// \brief Allows to pan, rotate and zoom the camera view.
-    ignition::rendering::OrbitViewController viewControl;
+  /// \brief Allows to pan, rotate and zoom the camera view.
+  ignition::rendering::OrbitViewController viewControl;
 
-    /// \brief The camera to control.
-    ignition::rendering::CameraPtr camera;
+  /// \brief The camera to control.
+  ignition::rendering::CameraPtr camera;
 
-    /// \brief Let us cast some rays.
-    ignition::rendering::RayQueryPtr rayQuery;
+  /// \brief Let us cast some rays.
+  ignition::rendering::RayQueryPtr rayQuery;
 
-    /// \brief Stores the result of a ray casting.
-    ignition::rendering::RayQueryResult target;
+  /// \brief Stores the result of a ray casting.
+  ignition::rendering::RayQueryResult target;
 
-    /// \brief Stores the mouse state.
-    struct MouseButton mouse;
+  /// \brief Stores the mouse state.
+  struct MouseButton mouse;
 
-    /// \brief Protect the MouseButton struct from being simultaneously modified
-    /// and read.
-    std::mutex mouseMutex;
+  /// \brief Protect the MouseButton struct from being simultaneously modified
+  /// and read.
+  std::mutex mouseMutex;
 };
-
 }
 }
 

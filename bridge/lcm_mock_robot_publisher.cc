@@ -166,7 +166,7 @@ int main(int argc, char* argv[]) {
   meshURLMsg.type = meshURLMsg.MESH;
   meshURLMsg.string_data =
       "media/duck.dae";  // Relative to DELPHYNE_PACKAGE_PATH
-                          // or an absolute path.
+                         // or an absolute path.
   meshURLMsg.num_float_data = 3;
   meshURLMsg.float_data.resize(meshURLMsg.num_float_data);
   meshURLMsg.float_data[0] = 1.0;  // scale

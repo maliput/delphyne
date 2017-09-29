@@ -38,9 +38,8 @@ using namespace delphyne;
 using namespace gui;
 
 /////////////////////////////////////////////////
-OrbitViewControl::OrbitViewControl(const ignition::rendering::CameraPtr &_cam)
-  : camera(_cam)
-{
+OrbitViewControl::OrbitViewControl(const ignition::rendering::CameraPtr& _cam)
+    : camera(_cam) {
   this->rayQuery = this->camera->Scene()->CreateRayQuery();
   if (!this->rayQuery) {
     ignerr << "Failed to create Ray Query" << std::endl;
@@ -49,22 +48,20 @@ OrbitViewControl::OrbitViewControl(const ignition::rendering::CameraPtr &_cam)
 }
 
 /////////////////////////////////////////////////
-OrbitViewControl::~OrbitViewControl()
-{
-}
+OrbitViewControl::~OrbitViewControl() {}
 
 /////////////////////////////////////////////////
-void OrbitViewControl::OnMousePress(const QMouseEvent *_e) {
+void OrbitViewControl::OnMousePress(const QMouseEvent* _e) {
   this->OnMouseButtonAction(_e, ButtonState_t::PRESSED);
 }
 
 /////////////////////////////////////////////////
-void OrbitViewControl::OnMouseRelease(const QMouseEvent *_e) {
+void OrbitViewControl::OnMouseRelease(const QMouseEvent* _e) {
   this->OnMouseButtonAction(_e, ButtonState_t::RELEASED);
 }
 
 /////////////////////////////////////////////////
-void OrbitViewControl::OnMouseMove(const QMouseEvent *_e) {
+void OrbitViewControl::OnMouseMove(const QMouseEvent* _e) {
   if (!this->camera) {
     return;
   }
@@ -79,8 +76,7 @@ void OrbitViewControl::OnMouseMove(const QMouseEvent *_e) {
     if (this->mouse.motionDirty) {
       this->mouse.dragX += deltaX;
       this->mouse.dragY += deltaY;
-    }
-    else {
+    } else {
       this->mouse.dragX = deltaX;
       this->mouse.dragY = deltaY;
     }
@@ -91,7 +87,7 @@ void OrbitViewControl::OnMouseMove(const QMouseEvent *_e) {
 }
 
 /////////////////////////////////////////////////
-void OrbitViewControl::OnMouseWheel(const QWheelEvent *_e) {
+void OrbitViewControl::OnMouseWheel(const QWheelEvent* _e) {
   if (!this->camera) {
     return;
   }
@@ -108,15 +104,14 @@ void OrbitViewControl::OnMouseWheel(const QWheelEvent *_e) {
 }
 
 //////////////////////////////////////////////////
-void OrbitViewControl::OnMouseButtonAction(const QMouseEvent *_e,
-  const ButtonState_t &_state) {
+void OrbitViewControl::OnMouseButtonAction(const QMouseEvent* _e,
+                                           const ButtonState_t& _state) {
   if (!this->camera) {
     return;
   }
 
   // Ignore unknown mouse buttons.
-  if (_e->button() != Qt::LeftButton &&
-      _e->button() != Qt::RightButton &&
+  if (_e->button() != Qt::LeftButton && _e->button() != Qt::RightButton &&
       _e->button() != Qt::MidButton) {
     return;
   }
@@ -137,23 +132,25 @@ void OrbitViewControl::OnMouseButtonAction(const QMouseEvent *_e,
 
 //////////////////////////////////////////////////
 void OrbitViewControl::Update() {
-  if (!this->camera || !this->rayQuery){
+  if (!this->camera || !this->rayQuery) {
     return;
   }
 
   std::lock_guard<std::mutex> lock(this->mouseMutex);
   if (this->mouse.buttonDirty) {
     this->mouse.buttonDirty = false;
-    double nx = 2.0 * this->mouse.x / static_cast<double>(
-      this->camera->ImageWidth()) - 1.0;
-    double ny = 1.0 - 2.0 * this->mouse.y / static_cast<double>(
-      this->camera->ImageHeight());
-    this->rayQuery->SetFromCamera(
-      this->camera, ignition::math::Vector2d(nx, ny));
-    this->target  = this->rayQuery->ClosestPoint();
+    double nx =
+        2.0 * this->mouse.x / static_cast<double>(this->camera->ImageWidth()) -
+        1.0;
+    double ny =
+        1.0 -
+        2.0 * this->mouse.y / static_cast<double>(this->camera->ImageHeight());
+    this->rayQuery->SetFromCamera(this->camera,
+                                  ignition::math::Vector2d(nx, ny));
+    this->target = this->rayQuery->ClosestPoint();
     if (!this->target) {
-      this->target.point = this->rayQuery->Origin() +
-        this->rayQuery->Direction() * 10;
+      this->target.point =
+          this->rayQuery->Origin() + this->rayQuery->Direction() * 10;
       return;
     }
   }
@@ -168,9 +165,8 @@ void OrbitViewControl::Update() {
       this->viewControl.SetCamera(this->camera);
       this->viewControl.SetTarget(this->target.point);
       this->viewControl.Pan(drag);
-    }
-    else if (this->mouse.button == Qt::MidButton &&
-             this->mouse.state == ButtonState_t::PRESSED) {
+    } else if (this->mouse.button == Qt::MidButton &&
+               this->mouse.state == ButtonState_t::PRESSED) {
       this->viewControl.SetCamera(this->camera);
       this->viewControl.SetTarget(this->target.point);
       this->viewControl.Orbit(drag);
@@ -180,10 +176,11 @@ void OrbitViewControl::Update() {
              this->mouse.state == ButtonState_t::PRESSED) {
       double hfov = this->camera->HFOV().Radian();
       double vfov = 2.0f * atan(tan(hfov / 2.0f) / this->camera->AspectRatio());
-      double distance = this->camera->WorldPosition().Distance(
-        this->target.point);
-      double amount = ((-this->mouse.dragY / static_cast<double>(
-        this->camera->ImageHeight())) * distance * tan(vfov/2.0) * 6.0);
+      double distance =
+          this->camera->WorldPosition().Distance(this->target.point);
+      double amount = ((-this->mouse.dragY /
+                        static_cast<double>(this->camera->ImageHeight())) *
+                       distance * tan(vfov / 2.0) * 6.0);
 
       this->viewControl.SetCamera(this->camera);
       this->viewControl.SetTarget(this->target.point);

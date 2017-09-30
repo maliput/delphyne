@@ -77,7 +77,8 @@ class RepeaterManager {
 
   /// \internal
   /// \brief The map between topics and repeaters
-  std::map<std::string, std::shared_ptr<delphyne::bridge::AbstractRepeater>> repeaters_;
+  std::map<std::string, std::shared_ptr<delphyne::bridge::AbstractRepeater>>
+      repeaters_;
 
   /// \internal
   /// \brief The transport node used to advertise the ignition service

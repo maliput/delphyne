@@ -45,7 +45,7 @@ std::string defaultConfigPath() {
   std::string homePath;
   ignition::common::env("HOME", homePath);
   std::string defaultConfigPath =
-    ignition::common::joinPaths(homePath, ".delphyne", "delphyne.config");
+      ignition::common::joinPaths(homePath, ".delphyne", "delphyne.config");
 
   return defaultConfigPath;
 }

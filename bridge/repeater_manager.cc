@@ -78,7 +78,8 @@ void RepeaterManager::IgnitionRepeaterServiceHandler(
 
   // If we are already repeating this topic, do nothing
   if (repeaters_.count(topicName)) {
-    igndbg << "Already repeating " << topicName << ". Nothing to do here." << std::endl;
+    igndbg << "Already repeating " << topicName << ". Nothing to do here."
+           << std::endl;
     response.set_data(true);
     return;
   }

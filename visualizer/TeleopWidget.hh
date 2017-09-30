@@ -51,14 +51,19 @@ class TeleopWidget : public ignition::gui::Plugin {
   virtual ~TeleopWidget();
 
   /// \brief Callback to start the driving setup process
-  public slots: void StartDriving();
+ public slots:
+  void StartDriving();
 
   /// \brief Notify that the response to the asynchronous service call
   /// to the bridge returned.
-  signals: void RepeatingDriveTopic(const ignition::msgs::Boolean &response, const bool result);
+ signals:
+  void RepeatingDriveTopic(const ignition::msgs::Boolean& response,
+                           const bool result);
 
   /// \brief Callback to finish start driving
-  public slots: void DriveTopicComplete(const ignition::msgs::Boolean &response, const bool result);
+ public slots:
+  void DriveTopicComplete(const ignition::msgs::Boolean& response,
+                          const bool result);
 
  protected:
   virtual void keyPressEvent(QKeyEvent* _event) override;
@@ -66,7 +71,8 @@ class TeleopWidget : public ignition::gui::Plugin {
   void mousePressEvent(QMouseEvent* _event) override;
   void timerEvent(QTimerEvent* event) override;
   void LoadConfig(const tinyxml2::XMLElement* _pluginElem) override;
-  void OnRepeatIgnitionTopic(const ignition::msgs::Boolean &response, const bool result);
+  void OnRepeatIgnitionTopic(const ignition::msgs::Boolean& response,
+                             const bool result);
 
  private:
   /// \internal

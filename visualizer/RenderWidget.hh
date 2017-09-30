@@ -71,8 +71,8 @@ class RenderWidget : public ignition::gui::Plugin {
   /// \brief All user options that can be configured.
   class UserSettings {
     /// \brief Default user camera pose.
-    public: ignition::math::Pose3d userCameraPose =
-      {4.0, 4.0, 1.0, 0.0, 0.0, -2.35619};
+   public:
+    ignition::math::Pose3d userCameraPose = {4.0, 4.0, 1.0, 0.0, 0.0, -2.35619};
   };
 
  public:
@@ -86,9 +86,9 @@ class RenderWidget : public ignition::gui::Plugin {
   /// \param[in] _pluginElem The data containing the configuration.
   virtual void LoadConfig(const tinyxml2::XMLElement* _pluginElem);
 
-    /// \brief Overridden method to get the configuration XML as a string.
-    /// \return Config element.
-    virtual std::string ConfigStr() const;
+  /// \brief Overridden method to get the configuration XML as a string.
+  /// \return Config element.
+  virtual std::string ConfigStr() const;
 
   /// \brief Callback to set collection of models for the first time to populate
   /// the scene.

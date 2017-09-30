@@ -117,7 +117,7 @@ std::string RenderWidget::FindFile(const std::string& _path) const {
 }
 
 /////////////////////////////////////////////////
-RenderWidget::RenderWidget(QWidget *parent)
+RenderWidget::RenderWidget(QWidget* parent)
     : Plugin(), initializedScene(false), engine(nullptr) {
   qRegisterMetaType<ignition::msgs::Model_V>();
 
@@ -201,20 +201,20 @@ std::string RenderWidget::ConfigStr() const {
   tinyxml2::XMLDocument xmlDoc;
 
   // Create the plugin element.
-  tinyxml2::XMLElement *pluginXML = xmlDoc.NewElement("plugin");
+  tinyxml2::XMLElement* pluginXML = xmlDoc.NewElement("plugin");
   pluginXML->SetAttribute("filename", "RenderWidget");
   xmlDoc.InsertFirstChild(pluginXML);
 
   // User camera options.
-  tinyxml2::XMLElement *userCameraXML = xmlDoc.NewElement("camera");
+  tinyxml2::XMLElement* userCameraXML = xmlDoc.NewElement("camera");
   userCameraXML->SetAttribute("name", "user_camera");
   pluginXML->InsertEndChild(userCameraXML);
-  tinyxml2::XMLElement *poseXML = xmlDoc.NewElement("pose");
+  tinyxml2::XMLElement* poseXML = xmlDoc.NewElement("pose");
   auto pos = this->camera->LocalPose().Pos();
   auto rot = this->camera->LocalPose().Rot().Euler();
   std::stringstream stream;
-  stream << pos.X() << " " << pos.Y() << " " << pos.Z() << " "
-         << rot.X() << " " << rot.Y() << " " << rot.Z();
+  stream << pos.X() << " " << pos.Y() << " " << pos.Z() << " " << rot.X() << " "
+         << rot.Y() << " " << rot.Z();
   poseXML->SetText(stream.str().c_str());
   userCameraXML->InsertEndChild(poseXML);
 

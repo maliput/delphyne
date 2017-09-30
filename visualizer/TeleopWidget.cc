@@ -79,7 +79,11 @@ TeleopWidget::TeleopWidget(QWidget* parent)
   this->setLayout(layout);
 
   QObject::connect(this->button, SIGNAL(clicked()), this, SLOT(StartDriving()));
-  QObject::connect(this, SIGNAL(RepeatingDriveTopic(const ignition::msgs::Boolean &, const bool)), this, SLOT(DriveTopicComplete(const ignition::msgs::Boolean &, const bool)));
+  QObject::connect(
+      this,
+      SIGNAL(RepeatingDriveTopic(const ignition::msgs::Boolean&, const bool)),
+      this,
+      SLOT(DriveTopicComplete(const ignition::msgs::Boolean&, const bool)));
 
   timer.start(10, this);
 }
@@ -111,17 +115,20 @@ void TeleopWidget::StartDriving() {
     request.add_data(lcmChannel);
     request.add_data("ign_msgs.AutomotiveDrivingCommand");
 
-    this->node_.Request("/repeat_ignition_topic", request, &TeleopWidget::OnRepeatIgnitionTopic, this);
+    this->node_.Request("/repeat_ignition_topic", request,
+                        &TeleopWidget::OnRepeatIgnitionTopic, this);
   }
 }
 
 /////////////////////////////////////////////////
-void TeleopWidget::OnRepeatIgnitionTopic(const ignition::msgs::Boolean &response, const bool result) {
+void TeleopWidget::OnRepeatIgnitionTopic(
+    const ignition::msgs::Boolean& response, const bool result) {
   emit this->RepeatingDriveTopic(response, result);
 }
 
 /////////////////////////////////////////////////
-void TeleopWidget::DriveTopicComplete(const ignition::msgs::Boolean &response, const bool result) {
+void TeleopWidget::DriveTopicComplete(const ignition::msgs::Boolean& response,
+                                      const bool result) {
   auto lcmChannel = this->lineedit->text().toStdString();
   auto ignTopic = "/" + lcmChannel;
 
@@ -132,8 +139,7 @@ void TeleopWidget::DriveTopicComplete(const ignition::msgs::Boolean &response, c
 
   this->publisher_.reset(new ignition::transport::Node::Publisher());
   *(this->publisher_) =
-      this->node_.Advertise<ignition::msgs::AutomotiveDrivingCommand>(
-          ignTopic);
+      this->node_.Advertise<ignition::msgs::AutomotiveDrivingCommand>(ignTopic);
   this->button->setText("Stop Driving");
   this->lineedit->setEnabled(false);
   this->driving = true;
@@ -145,9 +151,7 @@ void TeleopWidget::DriveTopicComplete(const ignition::msgs::Boolean &response, c
 TeleopWidget::~TeleopWidget() {}
 
 /////////////////////////////////////////////////
-void TeleopWidget::mousePressEvent(QMouseEvent* _event) {
-  setFocus();
-}
+void TeleopWidget::mousePressEvent(QMouseEvent* _event) { setFocus(); }
 
 /////////////////////////////////////////////////
 static void sec_and_nsec_now(int64_t& sec, int32_t& nsec) {
@@ -184,8 +188,8 @@ void TeleopWidget::timerEvent(QTimerEvent* event) {
         }
       }
 
-      if (last_throttle != this->currentThrottle || last_brake != this->currentBrake ||
-          this->newSteeringAngle) {
+      if (last_throttle != this->currentThrottle ||
+          last_brake != this->currentBrake || this->newSteeringAngle) {
         ignition::msgs::AutomotiveDrivingCommand ignMsg;
 
         // We don't set the header here since the bridge completely ignores it
@@ -303,7 +307,8 @@ void TeleopWidget::keyReleaseEvent(QKeyEvent* _event) {
       this->throttleKeyPressed = false;
     } else if (_event->key() == Qt::Key_Down) {
       this->brakeKeyPressed = false;
-    } else if (_event->key() == Qt::Key_Left || _event->key() == Qt::Key_Right) {
+    } else if (_event->key() == Qt::Key_Left ||
+               _event->key() == Qt::Key_Right) {
       // do nothing
       // this avoids the accel/brake values of not going down
       // to zero after release when steering at the same time

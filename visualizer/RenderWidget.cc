@@ -162,7 +162,11 @@ RenderWidget::RenderWidget(QWidget* parent)
 /////////////////////////////////////////////////
 RenderWidget::~RenderWidget() {
   if (this->engine != nullptr) {
-    this->engine->Fini();
+    // TODO(clalancette): We need to call this->engine->Fini() to clean up
+    // some engine resources, but this sometimes causes a hang on quit.
+    // For right now, disable this, but we should debug this and re-enable this
+    // cleanup.
+    //this->engine->Fini();
   }
 }
 

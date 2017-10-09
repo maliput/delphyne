@@ -89,6 +89,11 @@ int main(int argc, char* argv[]) {
   ignition::gui::createMainWindow();
 
   auto win = ignition::gui::mainWindow();
+
+  // Register a Ctrl + Q keyboard shortcut for quitting the visualizer
+  QShortcut *shortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q), win);
+  QObject::connect(shortcut, &QShortcut::activated, win, &ignition::gui::stop);
+
   win->setWindowTitle(versionStr);
 
   ignition::gui::runMainWindow();

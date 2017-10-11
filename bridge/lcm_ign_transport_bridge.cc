@@ -62,13 +62,13 @@
 // Register custom msg. Note that the name has to include "ign_msgs" at the
 // beginning
 IGN_REGISTER_STATIC_MSG("ign_msgs.AutomotiveDrivingCommand",
-                        AutomotiveDrivingCommand);
+                        AutomotiveDrivingCommand)
 
 // Register a topic repeater for AutomotiveDrivingCommand
 
 REGISTER_STATIC_REPEATER("ign_msgs.AutomotiveDrivingCommand",
                          ignition::msgs::AutomotiveDrivingCommand,
-                         drake::lcmt_driving_command_t, 1);
+                         drake::lcmt_driving_command_t, 1)
 
 /// \brief Flag used to break the LCM loop and terminate the program.
 static std::atomic<bool> terminatePub(false);
@@ -77,7 +77,7 @@ static std::atomic<bool> terminatePub(false);
 /// \brief Function callback executed when a SIGINT or SIGTERM signals are
 /// captured. This is used to break the infinite loop that handles LCM and
 /// exit the program smoothly.
-void signalHandler(int signal) {
+static void signalHandler(int signal) {
   if (signal == SIGINT || signal == SIGTERM) {
     terminatePub = true;
   }
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
   // Start all the X_SIMPLE_CAR_STATE repeaters
-  for (int i = 0; i < simpleCarRepeaterVector.size(); i++) {
+  for (auto i = 0u; i < simpleCarRepeaterVector.size(); i++) {
     try {
       simpleCarRepeaterVector[i]->Start();
     } catch (const std::runtime_error& error) {

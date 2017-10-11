@@ -93,6 +93,10 @@ int main(int argc, char* argv[]) {
 
   ignition::gui::runMainWindow();
 
+  // Save configuration after the window has
+  // been closed (but not destroyed)
+  win->SaveConfig(ignition::gui::defaultConfigPath());
+
   ignition::gui::stop();
 
   return 0;

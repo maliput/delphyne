@@ -68,6 +68,7 @@ def main():
     launcher = Launcher()
     parser = argparse.ArgumentParser()
     demo_arguments = {
+        "local": [""],
         "simple": ["--num_simple_car=2"],
         "trajectory": ["--num_trajectory_car=1"],
         "dragway":  ["--num_dragway_lanes=3", "--num_trajectory_car=12"],
@@ -75,7 +76,7 @@ def main():
     # Number of cars on each demo, passed as arguments to the bridge
     # this approach is temporal, and will be removed as soon as the
     # dynamic creation of lcm-to-ign repeaters is ready
-    num_cars = {"simple": "2", "trajectory": "1", "dragway": "12"}
+    num_cars = {"local": "1", "simple": "2", "trajectory": "1", "dragway": "12"}
 
     # Required argument
     parser.add_argument(dest="drake_path", nargs="?", action="store",
@@ -107,6 +108,7 @@ def main():
 
 
     # delphyne's binaries path
+    local_demo_path = "backend/automotive-demo"
     lcm_ign_bridge = "bridge/duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer/visualizer"
 
@@ -134,9 +136,13 @@ def main():
             # wait for the drake_visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
 
-        launch_arguments = [demo_path] + demo_arguments[args.demo_name]
+        if args.demo_name == "local":
+            launch_arguments = [local_demo_path]
+        else:
+            launch_arguments = [demo_path] + demo_arguments[args.demo_name]
+            launcher.launch(launch_arguments, cwd=args.drake_path)
 
-        launcher.launch(launch_arguments, cwd=args.drake_path)
+        launcher.launch(launch_arguments)#, cwd=args.drake_path)
         duration = float("Inf") # infinite duration
         launcher.wait(duration)
 

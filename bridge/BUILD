@@ -222,6 +222,7 @@ py_binary(
     data = [
         ":duplex-ign-lcm-bridge",
         "//visualizer:visualizer",
+        "//backend:automotive-demo",
     ],
     main = "demo_launcher.py",
 )

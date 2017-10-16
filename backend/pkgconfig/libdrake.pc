@@ -1,0 +1,15 @@
+# Edit this dummy variable so that it points to your local delphyne_ws/install_drake path
+prefix=/path/to/delphyne_ws/install_drake
+
+libdir=${prefix}/lib
+includedir=${prefix}/include
+
+Name: Drake
+Description: drake
+Version: 0.1.0
+Libs: -L${libdir} -ldrake -lvtkFiltersSources-8.0 -lvtkFiltersGeneral-8.0 -lvtkCommonComputationalGeometry-8.0 -lvtkIOGeometry-8.0 -lvtkIOLegacy-8.0 -lvtkIOCore-8.0 -lvtkIOImage-8.0 -lvtkDICOMParser-8.0 -lvtkmetaio-8.0 -lvtkRenderingOpenGL2-8.0 -lvtkRenderingCore-8.0 -lvtkCommonColor-8.0 -lvtkFiltersCore-8.0 -lvtkFiltersGeometry-8.0 -lvtkCommonExecutionModel-8.0 -lvtkCommonDataModel-8.0 -lvtkCommonSystem-8.0 -lvtkCommonTransforms-8.0 -lvtkCommonMisc-8.0 -lvtkCommonMath-8.0 -lvtkCommonCore-8.0 -lvtksys-8.0 -lvtkglew-8.0
+CFlags: -std=c++11 \
+    -I${includedir} \
+    -I${includedir}/drake/lcmtypes \
+    -I${includedir}/eigen3 \
+    -I${includedir}/stx

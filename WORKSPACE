@@ -113,6 +113,11 @@ pkg_config_package(
     modname = "ignition-rendering",
 )
 
+pkg_config_package(
+    name = "ignition-msgs0",
+    modname = "ignition-msgs0",
+)
+
 github_archive(
     name = "lcm",
     repository = "lcm-proj/lcm",

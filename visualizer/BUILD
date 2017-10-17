@@ -79,6 +79,7 @@ cc_binary(
     deps = [
         "@ignition-common0",
         "@ignition-gui",
+        "@ignition-msgs0",
     ],
     linkstatic = 0,
     copts = [

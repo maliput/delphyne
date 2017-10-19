@@ -138,11 +138,10 @@ def main():
 
         if args.demo_name == "local":
             launch_arguments = [local_demo_path]
+            launcher.launch(launch_arguments)
         else:
             launch_arguments = [demo_path] + demo_arguments[args.demo_name]
             launcher.launch(launch_arguments, cwd=args.drake_path)
-
-        launcher.launch(launch_arguments)#, cwd=args.drake_path)
         duration = float("Inf") # infinite duration
         launcher.wait(duration)
 

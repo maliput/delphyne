@@ -146,13 +146,19 @@ In order to run the automotive-demo, we make use of drake installed as a library
 So let's install drake by executing this commant from drake's project root:
 
 ```
-$ bazel run install /path/to/delphyne_ws/install_drake
+$ bazel run install </path/to/delphyne_ws>/install_drake
 ```
+Notes:
+
+- The directory `install_drake` will be created automatically by bazel.
+
+- For the drake install, we use a path different to `</path/to/delphyne_ws>/install` in order to avoid collitions with the different protobuf versions used by drake and delphyne.
+
 Next, we need to edit the file used by pkg-config to find libdrake.
 The file is located on:
 
 ```
-delphyne/backend/pkgconfig/libdrake.pc
+</path/to/delphyne>/backend/pkgconfig/libdrake.pc
 ```
 There, we need to edit the following line, and replace the dummy path with the absolute path
 to the library:

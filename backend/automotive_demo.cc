@@ -9,8 +9,8 @@
 #include "drake/automotive/maliput/api/lane_data.h"
 #include "drake/automotive/maliput/dragway/road_geometry.h"
 #include "drake/automotive/monolane_onramp_merge.h"
-#include "drake/common/text_logging_gflags.h"
 #include "drake/common/find_resource.h"
+#include "drake/common/text_logging_gflags.h"
 
 using namespace drake;
 using namespace automotive;
@@ -29,7 +29,8 @@ std::string MakeChannelName(const std::string& name) {
 
 int main(int argc, char* argv[]) {
   // Enable to resolve relative path to resources on AddPriusSimpleCar
-  AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) + "/share/drake");
+  AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
+                        "/share/drake");
 
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 

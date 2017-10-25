@@ -31,6 +31,11 @@ pkg_config_package(
 )
 
 pkg_config_package(
+    name = "drake",
+    modname = "libdrake",
+)
+
+pkg_config_package(
     name = "gts",
     modname = "gts",
 )

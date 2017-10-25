@@ -137,6 +137,48 @@ $ bazel run //visualizer:visualizer
 $ popd
 ```
 
+## Running the automotive-demo
+
+Warning: This code is still under heavy development, so the
+following steps are going to be simplified soon.
+
+In order to run the automotive-demo, we make use of drake installed as a library.
+So let's install drake by executing this commant from drake's project root:
+
+```
+$ bazel run install </path/to/delphyne_ws>/install_drake
+```
+Notes:
+
+- The directory `install_drake` will be created automatically by bazel.
+
+- For the drake install, we use a path different to `</path/to/delphyne_ws>/install` in order to avoid collitions with the different protobuf versions used by drake and delphyne.
+
+Next, we need to edit the file used by pkg-config to find libdrake.
+The file is located on:
+
+```
+</path/to/delphyne>/backend/pkgconfig/libdrake.pc
+```
+There, we need to edit the following line, and replace the dummy path with the absolute path
+to the library:
+
+```
+prefix=/path/to/delphyne_ws/install_drake
+```
+After saving changes, you'll be ready to compile the automotive-demo.
+To do so, please run:
+
+```
+bazel build backend:automotive-demo
+```
+After that, you can call the demo launcher with the special argument "--demo=local" to run the local automotive-demo:
+
+```
+bazel run //bridge:demo-launcher -- --demo=local </path/to/drake-distro>
+```
+By running that command, you should be able to see a single prius car standing in the middle of an empty world. 
+
 # Instructions for the clang-format tool
 In order to get all the C++ code in the project compliant with a single style, we strongly recommend you using the auto-formatting tool called clang-format.
 

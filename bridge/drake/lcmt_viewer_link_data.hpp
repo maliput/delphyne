@@ -187,9 +187,9 @@ uint64_t lcmt_viewer_link_data::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == lcmt_viewer_link_data::getHash)
+        if(fp->v == reinterpret_cast<void *>(lcmt_viewer_link_data::getHash))
             return 0;
-    const __lcm_hash_ptr cp = { p, lcmt_viewer_link_data::getHash };
+    const __lcm_hash_ptr cp = { p, reinterpret_cast<void *>(lcmt_viewer_link_data::getHash) };
 
     uint64_t hash = 0x4b645ec7a5743a2aLL +
          drake::lcmt_viewer_geometry_data::_computeHash(&cp);

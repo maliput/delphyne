@@ -62,7 +62,7 @@ commands:
 ```
 $ mkdir -p build
 $ pushd build
-$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering; do mkdir -p $igndep ; pushd $igndep ; cmake ../../src/$igndep -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
+$ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign_rendering lcm; do mkdir -p $igndep ; pushd $igndep ; cmake ../../src/$igndep -DCMAKE_INSTALL_PREFIX=../../install ; make -j$( getconf _NPROCESSORS_ONLN ) install ; popd ; done
 $ popd
 ```
 
@@ -88,8 +88,11 @@ Note that this will take a long time to compile.
 Delphyne itself can now be built with Bazel:
 
 ```
-$ pushd src/delphyne
-$ bazel build //...
+$ pushd build
+$ mkdir -p delphyne
+$ pushd delphyne
+$ cmake ../../src/delphyne-gui/ -DCMAKE_INSTALL_PREFIX=../../install
+$ make -j$( getconf _NPROCESSORS_ONLN ) install
 $ popd
 ```
 

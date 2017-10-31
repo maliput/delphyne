@@ -1,6 +1,7 @@
 # Delphyne
 
-This is the repository for Delphyne.  As of right now, the only supported platform is Ubuntu 16.04 amd64.
+This is the repository for Delphyne. As of right now, the only supported
+platform is Ubuntu 16.04 amd64.
 
 # Setup instructions
 
@@ -13,14 +14,16 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     $ sudo apt-get install mercurial cmake pkg-config python ruby-ronn libprotoc-dev libprotobuf-dev protobuf-compiler uuid-dev libzmq3-dev git libogre-1.9-dev libglew-dev qtbase5-dev libicu-dev libboost-filesystem-dev libfreeimage-dev libtinyxml2-dev libgts-dev libavdevice-dev python3-vcstool mesa-utils
     ```
 
-1.  Now build a workspace for Delphyne.  If you are familiar with ROS catkin workspaces, this is a similar concept.  The steps to setup the workspace are:
+1.  Now build a workspace for Delphyne. If you are familiar with ROS catkin
+workspaces, this is a similar concept.  The steps to setup the workspace are:
 
     ```
     $ mkdir -p delphyne_ws/src
     $ cd delphyne_ws
     ```
 
-1.  Download the delphyne.repos file from [delphyne.repos](https://github.com/ToyotaResearchInstitute/delphyne/blob/master/delphyne.repos) into `delphyne_ws` (we can't automate this because it is a private repository).
+1.  Download the delphyne.repos file from [delphyne.repos](https://github.com/ToyotaResearchInstitute/delphyne/blob/master/delphyne.repos) into `delphyne_ws` (we can't automate this because it is a
+private repository).
 
 1.  Import the repositories from delphyne.repos:
 
@@ -28,14 +31,20 @@ This is the repository for Delphyne.  As of right now, the only supported platfo
     $ vcs import src < delphyne.repos
     ```
 
-1.  Install the dependencies for Drake.  While Delphyne doesn't directly depend on Drake right now, it may in the future and it depends on many similar components.  The instructions are [here](http://drake.mit.edu/from_source.html), but in brief:
+1.  Install the dependencies for Drake.  While Delphyne doesn't directly depend
+on Drake right now, it may in the future and it depends on many similar
+components. The instructions are [here](http://drake.mit.edu/from_source.html),
+but in brief:
 
     ```
     $ sudo ./src/drake/setup/ubuntu/16.04/install_prereqs.sh
     ```
 
 # Setup the environment
-In order to successfully build and use Delphyne, Drake, or the ignition tools here, a few environment variables must be setup.  Delphyne provides a script to do this for you; for this to work correctly, you must be in the root of your delphyne workspace:
+In order to successfully build and use Delphyne, Drake, or the ignition tools
+here, a few environment variables must be setup. Delphyne provides a script to
+do this for you; for this to work correctly, you must be in the root of your
+delphyne workspace:
 
 ```
 $ . src/delphyne/setup.bash
@@ -45,7 +54,10 @@ Next we can go on and build the components.
 
 # Build dependencies
 
-Delphyne depends on a number of external dependencies.  To make the tools and libraries easy to develop with, we build them from source and install them into the workspace.  Right now this is done manually, by running the following commands:
+Delphyne depends on a number of external dependencies. To make the tools and
+libraries easy to develop with, we build them from source and install them into
+the workspace. Right now this is done manually, by running the following
+commands:
 
 ```
 $ mkdir -p build
@@ -54,11 +66,14 @@ $ for igndep in ign_tools ign_math ign_common ign_msgs ign_transport ign_gui ign
 $ popd
 ```
 
-This may take a little while to build the dependencies.  At the end of the build, a new subdirectory called `install` will be at the top level of your delphyne workspace.
+This may take a little while to build the dependencies. At the end of the build,
+a new subdirectory called `install` will be at the top level of your delphyne
+workspace.
 
 # Build drake
 
-Drake must be built using the Bazel build tool.  To build drake, do the following:
+Drake must be built using the Bazel build tool. To build drake, do the
+following:
 
 ```
 $ pushd src/drake
@@ -80,13 +95,17 @@ $ popd
 
 # Running
 
-Two different things are hosted in the delphyne repository right now; the bridge and the visualizer.  The bridge is a bi-directional LCM-to-ignition-transport to take messages from/to Drake and translate them to/from ignition-transport
+Two different things are hosted in the delphyne repository right now; the bridge
+and the visualizer. The bridge is a bi-directional LCM-to-ignition-transport to
+take messages from/to Drake and translate them to/from ignition-transport
 messages that Delphyne understands.  The visualizer is a new front-end
 visualizer for the drake simulator.
 
 ## Running the mock demo
 
-There is a mock demo hosted in this repository that runs the bridge, the visualizer, and a "mock" backend that simulates the messages that Drake would send.  To run this demo, do the following:
+There is a mock demo hosted in this repository that runs the bridge,
+the visualizer, and a "mock" backend that simulates the messages that Drake
+would send.  To run this demo, do the following:
 
 ```
 $ pushd src/delphyne
@@ -96,7 +115,8 @@ $ popd
 
 ## Running the bridge, visualizer, and drake
 
-There is a demonstration here of using Delphyne together with the automotive_demos from drake.  To run this demo, do the following:
+There is a demonstration here of using Delphyne together with the
+automotive_demos from drake.  To run this demo, do the following:
 
 ```
 $ pushd src/delphyne
@@ -104,14 +124,18 @@ $ bazel run //bridge:demo-launcher </path/to/drake-distro>
 $ popd
 ```
 
-The launcher includes three predefined demos that you can specify using the `--demo` parameter, like:
+The launcher includes three predefined demos that you can specify using the
+`--demo` parameter, like:
 ```
 $ bazel run //bridge:demo-launcher -- --demo=simple </path/to/drake-distro>
 ```
 
-the possible values for the predefined demos are: simple, trajectory and dragway.
+the possible values for the predefined demos are: simple, trajectory and
+dragway.
 
-Finally, you can append the `--no-drake-visualizer` argument option to the command, which will disable the drake visualizer, as well as the lcm-spy and lcm-logger:
+Finally, you can append the `--no-drake-visualizer` argument option to the
+command, which will disable the drake visualizer, as well as the lcm-spy and
+lcm-logger:
 
 ```
 $ bazel run //bridge:demo-launcher -- --demo=simple --no-drake-visualizer </path/to/drake-distro>
@@ -138,15 +162,18 @@ $ popd
 ```
 
 # Instructions for the clang-format tool
-In order to get all the C++ code in the project compliant with a single style, we strongly recommend you using the auto-formatting tool called clang-format.
+In order to get all the C++ code in the project compliant with a single style,
+we strongly recommend you using the auto-formatting tool called clang-format.
 
 You can execute it against your source code by doing:
 ```
 /usr/bin/clang-format-3.9 -i -style=file <path/to/file.cpp>
 ```
-This will automatically apply the code conventions specified in the .clang-format file, found on the root of the repository.
+This will automatically apply the code conventions specified in the
+.clang-format file, found on the root of the repository.
 
-There is also an automated script that looks for all the C++ src/header files and then calls clang-format accordingly. You can invoque it by doing:
+There is also an automated script that looks for all the C++ src/header files
+and then calls clang-format accordingly. You can invoque it by doing:
 
 ```
 ./tools/reformat_code.sh

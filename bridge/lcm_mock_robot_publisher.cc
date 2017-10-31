@@ -37,8 +37,8 @@
 
 #include <ignition/common/Console.hh>
 #include <ignition/math/Helpers.hh>
-
 #include <lcm/lcm-cpp.hpp>
+
 #include "drake/lcmt_viewer_draw.hpp"
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_link_data.hpp"

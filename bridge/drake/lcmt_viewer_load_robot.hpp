@@ -163,9 +163,9 @@ uint64_t lcmt_viewer_load_robot::_computeHash(const __lcm_hash_ptr *p)
 {
     const __lcm_hash_ptr *fp;
     for(fp = p; fp != NULL; fp = fp->parent)
-        if(fp->v == lcmt_viewer_load_robot::getHash) 
+        if(fp->v == lcmt_viewer_load_robot::getHash)
             return 0;
-    const __lcm_hash_ptr cp = { p, lcmt_viewer_load_robot::getHash }; 
+    const __lcm_hash_ptr cp = { p, lcmt_viewer_load_robot::getHash };
 
     uint64_t hash = 0x739e6927d8bcec39LL +
          drake::lcmt_viewer_link_data::_computeHash(&cp);

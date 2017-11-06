@@ -23,6 +23,10 @@ if (NOT DEFINED BUILD_TESTING)
   set(BUILD_TESTING ON)
 endif ()
 
+# Drake
+set (DRAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}_drake)
+set (DRAKE_LIB_PREFIX ${DRAKE_INSTALL_PREFIX}/lib)
+
 ##########
 # Package Creation:
 
@@ -178,7 +182,7 @@ list(APPEND WARN_LEVEL -Wunused-function -Wunused-label -Wunused-value)
 list(APPEND WARN_LEVEL -Wunused-variable -Wvolatile-register-var)
 
   # Unable to be filtered flags (failing due to limitations in filter_valid_compiler_warnings)
-  set(UNFILTERED_FLAGS "-Wc++11-compat")
+  set(UNFILTERED_FLAGS "-Wc++14-compat")
 
 filter_valid_compiler_warnings(${WARN_LEVEL} -Wextra -Wno-long-long
   -Wno-unused-value -Wno-unused-value -Wno-unused-value -Wno-unused-value
@@ -239,7 +243,9 @@ else (build_errors)
     #${PROJECT_SOURCE_DIR}/include
     ${CMAKE_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}/include
+    ${DRAKE_INSTALL_PREFIX}/include
   )
+
   link_directories(${PROJECT_BINARY_DIR}/src)
 
   if (DEFINED CMAKE_CXX_FLAGS)
@@ -252,6 +258,7 @@ else (build_errors)
 
   set(TEST_TYPE "UNIT")
   add_subdirectory(bridge)
+  add_subdirectory(backend)
   add_subdirectory(test)
 
   ########################################
@@ -303,3 +310,4 @@ else (build_errors)
   message(STATUS "Configuration successful. Type make to compile
   ${PROJECT_NAME_LOWER}")
 endif(build_errors)
+

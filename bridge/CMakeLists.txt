@@ -34,7 +34,7 @@ target_link_libraries(duplex-ign-lcm-bridge
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PROTOBUF_LIBRARY}
   ${PROTOBUF_PROTOC_LIBRARY}
-  lcm
+  ${lcm_LIBRARIES}
 )
 install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------
@@ -52,7 +52,7 @@ target_link_libraries(lcm-mock-robot-publisher
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PROTOBUF_LIBRARY}
   ${PROTOBUF_PROTOC_LIBRARY}
-  lcm
+  ${lcm_LIBRARIES}
 )
 install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------

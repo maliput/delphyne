@@ -32,7 +32,7 @@ macro (delphyne_build_tests)
       ${IGNITION-TRANSPORT_LIBRARIES}
       ${PROTOBUF_LIBRARY}
       ${PROTOBUF_PROTOC_LIBRARY}
-      lcm
+      ${lcm_LIBRARIES}
       libgtest.a
       libgtest_main.a
       pthread

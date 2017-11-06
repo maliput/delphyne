@@ -68,16 +68,52 @@ if (NOT WIN32)
   endif()
 endif()
 
+
+# Append install_drake path to CMAKE_PREFIX_PATH to enable
+# find_package to find drake-related .cmake files
+list(APPEND CMAKE_PREFIX_PATH ${DRAKE_INSTALL_PREFIX})
+
+########################################
+# Find drake in unix platforms
+# In Windows we expect a call from configure.bat script with the paths
+if (NOT WIN32)
+  find_package(drake REQUIRED)
+  if (NOT drake_FOUND)
+    message(STATUS "Looking for drake-config.cmake - not found")
+    BUILD_ERROR ("Missing: Drake library (libdrake).")
+  else()
+    message(STATUS "Looking for drake-config.cmake - found")
+    include_directories(${DRAKE_INCLUDE_DIRS})
+    link_directories(${DRAKE_LIBRARY_DIRS})
+  endif()
+endif()
+
+########################################
+# Find gflags in unix platforms
+# In Windows we expect a call from configure.bat script with the paths
+if (NOT WIN32)
+  find_package(gflags REQUIRED)
+  if (NOT gflags_FOUND)
+    message(STATUS "Looking for gflags-config.cmake - not found")
+    BUILD_ERROR ("Missing: Gflags library (libgflags).")
+  else()
+    message(STATUS "Looking for gflags-config.cmake - found")
+    include_directories(${GFLAGS_INCLUDE_DIRS})
+    link_directories(${GFLAGS_LIBRARY_DIRS})
+  endif()
+endif()
+
+
 ########################################
 # Find lcm in unix platforms
 # In Windows we expect a call from configure.bat script with the paths
 if (NOT WIN32)
   find_package(lcm REQUIRED)
   if (NOT lcm_FOUND)
-    message(STATUS "Looking for lcmConfig.cmake - not found")
+    message(STATUS "Looking for lcm-config.cmake - not found")
     BUILD_ERROR ("Missing: lcm library.")
   else()
-    message(STATUS "Looking for lcmConfig.cmake - found")
+    message(STATUS "Looking for lcm-config.cmake - found")
     include_directories(${LCM_INCLUDE_DIRS})
     link_directories(${LCM_LIBRARY_DIRS})
   endif()

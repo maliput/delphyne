@@ -544,7 +544,7 @@ GTEST_TEST(SimpleCarStateTest, TestSimpleCarStateTranslation) {
 /// \brief Test that an LCM viewer2_comm message describing the visualizer's
 /// tree viewer response was properly translated to a custom ignition message.
 GTEST_TEST(Viewer2CommsTest, TestViewer2CommsTranslation) {
-  drake::viewer2_comms_t lcmViewer2Comms;
+  robotlocomotion::viewer2_comms_t lcmViewer2Comms;
   ignition::msgs::Viewer2Comms ignViewer2Comms;
 
   lcmViewer2Comms.utime = 123456789;

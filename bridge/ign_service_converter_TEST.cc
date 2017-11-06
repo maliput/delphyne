@@ -3,7 +3,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include "bridge/drake/lcmt_viewer_command.hpp"
+#include "drake/lcmt_viewer_command.hpp"
 #include "bridge/ign_service_converter.hh"
 
 // LCM entry point

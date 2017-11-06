@@ -35,7 +35,7 @@
 #include "drake/lcmt_viewer_draw.hpp"
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_load_robot.hpp"
-#include "drake/viewer2_comms_t.hpp"
+#include "robotlocomotion/viewer2_comms_t.hpp"
 #include "protobuf/headers/simple_car_state.pb.h"
 #include "protobuf/headers/viewer2_comms.pb.h"
 #include "protobuf/headers/viewer_command.pb.h"
@@ -61,7 +61,7 @@ void lcmToIgn(const drake::lcmt_viewer_command& lcmData,
 /// Director
 /// \param[out] ignViewer2Data The resulting ignition message with the
 /// translation
-void lcmToIgn(const drake::viewer2_comms_t& lcmViewer2Data,
+void lcmToIgn(const robotlocomotion::viewer2_comms_t& lcmViewer2Data,
               ignition::msgs::Viewer2Comms* ignViewer2Data);
 
 /// \brief Translate a whole robot model definition from LCM to a vector

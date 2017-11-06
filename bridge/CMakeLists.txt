@@ -22,6 +22,9 @@ set (gtest_sources
   service_to_channel_translation_TEST.cc
 )
 
+
+find_dependency(robotlocomotion-lcmtypes)
+
 # ----------------------------------------
 # Create duplex-ign-lcm-bridge binary.
 add_executable(duplex-ign-lcm-bridge
@@ -36,6 +39,8 @@ target_link_libraries(duplex-ign-lcm-bridge
   ${PROTOBUF_PROTOC_LIBRARY}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
+  drake::drake-lcmtypes-cpp
+  robotlocomotion-lcmtypes::robotlocomotion-lcmtypes-cpp
 )
 install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------
@@ -55,6 +60,8 @@ target_link_libraries(lcm-mock-robot-publisher
   ${PROTOBUF_PROTOC_LIBRARY}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
+  drake::drake-lcmtypes-cpp
+  robotlocomotion-lcmtypes::robotlocomotion-lcmtypes-cpp
 )
 install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------

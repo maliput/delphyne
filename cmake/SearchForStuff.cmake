@@ -42,45 +42,14 @@ endif()
 # Find ignition msgs in unix platforms
 # In Windows we expect a call from configure.bat script with the paths
 if (NOT WIN32)
-  find_package(ignition-msgs0 QUIET)
-  if (NOT ignition-msgs0_FOUND)
-    message(STATUS "Looking for ignition-msgs0-config.cmake - not found")
-    BUILD_ERROR ("Missing: Ignition msgs0 library (libignition-msgs0-dev).")
+  find_package(ignition-msgs1 QUIET)
+  if (NOT ignition-msgs1_FOUND)
+    message(STATUS "Looking for ignition-msgs1-config.cmake - not found")
+    BUILD_ERROR ("Missing: Ignition msgs1 library (libignition-msgs1-dev).")
   else()
-    message(STATUS "Looking for ignition-msgs0-config.cmake - found")
+    message(STATUS "Looking for ignition-msgs1-config.cmake - found")
     include_directories(${IGNITION-MSGS_INCLUDE_DIRS})
     link_directories(${IGNITION-MSGS_LIBRARY_DIRS})
-  endif()
-endif()
-
-########################################
-# Find ignition gui in unix platforms
-# In Windows we expect a call from configure.bat script with the paths
-if (NOT WIN32)
-  find_package(ignition-gui0 0.1 QUIET)
-  if (NOT ignition-gui0_FOUND)
-    message(STATUS "Looking for ignition-gui0-config.cmake - not found")
-    BUILD_ERROR ("Missing: Ignition gui0 library (libignition-gui0-dev).")
-  else()
-    message(STATUS "Looking for ignition-gui0-config.cmake - found")
-    include_directories(${IGNITION-GUI_INCLUDE_DIRS})
-    link_directories(${IGNITION-GUI_LIBRARY_DIRS})
-  endif()
-endif()
-
-########################################
-# Find ignition rendering in unix platforms
-# In Windows we expect a call from configure.bat script with the paths
-if (NOT WIN32)
-  find_package(ignition-rendering0 0.1 QUIET)
-  if (NOT ignition-rendering0_FOUND)
-    message(STATUS "Looking for ignition-rendering0-config.cmake - not found")
-    BUILD_ERROR ("Missing: Ignition rendering0 library (libignition-rendering0-dev).")
-  else()
-    message(STATUS "Looking for ignition-rendering0-config.cmake - found")
-    include_directories(${IGNITION-RENDERING_INCLUDE_DIRS})
-    MESSAGE(STATUS "rendering include: ${IGNITION-RENDERING_INCLUDE_DIRS}")
-    link_directories(${IGNITION-RENDERING_LIBRARY_DIRS})
   endif()
 endif()
 
@@ -96,6 +65,21 @@ if (NOT WIN32)
     message(STATUS "Looking for ignition-transport3-config.cmake - found")
     include_directories(${IGNITION-TRANSPORT_INCLUDE_DIRS})
     link_directories(${IGNITION-TRANSPORT_LIBRARY_DIRS})
+  endif()
+endif()
+
+########################################
+# Find lcm in unix platforms
+# In Windows we expect a call from configure.bat script with the paths
+if (NOT WIN32)
+  find_package(lcm REQUIRED)
+  if (NOT lcm_FOUND)
+    message(STATUS "Looking for lcmConfig.cmake - not found")
+    BUILD_ERROR ("Missing: lcm library.")
+  else()
+    message(STATUS "Looking for lcmConfig.cmake - found")
+    include_directories(${LCM_INCLUDE_DIRS})
+    link_directories(${LCM_LIBRARY_DIRS})
   endif()
 endif()
 

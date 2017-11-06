@@ -32,6 +32,9 @@
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 
+// LCM entry point
+#include <lcm/lcm-cpp.hpp>
+
 // Drake LCM message headers
 #include "drake/lcmt_driving_command_t.hpp"
 #include "drake/lcmt_simple_car_state_t.hpp"
@@ -56,41 +59,38 @@
 #include "repeater_manager.hh"
 #include "service_to_channel_translation.hh"
 
-// LCM entry point
-#include "lcm/lcm-cpp.hpp"
-
 // Register custom msg. Note that the name has to include "ign_msgs" at the
 // beginning
 IGN_REGISTER_STATIC_MSG("ign_msgs.AutomotiveDrivingCommand",
-                        AutomotiveDrivingCommand);
+                        AutomotiveDrivingCommand)
 
 // Register a repeater translating from ignition::msgs::AutomotiveDrivingCommand
 // to drake::lcmt_driving_command_t
 REGISTER_STATIC_IGN_REPEATER("DRIVING_COMMAND_(.*)",
                              ignition::msgs::AutomotiveDrivingCommand,
-                             drake::lcmt_driving_command_t);
+                             drake::lcmt_driving_command_t)
 
 // Register a repeater, translating from drake::lcmt_viewer_load_robot
 // to ignition::msgs::Model_V
 REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_LOAD_ROBOT",
                              drake::lcmt_viewer_load_robot,
-                             ignition::msgs::Model_V);
+                             ignition::msgs::Model_V)
 
 // Register a repeater, translating from drake::lcmt_viewer_draw
 // to ignition::msgs::Model_V
 REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_DRAW", drake::lcmt_viewer_draw,
-                             ignition::msgs::Model_V);
+                             ignition::msgs::Model_V)
 
 REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_STATUS", drake::lcmt_viewer_command,
-                             ignition::msgs::ViewerCommand);
+                             ignition::msgs::ViewerCommand)
 
 REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
                              drake::lcmt_simple_car_state_t,
-                             ignition::msgs::SimpleCarState);
+                             ignition::msgs::SimpleCarState)
 
 REGISTER_STATIC_LCM_REPEATER("DIRECTOR_TREE_VIEWER_RESPONSE",
                              drake::viewer2_comms_t,
-                             ignition::msgs::Viewer2Comms);
+                             ignition::msgs::Viewer2Comms)
 
 /// \brief Flag used to break the LCM loop and terminate the program.
 static std::atomic<bool> terminatePub(false);

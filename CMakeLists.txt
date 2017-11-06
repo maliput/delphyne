@@ -19,6 +19,10 @@ set (project_cmake_dir ${PROJECT_SOURCE_DIR}/cmake
 
 include (${project_cmake_dir}/Utils.cmake)
 
+if (NOT DEFINED BUILD_TESTING)
+  set(BUILD_TESTING ON)
+endif ()
+
 ##########
 # Package Creation:
 
@@ -204,8 +208,6 @@ if ( build_warnings )
   message(STATUS "END BUILD WARNINGS\n")
 endif (build_warnings)
 
-add_definitions(-DBUILDING_WITH_CMAKE)
-
 ########### Add uninstall target ###############
 configure_file(
   "${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
@@ -235,6 +237,7 @@ else (build_errors)
 
   include_directories(
     #${PROJECT_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}/include
   )
   link_directories(${PROJECT_BINARY_DIR}/src)
@@ -248,7 +251,7 @@ else (build_errors)
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
   set(TEST_TYPE "UNIT")
-  add_subdirectory(visualizer)
+  add_subdirectory(bridge)
   add_subdirectory(test)
 
   ########################################

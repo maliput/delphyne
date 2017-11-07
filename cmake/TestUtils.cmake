@@ -33,6 +33,7 @@ macro (delphyne_build_tests)
       ${PROTOBUF_LIBRARY}
       ${PROTOBUF_PROTOC_LIBRARY}
       ${lcm_LIBRARIES}
+      ${drake_LIBRARIES}
       libgtest.a
       libgtest_main.a
       pthread

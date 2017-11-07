@@ -49,7 +49,7 @@ if (NOT WIN32)
   find_package(ignition-math3 REQUIRED)
   if (NOT ignition-math3_FOUND)
     message(STATUS "Looking for ignition-math3-config.cmake - not found")
-    BUILD_ERROR ("Missing: Ignition math3 library (libignition-math4-dev).")
+    BUILD_ERROR ("Missing: Ignition math3 library (libignition-math3-dev).")
   else()
     message(STATUS "Looking for ignition-math3-config.cmake - found")
     include_directories(${IGNITION-MATH_INCLUDE_DIRS})
@@ -87,6 +87,10 @@ if (NOT WIN32)
   endif()
 endif()
 
+<<<<<<< c1857b94a810a950ef16edd8cdc1e2d69bbfc40a
+=======
+
+>>>>>>> Fixed issues with cmake imports
 ########################################
 # Find gflags in unix platforms
 # In Windows we expect a call from configure.bat script with the paths

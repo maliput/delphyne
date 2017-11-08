@@ -30,8 +30,8 @@
 #include <cstdint>
 
 #include "drake/lcmt_driving_command_t.hpp"
+#include "protobuf/automotive_driving_command.pb.h"
 #include "ign_to_lcm_translation.hh"
-#include "protobuf/headers/automotive_driving_command.pb.h"
 
 namespace delphyne {
 namespace bridge {

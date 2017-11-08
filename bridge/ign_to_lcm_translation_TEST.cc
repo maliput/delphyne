@@ -4,7 +4,7 @@
 
 #include "drake/lcmt_driving_command_t.hpp"
 #include "bridge/ign_to_lcm_translation.hh"
-#include "bridge/protobuf/headers/automotive_driving_command.pb.h"
+#include "protobuf/automotive_driving_command.pb.h"
 
 namespace delphyne {
 namespace bridge {

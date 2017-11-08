@@ -1,4 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
+add_subdirectory(protobuf)
 
 set (sources
   ign_to_lcm_translation.cc
@@ -6,10 +7,6 @@ set (sources
   repeater_factory.cc
   repeater_manager.cc
   service_to_channel_translation.cc
-  protobuf/headers/automotive_driving_command.pb.cc
-  protobuf/headers/simple_car_state.pb.cc
-  protobuf/headers/viewer2_comms.pb.cc
-  protobuf/headers/viewer_command.pb.cc
 )
 
 set (gtest_sources
@@ -36,6 +33,7 @@ target_link_libraries(duplex-ign-lcm-bridge
   ${PROTOBUF_PROTOC_LIBRARY}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
+  protobuf_msgs
 )
 install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------
@@ -55,6 +53,7 @@ target_link_libraries(lcm-mock-robot-publisher
   ${PROTOBUF_PROTOC_LIBRARY}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
+  protobuf_msgs
 )
 install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------

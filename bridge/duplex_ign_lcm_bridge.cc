@@ -45,10 +45,10 @@
 #include "robotlocomotion/viewer2_comms_t.hpp"
 
 // Custom ignition message headers
-#include "protobuf/headers/automotive_driving_command.pb.h"
-#include "protobuf/headers/simple_car_state.pb.h"
-#include "protobuf/headers/viewer2_comms.pb.h"
-#include "protobuf/headers/viewer_command.pb.h"
+#include "protobuf/automotive_driving_command.pb.h"
+#include "protobuf/simple_car_state.pb.h"
+#include "protobuf/viewer2_comms.pb.h"
+#include "protobuf/viewer_command.pb.h"
 
 // Repeater classes
 #include "ign_service_converter.hh"

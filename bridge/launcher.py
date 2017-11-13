@@ -65,12 +65,6 @@ class Launcher(object):
         """
         if label is None:
             label = os.path.basename(command[0])
-        if not os.path.exists(command[0]):
-            print "[%s] Missing file %s; available files are:" % (
-                self.name, command[0])
-            sys.stdout.flush()
-            subprocess.call(["/usr/bin/find", "-L", "."])
-            raise RuntimeError(command[0] + " not found")
 
         # Create a new execution environment by copying the current one, but
         # making sure to use the C locale, so that meshes and textures are

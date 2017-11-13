@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+#
 # Copyright 2017 Open Source Robotics Foundation
 #
 # Redistribution and use in source and binary forms, with or without
@@ -34,12 +36,6 @@ import sys
 import time
 from launcher import Launcher
 
-"""
-Bazel doesn't allow us to run two different "bazel run ...." commands
-at the same time, so we need to have a separate program that launches
-both the bridge and the mock publisher.
-"""
-
 def main(binaries):
     launcher = Launcher()
     try:
@@ -52,4 +48,4 @@ def main(binaries):
     sys.exit(launcher.returncode)
 
 if __name__ == '__main__':
-    main(sys.argv[1:])
+    main(['lcm-mock-robot-publisher', 'duplex-ign-lcm-bridge', 'visualizer'])

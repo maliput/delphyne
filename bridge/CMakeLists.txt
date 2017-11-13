@@ -22,7 +22,6 @@ set (gtest_sources
   service_to_channel_translation_TEST.cc
 )
 
-
 # ----------------------------------------
 # Create duplex-ign-lcm-bridge binary.
 add_executable(duplex-ign-lcm-bridge

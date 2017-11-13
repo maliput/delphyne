@@ -59,6 +59,8 @@ target_link_libraries(lcm-mock-robot-publisher
 install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------
 
+install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
+install(PROGRAMS mocked_robot_demo.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # ----------------------------------------
 # Tests

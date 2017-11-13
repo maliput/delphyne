@@ -1,3 +1,5 @@
+#!/usr/bin/python2
+#
 # Copyright 2017 Open Source Robotics Foundation
 #
 # Redistribution and use in source and binary forms, with or without
@@ -59,6 +61,18 @@ def wait_for_lcm_message_on_channel(channel):
     finally:
         m.unsubscribe(sub)
 
+def get_from_env_or_fail(var):
+    value = os.environ.get(var)
+    if value is None:
+        print("%s is not in the environment, did you remember to source setup.bash?" % (var))
+        sys.exit(1)
+
+    # Since it is an environment variable, the very end may have a colon; strip it here
+    if value[-1] == ':':
+        value = value[:-1]
+
+    return value
+
 def main():
     """Launches drake's automotive_demo along with the bridge and the
     ignition-visualizer.
@@ -77,9 +91,6 @@ def main():
     # dynamic creation of lcm-to-ign repeaters is ready
     num_cars = {"simple": "2", "trajectory": "1", "dragway": "12"}
 
-    # Required argument
-    parser.add_argument(dest="drake_path", nargs="?", action="store",
-                        help="path to drake's directory")
     # Optional arguments
     parser.add_argument("--demo", default="simple", dest="demo_name",
                         action="store", choices=demo_arguments.keys(),
@@ -91,24 +102,27 @@ def main():
 
     args, tail = parser.parse_known_args()
 
-    if args.drake_path is None or not os.path.exists(args.drake_path):
-        print "You must specify a valid drake_path argument."
-        parser.print_help()
-        sys.exit(1)
+    drake_src_dir = get_from_env_or_fail('DRAKE_SRC_DIR')
+    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
 
-    drake_bazel_bin_path = os.path.normpath(args.drake_path) + "/bazel-bin/"
+    # Build up the binary path
+    drake_bazel_bin_path = os.path.join(drake_src_dir, 'bazel-bin')
 
-    # drake's binaries path
-    demo_path = drake_bazel_bin_path + "drake/automotive/automotive_demo"
-    steering_command_driver_path = drake_bazel_bin_path + "drake/automotive/steering_command_driver"
-    drake_visualizer_path = drake_bazel_bin_path + "tools/drake_visualizer"
-    lcm_spy_path = drake_bazel_bin_path + "drake/automotive/lcm-spy"
-    lcm_logger_path = drake_bazel_bin_path + "external/lcm/lcm-logger"
+    # Delphyne binaries; these are found through the standard PATH, so are relative
+    lcm_ign_bridge = "duplex-ign-lcm-bridge"
+    ign_visualizer = "visualizer"
 
+    # The drake-visualizer, drake-lcm-spy, and lcm-logger are installed when
+    # installing drake, so use PATH
+    drake_visualizer = "drake-visualizer"
+    drake_lcm_spy = "drake-lcm-spy"
+    lcm_logger = "lcm-logger"
 
-    # delphyne's binaries path
-    lcm_ign_bridge = "bridge/duplex-ign-lcm-bridge"
-    ign_visualizer = "visualizer/visualizer"
+    # The automotive_demo and steering_command_driver binaries from drake.
+    # These aren't installed with a drake install, so we must run them from the
+    # drake src directory.
+    demo_path = os.path.join(drake_bazel_bin_path, "drake", "automotive", "automotive_demo")
+    steering_command_driver_path = os.path.join(drake_bazel_bin_path, "drake", "automotive", "steering_command_driver")
 
     try:
         launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
@@ -119,7 +133,8 @@ def main():
 
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
-            launcher.launch([ign_visualizer, "visualizer/layoutWithTeleop.config"])
+            teleop_config = os.path.join(delphyne_ws_dir, "install", "share", "delphyne", "layoutWithTeleop.config")
+            launcher.launch([ign_visualizer, teleop_config])
         else:
             launcher.launch([ign_visualizer])
 
@@ -128,17 +143,19 @@ def main():
                 # Launch two instances of the drake steering_command app
                 launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_0"])
                 launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_1"])
-            launcher.launch([lcm_spy_path])
-            launcher.launch([lcm_logger_path])
-            launcher.launch([drake_visualizer_path])
-            # wait for the drake_visualizer to be up
+            launcher.launch([drake_lcm_spy])
+            launcher.launch([lcm_logger])
+            launcher.launch([drake_visualizer])
+            # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
+        else:
+            # TODO: once we have the backend with a service for startup, this
+            # can go away.
+            time.sleep(1)
 
-        launch_arguments = [demo_path] + demo_arguments[args.demo_name]
+        launcher.launch([demo_path] + demo_arguments[args.demo_name], cwd=drake_src_dir)
 
-        launcher.launch(launch_arguments, cwd=args.drake_path)
-        duration = float("Inf") # infinite duration
-        launcher.wait(duration)
+        launcher.wait(float("Inf"))
 
     finally:
         launcher.kill()

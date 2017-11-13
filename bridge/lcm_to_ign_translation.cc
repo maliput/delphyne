@@ -82,7 +82,7 @@ void lcmToIgn(const drake::lcmt_viewer_command& lcmData,
 }
 
 //////////////////////////////////////////////////
-void lcmToIgn(const drake::viewer2_comms_t& lcmViewer2Data,
+void lcmToIgn(const robotlocomotion::viewer2_comms_t& lcmViewer2Data,
               ignition::msgs::Viewer2Comms* ignViewer2Data) {
   ignViewer2Data->mutable_time()->set_sec(secsFromMicros(lcmViewer2Data.utime));
   ignViewer2Data->mutable_time()->set_nsec(

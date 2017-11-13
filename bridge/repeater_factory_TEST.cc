@@ -2,7 +2,7 @@
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>
 
-#include "bridge/drake/lcmt_driving_command_t.hpp"
+#include "drake/lcmt_driving_command_t.hpp"
 #include "bridge/protobuf/headers/automotive_driving_command.pb.h"
 #include "bridge/repeater_factory.hh"
 

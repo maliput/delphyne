@@ -42,7 +42,7 @@
 #include "drake/lcmt_viewer_draw.hpp"
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_load_robot.hpp"
-#include "drake/viewer2_comms_t.hpp"
+#include "robotlocomotion/viewer2_comms_t.hpp"
 
 // Custom ignition message headers
 #include "protobuf/headers/automotive_driving_command.pb.h"
@@ -89,7 +89,7 @@ REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
                              ignition::msgs::SimpleCarState)
 
 REGISTER_STATIC_LCM_REPEATER("DIRECTOR_TREE_VIEWER_RESPONSE",
-                             drake::viewer2_comms_t,
+                             robotlocomotion::viewer2_comms_t,
                              ignition::msgs::Viewer2Comms)
 
 /// \brief Flag used to break the LCM loop and terminate the program.

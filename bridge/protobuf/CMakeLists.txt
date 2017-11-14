@@ -7,21 +7,11 @@ set (msgs
   viewer2_comms.proto
 )
 
-set(PROTOBUF_IMPORT_DIRS /home/alexis/delphyne_ws/src/ign_msgs)
+set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS})
 PROTOBUF_GENERATE_CPP(PROTO_SRC PROTO_HEADER
   ${msgs}
 )
 
-add_custom_target(protobuf_compilation DEPENDS
-  ${PROTO_SRC}￼
-  ${PROTO_HEADER}
-)
+add_library(delphyne_protobuf_msgs STATIC ${PROTO_SRC})
 
-add_library(protobuf_msgs STATIC ${PROTO_SRC})
-
-target_include_directories(protobuf_msgs PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-install(TARGETS protobuf_msgs
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
-)
+target_include_directories(delphyne_protobuf_msgs PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

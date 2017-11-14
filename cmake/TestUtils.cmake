@@ -37,7 +37,7 @@ macro (delphyne_build_tests)
       libgtest.a
       libgtest_main.a
       pthread
-      protobuf_msgs
+      delphyne_protobuf_msgs
     )
 
     # Remove a warning in GTest.

@@ -42,7 +42,7 @@ target_link_libraries(duplex-ign-lcm-bridge
   ${PROTOBUF_PROTOC_LIBRARY}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
-  protobuf_msgs
+  delphyne_protobuf_msgs
 )
 
 install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -62,7 +62,7 @@ target_link_libraries(lcm-mock-robot-publisher
   ${PROTOBUF_PROTOC_LIBRARY}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
-  protobuf_msgs
+  delphyne_protobuf_msgs
 )
 
 install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)

@@ -1,6 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
 
-
 add_executable(automotive-demo
   automotive_demo.cc
 )

@@ -83,7 +83,6 @@ if(LD_LIBRARY_PATH)
   set (ENV{LD_LIBRARY_PATH} ${LD_LIBRARY_PATH}:$ENV{LD_LIBRARY_PATH})
 endif()
 
-
 set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
 set (LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
 set (BIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
@@ -181,8 +180,8 @@ list(APPEND WARN_LEVEL -Wstrict-overflow=1 -Wswitch -Wtrigraphs -Wuninitialized)
 list(APPEND WARN_LEVEL -Wunused-function -Wunused-label -Wunused-value)
 list(APPEND WARN_LEVEL -Wunused-variable -Wvolatile-register-var)
 
-  # Unable to be filtered flags (failing due to limitations in filter_valid_compiler_warnings)
-  set(UNFILTERED_FLAGS "-Wc++14-compat")
+# Unable to be filtered flags (failing due to limitations in filter_valid_compiler_warnings)
+set(UNFILTERED_FLAGS "-Wc++14-compat")
 
 filter_valid_compiler_warnings(${WARN_LEVEL} -Wextra -Wno-long-long
   -Wno-unused-value -Wno-unused-value -Wno-unused-value -Wno-unused-value
@@ -310,4 +309,3 @@ else (build_errors)
   message(STATUS "Configuration successful. Type make to compile
   ${PROJECT_NAME_LOWER}")
 endif(build_errors)
-

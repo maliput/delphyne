@@ -1,6 +1,14 @@
 include (${project_cmake_dir}/Utils.cmake)
+
+# ----------------------------------------
+# Generate protobuf headers
 add_subdirectory(protobuf)
 
+set_source_files_properties(${PROTO_SRC} ${PROTO_HEADER}
+  PROPERTIES GENERATED TRUE)
+
+# ----------------------------------------
+# Set sources and gtest_sources
 set (sources
   ign_to_lcm_translation.cc
   lcm_to_ign_translation.cc
@@ -25,6 +33,7 @@ add_executable(duplex-ign-lcm-bridge
   duplex_ign_lcm_bridge.cc
   ${sources}
 )
+
 target_link_libraries(duplex-ign-lcm-bridge
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-MSGS_LIBRARIES}
@@ -35,9 +44,8 @@ target_link_libraries(duplex-ign-lcm-bridge
   ${lcm_LIBRARIES}
   protobuf_msgs
 )
-install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-# ----------------------------------------
 
+install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # ----------------------------------------
 # Create lcm-mock-robot-publisher binary.
@@ -45,6 +53,7 @@ add_executable(lcm-mock-robot-publisher
   lcm_mock_robot_publisher.cc
   ${sources}
 )
+
 target_link_libraries(lcm-mock-robot-publisher
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-MSGS_LIBRARIES}
@@ -55,13 +64,11 @@ target_link_libraries(lcm-mock-robot-publisher
   ${lcm_LIBRARIES}
   protobuf_msgs
 )
-install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-# ----------------------------------------
 
 install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
 install(PROGRAMS mocked_robot_demo.py demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # ----------------------------------------
 # Tests
 delphyne_build_tests(${gtest_sources})
-# ----------------------------------------

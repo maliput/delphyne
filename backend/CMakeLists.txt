@@ -8,3 +8,5 @@ target_link_libraries(automotive-demo
   ${drake_LIBRARIES}
   protobuf_msgs
 )
+
+install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

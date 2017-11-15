@@ -138,6 +138,10 @@ def main():
         else:
             launcher.launch([ign_visualizer])
 
+
+        # TODO: Remove this once backend changes are in
+        time.sleep(1)
+
         if args.drake_visualizer:
             if args.demo_name == "simple":
                 # Launch two instances of the drake steering_command app

@@ -127,10 +127,6 @@ def main():
     try:
         launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
 
-        # TODO: replace this delay with a
-        # feedback from the ignition visualizer
-        time.sleep(1)
-
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
             teleop_config = os.path.join(delphyne_ws_dir, "install", "share", "delphyne", "layoutWithTeleop.config")

@@ -127,16 +127,17 @@ def main():
     try:
         launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
 
-        # TODO: replace this delay with a
-        # feedback from the ignition visualizer
-        time.sleep(1)
-
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
             teleop_config = os.path.join(delphyne_ws_dir, "install", "share", "delphyne", "layoutWithTeleop.config")
             launcher.launch([ign_visualizer, teleop_config])
         else:
             launcher.launch([ign_visualizer])
+
+
+        # TODO: once we have the backend with a service for startup, this
+        # can go away.
+        time.sleep(1)
 
         if args.drake_visualizer:
             if args.demo_name == "simple":
@@ -148,10 +149,6 @@ def main():
             launcher.launch([drake_visualizer])
             # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
-        else:
-            # TODO: once we have the backend with a service for startup, this
-            # can go away.
-            time.sleep(1)
 
         launcher.launch([demo_path] + demo_arguments[args.demo_name], cwd=drake_src_dir)
 

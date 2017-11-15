@@ -6,6 +6,8 @@ add_executable(automotive-demo
 
 target_link_libraries(automotive-demo
   ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
 )
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

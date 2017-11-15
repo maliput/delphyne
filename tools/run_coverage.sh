@@ -1,4 +1,4 @@
-##!/usr/bin/env bash
+#!/usr/bin/env bash
 
 cd $DELPHYNE_WS_DIR/build/delphyne && \
 cmake ../../src/delphyne -DCMAKE_INSTALL_PREFIX=../../install -DCMAKE_BUILD_TYPE=coverage && \

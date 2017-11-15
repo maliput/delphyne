@@ -34,7 +34,7 @@ all of the files. It is recommended to run this before opening any pull request.
 In order to get the project's source code analyzed by cpplint, you can run a wrapper script that goes through the whole project looking for errors.
 
 ```
-<path/to/delphyne> sh tools/run_cpplint.sh
+./tools/run_cpplint.sh
 ```
 
 This command will run the tool and print the results to console.
@@ -52,13 +52,16 @@ $ make
 $ make test
 $ make coverage
 ```
+
 In order to see the web report, run:
 ```
 $ firefox coverage/index.html
 ```
+
 If you want simple coverage numbers in plain text, you can inspect the following files:
 ```
 $ cat coverage/lines.txt
 $ cat coverage/functions.txt
 ```
+
 Which will show the percentage of the project's lines of code and functions covered by the tests, respectively.

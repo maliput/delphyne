@@ -21,7 +21,7 @@ You can execute it against your source code by doing:
 ```
 This will automatically apply the code conventions specified in the .clang-format file, found on the root of the repository.
 
-There is also an automated script that looks for all the C++ src/header files and then calls clang-format accordingly. You can invoque it by doing:
+There is also an automated script that looks for all the C++ src/header files and then calls clang-format accordingly. You can invoke it by doing:
 
 ```
 ./tools/reformat_code.sh
@@ -42,7 +42,7 @@ This command will run the tool and print the results to console.
 ## Instructions for running code-coverage tools
 Delphyne includes a third party CMake tool aimed to ease the use of code-coverage tools, which enable us to run them from a simple make command.
 
-We've set up an automated script that will take care of running the code coverage too, for which I'll first build the project, run the tests and at last the code coverage tool, displaying the html report in your web browser after it has finished. It can be invoked as follows: 
+There's an automated script that will take care of building the project, running the tests, and finally running the code coverage tool, displaying the HTML report in your web browser when it is done.  It can be invoked as follows:
 ```
 ./tools/run_coverage.sh
 ```

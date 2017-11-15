@@ -42,26 +42,7 @@ This command will run the tool and print the results to console.
 ## Instructions for running code-coverage tools
 Delphyne includes a third party CMake tool aimed to ease the use of code-coverage tools, which enable us to run them from a simple make command.
 
-In order to make use of this tools, you need to pass the special parameter `CMAKE_BUILD_TYPE=coverage` to CMake, and then build the project as usual.
-
-Make sure to run `make test` before `make coverage`, it'll fail otherwise.
+We've set up an automated script that will take care of running the code coverage too, for which I'll first build the project, run the tests and at last the code coverage tool, displaying the html report in your web browser after it has finished. It can be invoked as follows: 
 ```
-$ cd <path/to/delphyne/build>
-$ cmake ../../src/delphyne -DCMAKE_INSTALL_PREFIX=../../install -DCMAKE_BUILD_TYPE=coverage
-$ make
-$ make test
-$ make coverage
+./tools/run_coverage.sh
 ```
-
-In order to see the web report, run:
-```
-$ firefox coverage/index.html
-```
-
-If you want simple coverage numbers in plain text, you can inspect the following files:
-```
-$ cat coverage/lines.txt
-$ cat coverage/functions.txt
-```
-
-Which will show the percentage of the project's lines of code and functions covered by the tests, respectively.

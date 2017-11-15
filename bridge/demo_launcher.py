@@ -139,7 +139,8 @@ def main():
             launcher.launch([ign_visualizer])
 
 
-        # TODO: Remove this once backend changes are in
+        # TODO: once we have the backend with a service for startup, this
+        # can go away.
         time.sleep(1)
 
         if args.drake_visualizer:
@@ -152,10 +153,6 @@ def main():
             launcher.launch([drake_visualizer])
             # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
-        else:
-            # TODO: once we have the backend with a service for startup, this
-            # can go away.
-            time.sleep(1)
 
         launcher.launch([demo_path] + demo_arguments[args.demo_name], cwd=drake_src_dir)
 

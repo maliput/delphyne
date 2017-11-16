@@ -33,9 +33,10 @@
 #include <queue>
 #include <string>
 #include <thread>
-#include <drake/automotive/automotive_simulator.h>
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+
+#include "backend/automotive_simulator.h"
 
 #include "protobuf/simulation_in_message.pb.h"
 

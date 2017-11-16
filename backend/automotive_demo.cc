@@ -29,7 +29,6 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
-#include <drake/automotive/automotive_simulator.h>
 #include <drake/common/find_resource.h>
 
 #include "backend/simulation_runner.h"

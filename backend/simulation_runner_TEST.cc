@@ -31,8 +31,7 @@
 #include <memory>
 #include <string>
 #include <thread>
-#include <drake/automotive/automotive_simulator.h>
-
+#include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
 #include "gtest/gtest.h"
 

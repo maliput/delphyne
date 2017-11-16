@@ -32,7 +32,6 @@
 #include <string>
 #include <thread>
 #include <drake/automotive/automotive_simulator.h>
-#include <drake/common/find_resource.h>
 
 #include "backend/SimulationRunner.hh"
 #include "gtest/gtest.h"
@@ -45,10 +44,6 @@ using namespace backend;
 /// simulation terminates gracefully.
 TEST(SimulationRunnerTest, sigIntTermination)
 {
-  // Enable to resolve relative path to resources on AddPriusSimpleCar
-  drake::AddResourceSearchPath(std::string(
-    std::getenv("DRAKE_INSTALL_PATH")) + "/share/drake");
-
   // Instantiate a simulator.
   auto simulator =
     std::make_unique<drake::automotive::AutomotiveSimulator<double>>();

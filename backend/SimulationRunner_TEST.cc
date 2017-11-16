@@ -26,29 +26,25 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <csignal>
 #include <cstdlib>
 #include <memory>
 #include <string>
+#include <thread>
 #include <drake/automotive/automotive_simulator.h>
 #include <drake/common/find_resource.h>
 
 #include "backend/SimulationRunner.hh"
+#include "gtest/gtest.h"
 
 using namespace delphyne;
 using namespace backend;
 
 //////////////////////////////////////////////////
-std::string MakeChannelName(const std::string& _name) {
-  const std::string defaultPrefix{"DRIVING_COMMAND"};
-  if (_name.empty()) {
-    return defaultPrefix;
-  }
-  return defaultPrefix + "_" + _name;
-}
-
-//////////////////////////////////////////////////
-int main(int argc, char* argv[]) {
-
+/// \brief Check that WaitForShutdown captures the SIGINT signal and the
+/// simulation terminates gracefully.
+TEST(SimulationRunnerTest, sigIntTermination)
+{
   // Enable to resolve relative path to resources on AddPriusSimpleCar
   drake::AddResourceSearchPath(std::string(
     std::getenv("DRAKE_INSTALL_PATH")) + "/share/drake");
@@ -57,16 +53,26 @@ int main(int argc, char* argv[]) {
   auto simulator =
     std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
-  // Add a Prius car.
-  drake::automotive::SimpleCarState<double> state;
-  state.set_y(0.0);
-  simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
-
   // Instantiate the simulator runner and pass the simulator.
   auto timeStep = 0.001;
-  SimulatorRunner priusSimRunner(std::move(simulator), timeStep);
-  priusSimRunner.Start();
+  SimulatorRunner simRunner(std::move(simulator), timeStep);
+  simRunner.Start();
+
+  std::thread t([](){
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    std::raise(SIGINT);
+  });
 
   // Zzzzzz.
-  delphyne::backend::WaitForShutdown();
+  WaitForShutdown();
+
+  if (t.joinable())
+    t.join();
+}
+
+//////////////////////////////////////////////////
+int main(int argc, char **argv)
+{
+  ::testing::InitGoogleTest(&argc, argv);
+  return RUN_ALL_TESTS();
 }

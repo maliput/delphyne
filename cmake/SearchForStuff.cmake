@@ -102,7 +102,6 @@ if (NOT WIN32)
   endif()
 endif()
 
-
 ########################################
 # Find lcm in unix platforms
 # In Windows we expect a call from configure.bat script with the paths

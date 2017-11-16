@@ -11,6 +11,7 @@
 #include "drake/automotive/monolane_onramp_merge.h"
 #include "drake/common/find_resource.h"
 #include "drake/common/text_logging_gflags.h"
+#include "protobuf/viewer2_comms.pb.h"
 
 using namespace drake;
 using namespace automotive;

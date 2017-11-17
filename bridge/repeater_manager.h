@@ -91,7 +91,9 @@ class RepeaterManager {
   /// properly setup the repeater or not.
   /// \param[out] result Always true
   void IgnitionRepeaterServiceHandler(const ignition::msgs::StringMsg& request,
+                                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
                                       ignition::msgs::Boolean& response,
+                                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
                                       bool& result);
 
   /// \brief This method is set as a callback of the published service to
@@ -103,7 +105,9 @@ class RepeaterManager {
   /// properly setup the repeater or not.
   /// \param[out] result Always true
   void LCMRepeaterServiceHandler(const ignition::msgs::StringMsg& request,
+                                 // NOLINTNEXTLINE(runtime/references) due to ign-transport API
                                  ignition::msgs::Boolean& response,
+                                 // NOLINTNEXTLINE(runtime/references) due to ign-transport API
                                  bool& result);
 
   /// \brief This method is set as a callback for all LCM channels. Each time

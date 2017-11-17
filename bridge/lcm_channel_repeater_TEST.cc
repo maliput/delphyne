@@ -23,14 +23,14 @@ void assertIsBoxWithSize(const ignition::msgs::Geometry& message, float x,
 //////////////////////////////////////////////////
 /// \brief Fill an LCM viewer_geometry_data message with a box
 /// geometry with the specified size
-void fillBoxWith(drake::lcmt_viewer_geometry_data& boxMsg, float x, float y,
+void fillBoxWith(drake::lcmt_viewer_geometry_data* boxMsg, float x, float y,
                  float z) {
-  boxMsg.type = boxMsg.BOX;
-  boxMsg.num_float_data = 3;
-  boxMsg.float_data.resize(boxMsg.num_float_data);
-  boxMsg.float_data[0] = x;
-  boxMsg.float_data[1] = y;
-  boxMsg.float_data[2] = z;
+  boxMsg->type = boxMsg->BOX;
+  boxMsg->num_float_data = 3;
+  boxMsg->float_data.resize(boxMsg->num_float_data);
+  boxMsg->float_data[0] = x;
+  boxMsg->float_data[1] = y;
+  boxMsg->float_data[2] = z;
 }
 
 //////////////////////////////////////////////////
@@ -82,7 +82,7 @@ GTEST_TEST(LCMChannelRepeaterTest, TestEndToEndEcho) {
 
   // Create and publish geometry message
   drake::lcmt_viewer_geometry_data boxMsg;
-  fillBoxWith(boxMsg, 1, 2, 3);
+  fillBoxWith(&boxMsg, 1, 2, 3);
 
   lcm->publish("TEST_CHANNEL_1", &boxMsg);
 
@@ -114,7 +114,7 @@ GTEST_TEST(LCMChannelRepeaterTest, TestHandlerNotCalled) {
 
   // Create and publish geometry message
   drake::lcmt_viewer_geometry_data boxMsg;
-  fillBoxWith(boxMsg, 1, 2, 3);
+  fillBoxWith(&boxMsg, 1, 2, 3);
 
   lcm->publish("TEST_CHANNEL_1", &boxMsg);
 
@@ -159,13 +159,13 @@ GTEST_TEST(LCMChannelRepeaterTest, TestMultipleChannels) {
 
   // Create and publish geometry message to channel 1
   drake::lcmt_viewer_geometry_data box1Msg;
-  fillBoxWith(box1Msg, 1, 2, 3);
+  fillBoxWith(&box1Msg, 1, 2, 3);
 
   lcm->publish("TEST_CHANNEL_1", &box1Msg);
 
   // Create and publish geometry message to channel 2
   drake::lcmt_viewer_geometry_data box2Msg;
-  fillBoxWith(box2Msg, 5, 5, 5);
+  fillBoxWith(&box2Msg, 5, 5, 5);
 
   lcm->publish("TEST_CHANNEL_2", &box2Msg);
 

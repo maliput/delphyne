@@ -34,7 +34,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include "abstract_repeater.hh"
+#include "abstract_repeater.h"
 #include "lcm/lcm-cpp.hpp"
 
 namespace delphyne {

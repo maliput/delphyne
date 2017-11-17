@@ -51,13 +51,13 @@
 #include "protobuf/viewer_command.pb.h"
 
 // Repeater classes
-#include "ign_service_converter.hh"
-#include "ign_to_lcm_translation.hh"
-#include "ign_topic_repeater.hh"
-#include "lcm_channel_repeater.hh"
-#include "repeater_factory.hh"
-#include "repeater_manager.hh"
-#include "service_to_channel_translation.hh"
+#include "ign_service_converter.h"
+#include "ign_to_lcm_translation.h"
+#include "ign_topic_repeater.h"
+#include "lcm_channel_repeater.h"
+#include "repeater_factory.h"
+#include "repeater_manager.h"
+#include "service_to_channel_translation.h"
 
 // Register custom msg. Note that the name has to include "ign_msgs" at the
 // beginning

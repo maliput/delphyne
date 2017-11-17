@@ -37,14 +37,14 @@
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>
 
-#include "abstract_repeater.hh"
+#include "abstract_repeater.h"
 
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_load_robot.hpp"
 
-#include "ign_to_lcm_translation.hh"
+#include "ign_to_lcm_translation.h"
 
-#include "translate_exception.hh"
+#include "translate_exception.h"
 
 namespace delphyne {
 namespace bridge {

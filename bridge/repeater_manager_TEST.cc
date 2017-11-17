@@ -5,8 +5,8 @@
 
 #include "drake/lcmt_driving_command_t.hpp"
 #include "protobuf/automotive_driving_command.pb.h"
-#include "bridge/repeater_factory.hh"
-#include "bridge/repeater_manager.hh"
+#include "bridge/repeater_factory.h"
+#include "bridge/repeater_manager.h"
 
 namespace delphyne {
 namespace bridge {

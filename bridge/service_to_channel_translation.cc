@@ -1,4 +1,4 @@
-#include "service_to_channel_translation.hh"
+#include "service_to_channel_translation.h"
 
 namespace delphyne {
 namespace bridge {

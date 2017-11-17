@@ -1,4 +1,4 @@
-#include "bridge/lcm_channel_repeater.hh"
+#include "bridge/lcm_channel_repeater.h"
 #include <iostream>
 #include <gtest/gtest.h>
 #include <ignition/msgs.hh>

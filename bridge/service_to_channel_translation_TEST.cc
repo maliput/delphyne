@@ -4,7 +4,7 @@
 #include <ignition/transport.hh>
 
 #include "drake/lcmt_viewer_command.hpp"
-#include "bridge/service_to_channel_translation.hh"
+#include "bridge/service_to_channel_translation.h"
 
 // LCM entry point
 #include "lcm/lcm-cpp.hpp"

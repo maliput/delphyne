@@ -35,7 +35,7 @@
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>
 #include "drake/lcmt_viewer_command.hpp"
-#include "service_to_channel_translation.hh"
+#include "service_to_channel_translation.h"
 
 namespace delphyne {
 namespace bridge {

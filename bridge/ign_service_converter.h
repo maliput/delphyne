@@ -35,8 +35,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>
-#include "drake/lcmt_viewer_command.hpp"
 #include "bridge/service_to_channel_translation.h"
+#include "drake/lcmt_viewer_command.hpp"
 
 namespace delphyne {
 namespace bridge {
@@ -95,11 +95,12 @@ class IgnitionServiceConverter {
   /// \brief Service handler function, this will call a
   /// convertServiceToMsg overloaded function and publish the
   /// result into an lcm channel
-  void IgnitionConverterHandler(const IGN_REQ_TYPE& request,
-                                // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                                ignition::msgs::Boolean& response,
-                                // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                                bool& result) {
+  void IgnitionConverterHandler(
+      const IGN_REQ_TYPE& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& response,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      bool& result) {
     LCM_TYPE message = delphyne::bridge::convertServiceToMsg(request);
     if (lcm_->publish(lcmChannelName_, &message) != -1) {
       // The response succeed

@@ -43,7 +43,6 @@
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_load_robot.hpp"
 
-
 namespace delphyne {
 namespace bridge {
 

@@ -31,8 +31,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include "drake/lcmt_viewer_command.hpp"
 #include "bridge/ign_service_converter.h"
+#include "drake/lcmt_viewer_command.hpp"
 
 // LCM entry point
 #include "lcm/lcm-cpp.hpp"

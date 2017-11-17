@@ -33,8 +33,8 @@
 #include <vector>
 #include <ignition/msgs.hh>
 
-#include "lcm_to_ign_translation.hh"
-#include "translate_exception.hh"
+#include "bridge/lcm_to_ign_translation.h"
+#include "bridge/translate_exception.h"
 
 namespace delphyne {
 namespace bridge {

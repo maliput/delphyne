@@ -33,7 +33,7 @@
 #include <memory>
 #include <string>
 
-#include "ign_topic_repeater.hh"
+#include "bridge/ign_topic_repeater.h"
 
 namespace delphyne {
 namespace bridge {

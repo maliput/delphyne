@@ -36,28 +36,28 @@
 #include <lcm/lcm-cpp.hpp>
 
 // Drake LCM message headers
-#include "drake/lcmt_driving_command_t.hpp"
-#include "drake/lcmt_simple_car_state_t.hpp"
-#include "drake/lcmt_viewer_command.hpp"
-#include "drake/lcmt_viewer_draw.hpp"
-#include "drake/lcmt_viewer_geometry_data.hpp"
-#include "drake/lcmt_viewer_load_robot.hpp"
-#include "robotlocomotion/viewer2_comms_t.hpp"
+#include <drake/lcmt_driving_command_t.hpp>
+#include <drake/lcmt_simple_car_state_t.hpp>
+#include <drake/lcmt_viewer_command.hpp>
+#include <drake/lcmt_viewer_draw.hpp>
+#include <drake/lcmt_viewer_geometry_data.hpp>
+#include <drake/lcmt_viewer_load_robot.hpp>
+#include <robotlocomotion/viewer2_comms_t.hpp>
 
 // Custom ignition message headers
-#include "protobuf/automotive_driving_command.pb.h"
-#include "protobuf/simple_car_state.pb.h"
-#include "protobuf/viewer2_comms.pb.h"
-#include "protobuf/viewer_command.pb.h"
+#include <protobuf/automotive_driving_command.pb.h>
+#include <protobuf/simple_car_state.pb.h>
+#include <protobuf/viewer2_comms.pb.h>
+#include <protobuf/viewer_command.pb.h>
 
 // Repeater classes
-#include "ign_service_converter.hh"
-#include "ign_to_lcm_translation.hh"
-#include "ign_topic_repeater.hh"
-#include "lcm_channel_repeater.hh"
-#include "repeater_factory.hh"
-#include "repeater_manager.hh"
-#include "service_to_channel_translation.hh"
+#include "bridge/ign_service_converter.h"
+#include "bridge/ign_to_lcm_translation.h"
+#include "bridge/ign_topic_repeater.h"
+#include "bridge/lcm_channel_repeater.h"
+#include "bridge/repeater_factory.h"
+#include "bridge/repeater_manager.h"
+#include "bridge/service_to_channel_translation.h"
 
 // Register custom msg. Note that the name has to include "ign_msgs" at the
 // beginning

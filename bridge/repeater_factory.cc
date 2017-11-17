@@ -28,7 +28,7 @@
 
 #include <regex>
 
-#include "repeater_factory.hh"
+#include "bridge/repeater_factory.h"
 
 namespace delphyne {
 namespace bridge {

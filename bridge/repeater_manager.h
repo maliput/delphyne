@@ -33,9 +33,9 @@
 #include <set>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
+#include <lcm/lcm-cpp.hpp>
 
-#include "abstract_repeater.hh"
-#include "lcm/lcm-cpp.hpp"
+#include "bridge/abstract_repeater.h"
 
 namespace delphyne {
 namespace bridge {

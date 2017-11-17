@@ -1,4 +1,4 @@
-#include "bridge/lcm_to_ign_translation.hh"
+#include "bridge/lcm_to_ign_translation.h"
 #include <iostream>
 #include <gtest/gtest.h>
 #include <ignition/msgs.hh>

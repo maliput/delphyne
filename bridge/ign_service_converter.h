@@ -113,6 +113,6 @@ class IgnitionServiceConverter {
 };
 
 }  // namespace bridge
-}  // namespace delphyne #endif
+}  // namespace delphyne
 
 #endif

@@ -36,7 +36,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include "backend/SimulationRunner.hh"
+#include "backend/SimulationRunner.h"
 
 using namespace delphyne;
 using namespace backend;
@@ -54,42 +54,38 @@ static std::condition_variable g_shutdown_cv;
 //////////////////////////////////////////////////
 /// \brief Function executed when a SIGINT or SIGTERM signals are captured.
 /// \param[in] _signal Signal received.
-static void SignalHandler(const int _signal)
-{
-  if (_signal == SIGINT || _signal == SIGTERM)
-  {
-     {
-       std::unique_lock<std::mutex> lk(g_shutdown_mutex);
-       g_shutdown = true;
-     }
-     g_shutdown_cv.notify_all();
+static void SignalHandler(const int _signal) {
+  if (_signal == SIGINT || _signal == SIGTERM) {
+    {
+      std::unique_lock<std::mutex> lk(g_shutdown_mutex);
+      g_shutdown = true;
+    }
+    g_shutdown_cv.notify_all();
   }
 }
 
 //////////////////////////////////////////////////
-void delphyne::backend::WaitForShutdown()
-{
+void delphyne::backend::WaitForShutdown() {
   // Install a signal handler for SIGINT and SIGTERM.
-  std::signal(SIGINT,  SignalHandler);
+  std::signal(SIGINT, SignalHandler);
   std::signal(SIGTERM, SignalHandler);
 
   std::unique_lock<std::mutex> lk(g_shutdown_mutex);
-  g_shutdown_cv.wait(lk, []{return g_shutdown;});
+  g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
 //////////////////////////////////////////////////
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
     const double _timeStep)
-      : timeStep(_timeStep),
-        simulator(std::move(_sim)) {
+    : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
-  this->node.Advertise(this->kControlService,
-    &SimulatorRunner::OnWorldControl, this);
+  this->node.Advertise(this->kControlService, &SimulatorRunner::OnWorldControl,
+                       this);
 
   // Advertise the topic for publishing notifications.
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
-    this->kNotificationsTopic);
+      this->kNotificationsTopic);
 
   this->simulator->Start();
 }
@@ -109,8 +105,7 @@ SimulatorRunner::~SimulatorRunner() {
 //////////////////////////////////////////////////
 void SimulatorRunner::Start() {
   // The main loop is already running.
-  if (this->enabled)
-    return;
+  if (this->enabled) return;
 
   this->enabled = true;
 
@@ -122,7 +117,6 @@ void SimulatorRunner::Start() {
 void SimulatorRunner::Run() {
   bool stayAlive = true;
   while (stayAlive) {
-
     // Start a timer to measure the time we spend doing tasks.
     auto stepStart = std::chrono::steady_clock::now();
 
@@ -157,16 +151,14 @@ void SimulatorRunner::Run() {
 
     // Wait for the remaining time of this step.
     auto stepElapsed = stepEnd - stepStart;
-      std::this_thread::sleep_for(
-        std::chrono::microseconds(static_cast<long int>(this->timeStep * 1e6))
-        - stepElapsed);
+    std::this_thread::sleep_for(
+        std::chrono::microseconds(static_cast<long int>(this->timeStep * 1e6)) -
+        stepElapsed);
   }
 }
 
 //////////////////////////////////////////////////
-double SimulatorRunner::TimeStep() const {
-  return this->timeStep;
-}
+double SimulatorRunner::TimeStep() const { return this->timeStep; }
 
 //////////////////////////////////////////////////
 void SimulatorRunner::SetTimeStep(const double _timeStep) {
@@ -174,14 +166,10 @@ void SimulatorRunner::SetTimeStep(const double _timeStep) {
 }
 
 //////////////////////////////////////////////////
-bool SimulatorRunner::IsPaused() const {
-  return this->paused;
-}
+bool SimulatorRunner::IsPaused() const { return this->paused; }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::SetPaused(const bool _paused) {
-  this->paused = _paused;
-}
+void SimulatorRunner::SetPaused(const bool _paused) { this->paused = _paused; }
 
 //////////////////////////////////////////////////
 void SimulatorRunner::ProcessIncomingMessages() {
@@ -223,8 +211,8 @@ void SimulatorRunner::ProcessWorldControlMessage(
 
 //////////////////////////////////////////////////
 void SimulatorRunner::OnWorldControl(const ignition::msgs::WorldControl& _req,
-    ignition::msgs::Boolean& _rep, bool& _result) {
-
+                                     ignition::msgs::Boolean& _rep,
+                                     bool& _result) {
   {
     // Just queue the message.
     std::lock_guard<std::mutex> lock(this->mutex);
@@ -235,9 +223,7 @@ void SimulatorRunner::OnWorldControl(const ignition::msgs::WorldControl& _req,
 }
 
 //////////////////////////////////////////////////
-bool SimulatorRunner::StepRequested() const {
-  return this->stepRequested;
-}
+bool SimulatorRunner::StepRequested() const { return this->stepRequested; }
 
 //////////////////////////////////////////////////
 void SimulatorRunner::SetStepRequested(const bool _stepRequested) {
@@ -245,9 +231,7 @@ void SimulatorRunner::SetStepRequested(const bool _stepRequested) {
 }
 
 //////////////////////////////////////////////////
-double SimulatorRunner::CustomTimeStep() const {
-  return this->customTimeStep;
-}
+double SimulatorRunner::CustomTimeStep() const { return this->customTimeStep; }
 
 //////////////////////////////////////////////////
 void SimulatorRunner::SetCustomTimeStep(const double _timeStep) {

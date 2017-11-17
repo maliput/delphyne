@@ -32,7 +32,7 @@
 #include <drake/automotive/automotive_simulator.h>
 #include <drake/common/find_resource.h>
 
-#include "backend/SimulationRunner.hh"
+#include "backend/SimulationRunner.h"
 
 using namespace delphyne;
 using namespace backend;
@@ -48,14 +48,13 @@ std::string MakeChannelName(const std::string& _name) {
 
 //////////////////////////////////////////////////
 int main(int argc, char* argv[]) {
-
   // Enable to resolve relative path to resources on AddPriusSimpleCar
-  drake::AddResourceSearchPath(std::string(
-    std::getenv("DRAKE_INSTALL_PATH")) + "/share/drake");
+  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
+                               "/share/drake");
 
   // Instantiate a simulator.
   auto simulator =
-    std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
   // Add a Prius car.
   drake::automotive::SimpleCarState<double> state;

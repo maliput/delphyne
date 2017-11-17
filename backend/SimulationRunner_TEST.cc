@@ -33,7 +33,7 @@
 #include <thread>
 #include <drake/automotive/automotive_simulator.h>
 
-#include "backend/SimulationRunner.hh"
+#include "backend/SimulationRunner.h"
 #include "gtest/gtest.h"
 
 using namespace delphyne;
@@ -42,18 +42,17 @@ using namespace backend;
 //////////////////////////////////////////////////
 /// \brief Check that WaitForShutdown captures the SIGINT signal and the
 /// simulation terminates gracefully.
-TEST(SimulationRunnerTest, sigIntTermination)
-{
+TEST(SimulationRunnerTest, sigIntTermination) {
   // Instantiate a simulator.
   auto simulator =
-    std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
   // Instantiate the simulator runner and pass the simulator.
   auto timeStep = 0.001;
   SimulatorRunner simRunner(std::move(simulator), timeStep);
   simRunner.Start();
 
-  std::thread t([](){
+  std::thread t([]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     std::raise(SIGINT);
   });
@@ -61,13 +60,11 @@ TEST(SimulationRunnerTest, sigIntTermination)
   // Zzzzzz.
   WaitForShutdown();
 
-  if (t.joinable())
-    t.join();
+  if (t.joinable()) t.join();
 }
 
 //////////////////////////////////////////////////
-int main(int argc, char **argv)
-{
+int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }

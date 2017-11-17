@@ -30,6 +30,7 @@
 #define DELPHYNE_BRIDGE_IGNSERVICECONVERTER_HH_
 
 #include <functional>
+#include <memory>
 #include <string>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>

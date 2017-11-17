@@ -30,7 +30,9 @@
 #define DELPHYNE_BRIDGE_REPEATERMANAGER_HH_
 
 #include <map>
+#include <memory>
 #include <set>
+#include <string>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>

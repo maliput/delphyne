@@ -43,7 +43,7 @@ class ViewerDrawTest : public ::testing::Test {
   drake::lcmt_viewer_draw drawMsg;
   ignition::msgs::Model_V models;
 
-  virtual void SetUp() override {
+  void SetUp() override {
     drawMsg.timestamp = 123456;
     drawMsg.num_links = 2;
     drawMsg.link_name.resize(drawMsg.num_links);

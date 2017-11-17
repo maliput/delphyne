@@ -32,19 +32,18 @@
 #include <memory>
 #include <string>
 
+#include <drake/lcmt_viewer_geometry_data.hpp>
+#include <drake/lcmt_viewer_load_robot.hpp>
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>
 
-#include "abstract_repeater.h"
+#include "bridge/abstract_repeater.h"
+#include "bridge/ign_to_lcm_translation.h"
+#include "bridge/translate_exception.h"
 
-#include "drake/lcmt_viewer_geometry_data.hpp"
-#include "drake/lcmt_viewer_load_robot.hpp"
 
-#include "ign_to_lcm_translation.h"
-
-#include "translate_exception.h"
 
 namespace delphyne {
 namespace bridge {

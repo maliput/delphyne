@@ -30,16 +30,18 @@
 #define DELPHYNE_BRIDGE_LCMTOIGNTRANSLATION_HH_
 
 #include <ignition/msgs.hh>
-#include "drake/lcmt_simple_car_state_t.hpp"
-#include "drake/lcmt_viewer_command.hpp"
-#include "drake/lcmt_viewer_draw.hpp"
-#include "drake/lcmt_viewer_geometry_data.hpp"
-#include "drake/lcmt_viewer_load_robot.hpp"
-#include "robotlocomotion/viewer2_comms_t.hpp"
-#include "protobuf/simple_car_state.pb.h"
-#include "protobuf/viewer2_comms.pb.h"
-#include "protobuf/viewer_command.pb.h"
-#include "translate_exception.h"
+#include <drake/lcmt_simple_car_state_t.hpp>
+#include <drake/lcmt_viewer_command.hpp>
+#include <drake/lcmt_viewer_draw.hpp>
+#include <drake/lcmt_viewer_geometry_data.hpp>
+#include <drake/lcmt_viewer_load_robot.hpp>
+#include <robotlocomotion/viewer2_comms_t.hpp>
+
+#include <protobuf/simple_car_state.pb.h>
+#include <protobuf/viewer2_comms.pb.h>
+#include <protobuf/viewer_command.pb.h>
+
+#include "bridge/translate_exception.h"
 
 namespace delphyne {
 namespace bridge {

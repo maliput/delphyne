@@ -30,8 +30,8 @@
 
 #include <ignition/common/Console.hh>
 
-#include "repeater_factory.h"
-#include "repeater_manager.h"
+#include "bridge/repeater_factory.h"
+#include "bridge/repeater_manager.h"
 
 namespace delphyne {
 namespace bridge {

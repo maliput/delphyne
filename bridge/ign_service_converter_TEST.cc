@@ -74,7 +74,7 @@ class ServiceConverterTest : public ::testing::Test {
   // Subscribe lcm handler to channel
   LCMHandler handlerObject;
 
-  virtual void SetUp() override {
+  void SetUp() override {
     // Subscribe to LCM channel
     lcm->subscribe(lcmChannelName, &LCMHandler::handleMessage, &handlerObject);
   }

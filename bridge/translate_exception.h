@@ -41,7 +41,8 @@ class TranslateException : public std::runtime_error {
  public:
   /// \brief Creates a new exception
   /// \param[in]  message The message explaining the error
-  TranslateException(std::string message) : std::runtime_error(message) {}
+  explicit TranslateException(std::string message)
+      : std::runtime_error(message) {}
 };
 
 }  // namespace bridge

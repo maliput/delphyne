@@ -118,7 +118,7 @@ systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
 
 
 template <typename T>
-std::shared_ptr<ignition::msgs::Model_V> AutomotiveSimulator<T>::GetRobotModel() {
+std::unique_ptr<ignition::msgs::Model_V> AutomotiveSimulator<T>::GetRobotModel() {
 
   const lcmt_viewer_load_robot load_car_message =
       car_vis_applicator_->get_load_robot_message();
@@ -134,11 +134,11 @@ std::shared_ptr<ignition::msgs::Model_V> AutomotiveSimulator<T>::GetRobotModel()
     load_message.link.push_back(load_terrain_message.link.at(i));
   }
 
-  std::shared_ptr<ignition::msgs::Model_V> ignMessage = std::make_shared<ignition::msgs::Model_V>();
+  std::unique_ptr<ignition::msgs::Model_V> ignMessage = std::make_unique<ignition::msgs::Model_V>();
 
   bridge::lcmToIgn(load_message, ignMessage.get());
 
-  return ignMessage;
+  return std::move(ignMessage);
 }
 
 template <typename T>

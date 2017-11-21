@@ -44,7 +44,6 @@ namespace backend {
 TEST(SimulationRunnerTest, sigIntTermination) {
   // Instantiate a simulator.
   auto simulator =
-      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
   // Instantiate the simulator runner and pass the simulator.

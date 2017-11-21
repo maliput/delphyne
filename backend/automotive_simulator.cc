@@ -1,4 +1,32 @@
-#include "backend/automotive_simulator.h"
+// Copyright 2017 Open Source Robotics Foundation
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
+#include "automotive_simulator.h"
 
 #include <algorithm>
 #include <utility>
@@ -28,8 +56,10 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
-namespace drake {
+using namespace drake;
+using namespace automotive;
 
+namespace delphyne {
 using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LaneId;
@@ -44,15 +74,15 @@ using systems::RungeKutta2Integrator;
 using systems::System;
 using systems::SystemOutput;
 
-namespace automotive {
+namespace backend {
 
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator()
-    : AutomotiveSimulator(std::make_unique<lcm::DrakeLcm>()) {}
+    : AutomotiveSimulator(std::make_unique<drake::lcm::DrakeLcm>()) {}
 
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator(
-    std::unique_ptr<lcm::DrakeLcmInterface> lcm)
+    std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm)
     : lcm_(std::move(lcm)) {
   aggregator_ =
       builder_->template AddSystem<systems::rendering::PoseAggregator<T>>();
@@ -76,7 +106,7 @@ AutomotiveSimulator<T>::~AutomotiveSimulator() {
 }
 
 template <typename T>
-lcm::DrakeLcmInterface* AutomotiveSimulator<T>::get_lcm() {
+drake::lcm::DrakeLcmInterface* AutomotiveSimulator<T>::get_lcm() {
   return lcm_.get();
 }
 
@@ -84,6 +114,31 @@ template <typename T>
 systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
   DRAKE_DEMAND(!has_started());
   return builder_.get();
+}
+
+
+template <typename T>
+std::shared_ptr<ignition::msgs::Model_V> AutomotiveSimulator<T>::GetRobotModel() {
+
+  const lcmt_viewer_load_robot load_car_message =
+      car_vis_applicator_->get_load_robot_message();
+  const lcmt_viewer_load_robot load_terrain_message =
+      multibody::CreateLoadRobotMessage<T>(*tree_);
+  lcmt_viewer_load_robot load_message;
+  load_message.num_links = load_car_message.num_links +
+                           load_terrain_message.num_links;
+  for (int i = 0; i < load_car_message.num_links; ++i) {
+    load_message.link.push_back(load_car_message.link.at(i));
+  }
+  for (int i = 0; i < load_terrain_message.num_links; ++i) {
+    load_message.link.push_back(load_terrain_message.link.at(i));
+  }
+
+  std::shared_ptr<ignition::msgs::Model_V> ignMessage = std::make_shared<ignition::msgs::Model_V>();
+
+  bridge::lcmToIgn(load_message, ignMessage.get());
+
+  return ignMessage;
 }
 
 template <typename T>
@@ -442,17 +497,23 @@ void AutomotiveSimulator<T>::TransmitLoadMessage() {
   for (int i = 0; i < load_terrain_message.num_links; ++i) {
     load_message.link.push_back(load_terrain_message.link.at(i));
   }
-  SendLoadRobotMessage(load_message);
+  SendLoadRobotMessage(&load_message);
 }
 
 template <typename T>
 void AutomotiveSimulator<T>::SendLoadRobotMessage(
-    const lcmt_viewer_load_robot& message) {
-  const int num_bytes = message.getEncodedSize();
+    lcmt_viewer_load_robot *lcmMessage) {
+
+  const int num_bytes = lcmMessage->getEncodedSize();
   std::vector<uint8_t> message_bytes(num_bytes);
   const int num_bytes_encoded =
-      message.encode(message_bytes.data(), 0, num_bytes);
+      lcmMessage->encode(message_bytes.data(), 0, num_bytes);
   DRAKE_ASSERT(num_bytes_encoded == num_bytes);
+
+  ignition::msgs::Model_V ignMessage;
+
+  bridge::lcmToIgn(*lcmMessage, &ignMessage);
+
   lcm_->Publish("DRAKE_VIEWER_LOAD_ROBOT", message_bytes.data(), num_bytes);
 }
 

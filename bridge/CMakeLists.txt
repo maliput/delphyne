@@ -18,13 +18,13 @@ set (sources
 )
 
 set (gtest_sources
-  ign_service_converter_TEST.cc
-  ign_to_lcm_translation_TEST.cc
-  lcm_channel_repeater_TEST.cc
-  lcm_to_ign_translation_TEST.cc
-  repeater_factory_TEST.cc
-  repeater_manager_TEST.cc
-  service_to_channel_translation_TEST.cc
+  ign_service_converter_test.cc
+  ign_to_lcm_translation_test.cc
+  lcm_channel_repeater_test.cc
+  lcm_to_ign_translation_test.cc
+  repeater_factory_test.cc
+  repeater_manager_test.cc
+  service_to_channel_translation_test.cc
 )
 
 # ----------------------------------------

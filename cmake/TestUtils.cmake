@@ -18,7 +18,7 @@ macro (delphyne_build_tests)
     endif(USE_LOW_MEMORY_TESTS)
 
     add_executable(${BINARY_NAME}
-      ${GTEST_SOURCE_file}
+      test/${GTEST_SOURCE_file}
       ${sources}
     )
 

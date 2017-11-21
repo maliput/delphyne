@@ -1,11 +1,11 @@
 include (${project_cmake_dir}/Utils.cmake)
 
 set (sources
-  SimulationRunner.cc
+  simulation_runner.cc
 )
 
 set (gtest_sources
-  SimulationRunner_TEST.cc
+  simulation_runner_test.cc
 )
 
 add_executable(automotive-demo

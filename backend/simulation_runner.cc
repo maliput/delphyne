@@ -37,7 +37,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include "backend/SimulationRunner.h"
+#include "backend/simulation_runner.h"
 
 namespace delphyne {
 namespace backend {

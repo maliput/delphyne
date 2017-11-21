@@ -38,8 +38,8 @@
 
 #include "backend/SimulationRunner.h"
 
-using namespace delphyne;
-using namespace backend;
+namespace delphyne {
+namespace backend {
 
 /// \brief Flag to detect SIGINT or SIGTERM while the code is executing
 /// WaitForShutdown().
@@ -65,7 +65,7 @@ static void SignalHandler(const int _signal) {
 }
 
 //////////////////////////////////////////////////
-void delphyne::backend::WaitForShutdown() {
+void WaitForShutdown() {
   // Install a signal handler for SIGINT and SIGTERM.
   std::signal(SIGINT, SignalHandler);
   std::signal(SIGTERM, SignalHandler);
@@ -74,7 +74,7 @@ void delphyne::backend::WaitForShutdown() {
   g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
-//////////////////////////////////////////////////
+/////////////////////////////////////////////////
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
     const double _timeStep)
@@ -237,3 +237,6 @@ double SimulatorRunner::CustomTimeStep() const { return this->customTimeStep; }
 void SimulatorRunner::SetCustomTimeStep(const double _timeStep) {
   this->customTimeStep = _timeStep;
 }
+
+}  // namespace backend
+}  // namespace delphyne

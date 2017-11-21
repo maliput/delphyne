@@ -78,7 +78,7 @@ class SimulatorRunner {
   /// \param[in] _timeStep The slot of time (seconds) simulated in each
   /// simulation step.
   public: SimulatorRunner(
-    std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
     const double _timeStep);
 
   /// \brief Default destructor.
@@ -112,6 +112,9 @@ class SimulatorRunner {
       const ignition::msgs::SimulationInMessage& _req,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& _rep, bool& _result);
+
+  private: void OnGetRobotModel(const ignition::msgs::Empty &request,
+    ignition::msgs::Model_V &response, bool &result);
 
   /// \brief Get the default time step.
   /// \return The default time step.
@@ -161,7 +164,7 @@ class SimulatorRunner {
   private: bool enabled = false;
 
   /// \brief A pointer to the Drake simulator.
-  private: std::unique_ptr<drake::automotive::AutomotiveSimulator<double>>
+  private: std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>>
     simulator;
 
   /// \brief Whether the simulation is paused or not.

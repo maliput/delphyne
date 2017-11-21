@@ -32,6 +32,7 @@
 #include <memory>
 #include <mutex>
 #include <thread>
+#include <utility>
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
@@ -152,7 +153,7 @@ void SimulatorRunner::Run() {
     // Wait for the remaining time of this step.
     auto stepElapsed = stepEnd - stepStart;
     std::this_thread::sleep_for(
-        std::chrono::microseconds(static_cast<long int>(this->timeStep * 1e6)) -
+        std::chrono::microseconds(static_cast<int64_t>(this->timeStep * 1e6)) -
         stepElapsed);
   }
 }

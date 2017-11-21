@@ -111,8 +111,11 @@ class SimulatorRunner {
   /// \param[out] _rep The response (unused).
   /// \param[out] _result The result of the service.
  private:
-  void OnWorldControl(const ignition::msgs::WorldControl& _req,
-                      ignition::msgs::Boolean& _rep, bool& _result);
+  void OnWorldControl(
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      const ignition::msgs::WorldControl& _req,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& _rep, bool& _result);
 
   /// \brief Get the default time step.
   /// \return The default time step.

@@ -36,8 +36,8 @@
 #include "backend/SimulationRunner.h"
 #include "gtest/gtest.h"
 
-using namespace delphyne;
-using namespace backend;
+namespace delphyne {
+namespace backend {
 
 //////////////////////////////////////////////////
 /// \brief Check that WaitForShutdown captures the SIGINT signal and the
@@ -68,3 +68,6 @@ int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+}  // namespace backend
+}  // namespace delphyne

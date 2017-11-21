@@ -29,6 +29,7 @@
 #ifndef DELPHYNE_BRIDGE_LCMCHANNELREPEATER_HH_
 #define DELPHYNE_BRIDGE_LCMCHANNELREPEATER_HH_
 
+#include <memory>
 #include <string>
 
 #include <ignition/common/Console.hh>
@@ -41,7 +42,6 @@
 
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "drake/lcmt_viewer_load_robot.hpp"
-
 
 namespace delphyne {
 namespace bridge {

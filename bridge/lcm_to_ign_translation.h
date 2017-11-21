@@ -29,12 +29,12 @@
 #ifndef DELPHYNE_BRIDGE_LCMTOIGNTRANSLATION_HH_
 #define DELPHYNE_BRIDGE_LCMTOIGNTRANSLATION_HH_
 
-#include <ignition/msgs.hh>
 #include <drake/lcmt_simple_car_state_t.hpp>
 #include <drake/lcmt_viewer_command.hpp>
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_geometry_data.hpp>
 #include <drake/lcmt_viewer_load_robot.hpp>
+#include <ignition/msgs.hh>
 #include <robotlocomotion/viewer2_comms_t.hpp>
 
 #include <protobuf/simple_car_state.pb.h>

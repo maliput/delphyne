@@ -70,119 +70,148 @@ void WaitForShutdown();
 ///   notifications should be used by all the Visualizer instances to update its
 ///   state/widgets in order to keep them in sync with the back-end.
 class SimulatorRunner {
-
   /// \brief Default constructor.
   /// \param[in] _sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
   /// \param[in] _timeStep The slot of time (seconds) simulated in each
   /// simulation step.
-  public: SimulatorRunner(
-    std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
-    const double _timeStep);
+ public:
+  SimulatorRunner(
+      std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
+      const double _timeStep);
 
   /// \brief Default destructor.
-  public: virtual ~SimulatorRunner();
+ public:
+  virtual ~SimulatorRunner();
 
   /// \brief Start the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
-  public: void Start();
+ public:
+  void Start();
 
   /// \brief Run the main simulation loop.
-  public: void Run();
+ public:
+  void Run();
 
   /// \brief Process all pending incoming messages.
-  private: void ProcessIncomingMessages();
+ private:
+  void ProcessIncomingMessages();
 
   /// \brief Send all outgoing messages.
-  private: void SendOutgoingMessages();
+ private:
+  void SendOutgoingMessages();
 
   /// \brief Process one WorldControl message.
   /// \param[in] _msg The message
-  private: void ProcessWorldControlMessage(
-    const ignition::msgs::WorldControl& _msg);
+ private:
+  void ProcessWorldControlMessage(const ignition::msgs::WorldControl& _msg);
 
   /// \brief Service used to receive world control messages.
   /// \param[in] _req The request.
   /// \param[out] _rep The response (unused).
   /// \param[out] _result The result of the service.
-  private: void OnWorldControl(const ignition::msgs::WorldControl& _req,
-                               ignition::msgs::Boolean& _rep,
-                               bool& _result);
+ private:
+  void OnWorldControl(
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      const ignition::msgs::WorldControl& _req,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& _rep, bool& _result);
 
   /// \brief Get the default time step.
   /// \return The default time step.
-  private: double TimeStep() const;
+ private:
+  double TimeStep() const;
 
   /// \brief Set the default time step.
   /// \param[in] _timeStep The new time step.
-  private: void SetTimeStep(const double _timeStep);
+ private:
+  void SetTimeStep(const double _timeStep);
 
   /// \brief Get whether the simulation is paused or not.
   /// \return True when the simulation is paused or false otherwise.
-  private: bool IsPaused() const;
+ private:
+  bool IsPaused() const;
 
   /// \brief Pause/unpause the simulation.
   /// \param[in] _paused True for paused, false for unpaused.
-  private: void SetPaused(const bool _paused);
+ private:
+  void SetPaused(const bool _paused);
 
   /// \brief Whether an external step was requested or not.
   /// \return True if requested or false otherwise.
-  private: bool StepRequested() const;
+ private:
+  bool StepRequested() const;
 
   /// \brief Set whether an external step is requested or not.
   /// \param[in] _stepRequested True when a step is requested.
-  private: void SetStepRequested(const bool _stepRequested);
+ private:
+  void SetStepRequested(const bool _stepRequested);
 
   /// \brief Get the custom time step for an external step.
-  private: double CustomTimeStep() const;
+ private:
+  double CustomTimeStep() const;
 
   /// \brief Set the custom time step for an external step.
   /// \param[in] _timeStep The custom time step.
-  private: void SetCustomTimeStep(const double _timeStep);
+ private:
+  void SetCustomTimeStep(const double _timeStep);
 
   /// \brief The service offered to control the simulation.
-  private: const std::string kControlService = "/world_control";
+ private:
+  const std::string kControlService = "/world_control";
 
   /// \brief The topic used to publish notifications.
-  private: const std::string kNotificationsTopic = "/notifications";
+ private:
+  const std::string kNotificationsTopic = "/notifications";
 
   /// \brief The time (seconds) that we simulate in each simulation step.
-  private: double timeStep = 0.001;
+ private:
+  double timeStep = 0.001;
 
   /// \brief The time (seconds) that we simulate in a custom step requested
   /// externally.
-  private: double customTimeStep = 0.001;
+ private:
+  double customTimeStep = 0.001;
 
   /// \brief Whether the main loop has been started or not.
-  private: bool enabled = false;
+ private:
+  bool enabled = false;
 
   /// \brief A pointer to the Drake simulator.
-  private: std::unique_ptr<drake::automotive::AutomotiveSimulator<double>>
-    simulator;
+ private:
+  std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> simulator;
 
   /// \brief Whether the simulation is paused or not.
-  private: bool paused = false;
+ private:
+  bool paused = false;
 
   /// \brief Whether an external step was requested or not.
-  private: bool stepRequested = false;
+ private:
+  bool stepRequested = false;
 
   /// \brief A mutex to avoid races.
-  private: std::mutex mutex;
+ private:
+  std::mutex mutex;
 
   /// \brief The thread in charge of doing all the periodic tasks.
-  private: std::thread mainThread;
+ private:
+  std::thread mainThread;
 
   /// \brief A queue for storing the incoming messages (requests).
-  private: std::queue<ignition::msgs::WorldControl> incomingMsgs;
+ private:
+  std::queue<ignition::msgs::WorldControl> incomingMsgs;
 
   /// \brief A queue for storing the outgoing messages (notifications).
-  private: std::queue<ignition::msgs::WorldControl> outgoingMsgs;
+ private:
+  std::queue<ignition::msgs::WorldControl> outgoingMsgs;
 
   /// \brief An Ignition Transport node used for communication.
-  private: ignition::transport::Node node;
+ private:
+  ignition::transport::Node node;
 
   /// \brief An Ignition Transport publisher for sending notifications.
-  private: ignition::transport::Node::Publisher notificationsPub;
+ private:
+  ignition::transport::Node::Publisher notificationsPub;
 };
 
 }  // namespace backend

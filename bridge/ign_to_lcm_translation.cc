@@ -29,9 +29,9 @@
 #include <chrono>
 #include <cstdint>
 
+#include "bridge/ign_to_lcm_translation.h"
 #include "drake/lcmt_driving_command_t.hpp"
 #include "protobuf/automotive_driving_command.pb.h"
-#include "bridge/ign_to_lcm_translation.h"
 
 namespace delphyne {
 namespace bridge {

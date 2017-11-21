@@ -30,7 +30,9 @@
 #define DELPHYNE_BRIDGE_REPEATERMANAGER_HH_
 
 #include <map>
+#include <memory>
 #include <set>
+#include <string>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 #include <lcm/lcm-cpp.hpp>
@@ -90,11 +92,12 @@ class RepeaterManager {
   /// \param[out] response A boolean indicating if the manager was able to
   /// properly setup the repeater or not.
   /// \param[out] result Always true
-  void IgnitionRepeaterServiceHandler(const ignition::msgs::StringMsg& request,
-                                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                                      ignition::msgs::Boolean& response,
-                                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                                      bool& result);
+  void IgnitionRepeaterServiceHandler(
+      const ignition::msgs::StringMsg& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& response,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      bool& result);
 
   /// \brief This method is set as a callback of the published service to
   /// start a new LCM to ignition repeater.
@@ -104,11 +107,12 @@ class RepeaterManager {
   /// \param[out] response A boolean indicating if the manager was able to
   /// properly setup the repeater or not.
   /// \param[out] result Always true
-  void LCMRepeaterServiceHandler(const ignition::msgs::StringMsg& request,
-                                 // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                                 ignition::msgs::Boolean& response,
-                                 // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                                 bool& result);
+  void LCMRepeaterServiceHandler(
+      const ignition::msgs::StringMsg& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& response,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      bool& result);
 
   /// \brief This method is set as a callback for all LCM channels. Each time
   /// a new message is received we verify if we are repeating that channel. If

@@ -43,8 +43,6 @@
 #include "bridge/ign_to_lcm_translation.h"
 #include "bridge/translate_exception.h"
 
-
-
 namespace delphyne {
 namespace bridge {
 

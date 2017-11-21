@@ -61,7 +61,7 @@
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
-#include "bridge/lcm_to_ign_translation.hh"
+#include "bridge/lcm_to_ign_translation.h"
 
 using namespace drake;
 using namespace automotive;

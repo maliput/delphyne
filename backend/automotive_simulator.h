@@ -97,7 +97,7 @@ class AutomotiveSimulator {
   systems::DiagramBuilder<T>* get_builder();
 
   /// Return the initial robot model
-  std::shared_ptr<ignition::msgs::Model_V> GetRobotModel();
+  std::unique_ptr<ignition::msgs::Model_V> GetRobotModel();
 
   /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
   /// includes its DrivingCommand LCM input.

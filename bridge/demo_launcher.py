@@ -78,18 +78,23 @@ def main():
     ignition-visualizer.
     It can spawn optionally the drake-visualizer and the lcm tools.
     Terminates all the processes if one of them is killed.
+
+    Important: Many parts of this file are commented out as we are currently
+    migrating the demos and not all features are supported. We are leaving
+    these commented-out lines as a reference for the future.
     """
     launcher = Launcher()
     parser = argparse.ArgumentParser()
     demo_arguments = {
-        "simple": ["--num_simple_car=2"],
-        "trajectory": ["--num_trajectory_car=1"],
-        "dragway":  ["--num_dragway_lanes=3", "--num_trajectory_car=12"],
+        "simple": ["--num_simple_car=1"],
+    #   "trajectory": ["--num_trajectory_car=1"],
+    #   "dragway":  ["--num_dragway_lanes=3", "--num_trajectory_car=12"],
     }
+
     # Number of cars on each demo, passed as arguments to the bridge
     # this approach is temporal, and will be removed as soon as the
     # dynamic creation of lcm-to-ign repeaters is ready
-    num_cars = {"simple": "2", "trajectory": "1", "dragway": "12"}
+    num_cars = {"simple": "1", "trajectory": "1", "dragway": "12"}
 
     # Optional arguments
     parser.add_argument("--demo", default="simple", dest="demo_name",
@@ -111,6 +116,7 @@ def main():
     # Delphyne binaries; these are found through the standard PATH, so are relative
     lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
+    automotive_demo = "automotive-demo"
 
     # The drake-visualizer, drake-lcm-spy, and lcm-logger are installed when
     # installing drake, so use PATH
@@ -121,7 +127,6 @@ def main():
     # The automotive_demo and steering_command_driver binaries from drake.
     # These aren't installed with a drake install, so we must run them from the
     # drake src directory.
-    demo_path = os.path.join(drake_bazel_bin_path, "drake", "automotive", "automotive_demo")
     steering_command_driver_path = os.path.join(drake_bazel_bin_path, "drake", "automotive", "steering_command_driver")
 
     try:
@@ -134,24 +139,18 @@ def main():
         else:
             launcher.launch([ign_visualizer])
 
-
-        # TODO: once we have the backend with a service for startup, this
-        # can go away.
-        time.sleep(1)
-
         if args.drake_visualizer:
             if args.demo_name == "simple":
                 # Launch two instances of the drake steering_command app
                 launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_0"])
-                launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_1"])
+                # launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_1"])
             launcher.launch([drake_lcm_spy])
             launcher.launch([lcm_logger])
             launcher.launch([drake_visualizer])
             # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
 
-        launcher.launch([demo_path] + demo_arguments[args.demo_name], cwd=drake_src_dir)
-
+        launcher.launch([automotive_demo] + demo_arguments[args.demo_name])
         launcher.wait(float("Inf"))
 
     finally:

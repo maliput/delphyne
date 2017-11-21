@@ -34,9 +34,6 @@
 
 #include "backend/SimulationRunner.h"
 
-using namespace delphyne;
-using namespace backend;
-
 //////////////////////////////////////////////////
 std::string MakeChannelName(const std::string& _name) {
   const std::string defaultPrefix{"DRIVING_COMMAND"};
@@ -63,7 +60,8 @@ int main(int argc, char* argv[]) {
 
   // Instantiate the simulator runner and pass the simulator.
   auto timeStep = 0.001;
-  SimulatorRunner priusSimRunner(std::move(simulator), timeStep);
+  delphyne::backend::SimulatorRunner priusSimRunner(std::move(simulator),
+                                                    timeStep);
   priusSimRunner.Start();
 
   // Zzzzzz.

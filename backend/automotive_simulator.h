@@ -1,3 +1,31 @@
+// Copyright 2017 Open Source Robotics Foundation
+//
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are met:
+//
+// 1. Redistributions of source code must retain the above copyright notice,
+//    this list of conditions and the following disclaimer.
+//
+// 2. Redistributions in binary form must reproduce the above copyright notice,
+//    this list of conditions and the following disclaimer in the documentation
+//    and/or other materials provided with the distribution.
+//
+// 3. Neither the name of the copyright holder nor the names of its contributors
+//    may be used to endorse or promote products derived from this software
+//    without specific prior written permission.
+//
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+// CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+// SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+// INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+// CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+// ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+// POSSIBILITY OF SUCH DAMAGE.
+
 #pragma once
 
 #include <map>
@@ -5,6 +33,9 @@
 #include <string>
 #include <utility>
 #include <vector>
+
+#include <ignition/msgs.hh>
+#include <ignition/transport.hh>
 
 #include "drake/automotive/car_vis_applicator.h"
 #include "drake/automotive/curve2.h"
@@ -30,8 +61,13 @@
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
-namespace drake {
-namespace automotive {
+#include "bridge/lcm_to_ign_translation.hh"
+
+using namespace drake;
+using namespace automotive;
+
+namespace delphyne {
+namespace backend {
 
 /// AutomotiveSimulator is a helper class for constructing and running
 /// automotive-related simulations.
@@ -50,15 +86,18 @@ class AutomotiveSimulator {
   /// A constructor that configures this object to use DrakeLcm, which
   /// encapsulates a _real_ LCM instance.
   AutomotiveSimulator();
-  explicit AutomotiveSimulator(std::unique_ptr<lcm::DrakeLcmInterface> lcm);
+  explicit AutomotiveSimulator(std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm);
   ~AutomotiveSimulator();
 
   /// Returns the LCM object used by this AutomotiveSimulator.
-  lcm::DrakeLcmInterface* get_lcm();
+  drake::lcm::DrakeLcmInterface* get_lcm();
 
   /// Returns the DiagramBuilder.
   /// @pre Start() has NOT been called.
   systems::DiagramBuilder<T>* get_builder();
+
+  /// Return the initial robot model
+  std::shared_ptr<ignition::msgs::Model_V> GetRobotModel();
 
   /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
   /// includes its DrivingCommand LCM input.
@@ -290,14 +329,14 @@ class AutomotiveSimulator {
   // simulation and sends it to the drake-visualizer.
   void TransmitLoadMessage();
 
-  void SendLoadRobotMessage(const lcmt_viewer_load_robot& message);
+  void SendLoadRobotMessage(lcmt_viewer_load_robot *lcmMessage);
 
   void InitializeTrajectoryCars();
   void InitializeSimpleCars();
   void InitializeMaliputRailcars();
 
   // For both building and simulation.
-  std::unique_ptr<lcm::DrakeLcmInterface> lcm_{};
+  std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm_{};
   std::unique_ptr<const maliput::api::RoadGeometry> road_{};
 
   // === Start for building. ===
@@ -351,5 +390,5 @@ class AutomotiveSimulator {
   std::unique_ptr<systems::Simulator<T>> simulator_{};
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace backend
+}  // namespace delphyne

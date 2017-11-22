@@ -96,8 +96,9 @@ SimulatorRunner::SimulatorRunner(
   // response.
   // - When the request is processed, the model will be fetched from the
   // simulator and posted to the requested topic.
-  this->node.Advertise<SimulatorRunner, ignition::msgs::Empty, ignition::msgs::Model_V>
-  ("GetRobotModel", &SimulatorRunner::OnGetRobotModel, this);
+  this->node.Advertise<SimulatorRunner, ignition::msgs::Empty,
+                       ignition::msgs::Model_V>(
+      "GetRobotModel", &SimulatorRunner::OnGetRobotModel, this);
 
   this->simulator->Start();
 }
@@ -244,16 +245,15 @@ void SimulatorRunner::OnSimulationInMessage(
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::OnGetRobotModel(const ignition::msgs::Empty &request,
-    ignition::msgs::Model_V &response, bool &result) {
+void SimulatorRunner::OnGetRobotModel(const ignition::msgs::Empty& request,
+                                      ignition::msgs::Model_V& response,
+                                      bool& result) {
   response = *this->simulator->GetRobotModel();
   result = true;
 }
 
 //////////////////////////////////////////////////
-bool SimulatorRunner::StepRequested() const {
-  return this->stepRequested;
-}
+bool SimulatorRunner::StepRequested() const { return this->stepRequested; }
 
 //////////////////////////////////////////////////
 void SimulatorRunner::SetStepRequested(const bool _stepRequested) {

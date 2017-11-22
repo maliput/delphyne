@@ -32,7 +32,7 @@
 #include <drake/automotive/automotive_simulator.h>
 #include <drake/common/find_resource.h>
 
-#include "backend/SimulationRunner.h"
+#include "backend/simulation_runner.h"
 
 //////////////////////////////////////////////////
 std::string MakeChannelName(const std::string& _name) {

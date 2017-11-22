@@ -78,7 +78,7 @@ void WaitForShutdown() {
 /////////////////////////////////////////////////
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
-    const double _timeStep)
+    double _timeStep)
     : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
   this->node.Advertise(this->kControlService,
@@ -88,9 +88,9 @@ SimulatorRunner::SimulatorRunner(
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
       this->kNotificationsTopic);
 
-  // IMPORTANT: This is just an initial implementation and is *not* the way we
-  // are going to be handling these kind of requests in the future. The process
-  // of handling a service calls that needs a response is:
+  // TODO(basicNew): This is just an initial implementation and is *not* the
+  // way we are going to be handling these kind of requests in the future. The
+  // process of handling a service calls that needs a response is:
   // - Create a new request and add it to the queue for later processing. As
   // part of that request we should have a topic name where we will post the
   // response.

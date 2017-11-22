@@ -71,36 +71,36 @@ void WaitForShutdown();
 ///   notifications should be used by all the Visualizer instances to update its
 ///   state/widgets in order to keep them in sync with the back-end.
 class SimulatorRunner {
-
   /// \brief Default constructor.
   /// \param[in] _sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
   /// \param[in] _timeStep The slot of time (seconds) simulated in each
   /// simulation step.
-  public: SimulatorRunner(
-    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
-    const double _timeStep);
+ public:
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
+      const double _timeStep);
 
   /// \brief Default destructor.
-  public: virtual ~SimulatorRunner();
+  virtual ~SimulatorRunner();
 
   /// \brief Start the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
-  public: void Start();
+  void Start();
 
   /// \brief Run the main simulation loop.
-  public: void Run();
+  void Run();
 
+ private:
   /// \brief Process all pending incoming messages.
-  private: void ProcessIncomingMessages();
+  void ProcessIncomingMessages();
 
   /// \brief Send all outgoing messages.
-  private: void SendOutgoingMessages();
+  void SendOutgoingMessages();
 
   /// \brief Process one WorldControl message.
   /// \param[in] _msg The message
-  private: void ProcessWorldControlMessage(
-    const ignition::msgs::WorldControl& _msg);
+  void ProcessWorldControlMessage(const ignition::msgs::WorldControl& _msg);
 
   /// \brief Service used to receive simulation input messages.
   /// \param[in] _req The request.
@@ -113,84 +113,91 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& _rep, bool& _result);
 
-  private: void OnGetRobotModel(const ignition::msgs::Empty &request,
-    ignition::msgs::Model_V &response, bool &result);
+  void OnGetRobotModel(
+      const ignition::msgs::Empty& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Model_V& response,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      bool& result);
 
   /// \brief Get the default time step.
   /// \return The default time step.
-  private: double TimeStep() const;
+  double TimeStep() const;
 
   /// \brief Set the default time step.
   /// \param[in] _timeStep The new time step.
-  private: void SetTimeStep(const double _timeStep);
+  void SetTimeStep(const double _timeStep);
 
   /// \brief Get whether the simulation is paused or not.
   /// \return True when the simulation is paused or false otherwise.
-  private: bool IsPaused() const;
+  bool IsPaused() const;
 
   /// \brief Pause/unpause the simulation.
   /// \param[in] _paused True for paused, false for unpaused.
-  private: void SetPaused(const bool _paused);
+  void SetPaused(const bool _paused);
 
   /// \brief Whether an external step was requested or not.
   /// \return True if requested or false otherwise.
-  private: bool StepRequested() const;
+  bool StepRequested() const;
 
   /// \brief Set whether an external step is requested or not.
   /// \param[in] _stepRequested True when a step is requested.
-  private: void SetStepRequested(const bool _stepRequested);
+  void SetStepRequested(const bool _stepRequested);
 
   /// \brief Get the custom time step for an external step.
-  private: double CustomTimeStep() const;
+  double CustomTimeStep() const;
 
   /// \brief Set the custom time step for an external step.
   /// \param[in] _timeStep The custom time step.
-  private: void SetCustomTimeStep(const double _timeStep);
+  void SetCustomTimeStep(const double _timeStep);
 
   /// \brief The service offered to control the simulation.
-  private: const std::string kControlService = "/world_control";
+  const std::string kControlService = "/world_control";
 
   /// \brief The topic used to publish notifications.
-  private: const std::string kNotificationsTopic = "/notifications";
+  const std::string kNotificationsTopic = "/notifications";
 
   /// \brief The time (seconds) that we simulate in each simulation step.
-  private: double timeStep = 0.001;
+  double timeStep = 0.001;
 
   /// \brief The time (seconds) that we simulate in a custom step requested
   /// externally.
-  private: double customTimeStep = 0.001;
+  double customTimeStep = 0.001;
 
   /// \brief Whether the main loop has been started or not.
-  private: bool enabled = false;
+  bool enabled = false;
 
   /// \brief A pointer to the Drake simulator.
-  private: std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>>
-    simulator;
+  std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator;
 
   /// \brief Whether the simulation is paused or not.
-  private: bool paused = false;
+  bool paused = false;
 
   /// \brief Whether an external step was requested or not.
-  private: bool stepRequested = false;
+  bool stepRequested = false;
 
   /// \brief A mutex to avoid races.
-  private: std::mutex mutex;
+  std::mutex mutex;
 
   /// \brief The thread in charge of doing all the periodic tasks.
-  private: std::thread mainThread;
+  std::thread mainThread;
 
   /// \brief A queue for storing the incoming messages (requests).
+<<<<<<< 27217f69bbc05e6cdcddf071e3cef54a520962ef
  private:
   std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
+=======
+  std::queue<ignition::msgs::WorldControl> incomingMsgs;
+>>>>>>> Remove "using namespace" and adapt code
 
   /// \brief A queue for storing the outgoing messages (notifications).
-  private: std::queue<ignition::msgs::WorldControl> outgoingMsgs;
+  std::queue<ignition::msgs::WorldControl> outgoingMsgs;
 
   /// \brief An Ignition Transport node used for communication.
-  private: ignition::transport::Node node;
+  ignition::transport::Node node;
 
   /// \brief An Ignition Transport publisher for sending notifications.
-  private: ignition::transport::Node::Publisher notificationsPub;
+  ignition::transport::Node::Publisher notificationsPub;
 };
 
 }  // namespace backend

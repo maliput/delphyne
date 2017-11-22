@@ -130,12 +130,11 @@ AutomotiveSimulator<T>::GetRobotModel() {
     load_message.link.push_back(load_terrain_message.link.at(i));
   }
 
-  std::unique_ptr<ignition::msgs::Model_V> ignMessage =
-      std::make_unique<ignition::msgs::Model_V>();
+  auto ign_message = std::make_unique<ignition::msgs::Model_V>();
 
-  bridge::lcmToIgn(load_message, ignMessage.get());
+  bridge::lcmToIgn(load_message, ign_message.get());
 
-  return std::move(ignMessage);
+  return std::move(ign_message);
 }
 
 template <typename T>
@@ -507,21 +506,21 @@ void AutomotiveSimulator<T>::TransmitLoadMessage() {
   for (int i = 0; i < load_terrain_message.num_links; ++i) {
     load_message.link.push_back(load_terrain_message.link.at(i));
   }
-  SendLoadRobotMessage(&load_message);
+  SendLoadRobotMessage(load_message);
 }
 
 template <typename T>
 void AutomotiveSimulator<T>::SendLoadRobotMessage(
-    drake::lcmt_viewer_load_robot* lcmMessage) {
-  const int num_bytes = lcmMessage->getEncodedSize();
+    const drake::lcmt_viewer_load_robot& lcm_message) {
+  const int num_bytes = lcm_message.getEncodedSize();
   std::vector<uint8_t> message_bytes(num_bytes);
   const int num_bytes_encoded =
-      lcmMessage->encode(message_bytes.data(), 0, num_bytes);
+      lcm_message.encode(message_bytes.data(), 0, num_bytes);
   DRAKE_ASSERT(num_bytes_encoded == num_bytes);
 
-  ignition::msgs::Model_V ignMessage;
+  ignition::msgs::Model_V ign_message;
 
-  bridge::lcmToIgn(*lcmMessage, &ignMessage);
+  bridge::lcmToIgn(lcm_message, &ign_message);
 
   lcm_->Publish("DRAKE_VIEWER_LOAD_ROBOT", message_bytes.data(), num_bytes);
 }

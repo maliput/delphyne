@@ -31,6 +31,57 @@ using drake::automotive::LaneDirection;
 namespace delphyne {
 namespace backend {
 
+struct LinkInfo {
+  LinkInfo(std::string name_in, int robot_num_in, int num_geom_in)
+      : name(name_in), robot_num(robot_num_in), num_geom(num_geom_in) {}
+  std::string name;
+  int robot_num{};
+  int num_geom{};
+};
+
+// Tests GetRobotModel to return the initial robot model
+GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
+  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
+                               "/share/drake");
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+
+  SimpleCarState<double> initial_state;
+
+  simulator->AddPriusSimpleCar("my_test_model", "Channel1", initial_state);
+
+  auto robot_model = simulator->GetRobotModel();
+
+  const std::vector<LinkInfo> expected_load{
+      LinkInfo("chassis_floor", 0, 1),
+      LinkInfo("front_axle", 0, 1),
+      LinkInfo("left_tie_rod_arm", 0, 2),
+      LinkInfo("left_hub", 0, 1),
+      LinkInfo("tie_rod", 0, 1),
+      LinkInfo("left_wheel", 0, 3),
+      LinkInfo("right_tie_rod_arm", 0, 2),
+      LinkInfo("right_hub", 0, 1),
+      LinkInfo("right_wheel", 0, 3),
+      LinkInfo("rear_axle", 0, 1),
+      LinkInfo("left_wheel_rear", 0, 3),
+      LinkInfo("right_wheel_rear", 0, 3),
+      LinkInfo("body", 0, 1),
+      LinkInfo("front_lidar_link", 0, 1),
+      LinkInfo("top_lidar_link", 0, 1),
+      LinkInfo("rear_right_lidar_link", 0, 1),
+      LinkInfo("rear_left_lidar_link", 0, 1),
+      LinkInfo("world", 0, 0)};
+
+  for (int i = 0; i < robot_model->models_size(); i++) {
+    auto model = robot_model->models(i);
+    for (int k = 0; k < model.link_size(); k++) {
+      auto link = model.link(k);
+      EXPECT_EQ(i, expected_load.at(k).robot_num);
+      EXPECT_EQ(link.name(), expected_load.at(k).name);
+      EXPECT_EQ(link.visual_size(), expected_load.at(k).num_geom);
+    }
+  }
+}
+
 // Simple touches on the getters.
 GTEST_TEST(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
@@ -43,8 +94,7 @@ GTEST_TEST(AutomotiveSimulatorTest, BasicTest) {
 void GetLastPublishedSimpleCarState(
     const std::string& channel,
     const drake::systems::lcm::LcmAndVectorBaseTranslator& translator,
-    const drake::lcm::DrakeMockLcm* mock_lcm,
-    SimpleCarState<double>* result) {
+    const drake::lcm::DrakeMockLcm* mock_lcm, SimpleCarState<double>* result) {
   const std::vector<uint8_t>& message =
       mock_lcm->get_last_published_message(channel);
   translator.Deserialize(message.data(), message.size(), result);
@@ -62,7 +112,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   const std::string driving_command_name =
       drake::systems::lcm::LcmSubscriberSystem::make_name(kCommandChannelName);
   const std::string simple_car_state_name =
-      drake::systems::lcm::LcmPublisherSystem::make_name(kSimpleCarStateChannelName);
+      drake::systems::lcm::LcmPublisherSystem::make_name(
+          kSimpleCarStateChannelName);
 
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
@@ -101,9 +152,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
   SimpleCarState<double> simple_car_state;
-  GetLastPublishedSimpleCarState(
-      kSimpleCarStateChannelName, state_pub.get_translator(), mock_lcm,
-      &simple_car_state);
+  GetLastPublishedSimpleCarState(kSimpleCarStateChannelName,
+                                 state_pub.get_translator(), mock_lcm,
+                                 &simple_car_state);
   EXPECT_GT(simple_car_state.x(), 0.0);
   EXPECT_LT(simple_car_state.x(), 0.001);
 
@@ -112,16 +163,17 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
     simulator->StepBy(0.01);
   }
   // TODO(jwnimmer-tri) Check the timestamp of the final publication.
-  GetLastPublishedSimpleCarState(
-      kSimpleCarStateChannelName, state_pub.get_translator(), mock_lcm,
-      &simple_car_state);
+  GetLastPublishedSimpleCarState(kSimpleCarStateChannelName,
+                                 state_pub.get_translator(), mock_lcm,
+                                 &simple_car_state);
   EXPECT_GT(simple_car_state.x(), 1.0);
 
   // Confirm that appropriate draw messages are coming out. Just a few of the
   // message's fields are checked.
   const std::string channel_name = "DRAKE_VIEWER_DRAW";
   drake::lcmt_viewer_draw published_draw_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(channel_name);
+      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
+          channel_name);
 
   EXPECT_EQ(published_draw_message.num_links, num_vis_elements);
   EXPECT_EQ(published_draw_message.link_name.at(0), "chassis_floor");
@@ -179,13 +231,14 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   ASSERT_NE(lcm, nullptr);
 
   const drake::maliput::api::RoadGeometry* road{};
-  EXPECT_NO_THROW(road = simulator->SetRoadGeometry(
-      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("TestDragway"), 2 /* num lanes */,
-          100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-          5 /* maximum_height */,
-          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-          std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+  EXPECT_NO_THROW(
+      road = simulator->SetRoadGeometry(
+          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+              drake::maliput::api::RoadGeometryId("TestDragway"),
+              2 /* num lanes */, 100 /* length */, 4 /* lane width */,
+              1 /* shoulder width */, 5 /* maximum_height */,
+              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
 
   // Create one MOBIL car and two stopped cars arranged as follows:
   //
@@ -198,9 +251,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   simple_car_state.set_x(2);
   simple_car_state.set_y(-2);
   simple_car_state.set_velocity(10);
-  const int id_mobil =
-      simulator->AddMobilControlledSimpleCar("mobil", true /* with_s */,
-                                             simple_car_state);
+  const int id_mobil = simulator->AddMobilControlledSimpleCar(
+      "mobil", true /* with_s */, simple_car_state);
   EXPECT_EQ(id_mobil, 0);
 
   MaliputRailcarState<double> decoy_state;
@@ -224,7 +276,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   simulator->StepBy(0.5);
 
   const drake::lcmt_viewer_draw draw_message =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>("DRAKE_VIEWER_DRAW");
+      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
+          "DRAKE_VIEWER_DRAW");
   EXPECT_EQ(draw_message.num_links, 3 * PriusVis<double>(0, "").num_poses());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
@@ -276,14 +329,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
       mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_load_robot>(
           "DRAKE_VIEWER_LOAD_ROBOT");
   EXPECT_EQ(load_message.num_links, expected_num_links);
-
-  struct LinkInfo {
-    LinkInfo(std::string name_in, int robot_num_in, int num_geom_in)
-        : name(name_in), robot_num(robot_num_in), num_geom(num_geom_in) {}
-    std::string name;
-    int robot_num{};
-    int num_geom{};
-  };
 
   const std::vector<LinkInfo> expected_load{
       LinkInfo("chassis_floor", 0, 1),
@@ -399,9 +444,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   EXPECT_NO_THROW(
       road = simulator->SetRoadGeometry(
           std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
-              100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-              5 /* maximum_height */,
+              drake::maliput::api::RoadGeometryId("TestDragway"),
+              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
+              1 /* shoulder width */, 5 /* maximum_height */,
               std::numeric_limits<double>::epsilon() /* linear_tolerance */,
               std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
 
@@ -411,9 +456,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
 
   const auto different_road =
       std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("DifferentDragway"), 2 /* num lanes */,
-          50 /* length */, 3 /* lane width */, 2 /* shoulder width */,
-          5 /* maximum_height */,
+          drake::maliput::api::RoadGeometryId("DifferentDragway"),
+          2 /* num lanes */, 50 /* length */, 3 /* lane width */,
+          2 /* shoulder width */, 5 /* maximum_height */,
           std::numeric_limits<double>::epsilon() /* linear_tolerance */,
           std::numeric_limits<double>::epsilon() /* angular_tolerance */);
 
@@ -439,7 +484,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // Verifies the acceleration is zero even if
   // AutomotiveSimulator::SetMaliputRailcarAccelerationCommand() was not called.
   const drake::lcmt_viewer_draw draw_message0 =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>("DRAKE_VIEWER_DRAW");
+      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
+          "DRAKE_VIEWER_DRAW");
   // The following tolerance was determined empirically.
   EXPECT_NEAR(GetPosition(draw_message0, kR), initial_x, 1e-4);
 
@@ -451,7 +497,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // Verifies that the vehicle hasn't moved yet. This is expected since the
   // commanded acceleration is zero.
   const drake::lcmt_viewer_draw draw_message1 =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>("DRAKE_VIEWER_DRAW");
+      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
+          "DRAKE_VIEWER_DRAW");
   // The following tolerance was determined empirically.
   EXPECT_NEAR(GetPosition(draw_message1, kR), initial_x, 1e-4);
 
@@ -465,7 +512,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // Verifies that the MaliputRailcar has moved forward relative to prior to
   // the nonzero acceleration command being issued.
   const drake::lcmt_viewer_draw draw_message2 =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>("DRAKE_VIEWER_DRAW");
+      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
+          "DRAKE_VIEWER_DRAW");
   EXPECT_LT(draw_message1.position.at(0).at(0), GetPosition(draw_message2, kR));
 }
 
@@ -560,9 +608,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   EXPECT_NO_THROW(
       road = simulator->SetRoadGeometry(
           std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
-              100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-              5 /* maximum_height */,
+              drake::maliput::api::RoadGeometryId("TestDragway"),
+              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
+              1 /* shoulder width */, 5 /* maximum_height */,
               std::numeric_limits<double>::epsilon() /* linear_tolerance */,
               std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
   EXPECT_NO_THROW(simulator->AddPriusMaliputRailcar(
@@ -615,22 +663,21 @@ GTEST_TEST(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
   const MaliputRailcarParams<double> params;
-  const drake::maliput::api::RoadGeometry* road =
-      simulator->SetRoadGeometry(
-          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
-              100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-              5 /* maximum_height */,
-              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-              std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+  const drake::maliput::api::RoadGeometry* road = simulator->SetRoadGeometry(
+      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+          drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
+          100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
+          5 /* maximum_height */,
+          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+          std::numeric_limits<double>::epsilon() /* angular_tolerance */));
   MaliputRailcarState<double> alice_initial_state;
   alice_initial_state.set_s(5);
   alice_initial_state.set_speed(1);
-  const int alice_id = simulator->AddPriusMaliputRailcar("Alice",
-      LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
+  const int alice_id = simulator->AddPriusMaliputRailcar(
+      "Alice", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
       alice_initial_state);
-  const int bob_id = simulator->AddIdmControlledPriusMaliputRailcar("Bob",
-      LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
+  const int bob_id = simulator->AddIdmControlledPriusMaliputRailcar(
+      "Bob", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
       MaliputRailcarState<double>() /* initial state */);
 
   EXPECT_NO_THROW(simulator->Start());
@@ -683,7 +730,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
 }
-
 
 //////////////////////////////////////////////////
 int main(int argc, char** argv) {

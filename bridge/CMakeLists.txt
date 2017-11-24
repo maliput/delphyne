@@ -27,6 +27,22 @@ set (gtest_sources
   service_to_channel_translation_test.cc
 )
 
+set (lcm_to_ign_sources
+  lcm_to_ign_translation.cc
+)
+
+# ----------------------------------------
+# Export lcm to ign translation as a library
+add_library(delphyne_lcm_to_ign STATIC ${lcm_to_ign_sources})
+
+target_link_libraries(delphyne_lcm_to_ign
+  ${IGNITION-MSGS_LIBRARIES}
+  ${lcm_LIBRARIES}
+  ${drake_LIBRARIES}
+)
+
+target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
 # ----------------------------------------
 # Create duplex-ign-lcm-bridge binary.
 add_executable(duplex-ign-lcm-bridge

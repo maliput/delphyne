@@ -7,7 +7,7 @@
 # in order to find all of the files.  It is recommended to run this before
 # opening any pull request.
 
-find . -not \( -path ./bridge/drake -prune \) -not \( -path ./bridge/protobuf -prune \) -iname '*.cc' -o -iname '*.cpp' -o -iname '*.c' -o -iname '*.hpp' -o -iname '*.hh' -o -iname '*.h' | while read file ; do
+find . -not \( -path ./bridge/drake -prune \) -not \( -path ./bridge/protobuf -prune \) -not \( -path ./test/gtest -prune \) -iname '*.cc' -o -iname '*.cpp' -o -iname '*.c' -o -iname '*.hpp' -o -iname '*.hh' -o -iname '*.h' | while read file ; do
     echo "Reformatting $file"
     clang-format-3.9 -i -style=file "$file"
 done

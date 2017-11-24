@@ -70,12 +70,6 @@ REGISTER_STATIC_IGN_REPEATER("DRIVING_COMMAND_(.*)",
                              ignition::msgs::AutomotiveDrivingCommand,
                              drake::lcmt_driving_command_t)
 
-// Register a repeater, translating from drake::lcmt_viewer_load_robot
-// to ignition::msgs::Model_V
-REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_LOAD_ROBOT",
-                             drake::lcmt_viewer_load_robot,
-                             ignition::msgs::Model_V)
-
 // Register a repeater, translating from drake::lcmt_viewer_draw
 // to ignition::msgs::Model_V
 REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_DRAW", drake::lcmt_viewer_draw,
@@ -125,12 +119,6 @@ int main(int argc, char* argv[]) {
   } catch (const std::runtime_error& error) {
     ignerr << "Failed to start the repeater manager" << std::endl;
     ignerr << "Details: " << error.what() << std::endl;
-    exit(1);
-  }
-
-  // Start DRAKE_VIEWER_LOAD_ROBOT repeater. Since having this repeater running
-  // is a must, exit if the creation fails
-  if (!manager.StartRepeater("DRAKE_VIEWER_LOAD_ROBOT")) {
     exit(1);
   }
 

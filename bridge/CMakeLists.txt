@@ -1,9 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
 
-# ----------------------------------------
-# Generate protobuf headers
-add_subdirectory(protobuf)
-
 set_source_files_properties(${PROTO_SRC} ${PROTO_HEADER}
   PROPERTIES GENERATED TRUE)
 

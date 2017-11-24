@@ -256,8 +256,9 @@ else (build_errors)
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
   set(TEST_TYPE "UNIT")
-  add_subdirectory(bridge)
   add_subdirectory(backend)
+  add_subdirectory(bridge)
+  add_subdirectory(protobuf)
   add_subdirectory(test)
 
   ########################################

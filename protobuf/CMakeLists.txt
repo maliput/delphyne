@@ -3,6 +3,7 @@ include (${project_cmake_dir}/Utils.cmake)
 set (msgs
   automotive_driving_command.proto
   simple_car_state.proto
+  simulation_in_message.proto
   viewer_command.proto
   viewer2_comms.proto
 )

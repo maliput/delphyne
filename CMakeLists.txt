@@ -240,8 +240,8 @@ else (build_errors)
 
   include_directories(
     ${CMAKE_SOURCE_DIR}
+    ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/bridge
     ${DRAKE_INSTALL_PREFIX}/include
   )
 

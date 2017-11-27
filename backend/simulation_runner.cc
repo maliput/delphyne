@@ -38,6 +38,7 @@
 #include <ignition/transport/Node.hh>
 
 #include "backend/simulation_runner.h"
+#include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
 namespace backend {

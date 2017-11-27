@@ -31,15 +31,15 @@ message SimulationInMessage
   /// \brief The type of data the message contains.
   enum SimMsgType
   {
-    /// \brief
-    WORLDCONTROL  = 2;
+    /// \brief a world_control type message
+    WORLDCONTROL  = 1;
   }
 
   /// \brief Optional header data
   optional Header header               = 1;
 
   /// \brief Type of message.
-  optional SimMsgType type             = 2 [default = WORLDCONTROL];
+  optional SimMsgType type             = 2;
 
   // One of the following will be filled in.
   optional WorldControl world_control  = 3;

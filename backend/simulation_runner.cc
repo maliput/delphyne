@@ -38,7 +38,6 @@
 #include <ignition/transport/Node.hh>
 
 #include "backend/simulation_runner.h"
-#include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
 namespace backend {
@@ -82,7 +81,7 @@ SimulatorRunner::SimulatorRunner(
     const double _timeStep)
     : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
-  this->node.Advertise(this->kControlService, &SimulatorRunner::OnWorldControl,
+  this->node.Advertise(this->kControlService, &SimulatorRunner::OnSimulationInMessage,
                        this);
 
   // Advertise the topic for publishing notifications.
@@ -180,7 +179,14 @@ void SimulatorRunner::ProcessIncomingMessages() {
     this->incomingMsgs.pop();
 
     // Process the message.
-    this->ProcessWorldControlMessage(nextMsg);
+    switch(nextMsg.type()) {
+      case ignition::msgs::SimulationInMessage::WORLDCONTROL:
+        this->ProcessWorldControlMessage(nextMsg.world_control());
+        break;
+      default:
+        throw std::runtime_error("Unable to process msg of type: " + std::to_string(nextMsg.type()));
+        break;
+    }
   }
 }
 
@@ -212,7 +218,7 @@ void SimulatorRunner::ProcessWorldControlMessage(
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::OnWorldControl(const ignition::msgs::WorldControl& _req,
+void SimulatorRunner::OnSimulationInMessage(const ignition::msgs::SimulationInMessage& _req,
                                      ignition::msgs::Boolean& _rep,
                                      bool& _result) {
   {

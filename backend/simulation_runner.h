@@ -182,12 +182,10 @@ class SimulatorRunner {
   // \brief The thread in charge of doing all the periodic tasks.
   std::thread mainThread;
 
-  /// \brief A queue for storing the incoming messages (requests).
  private:
-  std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
 
   // \brief A queue for storing the incoming messages (requests).
-  std::queue<ignition::msgs::WorldControl> incomingMsgs;
+  std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
 
   // \brief A queue for storing the outgoing messages (notifications).
   std::queue<ignition::msgs::WorldControl> outgoingMsgs;

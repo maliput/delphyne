@@ -35,6 +35,7 @@ target_link_libraries(delphyne_lcm_to_ign
   ${IGNITION-MSGS_LIBRARIES}
   ${lcm_LIBRARIES}
   ${drake_LIBRARIES}
+  delphyne_protobuf_msgs
 )
 
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})

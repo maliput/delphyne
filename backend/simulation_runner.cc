@@ -184,8 +184,9 @@ void SimulatorRunner::ProcessIncomingMessages() {
         this->ProcessWorldControlMessage(nextMsg.world_control());
         break;
       default:
-        throw std::runtime_error("Unable to process msg of type: " +
-                                 std::to_string(nextMsg.type()));
+        throw std::runtime_error(
+            "Unable to process msg of type: " +
+            SimulationInMessage_SimMsgType_Name(nextMsg.type()));
         break;
     }
   }

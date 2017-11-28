@@ -35,7 +35,6 @@
 
 #include "backend/simulation_runner.h"
 #include "gtest/gtest.h"
-#include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
 namespace backend {

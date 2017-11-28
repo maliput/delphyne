@@ -26,8 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DELPHYNE_BRIDGE_SIMULATIONRUNNER_HH_
-#define DELPHYNE_BRIDGE_SIMULATIONRUNNER_HH_
+#pragma once
 
 #include <memory>
 #include <mutex>
@@ -218,5 +217,3 @@ class SimulatorRunner {
 
 }  // namespace backend
 }  // namespace delphyne
-
-#endif

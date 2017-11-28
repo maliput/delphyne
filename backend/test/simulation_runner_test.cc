@@ -26,7 +26,6 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/simulation_runner.h"
 
 #include <csignal>
 #include <cstdlib>
@@ -36,6 +35,7 @@
 
 #include "gtest/gtest.h"
 
+#include "backend/simulation_runner.h"
 #include "backend/automotive_simulator.h"
 
 namespace delphyne {

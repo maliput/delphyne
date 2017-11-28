@@ -240,8 +240,8 @@ else (build_errors)
 
   include_directories(
     ${CMAKE_SOURCE_DIR}
+    ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
-    ${PROJECT_BINARY_DIR}/bridge
     ${DRAKE_INSTALL_PREFIX}/include
   )
 
@@ -256,8 +256,9 @@ else (build_errors)
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
   set(TEST_TYPE "UNIT")
-  add_subdirectory(bridge)
   add_subdirectory(backend)
+  add_subdirectory(bridge)
+  add_subdirectory(protobuf)
   add_subdirectory(test)
 
   ########################################

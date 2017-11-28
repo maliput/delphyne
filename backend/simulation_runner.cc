@@ -81,8 +81,8 @@ SimulatorRunner::SimulatorRunner(
     const double _timeStep)
     : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
-  this->node.Advertise(this->kControlService, &SimulatorRunner::OnWorldControl,
-                       this);
+  this->node.Advertise(this->kControlService,
+                       &SimulatorRunner::OnSimulationInMessage, this);
 
   // Advertise the topic for publishing notifications.
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
@@ -179,7 +179,16 @@ void SimulatorRunner::ProcessIncomingMessages() {
     this->incomingMsgs.pop();
 
     // Process the message.
-    this->ProcessWorldControlMessage(nextMsg);
+    switch (nextMsg.type()) {
+      case ignition::msgs::SimulationInMessage::WORLDCONTROL:
+        this->ProcessWorldControlMessage(nextMsg.world_control());
+        break;
+      default:
+        throw std::runtime_error(
+            "Unable to process msg of type: " +
+            SimulationInMessage_SimMsgType_Name(nextMsg.type()));
+        break;
+    }
   }
 }
 
@@ -211,9 +220,9 @@ void SimulatorRunner::ProcessWorldControlMessage(
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::OnWorldControl(const ignition::msgs::WorldControl& _req,
-                                     ignition::msgs::Boolean& _rep,
-                                     bool& _result) {
+void SimulatorRunner::OnSimulationInMessage(
+    const ignition::msgs::SimulationInMessage& _req,
+    ignition::msgs::Boolean& _rep, bool& _result) {
   {
     // Just queue the message.
     std::lock_guard<std::mutex> lock(this->mutex);

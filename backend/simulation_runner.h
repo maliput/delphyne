@@ -26,8 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DELPHYNE_BRIDGE_SIMULATIONRUNNER_HH_
-#define DELPHYNE_BRIDGE_SIMULATIONRUNNER_HH_
+#pragma once
 
 #include <memory>
 #include <mutex>
@@ -37,6 +36,8 @@
 #include <drake/automotive/automotive_simulator.h>
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+
+#include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
 namespace backend {
@@ -106,14 +107,14 @@ class SimulatorRunner {
  private:
   void ProcessWorldControlMessage(const ignition::msgs::WorldControl& _msg);
 
-  /// \brief Service used to receive world control messages.
+  /// \brief Service used to receive simulation input messages.
   /// \param[in] _req The request.
   /// \param[out] _rep The response (unused).
   /// \param[out] _result The result of the service.
  private:
-  void OnWorldControl(
+  void OnSimulationInMessage(
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      const ignition::msgs::WorldControl& _req,
+      const ignition::msgs::SimulationInMessage& _req,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& _rep, bool& _result);
 
@@ -199,7 +200,7 @@ class SimulatorRunner {
 
   /// \brief A queue for storing the incoming messages (requests).
  private:
-  std::queue<ignition::msgs::WorldControl> incomingMsgs;
+  std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
 
   /// \brief A queue for storing the outgoing messages (notifications).
  private:
@@ -216,5 +217,3 @@ class SimulatorRunner {
 
 }  // namespace backend
 }  // namespace delphyne
-
-#endif

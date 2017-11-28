@@ -41,6 +41,9 @@ message SimulationInMessage
   /// \brief Type of message.
   optional SimMsgType type             = 2;
 
-  // One of the following will be filled in.
+  // Optional types declaration,
+  // currently only one type is supported.
+
+  /// \brief An optional world control message
   optional WorldControl world_control  = 3;
 }

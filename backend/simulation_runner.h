@@ -37,6 +37,7 @@
 #include <ignition/transport/Node.hh>
 
 #include "backend/automotive_simulator.h"
+#include "protobuf/robot_model_request.pb.h"
 #include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
@@ -102,21 +103,26 @@ class SimulatorRunner {
   // \param[in] _msg The message
   void ProcessWorldControlMessage(const ignition::msgs::WorldControl& _msg);
 
+  // \brief Process one RobotModelRequest message.
+  // \param[in] _msg The message
+  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& _msg);
+
   /// \brief Service used to receive simulation input messages.
   /// \param[in] _req The request.
   /// \param[out] _rep The response (unused).
   /// \param[out] _result The result of the service.
  private:
-  void OnSimulationInMessage(
+  void OnRobotModelRequest(
+      const ignition::msgs::RobotModelRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      const ignition::msgs::SimulationInMessage& _req,
+      ignition::msgs::Boolean& response,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& _rep, bool& _result);
+      bool& result);
 
-  void OnGetRobotModel(
-      const ignition::msgs::Empty& request,
+  void OnWorldControl(
+      const ignition::msgs::WorldControl& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Model_V& response,
+      ignition::msgs::Boolean& response,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
 
@@ -183,7 +189,6 @@ class SimulatorRunner {
   std::thread mainThread;
 
  private:
-
   // \brief A queue for storing the incoming messages (requests).
   std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
 

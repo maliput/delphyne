@@ -31,16 +31,14 @@
 
 #include "backend/simulation_runner.h"
 
-using namespace boost::python;
-
+using delphyne::backend::SimulatorRunner;
 
 // Since we are not yet exporting the AutomotiveSimulator class we need to
 // provide a ready-to-run SimulatorRunner. To do so we create a parameterless
 // constructor that sets up a simulation runner with a prius car in it. As we
 // keep adding python bindings to C++ classes this code will be moved to the
 // python scripts that launches the simulation.
-static std::shared_ptr<delphyne::backend::SimulatorRunner> simulatorRunnerFactory() {
-
+static std::shared_ptr<SimulatorRunner> simulatorRunnerFactory() {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
 
@@ -54,13 +52,12 @@ static std::shared_ptr<delphyne::backend::SimulatorRunner> simulatorRunnerFactor
 
   // Instantiate the simulator runner and pass the simulator.
   auto timeStep = 0.001;
-  return std::make_shared<delphyne::backend::SimulatorRunner>(std::move(simulator), timeStep);
+  return std::make_shared<SimulatorRunner>(std::move(simulator), timeStep);
 }
 
 BOOST_PYTHON_MODULE(simulation_runner_py) {
-  class_<delphyne::backend::SimulatorRunner, boost::noncopyable>("SimulatorRunner", no_init)
-  .def("__init__", make_constructor(simulatorRunnerFactory))
-  .def("start", &delphyne::backend::SimulatorRunner::Start)
-  ;
+  boost::python::class_<SimulatorRunner, boost::noncopyable>(
+      "SimulatorRunner", boost::python::no_init)
+      .def("__init__", boost::python::make_constructor(simulatorRunnerFactory))
+      .def("start", &SimulatorRunner::Start);
 }
-

@@ -81,8 +81,8 @@ SimulatorRunner::SimulatorRunner(
     double _timeStep)
     : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
-  this->node.Advertise(this->kControlService,
-                       &SimulatorRunner::OnSimulationInMessage, this);
+  this->node.Advertise(this->kControlService, &SimulatorRunner::OnWorldControl,
+                       this);
 
   // Advertise the topic for publishing notifications.
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
@@ -96,9 +96,9 @@ SimulatorRunner::SimulatorRunner(
   // response.
   // - When the request is processed, the model will be fetched from the
   // simulator and posted to the requested topic.
-  this->node.Advertise<SimulatorRunner, ignition::msgs::Empty,
-                       ignition::msgs::Model_V>(
-      "GetRobotModel", &SimulatorRunner::OnGetRobotModel, this);
+
+  this->node.Advertise("/GetRobotModel", &SimulatorRunner::OnRobotModelRequest,
+                       this);
 
   this->simulator->Start();
 }
@@ -195,6 +195,11 @@ void SimulatorRunner::ProcessIncomingMessages() {
       case ignition::msgs::SimulationInMessage::WORLDCONTROL:
         this->ProcessWorldControlMessage(nextMsg.world_control());
         break;
+
+      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST:
+        this->ProcessRobotModelRequest(nextMsg.robot_model_request());
+        break;
+
       default:
         throw std::runtime_error(
             "Unable to process msg of type: " +
@@ -232,23 +237,47 @@ void SimulatorRunner::ProcessWorldControlMessage(
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::OnSimulationInMessage(
-    const ignition::msgs::SimulationInMessage& _req,
-    ignition::msgs::Boolean& _rep, bool& _result) {
-  {
-    // Just queue the message.
-    std::lock_guard<std::mutex> lock(this->mutex);
-    this->incomingMsgs.push(_req);
-  }
+void SimulatorRunner::ProcessRobotModelRequest(
+    const ignition::msgs::RobotModelRequest& _msg) {
+  // Use the string on the robot model request as the topic name
+  // where the robot model will be published
+  auto robot_model = simulator->GetRobotModel();
+  std::string topic_name = _msg.response_topic();
 
-  _result = true;
+  ignition::msgs::Boolean response;
+  unsigned int timeout = 100;
+  bool result;
+  node.Request(topic_name, *robot_model, timeout, response, result);
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::OnGetRobotModel(const ignition::msgs::Empty& request,
-                                      ignition::msgs::Model_V& response,
-                                      bool& result) {
-  response = *this->simulator->GetRobotModel();
+void SimulatorRunner::OnWorldControl(
+    const ignition::msgs::WorldControl& request,
+    ignition::msgs::Boolean& response, bool& result) {
+  {
+    // Queue the message.
+    std::lock_guard<std::mutex> lock(this->mutex);
+    ignition::msgs::SimulationInMessage input_message;
+    input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
+    input_message.mutable_world_control()->CopyFrom(request);
+    this->incomingMsgs.push(input_message);
+  }
+  result = true;
+}
+
+//////////////////////////////////////////////////
+void SimulatorRunner::OnRobotModelRequest(
+    const ignition::msgs::RobotModelRequest& request,
+    ignition::msgs::Boolean& response, bool& result) {
+  {
+    // Queue the message.
+    std::lock_guard<std::mutex> lock(this->mutex);
+    ignition::msgs::SimulationInMessage input_message;
+    input_message.set_type(
+        ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
+    input_message.mutable_robot_model_request()->CopyFrom(request);
+    this->incomingMsgs.push(input_message);
+  }
   result = true;
 }
 

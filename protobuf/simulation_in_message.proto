@@ -25,7 +25,7 @@ option java_outer_classname = "SimulationInMessageProtos";
 
 import "ignition/msgs/header.proto";
 import "ignition/msgs/world_control.proto";
-import "protobuf/robot_model_request.proto";
+import "robot_model_request.proto";
 
 message SimulationInMessage
 {
@@ -41,14 +41,14 @@ message SimulationInMessage
   }
 
   /// \brief Optional header data
-  optional Header header                    = 1;
+  optional Header header                         = 1;
 
   /// \brief Type of message.
-  optional SimMsgType type                  = 2;
+  optional SimMsgType type                       = 2;
 
   /// \brief An optional world control message
-  optional WorldControl world_control       = 3;
+  optional WorldControl world_control            = 3;
 
   /// \brief An optional robot model request message
-  optional WorldControl robot_model_request = 4;
+  optional RobotModelRequest robot_model_request = 4;
 }

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/bin/bash
 #
 # Copyright 2017 Open Source Robotics Foundation
 #
@@ -28,25 +28,19 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import fcntl
-import os
-import select
-import subprocess
-import sys
-import time
-from launcher import Launcher
+declare -i PEP8FAILED=0
 
+# Run PEP 8
+find ./backend -name \*.py -exec pep8 {} + || PEP8FAILED+=1
+find ./bridge -name \*.py -exec pep8 {} + || PEP8FAILED+=1
 
-def main(binaries):
-    launcher = Launcher()
-    try:
-        for binary in binaries:
-            launcher.launch([binary])
-        launcher.wait(float('Inf'))
-    finally:
-        launcher.kill()
+# TODO(basicNew) uncomment this and make a pass so that the python code also
+# passes pylint
+# if [ "$PEP8FAILED" -eq "0" ]; then
+#  # Run pylint
+#  find ./backend -name \*.py -exec pylint --reports=n {} +
+#  find ./bridge -name \*.py -exec pylint --reports=n {} +
+#else
+#   echo $'\n*** PEP8 failed, not doing pylint ***'
+#fi
 
-    sys.exit(launcher.returncode)
-
-if __name__ == '__main__':
-    main(['lcm-mock-robot-publisher', 'duplex-ign-lcm-bridge', 'visualizer'])

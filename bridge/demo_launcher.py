@@ -61,17 +61,21 @@ def wait_for_lcm_message_on_channel(channel):
     finally:
         m.unsubscribe(sub)
 
+
 def get_from_env_or_fail(var):
     value = os.environ.get(var)
     if value is None:
-        print("%s is not in the environment, did you remember to source setup.bash?" % (var))
+        print("%s is not in the environment,"
+              "did you remember to source setup.bash?" % (var))
         sys.exit(1)
 
-    # Since it is an environment variable, the very end may have a colon; strip it here
+    # Since it is an environment variable, the very end may have a colon;
+    # strip it here
     if value[-1] == ':':
         value = value[:-1]
 
     return value
+
 
 def main():
     """Launches drake's automotive_demo along with the bridge and the
@@ -108,7 +112,8 @@ def main():
     # Build up the binary path
     drake_bazel_bin_path = os.path.join(drake_src_dir, 'bazel-bin')
 
-    # Delphyne binaries; these are found through the standard PATH, so are relative
+    # Delphyne binaries; these are found through the standard PATH,
+    # so are relative
     lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
 
@@ -121,19 +126,28 @@ def main():
     # The automotive_demo and steering_command_driver binaries from drake.
     # These aren't installed with a drake install, so we must run them from the
     # drake src directory.
-    demo_path = os.path.join(drake_bazel_bin_path, "drake", "automotive", "automotive_demo")
-    steering_command_driver_path = os.path.join(drake_bazel_bin_path, "drake", "automotive", "steering_command_driver")
+    demo_path = os.path.join(drake_bazel_bin_path,
+                             "drake",
+                             "automotive",
+                             "automotive_demo")
+    steering_command_driver_path = os.path.join(drake_bazel_bin_path,
+                                                "drake",
+                                                "automotive",
+                                                "steering_command_driver")
 
     try:
         launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
 
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
-            teleop_config = os.path.join(delphyne_ws_dir, "install", "share", "delphyne", "layoutWithTeleop.config")
+            teleop_config = os.path.join(delphyne_ws_dir,
+                                         "install",
+                                         "share",
+                                         "delphyne",
+                                         "layoutWithTeleop.config")
             launcher.launch([ign_visualizer, teleop_config])
         else:
             launcher.launch([ign_visualizer])
-
 
         # TODO: once we have the backend with a service for startup, this
         # can go away.
@@ -142,15 +156,18 @@ def main():
         if args.drake_visualizer:
             if args.demo_name == "simple":
                 # Launch two instances of the drake steering_command app
-                launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_0"])
-                launcher.launch([steering_command_driver_path, "--lcm_tag=DRIVING_COMMAND_1"])
+                launcher.launch([steering_command_driver_path,
+                                "--lcm_tag=DRIVING_COMMAND_0"])
+                launcher.launch([steering_command_driver_path,
+                                "--lcm_tag=DRIVING_COMMAND_1"])
             launcher.launch([drake_lcm_spy])
             launcher.launch([lcm_logger])
             launcher.launch([drake_visualizer])
             # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
 
-        launcher.launch([demo_path] + demo_arguments[args.demo_name], cwd=drake_src_dir)
+        launcher.launch([demo_path] + demo_arguments[args.demo_name],
+                        cwd=drake_src_dir)
 
         launcher.wait(float("Inf"))
 

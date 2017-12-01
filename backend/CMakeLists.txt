@@ -47,7 +47,7 @@ set_target_properties(simulation-runner
     simulation_runner.h)
 
 target_link_libraries(simulation-runner
-   delphyne_protobuf_msgs
+  delphyne_protobuf_msgs
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}

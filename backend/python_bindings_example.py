@@ -73,9 +73,10 @@ def main():
                                      "layoutWithTeleop.config")
         launcher.launch([ign_visualizer, teleop_config])
 
-        # We need this to make sure the visualizer is up an running before we
-        # send the initial message to load the robot. This will go away once
-        # we have ported the automotive simulator to the backend.
+        # TODO(basicNew) We need this to make sure the visualizer is up and
+        # running before we send the initial message to load the robot.
+        # This will go away once we have ported the automotive simulator to
+        # the backend.
         time.sleep(1.0)
 
         runner = SimulatorRunner()

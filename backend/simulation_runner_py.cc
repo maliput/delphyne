@@ -27,6 +27,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <memory>
+
 #include <boost/python.hpp>
 #include <drake/common/find_resource.h>
 

@@ -126,25 +126,28 @@ def main():
     # The automotive_demo and steering_command_driver binaries from drake.
     # These aren't installed with a drake install, so we must run them from the
     # drake src directory.
-    demo_path = os.path.join(drake_bazel_bin_path,
-                             "drake",
-                             "automotive",
-                             "automotive_demo")
-    steering_command_driver_path = os.path.join(drake_bazel_bin_path,
-                                                "drake",
-                                                "automotive",
-                                                "steering_command_driver")
+    demo_path = os.path.join(
+        drake_bazel_bin_path,
+        "drake",
+        "automotive",
+        "automotive_demo")
+    steering_command_driver_path = os.path.join(
+        drake_bazel_bin_path,
+        "drake",
+        "automotive",
+        "steering_command_driver")
 
     try:
         launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
 
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
-            teleop_config = os.path.join(delphyne_ws_dir,
-                                         "install",
-                                         "share",
-                                         "delphyne",
-                                         "layoutWithTeleop.config")
+            teleop_config = os.path.join(
+                delphyne_ws_dir,
+                "install",
+                "share",
+                "delphyne",
+                "layoutWithTeleop.config")
             launcher.launch([ign_visualizer, teleop_config])
         else:
             launcher.launch([ign_visualizer])
@@ -156,18 +159,21 @@ def main():
         if args.drake_visualizer:
             if args.demo_name == "simple":
                 # Launch two instances of the drake steering_command app
-                launcher.launch([steering_command_driver_path,
-                                "--lcm_tag=DRIVING_COMMAND_0"])
-                launcher.launch([steering_command_driver_path,
-                                "--lcm_tag=DRIVING_COMMAND_1"])
+                launcher.launch([
+                    steering_command_driver_path,
+                    "--lcm_tag=DRIVING_COMMAND_0"])
+                launcher.launch([
+                    steering_command_driver_path,
+                    "--lcm_tag=DRIVING_COMMAND_1"])
             launcher.launch([drake_lcm_spy])
             launcher.launch([lcm_logger])
             launcher.launch([drake_visualizer])
             # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
 
-        launcher.launch([demo_path] + demo_arguments[args.demo_name],
-                        cwd=drake_src_dir)
+        launcher.launch(
+            [demo_path] + demo_arguments[args.demo_name],
+            cwd=drake_src_dir)
 
         launcher.wait(float("Inf"))
 

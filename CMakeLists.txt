@@ -23,10 +23,6 @@ if (NOT DEFINED BUILD_TESTING)
   set(BUILD_TESTING ON)
 endif ()
 
-# Drake
-set (DRAKE_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX}_drake)
-set (DRAKE_LIB_PREFIX ${DRAKE_INSTALL_PREFIX}/lib)
-
 ##########
 # Package Creation:
 

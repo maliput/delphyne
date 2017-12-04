@@ -29,7 +29,6 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
-#include <drake/automotive/automotive_simulator.h>
 #include <drake/common/find_resource.h>
 
 #include "backend/simulation_runner.h"
@@ -51,7 +50,7 @@ int main(int argc, char* argv[]) {
 
   // Instantiate a simulator.
   auto simulator =
-      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
   // Add a Prius car.
   drake::automotive::SimpleCarState<double> state;
@@ -59,9 +58,9 @@ int main(int argc, char* argv[]) {
   simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
 
   // Instantiate the simulator runner and pass the simulator.
-  auto timeStep = 0.001;
+  const double kTimeStep = 0.001;
   delphyne::backend::SimulatorRunner priusSimRunner(std::move(simulator),
-                                                    timeStep);
+                                                    kTimeStep);
   priusSimRunner.Start();
 
   // Zzzzzz.

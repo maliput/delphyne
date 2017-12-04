@@ -42,19 +42,19 @@
 namespace delphyne {
 namespace backend {
 
-/// \brief Flag to detect SIGINT or SIGTERM while the code is executing
-/// WaitForShutdown().
+// \brief Flag to detect SIGINT or SIGTERM while the code is executing
+// WaitForShutdown().
 static bool g_shutdown = false;
 
-/// \brief Mutex to protect the boolean shutdown variable.
+// \brief Mutex to protect the boolean shutdown variable.
 static std::mutex g_shutdown_mutex;
 
-/// \brief Condition variable to wakeup WaitForShutdown() and exit.
+// \brief Condition variable to wakeup WaitForShutdown() and exit.
 static std::condition_variable g_shutdown_cv;
 
 //////////////////////////////////////////////////
-/// \brief Function executed when a SIGINT or SIGTERM signals are captured.
-/// \param[in] _signal Signal received.
+// \brief Function executed when a SIGINT or SIGTERM signals are captured.
+// \param[in] _signal Signal received.
 static void SignalHandler(const int _signal) {
   if (_signal == SIGINT || _signal == SIGTERM) {
     {

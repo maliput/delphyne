@@ -31,8 +31,8 @@
 declare -i PEP8FAILED=0
 
 # Run PEP 8
-find ./backend -name \*.py -exec pep8 {} + || PEP8FAILED+=1
-find ./bridge -name \*.py -exec pep8 {} + || PEP8FAILED+=1
+find ./backend -name \*.py -exec pycodestyle {} + || PEP8FAILED+=1
+find ./bridge -name \*.py -exec pycodestyle {} + || PEP8FAILED+=1
 
 # TODO(basicNew) uncomment this and make a pass so that the python code also
 # passes pylint

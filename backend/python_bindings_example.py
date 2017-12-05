@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 #
 # Copyright 2017 Open Source Robotics Foundation
 #
@@ -27,6 +27,8 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
+
+from __future__ import print_function
 
 import os
 import select
@@ -86,6 +88,7 @@ def main():
 
     finally:
         launcher.kill()
+
 
 if __name__ == "__main__":
     main()

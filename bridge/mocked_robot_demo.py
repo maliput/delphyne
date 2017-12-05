@@ -48,5 +48,6 @@ def main(binaries):
 
     sys.exit(launcher.returncode)
 
+
 if __name__ == '__main__':
     main(['lcm-mock-robot-publisher', 'duplex-ign-lcm-bridge', 'visualizer'])

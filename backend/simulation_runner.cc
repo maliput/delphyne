@@ -244,10 +244,18 @@ void SimulatorRunner::ProcessRobotModelRequest(
   auto robot_model = simulator->GetRobotModel();
   std::string topic_name = _msg.response_topic();
 
-  ignition::msgs::Boolean response;
-  unsigned int timeout = 100;
-  bool result;
-  node.Request(topic_name, *robot_model, timeout, response, result);
+  auto pub = this->node.Advertise<ignition::msgs::Model_V>(topic_name);
+  if (!pub) {
+    ignerr << "Error advertising topic [" << topic_name << "]" << std::endl;
+  }
+
+  // Wait for 200 millis before attempting to
+  // publish on the topic, it wont work otherwise
+  std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+  if(!pub.Publish(*robot_model)) {
+    ignerr << "Error publishing message on topic [" << topic_name << "]" << std::endl;
+  }
 }
 
 //////////////////////////////////////////////////

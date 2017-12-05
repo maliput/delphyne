@@ -238,7 +238,6 @@ else (build_errors)
     ${CMAKE_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
-    ${DRAKE_INSTALL_PREFIX}/include
   )
 
   link_directories(${PROJECT_BINARY_DIR}/src)

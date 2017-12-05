@@ -8,10 +8,6 @@ include (${project_cmake_dir}/FindOS.cmake)
 include (${project_cmake_dir}/Ronn2Man.cmake)
 add_manpage_target()
 
-# Append install_drake path to CMAKE_PREFIX_PATH to enable
-# find_package to find drake-related .cmake files
-list(APPEND CMAKE_PREFIX_PATH ${DRAKE_INSTALL_PREFIX})
-
 ########################################
 # Find drake in unix platforms
 # In Windows we expect a call from configure.bat script with the paths

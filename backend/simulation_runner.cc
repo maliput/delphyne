@@ -88,19 +88,35 @@ SimulatorRunner::SimulatorRunner(
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
       this->kNotificationsTopic);
 
+  // Initialize the python machinery so we can invoke a python callback
+  // function on each simulation step.
+  Py_Initialize();
+  PyEval_InitThreads();
+
   this->simulator->Start();
 }
 
 //////////////////////////////////////////////////
 SimulatorRunner::~SimulatorRunner() {
-  {
+  Stop();
+  if (this->mainThread.joinable()) {
+    this->mainThread.join();
+  }
+}
+
+//////////////////////////////////////////////////
+void SimulatorRunner::Stop() {
+  // Only do this if we are running the simulation
+  if (this->enabled) {
     // Tell the main loop thread to terminate.
     std::lock_guard<std::mutex> lock(this->mutex);
     this->enabled = false;
   }
-  if (this->mainThread.joinable()) {
-    this->mainThread.join();
-  }
+}
+
+//////////////////////////////////////////////////
+void SimulatorRunner::AddStepCallback(PyObject* callable) {
+  step_callbacks.push_back(callable);
 }
 
 //////////////////////////////////////////////////
@@ -145,6 +161,19 @@ void SimulatorRunner::Run() {
 
       // Do we have to exit?
       stayAlive = this->enabled;
+    }
+
+    // This if is here so that we only grab the python global interpreter lock
+    // if there is at least one callback.
+    if (!step_callbacks.empty()) {
+      // 1. Acquire the lock to the python interpreter
+      auto thread_handle = PyGILState_Ensure();
+      // 2. Perform the callbacks
+      for (auto callback : step_callbacks) {
+        boost::python::call<void>(callback);
+      }
+      // 3. Release the lock
+      PyGILState_Release(thread_handle);
     }
 
     // Stop the timer.

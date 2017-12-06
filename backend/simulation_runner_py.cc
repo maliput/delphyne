@@ -64,7 +64,9 @@ BOOST_PYTHON_MODULE(simulation_runner_py) {
   boost::python::class_<SimulatorRunner, boost::noncopyable>(
       "SimulatorRunner", boost::python::no_init)
       .def("__init__", boost::python::make_constructor(SimulatorRunnerFactory))
-      .def("start", &SimulatorRunner::Start);
+      .def("start", &SimulatorRunner::Start)
+      .def("stop", &SimulatorRunner::Stop)
+      .def("add_step_callback", &SimulatorRunner::AddStepCallback);
 }
 
 }  // namespace

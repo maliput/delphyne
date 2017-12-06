@@ -25,4 +25,53 @@ install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # ----------------------------------------
 # Tests
 delphyne_build_tests(${gtest_sources})
+
 # ----------------------------------------
+# Python bindings
+
+# Find necessary packages
+find_package(PythonLibs 2.7 REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+
+find_package(Boost COMPONENTS python REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
+
+# Build the simulation runner as a library.
+add_library(simulation-runner
+    STATIC
+    simulation_runner.cc)
+
+set_target_properties(simulation-runner
+    PROPERTIES
+    PUBLIC_HEADER
+    simulation_runner.h)
+
+target_link_libraries(simulation-runner
+  delphyne_protobuf_msgs
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+)
+
+target_include_directories(simulation-runner PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# Define the wrapper library for python
+add_library(simulation_runner_py
+  SHARED
+  simulation_runner_py.cc)
+
+# don't prepend wrapper library name with lib
+set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
+
+target_link_libraries(simulation_runner_py
+  simulation-runner
+  delphyne_protobuf_msgs
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  ${Boost_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  )
+
+install(TARGETS simulation_runner_py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(PROGRAMS python_bindings_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

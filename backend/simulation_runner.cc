@@ -196,9 +196,11 @@ void SimulatorRunner::ProcessIncomingMessages() {
         this->ProcessWorldControlMessage(nextMsg.world_control());
         break;
 
-      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST:
-        this->ProcessRobotModelRequest(nextMsg.robot_model_request());
-        break;
+      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST: {
+        std::thread t1(&SimulatorRunner::ProcessRobotModelRequest, this,
+                       nextMsg.robot_model_request());
+        t1.detach();
+      } break;
 
       default:
         throw std::runtime_error(
@@ -249,12 +251,13 @@ void SimulatorRunner::ProcessRobotModelRequest(
     ignerr << "Error advertising topic [" << topic_name << "]" << std::endl;
   }
 
-  // Wait for 200 millis before attempting to
-  // publish on the topic, it wont work otherwise
+  // Wait for 200 millis before attempting to publish
+  // to the topic that has just been advertised. 
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-  if(!pub.Publish(*robot_model)) {
-    ignerr << "Error publishing message on topic [" << topic_name << "]" << std::endl;
+  if (!pub.Publish(*robot_model)) {
+    ignerr << "Error publishing message on topic [" << topic_name << "]"
+           << std::endl;
   }
 }
 

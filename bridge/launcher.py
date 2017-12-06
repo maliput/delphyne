@@ -1,3 +1,5 @@
+"""Launch and manage a group of processes"""
+
 # Copyright 2017 Open Source Robotics Foundation
 #
 # Redistribution and use in source and binary forms, with or without
@@ -43,11 +45,12 @@ class TrackedProcess(object):
         self.process = process
 
     def fileno(self):
+        """Returns the process file descriptor"""
         return self.process.stdout.fileno()
 
 
 class Launcher(object):
-    """Launch and manage a group of processes as a group. It one exits, all
+    """Launch and manage a group of processes. It one exits, all
     the rest are killed. The aggregate return code is that of whichever one
     exited first.
 

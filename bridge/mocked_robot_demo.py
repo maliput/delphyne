@@ -1,5 +1,7 @@
 #!/usr/bin/python2
-#
+
+"""Launch a custom demo created for debugging purposes"""
+
 # Copyright 2017 Open Source Robotics Foundation
 #
 # Redistribution and use in source and binary forms, with or without
@@ -28,16 +30,12 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-import fcntl
-import os
-import select
-import subprocess
 import sys
-import time
 from launcher import Launcher
 
 
 def main(binaries):
+    """Spawn the binaries defined on a list using the Launcher class"""
     launcher = Launcher()
     try:
         for binary in binaries:

@@ -37,8 +37,6 @@ source ../delphyne-gui/setup.bash
 find ./backend -name \*.py -exec pycodestyle {} + || PEP8FAILED+=1
 find ./bridge -name \*.py -exec pycodestyle {} + || PEP8FAILED+=1
 
-# TODO(basicNew) uncomment this and make a pass so that the python code also
-# passes pylint
  if [ "$PEP8FAILED" -eq "0" ]; then
   # Run pylint
   find ./backend -name \*.py -exec pylint --reports=n {} +

@@ -50,7 +50,7 @@ class TrackedProcess(object):
 
 
 class Launcher(object):
-    """Launch and manage a group of processes. It one exits, all
+    """Launch and manage a group of processes. If one exits, all
     the rest are killed. The aggregate return code is that of whichever one
     exited first.
 

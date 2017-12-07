@@ -1,0 +1,13 @@
+[MASTER]
+
+# Use multiple processes to speed up Pylint.
+jobs=4
+
+# Tells whether to display a full report or only the messages
+reports=no
+
+# Here's what we have disabled:
+# F0401 - unable to import
+# R0903 - too-few-public-methods
+# R0914 - too many local variables
+disable=F0401,R0903,R0914

@@ -1,5 +1,15 @@
 #!/usr/bin/env python2.7
-#
+
+"""This is a minimal example of starting an automotive simulation using a
+python binding to the C++ SimulatorRunner class.
+
+Note that this is not a configurable demo, it will just create a sample
+simulation with a prius car that can be driven around.
+
+As we add more python bindings to the C++ classes we will start doing more
+interesting scripts.
+"""
+
 # Copyright 2017 Open Source Robotics Foundation
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,20 +41,14 @@
 from __future__ import print_function
 
 import os
-import select
 import sys
 import time
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 
-"""This is a minimal example of starting an automotive simulation using a
-python binding to the C++ SimulatorRunner class. Note that this is not a
-configurable demo, it will just create a sample simulation with a prius car
-that can be driven around. As we add more python bindings to the C++ classes we
-will start doing more interesting scripts"""
-
 
 def get_from_env_or_fail(var):
+    """Retrieves an env variable for a given name, fails if not found."""
     value = os.environ.get(var)
     if value is None:
         print("%s is not in the environment,"
@@ -60,6 +64,7 @@ def get_from_env_or_fail(var):
 
 
 def main():
+    """Spawn an automotive simulator making use of the python bindings"""
     launcher = Launcher()
 
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')

@@ -1,5 +1,9 @@
 #!/usr/bin/env python
-#
+
+"""Launches drake's automotive_demo along with the bridge and the
+ignition-visualizer.
+"""
+
 # Copyright 2017 Open Source Robotics Foundation
 #
 # Redistribution and use in source and binary forms, with or without
@@ -31,40 +35,44 @@
 from __future__ import print_function
 
 import argparse
-import lcm
 import os
 import select
 import sys
 import time
+import lcm
 from launcher import Launcher
 
 
 def wait_for_lcm_message_on_channel(channel):
     """Wait for a single message to arrive on the specified LCM channel.
     """
-    m = lcm.LCM()
+    lcm_connection = lcm.LCM()
 
     def receive(channel, data):
+        """LCM channel handler"""
         _ = (channel, data)
         raise StopIteration()
 
-    sub = m.subscribe(channel, receive)
+    sub = lcm_connection.subscribe(channel, receive)
     start_time = time.time()
     try:
         while True:
             if time.time() - start_time > 10.:
                 raise RuntimeError(
                     "Timeout waiting for channel %s" % channel)
-            rlist, _, _ = select.select([m], [], [], 0.1)
-            if m in rlist:
-                m.handle()
+            rlist, _, _ = select.select([lcm_connection], [], [], 0.1)
+            if lcm_connection in rlist:
+                lcm_connection.handle()
     except StopIteration:
         pass
     finally:
-        m.unsubscribe(sub)
+        lcm_connection.unsubscribe(sub)
 
 
 def get_from_env_or_fail(var):
+    """Check if a given variable is an environmental variable
+    and returns its value, exit otherwise.
+    """
     value = os.environ.get(var)
     if value is None:
         print("%s is not in the environment,"
@@ -106,7 +114,7 @@ def main():
                         default=True, dest="drake_visualizer",
                         help="don't launch drake-visualizer")
 
-    args, tail = parser.parse_known_args()
+    args = parser.parse_args()
 
     drake_src_dir = get_from_env_or_fail('DRAKE_SRC_DIR')
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')

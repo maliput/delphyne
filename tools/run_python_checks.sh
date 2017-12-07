@@ -30,17 +30,18 @@
 
 declare -i PEP8FAILED=0
 
+# Set PYTHONPATH to enable pylint to find libraries
+source ../delphyne-gui/setup.bash
+
 # Run PEP 8
 find ./backend -name \*.py -exec pycodestyle {} + || PEP8FAILED+=1
 find ./bridge -name \*.py -exec pycodestyle {} + || PEP8FAILED+=1
 
-# TODO(basicNew) uncomment this and make a pass so that the python code also
-# passes pylint
-# if [ "$PEP8FAILED" -eq "0" ]; then
-#  # Run pylint
-#  find ./backend -name \*.py -exec pylint --reports=n {} +
-#  find ./bridge -name \*.py -exec pylint --reports=n {} +
-#else
-#   echo $'\n*** PEP8 failed, not doing pylint ***'
-#fi
+ if [ "$PEP8FAILED" -eq "0" ]; then
+  # Run pylint
+  find ./backend -name \*.py -exec pylint {} +
+  find ./bridge -name \*.py -exec pylint {} +
+else
+   echo $'\n*** PEP8 failed, not doing pylint ***'
+fi
 

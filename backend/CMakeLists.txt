@@ -1,6 +1,7 @@
 include (${project_cmake_dir}/Utils.cmake)
 
 set (sources
+  automotive_simulator.cc
   simulation_runner.cc
 )
 
@@ -15,6 +16,7 @@ add_executable(automotive-demo
 
 target_link_libraries(automotive-demo
   delphyne_protobuf_msgs
+  delphyne_lcm_to_ign
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
@@ -36,36 +38,34 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 find_package(Boost COMPONENTS python REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-# Build the simulation runner as a library.
-add_library(simulation-runner
+# Build the simulation support for python bindings as a library.
+add_library(simulation-support
     STATIC
-    simulation_runner.cc)
+    simulation_runner.cc
+    automotive_simulator.cc)
 
-set_target_properties(simulation-runner
-    PROPERTIES
-    PUBLIC_HEADER
-    simulation_runner.h)
-
-target_link_libraries(simulation-runner
+target_link_libraries(simulation-support
   delphyne_protobuf_msgs
+  delphyne_lcm_to_ign
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
 )
 
-target_include_directories(simulation-runner PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # Define the wrapper library for python
 add_library(simulation_runner_py
   SHARED
   simulation_runner_py.cc)
 
-# don't prepend wrapper library name with lib
+# Don't prepend wrapper library name with lib
 set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
 
 target_link_libraries(simulation_runner_py
-  simulation-runner
+  simulation-support
   delphyne_protobuf_msgs
+  delphyne_lcm_to_ign
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}

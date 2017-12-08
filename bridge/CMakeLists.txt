@@ -58,28 +58,8 @@ target_link_libraries(duplex-ign-lcm-bridge
 )
 
 install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-
-# ----------------------------------------
-# Create lcm-mock-robot-publisher binary.
-add_executable(lcm-mock-robot-publisher
-  lcm_mock_robot_publisher.cc
-  ${sources}
-)
-
-target_link_libraries(lcm-mock-robot-publisher
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-MSGS_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PROTOBUF_LIBRARY}
-  ${PROTOBUF_PROTOC_LIBRARY}
-  ${drake_LIBRARIES}
-  ${lcm_LIBRARIES}
-  delphyne_protobuf_msgs
-)
-
-install(TARGETS lcm-mock-robot-publisher DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
-install(PROGRAMS mocked_robot_demo.py demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(PROGRAMS demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # ----------------------------------------
 # Tests

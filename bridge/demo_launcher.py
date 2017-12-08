@@ -168,9 +168,6 @@ def main():
                 launcher.launch([
                     steering_command_driver_path,
                     "--lcm_tag=DRIVING_COMMAND_0"])
-                launcher.launch([
-                    steering_command_driver_path,
-                    "--lcm_tag=DRIVING_COMMAND_1"])
             launcher.launch([drake_lcm_spy])
             launcher.launch([lcm_logger])
             launcher.launch([drake_visualizer])

@@ -100,9 +100,7 @@ def main():
     launcher = Launcher()
     parser = argparse.ArgumentParser()
     demo_arguments = {
-        "simple": ["--num_simple_car=1"],
-    #   "trajectory": ["--num_trajectory_car=1"],
-    #   "dragway":  ["--num_dragway_lanes=3", "--num_trajectory_car=12"],
+        "simple": ["--num_simple_car=1"]
     }
 
     # Number of cars on each demo, passed as arguments to the bridge
@@ -127,7 +125,8 @@ def main():
     # Build up the binary path
     drake_bazel_bin_path = os.path.join(drake_src_dir, 'bazel-bin')
 
-    # Delphyne binaries; these are found through the standard PATH, so are relative
+    # Delphyne binaries; these are found through the standard PATH, so
+    # they are relative
     lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
     automotive_demo = "automotive-demo"

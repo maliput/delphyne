@@ -82,7 +82,7 @@ SimulatorRunner::SimulatorRunner(
     : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
   this->node.Advertise(this->kControlService,
-                       &SimulatorRunner::OnSimulationInMessage, this);
+                       &SimulatorRunner::OnWorldControl, this);
 
   // Advertise the topic for publishing notifications.
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
@@ -220,13 +220,16 @@ void SimulatorRunner::ProcessWorldControlMessage(
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::OnSimulationInMessage(
-    const ignition::msgs::SimulationInMessage& _req,
+void SimulatorRunner::OnWorldControl(
+    const ignition::msgs::WorldControl& _req,
     ignition::msgs::Boolean& _rep, bool& _result) {
   {
+    ignition::msgs::SimulationInMessage msg;
+    msg.mutable_world_control()->CopyFrom(_req);
+    msg.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
     // Just queue the message.
     std::lock_guard<std::mutex> lock(this->mutex);
-    this->incomingMsgs.push(_req);
+    this->incomingMsgs.push(msg);
   }
 
   _result = true;

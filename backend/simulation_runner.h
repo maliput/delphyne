@@ -112,9 +112,9 @@ class SimulatorRunner {
   /// \param[out] _rep The response (unused).
   /// \param[out] _result The result of the service.
  private:
-  void OnSimulationInMessage(
+  void OnWorldControl(
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      const ignition::msgs::SimulationInMessage& _req,
+      const ignition::msgs::WorldControl& _req,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& _rep, bool& _result);
 

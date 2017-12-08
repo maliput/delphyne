@@ -42,7 +42,6 @@ from __future__ import print_function
 
 import os
 import sys
-import time
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 

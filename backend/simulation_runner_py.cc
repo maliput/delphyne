@@ -31,6 +31,7 @@
 #include <boost/python.hpp>
 #include <drake/common/find_resource.h>
 
+#include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
 
 using delphyne::backend::SimulatorRunner;
@@ -48,7 +49,7 @@ std::shared_ptr<SimulatorRunner> SimulatorRunnerFactory() {
                                "/share/drake");
 
   auto simulator =
-      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
   // Add a Prius car.
   drake::automotive::SimpleCarState<double> state;

@@ -77,8 +77,8 @@ void WaitForShutdown() {
 
 /////////////////////////////////////////////////
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
-    const double _timeStep)
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
+    double _timeStep)
     : timeStep(_timeStep), simulator(std::move(_sim)) {
   // Advertise the service for controlling the simulation.
   this->node.Advertise(this->kControlService,
@@ -87,6 +87,18 @@ SimulatorRunner::SimulatorRunner(
   // Advertise the topic for publishing notifications.
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
       this->kNotificationsTopic);
+
+  // TODO(basicNew): This is just an initial implementation and is *not* the
+  // way we are going to be handling these kind of requests in the future. The
+  // process of handling a service calls that needs a response is:
+  // - Create a new request and add it to the queue for later processing. As
+  // part of that request we should have a topic name where we will post the
+  // response.
+  // - When the request is processed, the model will be fetched from the
+  // simulator and posted to the requested topic.
+  this->node.Advertise<SimulatorRunner, ignition::msgs::Empty,
+                       ignition::msgs::Model_V>(
+      "GetRobotModel", &SimulatorRunner::OnGetRobotModel, this);
 
   this->simulator->Start();
 }
@@ -230,6 +242,14 @@ void SimulatorRunner::OnSimulationInMessage(
   }
 
   _result = true;
+}
+
+//////////////////////////////////////////////////
+void SimulatorRunner::OnGetRobotModel(const ignition::msgs::Empty& request,
+                                      ignition::msgs::Model_V& response,
+                                      bool& result) {
+  response = *this->simulator->GetRobotModel();
+  result = true;
 }
 
 //////////////////////////////////////////////////

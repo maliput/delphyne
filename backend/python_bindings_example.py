@@ -42,7 +42,6 @@ from __future__ import print_function
 
 import os
 import sys
-import time
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 
@@ -80,17 +79,10 @@ def main():
                                      "layoutWithTeleop.config")
         launcher.launch([ign_visualizer, teleop_config])
 
-        # TODO(basicNew) We need this to make sure the visualizer is up and
-        # running before we send the initial message to load the robot.
-        # This will go away once we have ported the automotive simulator to
-        # the backend.
-        time.sleep(1.0)
-
         runner = SimulatorRunner()
         runner.start()
 
         launcher.wait(float("Inf"))
-
     finally:
         launcher.kill()
 

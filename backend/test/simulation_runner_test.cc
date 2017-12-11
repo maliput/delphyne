@@ -42,7 +42,7 @@ namespace delphyne {
 namespace backend {
 
 //////////////////////////////////////////////////
-// \brief Check that WaitForShutdown captures the SIGINT signal and the
+// @brief Check that WaitForShutdown captures the SIGINT signal and the
 // simulation terminates gracefully.
 TEST(SimulationRunnerTest, sigIntTermination) {
   // Instantiate a simulator.

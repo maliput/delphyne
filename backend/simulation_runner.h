@@ -144,12 +144,12 @@ class SimulatorRunner {
  public:
   virtual ~SimulatorRunner();
 
-  // \brief Add a python callback to be invoked on each simulation step. It is
-  // important to note that the simulation step will be effectively blocked
-  // by this the execution of the callbacks, so please consider this when
-  // adding it.
-  // \param[in] callable A pointer to a callback function, coming from the
-  // python world.
+  /// \brief Add a python callback to be invoked on each simulation step. It is
+  /// important to note that the simulation step will be effectively blocked
+  /// by this the execution of the callbacks, so please consider this when
+  /// adding it.
+  /// \param[in] callable A pointer to a callback function, coming from the
+  /// python world.
   void AddStepCallback(PyObject* callable);
 
   /// \brief Start the thread that runs the simulation loop. If there was a
@@ -289,7 +289,7 @@ class SimulatorRunner {
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
  private:
-  std::vector<PyObject*> step_callbacks;
+  std::vector<PyObject*> step_callbacks_;
 };
 
 }  // namespace backend

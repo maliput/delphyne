@@ -116,7 +116,7 @@ void SimulatorRunner::Stop() {
 
 //////////////////////////////////////////////////
 void SimulatorRunner::AddStepCallback(PyObject* callable) {
-  step_callbacks.push_back(callable);
+  step_callbacks_.push_back(callable);
 }
 
 //////////////////////////////////////////////////
@@ -165,11 +165,11 @@ void SimulatorRunner::Run() {
 
     // This if is here so that we only grab the python global interpreter lock
     // if there is at least one callback.
-    if (!step_callbacks.empty()) {
+    if (!step_callbacks_.empty()) {
       // 1. Acquire the lock to the python interpreter
       auto thread_handle = PyGILState_Ensure();
       // 2. Perform the callbacks
-      for (auto callback : step_callbacks) {
+      for (PyObject* callback : step_callbacks_) {
         boost::python::call<void>(callback);
       }
       // 3. Release the lock

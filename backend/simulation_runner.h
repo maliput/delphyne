@@ -107,10 +107,10 @@ class SimulatorRunner {
   // \param[in] _msg The message
   void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& _msg);
 
-  /// \brief Service used to receive robot model request messages.
-  /// \param[in] _req The request.
-  /// \param[out] _rep The response (unused).
-  /// \param[out] _result The result of the service.
+  // \brief Service used to receive robot model request messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \param[out] result The result of the service.
   void OnRobotModelRequest(
       const ignition::msgs::RobotModelRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
@@ -118,6 +118,10 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
 
+  // \brief Service used to receive world control messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \param[out] result The result of the service.
   void OnWorldControl(
       const ignition::msgs::WorldControl& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
@@ -187,12 +191,7 @@ class SimulatorRunner {
   // @brief The thread in charge of doing all the periodic tasks.
   std::thread mainThread;
 
-<<<<<<< HEAD
   /// @brief A queue for storing the incoming messages (requests).
-=======
- private:
-  // \brief A queue for storing the incoming messages (requests).
->>>>>>> 86f0f1d... First working version
   std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
 
   // @brief A queue for storing the outgoing messages (notifications).

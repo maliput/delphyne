@@ -203,9 +203,9 @@ void SimulatorRunner::ProcessIncomingMessages() {
       } break;
 
       default:
-        throw std::runtime_error(
-            "Unable to process msg of type: " +
-            SimulationInMessage_SimMsgType_Name(nextMsg.type()));
+        ignerr << "Unable to process msg of type: "
+               << SimulationInMessage_SimMsgType_Name(nextMsg.type())
+               << std::endl;
         break;
     }
   }
@@ -252,7 +252,7 @@ void SimulatorRunner::ProcessRobotModelRequest(
   }
 
   // Wait for 200 millis before attempting to publish
-  // to the topic that has just been advertised. 
+  // to the topic that has just been advertised.
   std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
   if (!pub.Publish(*robot_model)) {

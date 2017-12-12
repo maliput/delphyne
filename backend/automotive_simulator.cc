@@ -596,7 +596,7 @@ void AutomotiveSimulator<T>::InitializeTrajectoryCars() {
 template <typename T>
 void AutomotiveSimulator<T>::InitializeSimpleCars() {
   for (const auto& pair : simple_car_initial_states_) {
-    const drake::automotive::SimpleCar<T>* const car = pair.first;
+    const drake::systems::System<T>* const car = pair.first;
     const drake::automotive::SimpleCarState<T>& initial_state = pair.second;
 
     drake::systems::VectorBase<T>& context_state =

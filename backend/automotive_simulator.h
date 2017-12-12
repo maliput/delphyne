@@ -362,7 +362,7 @@ class AutomotiveSimulator {
 
   // Holds the desired initial states of each SimpleCar. It is used to
   // initialize the simulation's diagram's state.
-  std::map<const drake::automotive::SimpleCar<T>*,
+  std::map<const drake::systems::System<T>*,
            drake::automotive::SimpleCarState<T>>
       simple_car_initial_states_;
 

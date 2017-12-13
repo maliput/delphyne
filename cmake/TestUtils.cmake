@@ -27,14 +27,14 @@ macro (delphyne_build_tests)
     )
 
     target_link_libraries(${BINARY_NAME}
+      ${Boost_LIBRARIES}
+      ${drake_LIBRARIES}
       ${IGNITION-COMMON_LIBRARIES}
       ${IGNITION-MSGS_LIBRARIES}
       ${IGNITION-TRANSPORT_LIBRARIES}
       ${PROTOBUF_LIBRARY}
       ${PROTOBUF_PROTOC_LIBRARY}
       ${lcm_LIBRARIES}
-      ${drake_LIBRARIES}
-      ${Boost_LIBRARIES}
       ${PYTHON_LIBRARIES}
       libgtest.a
       libgtest_main.a

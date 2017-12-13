@@ -129,6 +129,10 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
 
+  // @brief Robot model request callback function, required for an async
+  void RobotModelRequestCb(const ignition::msgs::Boolean& response,
+                           bool result);
+
   // @brief Get the default time step.
   // @return The default time step, in seconds.
   double TimeStep() const;
@@ -162,6 +166,9 @@ class SimulatorRunner {
 
   // @brief The service offered to control the simulation.
   const std::string kControlService = "/world_control";
+
+  // @brief The service used when receiving a robot request.
+  const std::string kRobotRequestServiceName = "/get_robot_model";
 
   // @brief The topic used to publish notifications.
   const std::string kNotificationsTopic = "/notifications";

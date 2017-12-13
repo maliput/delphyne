@@ -97,8 +97,11 @@ SimulatorRunner::SimulatorRunner(
   // - When the request is processed, the model will be fetched from the
   // simulator and posted to the requested topic.
 
-  this->node.Advertise("/GetRobotModel", &SimulatorRunner::OnRobotModelRequest,
-                       this);
+  if (!this->node.Advertise(kRobotRequestServiceName,
+                            &SimulatorRunner::OnRobotModelRequest, this)) {
+    std::cerr << "Error advertising service [" << kRobotRequestServiceName
+              << "]" << std::endl;
+  }
 
   this->simulator->Start();
 }
@@ -196,11 +199,9 @@ void SimulatorRunner::ProcessIncomingMessages() {
         this->ProcessWorldControlMessage(nextMsg.world_control());
         break;
 
-      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST: {
-        std::thread t1(&SimulatorRunner::ProcessRobotModelRequest, this,
-                       nextMsg.robot_model_request());
-        t1.detach();
-      } break;
+      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST:
+        this->ProcessRobotModelRequest(nextMsg.robot_model_request());
+        break;
 
       default:
         ignerr << "Unable to process msg of type: "
@@ -239,26 +240,21 @@ void SimulatorRunner::ProcessWorldControlMessage(
 }
 
 //////////////////////////////////////////////////
+void SimulatorRunner::RobotModelRequestCb(
+    const ignition::msgs::Boolean& response, const bool result) {
+  // Do nothing
+}
+
+//////////////////////////////////////////////////
 void SimulatorRunner::ProcessRobotModelRequest(
     const ignition::msgs::RobotModelRequest& _msg) {
-  // Use the string on the robot model request as the topic name
-  // where the robot model will be published
+  // Sets the string from the robot model request as
+  // the topic name where the robot model will be published
   auto robot_model = simulator->GetRobotModel();
   std::string topic_name = _msg.response_topic();
 
-  auto pub = this->node.Advertise<ignition::msgs::Model_V>(topic_name);
-  if (!pub) {
-    ignerr << "Error advertising topic [" << topic_name << "]" << std::endl;
-  }
-
-  // Wait for 200 millis before attempting to publish
-  // to the topic that has just been advertised.
-  std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-  if (!pub.Publish(*robot_model)) {
-    ignerr << "Error publishing message on topic [" << topic_name << "]"
-           << std::endl;
-  }
+  node.Request(topic_name, *robot_model, &SimulatorRunner::RobotModelRequestCb,
+               this);
 }
 
 //////////////////////////////////////////////////

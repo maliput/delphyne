@@ -30,7 +30,6 @@
 
 #include <memory>
 #include <mutex>
-#include <Python.h>
 #include <queue>
 #include <string>
 #include <thread>
@@ -42,6 +41,8 @@
 
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+
+#include <Python.h>
 
 #include "protobuf/simulation_in_message.pb.h"
 

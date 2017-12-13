@@ -27,10 +27,10 @@ add_executable(automotive-demo
 
 target_link_libraries(automotive-demo
   delphyne_protobuf_msgs
+  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 
@@ -53,10 +53,10 @@ set_target_properties(simulation-runner
 
 target_link_libraries(simulation-runner
   delphyne_protobuf_msgs
+  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 
@@ -76,10 +76,10 @@ set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
 target_link_libraries(simulation_runner_py
   simulation-runner
   delphyne_protobuf_msgs
+  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
 

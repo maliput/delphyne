@@ -240,12 +240,6 @@ void SimulatorRunner::ProcessWorldControlMessage(
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::RobotModelRequestCb(
-    const ignition::msgs::Boolean& response, const bool result) {
-  // Do nothing
-}
-
-//////////////////////////////////////////////////
 void SimulatorRunner::ProcessRobotModelRequest(
     const ignition::msgs::RobotModelRequest& _msg) {
   // Sets the string from the robot model request as
@@ -253,20 +247,21 @@ void SimulatorRunner::ProcessRobotModelRequest(
   auto robot_model = simulator->GetRobotModel();
   std::string topic_name = _msg.response_topic();
 
-  node.Request(topic_name, *robot_model, &SimulatorRunner::RobotModelRequestCb,
-               this);
+  node.Request(topic_name, *robot_model);
 }
 
 //////////////////////////////////////////////////
 void SimulatorRunner::OnWorldControl(
     const ignition::msgs::WorldControl& request,
     ignition::msgs::Boolean& response, bool& result) {
+  // Fill the new message.
+  ignition::msgs::SimulationInMessage input_message;
+  input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
+  input_message.mutable_world_control()->CopyFrom(request);
+
   {
     // Queue the message.
     std::lock_guard<std::mutex> lock(this->mutex);
-    ignition::msgs::SimulationInMessage input_message;
-    input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
-    input_message.mutable_world_control()->CopyFrom(request);
     this->incomingMsgs.push(input_message);
   }
   result = true;
@@ -276,13 +271,15 @@ void SimulatorRunner::OnWorldControl(
 void SimulatorRunner::OnRobotModelRequest(
     const ignition::msgs::RobotModelRequest& request,
     ignition::msgs::Boolean& response, bool& result) {
+  // Fill the new message.
+  ignition::msgs::SimulationInMessage input_message;
+  input_message.set_type(
+    ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
+  input_message.mutable_robot_model_request()->CopyFrom(request);
+
   {
     // Queue the message.
     std::lock_guard<std::mutex> lock(this->mutex);
-    ignition::msgs::SimulationInMessage input_message;
-    input_message.set_type(
-        ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
-    input_message.mutable_robot_model_request()->CopyFrom(request);
     this->incomingMsgs.push(input_message);
   }
   result = true;

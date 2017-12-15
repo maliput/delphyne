@@ -136,6 +136,10 @@ void SimulatorRunner::Run() {
     // Start a timer to measure the time we spend doing tasks.
     auto stepStart = std::chrono::steady_clock::now();
 
+    // A copy of the python callbacks so we can process them in a thread-safe
+    // way
+    std::vector<PyObject*> callbacks;
+
     // 1. Process incoming messages (requests).
     {
       std::lock_guard<std::mutex> lock(this->mutex);
@@ -157,19 +161,19 @@ void SimulatorRunner::Run() {
 
       // 3. Process outgoing messages (notifications).
       this->SendOutgoingMessages();
+
+      // Make a temporal copy of the python callbacks while we have the lock.
+      callbacks = step_callbacks_;
     }
 
     // This if is here so that we only grab the python global interpreter lock
     // if there is at least one callback.
-    if (!step_callbacks_.empty()) {
+    if (!callbacks.empty()) {
       // 1. Acquire the lock to the python interpreter
       auto thread_handle = PyGILState_Ensure();
       // 2. Perform the callbacks
-      {
-        std::lock_guard<std::mutex> lock(this->mutex);
-        for (PyObject* callback : step_callbacks_) {
-          boost::python::call<void>(callback);
-        }
+      for (PyObject* callback : callbacks) {
+        boost::python::call<void>(callback);
       }
       // 3. Release the lock
       PyGILState_Release(thread_handle);

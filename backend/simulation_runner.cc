@@ -115,6 +115,7 @@ void SimulatorRunner::Stop() {
 
 //////////////////////////////////////////////////
 void SimulatorRunner::AddStepCallback(PyObject* callable) {
+  std::lock_guard<std::mutex> lock(this->mutex);
   step_callbacks_.push_back(callable);
 }
 
@@ -165,6 +166,7 @@ void SimulatorRunner::Run() {
       auto thread_handle = PyGILState_Ensure();
       // 2. Perform the callbacks
       for (PyObject* callback : step_callbacks_) {
+        std::lock_guard<std::mutex> lock(this->mutex);
         boost::python::call<void>(callback);
       }
       // 3. Release the lock

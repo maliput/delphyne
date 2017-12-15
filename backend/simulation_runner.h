@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -249,7 +250,7 @@ class SimulatorRunner {
 
   /// \brief Whether the main loop has been started or not.
  private:
-  bool enabled = false;
+  std::atomic<bool> enabled{false};
 
   /// \brief A pointer to the Drake simulator.
  private:

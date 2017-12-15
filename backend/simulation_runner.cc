@@ -109,7 +109,6 @@ void SimulatorRunner::Stop() {
   // Only do this if we are running the simulation
   if (this->enabled) {
     // Tell the main loop thread to terminate.
-    std::lock_guard<std::mutex> lock(this->mutex);
     this->enabled = false;
   }
 }
@@ -132,8 +131,7 @@ void SimulatorRunner::Start() {
 
 //////////////////////////////////////////////////
 void SimulatorRunner::Run() {
-  bool stayAlive = true;
-  while (stayAlive) {
+  while (this->enabled) {
     // Start a timer to measure the time we spend doing tasks.
     auto stepStart = std::chrono::steady_clock::now();
 
@@ -158,9 +156,6 @@ void SimulatorRunner::Run() {
 
       // 3. Process outgoing messages (notifications).
       this->SendOutgoingMessages();
-
-      // Do we have to exit?
-      stayAlive = this->enabled;
     }
 
     // This if is here so that we only grab the python global interpreter lock

@@ -1,11 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
-
-# ----------------------------------------
-# Find necessary packages
-find_package(PythonLibs 2.7 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
-
-find_package(Boost COMPONENTS python REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 # ----------------------------------------

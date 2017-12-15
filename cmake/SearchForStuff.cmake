@@ -135,6 +135,16 @@ if (NOT Qt5Test_FOUND)
   BUILD_ERROR("Missing: Qt5Test")
 endif()
 
+find_package(PythonLibs 2.7)
+if (NOT PythonLibs_FOUND)
+  BUILD_ERROR("Missing: PythonLibs")
+endif()
+
+find_package(Boost COMPONENTS python)
+if (NOT Boost_FOUND)
+  BUILD_ERROR("Missing: Boost")
+endif()
+
 #################################################
 # Macro to check for visibility capability in compiler
 # Original idea from: https://gitorious.org/ferric-cmake-stuff/

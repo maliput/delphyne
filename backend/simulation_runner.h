@@ -37,7 +37,7 @@
 #include <ignition/transport/Node.hh>
 
 #include "backend/automotive_simulator.h"
-
+#include "protobuf/robot_model_request.pb.h"
 #include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
@@ -103,22 +103,35 @@ class SimulatorRunner {
   // @param[in] _msg The message
   void ProcessWorldControlMessage(const ignition::msgs::WorldControl& _msg);
 
-  // @brief Service used to receive simulation input messages.
-  // @param[in] _req The request.
-  // @param[out] _rep The response (unused).
-  // @param[out] _result The result of the service.
-   void OnSimulationInMessage(
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      const ignition::msgs::SimulationInMessage& _req,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& _rep, bool& _result);
+  // \brief Process one RobotModelRequest message.
+  // \param[in] _msg The message
+  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& _msg);
 
-  void OnGetRobotModel(
-      const ignition::msgs::Empty& request,
+  // \brief Service used to receive robot model request messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \param[out] result The result of the service.
+  void OnRobotModelRequest(
+      const ignition::msgs::RobotModelRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Model_V& response,
+      ignition::msgs::Boolean& response,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
+
+  // \brief Service used to receive world control messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \param[out] result The result of the service.
+  void OnWorldControl(
+      const ignition::msgs::WorldControl& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& response,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      bool& result);
+
+  // @brief Robot model request callback function, required for an async
+  void RobotModelRequestCb(const ignition::msgs::Boolean& response,
+                           bool result);
 
   // @brief Get the default time step.
   // @return The default time step, in seconds.
@@ -153,6 +166,9 @@ class SimulatorRunner {
 
   // @brief The service offered to control the simulation.
   const std::string kControlService = "/world_control";
+
+  // @brief The service used when receiving a robot request.
+  const std::string kRobotRequestServiceName = "/get_robot_model";
 
   // @brief The topic used to publish notifications.
   const std::string kNotificationsTopic = "/notifications";

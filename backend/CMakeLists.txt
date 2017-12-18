@@ -36,8 +36,8 @@ delphyne_build_tests(${gtest_sources})
 find_package(PythonLibs 2.7 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 
-find_package(Boost COMPONENTS python REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
+find_package(pybind11 REQUIRED)
+include_directories(${pybind11_INCLUDE_DIRS})
 
 # Build the simulation support for python bindings as a library.
 add_library(simulation-support
@@ -70,8 +70,8 @@ target_link_libraries(simulation_runner_py
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
+  ${pybind11_LIBRARIES}
   )
 
 install(TARGETS simulation_runner_py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

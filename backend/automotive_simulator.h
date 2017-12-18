@@ -66,6 +66,7 @@
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
 #include "bridge/lcm_to_ign_translation.h"
+#include "backend/ign_publisher_system.h"
 
 namespace delphyne {
 namespace backend {
@@ -394,8 +395,9 @@ class AutomotiveSimulator {
   // message containing the latest poses of the visual elements.
   drake::systems::rendering::PoseBundleToDrawMessage* bundle_to_draw_{};
 
-  // Takes the output of bundle_to_draw_ and passes it to lcm_ for publishing.
-  drake::systems::lcm::LcmPublisherSystem* lcm_publisher_{};
+  // Takes the output of bundle_to_draw_ and passes it to an ignition transport
+  // node for publishing.
+  delphyne::backend::IgnPublisherSystem* ign_publisher_{};
 
   int next_vehicle_number_{0};
 

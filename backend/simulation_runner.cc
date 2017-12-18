@@ -88,18 +88,10 @@ SimulatorRunner::SimulatorRunner(
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
       this->kNotificationsTopic);
 
-  // TODO(basicNew): This is just an initial implementation and is *not* the
-  // way we are going to be handling these kind of requests in the future. The
-  // process of handling a service calls that needs a response is:
-  // - Create a new request and add it to the queue for later processing. As
-  // part of that request we should have a topic name where we will post the
-  // response.
-  // - When the request is processed, the model will be fetched from the
-  // simulator and posted to the requested topic.
-
+  // Advertise the service for receiving robot model requests from the frontend
   if (!this->node.Advertise(kRobotRequestServiceName,
                             &SimulatorRunner::OnRobotModelRequest, this)) {
-    std::cerr << "Error advertising service [" << kRobotRequestServiceName
+    ignerr << "Error advertising service [" << kRobotRequestServiceName
               << "]" << std::endl;
   }
 

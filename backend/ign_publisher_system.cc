@@ -41,9 +41,10 @@ IgnPublisherSystem::IgnPublisherSystem() {
 IgnPublisherSystem::~IgnPublisherSystem() {}
 
 void IgnPublisherSystem::DoPublish(
-    const Context<double>& context,
-    const std::vector<const PublishEvent<double>*>&) const {
-  const AbstractValue* input = this->EvalAbstractInput(context, 0);
+    const drake::systems::Context<double>& context,
+    const std::vector<const drake::systems::PublishEvent<double>*>&) const {
+  const drake::systems::AbstractValue* input =
+      this->EvalAbstractInput(context, 0);
   const auto& viewer_draw = input->GetValue<drake::lcmt_viewer_draw>();
   ignition::msgs::Model_V ignMsg;
 

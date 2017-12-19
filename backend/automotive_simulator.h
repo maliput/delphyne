@@ -65,8 +65,8 @@
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
-#include "bridge/lcm_to_ign_translation.h"
 #include "backend/ign_publisher_system.h"
+#include "bridge/lcm_to_ign_translation.h"
 
 namespace delphyne {
 namespace backend {

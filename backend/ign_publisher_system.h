@@ -40,19 +40,12 @@
 
 #include "bridge/lcm_to_ign_translation.h"
 
-
-using drake::systems::LeafSystem;
-using drake::systems::AbstractValue;
-using drake::systems::Context;
-using drake::systems::LeafSystem;
-using drake::systems::PublishEvent;
-
 namespace delphyne {
 namespace backend {
 
 /// Publishes an ignition-transport message containing
 /// information from its input port.
-class IgnPublisherSystem : public LeafSystem<double> {
+class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
   IgnPublisherSystem();
 
@@ -61,17 +54,18 @@ class IgnPublisherSystem : public LeafSystem<double> {
   /// Takes the VectorBase from the input port of the context
   /// and publishes it onto an ignition-transport topic.
   void DoPublish(
-      const Context<double>& context,
-      const std::vector<const PublishEvent<double>*>&) const override;
+      const drake::systems::Context<double>& context,
+      const std::vector<const drake::systems::PublishEvent<double>*>&)
+      const override;
 
  private:
-  // The topic on which to publish ign-transport messages
+  // The topic on which to publish ign-transport messages.
   const std::string topic_ = "/DRAKE_VIEWER_DRAW";
 
-  // Ignition transport node
+  // Ignition transport node.
   ignition::transport::Node node_;
 
-  // Ignition transport publisher
+  // Ignition transport publisher.
   mutable ignition::transport::Node::Publisher publisher_;
 };
 

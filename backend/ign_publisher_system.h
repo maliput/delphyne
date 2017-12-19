@@ -72,7 +72,7 @@ class IgnPublisherSystem : public LeafSystem<double> {
   ignition::transport::Node node_;
 
   // Ignition transport publisher
-  ignition::transport::Node::Publisher publisher_;
+  mutable ignition::transport::Node::Publisher publisher_;
 };
 
 }  // namespace backend

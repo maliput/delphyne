@@ -50,13 +50,8 @@ void IgnPublisherSystem::DoPublish(
   // Translate the lcm message into an ignition-transport message
   delphyne::bridge::lcmToIgn(viewer_draw, &ignMsg);
 
-  // TODO(apojomovsky): we might want replace this with a cleaner approach
-  // Creates a local copy of the publisher, since an instance
-  // variable cannot be modified from inside a const method
-  auto tempPublisher = publisher_;
-
   // Publishes onto the specified ign-transport channel.
-  tempPublisher.Publish(ignMsg);
+  publisher_.Publish(ignMsg);
 }
 
 }  // namespace backend

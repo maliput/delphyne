@@ -88,19 +88,35 @@ SimulatorRunner::SimulatorRunner(
   this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
       this->kNotificationsTopic);
 
+  // Initialize the python machinery so we can invoke a python callback
+  // function on each simulation step.
+  Py_Initialize();
+  PyEval_InitThreads();
+
   this->simulator->Start();
 }
 
 //////////////////////////////////////////////////
 SimulatorRunner::~SimulatorRunner() {
-  {
-    // Tell the main loop thread to terminate.
-    std::lock_guard<std::mutex> lock(this->mutex);
-    this->enabled = false;
-  }
+  Stop();
   if (this->mainThread.joinable()) {
     this->mainThread.join();
   }
+}
+
+//////////////////////////////////////////////////
+void SimulatorRunner::Stop() {
+  // Only do this if we are running the simulation
+  if (this->enabled) {
+    // Tell the main loop thread to terminate.
+    this->enabled = false;
+  }
+}
+
+//////////////////////////////////////////////////
+void SimulatorRunner::AddStepCallback(PyObject* callable) {
+  std::lock_guard<std::mutex> lock(this->mutex);
+  step_callbacks_.push_back(callable);
 }
 
 //////////////////////////////////////////////////
@@ -116,10 +132,13 @@ void SimulatorRunner::Start() {
 
 //////////////////////////////////////////////////
 void SimulatorRunner::Run() {
-  bool stayAlive = true;
-  while (stayAlive) {
+  while (this->enabled) {
     // Start a timer to measure the time we spend doing tasks.
     auto stepStart = std::chrono::steady_clock::now();
+
+    // A copy of the python callbacks so we can process them in a thread-safe
+    // way
+    std::vector<PyObject*> callbacks;
 
     // 1. Process incoming messages (requests).
     {
@@ -143,8 +162,21 @@ void SimulatorRunner::Run() {
       // 3. Process outgoing messages (notifications).
       this->SendOutgoingMessages();
 
-      // Do we have to exit?
-      stayAlive = this->enabled;
+      // Make a temporal copy of the python callbacks while we have the lock.
+      callbacks = step_callbacks_;
+    }
+
+    // This if is here so that we only grab the python global interpreter lock
+    // if there is at least one callback.
+    if (!callbacks.empty()) {
+      // 1. Acquire the lock to the python interpreter
+      auto thread_handle = PyGILState_Ensure();
+      // 2. Perform the callbacks
+      for (PyObject* callback : callbacks) {
+        boost::python::call<void>(callback);
+      }
+      // 3. Release the lock
+      PyGILState_Release(thread_handle);
     }
 
     // Stop the timer.

@@ -28,14 +28,22 @@
 
 #pragma once
 
+#include <atomic>
 #include <memory>
 #include <mutex>
 #include <queue>
 #include <string>
 #include <thread>
+#include <vector>
+
+#include <boost/python.hpp>
+
 #include <drake/automotive/automotive_simulator.h>
+
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+
+#include <Python.h>
 
 #include "protobuf/simulation_in_message.pb.h"
 
@@ -55,7 +63,7 @@ void WaitForShutdown();
 /// Ignition Transport messages. All these operations occur in a main loop with
 /// the following structure:
 ///
-/// * Process incoming messages: All incoming requestes are queued
+/// * Process incoming messages: All incoming requests are queued
 ///   asynchronously when received and in this step we process all of them.
 ///   This request might involve flag the simulation as paused, insert a new
 ///   model, remove an existing model, etc.
@@ -70,6 +78,59 @@ void WaitForShutdown();
 ///   occur. E.g.: When the simulation is paused or a model is removed. These
 ///   notifications should be used by all the Visualizer instances to update its
 ///   state/widgets in order to keep them in sync with the back-end.
+///
+/// * Provides a mechanism to register callbacks to be triggered on each
+///   simulation step. Since this was originally conceived to be used with the
+///   Python bindings and plain typedef-based functions are not supported
+///   (see http://www.boost.org/doc/libs/1_65_1/libs/python/doc/html/faq.html)
+///   we need to pass a PyObject as an argument.
+///
+/// Finally, it is important to clarify how the Python-C++ callback mechanism
+/// is implemented, so we can understand a possible deadlock. The key
+/// elements here are:
+///   - A typical main program will create a SimulatorRunner instance,
+///   configure it and call Start(). Let's call the thread the program runs on
+///   the MainThread.
+///   - Calling Start() will in turn spawn a new thread. This thread will
+///   execute a tight loop (see the `Run()` method), making the simulation
+///   itself move forward. We will call this thread the RunThread.
+///   - When the SimulatorRunner destructor is called, it will try to join the
+///   RunThread into the MainThread, to perform a clean shutdown. To do that
+///   a boolean flag is set to exit the tight loop in `Run()` and the `join()`
+///   method is called on the RunThread, effectively blocking the MainThread
+///   until RunThread is done.
+///   - When calling a Python-defined callback function from C++ we need to
+///   acquire the GIL (Python's Global Interpreter Lock), which basically
+///   gives us thread-safety between the C++ and Python worlds. The typical
+///   steps to invoke a Python callback from C++ are:
+///     - Acquire the GIL.
+///     - Invoke the callback.
+///     - Release the GIL.
+///   Note that acquiring the GIL is a potentially blocking call, as it is
+///   basically getting the lock of a mutex.
+///
+/// Now, the following interleaving may occur when running a python-scripted
+/// simulation:
+///
+/// - Create the simulator runner and configure a python callback.
+/// - Start the simulator. By this time we have the MainThread (which is the
+///   same thread that executes the python code) and the RunThread executing.
+/// - Stop the simulator from the MainThread (calling the `Stop()` method) and
+///   consider the following events:
+///     - The RunThread yielded the processor right before acquiring the GIL.
+///     - The MainTread execute the `Stop()` method and then the destructor.
+///       Now the MainThread is waiting for RunThread to join.
+///     - Execution is now returned to RunThread, which tries to acquire the
+///       GIL. However, the Python thread is blocked on the `join()`, so we
+///       are effectively in a deadlock.
+///
+///   It is interesting to note however that the lock on the GIL happens only
+///   if the code is blocked on the C++ side; in other words, if the code was
+///   blocked on the Python side (e.g. due to a `sleep` call), C++ has no
+///   problem to acquire the GIL. Because of this, the current recommendation
+///   is to add a sleep after calling `stop()` from the Python side, so the
+///   processor is yielded and the RunThread can finish its current (and last)
+///   loop before exiting the while.
 class SimulatorRunner {
   /// \brief Default constructor.
   /// \param[in] _sim A pointer to a simulator. Note that we take ownership of
@@ -85,10 +146,23 @@ class SimulatorRunner {
  public:
   virtual ~SimulatorRunner();
 
+  /// \brief Add a python callback to be invoked on each simulation step. It is
+  /// important to note that the simulation step will be effectively blocked
+  /// by this the execution of the callbacks, so please consider this when
+  /// adding it.
+  /// \param[in] callable A pointer to a callback function, coming from the
+  /// python world.
+  void AddStepCallback(PyObject* callable);
+
   /// \brief Start the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
  public:
   void Start();
+
+  /// \brief Stop the thread that runs the simulation loop. If there was a
+  /// previous call to Stop(), this call will be ignored.
+ public:
+  void Stop();
 
   /// \brief Run the main simulation loop.
  public:
@@ -176,7 +250,7 @@ class SimulatorRunner {
 
   /// \brief Whether the main loop has been started or not.
  private:
-  bool enabled = false;
+  std::atomic<bool> enabled{false};
 
   /// \brief A pointer to the Drake simulator.
  private:
@@ -213,6 +287,11 @@ class SimulatorRunner {
   /// \brief An Ignition Transport publisher for sending notifications.
  private:
   ignition::transport::Node::Publisher notificationsPub;
+
+  // \brief A vector that holds all the registered callbacks that need to be
+  // triggered on each simulation step.
+ private:
+  std::vector<PyObject*> step_callbacks_;
 };
 
 }  // namespace backend

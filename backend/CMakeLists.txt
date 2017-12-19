@@ -1,5 +1,9 @@
 include (${project_cmake_dir}/Utils.cmake)
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${Boost_INCLUDE_DIR})
 
+# ----------------------------------------
+# Prepare sources
 set (sources
   simulation_runner.cc
 )
@@ -8,6 +12,8 @@ set (gtest_sources
   simulation_runner_test.cc
 )
 
+# ----------------------------------------
+# Automotive demo
 add_executable(automotive-demo
   automotive_demo.cc
   ${sources}
@@ -15,9 +21,11 @@ add_executable(automotive-demo
 
 target_link_libraries(automotive-demo
   delphyne_protobuf_msgs
+  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  ${PYTHON_LIBRARIES}
 )
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -27,15 +35,6 @@ install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 delphyne_build_tests(${gtest_sources})
 
 # ----------------------------------------
-# Python bindings
-
-# Find necessary packages
-find_package(PythonLibs 2.7 REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
-
-find_package(Boost COMPONENTS python REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
-
 # Build the simulation runner as a library.
 add_library(simulation-runner
     STATIC
@@ -48,12 +47,17 @@ set_target_properties(simulation-runner
 
 target_link_libraries(simulation-runner
   delphyne_protobuf_msgs
+  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  ${PYTHON_LIBRARIES}
 )
 
 target_include_directories(simulation-runner PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Python bindings
 
 # Define the wrapper library for python
 add_library(simulation_runner_py
@@ -66,10 +70,10 @@ set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
 target_link_libraries(simulation_runner_py
   simulation-runner
   delphyne_protobuf_msgs
+  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${Boost_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
 

@@ -395,6 +395,9 @@ class AutomotiveSimulator {
   // message containing the latest poses of the visual elements.
   drake::systems::rendering::PoseBundleToDrawMessage* bundle_to_draw_{};
 
+  // Takes the output of bundle_to_draw_ and passes it to lcm_ for publishing.
+  drake::systems::lcm::LcmPublisherSystem* lcm_publisher_{};
+
   // Takes the output of bundle_to_draw_ and passes it to an ignition transport
   // node for publishing.
   delphyne::backend::IgnPublisherSystem* ign_publisher_{};

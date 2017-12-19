@@ -9,6 +9,7 @@ set (sources
 set (gtest_sources
   simulation_runner_test.cc
   automotive_simulator_test.cc
+  ign_publisher_system_test.cc
 )
 
 add_executable(automotive-demo

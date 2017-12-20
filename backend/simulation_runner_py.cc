@@ -28,8 +28,8 @@
 
 #include <memory>
 
-#include <boost/python.hpp>
 #include <drake/common/find_resource.h>
+#include <pybind11/pybind11.h>
 
 #include "backend/simulation_runner.h"
 
@@ -42,31 +42,32 @@ using delphyne::backend::SimulatorRunner;
 // python scripts that launches the simulation.
 
 namespace {
+namespace py = pybind11;
 
-std::shared_ptr<SimulatorRunner> SimulatorRunnerFactory() {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
+PYBIND11_MODULE(simulation_runner_py, m) {
+  py::class_<SimulatorRunner>(m, "SimulatorRunner")
+    .def(py::init([](void) {
 
-  auto simulator =
-      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+      drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
+                                   "/share/drake");
 
-  // Add a Prius car.
-  drake::automotive::SimpleCarState<double> state;
-  state.set_y(0.0);
-  simulator->AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state);
+      auto simulator =
+          // std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+          std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
-  // Instantiate the simulator runner and pass the simulator.
-  const double time_step = 0.001;
-  return std::make_shared<SimulatorRunner>(std::move(simulator), time_step);
-}
+      // Add a Prius car.
+      drake::automotive::SimpleCarState<double> state;
+      state.set_y(0.0);
+      simulator->AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state);
 
-BOOST_PYTHON_MODULE(simulation_runner_py) {
-  boost::python::class_<SimulatorRunner, boost::noncopyable>(
-      "SimulatorRunner", boost::python::no_init)
-      .def("__init__", boost::python::make_constructor(SimulatorRunnerFactory))
-      .def("start", &SimulatorRunner::Start)
-      .def("stop", &SimulatorRunner::Stop)
-      .def("add_step_callback", &SimulatorRunner::AddStepCallback);
+      // Instantiate the simulator runner and pass the simulator.
+      const double time_step = 0.001;
+      return std::make_unique<SimulatorRunner>(std::move(simulator), time_step);
+    }))
+    .def("start", &SimulatorRunner::Start)
+    .def("stop", &SimulatorRunner::Stop)
+    .def("add_step_callback", &SimulatorRunner::AddStepCallback);
+  ;
 }
 
 }  // namespace

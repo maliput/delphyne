@@ -1,6 +1,6 @@
 include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
-include_directories(${Boost_INCLUDE_DIR})
+include_directories(${pybind11_INCLUDE_DIRS})
 
 # ----------------------------------------
 # Prepare sources
@@ -21,10 +21,10 @@ add_executable(automotive-demo
 
 target_link_libraries(automotive-demo
   delphyne_protobuf_msgs
-  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 
@@ -47,10 +47,10 @@ set_target_properties(simulation-runner
 
 target_link_libraries(simulation-runner
   delphyne_protobuf_msgs
-  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
 )
 
@@ -70,10 +70,10 @@ set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
 target_link_libraries(simulation_runner_py
   simulation-runner
   delphyne_protobuf_msgs
-  ${Boost_LIBRARIES}
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  ${pybind11_LIBRARIES}
   ${PYTHON_LIBRARIES}
   )
 

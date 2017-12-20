@@ -36,20 +36,20 @@
 #include <thread>
 #include <vector>
 
-#include <boost/python.hpp>
-
 #include <drake/automotive/automotive_simulator.h>
 
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
 #include <Python.h>
+#include <pybind11/pybind11.h>
 
 #include "protobuf/simulation_in_message.pb.h"
 
 namespace delphyne {
 namespace backend {
 
+namespace py = pybind11;
 /// \brief Block the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
 /// function if you want to manage yourself SIGINT/SIGTERM.
@@ -150,9 +150,9 @@ class SimulatorRunner {
   /// important to note that the simulation step will be effectively blocked
   /// by this the execution of the callbacks, so please consider this when
   /// adding it.
-  /// \param[in] callable A pointer to a callback function, coming from the
+  /// \param[in] callable A pybind11::function object to call, coming from the
   /// python world.
-  void AddStepCallback(PyObject* callable);
+  void AddStepCallback(py::function callable);
 
   /// \brief Start the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
@@ -291,7 +291,7 @@ class SimulatorRunner {
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
  private:
-  std::vector<PyObject*> step_callbacks_;
+  py::list step_callbacks_;
 };
 
 }  // namespace backend

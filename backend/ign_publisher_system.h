@@ -47,7 +47,7 @@ namespace backend {
 /// information from its input port.
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
-  IgnPublisherSystem();
+  explicit IgnPublisherSystem(std::string topic_name);
 
   ~IgnPublisherSystem() override;
 
@@ -58,9 +58,12 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
       const std::vector<const drake::systems::PublishEvent<double>*>&)
       const override;
 
+  // Getter
+  inline const std::string& get_topic_name() { return topic_; }
+
  private:
   // The topic on which to publish ign-transport messages.
-  const std::string topic_ = "/DRAKE_VIEWER_DRAW";
+  std::string topic_;
 
   // Ignition transport node.
   ignition::transport::Node node_;

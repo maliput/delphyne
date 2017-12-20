@@ -30,20 +30,126 @@
 
 #include "backend/ign_publisher_system.h"
 
+#include <drake/systems/analysis/simulator.h>
+#include <drake/systems/framework/diagram_builder.h>
+#include <ignition/msgs.hh>
+
 namespace delphyne {
 namespace backend {
 
 //////////////////////////////////////////////////
-// @brief Check that WaitForShutdown captures the SIGINT signal and the
-// simulation terminates gracefully.
-TEST(IgnPublisherSystemTest, PublishTest) {
-  ASSERT_EQ(1, 1);
+/// \brief Checks that all the array-iterable values from
+/// lcmt_viewer_draw matches their ignition counterpart.
+void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
+                         const ignition::msgs::Model_V& ign_models) {
+  for (int i = 0; i < lcm_msg.num_links; i++) {
+    // Step 1: Check there is a corresponding ignition model for the LCM link.
+    ignition::msgs::Model model;
+    for (int j = 0; j < ign_models.models_size(); ++j) {
+      if (ign_models.models(j).id() == (unsigned)lcm_msg.robot_num[i]) {
+        model = ign_models.models(j);
+      }
+    }
+    ASSERT_NE(nullptr, &model);
+
+    // Step 2: Check there is a corresponding ignition link for the LCM link.
+    ignition::msgs::Link link;
+    for (int j = 0; j < model.link_size(); ++j) {
+      if (model.link(j).name() == lcm_msg.link_name[i]) {
+        link = model.link(j);
+      }
+    }
+    ASSERT_NE(nullptr, &link);
+
+    // Step 3: Get the pose and compare the values.
+    ignition::msgs::Pose pose = link.pose();
+
+    EXPECT_EQ(pose.position().x(), lcm_msg.position[i][0]);
+    EXPECT_EQ(pose.position().y(), lcm_msg.position[i][1]);
+    EXPECT_EQ(pose.position().z(), lcm_msg.position[i][2]);
+    EXPECT_EQ(pose.orientation().w(), lcm_msg.quaternion[i][0]);
+    EXPECT_EQ(pose.orientation().x(), lcm_msg.quaternion[i][1]);
+    EXPECT_EQ(pose.orientation().y(), lcm_msg.quaternion[i][2]);
+    EXPECT_EQ(pose.orientation().z(), lcm_msg.quaternion[i][3]);
+  }
 }
 
-//////////////////////////////////////////////////
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+class IgnPublisherSystemTest : public ::testing::Test {
+  void SubscriberMockCallback(const ignition::msgs::Model_V& message) {
+    ign_msg = message;
+    handler_called_ = true;
+  }
+
+ public:
+  // Ignition transport node.
+  ignition::transport::Node node_;
+
+  // Callback flag.
+  bool handler_called_ = false;
+
+  // The received message.
+  ignition::msgs::Model_V ign_msg;
+
+  // Ignition Publisher System pointer.
+  std::unique_ptr<IgnPublisherSystem> ign_publisher_ =
+      std::make_unique<IgnPublisherSystem>("/DRAKE_VIEWER_DRAW");
+
+  void SetUp() override {
+    // Register callback.
+    this->node_.Subscribe(ign_publisher_->get_topic_name(),
+                          &IgnPublisherSystemTest::SubscriberMockCallback,
+                          this);
+
+    handler_called_ = false;
+  }
+
+  drake::lcmt_viewer_draw get_preloaded_draw_msg() {
+    drake::lcmt_viewer_draw msg;
+    msg.timestamp = 0;
+    msg.num_links = 1;
+    msg.link_name.resize(msg.num_links);
+    msg.link_name[0] = "box";
+    msg.robot_num.resize(1);
+    msg.robot_num[0] = 1;
+    msg.position.resize(1);
+    msg.position[0].resize(3);
+    msg.position[0][0] = 0.0;
+    msg.position[0][1] = 0.0;
+    msg.position[0][2] = 0.0;
+    msg.quaternion.resize(1);
+    msg.quaternion[0].resize(4);
+    msg.quaternion[0][0] = 0.0;
+    msg.quaternion[0][1] = 0.0;
+    msg.quaternion[0][2] = 0.0;
+    msg.quaternion[0][3] = 1.0;
+    return msg;
+  }
+};
+
+// Create an Ignition Publisher System and publish a
+// message, then check that it has been correctly received.
+TEST_F(IgnPublisherSystemTest, PublishTest) {
+  std::unique_ptr<drake::systems::Context<double>> context =
+      ign_publisher_->CreateDefaultContext();
+
+  // Fills the lcm message with sample data.
+  auto lcm_msg = get_preloaded_draw_msg();
+
+  // Configures context's input with the pre-loaded message.
+  context->SetInputPortValue(
+      0, std::make_unique<drake::systems::FreestandingInputPortValue>(
+             std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
+                 lcm_msg)));
+
+  // Makes the IgnPublisherSystem to publish the message.
+  ign_publisher_->Publish(*context.get());
+
+  // Checks that ignition-transport topic callback has been called.
+  ASSERT_EQ(handler_called_, true);
+
+  // Verify the equivalence of the original lcm message and
+  // the received ignition-transport message.
+  checkMsgTranslation(lcm_msg, ign_msg);
 }
 
 }  // namespace backend

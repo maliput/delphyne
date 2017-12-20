@@ -30,29 +30,33 @@
 
 #include <iostream>
 
+using drake::systems::AbstractValue;
+using drake::systems::Context;
+using drake::systems::PublishEvent;
+
 namespace delphyne {
 namespace backend {
 
-IgnPublisherSystem::IgnPublisherSystem() {
-  this->DeclareAbstractInputPort();
+IgnPublisherSystem::IgnPublisherSystem(std::string topic_name)
+    : topic_(topic_name) {
+  DeclareAbstractInputPort();
   publisher_ = node_.Advertise<ignition::msgs::Model_V>(topic_);
 }
 
 IgnPublisherSystem::~IgnPublisherSystem() {}
 
 void IgnPublisherSystem::DoPublish(
-    const drake::systems::Context<double>& context,
-    const std::vector<const drake::systems::PublishEvent<double>*>&) const {
-  const drake::systems::AbstractValue* input =
-      this->EvalAbstractInput(context, 0);
+    const Context<double>& context,
+    const std::vector<const PublishEvent<double>*>&) const {
+  const AbstractValue* input = EvalAbstractInput(context, 0);
   const auto& viewer_draw = input->GetValue<drake::lcmt_viewer_draw>();
-  ignition::msgs::Model_V ignMsg;
+  ignition::msgs::Model_V ign_msg;
 
   // Translate the lcm message into an ignition-transport message
-  delphyne::bridge::lcmToIgn(viewer_draw, &ignMsg);
+  delphyne::bridge::lcmToIgn(viewer_draw, &ign_msg);
 
   // Publishes onto the specified ign-transport channel.
-  publisher_.Publish(ignMsg);
+  publisher_.Publish(ign_msg);
 }
 
 }  // namespace backend

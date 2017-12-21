@@ -138,12 +138,10 @@ def main():
     # drake src directory.
     demo_path = os.path.join(
         drake_bazel_bin_path,
-        "drake",
         "automotive",
         "automotive_demo")
     steering_command_driver_path = os.path.join(
         drake_bazel_bin_path,
-        "drake",
         "automotive",
         "steering_command_driver")
 

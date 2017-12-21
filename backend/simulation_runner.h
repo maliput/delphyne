@@ -150,9 +150,9 @@ class SimulatorRunner {
   /// important to note that the simulation step will be effectively blocked
   /// by this the execution of the callbacks, so please consider this when
   /// adding it.
-  /// \param[in] callable A pybind11::function object to call, coming from the
+  /// \param[in] callable A pointer to a callback function, coming from the
   /// python world.
-  void AddStepCallback(py::function callable);
+  void AddStepCallback(std::function<void()> callable);
 
   /// \brief Start the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
@@ -291,7 +291,7 @@ class SimulatorRunner {
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
  private:
-  py::list step_callbacks_;
+  std::vector<std::function<void()>> step_callbacks_;
 };
 
 }  // namespace backend

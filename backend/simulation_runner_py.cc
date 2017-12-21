@@ -29,6 +29,7 @@
 #include <memory>
 
 #include <drake/common/find_resource.h>
+#include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 
 #include "backend/simulation_runner.h"
@@ -47,12 +48,12 @@ namespace py = pybind11;
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
     .def(py::init([](void) {
-
+      // TODO(mikaelaguedas) All this should be done in Python using pydrake
+      // and custom bindings for AutomotiveSimulator and SimpleCarState
       drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                    "/share/drake");
 
       auto simulator =
-          // std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
           std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
       // Add a Prius car.

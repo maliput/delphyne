@@ -73,14 +73,14 @@ void WaitForShutdown();
 ///   state/widgets in order to keep them in sync with the back-end.
 class SimulatorRunner {
   // @brief Default constructor.
-  // @param[in] _sim A pointer to a simulator. Note that we take ownership of
+  // @param[in] sim A pointer to a simulator. Note that we take ownership of
   // the simulation.
-  // @param[in] _timeStep The slot of time (seconds) simulated in each
+  // @param[in] timestep The slot of time (seconds) simulated in each
   // simulation step, in seconds
  public:
   SimulatorRunner(
-      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
-      double _timeStep);
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double timestep);
 
   /// @brief Default destructor.
   virtual ~SimulatorRunner();
@@ -100,12 +100,12 @@ class SimulatorRunner {
   void SendOutgoingMessages();
 
   // @brief Process one WorldControl message.
-  // @param[in] _msg The message
-  void ProcessWorldControlMessage(const ignition::msgs::WorldControl& _msg);
+  // @param[in] msg The message
+  void ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg);
 
   // \brief Process one RobotModelRequest message.
-  // \param[in] _msg The message
-  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& _msg);
+  // \param[in] msg The message
+  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& msg);
 
   // \brief Service used to receive robot model request messages.
   // \param[in] request The request.
@@ -129,7 +129,7 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
 
-  // @brief Robot model request callback function, required for an async
+  // @brief Robot model request callback function, required for an async.
   void RobotModelRequestCb(const ignition::msgs::Boolean& response,
                            bool result);
 
@@ -138,31 +138,31 @@ class SimulatorRunner {
   double TimeStep() const;
 
   // @brief Set the default time step.
-  // @param[in] _timeStep The new time step, in seconds.
-  void SetTimeStep(const double _timeStep);
+  // @param[in] timestep The new time step, in seconds.
+  void SetTimeStep(const double timestep);
 
   // @brief Get whether the simulation is paused or not.
   // @return True when the simulation is paused or false otherwise.
   bool IsPaused() const;
 
   // @brief Pause/unpause the simulation.
-  // @param[in] _paused True for paused, false for unpaused.
-  void SetPaused(const bool _paused);
+  // @param[in] paused True for paused, false for unpaused.
+  void SetPaused(const bool paused);
 
   // @brief Whether an external step was requested or not.
   // @return True if requested or false otherwise.
   bool StepRequested() const;
 
   // @brief Set whether an external step is requested or not.
-  // @param[in] _stepRequested True when a step is requested.
-  void SetStepRequested(const bool _stepRequested);
+  // @param[in] step_requested True when a step is requested.
+  void SetStepRequested(const bool step_requested);
 
   // @brief Get the custom time step for an external step, in seconds.
   double CustomTimeStep() const;
 
   // @brief Set the custom time step for an external step.
-  // @param[in] _timeStep The custom time step, in seconds.
-  void SetCustomTimeStep(const double _timeStep);
+  // @param[in] timestep The custom time step, in seconds.
+  void SetCustomTimeStep(const double timestep);
 
   // @brief The service offered to control the simulation.
   const std::string kControlService = "/world_control";
@@ -174,41 +174,41 @@ class SimulatorRunner {
   const std::string kNotificationsTopic = "/notifications";
 
   // @brief The time (seconds) that we simulate in each simulation step.
-  double timeStep = 0.001;
+  double timestep_ = 0.001;
 
   // @brief The time (seconds) that we simulate in a custom step requested
   // externally.
-  double customTimeStep = 0.001;
+  double custom_timestep_ = 0.001;
 
   // @brief Whether the main loop has been started or not.
-  bool enabled = false;
+  bool enabled_ = false;
 
   // @brief A pointer to the Drake simulator.
-  std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator;
+  std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_;
 
   // @brief Whether the simulation is paused or not.
-  bool paused = false;
+  bool paused_ = false;
 
   // @brief Whether an external step was requested or not.
-  bool stepRequested = false;
+  bool step_requested_ = false;
 
   // @brief A mutex to avoid races.
-  std::mutex mutex;
+  std::mutex mutex_;
 
   // @brief The thread in charge of doing all the periodic tasks.
-  std::thread mainThread;
+  std::thread main_thread_;
 
   /// @brief A queue for storing the incoming messages (requests).
-  std::queue<ignition::msgs::SimulationInMessage> incomingMsgs;
+  std::queue<ignition::msgs::SimulationInMessage> incoming_msgs_;
 
   // @brief A queue for storing the outgoing messages (notifications).
-  std::queue<ignition::msgs::WorldControl> outgoingMsgs;
+  std::queue<ignition::msgs::WorldControl> outgoing_msgs_;
 
   // @brief An Ignition Transport node used for communication.
-  ignition::transport::Node node;
+  ignition::transport::Node node_;
 
   // @brief An Ignition Transport publisher for sending notifications.
-  ignition::transport::Node::Publisher notificationsPub;
+  ignition::transport::Node::Publisher notifications_pub_;
 };
 
 }  // namespace backend

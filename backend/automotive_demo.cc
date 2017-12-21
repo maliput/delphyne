@@ -33,16 +33,17 @@
 
 #include "backend/simulation_runner.h"
 
-//////////////////////////////////////////////////
-std::string MakeChannelName(const std::string& _name) {
-  const std::string defaultPrefix{"DRIVING_COMMAND"};
-  if (_name.empty()) {
-    return defaultPrefix;
+namespace delphyne {
+namespace backend {
+
+std::string MakeChannelName(const std::string& name) {
+  const std::string default_prefix{"DRIVING_COMMAND"};
+  if (name.empty()) {
+    return default_prefix;
   }
-  return defaultPrefix + "_" + _name;
+  return default_prefix + "_" + name;
 }
 
-//////////////////////////////////////////////////
 int main(int argc, char* argv[]) {
   // Enable to resolve relative path to resources on AddPriusSimpleCar
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
@@ -59,10 +60,13 @@ int main(int argc, char* argv[]) {
 
   // Instantiate the simulator runner and pass the simulator.
   const double kTimeStep = 0.001;
-  delphyne::backend::SimulatorRunner priusSimRunner(std::move(simulator),
-                                                    kTimeStep);
-  priusSimRunner.Start();
+  delphyne::backend::SimulatorRunner prius_sim_runner(std::move(simulator),
+                                                      kTimeStep);
+  prius_sim_runner.Start();
 
   // Zzzzzz.
   delphyne::backend::WaitForShutdown();
 }
+
+}  // namespace backend
+}  // namespace delphyne

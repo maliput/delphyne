@@ -42,8 +42,7 @@
 namespace delphyne {
 namespace backend {
 
-/// \brief Flag to detect SIGINT or SIGTERM while the code is executing
-/// WaitForShutdown().
+/// \brief Flag to detect SIGINT or SIGTERM while the code is executing.
 static bool g_shutdown = false;
 
 /// \brief Mutex to protect the boolean shutdown variable.
@@ -52,7 +51,6 @@ static std::mutex g_shutdown_mutex;
 /// \brief Condition variable to wakeup WaitForShutdown() and exit.
 static std::condition_variable g_shutdown_cv;
 
-//////////////////////////////////////////////////
 /// \brief Function executed when a SIGINT or SIGTERM signals are captured.
 /// \param[in] _signal Signal received.
 static void SignalHandler(const int _signal) {
@@ -65,9 +63,8 @@ static void SignalHandler(const int _signal) {
   }
 }
 
-//////////////////////////////////////////////////
 void WaitForShutdown() {
-  // Install a signal handler for SIGINT and SIGTERM.
+  // Installs a signal handler for SIGINT and SIGTERM.
   std::signal(SIGINT, SignalHandler);
   std::signal(SIGTERM, SignalHandler);
 
@@ -75,117 +72,109 @@ void WaitForShutdown() {
   g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
-/////////////////////////////////////////////////
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> _sim,
-    double _timeStep)
-    : timeStep(_timeStep), simulator(std::move(_sim)) {
-  // Advertise the service for controlling the simulation.
-  this->node.Advertise(this->kControlService, &SimulatorRunner::OnWorldControl,
-                       this);
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    double timestep)
+    : timestep_(timestep), simulator_(std::move(sim)) {
+  // Advertises the service for controlling the simulation.
+  this->node_.Advertise(this->kControlService, &SimulatorRunner::OnWorldControl,
+                        this);
 
-  // Advertise the topic for publishing notifications.
-  this->notificationsPub = this->node.Advertise<ignition::msgs::WorldControl>(
-      this->kNotificationsTopic);
+  // Advertises the topic for publishing notifications.
+  this->notifications_pub_ =
+      this->node_.Advertise<ignition::msgs::WorldControl>(
+          this->kNotificationsTopic);
 
-  // Advertise the service for receiving robot model requests from the frontend
-  if (!this->node.Advertise(kRobotRequestServiceName,
-                            &SimulatorRunner::OnRobotModelRequest, this)) {
-    ignerr << "Error advertising service [" << kRobotRequestServiceName
-              << "]" << std::endl;
+  // Advertises the service for receiving robot model requests from the frontend.
+  if (!this->node_.Advertise(kRobotRequestServiceName,
+                             &SimulatorRunner::OnRobotModelRequest, this)) {
+    ignerr << "Error advertising service [" << kRobotRequestServiceName << "]"
+           << std::endl;
   }
 
-  this->simulator->Start();
+  this->simulator_->Start();
 }
 
-//////////////////////////////////////////////////
 SimulatorRunner::~SimulatorRunner() {
   {
-    // Tell the main loop thread to terminate.
-    std::lock_guard<std::mutex> lock(this->mutex);
-    this->enabled = false;
+    // Tells the main loop thread to terminate.
+    std::lock_guard<std::mutex> lock(this->mutex_);
+    this->enabled_ = false;
   }
-  if (this->mainThread.joinable()) {
-    this->mainThread.join();
+  if (this->main_thread_.joinable()) {
+    this->main_thread_.join();
   }
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::Start() {
   // The main loop is already running.
-  if (this->enabled) return;
+  if (this->enabled_) return;
 
-  this->enabled = true;
+  this->enabled_ = true;
 
-  // Start the thread that receives discovery information.
-  this->mainThread = std::thread(&SimulatorRunner::Run, this);
+  // Starts the thread that receives discovery information.
+  this->main_thread_ = std::thread(&SimulatorRunner::Run, this);
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::Run() {
   bool stayAlive = true;
   while (stayAlive) {
-    // Start a timer to measure the time we spend doing tasks.
+    // Starts a timer to measure the time we spend doing tasks.
     auto stepStart = std::chrono::steady_clock::now();
 
-    // 1. Process incoming messages (requests).
+    // 1. Processes incoming messages (requests).
     {
-      std::lock_guard<std::mutex> lock(this->mutex);
+      std::lock_guard<std::mutex> lock(this->mutex_);
       this->ProcessIncomingMessages();
     }
 
-    // 2. Step the simulator (if needed).
+    // 2. Steps the simulator (if needed).
     if (!this->IsPaused()) {
-      this->simulator->StepBy(this->timeStep);
+      this->simulator_->StepBy(this->timestep_);
     } else if (this->StepRequested()) {
-      this->simulator->StepBy(this->CustomTimeStep());
+      this->simulator_->StepBy(this->CustomTimeStep());
     }
 
-    // Remove any custom step request.
+    // Removes any custom step request.
     this->SetStepRequested(false);
 
     {
-      std::lock_guard<std::mutex> lock(this->mutex);
+      std::lock_guard<std::mutex> lock(this->mutex_);
 
-      // 3. Process outgoing messages (notifications).
+      // 3. Processes outgoing messages (notifications).
       this->SendOutgoingMessages();
 
-      // Do we have to exit?
-      stayAlive = this->enabled;
+      // Do we have to exit?.
+      stayAlive = this->enabled_;
     }
 
-    // Stop the timer.
+    // Stops the timer.
     auto stepEnd = std::chrono::steady_clock::now();
 
-    // Wait for the remaining time of this step.
+    // Waits for the remaining time of this step.
     auto stepElapsed = stepEnd - stepStart;
     std::this_thread::sleep_for(
-        std::chrono::microseconds(static_cast<int64_t>(this->timeStep * 1e6)) -
+        std::chrono::microseconds(static_cast<int64_t>(this->timestep_ * 1e6)) -
         stepElapsed);
   }
 }
 
-//////////////////////////////////////////////////
-double SimulatorRunner::TimeStep() const { return this->timeStep; }
+double SimulatorRunner::TimeStep() const { return this->timestep_; }
 
-//////////////////////////////////////////////////
-void SimulatorRunner::SetTimeStep(const double _timeStep) {
-  this->timeStep = _timeStep;
+void SimulatorRunner::SetTimeStep(const double timestep) {
+  this->timestep_ = timestep;
 }
 
-//////////////////////////////////////////////////
-bool SimulatorRunner::IsPaused() const { return this->paused; }
+bool SimulatorRunner::IsPaused() const { return this->paused_; }
 
-//////////////////////////////////////////////////
-void SimulatorRunner::SetPaused(const bool _paused) { this->paused = _paused; }
+void SimulatorRunner::SetPaused(const bool paused) { this->paused_ = paused; }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::ProcessIncomingMessages() {
-  while (!this->incomingMsgs.empty()) {
-    auto nextMsg = this->incomingMsgs.front();
-    this->incomingMsgs.pop();
+  while (!this->incoming_msgs_.empty()) {
+    auto nextMsg = this->incoming_msgs_.front();
+    this->incoming_msgs_.pop();
 
-    // Process the message.
+    // Processes the message.
     switch (nextMsg.type()) {
       case ignition::msgs::SimulationInMessage::WORLDCONTROL:
         this->ProcessWorldControlMessage(nextMsg.world_control());
@@ -204,93 +193,86 @@ void SimulatorRunner::ProcessIncomingMessages() {
   }
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::SendOutgoingMessages() {
-  while (!this->outgoingMsgs.empty()) {
-    auto nextMsg = this->outgoingMsgs.front();
-    this->outgoingMsgs.pop();
+  while (!this->outgoing_msgs_.empty()) {
+    auto nextMsg = this->outgoing_msgs_.front();
+    this->outgoing_msgs_.pop();
 
-    // Send the message.
-    this->notificationsPub.Publish(nextMsg);
+    // Sends the message.
+    this->notifications_pub_.Publish(nextMsg);
   }
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::ProcessWorldControlMessage(
-    const ignition::msgs::WorldControl& _msg) {
-  if (_msg.has_pause()) {
-    this->SetPaused(_msg.pause());
-  } else if (_msg.has_step() && _msg.step()) {
+    const ignition::msgs::WorldControl& msg) {
+  if (msg.has_pause()) {
+    this->SetPaused(msg.pause());
+  } else if (msg.has_step() && msg.step()) {
     this->SetStepRequested(true);
     this->SetCustomTimeStep(this->TimeStep());
-  } else if (_msg.has_multi_step() && _msg.multi_step() > 0u) {
+  } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
     this->SetStepRequested(true);
-    this->SetCustomTimeStep(this->TimeStep() * _msg.multi_step());
+    this->SetCustomTimeStep(this->TimeStep() * msg.multi_step());
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::ProcessRobotModelRequest(
-    const ignition::msgs::RobotModelRequest& _msg) {
+    const ignition::msgs::RobotModelRequest& msg) {
   // Sets the string from the robot model request as
-  // the topic name where the robot model will be published
-  auto robot_model = simulator->GetRobotModel();
-  std::string topic_name = _msg.response_topic();
+  // the topic name where the robot model will be published.
+  auto robot_model = simulator_->GetRobotModel();
+  std::string topic_name = msg.response_topic();
 
-  node.Request(topic_name, *robot_model);
+  node_.Request(topic_name, *robot_model);
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::OnWorldControl(
     const ignition::msgs::WorldControl& request,
     ignition::msgs::Boolean& response, bool& result) {
-  // Fill the new message.
+  // Fills the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
   input_message.mutable_world_control()->CopyFrom(request);
 
   {
-    // Queue the message.
-    std::lock_guard<std::mutex> lock(this->mutex);
-    this->incomingMsgs.push(input_message);
+    // Queues the message.
+    std::lock_guard<std::mutex> lock(this->mutex_);
+    this->incoming_msgs_.push(input_message);
   }
   result = true;
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::OnRobotModelRequest(
     const ignition::msgs::RobotModelRequest& request,
     ignition::msgs::Boolean& response, bool& result) {
-  // Fill the new message.
+  // Fills the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(
-    ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
+      ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
   input_message.mutable_robot_model_request()->CopyFrom(request);
 
   {
-    // Queue the message.
-    std::lock_guard<std::mutex> lock(this->mutex);
-    this->incomingMsgs.push(input_message);
+    // Queues the message.
+    std::lock_guard<std::mutex> lock(this->mutex_);
+    this->incoming_msgs_.push(input_message);
   }
   result = true;
 }
 
-//////////////////////////////////////////////////
-bool SimulatorRunner::StepRequested() const { return this->stepRequested; }
+bool SimulatorRunner::StepRequested() const { return this->step_requested_; }
 
-//////////////////////////////////////////////////
-void SimulatorRunner::SetStepRequested(const bool _stepRequested) {
-  this->stepRequested = _stepRequested;
+void SimulatorRunner::SetStepRequested(const bool step_requested) {
+  this->step_requested_ = step_requested;
 }
 
-//////////////////////////////////////////////////
-double SimulatorRunner::CustomTimeStep() const { return this->customTimeStep; }
+double SimulatorRunner::CustomTimeStep() const {
+  return this->custom_timestep_;
+}
 
-//////////////////////////////////////////////////
-void SimulatorRunner::SetCustomTimeStep(const double _timeStep) {
-  this->customTimeStep = _timeStep;
+void SimulatorRunner::SetCustomTimeStep(const double timestep) {
+  this->custom_timestep_ = timestep;
 }
 
 }  // namespace backend

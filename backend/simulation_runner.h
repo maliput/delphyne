@@ -129,7 +129,7 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
 
-  // @brief Robot model request callback function, required for an async
+  // @brief Robot model request callback function, required for an async.
   void RobotModelRequestCb(const ignition::msgs::Boolean& response,
                            bool result);
 

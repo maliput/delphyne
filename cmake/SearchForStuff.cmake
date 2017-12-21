@@ -149,6 +149,10 @@ find_package(pybind11)
 if (NOT pybind11_FOUND)
   BUILD_ERROR("Missing: pybind11")
 endif()
+# TODO(mikaelarguedas) uncomment this once we switch to python3
+# if (NOT PYTHON_MODULE_EXTENSION MATCHES "cpython")
+#   BUILD_ERROR("pybind didn't find a cpython interpreter: ${PYTHON_MODULE_EXTENSION}")
+# endif()
 
 #################################################
 # Macro to check for visibility capability in compiler

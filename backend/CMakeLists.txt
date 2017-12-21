@@ -24,7 +24,7 @@ target_link_libraries(automotive-demo
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${pybind11_LIBRARIES}
+  pybind11::module
   ${PYTHON_LIBRARIES}
 )
 
@@ -50,7 +50,7 @@ target_link_libraries(simulation-runner
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${pybind11_LIBRARIES}
+  pybind11::module
   ${PYTHON_LIBRARIES}
 )
 
@@ -73,7 +73,7 @@ target_link_libraries(simulation_runner_py
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${pybind11_LIBRARIES}
+  pybind11::module
   ${PYTHON_LIBRARIES}
   )
 

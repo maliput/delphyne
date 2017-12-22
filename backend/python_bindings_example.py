@@ -42,7 +42,6 @@ from __future__ import print_function
 
 import os
 import random
-import select
 import sys
 import time
 
@@ -108,13 +107,6 @@ def main():
     stats = SimulationStats()
     launcher = Launcher()
 
-    # TODO(basicNew): For some reason I can't yet figure out, passing
-    # `stats.record_tick` as a callback or doing an in-place lambda generates
-    # a core dump on the C++ side. So, we define a function here to use as a
-    # simulation step callback.
-    def record_stat():
-        stats.record_tick()
-
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
     lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
@@ -136,17 +128,17 @@ def main():
 
         runner = SimulatorRunner()
         # Add a callback to record and print statistics
-        runner.add_step_callback(record_stat)
+        runner.AddStepCallback(stats.record_tick)
         # Add a second callback that prints a message roughly every 500 calls
-        runner.add_step_callback(random_print)
+        runner.AddStepCallback(random_print)
 
         stats.start()
-        runner.start()
+        runner.Start()
 
         launcher.wait(float("Inf"))
 
     finally:
-        runner.stop()
+        runner.Stop()
         # This is needed to avoid a possible deadlock. See SimulatorRunner
         # class description.
         time.sleep(0.5)

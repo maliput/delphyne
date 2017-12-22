@@ -36,12 +36,14 @@
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+#include <pybind11/pybind11.h>
 
 #include "backend/simulation_runner.h"
 
+namespace py = pybind11;
+
 namespace delphyne {
 namespace backend {
-
 /// \brief Flag to detect SIGINT or SIGTERM while the code is executing
 /// WaitForShutdown().
 static bool g_shutdown = false;
@@ -114,7 +116,7 @@ void SimulatorRunner::Stop() {
 }
 
 //////////////////////////////////////////////////
-void SimulatorRunner::AddStepCallback(PyObject* callable) {
+void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(this->mutex);
   step_callbacks_.push_back(callable);
 }
@@ -138,7 +140,7 @@ void SimulatorRunner::Run() {
 
     // A copy of the python callbacks so we can process them in a thread-safe
     // way
-    std::vector<PyObject*> callbacks;
+    std::vector<std::function<void()>> callbacks;
 
     // 1. Process incoming messages (requests).
     {
@@ -168,15 +170,13 @@ void SimulatorRunner::Run() {
 
     // This if is here so that we only grab the python global interpreter lock
     // if there is at least one callback.
-    if (!callbacks.empty()) {
+    if (callbacks.size() > 0) {
       // 1. Acquire the lock to the python interpreter
-      auto thread_handle = PyGILState_Ensure();
+      py::gil_scoped_acquire acquire;
       // 2. Perform the callbacks
-      for (PyObject* callback : callbacks) {
-        boost::python::call<void>(callback);
+      for (std::function<void()> callback : callbacks) {
+        callback();
       }
-      // 3. Release the lock
-      PyGILState_Release(thread_handle);
     }
 
     // Stop the timer.

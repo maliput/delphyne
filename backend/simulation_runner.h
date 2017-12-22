@@ -48,8 +48,6 @@
 
 namespace delphyne {
 namespace backend {
-
-namespace py = pybind11;
 /// \brief Block the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
 /// function if you want to manage yourself SIGINT/SIGTERM.

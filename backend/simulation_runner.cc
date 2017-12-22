@@ -40,10 +40,10 @@
 
 #include "backend/simulation_runner.h"
 
+namespace py = pybind11;
+
 namespace delphyne {
 namespace backend {
-
-namespace py = pybind11;
 /// \brief Flag to detect SIGINT or SIGTERM while the code is executing
 /// WaitForShutdown().
 static bool g_shutdown = false;

@@ -75,8 +75,6 @@ class SimulationStats(object):
     def reset(self):
         self._time_sum = 0.0
         self._samples_count = 0
-        # TODO(mikaelarguedas) check with @basicNew if this should be
-        # initialized to time.time() instead
         self._current_start_time = None
 
     def print_stats(self):
@@ -130,17 +128,17 @@ def main():
 
         runner = SimulatorRunner()
         # Add a callback to record and print statistics
-        runner.add_step_callback(stats.record_tick)
+        runner.AddStepCallback(stats.record_tick)
         # Add a second callback that prints a message roughly every 500 calls
-        runner.add_step_callback(random_print)
+        runner.AddStepCallback(random_print)
 
         stats.start()
-        runner.start()
+        runner.Start()
 
         launcher.wait(float("Inf"))
 
     finally:
-        runner.stop()
+        runner.Stop()
         # This is needed to avoid a possible deadlock. See SimulatorRunner
         # class description.
         time.sleep(0.5)

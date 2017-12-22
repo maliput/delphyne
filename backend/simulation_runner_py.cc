@@ -42,9 +42,9 @@ using delphyne::backend::SimulatorRunner;
 // keep adding python bindings to C++ classes this code will be moved to the
 // python scripts that launches the simulation.
 
-namespace {
 namespace py = pybind11;
 
+namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
     .def(py::init([](void) {
@@ -65,9 +65,9 @@ PYBIND11_MODULE(simulation_runner_py, m) {
       const double time_step = 0.001;
       return std::make_unique<SimulatorRunner>(std::move(simulator), time_step);
     }))
-    .def("start", &SimulatorRunner::Start)
-    .def("stop", &SimulatorRunner::Stop)
-    .def("add_step_callback", &SimulatorRunner::AddStepCallback);
+    .def("Start", &SimulatorRunner::Start)
+    .def("Stop", &SimulatorRunner::Stop)
+    .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
   ;
 }
 

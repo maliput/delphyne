@@ -27,13 +27,15 @@ macro (delphyne_build_tests)
     )
 
     target_link_libraries(${BINARY_NAME}
+      ${drake_LIBRARIES}
       ${IGNITION-COMMON_LIBRARIES}
       ${IGNITION-MSGS_LIBRARIES}
       ${IGNITION-TRANSPORT_LIBRARIES}
       ${PROTOBUF_LIBRARY}
       ${PROTOBUF_PROTOC_LIBRARY}
       ${lcm_LIBRARIES}
-      ${drake_LIBRARIES}
+      ${PYTHON_LIBRARIES}
+      pybind11::module
       libgtest.a
       libgtest_main.a
       pthread

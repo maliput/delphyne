@@ -35,7 +35,11 @@
 #include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
 
+namespace py = pybind11;
+
+using delphyne::backend::AutomotiveSimulator;
 using delphyne::backend::SimulatorRunner;
+using drake::automotive::SimpleCarState;
 
 // Since we are not yet exporting the AutomotiveSimulator class we need to
 // provide a ready-to-run SimulatorRunner. To do so we create a parameterless
@@ -43,32 +47,36 @@ using delphyne::backend::SimulatorRunner;
 // keep adding python bindings to C++ classes this code will be moved to the
 // python scripts that launches the simulation.
 
-namespace py = pybind11;
-
 namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
-    .def(py::init([](void) {
-      // TODO(mikaelaguedas) All this should be done in Python using pydrake
-      // and custom bindings for AutomotiveSimulator and SimpleCarState
-      drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                                   "/share/drake");
-
-      auto simulator =
-          std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
-
-      // Add a Prius car.
-      drake::automotive::SimpleCarState<double> state;
-      state.set_y(0.0);
-      simulator->AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state);
-
-      // Instantiate the simulator runner and pass the simulator.
-      const double time_step = 0.001;
+    .def(py::init([](std::unique_ptr<AutomotiveSimulator<double>> simulator, double time_step) {
       return std::make_unique<SimulatorRunner>(std::move(simulator), time_step);
     }))
     .def("Start", &SimulatorRunner::Start)
     .def("Stop", &SimulatorRunner::Stop)
     .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
+  ;
+  py::class_<AutomotiveSimulator<double>, std::unique_ptr<AutomotiveSimulator<double>>>(m, "AutomotiveSimulator")
+    .def(py::init([](void) {
+        return std::make_unique<AutomotiveSimulator<double>>();
+    }))
+    .def("Start", &AutomotiveSimulator<double>::Start)
+    .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
+    .def("AddMobilControlledSimpleCar", &AutomotiveSimulator<double>::AddMobilControlledSimpleCar)
+    // TODO(mikaelarguedas) bind more method depending on what we need
+    // .def("AddPriusTrajectoryCar", &AutomotiveSimulator<double>::AddPriusTrajectoryCar)
+    // .def("AddPriusMaliputRailcar", &AutomotiveSimulator<double>::AddPriusMaliputRailcar)
+    // .def("AddIdmControlledPriusMaliputRailcar", &AutomotiveSimulator<double>::AddIdmControlledPriusMaliputRailcar)
+    // .def("SetMaliputRailcarAccelerationCommand", &AutomotiveSimulator<double>::SetMaliputRailcarAccelerationCommand)
+  ;
+  py::class_<SimpleCarState<double>>(m, "SimpleCarState")
+    .def(py::init<>())
+    .def_property("x", &SimpleCarState<double>::x, &SimpleCarState<double>::set_x)
+    .def_property("y", &SimpleCarState<double>::y, &SimpleCarState<double>::set_y)
+    .def_property("heading", &SimpleCarState<double>::heading, &SimpleCarState<double>::set_heading)
+    .def_property("velocity", &SimpleCarState<double>::velocity, &SimpleCarState<double>::set_velocity)
+    .def("get_coordinates_names", &SimpleCarState<double>::GetCoordinateNames)
   ;
 }
 

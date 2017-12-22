@@ -1,7 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
-include_directories(${pybind11_INCLUDE_DIRS})
-
 # ----------------------------------------
 # Prepare sources
 set (sources
@@ -39,13 +37,6 @@ delphyne_build_tests(${gtest_sources})
 
 # ----------------------------------------
 # Python bindings
-
-# Find necessary packages
-find_package(PythonLibs 2.7 REQUIRED)
-include_directories(${PYTHON_INCLUDE_DIRS})
-
-find_package(Boost COMPONENTS python REQUIRED)
-include_directories(${Boost_INCLUDE_DIR})
 
 # Build the simulation support for python bindings as a library.
 add_library(simulation-support

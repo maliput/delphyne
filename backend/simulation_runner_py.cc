@@ -65,11 +65,32 @@ PYBIND11_MODULE(simulation_runner_py, m) {
     .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
     .def("AddMobilControlledSimpleCar", &AutomotiveSimulator<double>::AddMobilControlledSimpleCar)
     // TODO(mikaelarguedas) bind more method depending on what we need
+    // Needs drake::automotive::Curve2<double>&
     // .def("AddPriusTrajectoryCar", &AutomotiveSimulator<double>::AddPriusTrajectoryCar)
+    // Needs:
+    //  - drake::automotive::LaneDirection
+    //  - drake::automotive::MaliputRailcarParams<T>
+    //  - drake::automotive::MaliputRailcarState<T>
     // .def("AddPriusMaliputRailcar", &AutomotiveSimulator<double>::AddPriusMaliputRailcar)
+    // Needs:
+    //  - drake::automotive::LaneDirection
+    //  - drake::automotive::MaliputRailcarParams<T>
+    //  - drake::automotive::MaliputRailcarState<T>
     // .def("AddIdmControlledPriusMaliputRailcar", &AutomotiveSimulator<double>::AddIdmControlledPriusMaliputRailcar)
     // .def("SetMaliputRailcarAccelerationCommand", &AutomotiveSimulator<double>::SetMaliputRailcarAccelerationCommand)
+    // Needs drake::maliput::api::RoadGeometry binding
+    // .def("SetRoadGeometry", &AutomotiveSimulator<double>::SetRoadGeometry)
+    // Needs drake::maliput::api::Lane binding
+    // .def("FindLane", &AutomotiveSimulator<double>::FindLane)
+    // Needs drake::systems::System<T> binding
+    // .def("GetDiagramSystemByName", &AutomotiveSimulator<double>::GetDiagramSystemByName)
+    // .def("Build", &AutomotiveSimulator<double>::Build)
+    // .def("GetDiagram", &AutomotiveSimulator<double>::GetDiagram)
+    // .def("StepBy", &AutomotiveSimulator<double>::StepBy)
+    // Needs drake::systems::rendering::PoseBundle<T> binding
+    // .def("GetCurrentPoses", &AutomotiveSimulator<double>::GetCurrentPoses)
   ;
+  // TODO(mikaelarguedas) Submit this to upstream Drake
   py::class_<SimpleCarState<double>>(m, "SimpleCarState")
     .def(py::init<>())
     .def_property("x", &SimpleCarState<double>::x, &SimpleCarState<double>::set_x)

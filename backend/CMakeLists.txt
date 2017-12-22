@@ -1,5 +1,9 @@
 include (${project_cmake_dir}/Utils.cmake)
+include_directories(${PYTHON_INCLUDE_DIRS})
+include_directories(${pybind11_INCLUDE_DIRS})
 
+# ----------------------------------------
+# Prepare sources
 set (sources
   automotive_simulator.cc
   simulation_runner.cc
@@ -10,6 +14,8 @@ set (gtest_sources
   automotive_simulator_test.cc
 )
 
+# ----------------------------------------
+# Automotive demo
 add_executable(automotive-demo
   automotive_demo.cc
   ${sources}
@@ -21,6 +27,8 @@ target_link_libraries(automotive-demo
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  pybind11::module
+  ${PYTHON_LIBRARIES}
 )
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -51,9 +59,14 @@ target_link_libraries(simulation-support
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
+  pybind11::module
+  ${PYTHON_LIBRARIES}
 )
 
 target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Python bindings
 
 # Define the wrapper library for python
 add_library(simulation_runner_py
@@ -70,7 +83,7 @@ target_link_libraries(simulation_runner_py
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  ${Boost_LIBRARIES}
+  pybind11::module
   ${PYTHON_LIBRARIES}
   )
 

@@ -41,7 +41,10 @@ interesting scripts.
 from __future__ import print_function
 
 import os
+import random
 import sys
+import time
+
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 
@@ -62,8 +65,46 @@ def get_from_env_or_fail(var):
     return value
 
 
+class SimulationStats(object):
+    """This is a simple class to keep statistics of the simulation, just
+    averaging the time it takes to execute a simulation step from the outside
+    world. Every 1000 measures, the values are printed to stdout"""
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self._time_sum = 0.0
+        self._samples_count = 0
+        self._current_start_time = None
+
+    def print_stats(self):
+        print(
+            "Average simulation step takes {delta}ms"
+            .format(delta=(self._time_sum / self._samples_count) * 1000))
+
+    def start(self):
+        self._current_start_time = time.time()
+
+    def record_tick(self):
+        end_time = time.time()
+        delta = end_time - self._current_start_time
+        self._time_sum += delta
+        self._samples_count += 1
+        if self._samples_count == 1000:
+            self.print_stats()
+            self.reset()
+        self.start()
+
+
+def random_print():
+    """Print a message at random, roughly every 500 calls"""
+    if (random.randint(1, 500) == 1):
+        print("One in five hundred")
+
+
 def main():
     """Spawn an automotive simulator making use of the python bindings"""
+    stats = SimulationStats()
     launcher = Launcher()
 
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
@@ -80,10 +121,20 @@ def main():
         launcher.launch([ign_visualizer, teleop_config])
 
         runner = SimulatorRunner()
-        runner.start()
+        # Add a callback to record and print statistics
+        runner.AddStepCallback(stats.record_tick)
+        # Add a second callback that prints a message roughly every 500 calls
+        runner.AddStepCallback(random_print)
+
+        stats.start()
+        runner.Start()
 
         launcher.wait(float("Inf"))
     finally:
+        runner.Stop()
+        # This is needed to avoid a possible deadlock. See SimulatorRunner
+        # class description.
+        time.sleep(0.5)
         launcher.kill()
 
 

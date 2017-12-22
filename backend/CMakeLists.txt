@@ -7,11 +7,13 @@ include_directories(${pybind11_INCLUDE_DIRS})
 set (sources
   automotive_simulator.cc
   simulation_runner.cc
+  ign_publisher_system.cc
 )
 
 set (gtest_sources
   simulation_runner_test.cc
   automotive_simulator_test.cc
+  ign_publisher_system_test.cc
 )
 
 # ----------------------------------------
@@ -71,7 +73,8 @@ target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR
 # Define the wrapper library for python
 add_library(simulation_runner_py
   SHARED
-  simulation_runner_py.cc)
+  simulation_runner_py.cc
+  ign_publisher_system.cc)
 
 # Don't prepend wrapper library name with lib
 set_target_properties(simulation_runner_py PROPERTIES PREFIX "")

@@ -544,6 +544,10 @@ void AutomotiveSimulator<T>::Build() {
           "DRAKE_VIEWER_DRAW", lcm_.get()));
   builder_->Connect(bundle_to_draw_->get_output_port(0),
                     lcm_publisher_->get_input_port(0));
+  ign_publisher_ = builder_->AddSystem(
+      std::make_unique<IgnPublisherSystem>("DRAKE_VIEWER_DRAW"));
+  builder_->Connect(bundle_to_draw_->get_output_port(0),
+                    ign_publisher_->get_input_port(0));
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
 

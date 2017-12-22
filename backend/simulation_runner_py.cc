@@ -47,27 +47,28 @@ namespace py = pybind11;
 namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
-    .def(py::init([](void) {
-      // TODO(mikaelaguedas) All this should be done in Python using pydrake
-      // and custom bindings for AutomotiveSimulator and SimpleCarState
-      drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                                   "/share/drake");
+      .def(py::init([](void) {
+        // TODO(mikaelaguedas) All this should be done in Python using pydrake
+        // and custom bindings for AutomotiveSimulator and SimpleCarState
+        drake::AddResourceSearchPath(
+            std::string(std::getenv("DRAKE_INSTALL_PATH")) + "/share/drake");
 
-      auto simulator =
-          std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+        auto simulator =
+            std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
-      // Add a Prius car.
-      drake::automotive::SimpleCarState<double> state;
-      state.set_y(0.0);
-      simulator->AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state);
+        // Add a Prius car.
+        drake::automotive::SimpleCarState<double> state;
+        state.set_y(0.0);
+        simulator->AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state);
 
-      // Instantiate the simulator runner and pass the simulator.
-      const double time_step = 0.001;
-      return std::make_unique<SimulatorRunner>(std::move(simulator), time_step);
-    }))
-    .def("Start", &SimulatorRunner::Start)
-    .def("Stop", &SimulatorRunner::Stop)
-    .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
+        // Instantiate the simulator runner and pass the simulator.
+        const double time_step = 0.001;
+        return std::make_unique<SimulatorRunner>(std::move(simulator),
+                                                 time_step);
+      }))
+      .def("Start", &SimulatorRunner::Start)
+      .def("Stop", &SimulatorRunner::Stop)
+      .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
   ;
 }
 

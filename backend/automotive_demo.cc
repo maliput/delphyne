@@ -34,7 +34,7 @@
 
 #include "backend/simulation_runner.h"
 
-//////////////////////////////////////////////////
+// Generates a channel name based on a given string
 std::string MakeChannelName(const std::string& _name) {
   const std::string defaultPrefix{"DRIVING_COMMAND"};
   if (_name.empty()) {
@@ -43,22 +43,21 @@ std::string MakeChannelName(const std::string& _name) {
   return defaultPrefix + "_" + _name;
 }
 
-//////////////////////////////////////////////////
 int main(int argc, char* argv[]) {
   // Enable to resolve relative path to resources on AddPriusSimpleCar
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
 
-  // Instantiate a simulator.
+  // Instantiates a simulator.
   auto simulator =
       std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
 
-  // Add a Prius car.
+  // Adds a Prius car.
   drake::automotive::SimpleCarState<double> state;
   state.set_y(0.0);
   simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
 
-  // Instantiate the simulator runner and pass the simulator.
+  // Instantiates the simulator runner and pass the simulator.
   auto timeStep = 0.001;
   delphyne::backend::SimulatorRunner priusSimRunner(std::move(simulator),
                                                     timeStep);

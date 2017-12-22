@@ -37,13 +37,12 @@
 namespace delphyne {
 namespace backend {
 
-//////////////////////////////////////////////////
-/// \brief Checks that all the array-iterable values from
-/// lcmt_viewer_draw matches their ignition counterpart.
+// Checks that all the array-iterable values from
+// lcmt_viewer_draw matches their ignition counterpart.
 void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
                          const ignition::msgs::Model_V& ign_models) {
   for (int i = 0; i < lcm_msg.num_links; i++) {
-    // Step 1: Check there is a corresponding ignition model for the LCM link.
+    // Step 1: Checks there is a corresponding ignition model for the LCM link.
     ignition::msgs::Model model;
     for (int j = 0; j < ign_models.models_size(); ++j) {
       if (ign_models.models(j).id() == (unsigned)lcm_msg.robot_num[i]) {
@@ -52,7 +51,7 @@ void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
     }
     ASSERT_NE(nullptr, &model);
 
-    // Step 2: Check there is a corresponding ignition link for the LCM link.
+    // Step 2: Checks there is a corresponding ignition link for the LCM link.
     ignition::msgs::Link link;
     for (int j = 0; j < model.link_size(); ++j) {
       if (model.link(j).name() == lcm_msg.link_name[i]) {
@@ -61,7 +60,7 @@ void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
     }
     ASSERT_NE(nullptr, &link);
 
-    // Step 3: Get the pose and compare the values.
+    // Step 3: Gets the pose and compares the values.
     ignition::msgs::Pose pose = link.pose();
 
     EXPECT_EQ(pose.position().x(), lcm_msg.position[i][0]);
@@ -76,7 +75,7 @@ void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
 
 class IgnPublisherSystemTest : public ::testing::Test {
   void SubscriberMockCallback(const ignition::msgs::Model_V& message) {
-    ign_msg = message;
+    ign_msg_ = message;
     handler_called_ = true;
   }
 
@@ -88,7 +87,7 @@ class IgnPublisherSystemTest : public ::testing::Test {
   bool handler_called_ = false;
 
   // The received message.
-  ignition::msgs::Model_V ign_msg;
+  ignition::msgs::Model_V ign_msg_;
 
   // Ignition Publisher System pointer.
   std::unique_ptr<IgnPublisherSystem> ign_publisher_ =
@@ -126,8 +125,8 @@ class IgnPublisherSystemTest : public ::testing::Test {
   }
 };
 
-// Create an Ignition Publisher System and publish a
-// message, then check that it has been correctly received.
+// Creates an Ignition Publisher System and publish a
+// message, then checks that it has been correctly received.
 TEST_F(IgnPublisherSystemTest, PublishTest) {
   std::unique_ptr<drake::systems::Context<double>> context =
       ign_publisher_->CreateDefaultContext();
@@ -147,9 +146,9 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
   // Checks that ignition-transport topic callback has been called.
   ASSERT_EQ(handler_called_, true);
 
-  // Verify the equivalence of the original lcm message and
+  // Verifies the equivalence of the original lcm message and
   // the received ignition-transport message.
-  checkMsgTranslation(lcm_msg, ign_msg);
+  checkMsgTranslation(lcm_msg, ign_msg_);
 }
 
 }  // namespace backend

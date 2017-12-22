@@ -33,6 +33,7 @@
 #include <mutex>
 #include <thread>
 #include <utility>
+
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
@@ -44,20 +45,22 @@ namespace py = pybind11;
 
 namespace delphyne {
 namespace backend {
-/// \brief Flag to detect SIGINT or SIGTERM while the code is executing
-/// WaitForShutdown().
+namespace {
+
+// \brief Flag to detect SIGINT or SIGTERM while the code is executing
+// WaitForShutdown().
 static bool g_shutdown = false;
 
-/// \brief Mutex to protect the boolean shutdown variable.
+// \brief Mutex to protect the boolean shutdown variable.
 static std::mutex g_shutdown_mutex;
 
-/// \brief Condition variable to wakeup WaitForShutdown() and exit.
+// \brief Condition variable to wakeup WaitForShutdown() and exit.
 static std::condition_variable g_shutdown_cv;
 
-/// \brief Function executed when a SIGINT or SIGTERM signals are captured.
-/// \param[in] _signal Signal received.
-static void SignalHandler(const int _signal) {
-  if (_signal == SIGINT || _signal == SIGTERM) {
+// \brief Function executed when a SIGINT or SIGTERM signals are captured.
+// \param[in] signal Signal received.
+static void SignalHandler(int signal) {
+  if (signal == SIGINT || signal == SIGTERM) {
     {
       std::unique_lock<std::mutex> lk(g_shutdown_mutex);
       g_shutdown = true;
@@ -66,8 +69,10 @@ static void SignalHandler(const int _signal) {
   }
 }
 
+}  // namespace
+
 void WaitForShutdown() {
-  // Install a signal handler for SIGINT and SIGTERM.
+  // Installs a signal handler for SIGINT and SIGTERM.
   std::signal(SIGINT, SignalHandler);
   std::signal(SIGTERM, SignalHandler);
 
@@ -77,131 +82,120 @@ void WaitForShutdown() {
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> sim,
-    const double time_step)
+    double time_step)
     : time_step_(time_step), simulator_(std::move(sim)) {
-  // Advertise the service for controlling the simulation.
-  this->node_.Advertise(this->kControlService,
-                        &SimulatorRunner::OnSimulationInMessage, this);
+  // Advertises the service for controlling the simulation.
+  node_.Advertise(kControlService, &SimulatorRunner::OnSimulationInMessage,
+                  this);
 
   // Advertise the topic for publishing notifications.
-  this->notifications_pub_ =
-      this->node_.Advertise<ignition::msgs::WorldControl>(
-          this->kNotificationsTopic);
+  notifications_pub_ =
+      node_.Advertise<ignition::msgs::WorldControl>(kNotificationsTopic);
 
-  // Initialize the python machinery so we can invoke a python callback
+  // Initializes the python machinery so we can invoke a python callback
   // function on each simulation step.
   Py_Initialize();
   PyEval_InitThreads();
 
-  this->simulator_->Start();
+  simulator_->Start();
 }
 
 SimulatorRunner::~SimulatorRunner() {
   Stop();
-  if (this->main_thread_.joinable()) {
-    this->main_thread_.join();
+  if (main_thread_.joinable()) {
+    main_thread_.join();
   }
 }
 
 void SimulatorRunner::Stop() {
-  // Only do this if we are running the simulation
-  if (this->enabled_) {
-    // Tell the main loop thread to terminate.
-    this->enabled_ = false;
+  // Only do this if we are running the simulation.
+  if (enabled_) {
+    // Tells the main loop thread to terminate.
+    enabled_ = false;
   }
 }
 
 void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
-  std::lock_guard<std::mutex> lock(this->mutex_);
+  std::lock_guard<std::mutex> lock(mutex_);
   step_callbacks_.push_back(callable);
 }
 
 void SimulatorRunner::Start() {
   // The main loop is already running.
-  if (this->enabled_) return;
+  if (enabled_) return;
 
-  this->enabled_ = true;
+  enabled_ = true;
 
-  // Start the thread that receives discovery information.
-  this->main_thread_ = std::thread(&SimulatorRunner::Run, this);
+  // Starts the thread that receives discovery information.
+  main_thread_ = std::thread(&SimulatorRunner::Run, this);
 }
 
 void SimulatorRunner::Run() {
-  while (this->enabled_) {
-    // Start a timer to measure the time we spend doing tasks.
+  while (enabled_) {
+    // Starts a timer to measure the time we spend doing tasks.
     auto step_start = std::chrono::steady_clock::now();
 
     // A copy of the python callbacks so we can process them in a thread-safe
     // way
     std::vector<std::function<void()>> callbacks;
 
-    // 1. Process incoming messages (requests).
+    // 1. Processes incoming messages (requests).
     {
-      std::lock_guard<std::mutex> lock(this->mutex_);
-      this->ProcessIncomingMessages();
+      std::lock_guard<std::mutex> lock(mutex_);
+      ProcessIncomingMessages();
     }
 
-    // 2. Step the simulator (if needed).
-    if (!this->IsPaused()) {
-      this->simulator_->StepBy(this->time_step_);
-    } else if (this->StepRequested()) {
-      this->simulator_->StepBy(this->CustomTimeStep());
+    // 2. Steps the simulator (if needed).
+    if (!paused_) {
+      simulator_->StepBy(time_step_);
+    } else if (step_requested_) {
+      simulator_->StepBy(custom_time_step_);
     }
 
-    // Remove any custom step request.
-    this->SetStepRequested(false);
+    // Removes any custom step request.
+    step_requested_ = false;
 
     {
-      std::lock_guard<std::mutex> lock(this->mutex_);
+      std::lock_guard<std::mutex> lock(mutex_);
 
-      // 3. Process outgoing messages (notifications).
-      this->SendOutgoingMessages();
+      // 3. Processes outgoing messages (notifications).
+      SendOutgoingMessages();
 
-      // Make a temporal copy of the python callbacks while we have the lock.
+      // Makes a temporal copy of the python callbacks while we have the lock.
       callbacks = step_callbacks_;
     }
 
     // This if is here so that we only grab the python global interpreter lock
     // if there is at least one callback.
     if (callbacks.size() > 0) {
-      // 1. Acquire the lock to the python interpreter
+      // 1. Acquires the lock to the python interpreter.
       py::gil_scoped_acquire acquire;
-      // 2. Perform the callbacks
+      // 2. Performs the callbacks.
       for (std::function<void()> callback : callbacks) {
         callback();
       }
     }
 
-    // Stop the timer.
+    // Stops the timer.
     auto step_end = std::chrono::steady_clock::now();
 
-    // Wait for the remaining time of this step.
+    // Waits for the remaining time of this step.
     auto step_elapsed = step_end - step_start;
-    std::this_thread::sleep_for(std::chrono::microseconds(static_cast<int64_t>(
-                                    this->time_step_ * 1e6)) -
-                                step_elapsed);
+    std::this_thread::sleep_for(
+        std::chrono::microseconds(static_cast<int64_t>(time_step_ * 1e6)) -
+        step_elapsed);
   }
 }
 
-double SimulatorRunner::TimeStep() const { return this->time_step_; }
-
-void SimulatorRunner::SetTimeStep(const double time_step) {
-  this->time_step_ = time_step;
-}
-
-bool SimulatorRunner::IsPaused() const { return this->paused_; }
-
-void SimulatorRunner::SetPaused(const bool paused) { this->paused_ = paused; }
-
 void SimulatorRunner::ProcessIncomingMessages() {
-  while (!this->incoming_msgs_.empty()) {
-    auto next_msg = this->incoming_msgs_.front();
-    this->incoming_msgs_.pop();
+  while (!incoming_msgs_.empty()) {
+    const ignition::msgs::SimulationInMessage next_msg = incoming_msgs_.front();
+    incoming_msgs_.pop();
 
-    // Process the message.
+    // Processes the message.
     switch (next_msg.type()) {
       case ignition::msgs::SimulationInMessage::WORLDCONTROL:
-        this->ProcessWorldControlMessage(next_msg.world_control());
+        ProcessWorldControlMessage(next_msg.world_control());
         break;
       default:
         throw std::runtime_error(
@@ -213,25 +207,25 @@ void SimulatorRunner::ProcessIncomingMessages() {
 }
 
 void SimulatorRunner::SendOutgoingMessages() {
-  while (!this->outgoing_msgs_.empty()) {
-    auto next_msg = this->outgoing_msgs_.front();
-    this->outgoing_msgs_.pop();
+  while (!outgoing_msgs_.empty()) {
+    ignition::msgs::WorldControl next_msg = outgoing_msgs_.front();
+    outgoing_msgs_.pop();
 
-    // Send the message.
-    this->notifications_pub_.Publish(next_msg);
+    // Sends the message.
+    notifications_pub_.Publish(next_msg);
   }
 }
 
 void SimulatorRunner::ProcessWorldControlMessage(
     const ignition::msgs::WorldControl& msg) {
   if (msg.has_pause()) {
-    this->SetPaused(msg.pause());
+    paused_ = msg.pause();
   } else if (msg.has_step() && msg.step()) {
-    this->SetStepRequested(true);
-    this->SetCustomTimeStep(this->TimeStep());
+    step_requested_ = true;
+    custom_time_step_ = msg.step();
   } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
-    this->SetStepRequested(true);
-    this->SetCustomTimeStep(this->TimeStep() * msg.multi_step());
+    step_requested_ = true;
+    custom_time_step_ = time_step_ * msg.multi_step();
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }
@@ -241,26 +235,12 @@ void SimulatorRunner::OnSimulationInMessage(
     const ignition::msgs::SimulationInMessage& request,
     ignition::msgs::Boolean& response, bool& result) {
   {
-    // Just queue the message.
-    std::lock_guard<std::mutex> lock(this->mutex_);
-    this->incoming_msgs_.push(request);
+    // Just queues the message.
+    std::lock_guard<std::mutex> lock(mutex_);
+    incoming_msgs_.push(request);
   }
 
   result = true;
-}
-
-bool SimulatorRunner::StepRequested() const { return this->step_requested_; }
-
-void SimulatorRunner::SetStepRequested(const bool step_requested) {
-  this->step_requested_ = step_requested;
-}
-
-double SimulatorRunner::CustomTimeStep() const {
-  return this->custom_time_step_;
-}
-
-void SimulatorRunner::SetCustomTimeStep(const double time_step) {
-  this->custom_time_step_ = time_step;
 }
 
 }  // namespace backend

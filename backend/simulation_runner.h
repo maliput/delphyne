@@ -130,18 +130,17 @@ void WaitForShutdown();
 ///   processor is yielded and the RunThread can finish its current (and last)
 ///   loop before exiting the while.
 class SimulatorRunner {
+ public:
   /// \brief Default constructor.
-  /// \param[in] _sim A pointer to a simulator. Note that we take ownership of
+  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
   /// \param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
- public:
   SimulatorRunner(
-      std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> _sim,
-      const double time_step);
+      std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> sim,
+      double time_step);
 
   /// \brief Default destructor.
- public:
   virtual ~SimulatorRunner();
 
   /// \brief Adds a python callback to be invoked on each simulation step. It is
@@ -154,141 +153,81 @@ class SimulatorRunner {
 
   /// \brief Starts the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
- public:
   void Start();
 
   /// \brief Stops the thread that runs the simulation loop. If there was a
   /// previous call to Stop(), this call will be ignored.
- public:
   void Stop();
 
   /// \brief Runs the main simulation loop.
- public:
   void Run();
 
-  /// \brief Processes all pending incoming messages.
  private:
+  // \brief Processes all pending incoming messages.
   void ProcessIncomingMessages();
 
-  /// \brief Sends all outgoing messages.
- private:
+  // \brief Sends all outgoing messages.
   void SendOutgoingMessages();
 
-  /// \brief Processes one WorldControl message.
-  /// \param[in] msg The message
- private:
+  // \brief Processes one WorldControl message.
+  // \param[in] msg The message
   void ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg);
 
-  /// \brief Receives simulation input messages.
-  /// \param[in] request The request.
-  /// \param[out] response The response (unused).
-  /// \param[out] result The result of the service.
- private:
+  // \brief Receives simulation input messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \param[out] result The result of the service.
   void OnSimulationInMessage(
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       const ignition::msgs::SimulationInMessage& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& response, bool& result);
 
-  /// \brief Gets the default time step.
-  /// \return The default time step.
- private:
-  double TimeStep() const;
+  // \brief The service offered to control the simulation.
+  const std::string kControlService{"/world_control"};
 
-  /// \brief Sets the default time step.
-  /// \param[in] time_step The new time step.
- private:
-  void SetTimeStep(const double time_step);
+  // \brief The topic used to publish notifications.
+  const std::string kNotificationsTopic{"/notifications"};
 
-  /// \brief Gets whether the simulation is paused or not.
-  /// \return True when the simulation is paused or false otherwise.
- private:
-  bool IsPaused() const;
+  // \brief The time (seconds) that we simulate in each simulation step.
+  const double time_step_;
 
-  /// \brief Pause/unpause the simulation.
-  /// \param[in] paused True for paused, false for unpaused.
- private:
-  void SetPaused(const bool paused);
+  // \brief The time (seconds) that we simulate in a custom step requested
+  // externally.
+  double custom_time_step_{0.001};
 
-  /// \brief Tells Whether an external step was requested or not.
-  /// \return True if requested or false otherwise.
- private:
-  bool StepRequested() const;
-
-  /// \brief Sets whether an external step is requested or not.
-  /// \param[in] step_requested True when a step is requested.
- private:
-  void SetStepRequested(const bool step_requested);
-
-  /// \brief Gets the custom time step for an external step.
- private:
-  double CustomTimeStep() const;
-
-  /// \brief Sets the custom time step for an external step.
-  /// \param[in] time_step The custom time step.
- private:
-  void SetCustomTimeStep(const double time_step);
-
-  /// \brief The service offered to control the simulation.
- private:
-  const std::string kControlService = "/world_control";
-
-  /// \brief The topic used to publish notifications.
- private:
-  const std::string kNotificationsTopic = "/notifications";
-
-  /// \brief The time (seconds) that we simulate in each simulation step.
- private:
-  double time_step_ = 0.001;
-
-  /// \brief The time (seconds) that we simulate in a custom step requested
-  /// externally.
- private:
-  double custom_time_step_ = 0.001;
-
-  /// \brief Whether the main loop has been started or not.
- private:
+  // \brief Whether the main loop has been started or not.
   std::atomic<bool> enabled_{false};
 
-  /// \brief A pointer to the Drake simulator.
- private:
+  // \brief A pointer to the Drake simulator.
   std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> simulator_;
 
-  /// \brief Whether the simulation is paused or not.
- private:
-  bool paused_ = false;
+  // \brief Whether the simulation is paused or not.
+  bool paused_{false};
 
-  /// \brief Whether an external step was requested or not.
- private:
-  bool step_requested_ = false;
+  // \brief Whether an external step was requested or not.
+  bool step_requested_{false};
 
-  /// \brief A mutex to avoid races.
- private:
+  // \brief A mutex to avoid races.
   std::mutex mutex_;
 
-  /// \brief The thread in charge of doing all the periodic tasks.
- private:
+  // \brief The thread in charge of doing all the periodic tasks.
   std::thread main_thread_;
 
-  /// \brief A queue for storing the incoming messages (requests).
- private:
+  // \brief A queue for storing the incoming messages (requests).
   std::queue<ignition::msgs::SimulationInMessage> incoming_msgs_;
 
-  /// \brief A queue for storing the outgoing messages (notifications).
- private:
+  // \brief A queue for storing the outgoing messages (notifications).
   std::queue<ignition::msgs::WorldControl> outgoing_msgs_;
 
-  /// \brief An Ignition Transport node used for communication.
- private:
+  // \brief An Ignition Transport node used for communication.
   ignition::transport::Node node_;
 
-  /// \brief An Ignition Transport publisher for sending notifications.
- private:
+  // \brief An Ignition Transport publisher for sending notifications.
   ignition::transport::Node::Publisher notifications_pub_;
 
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
- private:
   std::vector<std::function<void()>> step_callbacks_;
 };
 

@@ -57,7 +57,7 @@ PYBIND11_MODULE(simulation_runner_py, m) {
     .def("Stop", &SimulatorRunner::Stop)
     .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
   ;
-  py::class_<AutomotiveSimulator<double>, std::unique_ptr<AutomotiveSimulator<double>>>(m, "AutomotiveSimulator")
+  py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
     .def(py::init([](void) {
         return std::make_unique<AutomotiveSimulator<double>>();
     }))

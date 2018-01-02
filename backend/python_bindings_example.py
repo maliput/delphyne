@@ -66,10 +66,7 @@ def get_from_env_or_fail(var):
 
     # Since it is an environment variable, the very end may have a colon;
     # strip it here
-    if value[-1] == ':':
-        value = value[:-1]
-
-    return value
+    return value.rstrip(':')
 
 
 class SimulationStats(object):

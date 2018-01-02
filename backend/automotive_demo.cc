@@ -62,7 +62,7 @@ int main(int argc, char* argv[]) {
   state.set_y(0.0);
   simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
 
-  // Instantiates the simulator runner and pass the simulator.
+  // Instantiates the simulator runner and starts it.
   const double kTimeStep = 0.001;
   delphyne::backend::SimulatorRunner prius_sim_runner(std::move(simulator),
                                                       kTimeStep);

@@ -40,6 +40,7 @@
 #include <pybind11/pybind11.h>
 
 #include "backend/simulation_runner.h"
+#include "drake/common/unused.h"
 
 namespace py = pybind11;
 
@@ -135,10 +136,6 @@ void SimulatorRunner::Run() {
     // Starts a timer to measure the time we spend doing tasks.
     auto step_start = std::chrono::steady_clock::now();
 
-    // A copy of the python callbacks so we can process them in a thread-safe
-    // way
-    std::vector<std::function<void()>> callbacks;
-
     // 1. Processes incoming messages (requests).
     {
       std::lock_guard<std::mutex> lock(mutex_);
@@ -155,10 +152,14 @@ void SimulatorRunner::Run() {
     // Removes any custom step request.
     step_requested_ = false;
 
+    // A copy of the python callbacks so we can process them in a thread-safe
+    // way
+    std::vector<std::function<void()>> callbacks;
+
+    // 3. Processes outgoing messages (notifications).
     {
       std::lock_guard<std::mutex> lock(mutex_);
 
-      // 3. Processes outgoing messages (notifications).
       SendOutgoingMessages();
 
       // Makes a temporal copy of the python callbacks while we have the lock.
@@ -208,7 +209,7 @@ void SimulatorRunner::ProcessIncomingMessages() {
 
 void SimulatorRunner::SendOutgoingMessages() {
   while (!outgoing_msgs_.empty()) {
-    ignition::msgs::WorldControl next_msg = outgoing_msgs_.front();
+    const ignition::msgs::WorldControl next_msg = outgoing_msgs_.front();
     outgoing_msgs_.pop();
 
     // Sends the message.
@@ -239,7 +240,7 @@ void SimulatorRunner::OnSimulationInMessage(
     std::lock_guard<std::mutex> lock(mutex_);
     incoming_msgs_.push(request);
   }
-
+  drake::unused(response);
   result = true;
 }
 

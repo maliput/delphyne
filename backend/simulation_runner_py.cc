@@ -28,11 +28,11 @@
 
 #include <memory>
 
+#include "backend/simulation_runner.h"
+
 #include <drake/common/find_resource.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
-
-#include "backend/simulation_runner.h"
 
 using delphyne::backend::SimulatorRunner;
 

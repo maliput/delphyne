@@ -41,10 +41,11 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <Python.h>
+#include <protobuf/simulation_in_message.pb.h>
+
 #include <pybind11/pybind11.h>
 
-#include "protobuf/simulation_in_message.pb.h"
+#include <Python.h>
 
 namespace delphyne {
 namespace backend {

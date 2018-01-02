@@ -26,6 +26,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "backend/simulation_runner.h"
+
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
@@ -34,13 +36,13 @@
 #include <thread>
 #include <utility>
 
+#include <drake/common/unused.h>
+
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
-#include <pybind11/pybind11.h>
 
-#include "backend/simulation_runner.h"
-#include "drake/common/unused.h"
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 

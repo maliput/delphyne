@@ -235,12 +235,12 @@ void SimulatorRunner::ProcessWorldControlMessage(
 void SimulatorRunner::OnSimulationInMessage(
     const ignition::msgs::SimulationInMessage& request,
     ignition::msgs::Boolean& response, bool& result) {
+  drake::unused(response);
   {
     // Just queues the message.
     std::lock_guard<std::mutex> lock(mutex_);
     incoming_msgs_.push(request);
   }
-  drake::unused(response);
   result = true;
 }
 

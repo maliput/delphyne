@@ -42,7 +42,7 @@ namespace backend {
 namespace {
 
 DEFINE_bool(backwards_compatible, false,
-            "Be compatible with Drake's"
+            "Be compatible with Drake's "
             "original visualization and debugging tools");
 
 // Generates a channel name based on a given string.

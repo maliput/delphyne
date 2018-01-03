@@ -303,9 +303,9 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
 
-  /// Sets the backwards_compatibility flag, enabling / disabling publishing
+  /// Sets the @p backwards_compatibility flag, enabling / disabling publishing
   /// to legacy LCM channels.
-  void set_backwards_compatibility(const bool backwards_compatibility) {
+  void set_backwards_compatibility(bool backwards_compatibility) {
     backwards_compatibility_ = backwards_compatibility;
   }
 

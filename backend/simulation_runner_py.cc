@@ -28,12 +28,13 @@
 
 #include <memory>
 
-#include <drake/common/find_resource.h>
-#include <pybind11/functional.h>
-#include <pybind11/pybind11.h>
-
 #include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
+
+#include <drake/common/find_resource.h>
+
+#include <pybind11/functional.h>
+#include <pybind11/pybind11.h>
 
 namespace py = pybind11;
 

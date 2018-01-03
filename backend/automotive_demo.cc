@@ -29,40 +29,52 @@
 #include <cstdlib>
 #include <memory>
 #include <string>
-#include <drake/common/find_resource.h>
 
 #include "backend/simulation_runner.h"
 
-//////////////////////////////////////////////////
-std::string MakeChannelName(const std::string& _name) {
-  const std::string defaultPrefix{"DRIVING_COMMAND"};
-  if (_name.empty()) {
-    return defaultPrefix;
+#include <drake/automotive/automotive_simulator.h>
+#include <drake/common/find_resource.h>
+
+namespace delphyne {
+namespace backend {
+namespace {
+
+// Generates a channel name based on a given string.
+std::string MakeChannelName(const std::string& name) {
+  const std::string default_prefix{"DRIVING_COMMAND"};
+  if (name.empty()) {
+    return default_prefix;
   }
-  return defaultPrefix + "_" + _name;
+  return default_prefix + "_" + name;
 }
 
-//////////////////////////////////////////////////
 int main(int argc, char* argv[]) {
-  // Enable to resolve relative path to resources on AddPriusSimpleCar
+  // Enables to resolve relative path to resources on AddPriusSimpleCar.
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
 
-  // Instantiate a simulator.
+  // Instantiates a simulator.
   auto simulator =
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
-  // Add a Prius car.
+  // Adds a Prius car.
   drake::automotive::SimpleCarState<double> state;
   state.set_y(0.0);
   simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
 
-  // Instantiate the simulator runner and pass the simulator.
+  // Instantiates the simulator runner and starts it.
   const double kTimeStep = 0.001;
-  delphyne::backend::SimulatorRunner priusSimRunner(std::move(simulator),
-                                                    kTimeStep);
-  priusSimRunner.Start();
+  delphyne::backend::SimulatorRunner prius_sim_runner(std::move(simulator),
+                                                      kTimeStep);
+  prius_sim_runner.Start();
 
   // Zzzzzz.
   delphyne::backend::WaitForShutdown();
+  return 0;
 }
+
+}  // namespace
+}  // namespace backend
+}  // namespace delphyne
+
+int main(int argc, char* argv[]) { return delphyne::backend::main(argc, argv); }

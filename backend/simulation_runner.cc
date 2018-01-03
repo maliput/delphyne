@@ -88,8 +88,7 @@ SimulatorRunner::SimulatorRunner(
     double time_step)
     : time_step_(time_step), simulator_(std::move(sim)) {
   // Advertises the service for controlling the simulation.
-  node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl,
-                  this);
+  node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
 
   // Advertise the topic for publishing notifications.
   notifications_pub_ =
@@ -97,9 +96,9 @@ SimulatorRunner::SimulatorRunner(
 
   // Advertise the service for receiving robot model requests from the frontend
   if (!node_.Advertise(kRobotRequestServiceName,
-                            &SimulatorRunner::OnRobotModelRequest, this)) {
-    ignerr << "Error advertising service [" << kRobotRequestServiceName
-              << "]" << std::endl;
+                       &SimulatorRunner::OnRobotModelRequest, this)) {
+    ignerr << "Error advertising service [" << kRobotRequestServiceName << "]"
+           << std::endl;
   }
   // Initializes the python machinery so we can invoke a python callback
   // function on each simulation step.
@@ -280,7 +279,7 @@ void SimulatorRunner::OnRobotModelRequest(
   // Fill the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(
-    ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
+      ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
   input_message.mutable_robot_model_request()->CopyFrom(request);
 
   {

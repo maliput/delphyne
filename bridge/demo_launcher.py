@@ -173,7 +173,12 @@ def main():
             # wait for the drake-visualizer to be up
             wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
 
-        launcher.launch([automotive_demo] + demo_arguments[args.demo_name])
+        demo_command = [automotive_demo]
+
+        if args.drake_visualizer:
+            demo_command.append("--backwards_compatible=1")
+
+        launcher.launch(demo_command)
         launcher.wait(float("Inf"))
 
     finally:

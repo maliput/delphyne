@@ -150,6 +150,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->set_backwards_compatibility(true);
+
   const int id = simulator->AddPriusSimpleCar("Foo", kCommandChannelName);
   EXPECT_EQ(id, 0);
 
@@ -258,6 +261,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->set_backwards_compatibility(true);
+
   drake::lcm::DrakeMockLcm* lcm =
       dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
   ASSERT_NE(lcm, nullptr);
@@ -333,6 +339,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   // stationary. They both follow a straight 100 m long line.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->set_backwards_compatibility(true);
+
   const int id1 = simulator->AddPriusTrajectoryCar("alice", curve, 1.0, 0.0);
   const int id2 = simulator->AddPriusTrajectoryCar("bob", curve, 0.0, 0.0);
   EXPECT_EQ(id1, 0);
@@ -462,6 +471,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
                                "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->set_backwards_compatibility(true);
+
   drake::lcm::DrakeMockLcm* lcm =
       dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
   ASSERT_NE(lcm, nullptr);
@@ -568,6 +580,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
                                "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->set_backwards_compatibility(true);
 
   simulator->AddPriusSimpleCar("Model1", "Channel1");
   simulator->AddPriusSimpleCar("Model2", "Channel2");
@@ -761,6 +775,37 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
 
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
+}
+
+// Verifies that when AutomotiveSimulator backwards compatibility is turned off
+// no messages are published to the LCM channels
+GTEST_TEST(AutomotiveSimulatorTest, TestNoLcmByDefault) {
+  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
+                               "/share/drake");
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
+      std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->set_backwards_compatibility(false);
+
+  simulator->AddPriusSimpleCar("Model1", "Channel1");
+
+  simulator->Start();
+  simulator->StepBy(1e-3);
+
+  const drake::lcm::DrakeLcmInterface* lcm = simulator->get_lcm();
+  ASSERT_NE(lcm, nullptr);
+
+  const drake::lcm::DrakeMockLcm* mock_lcm =
+      dynamic_cast<const drake::lcm::DrakeMockLcm*>(lcm);
+  ASSERT_NE(mock_lcm, nullptr);
+
+  // There should be no message published in DRAKE_VIEWER_LOAD_ROBOT
+  EXPECT_THROW(mock_lcm->get_last_published_message("DRAKE_VIEWER_LOAD_ROBOT"),
+               std::runtime_error);
+
+  // There should be no message published in DRAKE_VIEWER_DRAW
+  EXPECT_THROW(mock_lcm->get_last_published_message("DRAKE_VIEWER_DRAW"),
+               std::runtime_error);
 }
 
 //////////////////////////////////////////////////

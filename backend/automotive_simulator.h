@@ -303,6 +303,12 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
 
+  /// Sets the @p backwards_compatibility flag, enabling / disabling publishing
+  /// to legacy LCM channels.
+  void set_backwards_compatibility(bool backwards_compatibility) {
+    backwards_compatibility_ = backwards_compatibility;
+  }
+
  private:
   int allocate_vehicle_number();
 
@@ -410,6 +416,9 @@ class AutomotiveSimulator {
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};
   std::unique_ptr<drake::systems::Simulator<T>> simulator_{};
+
+  // Flag to decide whether to publish messages on legacy LCMs channels or not
+  bool backwards_compatibility_{false};
 };
 
 }  // namespace backend

@@ -539,11 +539,15 @@ void AutomotiveSimulator<T>::Build() {
   builder_->Connect(
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       bundle_to_draw_->get_input_port(0));
-  lcm_publisher_ =
-      builder_->AddSystem(LcmPublisherSystem::Make<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW", lcm_.get()));
-  builder_->Connect(bundle_to_draw_->get_output_port(0),
-                    lcm_publisher_->get_input_port(0));
+
+  if (backwards_compatibility_) {
+    lcm_publisher_ =
+        builder_->AddSystem(LcmPublisherSystem::Make<drake::lcmt_viewer_draw>(
+            "DRAKE_VIEWER_DRAW", lcm_.get()));
+    builder_->Connect(bundle_to_draw_->get_output_port(0),
+                      lcm_publisher_->get_input_port(0));
+  }
+
   ign_publisher_ = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem>("DRAKE_VIEWER_DRAW"));
   builder_->Connect(bundle_to_draw_->get_output_port(0),
@@ -562,7 +566,9 @@ void AutomotiveSimulator<T>::Start(double target_realtime_rate) {
     Build();
   }
 
-  TransmitLoadMessage();
+  if (backwards_compatibility_) {
+    TransmitLoadMessage();
+  }
 
   simulator_ = std::make_unique<drake::systems::Simulator<T>>(*diagram_);
 

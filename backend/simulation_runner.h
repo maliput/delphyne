@@ -164,8 +164,8 @@ class SimulatorRunner {
   /// \brief Runs the main simulation loop.
   void Run();
 
-  /// \brief Advances simulated time by the given time_step increment in seconds.
-  void RunSimulationStep(double time_step);
+  /// \brief Advances a single simulation step by time_step_ seconds.
+  void RunSimulationStep();
 
  private:
   // \brief Process one RobotModelRequest message.

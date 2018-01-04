@@ -140,11 +140,11 @@ void SimulatorRunner::Start() {
 
 void SimulatorRunner::Run() {
   while(enabled_) {
-    RunSimulationStep(time_step_);
+    RunSimulationStep();
   }
 }
 
-void SimulatorRunner::RunSimulationStep(double time_step) {
+void SimulatorRunner::RunSimulationStep() {
   // Starts a timer to measure the time we spend doing tasks.
   auto step_start = std::chrono::steady_clock::now();
 
@@ -156,7 +156,7 @@ void SimulatorRunner::RunSimulationStep(double time_step) {
 
   // 2. Steps the simulator (if needed).
   if (!paused_) {
-    simulator_->StepBy(time_step);
+    simulator_->StepBy(time_step_);
   } else if (step_requested_) {
     simulator_->StepBy(custom_time_step_);
   }

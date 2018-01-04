@@ -38,6 +38,8 @@
 
 namespace py = pybind11;
 
+using std::unique_ptr;
+
 using delphyne::backend::AutomotiveSimulator;
 using delphyne::backend::SimulatorRunner;
 using drake::automotive::SimpleCarState;
@@ -51,7 +53,7 @@ using drake::automotive::SimpleCarState;
 namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double>())
+      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
       .def("Start", &SimulatorRunner::Start)
       .def("Stop", &SimulatorRunner::Stop)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback);

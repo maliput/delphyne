@@ -82,4 +82,5 @@ target_link_libraries(simulation_runner_py
   )
 
 install(TARGETS simulation_runner_py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(PROGRAMS python_bindings_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(PROGRAMS python_examples/python_bindings_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(PROGRAMS python_examples/keyboard_controlled_simulation.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

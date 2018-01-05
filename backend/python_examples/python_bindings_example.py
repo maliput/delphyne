@@ -40,14 +40,11 @@ interesting scripts.
 
 from __future__ import print_function
 
-import atexit
 import os
 import random
 import sys
-import termios
 import time
 
-from select import select
 from launcher import Launcher
 
 from pydrake.common import AddResourceSearchPath
@@ -71,36 +68,6 @@ def get_from_env_or_fail(var):
     # strip it here
     return value.rstrip(':')
 
-
-class KBHit(object):
-    """A Python class implementing KBHIT, the standard keyboard-interrupt poller.
-    """
-    def __init__(self):
-        # Save the terminal settings
-        self.fd = sys.stdin.fileno()
-        self.new_term = termios.tcgetattr(self.fd)
-        self.old_term = termios.tcgetattr(self.fd)
-        # New terminal setting unbuffered
-        self.new_term[3] = (self.new_term[3] & ~termios.ICANON & ~termios.ECHO)
-        termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.new_term)
-        # Support normal-terminal reset at exit
-        atexit.register(self.set_normal_term)
-
-    def set_normal_term(self):
-        ''' Resets to normal terminal.
-        '''
-        termios.tcsetattr(self.fd, termios.TCSAFLUSH, self.old_term)
-
-    def getch(self):
-        ''' Returns a keyboard character after kbhit() has been called.
-        '''
-        return sys.stdin.read(1)
-
-    def kbhit(self):
-        ''' Returns True if keyboard character was hit, False otherwise.
-        '''
-        dr,dw,de = select([sys.stdin], [], [], 0)
-        return dr != []
 
 class SimulationStats(object):
     """This is a simple class to keep statistics of the simulation, just
@@ -144,7 +111,7 @@ class SimulationStats(object):
 
 def random_print():
     """Print a message at random, roughly every 500 calls"""
-    if random.randint(1, 500) == 1:
+    if (random.randint(1, 500) == 1):
         print("One in five hundred")
 
 def build_automotive_simulator():
@@ -188,24 +155,9 @@ def main():
         runner.AddStepCallback(random_print)
 
         stats.start()
-        running = True
-        paused = False
+        runner.Start()
 
-        kb = KBHit()
-        while running:
-            if kb.kbhit():
-                key = kb.getch()
-                if key == 'p':
-                    paused = not paused 
-                elif key == 'q':
-                    running = False
-                    break
-                elif key == 's':
-                    if paused:
-                        runner.RunSimulationStep()
-            elif not paused:
-                    runner.RunSimulationStep()
-
+        launcher.wait(float("Inf"))
     finally:
         runner.Stop()
         # This is needed to avoid a possible deadlock. See SimulatorRunner

@@ -30,8 +30,6 @@
 #include <memory>
 #include <string>
 
-#include <gflags/gflags.h>
-
 #include "backend/simulation_runner.h"
 
 #include <drake/automotive/automotive_simulator.h>
@@ -40,10 +38,6 @@
 namespace delphyne {
 namespace backend {
 namespace {
-
-DEFINE_bool(backwards_compatible, false,
-            "Be compatible with Drake's "
-            "original visualization and debugging tools");
 
 // Generates a channel name based on a given string.
 std::string MakeChannelName(const std::string& name) {
@@ -55,8 +49,6 @@ std::string MakeChannelName(const std::string& name) {
 }
 
 int main(int argc, char* argv[]) {
-  gflags::ParseCommandLineFlags(&argc, &argv, true);
-
   // Enables to resolve relative path to resources on AddPriusSimpleCar.
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
@@ -64,8 +56,6 @@ int main(int argc, char* argv[]) {
   // Instantiates a simulator.
   auto simulator =
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
-
-  simulator->set_backwards_compatibility(FLAGS_backwards_compatible);
 
   // Adds a Prius car.
   drake::automotive::SimpleCarState<double> state;

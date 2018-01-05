@@ -303,12 +303,6 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
 
-  /// Sets the @p backwards_compatibility flag, enabling / disabling publishing
-  /// to legacy LCM channels.
-  void set_backwards_compatibility(bool backwards_compatibility) {
-    backwards_compatibility_ = backwards_compatibility;
-  }
-
  private:
   int allocate_vehicle_number();
 
@@ -342,14 +336,6 @@ class AutomotiveSimulator {
   // `RigidBodyTree`. Member variable `road_` must be set prior to calling this
   // method.
   void GenerateAndLoadRoadNetworkUrdf();
-
-  // Creates a lcmt_load_robot message containing all visual elements in the
-  // simulation and sends it to the drake-visualizer.
-  void TransmitLoadMessage();
-
-  // Publishes an LCM viewer load robot message in the DRAKE_VIEWER_LOAD_ROBOT
-  // channel
-  void SendLoadRobotMessage(const drake::lcmt_viewer_load_robot& lcm_message);
 
   void InitializeTrajectoryCars();
   void InitializeSimpleCars();
@@ -416,9 +402,6 @@ class AutomotiveSimulator {
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};
   std::unique_ptr<drake::systems::Simulator<T>> simulator_{};
-
-  // Flag to decide whether to publish messages on legacy LCMs channels or not
-  bool backwards_compatibility_{false};
 };
 
 }  // namespace backend

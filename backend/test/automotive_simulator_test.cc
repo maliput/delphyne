@@ -71,6 +71,18 @@ struct LinkInfo {
   int num_geom{};
 };
 
+// Returns the number of links present in the ignition::msgs::Model_V message
+// passed as a parameter.
+int GetLinkCount(const ignition::msgs::Model_V& message) {
+  int link_count = 0;
+
+  for (int i = 0; i < message.models_size(); ++i) {
+    link_count += message.models(i).link_size();
+  }
+
+  return link_count;
+}
+
 // Tests GetRobotModel to return the initial robot model
 GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
@@ -291,7 +303,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   EXPECT_EQ(id_decoy2, 2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to DRAKE_VIEWER_DRAW
+  // that is published to DRAKE_VIEWER_DRAW.
   ignition::transport::Node node;
 
   ignition::msgs::Model_V draw_message;
@@ -311,13 +323,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Advances the simulation to allow the MaliputRailcar to begin accelerating.
   simulator->StepBy(0.5);
 
-  int link_count = 0;
-
-  for (int i = 0; i < draw_message.models_size(); ++i) {
-    link_count += draw_message.models(i).link_size();
-  }
-
-  EXPECT_EQ(link_count, 3 * PriusVis<double>(0, "").num_poses());
+  EXPECT_EQ(GetLinkCount(draw_message),
+            3 * PriusVis<double>(0, "").num_poses());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
   const double mobil_y =
@@ -335,6 +342,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
       {0.0, 0.0}, {100.0, 0.0},
   };
   const Curve2d curve{waypoints};
+  const double kTolerance{1e-8};
+  const double kPoseXTolerance{1e-6};
 
   // Set up a basic simulation with a couple Prius TrajectoryCars. Both cars
   // start at position zero; the first has a speed of 1 m/s, while the other is
@@ -348,7 +357,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   EXPECT_EQ(id2, 1);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to DRAKE_VIEWER_DRAW
+  // that is published to DRAKE_VIEWER_DRAW.
   ignition::transport::Node node;
 
   ignition::msgs::Model_V draw_message;
@@ -374,14 +383,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   // Plus one to include the world.
   const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 1;
 
-  int link_count = 0;
-
-  for (int i = 0; i < draw_message.models_size(); ++i) {
-    link_count += draw_message.models(i).link_size();
-  }
-
   // Minus one to omit world, which remains still.
-  EXPECT_EQ(link_count, expected_num_links - 1);
+  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
 
   auto alice_model = draw_message.models(id1);
   auto bob_model = draw_message.models(id2);
@@ -396,13 +399,13 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   EXPECT_EQ(link.name(), "chassis_floor");
 
   EXPECT_NEAR(link.pose().position().x(), PriusVis<double>::kVisOffset + 0.99,
-              1e-6);
-  EXPECT_NEAR(link.pose().position().y(), 0, 1e-8);
-  EXPECT_NEAR(link.pose().position().z(), 0.378326, 1e-8);
-  EXPECT_NEAR(link.pose().orientation().w(), 1, 1e-8);
-  EXPECT_NEAR(link.pose().orientation().x(), 0, 1e-8);
-  EXPECT_NEAR(link.pose().orientation().y(), 0, 1e-8);
-  EXPECT_NEAR(link.pose().orientation().z(), 0, 1e-8);
+              kPoseXTolerance);
+  EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().position().z(), 0.378326, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
 
   // Checks the chassis_floor body of the first car.
   EXPECT_EQ(alice_model.link_size(), bob_model.link_size());
@@ -415,36 +418,38 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
     auto bob_link = bob_model.link(i);
     EXPECT_EQ(alice_link.name(), bob_link.name());
     EXPECT_NEAR(alice_link.pose().position().x(),
-                bob_link.pose().position().x() + 0.99, 1e-6);
+                bob_link.pose().position().x() + 0.99, kPoseXTolerance);
     EXPECT_NEAR(alice_link.pose().position().y(),
-                bob_link.pose().position().y(), 1e-8);
+                bob_link.pose().position().y(), kTolerance);
     EXPECT_NEAR(alice_link.pose().position().z(),
-                bob_link.pose().position().z(), 1e-8);
+                bob_link.pose().position().z(), kTolerance);
     EXPECT_NEAR(alice_link.pose().orientation().w(),
-                bob_link.pose().orientation().w(), 1e-8);
+                bob_link.pose().orientation().w(), kTolerance);
     EXPECT_NEAR(alice_link.pose().orientation().x(),
-                bob_link.pose().orientation().x(), 1e-8);
+                bob_link.pose().orientation().x(), kTolerance);
     EXPECT_NEAR(alice_link.pose().orientation().y(),
-                bob_link.pose().orientation().y(), 1e-8);
+                bob_link.pose().orientation().y(), kTolerance);
     EXPECT_NEAR(alice_link.pose().orientation().z(),
-                bob_link.pose().orientation().z(), 1e-8);
+                bob_link.pose().orientation().z(), kTolerance);
   }
 }
 
-// Returns the x-position of the vehicle based on an lcmt_viewer_draw message.
-// It also checks that the y-position of the vehicle is equal to the provided y
-// value.
-double GetPosition(const ignition::msgs::Model_V& message, double y) {
-  int link_count = 0;
-
-  for (int i = 0; i < message.models_size(); ++i) {
-    link_count += message.models(i).link_size();
-  }
+// Checks the message has the expected link count and includes the
+// chassis floor as its first link.
+void CheckModelLinks(const ignition::msgs::Model_V& message) {
+  const int link_count = GetLinkCount(message);
 
   auto link = message.models(0).link(0);
 
   EXPECT_EQ(link_count, PriusVis<double>(0, "").num_poses());
   EXPECT_EQ(link.name(), "chassis_floor");
+}
+
+// Returns the x-position of the vehicle based on an ignition::msgs::Model_V.
+// It also checks that the y-position of the vehicle is equal to the provided y
+// value.
+double GetXPosition(const ignition::msgs::Model_V& message, double y) {
+  auto link = message.models(0).link(0);
   EXPECT_DOUBLE_EQ(link.pose().position().y(), y);
   return link.pose().position().x();
 }
@@ -524,20 +529,26 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // Verifies the acceleration is zero even if
   // AutomotiveSimulator::SetMaliputRailcarAccelerationCommand() was not called.
 
+  CheckModelLinks(draw_message);
+
   // The following tolerance was determined empirically.
-  EXPECT_NEAR(GetPosition(draw_message, kR), initial_x, 1e-4);
+  const double kPoseXTolerance{1e-4};
+
+  EXPECT_NEAR(GetXPosition(draw_message, kR), initial_x, kPoseXTolerance);
 
   // Sets the commanded acceleration to be zero.
   simulator->SetMaliputRailcarAccelerationCommand(id, 0);
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
 
+  CheckModelLinks(draw_message);
+
   // Verifies that the vehicle hasn't moved yet. This is expected since the
   // commanded acceleration is zero.
   // The following tolerance was determined empirically.
-  double step_2_position = GetPosition(draw_message, kR);
+  const double step_2_position = GetXPosition(draw_message, kR);
 
-  EXPECT_NEAR(step_2_position, initial_x, 1e-4);
+  EXPECT_NEAR(step_2_position, initial_x, kPoseXTolerance);
 
   // Sets the commanded acceleration to be 10 m/s^2.
   simulator->SetMaliputRailcarAccelerationCommand(id, 10);
@@ -546,9 +557,11 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
 
+  CheckModelLinks(draw_message);
+
   // Verifies that the MaliputRailcar has moved forward relative to prior to
   // the nonzero acceleration command being issued.
-  EXPECT_LT(step_2_position, GetPosition(draw_message, kR));
+  EXPECT_LT(step_2_position, GetXPosition(draw_message, kR));
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
@@ -608,13 +621,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 
   simulator->StepBy(1e-3);
 
-  int draw_message_link_count = 0;
-
-  for (int i = 0; i < draw_message.models_size(); ++i) {
-    draw_message_link_count += draw_message.models(i).link_size();
-  }
-
-  EXPECT_EQ(draw_message_link_count, expected_num_links - 1);
+  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
 }
 
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is

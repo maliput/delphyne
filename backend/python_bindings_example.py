@@ -72,7 +72,7 @@ def get_from_env_or_fail(var):
 class SimulationStats(object):
     """This is a simple class to keep statistics of the simulation, just
     averaging the time it takes to execute a simulation step from the outside
-    world. Every 1000 measures, the values are printed to stdout
+    world. Every 1000 measures, the values are printed to stdout.
     """
 
     def __init__(self):

@@ -69,7 +69,7 @@ class SimulationRunnerTest : public ::testing::Test {
   std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_ =
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
-  const double kTimeStep = 0.1;  // 100 millis
+  const double kTimeStep = 0.01;  // 10 millis
 
   bool callback_called_ = false;
 
@@ -107,7 +107,7 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
                       step_end - step_start)
                       .count();
 
-  EXPECT_LE(100, duration);
+  EXPECT_LE(10, duration);
 }
 
 // \brief Verifies that an incoming message has

@@ -48,68 +48,96 @@ from simulation_runner_py import (
     SimpleCarState,
     SimulatorRunner
 )
+from utils import get_from_env_or_fail
 
 
-def get_from_env_or_fail(var):
-    """Retrieves an env variable for a given name, fails if not found."""
-    value = os.environ.get(var)
-    if value is None:
-        print("%s is not in the environment,"
-              "did you remember to source setup.bash?" % (var))
-        sys.exit(1)
-
-    # Since it is an environment variable, the very end may have a colon;
-    # strip it here
-    return value.rstrip(':')
-
-
-class KBHit(object):
-    """A standard keyboard-interrupt poller. Allows users to read a keyboard
+class KeyboardHandler(object):
+    """A keyboard-interrupt poller. Allows users to read a keyboard
     input with a non-locking behavior making use of the select function,
     available on most *nix systems.
 
-    This class is based on the work done by Simon D. Levy, published on his
-    personal website http://home.wlu.edu/~levys/software/kbhit.py
-    under the GNU GPL v3 licence.
+    This class is based on the work done by Frank Deng, available on GitHub
+    as part of a set of python tools released under the MIT licence:
+    https://github.com/frank-deng/experimental-works/blob/master/kbhit.py .
     """
 
     def __init__(self):
-        # Save the terminal settings
+        # Save current terminal settings
         self.file_descriptor = sys.stdin.fileno()
-        self.new_term = termios.tcgetattr(self.file_descriptor)
-        self.old_term = termios.tcgetattr(self.file_descriptor)
+        self.new_terminal = termios.tcgetattr(self.file_descriptor)
+        self.old_terminal = termios.tcgetattr(self.file_descriptor)
         # New terminal setting unbuffered
-        self.new_term[3] = (self.new_term[3] & ~termios.ICANON & ~termios.ECHO)
+        self.new_terminal[3] = (self.new_terminal[3] &
+                                ~termios.ICANON & ~termios.ECHO)
         termios.tcsetattr(self.file_descriptor,
-                          termios.TCSAFLUSH, self.new_term)
+                          termios.TCSAFLUSH, self.new_terminal)
         # Support normal-terminal reset at exit
         atexit.register(self.set_normal_term)
 
     def set_normal_term(self):
-        """Resets to normal terminal."""
+        """Resets to default terminal settings."""
         termios.tcsetattr(self.file_descriptor,
-                          termios.TCSAFLUSH, self.old_term)
+                          termios.TCSAFLUSH, self.old_terminal)
 
     @staticmethod
-    def getch():
-        """Returns a keyboard character after kbhit() has been called."""
-        return sys.stdin.read(1)
+    def get_character():
+        """Reads a character from the keyboard."""
+        char = sys.stdin.read(1)
+        if char == '\x00' or ord(char) >= 0xA1:
+            return char + sys.stdin.read(1)
+        return char
 
     @staticmethod
-    def kbhit():
-        """Returns True if keyboard character was hit, False otherwise."""
+    def key_hit():
+        """Returns True if a keyboard key has been pressed, False otherwise."""
         key_hit, _, _ = select([sys.stdin], [], [], 0)
         return key_hit != []
 
 
-def create_and_init_automotive_sim():
-    """Instantiates and initializes the automotive simulator."""
+def build_automotive_simulator():
+    """Creates an AutomotiveSimulator instance and attachs a simple car to it.
+    Returns the newly created simulator.
+    """
     simulator = AutomotiveSimulator()
     state = SimpleCarState()
     state.y = 0.0
     simulator.AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state)
-
     return simulator
+
+
+def run_simulation_loop(sim_runner):
+    running = True
+    paused = False
+
+    keyboard = KeyboardHandler()
+    print("\n*************************************************************\n"
+          "* Instructions for running the demo:                        *\n"
+          "* <p> will pause the simulation if unpaused and viceversa.  *\n"
+          "* <s> if paused, will step the simulation on a single step. *\n"
+          "* <q> will stop the simulation and quit the demo.           *\n"
+          "*************************************************************\n")
+    print("Simulation is running")
+    while running:
+        if keyboard.key_hit():
+            key = keyboard.get_character().lower()
+            if key == 'p':
+                paused = not paused
+                if paused:
+                    print("Simulation is paused")
+                else:
+                    print("Simulation is running")
+            elif key == 'q':
+                running = False
+                print("Quitting simulation")
+                break
+            elif key == 's':
+                if paused:
+                    sim_runner.RunSimulationStep()
+                    print("Simulation step executed")
+                else:
+                    print("Simulation step only supported in paused mode")
+        elif not paused:
+            sim_runner.RunSimulationStep()
 
 
 def main():
@@ -117,48 +145,23 @@ def main():
     launcher = Launcher()
 
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
 
     drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
-    simulator = create_and_init_automotive_sim()
+    simulator = build_automotive_simulator()
     try:
-        launcher.launch([lcm_ign_bridge, "1"])
         teleop_config = os.path.join(delphyne_ws_dir,
                                      "install",
                                      "share",
                                      "delphyne",
-                                     "layoutWithTeleop.config")
+                                     "layoutWithRenderOnly.config")
         launcher.launch([ign_visualizer, teleop_config])
 
         runner = SimulatorRunner(simulator, 0.001)
 
-        running = True
-        paused = False
-
-        keyboard = KBHit()
-        print("Simulation is running")
-        while running:
-            if keyboard.kbhit():
-                key = keyboard.getch()
-                if key == 'p':
-                    paused = not paused
-                    if paused:
-                        print("Simulation is paused")
-                    else:
-                        print("Simulation is running")
-                elif key == 'q':
-                    running = False
-                    print("Quitting simulation")
-                    break
-                elif key == 's':
-                    if paused:
-                        runner.RunSimulationStep()
-                        print("Simulation step executed")
-            elif not paused:
-                runner.RunSimulationStep()
+        run_simulation_loop(runner)
 
     finally:
         runner.Stop()

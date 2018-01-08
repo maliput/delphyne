@@ -2,20 +2,21 @@
 
 These examples are intended to demonstrate how to use the python bindings of the simulation runner.
 
+For all the examples below it's assumed that the Delphyne backend was successfully built with CMake,
+as shown in the instructions [here](https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md#build-delphyne-back-end).
+
 # keyboard_controlled_simulation.py
 This example shows how to use the keyboard events to control the advance of a simulation.
 
-In order to run this example, you must be placed in the
-`<delphyne_ws>/install/bin` directory. Then, you can call:
-
-```bash
-./keyboard_controlled_simulation.py
+```
+$ cd <delphyne_ws>/install/bin
+$ ./keyboard_controlled_simulation.py
 ```
 
- The supported keys for the demo are the following:
+ The supported keys for the demo:
 
 <`p`> will pause the simulation if unpaused and viceversa.
 
 <`s`> if paused, will step the simulation on a single step.
 
-<`q`> will stop the simulation and eventually, quit the demo.
+<`q`> will stop the simulation and quit the demo.

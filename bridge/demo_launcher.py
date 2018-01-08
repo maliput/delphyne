@@ -38,24 +38,33 @@ import argparse
 import os
 import sys
 from launcher import Launcher
+from utils import get_from_env_or_fail
 
 
-def get_from_env_or_fail(var):
-    """Check if a given variable is an environmental variable
-    and returns its value, exit otherwise.
+def wait_for_lcm_message_on_channel(channel):
+    """Wait for a single message to arrive on the specified LCM channel.
     """
-    value = os.environ.get(var)
-    if value is None:
-        print("%s is not in the environment,"
-              "did you remember to source setup.bash?" % (var))
-        sys.exit(1)
+    lcm_connection = lcm.LCM()
 
-    # Since it is an environment variable, the very end may have a colon;
-    # strip it here
-    if value[-1] == ':':
-        value = value[:-1]
+    def receive(channel, data):
+        """LCM channel handler"""
+        _ = (channel, data)
+        raise StopIteration()
 
-    return value
+    sub = lcm_connection.subscribe(channel, receive)
+    start_time = time.time()
+    try:
+        while True:
+            if time.time() - start_time > 10.:
+                raise RuntimeError(
+                    "Timeout waiting for channel %s" % channel)
+            rlist, _, _ = select.select([lcm_connection], [], [], 0.1)
+            if lcm_connection in rlist:
+                lcm_connection.handle()
+    except StopIteration:
+        pass
+    finally:
+        lcm_connection.unsubscribe(sub)
 
 
 def main():

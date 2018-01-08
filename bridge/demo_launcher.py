@@ -36,11 +36,9 @@ from __future__ import print_function
 
 import argparse
 import os
-import select
 import sys
-import time
-import lcm
 from launcher import Launcher
+
 
 def get_from_env_or_fail(var):
     """Check if a given variable is an environmental variable
@@ -88,11 +86,7 @@ def main():
 
     args = parser.parse_args()
 
-    drake_src_dir = get_from_env_or_fail('DRAKE_SRC_DIR')
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-
-    # Build up the binary path
-    drake_bazel_bin_path = os.path.join(drake_src_dir, 'bazel-bin')
 
     # Delphyne binaries; these are found through the standard PATH, so
     # they are relative

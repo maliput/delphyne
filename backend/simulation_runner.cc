@@ -139,7 +139,7 @@ void SimulatorRunner::Start() {
 }
 
 void SimulatorRunner::Run() {
-  while(enabled_) {
+  while (enabled_) {
     RunSimulationStep();
   }
 }

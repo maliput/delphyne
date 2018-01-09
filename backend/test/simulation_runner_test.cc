@@ -43,15 +43,14 @@
 
 #include <protobuf/robot_model_request.pb.h>
 
-
 namespace delphyne {
 namespace backend {
-
 
 class SimulationRunnerTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    sim_runner_ = std::make_unique<SimulatorRunner>(std::move(simulator_), kTimeStep);
+    sim_runner_ =
+        std::make_unique<SimulatorRunner>(std::move(simulator_), kTimeStep);
   }
 
   // Callback method for handlig RobotModelRequest service calls
@@ -62,8 +61,8 @@ class SimulationRunnerTest : public ::testing::Test {
   // Advertises a service for a given service_name, with
   // the method RobotModelRequestCallback as callback
   void AdvertiseRobotModelRequest(std::string service_name) {
-    node_.Advertise(service_name, &SimulationRunnerTest::RobotModelRequestCallback,
-                    this);
+    node_.Advertise(service_name,
+                    &SimulationRunnerTest::RobotModelRequestCallback, this);
   }
 
   std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_ =
@@ -76,7 +75,6 @@ class SimulationRunnerTest : public ::testing::Test {
   std::unique_ptr<SimulatorRunner> sim_runner_;
 
   ignition::transport::Node node_;
-
 };
 
 // \brief Checks that WaitForShutdown captures the SIGINT signal and the
@@ -113,7 +111,6 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 // \brief Verifies that an incoming message has
 // been consumed from the incoming_msgs_ queue
 TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
-
   std::string service_name = "test_service_name";
 
   ignition::msgs::RobotModelRequest robot_model_request_msg;
@@ -126,7 +123,7 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   unsigned int timeout = 100;
   bool result = false;
   node_.Request("/get_robot_model", robot_model_request_msg, timeout, response,
-               result);
+                result);
 
   EXPECT_TRUE(result);
   EXPECT_FALSE(callback_called_);

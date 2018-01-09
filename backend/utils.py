@@ -5,6 +5,7 @@
 import os
 import sys
 
+
 def get_from_env_or_fail(var):
     """Retrieves an env variable for a given name, fails if not found."""
     value = os.environ.get(var)

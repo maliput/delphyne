@@ -54,19 +54,7 @@ from simulation_runner_py import (
     SimpleCarState,
     SimulatorRunner
 )
-
-
-def get_from_env_or_fail(var):
-    """Retrieves an env variable for a given name, fails if not found."""
-    value = os.environ.get(var)
-    if value is None:
-        print("%s is not in the environment,"
-              "did you remember to source setup.bash?" % (var))
-        sys.exit(1)
-
-    # Since it is an environment variable, the very end may have a colon;
-    # strip it here
-    return value.rstrip(':')
+from utils import get_from_env_or_fail
 
 
 class SimulationStats(object):
@@ -111,7 +99,7 @@ class SimulationStats(object):
 
 def random_print():
     """Print a message at random, roughly every 500 calls"""
-    if (random.randint(1, 500) == 1):
+    if random.randint(1, 500) == 1:
         print("One in five hundred")
 
 def build_automotive_simulator():

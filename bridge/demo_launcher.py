@@ -41,32 +41,6 @@ from launcher import Launcher
 from utils import get_from_env_or_fail
 
 
-def wait_for_lcm_message_on_channel(channel):
-    """Wait for a single message to arrive on the specified LCM channel.
-    """
-    lcm_connection = lcm.LCM()
-
-    def receive(channel, data):
-        """LCM channel handler"""
-        _ = (channel, data)
-        raise StopIteration()
-
-    sub = lcm_connection.subscribe(channel, receive)
-    start_time = time.time()
-    try:
-        while True:
-            if time.time() - start_time > 10.:
-                raise RuntimeError(
-                    "Timeout waiting for channel %s" % channel)
-            rlist, _, _ = select.select([lcm_connection], [], [], 0.1)
-            if lcm_connection in rlist:
-                lcm_connection.handle()
-    except StopIteration:
-        pass
-    finally:
-        lcm_connection.unsubscribe(sub)
-
-
 def main():
     """Launches drake's automotive_demo along with the bridge and the
     ignition-visualizer.

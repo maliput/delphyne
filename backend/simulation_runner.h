@@ -184,11 +184,28 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& response, bool& result);
 
+  /// \brief Receives model updates.
+  /// \param[in] models The last update.
+  void OnModelsUpdate(const ignition::msgs::Model_V& models);
+
+  /// \brief Update the scene message based on the current simulation scene
+  /// and publish it.
+  void UpdateScene();
+
+  // \brief The period between scene updates (ms).
+  const double kScenePeriodMs = 250.0;
+
   // \brief The service offered to control the simulation.
   const std::string kControlService{"/world_control"};
 
+  // \brief The service offered to control the simulation.
+  const std::string kModelUpdatesTopic{"/DRAKE_VIEWER_DRAW"};
+
   // \brief The topic used to publish notifications.
   const std::string kNotificationsTopic{"/notifications"};
+
+  // \brief The topic used to publish the scene updates.
+  const std::string kSceneTopic{"/scene"};
 
   // \brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;
@@ -227,9 +244,21 @@ class SimulatorRunner {
   // \brief An Ignition Transport publisher for sending notifications.
   ignition::transport::Node::Publisher notifications_pub_;
 
+  // \brief An Ignition Transport publisher for sending scene updates.
+  ignition::transport::Node::Publisher scene_pub_;
+
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
   std::vector<std::function<void()>> step_callbacks_;
+
+  // \brief Stores the current state of all the models.
+  ignition::msgs::Model_V current_models_;
+
+  // \brief Used to publish the scene message to the visualizer.
+  ignition::msgs::Scene scene_;
+
+  // \brief The last time that the scene message was updated.
+  std::chrono::steady_clock::time_point last_scene_update_;
 };
 
 }  // namespace backend

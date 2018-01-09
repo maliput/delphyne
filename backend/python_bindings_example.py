@@ -72,24 +72,33 @@ def get_from_env_or_fail(var):
 class SimulationStats(object):
     """This is a simple class to keep statistics of the simulation, just
     averaging the time it takes to execute a simulation step from the outside
-    world. Every 1000 measures, the values are printed to stdout"""
+    world. Every 1000 measures, the values are printed to stdout.
+    """
+
     def __init__(self):
+        """Just init the stats"""
         self.reset()
 
     def reset(self):
+        """Clear all values"""
         self._time_sum = 0.0
         self._samples_count = 0
         self._current_start_time = None
 
     def print_stats(self):
+        """Print the stats"""
         print(
             "Average simulation step takes {delta}ms"
             .format(delta=(self._time_sum / self._samples_count) * 1000))
 
     def start(self):
+        """Record the time when we start measuring"""
         self._current_start_time = time.time()
 
     def record_tick(self):
+        """A simulation tick happened. Record it.
+        Every 1000 ticks print the stats and reset
+        """
         end_time = time.time()
         delta = end_time - self._current_start_time
         self._time_sum += delta
@@ -102,11 +111,14 @@ class SimulationStats(object):
 
 def random_print():
     """Print a message at random, roughly every 500 calls"""
-    if (random.randint(1, 500) == 1):
+    if random.randint(1, 500) == 1:
         print("One in five hundred")
 
 
-def create_and_init_automotive_simulator():
+def build_automotive_simulator():
+    """Create an AutomotiveSimulator instance and attach a simple car to it.
+    Return the newly created simulator.
+    """
     simulator = AutomotiveSimulator()
     state = SimpleCarState()
     state.y = 0.0
@@ -127,7 +139,7 @@ def main():
     drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
-    simulator = create_and_init_automotive_simulator()
+    simulator = build_automotive_simulator()
     try:
         launcher.launch([lcm_ign_bridge, "1"])
         teleop_config = os.path.join(delphyne_ws_dir,

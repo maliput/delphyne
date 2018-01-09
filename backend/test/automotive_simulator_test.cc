@@ -71,6 +71,18 @@ struct LinkInfo {
   int num_geom{};
 };
 
+// Returns the number of links present in the ignition::msgs::Model_V message
+// passed as a parameter.
+int GetLinkCount(const ignition::msgs::Model_V& message) {
+  int link_count = 0;
+
+  for (int i = 0; i < message.models_size(); ++i) {
+    link_count += message.models(i).link_size();
+  }
+
+  return link_count;
+}
+
 // Tests GetRobotModel to return the initial robot model
 GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
@@ -150,10 +162,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
   const int id = simulator->AddPriusSimpleCar("Foo", kCommandChannelName);
   EXPECT_EQ(id, 0);
-
-  const int num_vis_elements = PriusVis<double>(0, "").num_poses();
 
   // Grab the systems we want while testing GetBuilderSystemByName() in the
   // process.
@@ -199,17 +210,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
                                  state_pub.get_translator(), mock_lcm,
                                  &simple_car_state);
   EXPECT_GT(simple_car_state.x(), 1.0);
-
-  // Confirm that appropriate draw messages are coming out. Just a few of the
-  // message's fields are checked.
-  const std::string channel_name = "DRAKE_VIEWER_DRAW";
-  drake::lcmt_viewer_draw published_draw_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          channel_name);
-
-  EXPECT_EQ(published_draw_message.num_links, num_vis_elements);
-  EXPECT_EQ(published_draw_message.link_name.at(0), "chassis_floor");
-  EXPECT_EQ(published_draw_message.link_name.at(1), "front_axle");
 
   // The subsystem pointers must not change.
   EXPECT_EQ(&simulator->GetDiagramSystemByName(driving_command_name),
@@ -258,6 +258,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
   drake::lcm::DrakeMockLcm* lcm =
       dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
   ASSERT_NE(lcm, nullptr);
@@ -301,19 +302,33 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
       MaliputRailcarParams<double>(), decoy_state);
   EXPECT_EQ(id_decoy2, 2);
 
+  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+  // that is published to DRAKE_VIEWER_DRAW.
+  ignition::transport::Node node;
+
+  ignition::msgs::Model_V draw_message;
+
+  std::function<void(const ignition::msgs::Model_V& ign_message)>
+      viewer_draw_callback =
+          [&draw_message](const ignition::msgs::Model_V& ign_message) {
+            draw_message = ign_message;
+          };
+
+  node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
+                                          viewer_draw_callback);
+
   // Finish all initialization, so that we can test the post-init state.
   simulator->Start();
 
   // Advances the simulation to allow the MaliputRailcar to begin accelerating.
   simulator->StepBy(0.5);
 
-  const drake::lcmt_viewer_draw draw_message =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW");
-  EXPECT_EQ(draw_message.num_links, 3 * PriusVis<double>(0, "").num_poses());
+  EXPECT_EQ(GetLinkCount(draw_message),
+            3 * PriusVis<double>(0, "").num_poses());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
-  const double mobil_y = draw_message.position.at(0).at(1);
+  const double mobil_y =
+      draw_message.models(id_mobil).link(0).pose().position().y();
   EXPECT_GE(mobil_y, -2.);
 }
 
@@ -327,16 +342,34 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
       {0.0, 0.0}, {100.0, 0.0},
   };
   const Curve2d curve{waypoints};
+  const double kTolerance{1e-8};
+  const double kPoseXTolerance{1e-6};
 
   // Set up a basic simulation with a couple Prius TrajectoryCars. Both cars
   // start at position zero; the first has a speed of 1 m/s, while the other is
   // stationary. They both follow a straight 100 m long line.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
   const int id1 = simulator->AddPriusTrajectoryCar("alice", curve, 1.0, 0.0);
   const int id2 = simulator->AddPriusTrajectoryCar("bob", curve, 0.0, 0.0);
   EXPECT_EQ(id1, 0);
   EXPECT_EQ(id2, 1);
+
+  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+  // that is published to DRAKE_VIEWER_DRAW.
+  ignition::transport::Node node;
+
+  ignition::msgs::Model_V draw_message;
+
+  std::function<void(const ignition::msgs::Model_V& ign_message)>
+      viewer_draw_callback =
+          [&draw_message](const ignition::msgs::Model_V& ign_message) {
+            draw_message = ign_message;
+          };
+
+  node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
+                                          viewer_draw_callback);
 
   // Finish all initialization, so that we can test the post-init state.
   simulator->Start();
@@ -344,116 +377,81 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   // Simulate for one second.
   for (int i = 0; i < 100; ++i) {
     simulator->StepBy(0.01);
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
-
-  const drake::lcm::DrakeLcmInterface* lcm = simulator->get_lcm();
-  ASSERT_NE(lcm, nullptr);
-
-  const drake::lcm::DrakeMockLcm* mock_lcm =
-      dynamic_cast<const drake::lcm::DrakeMockLcm*>(lcm);
-  ASSERT_NE(mock_lcm, nullptr);
 
   // Plus one to include the world.
   const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 1;
 
-  // Verifies that the correct lcmt_viewer_load_robot message was transmitted.
-  const drake::lcmt_viewer_load_robot load_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_load_robot>(
-          "DRAKE_VIEWER_LOAD_ROBOT");
-  EXPECT_EQ(load_message.num_links, expected_num_links);
-
-  const std::vector<LinkInfo> expected_load{
-      LinkInfo("chassis_floor", 0, 1),
-      LinkInfo("front_axle", 0, 1),
-      LinkInfo("left_tie_rod_arm", 0, 2),
-      LinkInfo("left_hub", 0, 1),
-      LinkInfo("tie_rod", 0, 1),
-      LinkInfo("left_wheel", 0, 3),
-      LinkInfo("right_tie_rod_arm", 0, 2),
-      LinkInfo("right_hub", 0, 1),
-      LinkInfo("right_wheel", 0, 3),
-      LinkInfo("rear_axle", 0, 1),
-      LinkInfo("left_wheel_rear", 0, 3),
-      LinkInfo("right_wheel_rear", 0, 3),
-      LinkInfo("body", 0, 1),
-      LinkInfo("front_lidar_link", 0, 1),
-      LinkInfo("top_lidar_link", 0, 1),
-      LinkInfo("rear_right_lidar_link", 0, 1),
-      LinkInfo("rear_left_lidar_link", 0, 1),
-      LinkInfo("chassis_floor", 1, 1),
-      LinkInfo("front_axle", 1, 1),
-      LinkInfo("left_tie_rod_arm", 1, 2),
-      LinkInfo("left_hub", 1, 1),
-      LinkInfo("tie_rod", 1, 1),
-      LinkInfo("left_wheel", 1, 3),
-      LinkInfo("right_tie_rod_arm", 1, 2),
-      LinkInfo("right_hub", 1, 1),
-      LinkInfo("right_wheel", 1, 3),
-      LinkInfo("rear_axle", 1, 1),
-      LinkInfo("left_wheel_rear", 1, 3),
-      LinkInfo("right_wheel_rear", 1, 3),
-      LinkInfo("body", 1, 1),
-      LinkInfo("front_lidar_link", 1, 1),
-      LinkInfo("top_lidar_link", 1, 1),
-      LinkInfo("rear_right_lidar_link", 1, 1),
-      LinkInfo("rear_left_lidar_link", 1, 1),
-      LinkInfo("world", 0, 0)};
-
-  for (int i = 0; i < load_message.num_links; ++i) {
-    EXPECT_EQ(load_message.link.at(i).name, expected_load.at(i).name);
-    EXPECT_EQ(load_message.link.at(i).robot_num, expected_load.at(i).robot_num);
-    EXPECT_EQ(load_message.link.at(i).num_geom, expected_load.at(i).num_geom);
-  }
-
-  // Verifies that the correct lcmt_viewer_draw message was transmitted. The
-  // tolerance values were empirically determined.
-  const drake::lcmt_viewer_draw draw_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW");
   // Minus one to omit world, which remains still.
-  EXPECT_EQ(draw_message.num_links, expected_num_links - 1);
+  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
+
+  auto alice_model = draw_message.models(id1);
+  auto bob_model = draw_message.models(id2);
+
+  // Checks the car ids
+  EXPECT_EQ(alice_model.id(), id1);
+  EXPECT_EQ(bob_model.id(), id2);
+
+  auto link = alice_model.link(0);
 
   // Checks the chassis_floor body of the first car.
-  EXPECT_EQ(draw_message.link_name.at(0), "chassis_floor");
-  EXPECT_EQ(draw_message.robot_num.at(0), 0);
-  EXPECT_NEAR(draw_message.position.at(0).at(0),
-              PriusVis<double>::kVisOffset + 0.99, 1e-6);
-  EXPECT_NEAR(draw_message.position.at(0).at(1), 0, 1e-8);
-  EXPECT_NEAR(draw_message.position.at(0).at(2), 0.378326, 1e-8);
-  EXPECT_NEAR(draw_message.quaternion.at(0).at(0), 1, 1e-8);
-  EXPECT_NEAR(draw_message.quaternion.at(0).at(1), 0, 1e-8);
-  EXPECT_NEAR(draw_message.quaternion.at(0).at(2), 0, 1e-8);
-  EXPECT_NEAR(draw_message.quaternion.at(0).at(3), 0, 1e-8);
+  EXPECT_EQ(link.name(), "chassis_floor");
+
+  EXPECT_NEAR(link.pose().position().x(), PriusVis<double>::kVisOffset + 0.99,
+              kPoseXTolerance);
+  EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().position().z(), 0.378326, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
+
+  // Checks the chassis_floor body of the first car.
+  EXPECT_EQ(alice_model.link_size(), bob_model.link_size());
 
   // Verifies that the first car is about 1 m ahead of the second car. This is
   // expected since the first car is traveling at 1 m/s for a second while the
   // second car is immobile.
-  const int n = draw_message.num_links / 2;
-  for (int i = 0; i < n; ++i) {
-    EXPECT_EQ(draw_message.link_name.at(i), draw_message.link_name.at(i + n));
-    EXPECT_EQ(draw_message.robot_num.at(i),
-              draw_message.robot_num.at(i + n) - 1);
-    EXPECT_NEAR(draw_message.position.at(i).at(0),
-                draw_message.position.at(i + n).at(0) + 0.99, 1e-6);
-    EXPECT_NEAR(draw_message.position.at(i).at(1),
-                draw_message.position.at(i + n).at(1), 1e-8);
-    EXPECT_NEAR(draw_message.position.at(i).at(2),
-                draw_message.position.at(i + n).at(2), 1e-8);
-    for (int j = 0; j < 4; ++j) {
-      EXPECT_NEAR(draw_message.quaternion.at(i).at(j),
-                  draw_message.quaternion.at(i + n).at(j), 1e-8);
-    }
+  for (int i = 0; i < alice_model.link_size(); i++) {
+    auto alice_link = alice_model.link(i);
+    auto bob_link = bob_model.link(i);
+    EXPECT_EQ(alice_link.name(), bob_link.name());
+    EXPECT_NEAR(alice_link.pose().position().x(),
+                bob_link.pose().position().x() + 0.99, kPoseXTolerance);
+    EXPECT_NEAR(alice_link.pose().position().y(),
+                bob_link.pose().position().y(), kTolerance);
+    EXPECT_NEAR(alice_link.pose().position().z(),
+                bob_link.pose().position().z(), kTolerance);
+    EXPECT_NEAR(alice_link.pose().orientation().w(),
+                bob_link.pose().orientation().w(), kTolerance);
+    EXPECT_NEAR(alice_link.pose().orientation().x(),
+                bob_link.pose().orientation().x(), kTolerance);
+    EXPECT_NEAR(alice_link.pose().orientation().y(),
+                bob_link.pose().orientation().y(), kTolerance);
+    EXPECT_NEAR(alice_link.pose().orientation().z(),
+                bob_link.pose().orientation().z(), kTolerance);
   }
 }
 
-// Returns the x-position of the vehicle based on an lcmt_viewer_draw message.
+// Checks the message has the expected link count and includes the
+// chassis floor as its first link.
+void CheckModelLinks(const ignition::msgs::Model_V& message) {
+  const int link_count = GetLinkCount(message);
+
+  auto link = message.models(0).link(0);
+
+  EXPECT_EQ(link_count, PriusVis<double>(0, "").num_poses());
+  EXPECT_EQ(link.name(), "chassis_floor");
+}
+
+// Returns the x-position of the vehicle based on an ignition::msgs::Model_V.
 // It also checks that the y-position of the vehicle is equal to the provided y
 // value.
-double GetPosition(const drake::lcmt_viewer_draw& message, double y) {
-  EXPECT_EQ(message.num_links, PriusVis<double>(0, "").num_poses());
-  EXPECT_EQ(message.link_name.at(0), "chassis_floor");
-  EXPECT_DOUBLE_EQ(message.position.at(0).at(1), y);
-  return message.position.at(0).at(0);
+double GetXPosition(const ignition::msgs::Model_V& message, double y) {
+  auto link = message.models(0).link(0);
+  EXPECT_DOUBLE_EQ(link.pose().position().y(), y);
+  return link.pose().position().x();
 }
 
 // Covers AddMaliputRailcar().
@@ -462,6 +460,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
                                "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
+
   drake::lcm::DrakeMockLcm* lcm =
       dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
   ASSERT_NE(lcm, nullptr);
@@ -505,6 +504,21 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
       params, MaliputRailcarState<double>() /* initial state */);
   EXPECT_EQ(id, 0);
 
+  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+  // that is published to DRAKE_VIEWER_DRAW
+  ignition::transport::Node node;
+
+  ignition::msgs::Model_V draw_message;
+
+  std::function<void(const ignition::msgs::Model_V& ign_message)>
+      viewer_draw_callback =
+          [&draw_message](const ignition::msgs::Model_V& ign_message) {
+            draw_message = ign_message;
+          };
+
+  node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
+                                          viewer_draw_callback);
+
   simulator->Start();
 
   // Takes two steps to trigger the publishing of an LCM draw message.
@@ -512,27 +526,29 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   simulator->StepBy(0.005);
 
   const double initial_x = PriusVis<double>::kVisOffset;
-
   // Verifies the acceleration is zero even if
   // AutomotiveSimulator::SetMaliputRailcarAccelerationCommand() was not called.
-  const drake::lcmt_viewer_draw draw_message0 =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW");
+
+  CheckModelLinks(draw_message);
+
   // The following tolerance was determined empirically.
-  EXPECT_NEAR(GetPosition(draw_message0, kR), initial_x, 1e-4);
+  const double kPoseXTolerance{1e-4};
+
+  EXPECT_NEAR(GetXPosition(draw_message, kR), initial_x, kPoseXTolerance);
 
   // Sets the commanded acceleration to be zero.
   simulator->SetMaliputRailcarAccelerationCommand(id, 0);
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
 
+  CheckModelLinks(draw_message);
+
   // Verifies that the vehicle hasn't moved yet. This is expected since the
   // commanded acceleration is zero.
-  const drake::lcmt_viewer_draw draw_message1 =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW");
   // The following tolerance was determined empirically.
-  EXPECT_NEAR(GetPosition(draw_message1, kR), initial_x, 1e-4);
+  const double step_2_position = GetXPosition(draw_message, kR);
+
+  EXPECT_NEAR(step_2_position, initial_x, kPoseXTolerance);
 
   // Sets the commanded acceleration to be 10 m/s^2.
   simulator->SetMaliputRailcarAccelerationCommand(id, 10);
@@ -541,28 +557,16 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
 
+  CheckModelLinks(draw_message);
+
   // Verifies that the MaliputRailcar has moved forward relative to prior to
   // the nonzero acceleration command being issued.
-  const drake::lcmt_viewer_draw draw_message2 =
-      lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW");
-  EXPECT_LT(draw_message1.position.at(0).at(0), GetPosition(draw_message2, kR));
-}
-
-bool ContainsWorld(const drake::lcmt_viewer_load_robot& message) {
-  bool result = false;
-  for (int i = 0; i < message.num_links; ++i) {
-    if (message.link.at(i).name ==
-        std::string(RigidBodyTreeConstants::kWorldName)) {
-      result = true;
-    }
-  }
-  return result;
+  EXPECT_LT(step_2_position, GetXPosition(draw_message, kR));
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
 // LcmPublisherSystem are instantiated in AutomotiveSimulator's Diagram and
-// collectively result in the correct LCM messages being published.
+// collectively result in the correct ignition messages being published.
 GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
@@ -581,32 +585,43 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   simulator->AddPriusTrajectoryCar("bob", curve, 1 /* speed */,
                                    0 /* start time */);
 
-  simulator->Start();
-  simulator->StepBy(1e-3);
+  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+  // that is published to DRAKE_VIEWER_DRAW
+  ignition::transport::Node node;
 
-  const drake::lcm::DrakeLcmInterface* lcm = simulator->get_lcm();
-  ASSERT_NE(lcm, nullptr);
+  ignition::msgs::Model_V draw_message;
 
-  const drake::lcm::DrakeMockLcm* mock_lcm =
-      dynamic_cast<const drake::lcm::DrakeMockLcm*>(lcm);
-  ASSERT_NE(mock_lcm, nullptr);
+  std::function<void(const ignition::msgs::Model_V& ign_message)>
+      viewer_draw_callback =
+          [&draw_message](const ignition::msgs::Model_V& ign_message) {
+            draw_message = ign_message;
+          };
+
+  node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
+                                          viewer_draw_callback);
 
   // Plus one to include the world.
   const int expected_num_links = PriusVis<double>(0, "").num_poses() * 4 + 1;
 
-  // Verifies that an lcmt_viewer_load_robot message was transmitted.
-  const drake::lcmt_viewer_load_robot load_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_load_robot>(
-          "DRAKE_VIEWER_LOAD_ROBOT");
-  EXPECT_EQ(load_message.num_links, expected_num_links);
-  EXPECT_TRUE(ContainsWorld(load_message));
+  simulator->Start();
 
-  // Verifies that an lcmt_viewer_draw message was transmitted.
-  const drake::lcmt_viewer_draw draw_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW");
-  // Minus one to omit world, which remains still.
-  EXPECT_EQ(draw_message.num_links, expected_num_links - 1);
+  auto robot_model = simulator->GetRobotModel();
+
+  int robot_model_link_count = 0;
+
+  for (int i = 0; i < robot_model->models_size(); ++i) {
+    if (robot_model->models(i).name() == "world") {
+      robot_model_link_count += 1;
+    } else {
+      robot_model_link_count += robot_model->models(i).link_size();
+    }
+  }
+
+  EXPECT_EQ(robot_model_link_count, expected_num_links);
+
+  simulator->StepBy(1e-3);
+
+  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
 }
 
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
@@ -761,6 +776,35 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
 
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
+}
+
+// Verifies that messages are no longer being published in LCM
+// DRAKE_VIEWER_LOAD_ROBOT and DRAKE_VIEWER_DRAW channels.
+GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
+  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
+                               "/share/drake");
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
+      std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  simulator->AddPriusSimpleCar("Model1", "Channel1");
+
+  simulator->Start();
+  simulator->StepBy(1e-3);
+
+  const drake::lcm::DrakeLcmInterface* lcm = simulator->get_lcm();
+  ASSERT_NE(lcm, nullptr);
+
+  const drake::lcm::DrakeMockLcm* mock_lcm =
+      dynamic_cast<const drake::lcm::DrakeMockLcm*>(lcm);
+  ASSERT_NE(mock_lcm, nullptr);
+
+  // There should be no message published in DRAKE_VIEWER_LOAD_ROBOT
+  EXPECT_THROW(mock_lcm->get_last_published_message("DRAKE_VIEWER_LOAD_ROBOT"),
+               std::runtime_error);
+
+  // There should be no message published in DRAKE_VIEWER_DRAW
+  EXPECT_THROW(mock_lcm->get_last_published_message("DRAKE_VIEWER_DRAW"),
+               std::runtime_error);
 }
 
 //////////////////////////////////////////////////

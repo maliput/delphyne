@@ -44,8 +44,6 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <protobuf/simulation_in_message.pb.h>
-
 #include <pybind11/pybind11.h>
 
 #include <Python.h>

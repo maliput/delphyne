@@ -497,40 +497,6 @@ const drake::systems::System<T>& AutomotiveSimulator<T>::GetDiagramSystemByName(
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::TransmitLoadMessage() {
-  const drake::lcmt_viewer_load_robot load_car_message =
-      car_vis_applicator_->get_load_robot_message();
-  const drake::lcmt_viewer_load_robot load_terrain_message =
-      drake::multibody::CreateLoadRobotMessage<T>(*tree_);
-  drake::lcmt_viewer_load_robot load_message;
-  load_message.num_links =
-      load_car_message.num_links + load_terrain_message.num_links;
-  for (int i = 0; i < load_car_message.num_links; ++i) {
-    load_message.link.push_back(load_car_message.link.at(i));
-  }
-  for (int i = 0; i < load_terrain_message.num_links; ++i) {
-    load_message.link.push_back(load_terrain_message.link.at(i));
-  }
-  SendLoadRobotMessage(load_message);
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::SendLoadRobotMessage(
-    const drake::lcmt_viewer_load_robot& lcm_message) {
-  const int num_bytes = lcm_message.getEncodedSize();
-  std::vector<uint8_t> message_bytes(num_bytes);
-  const int num_bytes_encoded =
-      lcm_message.encode(message_bytes.data(), 0, num_bytes);
-  DRAKE_ASSERT(num_bytes_encoded == num_bytes);
-
-  ignition::msgs::Model_V ign_message;
-
-  bridge::lcmToIgn(lcm_message, &ign_message);
-
-  lcm_->Publish("DRAKE_VIEWER_LOAD_ROBOT", message_bytes.data(), num_bytes);
-}
-
-template <typename T>
 void AutomotiveSimulator<T>::Build() {
   DRAKE_DEMAND(diagram_ == nullptr);
 
@@ -539,11 +505,7 @@ void AutomotiveSimulator<T>::Build() {
   builder_->Connect(
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       bundle_to_draw_->get_input_port(0));
-  lcm_publisher_ =
-      builder_->AddSystem(LcmPublisherSystem::Make<drake::lcmt_viewer_draw>(
-          "DRAKE_VIEWER_DRAW", lcm_.get()));
-  builder_->Connect(bundle_to_draw_->get_output_port(0),
-                    lcm_publisher_->get_input_port(0));
+
   ign_publisher_ = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem>("DRAKE_VIEWER_DRAW"));
   builder_->Connect(bundle_to_draw_->get_output_port(0),
@@ -561,8 +523,6 @@ void AutomotiveSimulator<T>::Start(double target_realtime_rate) {
   if (diagram_ == nullptr) {
     Build();
   }
-
-  TransmitLoadMessage();
 
   simulator_ = std::make_unique<drake::systems::Simulator<T>>(*diagram_);
 

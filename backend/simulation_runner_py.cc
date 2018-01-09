@@ -38,6 +38,8 @@
 
 namespace py = pybind11;
 
+using std::unique_ptr;
+
 using delphyne::backend::AutomotiveSimulator;
 using delphyne::backend::SimulatorRunner;
 using drake::automotive::SimpleCarState;
@@ -51,55 +53,60 @@ using drake::automotive::SimpleCarState;
 namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
-    .def(py::init([](std::unique_ptr<AutomotiveSimulator<double>> simulator, double time_step) {
-      return std::make_unique<SimulatorRunner>(std::move(simulator), time_step);
-    }))
-    .def("Start", &SimulatorRunner::Start)
-    .def("Stop", &SimulatorRunner::Stop)
-    .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
-  ;
+      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
+      .def("Start", &SimulatorRunner::Start)
+      .def("Stop", &SimulatorRunner::Stop)
+      .def("AddStepCallback", &SimulatorRunner::AddStepCallback);
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
-    .def(py::init([](void) {
-        return std::make_unique<AutomotiveSimulator<double>>();
-    }))
-    .def("Start", &AutomotiveSimulator<double>::Start)
-    .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
-    .def("AddMobilControlledSimpleCar", &AutomotiveSimulator<double>::AddMobilControlledSimpleCar)
-    // TODO(mikaelarguedas) bind more method depending on what we need
-    // Needs drake::automotive::Curve2<double>&
-    // .def("AddPriusTrajectoryCar", &AutomotiveSimulator<double>::AddPriusTrajectoryCar)
-    // Needs:
-    //  - drake::automotive::LaneDirection
-    //  - drake::automotive::MaliputRailcarParams<T>
-    //  - drake::automotive::MaliputRailcarState<T>
-    // .def("AddPriusMaliputRailcar", &AutomotiveSimulator<double>::AddPriusMaliputRailcar)
-    // Needs:
-    //  - drake::automotive::LaneDirection
-    //  - drake::automotive::MaliputRailcarParams<T>
-    //  - drake::automotive::MaliputRailcarState<T>
-    // .def("AddIdmControlledPriusMaliputRailcar", &AutomotiveSimulator<double>::AddIdmControlledPriusMaliputRailcar)
-    // .def("SetMaliputRailcarAccelerationCommand", &AutomotiveSimulator<double>::SetMaliputRailcarAccelerationCommand)
-    // Needs drake::maliput::api::RoadGeometry binding
-    // .def("SetRoadGeometry", &AutomotiveSimulator<double>::SetRoadGeometry)
-    // Needs drake::maliput::api::Lane binding
-    // .def("FindLane", &AutomotiveSimulator<double>::FindLane)
-    // Needs drake::systems::System<T> binding
-    // .def("GetDiagramSystemByName", &AutomotiveSimulator<double>::GetDiagramSystemByName)
-    // .def("Build", &AutomotiveSimulator<double>::Build)
-    // .def("GetDiagram", &AutomotiveSimulator<double>::GetDiagram)
-    // .def("StepBy", &AutomotiveSimulator<double>::StepBy)
-    // Needs drake::systems::rendering::PoseBundle<T> binding
-    // .def("GetCurrentPoses", &AutomotiveSimulator<double>::GetCurrentPoses)
-  ;
+      .def(py::init(
+          [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
+      .def("Start", &AutomotiveSimulator<double>::Start)
+      .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
+      .def("AddMobilControlledSimpleCar",
+           &AutomotiveSimulator<double>::AddMobilControlledSimpleCar);
+  // TODO(mikaelarguedas) bind more method depending on what we need
+  // Needs drake::automotive::Curve2<double>&
+  // .def("AddPriusTrajectoryCar",
+  // &AutomotiveSimulator<double>::AddPriusTrajectoryCar)
+  // Needs:
+  //  - drake::automotive::LaneDirection
+  //  - drake::automotive::MaliputRailcarParams<T>
+  //  - drake::automotive::MaliputRailcarState<T>
+  // .def("AddPriusMaliputRailcar",
+  // &AutomotiveSimulator<double>::AddPriusMaliputRailcar)
+  // Needs:
+  //  - drake::automotive::LaneDirection
+  //  - drake::automotive::MaliputRailcarParams<T>
+  //  - drake::automotive::MaliputRailcarState<T>
+  // .def("AddIdmControlledPriusMaliputRailcar",
+  // &AutomotiveSimulator<double>::AddIdmControlledPriusMaliputRailcar)
+  // .def("SetMaliputRailcarAccelerationCommand",
+  // &AutomotiveSimulator<double>::SetMaliputRailcarAccelerationCommand)
+  // Needs drake::maliput::api::RoadGeometry binding
+  // .def("SetRoadGeometry", &AutomotiveSimulator<double>::SetRoadGeometry)
+  // Needs drake::maliput::api::Lane binding
+  // .def("FindLane", &AutomotiveSimulator<double>::FindLane)
+  // Needs drake::systems::System<T> binding
+  // .def("GetDiagramSystemByName",
+  // &AutomotiveSimulator<double>::GetDiagramSystemByName)
+  // .def("Build", &AutomotiveSimulator<double>::Build)
+  // .def("GetDiagram", &AutomotiveSimulator<double>::GetDiagram)
+  // .def("StepBy", &AutomotiveSimulator<double>::StepBy)
+  // Needs drake::systems::rendering::PoseBundle<T> binding
+  // .def("GetCurrentPoses", &AutomotiveSimulator<double>::GetCurrentPoses)
   // TODO(mikaelarguedas) Submit this to upstream Drake
   py::class_<SimpleCarState<double>>(m, "SimpleCarState")
-    .def(py::init<>())
-    .def_property("x", &SimpleCarState<double>::x, &SimpleCarState<double>::set_x)
-    .def_property("y", &SimpleCarState<double>::y, &SimpleCarState<double>::set_y)
-    .def_property("heading", &SimpleCarState<double>::heading, &SimpleCarState<double>::set_heading)
-    .def_property("velocity", &SimpleCarState<double>::velocity, &SimpleCarState<double>::set_velocity)
-    .def("get_coordinates_names", &SimpleCarState<double>::GetCoordinateNames)
-  ;
+      .def(py::init<>())
+      .def_property("x", &SimpleCarState<double>::x,
+                    &SimpleCarState<double>::set_x)
+      .def_property("y", &SimpleCarState<double>::y,
+                    &SimpleCarState<double>::set_y)
+      .def_property("heading", &SimpleCarState<double>::heading,
+                    &SimpleCarState<double>::set_heading)
+      .def_property("velocity", &SimpleCarState<double>::velocity,
+                    &SimpleCarState<double>::set_velocity)
+      .def("get_coordinates_names",
+           &SimpleCarState<double>::GetCoordinateNames);
 }
 
 }  // namespace

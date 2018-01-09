@@ -337,14 +337,6 @@ class AutomotiveSimulator {
   // method.
   void GenerateAndLoadRoadNetworkUrdf();
 
-  // Creates a lcmt_load_robot message containing all visual elements in the
-  // simulation and sends it to the drake-visualizer.
-  void TransmitLoadMessage();
-
-  // Publishes an LCM viewer load robot message in the DRAKE_VIEWER_LOAD_ROBOT
-  // channel
-  void SendLoadRobotMessage(const drake::lcmt_viewer_load_robot& lcm_message);
-
   void InitializeTrajectoryCars();
   void InitializeSimpleCars();
   void InitializeMaliputRailcars();

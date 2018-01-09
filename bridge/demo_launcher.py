@@ -36,37 +36,8 @@ from __future__ import print_function
 
 import argparse
 import os
-import select
 import sys
-import time
-import lcm
 from launcher import Launcher
-
-
-def wait_for_lcm_message_on_channel(channel):
-    """Wait for a single message to arrive on the specified LCM channel.
-    """
-    lcm_connection = lcm.LCM()
-
-    def receive(channel, data):
-        """LCM channel handler"""
-        _ = (channel, data)
-        raise StopIteration()
-
-    sub = lcm_connection.subscribe(channel, receive)
-    start_time = time.time()
-    try:
-        while True:
-            if time.time() - start_time > 10.:
-                raise RuntimeError(
-                    "Timeout waiting for channel %s" % channel)
-            rlist, _, _ = select.select([lcm_connection], [], [], 0.1)
-            if lcm_connection in rlist:
-                lcm_connection.handle()
-    except StopIteration:
-        pass
-    finally:
-        lcm_connection.unsubscribe(sub)
 
 
 def get_from_env_or_fail(var):
@@ -113,38 +84,15 @@ def main():
                         action="store", choices=demo_arguments.keys(),
                         help="the specific demo to launch")
 
-    parser.add_argument("--no-drake-visualizer", action="store_false",
-                        default=True, dest="drake_visualizer",
-                        help="don't launch drake-visualizer")
-
     args = parser.parse_args()
 
-    drake_src_dir = get_from_env_or_fail('DRAKE_SRC_DIR')
     delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-
-    # Build up the binary path
-    drake_bazel_bin_path = os.path.join(drake_src_dir, 'bazel-bin')
 
     # Delphyne binaries; these are found through the standard PATH, so
     # they are relative
     lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
     automotive_demo = "automotive-demo"
-
-    # The drake-visualizer, drake-lcm-spy, and lcm-logger are installed when
-    # installing drake, so use PATH
-    drake_visualizer = "drake-visualizer"
-    drake_lcm_spy = "drake-lcm-spy"
-    lcm_logger = "lcm-logger"
-
-    # The automotive_demo and steering_command_driver binaries from drake.
-    # These aren't installed with a drake install, so we must run them from the
-    # drake src directory.
-    steering_command_driver_path = os.path.join(
-        drake_bazel_bin_path,
-        "drake",
-        "automotive",
-        "steering_command_driver")
 
     try:
         launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
@@ -161,19 +109,7 @@ def main():
         else:
             launcher.launch([ign_visualizer])
 
-        if args.drake_visualizer:
-            if args.demo_name == "simple":
-                # Launch two instances of the drake steering_command app
-                launcher.launch([
-                    steering_command_driver_path,
-                    "--lcm_tag=DRIVING_COMMAND_0"])
-            launcher.launch([drake_lcm_spy])
-            launcher.launch([lcm_logger])
-            launcher.launch([drake_visualizer])
-            # wait for the drake-visualizer to be up
-            wait_for_lcm_message_on_channel("DRAKE_VIEWER_STATUS")
-
-        launcher.launch([automotive_demo] + demo_arguments[args.demo_name])
+        launcher.launch([automotive_demo])
         launcher.wait(float("Inf"))
 
     finally:

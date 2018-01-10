@@ -61,9 +61,13 @@ class KeyboardHandler(object):
     https://github.com/frank-deng/experimental-works/blob/master/kbhit.py .
     """
 
-    def __init__(self):
+    def __init__(self, input_stream=None):
+        if input_stream:
+            self.input_stream = input_stream
+        else:
+            self.input_stream = sys.stdin
         # Save current terminal settings
-        self.file_descriptor = sys.stdin.fileno()
+        self.file_descriptor = self.input_stream.fileno()
         self.new_terminal = termios.tcgetattr(self.file_descriptor)
         self.old_terminal = termios.tcgetattr(self.file_descriptor)
         # New terminal setting unbuffered
@@ -79,18 +83,16 @@ class KeyboardHandler(object):
         termios.tcsetattr(self.file_descriptor,
                           termios.TCSAFLUSH, self.old_terminal)
 
-    @staticmethod
-    def get_character():
+    def get_character(self):
         """Reads a character from the keyboard."""
-        char = sys.stdin.read(1)
+        char = self.input_stream.read(1)
         if char == '\x00' or ord(char) >= 0xA1:
-            return char + sys.stdin.read(1)
+            return char + self.input_stream.read(1)
         return char
 
-    @staticmethod
-    def key_hit():
+    def key_hit(self):
         """Returns True if a keyboard key has been pressed, False otherwise."""
-        key_hit, _, _ = select([sys.stdin], [], [], 0)
+        key_hit, _, _ = select([self.input_stream], [], [], 0)
         return key_hit != []
 
 

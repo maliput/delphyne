@@ -85,8 +85,8 @@ void WaitForShutdown() {
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-    double time_step)
-    : time_step_(time_step), simulator_(std::move(sim)) {
+    double time_step, bool paused)
+    : time_step_(time_step), simulator_(std::move(sim)), paused_(paused) {
   // Advertises the service for controlling the simulation.
   node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
 
@@ -107,6 +107,10 @@ SimulatorRunner::SimulatorRunner(
 
   simulator_->Start();
 }
+
+SimulatorRunner::SimulatorRunner(
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    double time_step) : SimulatorRunner(std::move(sim), time_step, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
   Stop();

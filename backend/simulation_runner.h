@@ -138,6 +138,17 @@ class SimulatorRunner {
   /// the simulation.
   /// \param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
+  /// \param[in] paused A boolean value that if true, will start the
+  /// simulator in paused mode.
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double time_step, bool paused);
+
+  /// \brief Simplified constructor, starts the simulator with _paused = false
+  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  /// \param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
   SimulatorRunner(
       std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
       double time_step);

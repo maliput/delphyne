@@ -36,7 +36,6 @@ from __future__ import print_function
 
 import argparse
 import os
-import sys
 from launcher import Launcher
 from utils import get_from_env_or_fail
 

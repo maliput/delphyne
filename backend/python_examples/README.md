@@ -17,6 +17,6 @@ $ ./keyboard_controlled_simulation.py
 
 <`p`> will pause the simulation if unpaused and viceversa.
 
-<`s`> if paused, will step the simulation on a single step.
+<`s`> will step the simulation once if paused.
 
 <`q`> will stop the simulation and quit the demo.

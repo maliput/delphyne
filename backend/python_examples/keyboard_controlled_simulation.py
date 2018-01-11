@@ -115,7 +115,7 @@ def run_simulation_loop(sim_runner):
     print("\n*************************************************************\n"
           "* Instructions for running the demo:                        *\n"
           "* <p> will pause the simulation if unpaused and viceversa.  *\n"
-          "* <s> if paused, will step the simulation on a single step. *\n"
+          "* <s> will step the simulation once if paused. *\n"
           "* <q> will stop the simulation and quit the demo.           *\n"
           "*************************************************************\n")
     print("Simulation is running")
@@ -144,21 +144,30 @@ def run_simulation_loop(sim_runner):
 
 def main():
     """Spawn an automotive simulator"""
+
+    # Checks for env variables presence, quits the demo otherwise.
+    try:
+        delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
+        drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
+    except RuntimeError, error_msg:
+        sys.stderr.write('ERROR: {}'.format(error_msg))
+        sys.exit(1)
+
     launcher = Launcher()
 
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-    ign_visualizer = "visualizer"
-
-    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
+    ign_visualizer = "visualizer"
+
     simulator = build_automotive_simulator()
+
+    teleop_config = os.path.join(delphyne_ws_dir,
+                                 "install",
+                                 "share",
+                                 "delphyne",
+                                 "layoutWithRenderOnly.config")
+
     try:
-        teleop_config = os.path.join(delphyne_ws_dir,
-                                     "install",
-                                     "share",
-                                     "delphyne",
-                                     "layoutWithRenderOnly.config")
         launcher.launch([ign_visualizer, teleop_config])
 
         runner = SimulatorRunner(simulator, 0.001)

@@ -39,9 +39,8 @@ def get_from_env_or_fail(var):
     """Retrieves an env variable for a given name, fails if not found."""
     value = os.environ.get(var)
     if value is None:
-        print("%s is not in the environment, "
-              "did you remember to source setup.bash?" % (var))
-        sys.exit(1)
+        raise RuntimeError("{} is not in the environment, "
+                           "did you remember to source setup.bash?\n".format(var))
 
     # Since it is an environment variable, the very end may have a colon;
     # strip it here

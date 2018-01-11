@@ -49,8 +49,10 @@ namespace backend {
 class SimulationRunnerTest : public ::testing::Test {
  protected:
   void SetUp() override {
+    auto simulator =
+      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
     sim_runner_ =
-        std::make_unique<SimulatorRunner>(std::move(simulator_), kTimeStep);
+        std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
   }
 
   // Callback method for handlig RobotModelRequest service calls
@@ -65,12 +67,9 @@ class SimulationRunnerTest : public ::testing::Test {
                     &SimulationRunnerTest::RobotModelRequestCallback, this);
   }
 
-  std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_ =
-      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+  const double kTimeStep{0.01};  // 10 millis
 
-  const double kTimeStep = 0.01;  // 10 millis
-
-  bool callback_called_ = false;
+  bool callback_called_{false};
 
   std::unique_ptr<SimulatorRunner> sim_runner_;
 
@@ -102,16 +101,17 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 
   // Calculates duration in milliseconds.
   auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                      step_end - step_start)
-                      .count();
+                      step_end - step_start);
 
-  EXPECT_LE(10, duration);
+  std::chrono::milliseconds min_simulation_time(10);
+
+  EXPECT_GE(duration, min_simulation_time);
 }
 
 // \brief Verifies that an incoming message has
 // been consumed from the incoming_msgs_ queue
 TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
-  std::string service_name = "test_service_name";
+  const std::string service_name{"test_service_name"};
 
   ignition::msgs::RobotModelRequest robot_model_request_msg;
 
@@ -120,9 +120,10 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   AdvertiseRobotModelRequest(service_name);
 
   ignition::msgs::Boolean response;
-  unsigned int timeout = 100;
+  const unsigned int timeout = 100;
   bool result = false;
-  node_.Request("/get_robot_model", robot_model_request_msg, timeout, response,
+  const std::string service = "/get_robot_model";
+  node_.Request(service, robot_model_request_msg, timeout, response,
                 result);
 
   EXPECT_TRUE(result);

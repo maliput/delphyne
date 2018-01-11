@@ -70,9 +70,6 @@ REGISTER_STATIC_IGN_REPEATER("DRIVING_COMMAND_(.*)",
                              ignition::msgs::AutomotiveDrivingCommand,
                              drake::lcmt_driving_command_t)
 
-REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_STATUS", drake::lcmt_viewer_command,
-                             ignition::msgs::ViewerCommand)
-
 REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
                              drake::lcmt_simple_car_state_t,
                              ignition::msgs::SimpleCarState)
@@ -118,16 +115,6 @@ int main(int argc, char* argv[]) {
   }
 
   manager.EnableLCMAutodiscovery();
-
-  // Service name
-  std::string notifierServiceName = "/visualizer_start_notifier";
-  std::string channelName = "DRAKE_VIEWER_STATUS";
-
-  // Start ignition service to lcm channel converter
-  delphyne::bridge::IgnitionServiceConverter<ignition::msgs::Empty,
-                                             drake::lcmt_viewer_command>
-      ignToLcmRepublisher(sharedLCM, notifierServiceName, channelName);
-  ignToLcmRepublisher.Start();
 
   while (!terminatePub) {
     sharedLCM->handleTimeout(100);

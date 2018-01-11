@@ -109,7 +109,7 @@ def build_automotive_simulator():
 
 def run_simulation_loop(sim_runner, simulation_time_step):
     """Runs the keyboard-controlled simulation loop. Based on the key pressed
-    the simulation will play/pause/step
+    the simulation will play/pause/step.
     """
     running = True
     paused = False

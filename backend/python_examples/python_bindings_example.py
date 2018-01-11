@@ -48,12 +48,13 @@ from launcher import Launcher
 
 from pydrake.common import AddResourceSearchPath
 
-from simulation_runner_py import (
-    AutomotiveSimulator,
-    SimpleCarState,
-    SimulatorRunner
+from simulation_runner_py import SimulatorRunner
+from utils import (
+    build_automotive_simulator,
+    get_from_env_or_fail,
+    launch_bridge,
+    launch_visualizer
 )
-from utils import get_from_env_or_fail
 
 
 class SimulationStats(object):
@@ -102,39 +103,20 @@ def random_print():
         print("One in five hundred")
 
 
-def build_automotive_simulator():
-    """Create an AutomotiveSimulator instance and attach a simple car to it.
-    Return the newly created simulator.
-    """
-    simulator = AutomotiveSimulator()
-    state = SimpleCarState()
-    state.y = 0.0
-    simulator.AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state)
-
-    return simulator
-
-
 def main():
     """Spawn an automotive simulator making use of the python bindings"""
     stats = SimulationStats()
     launcher = Launcher()
-
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
-    ign_visualizer = "visualizer"
 
     drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
     simulator = build_automotive_simulator()
     try:
-        launcher.launch([lcm_ign_bridge, "1"])
-        teleop_config = os.path.join(delphyne_ws_dir,
-                                     "install",
-                                     "share",
-                                     "delphyne",
-                                     "layoutWithTeleop.config")
-        launcher.launch([ign_visualizer, teleop_config])
+
+        launch_bridge(launcher)
+
+        launch_visualizer(launcher, "layoutWithTeleop.config")
 
         runner = SimulatorRunner(simulator, 0.001)
         # Add a callback to record and print statistics

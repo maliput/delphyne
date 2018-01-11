@@ -48,7 +48,12 @@ from simulation_runner_py import (
     SimpleCarState,
     SimulatorRunner
 )
-from utils import get_from_env_or_fail
+from utils import (
+    build_automotive_simulator,
+    get_from_env_or_fail,
+    launch_bridge,
+    launch_visualizer
+)
 
 
 class KeyboardHandler(object):
@@ -96,17 +101,6 @@ class KeyboardHandler(object):
         return key_hit != []
 
 
-def build_automotive_simulator():
-    """Creates an AutomotiveSimulator instance and attachs a simple car to it.
-    Returns the newly created simulator.
-    """
-    simulator = AutomotiveSimulator()
-    state = SimpleCarState()
-    state.y = 0.0
-    simulator.AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state)
-    return simulator
-
-
 def run_simulation_loop(sim_runner, simulation_time_step):
     """Runs the keyboard-controlled simulation loop. Based on the key pressed
     the simulation will play/pause/step.
@@ -151,7 +145,6 @@ def main():
 
     # Checks for env variables presence, quits the demo otherwise.
     try:
-        delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
         drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
     except RuntimeError, error_msg:
         sys.stderr.write('ERROR: {}'.format(error_msg))
@@ -163,16 +156,10 @@ def main():
 
     simulator = build_automotive_simulator()
 
-    teleop_config = os.path.join(delphyne_ws_dir,
-                                 "install",
-                                 "share",
-                                 "delphyne",
-                                 "layoutWithTeleop.config")
-
     try:
-        launcher.launch(["duplex-ign-lcm-bridge", "1"])
+        launch_bridge(launcher)
 
-        launcher.launch(["visualizer", teleop_config])
+        launch_visualizer(launcher, "layoutWithTeleop.config")
 
         simulation_time_step = 0.001
 

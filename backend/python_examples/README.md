@@ -7,7 +7,7 @@ as shown in the instructions [here](https://github.com/ToyotaResearchInstitute/d
 
 # paused_mode_example.py
 
-This example shows the instantiation of a SimulationRunner making use of the a third (optional) argument, that enables the simulator to start in paused mode.
+This example shows the instantiation of a SimulationRunner making use of the an optional argument, that enables the simulator to start in paused mode.
 
 ```
 $ cd <delphyne_ws>/install/bin

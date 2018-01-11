@@ -30,8 +30,22 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-
 import os
+from simulation_runner_py import (
+    AutomotiveSimulator,
+    SimpleCarState,
+)
+
+
+def build_automotive_simulator():
+    """Creates an AutomotiveSimulator instance and attachs a simple car to it.
+    Returns the newly created simulator.
+    """
+    simulator = AutomotiveSimulator()
+    state = SimpleCarState()
+    state.y = 0.0
+    simulator.AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state)
+    return simulator
 
 
 def get_from_env_or_fail(var):
@@ -44,3 +58,21 @@ def get_from_env_or_fail(var):
     # Since it is an environment variable, the very end may have a colon;
     # strip it here
     return value.rstrip(':')
+
+
+def launch_bridge(launcher):
+    """Launches the duplex-ign-lcm-bridge"""
+    lcm_ign_bridge = "duplex-ign-lcm-bridge"
+    launcher.launch([lcm_ign_bridge, "1"])
+
+
+def launch_visualizer(launcher, layout_filename):
+    """Launches the project's visualizer with a given layout"""
+    ign_visualizer = "visualizer"
+    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
+    teleop_config = os.path.join(delphyne_ws_dir,
+                                 "install",
+                                 "share",
+                                 "delphyne",
+                                 layout_filename)
+    launcher.launch([ign_visualizer, teleop_config])

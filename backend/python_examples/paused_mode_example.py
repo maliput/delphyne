@@ -34,25 +34,18 @@ enables the simulator to start in paused mode.
 # POSSIBILITY OF SUCH DAMAGE.
 
 from __future__ import print_function
-from select import select
 
 import argparse
-import atexit
 import os
-import sys
-import termios
 import time
 
 from launcher import Launcher
 from pydrake.common import AddResourceSearchPath
-from simulation_runner_py import (
-    AutomotiveSimulator,
-    SimpleCarState,
-    SimulatorRunner
-)
+from simulation_runner_py import SimulatorRunner
 from utils import (
+    build_automotive_simulator,
     get_from_env_or_fail,
-    build_automotive_simulator
+    launch_visualizer
 )
 
 
@@ -90,9 +83,6 @@ def main():
     """Spawn an automotive simulator"""
     launcher = Launcher()
 
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
-    ign_visualizer = "visualizer"
 
     drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
@@ -104,13 +94,8 @@ def main():
     runner = SimulatorRunner(simulator, 0.001, args.start_paused)
 
     try:
-        launcher.launch([lcm_ign_bridge, "1"])
-        teleop_config = os.path.join(delphyne_ws_dir,
-                                     "install",
-                                     "share",
-                                     "delphyne",
-                                     "layoutWithTeleop.config")
-        launcher.launch([ign_visualizer, teleop_config])
+
+        launch_visualizer(launcher, "layoutWithTeleop.config")
 
         runner.Start()
 

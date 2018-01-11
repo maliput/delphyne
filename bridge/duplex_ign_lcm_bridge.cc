@@ -74,10 +74,6 @@ REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
                              drake::lcmt_simple_car_state_t,
                              ignition::msgs::SimpleCarState)
 
-REGISTER_STATIC_LCM_REPEATER("DIRECTOR_TREE_VIEWER_RESPONSE",
-                             robotlocomotion::viewer2_comms_t,
-                             ignition::msgs::Viewer2Comms)
-
 /// \brief Flag used to break the LCM loop and terminate the program.
 static std::atomic<bool> terminatePub(false);
 

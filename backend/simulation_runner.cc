@@ -140,59 +140,63 @@ void SimulatorRunner::Start() {
 
 void SimulatorRunner::Run() {
   while (enabled_) {
-    // Starts a timer to measure the time we spend doing tasks.
-    auto step_start = std::chrono::steady_clock::now();
-
-    // 1. Processes incoming messages (requests).
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      ProcessIncomingMessages();
-    }
-
-    // 2. Steps the simulator (if needed).
-    if (!paused_) {
-      simulator_->StepBy(time_step_);
-    } else if (step_requested_) {
-      simulator_->StepBy(custom_time_step_);
-    }
-
-    // Removes any custom step request.
-    step_requested_ = false;
-
-    // A copy of the python callbacks so we can process them in a thread-safe
-    // way
-    std::vector<std::function<void()>> callbacks;
-
-    // 3. Processes outgoing messages (notifications).
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-
-      SendOutgoingMessages();
-
-      // Makes a temporal copy of the python callbacks while we have the lock.
-      callbacks = step_callbacks_;
-    }
-
-    // This if is here so that we only grab the python global interpreter lock
-    // if there is at least one callback.
-    if (callbacks.size() > 0) {
-      // 1. Acquires the lock to the python interpreter.
-      py::gil_scoped_acquire acquire;
-      // 2. Performs the callbacks.
-      for (std::function<void()> callback : callbacks) {
-        callback();
-      }
-    }
-
-    // Stops the timer.
-    auto step_end = std::chrono::steady_clock::now();
-
-    // Waits for the remaining time of this step.
-    auto step_elapsed = step_end - step_start;
-    std::this_thread::sleep_for(
-        std::chrono::microseconds(static_cast<int64_t>(time_step_ * 1e6)) -
-        step_elapsed);
+    RunSimulationStep();
   }
+}
+
+void SimulatorRunner::RunSimulationStep() {
+  // Starts a timer to measure the time we spend doing tasks.
+  auto step_start = std::chrono::steady_clock::now();
+
+  // 1. Processes incoming messages (requests).
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    ProcessIncomingMessages();
+  }
+
+  // 2. Steps the simulator (if needed).
+  if (!paused_) {
+    simulator_->StepBy(time_step_);
+  } else if (step_requested_) {
+    simulator_->StepBy(custom_time_step_);
+  }
+
+  // Removes any custom step request.
+  step_requested_ = false;
+
+  // A copy of the python callbacks so we can process them in a thread-safe
+  // way
+  std::vector<std::function<void()>> callbacks;
+
+  // 3. Processes outgoing messages (notifications).
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    SendOutgoingMessages();
+
+    // Makes a temporal copy of the python callbacks while we have the lock.
+    callbacks = step_callbacks_;
+  }
+
+  // This if is here so that we only grab the python global interpreter lock
+  // if there is at least one callback.
+  if (callbacks.size() > 0) {
+    // 1. Acquires the lock to the python interpreter.
+    py::gil_scoped_acquire acquire;
+    // 2. Performs the callbacks.
+    for (std::function<void()> callback : callbacks) {
+      callback();
+    }
+  }
+
+  // Stops the timer.
+  auto step_end = std::chrono::steady_clock::now();
+
+  // Waits for the remaining time of this step.
+  auto step_elapsed = step_end - step_start;
+  std::this_thread::sleep_for(
+      std::chrono::microseconds(static_cast<int64_t>(time_step_ * 1e6)) -
+      step_elapsed);
 }
 
 void SimulatorRunner::ProcessIncomingMessages() {
@@ -244,7 +248,6 @@ void SimulatorRunner::ProcessWorldControlMessage(
   }
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::ProcessRobotModelRequest(
     const ignition::msgs::RobotModelRequest& msg) {
   // Sets the string from the robot model request as
@@ -255,7 +258,6 @@ void SimulatorRunner::ProcessRobotModelRequest(
   node_.Request(topic_name, *robot_model);
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::OnWorldControl(
     const ignition::msgs::WorldControl& request,
     ignition::msgs::Boolean& response, bool& result) {
@@ -272,7 +274,6 @@ void SimulatorRunner::OnWorldControl(
   result = true;
 }
 
-//////////////////////////////////////////////////
 void SimulatorRunner::OnRobotModelRequest(
     const ignition::msgs::RobotModelRequest& request,
     ignition::msgs::Boolean& response, bool& result) {

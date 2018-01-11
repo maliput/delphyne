@@ -38,11 +38,11 @@
 
 #include "backend/automotive_simulator.h"
 
-#include <protobuf/robot_model_request.pb.h>
-#include <protobuf/simulation_in_message.pb.h>
-
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+
+#include <protobuf/robot_model_request.pb.h>
+#include <protobuf/simulation_in_message.pb.h>
 
 #include <pybind11/pybind11.h>
 
@@ -164,6 +164,9 @@ class SimulatorRunner {
   /// \brief Runs the main simulation loop.
   void Run();
 
+  /// \brief Advances a single simulation step by time_step_ seconds.
+  void RunSimulationStep();
+
  private:
   // \brief Process one RobotModelRequest message.
   // \param[in] msg The message
@@ -195,11 +198,6 @@ class SimulatorRunner {
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       bool& result);
 
-  // \brief Robot model request callback function, required for an async
-  void RobotModelRequestCb(const ignition::msgs::Boolean& response,
-                           bool result);
-
- private:
   // \brief Processes all pending incoming messages.
   void ProcessIncomingMessages();
 

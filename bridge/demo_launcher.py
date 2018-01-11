@@ -38,24 +38,7 @@ import argparse
 import os
 import sys
 from launcher import Launcher
-
-
-def get_from_env_or_fail(var):
-    """Check if a given variable is an environmental variable
-    and returns its value, exit otherwise.
-    """
-    value = os.environ.get(var)
-    if value is None:
-        print("%s is not in the environment,"
-              "did you remember to source setup.bash?" % (var))
-        sys.exit(1)
-
-    # Since it is an environment variable, the very end may have a colon;
-    # strip it here
-    if value[-1] == ':':
-        value = value[:-1]
-
-    return value
+from utils import get_from_env_or_fail
 
 
 def main():

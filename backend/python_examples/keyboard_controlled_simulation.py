@@ -107,7 +107,10 @@ def build_automotive_simulator():
     return simulator
 
 
-def run_simulation_loop(sim_runner):
+def run_simulation_loop(sim_runner, simulation_time_step):
+    """Runs the keyboard-controlled simulation loop. Based on the key pressed
+    the simulation will play/pause/step.
+    """
     running = True
     paused = False
 
@@ -135,7 +138,8 @@ def run_simulation_loop(sim_runner):
             elif key == 's':
                 if paused:
                     sim_runner.RunSimulationStep()
-                    print("Simulation step executed")
+                    print("Simulation step of {0}s executed".
+                          format(simulation_time_step))
                 else:
                     print("Simulation step only supported in paused mode")
         elif not paused:
@@ -157,22 +161,24 @@ def main():
 
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
-    ign_visualizer = "visualizer"
-
     simulator = build_automotive_simulator()
 
     teleop_config = os.path.join(delphyne_ws_dir,
                                  "install",
                                  "share",
                                  "delphyne",
-                                 "layoutWithRenderOnly.config")
+                                 "layoutWithTeleop.config")
 
     try:
-        launcher.launch([ign_visualizer, teleop_config])
+        launcher.launch(["duplex-ign-lcm-bridge", "1"])
 
-        runner = SimulatorRunner(simulator, 0.001)
+        launcher.launch(["visualizer", teleop_config])
 
-        run_simulation_loop(runner)
+        simulation_time_step = 0.001
+
+        runner = SimulatorRunner(simulator, simulation_time_step)
+
+        run_simulation_loop(runner, simulation_time_step)
 
     finally:
         runner.Stop()

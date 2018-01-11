@@ -42,7 +42,6 @@ from __future__ import print_function
 
 import os
 import random
-import sys
 import time
 
 from launcher import Launcher
@@ -101,6 +100,7 @@ def random_print():
     """Print a message at random, roughly every 500 calls"""
     if random.randint(1, 500) == 1:
         print("One in five hundred")
+
 
 def build_automotive_simulator():
     """Create an AutomotiveSimulator instance and attach a simple car to it.

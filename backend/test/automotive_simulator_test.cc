@@ -149,15 +149,23 @@ void GetLastPublishedSimpleCarState(
 GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
-  // TODO(jwnimmer-tri) Do something better than "0_" here.
-  const std::string kSimpleCarStateChannelName = "0_SIMPLE_CAR_STATE";
+
+  ignition::transport::Node node;
+
+  ignition::msgs::SimpleCarState state_message;
+  std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
+      callback =
+          [&state_message](const ignition::msgs::SimpleCarState& ign_message) {
+            state_message = ign_message;
+          };
+
+  node.Subscribe<ignition::msgs::SimpleCarState>("/0_SIMPLE_CAR_STATE",
+                                                 callback);
+
   const std::string kCommandChannelName = "DRIVING_COMMAND";
 
   const std::string driving_command_name =
       drake::systems::lcm::LcmSubscriberSystem::make_name(kCommandChannelName);
-  const std::string simple_car_state_name =
-      drake::systems::lcm::LcmPublisherSystem::make_name(
-          kSimpleCarStateChannelName);
 
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
@@ -170,8 +178,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // process.
   auto& command_sub = dynamic_cast<drake::systems::lcm::LcmSubscriberSystem&>(
       simulator->GetBuilderSystemByName(driving_command_name));
-  auto& state_pub = dynamic_cast<drake::systems::lcm::LcmPublisherSystem&>(
-      simulator->GetBuilderSystemByName(simple_car_state_name));
 
   // Finish all initialization, so that we can test the post-init state.
   simulator->Start();
@@ -194,28 +200,20 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // set).
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
-  SimpleCarState<double> simple_car_state;
-  GetLastPublishedSimpleCarState(kSimpleCarStateChannelName,
-                                 state_pub.get_translator(), mock_lcm,
-                                 &simple_car_state);
-  EXPECT_GT(simple_car_state.x(), 0.0);
-  EXPECT_LT(simple_car_state.x(), 0.001);
+
+  EXPECT_GT(state_message.x(), 0.0);
+  EXPECT_LT(state_message.x(), 0.001);
 
   // Move a lot.  Confirm that we're moving in +x.
   for (int i = 0; i < 100; ++i) {
     simulator->StepBy(0.01);
   }
   // TODO(jwnimmer-tri) Check the timestamp of the final publication.
-  GetLastPublishedSimpleCarState(kSimpleCarStateChannelName,
-                                 state_pub.get_translator(), mock_lcm,
-                                 &simple_car_state);
-  EXPECT_GT(simple_car_state.x(), 1.0);
+  EXPECT_GT(state_message.x(), 1.0);
 
   // The subsystem pointers must not change.
   EXPECT_EQ(&simulator->GetDiagramSystemByName(driving_command_name),
             &command_sub);
-  EXPECT_EQ(&simulator->GetDiagramSystemByName(simple_car_state_name),
-            &state_pub);
 }
 
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.
@@ -236,20 +234,26 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   initial_state.set_velocity(kVelocity);
 
   simulator->AddPriusSimpleCar("My Test Model", "Channel", initial_state);
+
+  ignition::transport::Node node;
+
+  ignition::msgs::SimpleCarState state_message;
+  std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
+      callback =
+          [&state_message](const ignition::msgs::SimpleCarState& ign_message) {
+            state_message = ign_message;
+          };
+
+  node.Subscribe<ignition::msgs::SimpleCarState>("/0_SIMPLE_CAR_STATE",
+                                                 callback);
+
   simulator->Start();
   simulator->StepBy(1e-3);
 
-  drake::lcm::DrakeMockLcm* mock_lcm =
-      dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
-  ASSERT_NE(mock_lcm, nullptr);
-  const drake::lcmt_simple_car_state_t state_message =
-      mock_lcm->DecodeLastPublishedMessageAs<drake::lcmt_simple_car_state_t>(
-          "0_SIMPLE_CAR_STATE");
-
-  EXPECT_EQ(state_message.x, kX);
-  EXPECT_EQ(state_message.y, kY);
-  EXPECT_EQ(state_message.heading, kHeading);
-  EXPECT_EQ(state_message.velocity, kVelocity);
+  EXPECT_EQ(state_message.x(), kX);
+  EXPECT_EQ(state_message.y(), kY);
+  EXPECT_EQ(state_message.heading(), kHeading);
+  EXPECT_EQ(state_message.velocity(), kVelocity);
 }
 
 GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {

@@ -7,6 +7,11 @@ set (sources
   ign_publisher_system.cc
   scene_system.cc
   simulation_runner.cc
+  ign_publisher_system.h
+  input_port_to_ign_converter.h
+  abstract_input_to_ign_converter.h
+  vector_input_to_ign_converter.h
+  simple_car_state_input_to_ign_converter.h
 )
 
 set (gtest_sources
@@ -66,8 +71,8 @@ target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR
 # Define the wrapper library for python
 add_library(simulation_runner_py
   SHARED
+  ign_publisher_system.h
   simulation_runner_py.cc
-  ign_publisher_system.cc
   scene_system.cc)
 
 # Don't prepend wrapper library name with lib

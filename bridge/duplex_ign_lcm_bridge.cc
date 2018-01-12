@@ -70,10 +70,6 @@ REGISTER_STATIC_IGN_REPEATER("DRIVING_COMMAND_(.*)",
                              ignition::msgs::AutomotiveDrivingCommand,
                              drake::lcmt_driving_command_t)
 
-REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
-                             drake::lcmt_simple_car_state_t,
-                             ignition::msgs::SimpleCarState)
-
 /// \brief Flag used to break the LCM loop and terminate the program.
 static std::atomic<bool> terminatePub(false);
 

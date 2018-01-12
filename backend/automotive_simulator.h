@@ -393,7 +393,8 @@ class AutomotiveSimulator {
 
   // Takes the output of bundle_to_draw_ and passes it to an ignition transport
   // node for publishing.
-  delphyne::backend::IgnPublisherSystem* ign_publisher_{};
+  delphyne::backend::IgnPublisherSystem<ignition::msgs::Model_V>*
+      ign_publisher_{};
 
   // Takes the output of bundle_to_draw_ and populates a Scene message that it's
   // also sent over a scene topic. This message is consumed by the visualizer

@@ -87,13 +87,21 @@ SimulatorRunner::SimulatorRunner(
     std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> sim,
     double time_step)
     : time_step_(time_step), simulator_(std::move(sim)) {
-  // Advertises the service for controlling the simulation.
-  node_.Advertise(kControlService, &SimulatorRunner::OnSimulationInMessage,
-                  this);
+
+  // Advertise the topic for publishing scene updates.
+  scene_pub_ = node_.Advertise<ignition::msgs::Scene>(kSceneTopic);
 
   // Advertise the topic for publishing notifications.
   notifications_pub_ =
       node_.Advertise<ignition::msgs::WorldControl>(kNotificationsTopic);
+
+  // Advertise the service for controlling the simulation.
+  node_.Advertise(kControlService, &SimulatorRunner::OnSimulationInMessage,
+                  this);
+
+  // Subscribe to the model updates topic. This is used for publishing periodic
+  // scene updates.
+  node_.Subscribe(kModelUpdatesTopic, &SimulatorRunner::OnModelsUpdate, this);
 
   // Initializes the python machinery so we can invoke a python callback
   // function on each simulation step.
@@ -161,6 +169,9 @@ void SimulatorRunner::Run() {
     // 3. Processes outgoing messages (notifications).
     {
       std::lock_guard<std::mutex> lock(mutex_);
+
+      // Check if it's time to update the scene.
+      UpdateScene();
 
       SendOutgoingMessages();
 
@@ -244,6 +255,35 @@ void SimulatorRunner::OnSimulationInMessage(
     incoming_msgs_.push(request);
   }
   result = true;
+}
+
+void SimulatorRunner::OnModelsUpdate(const ignition::msgs::Model_V& models) {
+  // Override the current state of the models.
+  std::lock_guard<std::mutex> lock(mutex_);
+  current_models_.CopyFrom(models);
+}
+
+void SimulatorRunner::UpdateScene() {
+
+  // Check if it's time to update the scene.
+  auto now = std::chrono::steady_clock::now();
+  auto elapsed = now - last_scene_update_;
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(
+        elapsed).count() < kScenePeriodMs) {
+    return;
+  }
+
+  // It's time to update the scene!
+  last_scene_update_ = now;
+  scene_.Clear();
+
+  // Models.
+  for (int i = 0; i < current_models_.models_size(); ++i) {
+    auto newModel = scene_.add_model();
+    newModel->CopyFrom(current_models_.models(i));
+  }
+
+  scene_pub_.Publish(scene_);
 }
 
 }  // namespace backend

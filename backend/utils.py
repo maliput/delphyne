@@ -31,13 +31,24 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 import os
+
+from pydrake.common import AddResourceSearchPath
+
 from simulation_runner_py import (
     AutomotiveSimulator,
     SimpleCarState,
 )
 
 
-def build_automotive_simulator():
+def add_drake_resource_path():
+    """Adds the DRAKE_INSTALL_PATH environmental variable into
+    drake's resource search path.
+    """
+    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
+    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
+
+
+def build_simple_car_simulator():
     """Creates an AutomotiveSimulator instance and attachs a simple car to it.
     Returns the newly created simulator.
     """

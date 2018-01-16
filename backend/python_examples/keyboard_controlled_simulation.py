@@ -36,21 +36,15 @@ from __future__ import print_function
 from select import select
 
 import atexit
-import os
 import sys
 import termios
 import time
 
 from launcher import Launcher
-from pydrake.common import AddResourceSearchPath
-from simulation_runner_py import (
-    AutomotiveSimulator,
-    SimpleCarState,
-    SimulatorRunner
-)
+from simulation_runner_py import SimulatorRunner
 from utils import (
-    build_automotive_simulator,
-    get_from_env_or_fail,
+    add_drake_resource_path,
+    build_simple_car_simulator,
     launch_bridge,
     launch_visualizer
 )
@@ -112,7 +106,7 @@ def run_simulation_loop(sim_runner, simulation_time_step):
     print("\n*************************************************************\n"
           "* Instructions for running the demo:                        *\n"
           "* <p> will pause the simulation if unpaused and viceversa.  *\n"
-          "* <s> will step the simulation once if paused. *\n"
+          "* <s> will step the simulation once if paused.              *\n"
           "* <q> will stop the simulation and quit the demo.           *\n"
           "*************************************************************\n")
     print("Simulation is running")
@@ -145,16 +139,14 @@ def main():
 
     # Checks for env variables presence, quits the demo otherwise.
     try:
-        drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
+        add_drake_resource_path()
     except RuntimeError, error_msg:
         sys.stderr.write('ERROR: {}'.format(error_msg))
         sys.exit(1)
 
     launcher = Launcher()
 
-    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
-
-    simulator = build_automotive_simulator()
+    simulator = build_simple_car_simulator()
 
     try:
         launch_bridge(launcher)

@@ -1,8 +1,28 @@
 #!/usr/bin/env python2.7
 
-"""This example is aimed to show the use of the SimulationRunner
-making use of the a third (optional) argument in the constructor, which
-enables the simulator to start in paused mode.
+"""This example show how to use the SimulationRunner's (optional)
+third constructor argument to start in pause mode.
+
+$ cd <delphyne_ws>/install/bin
+$ ./paused_mode_example.py --paused
+
+This command will spawn a visualizer instance and start the simulation
+in paused mode.
+
+Unpausing the simulation
+
+- At this moment, the only available way of achieving this is by making
+use of a WorldControl service, publishing a message with the right
+content into the /world_control channel:
+
+$ cd <delphyne_ws>/install/bin
+$ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl \
+--reptype ignition.msgs.Boolean --timeout 500 --req 'pause: false'
+
+- An alternative way will be to use the TimePanel widget in the visualizer
+(currently under development), which will allow to control the simulation
+with Play / Pause / Step buttons from the GUI.
+
 """
 
 # Copyright 2017 Open Source Robotics Foundation
@@ -35,70 +55,38 @@ enables the simulator to start in paused mode.
 
 from __future__ import print_function
 
-import argparse
-import os
+import sys
 import time
 
 from launcher import Launcher
-from pydrake.common import AddResourceSearchPath
 from simulation_runner_py import SimulatorRunner
 from utils import (
-    build_automotive_simulator,
-    get_from_env_or_fail,
+    add_drake_resource_path,
+    build_simple_car_simulator,
     launch_visualizer
 )
 
 
-"""
-In order to run this example, you must first move into the
-<delphyne_ws>/install/bin directory and then call:
-
-./paused_mode_example.py --paused
-
-This command will spawn a visualizer instance and start a simulation in paused mode.
-
-In order to unpause the simulation, there are to different approaches available:
-
-- The first way involves making use of a WorldControl service, by publishing a
-WorldControl message into the /world_control channel with the right command.
-In order to unpause the simulation with a service request, you can execute the
-following command from the <delphyne_ws>/install/bin directory:
-
-./ign service --service /world_control --reqtype ignition.msgs.WorldControl \
---reptype ignition.msgs.Boolean --timeout 500 --req 'pause: false'
-
-- The second way is still unavailable, but worth mentioning here since it's aimed
-to be the default way of controlling the simulation once it's ready.
-It involves making use of the TimePanel widget in the visualizer (currently under
-development), which should enable the user to control the simulation with buttons
-like Play, Pause, Step, all from the Visualizer's GUI.
-"""
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--paused", action='store_true',
-                        dest='start_paused',
-                        default=False, help="Start simulator in paused mode")
-    args = parser.parse_args()
-
-    """Spawn an automotive simulator"""
+    """Spawns a simulator_runner in paused mode"""
     launcher = Launcher()
 
+    try:
+        add_drake_resource_path()
+    except RuntimeError, error_msg:
+        sys.stderr.write('ERROR: {}'.format(error_msg))
+        sys.exit(1)
 
-    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
-    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
-
-    simulator = build_automotive_simulator()
+    simulator = build_simple_car_simulator()
 
     # Use the optional third argument to instantiate a
     # simulator runner in paused mode
-    runner = SimulatorRunner(simulator, 0.001, args.start_paused)
+    start_paused = True
+    runner = SimulatorRunner(simulator, 0.001, start_paused)
 
     try:
-
         launch_visualizer(launcher, "layoutWithTeleop.config")
-
         runner.Start()
-
         launcher.wait(float("Inf"))
     finally:
         runner.Stop()

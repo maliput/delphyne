@@ -40,18 +40,16 @@ interesting scripts.
 
 from __future__ import print_function
 
-import os
+import argparse
 import random
+import sys
 import time
 
 from launcher import Launcher
-
-from pydrake.common import AddResourceSearchPath
-
 from simulation_runner_py import SimulatorRunner
 from utils import (
-    build_automotive_simulator,
-    get_from_env_or_fail,
+    add_drake_resource_path,
+    build_simple_car_simulator,
     launch_bridge,
     launch_visualizer
 )
@@ -105,20 +103,29 @@ def random_print():
 
 def main():
     """Spawn an automotive simulator making use of the python bindings"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--paused", action='store_true',
+                        dest='start_paused',
+                        default=False, help="Start simulator in paused mode")
+    args = parser.parse_args()
+
     stats = SimulationStats()
     launcher = Launcher()
 
-    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
-    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
+    try:
+        add_drake_resource_path()
+    except RuntimeError, error_msg:
+        sys.stderr.write('ERROR: {}'.format(error_msg))
+        sys.exit(1)
 
-    simulator = build_automotive_simulator()
+    simulator = build_simple_car_simulator()
     try:
 
         launch_bridge(launcher)
 
         launch_visualizer(launcher, "layoutWithTeleop.config")
 
-        runner = SimulatorRunner(simulator, 0.001)
+        runner = SimulatorRunner(simulator, 0.001, args.start_paused)
         # Add a callback to record and print statistics
         runner.AddStepCallback(stats.record_tick)
         # Add a second callback that prints a message roughly every 500 calls

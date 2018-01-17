@@ -70,16 +70,9 @@ REGISTER_STATIC_IGN_REPEATER("DRIVING_COMMAND_(.*)",
                              ignition::msgs::AutomotiveDrivingCommand,
                              drake::lcmt_driving_command_t)
 
-REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_STATUS", drake::lcmt_viewer_command,
-                             ignition::msgs::ViewerCommand)
-
 REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
                              drake::lcmt_simple_car_state_t,
                              ignition::msgs::SimpleCarState)
-
-REGISTER_STATIC_LCM_REPEATER("DIRECTOR_TREE_VIEWER_RESPONSE",
-                             robotlocomotion::viewer2_comms_t,
-                             ignition::msgs::Viewer2Comms)
 
 /// \brief Flag used to break the LCM loop and terminate the program.
 static std::atomic<bool> terminatePub(false);
@@ -116,18 +109,6 @@ int main(int argc, char* argv[]) {
     ignerr << "Details: " << error.what() << std::endl;
     exit(1);
   }
-
-  manager.EnableLCMAutodiscovery();
-
-  // Service name
-  std::string notifierServiceName = "/visualizer_start_notifier";
-  std::string channelName = "DRAKE_VIEWER_STATUS";
-
-  // Start ignition service to lcm channel converter
-  delphyne::bridge::IgnitionServiceConverter<ignition::msgs::Empty,
-                                             drake::lcmt_viewer_command>
-      ignToLcmRepublisher(sharedLCM, notifierServiceName, channelName);
-  ignToLcmRepublisher.Start();
 
   while (!terminatePub) {
     sharedLCM->handleTimeout(100);

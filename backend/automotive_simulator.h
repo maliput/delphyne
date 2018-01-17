@@ -66,6 +66,7 @@
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
 #include "backend/ign_publisher_system.h"
+#include "backend/scene_system.h"
 #include "bridge/lcm_to_ign_translation.h"
 
 namespace delphyne {
@@ -393,6 +394,10 @@ class AutomotiveSimulator {
   // Takes the output of bundle_to_draw_ and passes it to an ignition transport
   // node for publishing.
   delphyne::backend::IgnPublisherSystem* ign_publisher_{};
+
+  // Takes the output of bundle_to_draw_ and populates a Scene message that it's
+  // also sent.
+  delphyne::backend::SceneSystem* scene_publisher_{};
 
   int next_vehicle_number_{0};
 

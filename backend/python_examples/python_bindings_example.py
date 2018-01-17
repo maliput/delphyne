@@ -40,20 +40,19 @@ interesting scripts.
 
 from __future__ import print_function
 
-import os
+import argparse
 import random
+import sys
 import time
 
 from launcher import Launcher
-
-from pydrake.common import AddResourceSearchPath
-
-from simulation_runner_py import (
-    AutomotiveSimulator,
-    SimpleCarState,
-    SimulatorRunner
+from simulation_runner_py import SimulatorRunner
+from utils import (
+    add_drake_resource_path,
+    build_simple_car_simulator,
+    launch_bridge,
+    launch_visualizer
 )
-from utils import get_from_env_or_fail
 
 
 class SimulationStats(object):
@@ -102,41 +101,31 @@ def random_print():
         print("One in five hundred")
 
 
-def build_automotive_simulator():
-    """Create an AutomotiveSimulator instance and attach a simple car to it.
-    Return the newly created simulator.
-    """
-    simulator = AutomotiveSimulator()
-    state = SimpleCarState()
-    state.y = 0.0
-    simulator.AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state)
-
-    return simulator
-
-
 def main():
     """Spawn an automotive simulator making use of the python bindings"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--paused", action='store_true',
+                        dest='start_paused',
+                        default=False, help="Start simulator in paused mode")
+    args = parser.parse_args()
+
     stats = SimulationStats()
     launcher = Launcher()
 
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
-    ign_visualizer = "visualizer"
-
-    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
-    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
-
-    simulator = build_automotive_simulator()
     try:
-        launcher.launch([lcm_ign_bridge, "1"])
-        teleop_config = os.path.join(delphyne_ws_dir,
-                                     "install",
-                                     "share",
-                                     "delphyne",
-                                     "layoutWithTeleop.config")
-        launcher.launch([ign_visualizer, teleop_config])
+        add_drake_resource_path()
+    except RuntimeError, error_msg:
+        sys.stderr.write('ERROR: {}'.format(error_msg))
+        sys.exit(1)
 
-        runner = SimulatorRunner(simulator, 0.001)
+    simulator = build_simple_car_simulator()
+    try:
+
+        launch_bridge(launcher)
+
+        launch_visualizer(launcher, "layoutWithTeleop.config")
+
+        runner = SimulatorRunner(simulator, 0.001, args.start_paused)
         # Add a callback to record and print statistics
         runner.AddStepCallback(stats.record_tick)
         # Add a second callback that prints a message roughly every 500 calls

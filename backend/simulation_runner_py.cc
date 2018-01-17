@@ -54,6 +54,7 @@ namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
+      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
       .def("Start", &SimulatorRunner::Start)
       .def("Stop", &SimulatorRunner::Stop)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback)

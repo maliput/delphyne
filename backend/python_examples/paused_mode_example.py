@@ -4,7 +4,7 @@
 third constructor argument to start in pause mode.
 
 $ cd <delphyne_ws>/install/bin
-$ ./paused_mode_example.py --paused
+$ ./paused_mode_example.py
 
 This command will spawn a visualizer instance and start the simulation
 in paused mode.

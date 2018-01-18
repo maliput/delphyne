@@ -51,6 +51,18 @@ SceneSystem::~SceneSystem() {}
 void SceneSystem::DoPublish(
     const Context<double>& context,
     const std::vector<const PublishEvent<double>*>&) const {
+
+  // Check if it's time to update the scene.
+  auto now = std::chrono::steady_clock::now();
+  auto elapsed = now - last_scene_update_;
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(
+        elapsed).count() < kScenePeriodMs_) {
+    return;
+  }
+
+  // It's time to update the scene!
+  last_scene_update_ = now;
+
   const AbstractValue* input = EvalAbstractInput(context, 0);
   const auto& viewer_draw = input->GetValue<drake::lcmt_viewer_draw>();
   ignition::msgs::Scene scene_msg;
@@ -63,7 +75,8 @@ void SceneSystem::DoPublish(
     newModel->CopyFrom(models.models(i));
   }
 
-  // ToDo: Populate the rest of the scene fields, such as lights.
+  // TODO(caguero): Populate the rest of the scene fields, such as lights.
+  // See https://github.com/ToyotaResearchInstitute/delphyne/issues/204
 
   // Publishes onto the specified ign-transport channel.
   publisher_.Publish(scene_msg);

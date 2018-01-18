@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include <chrono>
 #include <string>
 #include <vector>
 
@@ -61,6 +62,9 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
   inline const std::string& get_topic_name() { return topic_; }
 
  private:
+  // The period between scene updates (ms).
+  const double kScenePeriodMs_ = 250.0;
+
   // The topic on which to publish ign-transport messages.
   std::string topic_;
 
@@ -69,6 +73,9 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
 
   // Ignition transport publisher.
   mutable ignition::transport::Node::Publisher publisher_;
+
+  // The last time that the scene message was updated.
+  mutable std::chrono::steady_clock::time_point last_scene_update_;
 };
 
 }  // namespace backend

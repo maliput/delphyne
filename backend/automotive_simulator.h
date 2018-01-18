@@ -396,7 +396,8 @@ class AutomotiveSimulator {
   delphyne::backend::IgnPublisherSystem* ign_publisher_{};
 
   // Takes the output of bundle_to_draw_ and populates a Scene message that it's
-  // also sent.
+  // also sent over a scene topic. This message is consumed by the visualizer
+  // for updating the scene tree widget.
   delphyne::backend::SceneSystem* scene_publisher_{};
 
   int next_vehicle_number_{0};

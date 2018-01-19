@@ -100,7 +100,7 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
   auto step_end = std::chrono::steady_clock::now();
 
   // Calculates duration in milliseconds.
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+  const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
       step_end - step_start);
 
   std::chrono::milliseconds min_simulation_time(10);

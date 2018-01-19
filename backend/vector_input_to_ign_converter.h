@@ -42,6 +42,8 @@ namespace backend {
 /// only VectorBase input ports. Concrete subclasses only need to define
 /// the vectorToIgn method, which does the actual conversion from the
 /// input vector to an ignition message.
+///
+/// @tparam IGN_TYPE must be a valid ignition message type
 template <class IGN_TYPE>
 class VectorToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
  public:
@@ -55,11 +57,11 @@ class VectorToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
   /// data type.
   ///
   /// @param[in] publisher The publisher for which we should define the port
-  void declareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
+  void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
     publisher->DeclareInputPort(drake::systems::kVectorValued, size_);
   }
 
-  void processInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
+  void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                     const drake::systems::Context<double>& context,
                     int port_index, IGN_TYPE* ign_message) override {
     const VectorBase<double>* const input_vector =

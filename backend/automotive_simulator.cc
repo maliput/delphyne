@@ -454,9 +454,8 @@ void AutomotiveSimulator<T>::AddPublisher(
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
 
-  std::unique_ptr<InputPortToIgnConverter<ignition::msgs::SimpleCarState>>
-      converter = std::make_unique<SimpleCarStateInputToIgnConverter>(
-          SimpleCarStateIndices::kNumCoordinates);
+  auto converter = std::make_unique<SimpleCarStateInputToIgnConverter>(
+      SimpleCarStateIndices::kNumCoordinates);
 
   auto publisher = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
@@ -517,7 +516,7 @@ void AutomotiveSimulator<T>::Build() {
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       bundle_to_draw_->get_input_port(0));
 
-  std::unique_ptr<InputPortToIgnConverter<ignition::msgs::Model_V>> converter =
+  auto converter =
       std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
                                                    ignition::msgs::Model_V>>();
 

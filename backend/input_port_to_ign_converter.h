@@ -50,7 +50,7 @@ class InputPortToIgnConverter {
   /// override this.
   ///
   /// @param[in] publisher The publisher for which we should define the port
-  virtual void declareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) = 0;
+  virtual void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) = 0;
 
   /// Get the data from the input port and populate the outgoing ignition
   /// message based on it. Subclasses must override this.
@@ -62,7 +62,7 @@ class InputPortToIgnConverter {
   /// @param[in] port_index The index of the port the converter must read from.
   ///
   /// @param[out] ign_message The ignition message to populate
-  virtual void processInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
+  virtual void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                             const drake::systems::Context<double>& context,
                             int port_index, IGN_TYPE* ign_message) = 0;
 };

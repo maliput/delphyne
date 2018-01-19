@@ -48,15 +48,21 @@ using drake::systems::PublishEvent;
 namespace delphyne {
 namespace backend {
 
-const int kPortIndex = 0;
-
 /// Publishes an ignition-transport message. The data to populate the message
 /// comes from the system's input port and is passed to a converter, which
 /// is in charge of processing the input port information and retrieve an
 /// ignition message.
+///
+/// @tparam IGN_TYPE must be a valid ignition message type
 template <class IGN_TYPE>
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
+  // Make DeclareAbstractInputPort public.
+  using drake::systems::LeafSystem<double>::DeclareAbstractInputPort;
+
+  // Make DeclareInputPort public.
+  using drake::systems::LeafSystem<double>::DeclareInputPort;
+
   /// Default constructor.
   ///
   /// @param[in] topic_name The name of the ignition topic this system will
@@ -68,7 +74,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
       const std::string& topic_name,
       std::unique_ptr<InputPortToIgnConverter<IGN_TYPE>> converter)
       : topic_name_(topic_name), converter_(std::move(converter)) {
-    converter_->declareInputPort(this);
+    converter_->DeclareInputPort(this);
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
 
@@ -84,27 +90,23 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
       const drake::systems::Context<double>& context,
       const std::vector<const drake::systems::PublishEvent<double>*>&)
       const override {
+    const int kPortIndex = 0;
+
     IGN_TYPE ign_msg;
 
-    // Fill the ignition message content from input port
-    converter_->processInput(this, context, kPortIndex, &ign_msg);
+    // Fill the ignition message content from input port.
+    converter_->ProcessInput(this, context, kPortIndex, &ign_msg);
 
     // Publishes onto the specified ign-transport topic.
     publisher_.Publish(ign_msg);
   }
 
-  // Make DeclareAbstractInputPort public
-  using drake::systems::LeafSystem<double>::DeclareAbstractInputPort;
-
-  // Make DeclareInputPort public
-  using drake::systems::LeafSystem<double>::DeclareInputPort;
-
-  // Getter
+  /// Returns the topic name it publishes to.
   inline const std::string& get_topic_name() { return topic_name_; }
 
  private:
   // The topic on which to publish ign-transport messages.
-  std::string topic_name_;
+  const std::string topic_name_;
 
   // Ignition transport node.
   ignition::transport::Node node_;

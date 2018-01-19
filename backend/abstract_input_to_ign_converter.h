@@ -42,21 +42,25 @@ namespace delphyne {
 namespace backend {
 
 /// This class is a specialization of InputPortToIgnConverter that handles
-/// absrtact input ports. The input values are then casted to the
+/// abstract input ports. The input values are then casted to the
 /// LCM_TYPE template parameter and further converted to an ignition message.
+///
+/// @tparam LCM_TYPE must be a valid LCM message type
+///
+/// @tparam IGN_TYPE must be a valid ignition message type
 template <class LCM_TYPE, class IGN_TYPE>
 class AbstractInputToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
  public:
   /// Declares the input port for an IgnPublisherSystem. Since this class
-  /// takes data from abstract input ports, use DeclareAbstractInputPort to
+  /// takes data from abstract input ports, uses DeclareAbstractInputPort to
   /// define it.
   ///
   /// @param[in] publisher The publisher for which we should define the port
-  void declareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
+  void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
     publisher->DeclareAbstractInputPort();
   }
 
-  void processInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
+  void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                     const drake::systems::Context<double>& context,
                     int port_index, IGN_TYPE* ign_message) override {
     const AbstractValue* input =

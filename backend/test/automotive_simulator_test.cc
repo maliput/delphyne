@@ -150,14 +150,14 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
 
-  ignition::transport::Node node;
-
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
       callback =
           [&state_message](const ignition::msgs::SimpleCarState& ign_message) {
             state_message = ign_message;
           };
+
+  ignition::transport::Node node;
 
   node.Subscribe<ignition::msgs::SimpleCarState>("/0_SIMPLE_CAR_STATE",
                                                  callback);
@@ -235,14 +235,14 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 
   simulator->AddPriusSimpleCar("My Test Model", "Channel", initial_state);
 
-  ignition::transport::Node node;
-
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
       callback =
           [&state_message](const ignition::msgs::SimpleCarState& ign_message) {
             state_message = ign_message;
           };
+
+  ignition::transport::Node node;
 
   node.Subscribe<ignition::msgs::SimpleCarState>("/0_SIMPLE_CAR_STATE",
                                                  callback);
@@ -308,8 +308,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to DRAKE_VIEWER_DRAW.
-  ignition::transport::Node node;
-
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -317,6 +315,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
           [&draw_message](const ignition::msgs::Model_V& ign_message) {
             draw_message = ign_message;
           };
+
+  ignition::transport::Node node;
 
   node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
                                           viewer_draw_callback);
@@ -362,8 +362,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to DRAKE_VIEWER_DRAW.
-  ignition::transport::Node node;
-
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -371,6 +369,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
           [&draw_message](const ignition::msgs::Model_V& ign_message) {
             draw_message = ign_message;
           };
+
+  ignition::transport::Node node;
 
   node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
                                           viewer_draw_callback);
@@ -510,8 +510,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to DRAKE_VIEWER_DRAW
-  ignition::transport::Node node;
-
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -519,6 +517,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
           [&draw_message](const ignition::msgs::Model_V& ign_message) {
             draw_message = ign_message;
           };
+
+  ignition::transport::Node node;
 
   node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
                                           viewer_draw_callback);
@@ -591,8 +591,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to DRAKE_VIEWER_DRAW
-  ignition::transport::Node node;
-
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -600,6 +598,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
           [&draw_message](const ignition::msgs::Model_V& ign_message) {
             draw_message = ign_message;
           };
+
+  ignition::transport::Node node;
 
   node.Subscribe<ignition::msgs::Model_V>("/DRAKE_VIEWER_DRAW",
                                           viewer_draw_callback);

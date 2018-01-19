@@ -81,11 +81,11 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   /// Default destructor.
   ~IgnPublisherSystem() override {}
 
-  /**
-   * Takes the data from the input port of the context and publishes
-   * it onto an ignition channel, using the converter to populate the
-   * ignition message.
-   */
+  /// @see LeafSystem::DoPublish
+  ///
+  /// Takes the data from the input port of the @p context and publishes
+  /// it onto an ignition channel, using the converter to populate the
+  /// ignition message.
   void DoPublish(
       const drake::systems::Context<double>& context,
       const std::vector<const drake::systems::PublishEvent<double>*>&)

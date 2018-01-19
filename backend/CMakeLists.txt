@@ -4,16 +4,16 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 # Prepare sources
 set (sources
   automotive_simulator.cc
-  simulation_runner.cc
   ign_publisher_system.cc
   scene_system.cc
+  simulation_runner.cc
 )
 
 set (gtest_sources
-  simulation_runner_test.cc
   automotive_simulator_test.cc
   ign_publisher_system_test.cc
   scene_system_test.cc
+  simulation_runner_test.cc
 )
 
 # ----------------------------------------

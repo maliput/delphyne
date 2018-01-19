@@ -28,8 +28,6 @@
 
 #include "backend/scene_system.h"
 
-#include <iostream>
-
 using drake::systems::AbstractValue;
 using drake::systems::Context;
 using drake::systems::PublishEvent;
@@ -37,11 +35,11 @@ using drake::systems::PublishEvent;
 namespace delphyne {
 namespace backend {
 
-SceneSystem::SceneSystem(std::string topic_name)
+SceneSystem::SceneSystem(const std::string& topic_name)
     : topic_(topic_name) {
-  // ToDo: In the future, this system won't publish the scene message directly.
-  // Instead, it will declare an output port that will contain the scene
-  // message. Later, we'll use a separate system for publishing.
+  // TODO(caguero): In the future, this system won't publish the scene message
+  // directly. Instead, it will declare an output port that will contain the
+  // scene message. Later, we'll use a separate system for publishing.
   DeclareAbstractInputPort();
   publisher_ = node_.Advertise<ignition::msgs::Scene>(topic_);
 }
@@ -51,10 +49,9 @@ SceneSystem::~SceneSystem() {}
 void SceneSystem::DoPublish(
     const Context<double>& context,
     const std::vector<const PublishEvent<double>*>&) const {
-
   // Check if it's time to update the scene.
-  auto now = std::chrono::steady_clock::now();
-  auto elapsed = now - last_scene_update_;
+  const auto now = std::chrono::steady_clock::now();
+  const auto elapsed = now - last_scene_update_;
   if (std::chrono::duration_cast<std::chrono::milliseconds>(
         elapsed).count() < kScenePeriodMs_) {
     return;
@@ -65,9 +62,9 @@ void SceneSystem::DoPublish(
 
   const AbstractValue* input = EvalAbstractInput(context, 0);
   const auto& viewer_draw = input->GetValue<drake::lcmt_viewer_draw>();
-  ignition::msgs::Scene scene_msg;
 
-  // Populate the list of models.s
+  // Populate the list of models.
+  ignition::msgs::Scene scene_msg;
   ignition::msgs::Model_V models;
   delphyne::bridge::lcmToIgn(viewer_draw, &models);
   for (int i = 0; i < models.models_size(); ++i) {

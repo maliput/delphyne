@@ -26,9 +26,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "gtest/gtest.h"
-
 #include "backend/scene_system.h"
+#include "gtest/gtest.h"
 
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
@@ -39,29 +38,33 @@ namespace backend {
 
 // Checks that all the array-iterable values from
 // lcmt_viewer_draw matches their ignition counterpart.
-void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
+void CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
                          const ignition::msgs::Scene& scene) {
   for (int i = 0; i < lcm_msg.num_links; i++) {
     // Step 1: Checks there is a corresponding ignition model for the LCM link.
+    bool found = false;
     ignition::msgs::Model model;
     for (int j = 0; j < scene.model_size(); ++j) {
-      if (scene.model(j).id() == (unsigned)lcm_msg.robot_num[i]) {
+      if (scene.model(j).id() == int64_t{lcm_msg.robot_num[i]}) {
         model = scene.model(j);
+        found = true;
       }
     }
-    ASSERT_NE(nullptr, &model);
+    ASSERT_TRUE(found);
 
     // Step 2: Checks there is a corresponding ignition link for the LCM link.
+    found = false;
     ignition::msgs::Link link;
     for (int j = 0; j < model.link_size(); ++j) {
       if (model.link(j).name() == lcm_msg.link_name[i]) {
         link = model.link(j);
+        found = true;
       }
     }
-    ASSERT_NE(nullptr, &link);
+    ASSERT_TRUE(found);
 
     // Step 3: Gets the pose and compares the values.
-    ignition::msgs::Pose pose = link.pose();
+    const ignition::msgs::Pose pose = link.pose();
 
     EXPECT_EQ(pose.position().x(), lcm_msg.position[i][0]);
     EXPECT_EQ(pose.position().y(), lcm_msg.position[i][1]);
@@ -74,21 +77,13 @@ void checkMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
 }
 
 class SceneSystemTest : public ::testing::Test {
-  void SubscriberMockCallback(const ignition::msgs::Scene& message) {
-    scene_msg_ = message;
-    handler_called_ = true;
-  }
-
  public:
   // Ignition transport node.
   ignition::transport::Node node_;
-
   // Callback flag.
   bool handler_called_ = false;
-
   // The received message.
   ignition::msgs::Scene scene_msg_;
-
   // Scene System pointer.
   std::unique_ptr<SceneSystem> scene_publisher_ =
       std::make_unique<SceneSystem>("/scene");
@@ -122,6 +117,12 @@ class SceneSystemTest : public ::testing::Test {
     msg.quaternion[0][3] = 1.0;
     return msg;
   }
+
+ private:
+  void SubscriberMockCallback(const ignition::msgs::Scene& message) {
+    scene_msg_ = message;
+    handler_called_ = true;
+  }
 };
 
 // Creates a Scene System and publish a
@@ -147,7 +148,7 @@ TEST_F(SceneSystemTest, PublishTest) {
 
   // Verifies the equivalence of the original lcm message and
   // the received ignition-transport message.
-  checkMsgTranslation(lcm_msg, scene_msg_);
+  CheckMsgTranslation(lcm_msg, scene_msg_);
 }
 
 }  // namespace backend

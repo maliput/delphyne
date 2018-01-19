@@ -135,10 +135,9 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
   auto lcm_msg = get_preloaded_draw_msg();
 
   // Configures context's input with the pre-loaded message.
-  context->SetInputPortValue(
-      0, std::make_unique<drake::systems::FreestandingInputPortValue>(
-             std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
-                 lcm_msg)));
+  context->FixInputPort(
+      0, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
+             lcm_msg));
 
   // Makes the IgnPublisherSystem to publish the message.
   ign_publisher_->Publish(*context.get());

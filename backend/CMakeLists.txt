@@ -4,6 +4,7 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 # Prepare sources
 set (sources
   abstract_input_to_ign_converter.h
+  agent_plugin_loader.cc
   automotive_simulator.cc
   ign_publisher_system.h
   input_port_to_ign_converter.h
@@ -16,12 +17,15 @@ set (sources
 
 set (gtest_sources
   abstract_input_to_ign_converter_test.cc
+  agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   ign_publisher_system_test.cc
   linb_any_test.cc
   scene_system_test.cc
   simulation_runner_test.cc
 )
+
+add_subdirectory(test/agent_plugin)
 
 # ----------------------------------------
 # Automotive demo
@@ -42,6 +46,13 @@ target_link_libraries(automotive-demo
 )
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+delphyne_install_includes(
+  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
+  agent_plugin_base.h
+  system.h
+  linb-any
+)
 
 # ----------------------------------------
 # Tests

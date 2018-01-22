@@ -18,6 +18,7 @@ set (gtest_sources
   abstract_input_to_ign_converter_test.cc
   automotive_simulator_test.cc
   ign_publisher_system_test.cc
+  linb_any_test.cc
   scene_system_test.cc
   simulation_runner_test.cc
 )

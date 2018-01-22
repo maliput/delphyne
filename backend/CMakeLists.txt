@@ -11,6 +11,7 @@ set (sources
   abstract_input_to_ign_converter.h
   vector_input_to_ign_converter.h
   simple_car_state_input_to_ign_converter.h
+  scene_builder_system.cc
 )
 
 set (gtest_sources
@@ -50,7 +51,8 @@ delphyne_build_tests(${gtest_sources})
 add_library(simulation-support
     STATIC
     simulation_runner.cc
-    automotive_simulator.cc)
+    automotive_simulator.cc
+)
 
 target_link_libraries(simulation-support
   delphyne_protobuf_msgs
@@ -72,7 +74,10 @@ add_library(simulation_runner_py
   SHARED
   ign_publisher_system.h
   simulation_runner_py.cc
-  scene_system.cc)
+  ign_publisher_system.cc
+  scene_system.cc
+  scene_builder_system.cc
+)
 
 # Don't prepend wrapper library name with lib
 set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
@@ -86,7 +91,7 @@ target_link_libraries(simulation_runner_py
   ${IGNITION-TRANSPORT_LIBRARIES}
   pybind11::module
   ${PYTHON_LIBRARIES}
-  )
+)
 
 install(TARGETS simulation_runner_py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)

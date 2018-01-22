@@ -100,7 +100,11 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
   auto step_end = std::chrono::steady_clock::now();
 
   // Calculates duration in milliseconds.
+<<<<<<< 2c02a36b6cfa7be33270f18084a158901b30c281
   const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+=======
+  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+>>>>>>> Add SceneBuilderSystem and change GetRobotModel to return a model absolutely positioned in world coordinates
       step_end - step_start);
 
   std::chrono::milliseconds min_simulation_time(10);

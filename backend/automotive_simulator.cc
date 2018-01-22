@@ -100,6 +100,9 @@ AutomotiveSimulator<T>::AutomotiveSimulator(
       builder_->template AddSystem<drake::automotive::CarVisApplicator<T>>();
   car_vis_applicator_->set_name("car_vis_applicator");
 
+  scene_builder_ = builder_->template AddSystem<SceneBuilderSystem>();
+  scene_builder_->set_name("scene_builder");
+
   bundle_to_draw_ = builder_->template AddSystem<
       drake::systems::rendering::PoseBundleToDrawMessage>();
   bundle_to_draw_->set_name("bundle_to_draw");
@@ -142,7 +145,12 @@ AutomotiveSimulator<T>::GetRobotModel() {
 
   auto ign_message = std::make_unique<ignition::msgs::Model_V>();
 
+  // TODO(basicNew): In the future we should remove this call and merge the
+  // code in `lcmToIgn` with the one in `UpdateModels` (which will most
+  // likely change its name to `CreateModels` or similar).
   bridge::lcmToIgn(load_message, ign_message.get());
+
+  scene_builder_->UpdateModels(ign_message.get());
 
   return std::move(ign_message);
 }
@@ -515,6 +523,10 @@ void AutomotiveSimulator<T>::Build() {
   builder_->Connect(
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       bundle_to_draw_->get_input_port(0));
+
+  builder_->Connect(
+      car_vis_applicator_->get_visual_geometry_poses_output_port(),
+      scene_builder_->get_input_port(0));
 
   auto converter =
       std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,

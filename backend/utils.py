@@ -48,13 +48,16 @@ def add_drake_resource_path():
     AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
 
-def build_simple_car_simulator():
+def build_simple_car_simulator(initial_position=None):
     """Creates an AutomotiveSimulator instance and attachs a simple car to it.
     Returns the newly created simulator.
     """
+    if initial_position is None:
+        initial_position = (0.0, 0.0)
     simulator = AutomotiveSimulator()
     state = SimpleCarState()
-    state.y = 0.0
+    state.y = initial_position[0]
+    state.x = initial_position[1]
     simulator.AddPriusSimpleCar("0", "DRIVING_COMMAND_0", state)
     return simulator
 

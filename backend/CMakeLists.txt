@@ -4,7 +4,6 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 # Prepare sources
 set (sources
   automotive_simulator.cc
-  ign_publisher_system.cc
   scene_system.cc
   simulation_runner.cc
   ign_publisher_system.h

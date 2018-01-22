@@ -513,6 +513,12 @@ void AutomotiveSimulator<T>::Build() {
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
 
+  // System that populates and sends the scene.
+  scene_publisher_ = builder_->AddSystem(
+      std::make_unique<SceneSystem>("scene"));
+  builder_->Connect(bundle_to_draw_->get_output_port(0),
+                    scene_publisher_->get_input_port(0));
+
   diagram_ = builder_->Build();
   diagram_->set_name("AutomotiveSimulator");
 }

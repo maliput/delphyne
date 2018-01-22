@@ -89,3 +89,6 @@ install(FILES utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-pa
 install(PROGRAMS python_examples/python_bindings_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(PROGRAMS python_examples/keyboard_controlled_simulation.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(PROGRAMS python_examples/paused_mode_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+# Python tests
+install(PROGRAMS test/simulation_runner_py_test.py DESTINATION ${CMAKE_BINARY_DIR}/backend)

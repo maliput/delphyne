@@ -183,8 +183,8 @@ void SimulatorRunner::RunSimulationStep() {
   }
 
   // This if is here so that we only grab the python global interpreter lock
-  // if there is at least one callback.
-  if (callbacks.size() > 0) {
+  // if there is at least one callback and the simulation is unpaused.
+  if (callbacks.size() > 0 && !paused_) {
     // 1. Acquires the lock to the python interpreter.
     py::gil_scoped_acquire acquire;
     // 2. Performs the callbacks.

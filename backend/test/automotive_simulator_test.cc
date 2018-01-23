@@ -819,6 +819,26 @@ GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
                std::runtime_error);
 }
 
+static const char *env = "AGENT_PLUGIN_PATH=test/agent_plugin";
+
+// Tests that AddLoadableCar basically works.
+GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {
+  ASSERT_EQ(0, putenv(const_cast<char *>(env)));
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  std::map<std::string, linb::any> params;
+
+  ASSERT_EQ(0, simulator->AddLoadableCar("LoadableExampleDouble", params, "my_test_model", nullptr));
+}
+
+// Tests that AddLoadableCar returns -1 when unable to find plugin.
+GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarNonExistent) {
+  ASSERT_EQ(0, putenv(const_cast<char *>(env)));
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  std::map<std::string, linb::any> params;
+
+  ASSERT_EQ(-1, simulator->AddLoadableCar("NonExistentPlugin", params, "my_test_model", nullptr));
+}
+
 //////////////////////////////////////////////////
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

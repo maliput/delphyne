@@ -31,7 +31,11 @@
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <algorithm>
+#include <map>
 #include <utility>
+
+#include "backend/agent_plugin_loader.h"
+#include "backend/linb-any"
 
 #include "drake/automotive/gen/driving_command.h"
 #include "drake/automotive/gen/driving_command_translator.h"
@@ -171,6 +175,35 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 // TODO(jwnimmer-tri): Modify the various vehicle model systems to be more
 // uniform so common code from the following AddFooCar() methods can be moved
 // into a shared method.
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableCar(
+    const std::string& plugin,
+    const std::map<std::string, linb::any>& parameters, const std::string& name,
+    drake::systems::BasicVector<T>* initial_state) {
+  DRAKE_DEMAND(!has_started());
+  DRAKE_DEMAND(aggregator_ != nullptr);
+  CheckNameUniqueness(name);
+  const int id = allocate_vehicle_number();
+
+  std::unique_ptr<delphyne::backend::AgentPluginBase<T>> agent =
+      delphyne::backend::loadPlugin<T>(plugin);
+  if (agent == nullptr) {
+    return -1;
+  }
+
+  auto car =
+      builder_->template AddSystem<delphyne::backend::AgentPluginBase<T>>(
+          std::move(agent));
+  car->set_name(name);
+  vehicles_[id] = car;
+
+  loadable_car_initial_states_[car] = initial_state;
+  car->configure(parameters, builder_.get(), lcm_.get(), name, id, aggregator_,
+                 car_vis_applicator_);
+
+  return id;
+}
 
 template <typename T>
 int AutomotiveSimulator<T>::AddPriusSimpleCar(
@@ -563,6 +596,7 @@ void AutomotiveSimulator<T>::Start(double target_realtime_rate) {
   InitializeTrajectoryCars();
   InitializeSimpleCars();
   InitializeMaliputRailcars();
+  InitializeLoadableCars();
 
   lcm_->StartReceiveThread();
 
@@ -635,6 +669,27 @@ void AutomotiveSimulator<T>::InitializeMaliputRailcars() {
     drake::automotive::MaliputRailcarParams<T>& railcar_system_params =
         car->get_mutable_parameters(&context);
     railcar_system_params.set_value(params.get_value());
+  }
+}
+
+template <typename T>
+void AutomotiveSimulator<T>::InitializeLoadableCars() {
+  for (const auto& pair : loadable_car_initial_states_) {
+    delphyne::backend::AgentPluginBase<T>* const car =
+        dynamic_cast<delphyne::backend::AgentPluginBase<T>*>(pair.first);
+    const drake::systems::BasicVector<T>* initial_state = pair.second;
+
+    drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
+        *car, &simulator_->get_mutable_context());
+
+    drake::systems::VectorBase<T>& context_state =
+        context.get_mutable_continuous_state().get_mutable_vector();
+    drake::systems::BasicVector<T>* const state =
+        dynamic_cast<drake::systems::BasicVector<T>*>(&context_state);
+    DRAKE_ASSERT(state);
+    state->set_value(initial_state->get_value());
+
+    car->initialize(&context);
   }
 }
 

@@ -41,6 +41,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
+#include "backend/linb-any"
+
 #include "drake/automotive/car_vis_applicator.h"
 #include "drake/automotive/curve2.h"
 #include "drake/automotive/gen/maliput_railcar_state.h"
@@ -102,6 +104,27 @@ class AutomotiveSimulator {
 
   /// Return the initial robot model
   std::unique_ptr<ignition::msgs::Model_V> GetRobotModel();
+
+  /// Adds a Vehicle to this simulation from a loadable module.
+  ///
+  /// @pre Start() has NOT been called.
+  ///
+  /// @param plugin The name of the plugin, without the "lib" prefix or ".so"
+  /// suffix.
+  ///
+  /// @param parameters Parameters to be passed to the loadable module
+  /// "configure" method.
+  ///
+  /// @param name The car's name, which must be unique among all cars. Otherwise
+  /// a std::runtime_error will be thrown.
+  ///
+  /// @param initial_state The vehicle's initial state.
+  ///
+  /// @return The ID of the car that was just added to the simulation.
+  int AddLoadableCar(const std::string& plugin,
+                     const std::map<std::string, linb::any>& parameters,
+                     const std::string& name,
+                     drake::systems::BasicVector<T>* initial_state);
 
   /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
   /// includes its DrivingCommand LCM input.
@@ -343,6 +366,7 @@ class AutomotiveSimulator {
   void InitializeTrajectoryCars();
   void InitializeSimpleCars();
   void InitializeMaliputRailcars();
+  void InitializeLoadableCars();
 
   // For both building and simulation.
   std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm_{};
@@ -372,6 +396,11 @@ class AutomotiveSimulator {
            std::pair<drake::automotive::MaliputRailcarParams<T>,
                      drake::automotive::MaliputRailcarState<T>>>
       railcar_configs_;
+
+  // Holds the desired initial states of each loadable vehicle. It is used to
+  // initialize the simulation's diagram's state.
+  std::map<drake::systems::System<T>*, drake::systems::BasicVector<T>*>
+      loadable_car_initial_states_;
 
   // The output port of the Diagram that contains pose bundle information.
   int pose_bundle_output_port_{};

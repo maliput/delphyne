@@ -30,14 +30,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 // OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/automotive_simulator.h"
-
 #include <algorithm>
 #include <utility>
 
 #include "drake/automotive/gen/driving_command.h"
 #include "drake/automotive/gen/driving_command_translator.h"
 #include "drake/automotive/gen/maliput_railcar_state_translator.h"
+#include "drake/automotive/gen/simple_car_state.h"
 #include "drake/automotive/gen/simple_car_state_translator.h"
 #include "drake/automotive/idm_controller.h"
 #include "drake/automotive/maliput/api/junction.h"
@@ -60,8 +59,14 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
+#include "backend/abstract_input_to_ign_converter.h"
+#include "backend/automotive_simulator.h"
+#include "backend/input_port_to_ign_converter.h"
+#include "backend/simple_car_state_input_to_ign_converter.h"
+
 namespace delphyne {
 
+using drake::automotive::SimpleCarStateIndices;
 using drake::maliput::api::Lane;
 using drake::maliput::api::LaneEnd;
 using drake::maliput::api::LaneId;
@@ -446,11 +451,16 @@ template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
   DRAKE_DEMAND(!has_started());
-  static const drake::automotive::SimpleCarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
-  auto publisher = builder_->template AddSystem<LcmPublisherSystem>(
-      channel, translator, lcm_.get());
+
+  auto converter = std::make_unique<SimpleCarStateInputToIgnConverter>(
+      SimpleCarStateIndices::kNumCoordinates);
+
+  auto publisher = builder_->AddSystem(
+      std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
+          channel, std::move(converter)));
+
   builder_->Connect(system.state_output(), publisher->get_input_port(0));
 }
 
@@ -506,8 +516,14 @@ void AutomotiveSimulator<T>::Build() {
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       bundle_to_draw_->get_input_port(0));
 
+  auto converter =
+      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
+                                                   ignition::msgs::Model_V>>();
+
   ign_publisher_ = builder_->AddSystem(
-      std::make_unique<IgnPublisherSystem>("DRAKE_VIEWER_DRAW"));
+      std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(
+          "DRAKE_VIEWER_DRAW", std::move(converter)));
+
   builder_->Connect(bundle_to_draw_->get_output_port(0),
                     ign_publisher_->get_input_port(0));
   pose_bundle_output_port_ =

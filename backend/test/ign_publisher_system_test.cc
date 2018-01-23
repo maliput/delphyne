@@ -26,12 +26,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "gtest/gtest.h"
-
 #include "backend/ign_publisher_system.h"
 
+#include "gtest/gtest.h"
+
+#include "backend/abstract_input_to_ign_converter.h"
+
+#include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
+
 #include <ignition/msgs.hh>
 
 namespace delphyne {
@@ -89,9 +93,15 @@ class IgnPublisherSystemTest : public ::testing::Test {
   // The received message.
   ignition::msgs::Model_V ign_msg_;
 
+  // Converter required by the ignition publisher
+  std::unique_ptr<InputPortToIgnConverter<ignition::msgs::Model_V>> converter_{
+      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
+                                                   ignition::msgs::Model_V>>()};
+
   // Ignition Publisher System pointer.
-  std::unique_ptr<IgnPublisherSystem> ign_publisher_ =
-      std::make_unique<IgnPublisherSystem>("/DRAKE_VIEWER_DRAW");
+  std::unique_ptr<IgnPublisherSystem<ignition::msgs::Model_V>> ign_publisher_{
+      std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(
+          "DRAKE_VIEWER_DRAW", std::move(converter_))};
 
   void SetUp() override {
     // Register callback.

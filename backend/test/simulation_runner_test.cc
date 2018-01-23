@@ -50,7 +50,7 @@ class SimulationRunnerTest : public ::testing::Test {
  protected:
   void SetUp() override {
     auto simulator =
-      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+        std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
     sim_runner_ =
         std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
   }
@@ -100,8 +100,8 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
   auto step_end = std::chrono::steady_clock::now();
 
   // Calculates duration in milliseconds.
-  auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
-                      step_end - step_start);
+  const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      step_end - step_start);
 
   std::chrono::milliseconds min_simulation_time(10);
 
@@ -123,8 +123,7 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   const unsigned int timeout = 100;
   bool result = false;
   const std::string service = "/get_robot_model";
-  node_.Request(service, robot_model_request_msg, timeout, response,
-                result);
+  node_.Request(service, robot_model_request_msg, timeout, response, result);
 
   EXPECT_TRUE(result);
   EXPECT_FALSE(callback_called_);

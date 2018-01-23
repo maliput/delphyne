@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,38 +26,45 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/ign_publisher_system.h"
+#pragma once
 
-#include <iostream>
-
-using drake::systems::AbstractValue;
-using drake::systems::Context;
-using drake::systems::PublishEvent;
+#include "drake/systems/framework/context.h"
 
 namespace delphyne {
 namespace backend {
 
-IgnPublisherSystem::IgnPublisherSystem(std::string topic_name)
-    : topic_(topic_name) {
-  DeclareAbstractInputPort();
-  publisher_ = node_.Advertise<ignition::msgs::Model_V>(topic_);
-}
+template <class IGN_TYPE>
+class IgnPublisherSystem;
 
-IgnPublisherSystem::~IgnPublisherSystem() {}
+/// Is in charge of converting the data of an input port to an ignition message.
+/// Since the converted knows what type of input port it works on it also
+/// has the responsibility of defining it.
+template <class IGN_TYPE>
+class InputPortToIgnConverter {
+ public:
+  /// Default constructor.
+  InputPortToIgnConverter() = default;
 
-void IgnPublisherSystem::DoPublish(
-    const Context<double>& context,
-    const std::vector<const PublishEvent<double>*>&) const {
-  const AbstractValue* input = EvalAbstractInput(context, 0);
-  const auto& viewer_draw = input->GetValue<drake::lcmt_viewer_draw>();
-  ignition::msgs::Model_V ign_msg;
+  /// Declare the input port for an IgnPublisherSystem. Subclasses must
+  /// override this.
+  ///
+  /// @param[in] publisher The publisher for which we should define the port
+  virtual void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) = 0;
 
-  // Translate the lcm message into an ignition-transport message
-  delphyne::bridge::lcmToIgn(viewer_draw, &ign_msg);
-
-  // Publishes onto the specified ign-transport channel.
-  publisher_.Publish(ign_msg);
-}
+  /// Get the data from the input port and populate the outgoing ignition
+  /// message based on it. Subclasses must override this.
+  ///
+  /// @param[in] publisher The publisher for which we are filling the message.
+  ///
+  /// @param[in] context The simulation context.
+  ///
+  /// @param[in] port_index The index of the port the converter must read from.
+  ///
+  /// @param[out] ign_message The ignition message to populate
+  virtual void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
+                            const drake::systems::Context<double>& context,
+                            int port_index, IGN_TYPE* ign_message) = 0;
+};
 
 }  // namespace backend
 }  // namespace delphyne

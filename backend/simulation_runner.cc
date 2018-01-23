@@ -110,7 +110,8 @@ SimulatorRunner::SimulatorRunner(
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-    double time_step) : SimulatorRunner(std::move(sim), time_step, false) {}
+    double time_step)
+    : SimulatorRunner(std::move(sim), time_step, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
   Stop();

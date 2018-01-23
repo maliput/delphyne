@@ -1,27 +1,32 @@
 #!/usr/bin/env python2.7
 
-"""This example show how to use the SimulationRunner's (optional)
-third constructor argument to start in pause mode.
+"""
+This example show how to use the `SimulationRunner`'s (optional) third
+constructor argument to start in pause mode.
 
+```
 $ cd <delphyne_ws>/install/bin
 $ ./paused_mode_example.py
+```
 
 This command will spawn a visualizer instance and start the simulation
 in paused mode.
 
-Unpausing the simulation
+ ## Unpausing the simulation
 
 - At this moment, the only available way of achieving this is by making
-use of a WorldControl service, publishing a message with the right
-content into the /world_control channel:
+use of a `WorldControl` service, publishing a message with the right
+content into the `/world_control` channel:
 
+```
 $ cd <delphyne_ws>/install/bin
 $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl \
 --reptype ignition.msgs.Boolean --timeout 500 --req 'pause: false'
+```
 
-- An alternative way will be to use the TimePanel widget in the visualizer
-(currently under development), which will allow to control the simulation
-with Play / Pause / Step buttons from the GUI.
+- An alternative way will be to use the `TimePanel` widget in the visualizer
+(currently under development), which will allow to control the simulation with
+`Play` / `Pause` / `Step` buttons from the GUI.
 
 """
 

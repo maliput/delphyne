@@ -1,8 +1,25 @@
 #!/usr/bin/env python2.7
-
-"""This is an example of running an automotive simulator and to control the
-advance of the simulation by pressing specific keys on the keyboard.
 """
+This example shows how to use the keyboard events to control the advance of
+a simulation. The simulation will open the usual simple car in the center of
+the scene, which can be driven using the keyboard on the GUI's teleop widget.
+However, by switching to the console, we can `play`/`pause`/`step`/`quit` the
+simulation.
+
+```
+$ cd <delphyne_ws>/install/bin
+$ ./keyboard_controlled_simulation.py
+```
+
+ The supported keys for the demo:
+
+<`p`> will pause the simulation if running and vice-versa.
+
+<`s`> will step the simulation once if paused.
+
+<`q`> will stop the simulation and quit the demo.
+"""
+
 
 # Copyright 2017 Open Source Robotics Foundation
 #

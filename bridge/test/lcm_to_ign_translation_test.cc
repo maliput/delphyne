@@ -65,7 +65,7 @@ class ViewerDrawTest : public ::testing::Test {
   //////////////////////////////////////////////////
   /// \brief Checks that all the array-iterable values from
   /// lcmt_viewer_draw are matching their ignition counterpart
-  void checkMsgTranslation(const drake::lcmt_viewer_draw& lcmMsg,
+  void CheckMsgTranslation(const drake::lcmt_viewer_draw& lcmMsg,
                            const ignition::msgs::Model_V& ignModel) {
     for (int i = 0; i < lcmMsg.num_links; i++) {
       // Step 1: Check there is a corresponding ignition model for the LCM link
@@ -127,7 +127,7 @@ TEST_F(ViewerDrawTest, TestOnePoseInPosesStamp) {
   drawMsg.quaternion.resize(1);
   ignition::msgs::Model_V ignMsg;
   lcmToIgn(drawMsg, &ignMsg);
-  checkMsgTranslation(drawMsg, ignMsg);
+  CheckMsgTranslation(drawMsg, ignMsg);
 }
 
 //////////////////////////////////////////////////
@@ -147,7 +147,7 @@ TEST_F(ViewerDrawTest, TestThreePosesInPosesStamp) {
   drawMsg.quaternion[2] = {12.0, 11.0, 10.0, 9.0};
   ignition::msgs::Model_V ignMsg;
   lcmToIgn(drawMsg, &ignMsg);
-  checkMsgTranslation(drawMsg, ignMsg);
+  CheckMsgTranslation(drawMsg, ignMsg);
 }
 
 //////////////////////////////////////////////////

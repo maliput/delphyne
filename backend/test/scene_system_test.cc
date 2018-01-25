@@ -27,6 +27,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/scene_system.h"
+#include "backend/test/helpers.cc"
+
 #include "gtest/gtest.h"
 
 #include <chrono>

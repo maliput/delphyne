@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 
 """This is a minimal example of starting an automotive simulation using a
-python binding to the C++ SimulatorRunner class.
+python binding to the C++ `SimulatorRunner` class.
 
 Note that this is not a configurable demo, it will just create a sample
 simulation with a prius car that can be driven around.

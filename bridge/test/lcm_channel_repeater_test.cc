@@ -26,7 +26,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <chrono>
 #include <iostream>
+#include <thread>
 #include <gtest/gtest.h>
 #include <ignition/msgs.hh>
 
@@ -118,6 +120,8 @@ GTEST_TEST(LCMChannelRepeaterTest, TestEndToEndEcho) {
   // Consume LCM message
   lcm->handleTimeout(500);
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   // Check handler has been called
   ASSERT_TRUE(handler1Called);
 }
@@ -149,6 +153,8 @@ GTEST_TEST(LCMChannelRepeaterTest, TestHandlerNotCalled) {
 
   // Consume LCM message
   lcm->handleTimeout(500);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Check handler has not been called
   ASSERT_FALSE(handler1Called);
@@ -201,6 +207,8 @@ GTEST_TEST(LCMChannelRepeaterTest, TestMultipleChannels) {
   // Consume LCM messages
   lcm->handleTimeout(500);
   lcm->handleTimeout(500);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Check handlers have been called
   ASSERT_TRUE(handler1Called);

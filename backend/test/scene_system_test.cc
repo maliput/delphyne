@@ -29,6 +29,9 @@
 #include "backend/scene_system.h"
 #include "gtest/gtest.h"
 
+#include <chrono>
+#include <thread>
+
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <ignition/msgs.hh>
@@ -141,6 +144,8 @@ TEST_F(SceneSystemTest, PublishTest) {
 
   // Makes the IgnPublisherSystem to publish the message.
   scene_publisher_->Publish(*context.get());
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Checks that ignition-transport topic callback has been called.
   ASSERT_EQ(handler_called_, true);

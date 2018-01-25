@@ -35,6 +35,7 @@ target_link_libraries(automotive-demo
   ${IGNITION-TRANSPORT_LIBRARIES}
   pybind11::module
   ${PYTHON_LIBRARIES}
+  pthread
 )
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

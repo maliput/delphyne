@@ -186,13 +186,11 @@ class SimulatorRunner {
   // \brief Service used to receive robot model request messages.
   // \param[in] request The request.
   // \param[out] response The response (unused).
-  // \param[out] result The result of the service.
-  void OnRobotModelRequest(
+  // \return The result of the service.
+  bool OnRobotModelRequest(
       const ignition::msgs::RobotModelRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      bool& result);
+      ignition::msgs::Boolean& response);
 
   // \brief Processes one WorldControl message.
   // \param[in] msg The message
@@ -201,13 +199,11 @@ class SimulatorRunner {
   // \brief Service used to receive world control messages.
   // \param[in] request The request.
   // \param[out] response The response (unused).
-  // \param[out] result The result of the service.
-  void OnWorldControl(
+  // \return The result of the service.
+  bool OnWorldControl(
       const ignition::msgs::WorldControl& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      bool& result);
+      ignition::msgs::Boolean& response);
 
   // \brief Processes all pending incoming messages.
   void ProcessIncomingMessages();

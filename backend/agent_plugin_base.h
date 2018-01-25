@@ -52,6 +52,17 @@ template <typename T>
 class DELPHYNE_BACKEND_VISIBLE AgentPluginBase
     : public drake::systems::LeafSystem<T> {
  public:
+  // The configure method is the main way that loadable agents get the
+  // information that they need to insert themselves into an automotive
+  // simulation.  The first argument is a map between string names and
+  // "linb::any", which is a drop-in replacement for std::any for older
+  // compilers.  This map is meant to hold agent-specific arguments that need
+  // to be passed down from the application into the loadable agent for it to
+  // properly configure itself.  The rest of the arguments are parameters that
+  // are needed by all (or at least most) loadable agents to insert themselves
+  // into the simulation.  For instance, the builder parameter is typically used
+  // by the loadable agent to connect internal methods into the overall Diagram
+  // that the automotive simulator is building.
   virtual int configure(
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<T>* builder,

@@ -76,6 +76,7 @@ target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 # Build the simulation support for python bindings as a library.
 add_library(simulation-support
     STATIC
+    agent_plugin_loader.cc
     automotive_simulator.cc
     simulation_runner.cc
 )

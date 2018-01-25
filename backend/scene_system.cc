@@ -35,8 +35,7 @@ using drake::systems::PublishEvent;
 namespace delphyne {
 namespace backend {
 
-SceneSystem::SceneSystem(const std::string& topic_name)
-    : topic_(topic_name) {
+SceneSystem::SceneSystem(const std::string& topic_name) : topic_(topic_name) {
   // TODO(caguero): In the future, this system won't publish the scene message
   // directly. Instead, it will declare an output port that will contain the
   // scene message. Later, we'll use a separate system for publishing.
@@ -52,8 +51,8 @@ void SceneSystem::DoPublish(
   // Check if it's time to update the scene.
   const auto now = std::chrono::steady_clock::now();
   const auto elapsed = now - last_scene_update_;
-  if (std::chrono::duration_cast<std::chrono::milliseconds>(
-        elapsed).count() < kScenePeriodMs_) {
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() <
+      kScenePeriodMs_) {
     return;
   }
 

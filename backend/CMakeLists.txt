@@ -74,7 +74,6 @@ add_library(simulation_runner_py
   SHARED
   ign_publisher_system.h
   simulation_runner_py.cc
-  ign_publisher_system.cc
   scene_system.cc
   scene_builder_system.cc
 )

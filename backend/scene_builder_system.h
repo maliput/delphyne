@@ -35,8 +35,6 @@
 
 #include <ignition/msgs.hh>
 
-#include <drake/systems/framework/leaf_system.h>
-
 #include "bridge/lcm_to_ign_translation.h"
 
 using drake::systems::rendering::PoseBundle;
@@ -53,7 +51,7 @@ namespace backend {
 /// @p SceneSystem in this class.
 class SceneBuilderSystem : public drake::systems::LeafSystem<double> {
  public:
-  explicit SceneBuilderSystem();
+  SceneBuilderSystem();
 
   /// @see LeafSystem::DoPublish
   ///

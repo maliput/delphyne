@@ -115,6 +115,21 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> loadPluginInternal(
     type << "::delphyne::backend::AgentPluginFactory" << TypeName<T>::Get()
          << "Base";
 
+    // The reason for the factory style here is a bit opaque.  The problem is
+    // that something has to hold onto the shared_ptr reference that is
+    // commonPlugin.  One way to do this is to use
+    // commonPlugin->QueryInterfaceSharedPtr() and return the shared_ptr, but
+    // the higher layers of the drake DiagramBuilder expect to get a unique_ptr
+    // of which they control the lifecycle.  Just returning a raw pointer (such
+    // as what commonPlugin->QueryInterface would return) doesn't properly hold
+    // the reference, and hence the plugin would get destructed during the
+    // return from this method.  Instead, the loadable agents actually expose
+    // a factory method as their interface, and the code below calls the
+    // ->Create() method on the factory to actually create the real object
+    // inside of the loadable agent.  Once that is done, we use the
+    // ->setFactoryPlugin() method to store a reference to the commonPlugin
+    // shared_ptr, which makes sure it stays around for the lifetime of the
+    // loaded agent.
     auto factory = commonPlugin->QueryInterface<U>(type.str());
     if (factory == nullptr) {
       ignerr << "Failed to load plugin [" << _filename

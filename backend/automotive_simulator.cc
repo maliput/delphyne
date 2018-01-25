@@ -199,8 +199,10 @@ int AutomotiveSimulator<T>::AddLoadableCar(
   vehicles_[id] = car;
 
   loadable_car_initial_states_[car] = initial_state;
-  car->configure(parameters, builder_.get(), lcm_.get(), name, id, aggregator_,
-                 car_vis_applicator_);
+  if (car->configure(parameters, builder_.get(), lcm_.get(), name, id,
+                     aggregator_, car_vis_applicator_) < 0) {
+    return -1;
+  }
 
   return id;
 }

@@ -69,9 +69,19 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> loadPluginInternal(
     const std::string& _filename) {
   igndbg << "Loading plugin [" << _filename << "]" << std::endl;
 
+  // Setup the paths that we'll use to find the shared library.  Note that we
+  // do not use the SetPluginPathEnv() method, since that puts the environment
+  // variable at the back of the list, and we want to use it first.
   ignition::common::SystemPaths systemPaths;
-  systemPaths.SetPluginPathEnv("AGENT_PLUGIN_PATH");
+  std::string env;
+  if (ignition::common::env("AGENT_PLUGIN_PATH", env)) {
+    systemPaths.AddPluginPaths(env);
+  }
+  if (ignition::common::env("HOME", env)) {
+    systemPaths.AddPluginPaths(env + "/.delphyne/plugins");
+  }
 
+  // Now find the shared library.
   std::string pathToLib = systemPaths.FindSharedLibrary(_filename);
   if (pathToLib.empty()) {
     ignerr << "Failed to load plugin [" << _filename

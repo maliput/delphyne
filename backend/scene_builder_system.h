@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -45,10 +45,10 @@ namespace backend {
 
 /// This system is in charge of caching the last update of the models' poses
 /// in a simulation and apply those poses to a model centered in the origin.
-/// TODO(basicNew): In the future we will move more code form the bridge into
+/// TODO(basicNew): In the future we will move more code from the bridge into
 /// this class and create the model from scratch instead of updating an
 /// existing one. This process should include merging the work done in
-/// @p SceneSystem in this class.
+/// SceneSystem in this class.
 class SceneBuilderSystem : public drake::systems::LeafSystem<double> {
  public:
   SceneBuilderSystem();
@@ -65,12 +65,12 @@ class SceneBuilderSystem : public drake::systems::LeafSystem<double> {
   /// Given a collection of models, update their poses based on the cached
   /// pose bundle this class holds
   ///
-  /// @param[out] publisher The publisher for which we should define the port
+  /// @param[out] robot_models The models to be updated with the new poses
   void UpdateModels(ignition::msgs::Model_V* robot_models);
 
  private:
   // Caches the last pose bundle received in the input port.
-  mutable PoseBundle<double>* last_poses_update_;
+  mutable std::unique_ptr<PoseBundle<double>> last_poses_update_;
 };
 
 }  // namespace backend

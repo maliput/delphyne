@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -47,7 +47,7 @@ void SceneBuilderSystem::DoPublish(
   const PoseBundle<double>& poses =
       this->EvalAbstractInput(context, 0)
           ->template GetValue<PoseBundle<double>>();
-  last_poses_update_ = new PoseBundle<double>(poses);
+  last_poses_update_ = std::make_unique<PoseBundle<double>>(poses);
 }
 
 void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
@@ -55,13 +55,14 @@ void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
 
   for (int pose_index = 0; pose_index < n; ++pose_index) {
     // Find the corresponding model for the pose.
-    auto robot_id = last_poses_update_->get_model_instance_id(pose_index);
+    const auto robot_id = last_poses_update_->get_model_instance_id(pose_index);
 
     ignition::msgs::Model* model = nullptr;
 
     for (int j = 0; j < robotModels->models_size(); ++j) {
       if (robotModels->models(j).id() == int64_t(robot_id)) {
         model = robotModels->mutable_models(j);
+        break;
       }
     }
 
@@ -78,6 +79,7 @@ void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
     for (int j = 0; j < model->link_size(); ++j) {
       if (model->link(j).name() == link_name) {
         link = model->mutable_link(j);
+        break;
       }
     }
 
@@ -89,14 +91,14 @@ void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
     // Get the pose and apply it to the model
     ignition::msgs::Pose* pose = link->mutable_pose();
 
-    Eigen::Translation<double, 3> translation(
+    const Eigen::Translation<double, 3> translation(
         last_poses_update_->get_pose(pose_index).translation());
     ignition::msgs::Vector3d* position = pose->mutable_position();
     position->set_x(translation.x());
     position->set_y(translation.y());
     position->set_z(translation.z());
 
-    Eigen::Quaternion<double> quaternion(
+    const Eigen::Quaternion<double> quaternion(
         last_poses_update_->get_pose(pose_index).linear());
     ignition::msgs::Quaternion* orientation = pose->mutable_orientation();
     orientation->set_w(quaternion.w());

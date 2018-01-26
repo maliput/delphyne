@@ -263,9 +263,9 @@ void SimulatorRunner::ProcessRobotModelRequest(
   node_.Request(topic_name, *robot_model);
 }
 
-void SimulatorRunner::OnWorldControl(
+bool SimulatorRunner::OnWorldControl(
     const ignition::msgs::WorldControl& request,
-    ignition::msgs::Boolean& response, bool& result) {
+    ignition::msgs::Boolean& response) {
   // Fill the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
@@ -276,12 +276,12 @@ void SimulatorRunner::OnWorldControl(
     std::lock_guard<std::mutex> lock(mutex_);
     incoming_msgs_.push(input_message);
   }
-  result = true;
+  return true;
 }
 
-void SimulatorRunner::OnRobotModelRequest(
+bool SimulatorRunner::OnRobotModelRequest(
     const ignition::msgs::RobotModelRequest& request,
-    ignition::msgs::Boolean& response, bool& result) {
+    ignition::msgs::Boolean& response) {
   // Fill the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(
@@ -293,7 +293,7 @@ void SimulatorRunner::OnRobotModelRequest(
     std::lock_guard<std::mutex> lock(mutex_);
     incoming_msgs_.push(input_message);
   }
-  result = true;
+  return true;
 }
 
 }  // namespace backend

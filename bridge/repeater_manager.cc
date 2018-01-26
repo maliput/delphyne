@@ -67,39 +67,35 @@ void RepeaterManager::EnableLCMAutodiscovery() {
 }
 
 /////////////////////////////////////////////////
-void RepeaterManager::IgnitionRepeaterServiceHandler(
-    const ignition::msgs::StringMsg& request, ignition::msgs::Boolean& response,
-    bool& result) {
+bool RepeaterManager::IgnitionRepeaterServiceHandler(
+    const ignition::msgs::StringMsg& request,
+    ignition::msgs::Boolean& response) {
   if (!request.has_data()) {
     ignerr << "Couldn't create repeater: missing topic name" << std::endl;
-    return;
+    return false;
   }
-
-  // We are handling the message. If this fails or not will be recorded in the
-  // response
-  result = true;
 
   const std::string topicName = request.data();
 
   response.set_data(StartRepeater(topicName));
+
+  return true;
 }
 
 /////////////////////////////////////////////////
-void RepeaterManager::LCMRepeaterServiceHandler(
-    const ignition::msgs::StringMsg& request, ignition::msgs::Boolean& response,
-    bool& result) {
+bool RepeaterManager::LCMRepeaterServiceHandler(
+    const ignition::msgs::StringMsg& request,
+    ignition::msgs::Boolean& response) {
   if (!request.has_data()) {
     ignerr << "Couldn't create repeater: missing channel name" << std::endl;
-    return;
+    return false;
   }
-
-  // We are handling the message. If this fails or not will be recorded in the
-  // response
-  result = true;
 
   const std::string channelName = request.data();
 
   response.set_data(StartRepeater(channelName));
+
+  return true;
 }
 
 /////////////////////////////////////////////////

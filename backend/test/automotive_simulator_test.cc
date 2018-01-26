@@ -32,7 +32,9 @@
 
 #include "backend/automotive_simulator.h"
 
+#include <chrono>
 #include <stdexcept>
+#include <thread>
 
 #include <gtest/gtest.h>
 
@@ -529,6 +531,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   const double initial_x = PriusVis<double>::kVisOffset;
   // Verifies the acceleration is zero even if
   // AutomotiveSimulator::SetMaliputRailcarAccelerationCommand() was not called.
@@ -545,6 +549,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
 
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   CheckModelLinks(draw_message);
 
   // Verifies that the vehicle hasn't moved yet. This is expected since the
@@ -560,6 +566,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // Advances the simulation to allow the MaliputRailcar to begin accelerating.
   simulator->StepBy(0.005);
   simulator->StepBy(0.005);
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   CheckModelLinks(draw_message);
 

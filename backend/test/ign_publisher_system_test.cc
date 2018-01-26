@@ -26,11 +26,13 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "backend/abstract_input_to_ign_converter.h"
 #include "backend/ign_publisher_system.h"
 
 #include "gtest/gtest.h"
 
-#include "backend/abstract_input_to_ign_converter.h"
+#include <chrono>
+#include <thread>
 
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/analysis/simulator.h>
@@ -151,6 +153,8 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
 
   // Makes the IgnPublisherSystem to publish the message.
   ign_publisher_->Publish(*context.get());
+
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   // Checks that ignition-transport topic callback has been called.
   ASSERT_EQ(handler_called_, true);

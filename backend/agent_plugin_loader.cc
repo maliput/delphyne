@@ -64,6 +64,21 @@ struct TypeName<::drake::symbolic::Expression> {
   static const char* Get() { return "Expression"; }
 };
 
+/// The function that loads a plugin given the name of the plugin.  Given a
+/// plugin name like "Foo", this function will look for a file named 'libFoo.so'
+/// in the colon-separated paths in AGENT_PLUGIN_PATH, followed by
+/// ~/.delphyne/plugins.  If the file is found, it is loaded up, initialized,
+/// and a std::unique_ptr to the concrete class is returned.  If it cannot be
+/// found, or the load or initialization fails for some reason, a nullptr is
+/// returned.
+///
+/// @tparam T must generally be a "double-like" type.  Currently, the supported
+///           template types are 'double', 'drake::AutoDiffXd', and
+///           'drake::symbolic::Expression'.
+/// @tparam U must be one of the AgentPluginFactory types from
+///           agent_plugin_base.h.  Due to some current limitations, it cannot
+///           be a templated type like 'AgentPluginFactoryBase<double>';
+///           instead, it must be something like 'AgentPluginFactoryDoubleBase'.
 template <typename T, typename U>
 std::unique_ptr<delphyne::backend::AgentPluginBase<T>> loadPluginInternal(
     const std::string& _filename) {

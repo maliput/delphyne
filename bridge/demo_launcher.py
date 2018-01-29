@@ -72,13 +72,10 @@ def main():
 
     # Delphyne binaries; these are found through the standard PATH, so
     # they are relative
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
     ign_visualizer = "visualizer"
     automotive_demo = "automotive-demo"
 
     try:
-        launcher.launch([lcm_ign_bridge, num_cars[args.demo_name]])
-
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
             teleop_config = os.path.join(

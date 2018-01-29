@@ -25,6 +25,7 @@ set (gtest_sources
 
 set (lcm_to_ign_sources
   lcm_to_ign_translation.cc
+  ign_to_lcm_translation.cc
 )
 
 # ----------------------------------------
@@ -40,25 +41,6 @@ target_link_libraries(delphyne_lcm_to_ign
 
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-# ----------------------------------------
-# Create duplex-ign-lcm-bridge binary.
-add_executable(duplex-ign-lcm-bridge
-  duplex_ign_lcm_bridge.cc
-  ${sources}
-)
-
-target_link_libraries(duplex-ign-lcm-bridge
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-MSGS_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PROTOBUF_LIBRARY}
-  ${PROTOBUF_PROTOC_LIBRARY}
-  ${drake_LIBRARIES}
-  ${lcm_LIBRARIES}
-  delphyne_protobuf_msgs
-)
-
-install(TARGETS duplex-ign-lcm-bridge DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
 install(PROGRAMS demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 

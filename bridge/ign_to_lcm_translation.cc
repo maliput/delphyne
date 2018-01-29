@@ -50,5 +50,11 @@ void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
   lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
 }
 
+void ignToLcm(const ignition::msgs::Model_V& robotModels,
+              drake::lcmt_viewer_draw* robotDrawData) {
+  // No-op, st it is not being currently used.
+  // TODO(basicNew) actually implement this.
+}
+
 }  // namespace bridge
 }  // namespace delphyne

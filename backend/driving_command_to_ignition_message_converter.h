@@ -28,40 +28,39 @@
 
 #pragma once
 
-#include <memory>
-#include <vector>
+#include "backend/discrete_value_to_ignition_message_converter.h"
 
-#include <drake/automotive/simple_car.h>
-
-#include <protobuf/simple_car_state.pb.h>
-
-#include "backend/vector_input_to_ign_converter.h"
+using drake::automotive::DrivingCommand;
+using drake::automotive::DrivingCommandIndices;
 
 namespace delphyne {
 namespace backend {
 
-/// This class is a specialization of VectorToIgnConverter that knows how
+/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
+/// that knows how
 /// to populate a SimpleCarState ignition message from an input vector.
-class SimpleCarStateInputToIgnConverter
-    : public VectorToIgnConverter<ignition::msgs::SimpleCarState> {
+class DrivingCommandToIgnitionMessageConverter
+    : public DiscreteValueToIgnitionMessageConverter<
+          ignition::msgs::AutomotiveDrivingCommand, DrivingCommand<double>> {
  public:
-  explicit SimpleCarStateInputToIgnConverter(int size)
-      : VectorToIgnConverter(size) {}
+  int get_vector_size() { return DrivingCommandIndices::kNumCoordinates; }
 
  protected:
-  void vectorToIgn(const VectorBase<double>& input_vector, double time,
-                   ignition::msgs::SimpleCarState* ign_message) override {
-    const auto* const vector =
-        dynamic_cast<const drake::automotive::SimpleCarState<double>*>(
-            &input_vector);
+  void VectorToIgn(
+      const DrivingCommand<double>& input_vector, double time,
+      ignition::msgs::AutomotiveDrivingCommand* ign_message) override {
     const int64_t secs = time;
-    const int64_t nsecs = (time - secs) * 1000000000;
+    const int64_t nsecs = (time - secs) * 1000000;
     ign_message->mutable_time()->set_sec(secs);
     ign_message->mutable_time()->set_nsec(nsecs);
-    ign_message->set_x(vector->x());
-    ign_message->set_y(vector->y());
-    ign_message->set_heading(vector->heading());
-    ign_message->set_velocity(vector->velocity());
+    ign_message->set_theta(input_vector.steering_angle());
+    ign_message->set_acceleration(input_vector.acceleration());
+  };
+
+  void IgnToVector(const ignition::msgs::AutomotiveDrivingCommand& ign_message,
+                   DrivingCommand<double>* output_vector) override {
+    output_vector->set_steering_angle(ign_message.theta());
+    output_vector->set_acceleration(ign_message.acceleration());
   };
 };
 

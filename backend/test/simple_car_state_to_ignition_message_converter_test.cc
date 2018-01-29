@@ -26,7 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/simple_car_state_input_to_ign_converter.h"
+#include "backend/simple_car_state_to_ignition_message_converter.h"
 
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/gen/simple_car_state_translator.h>
@@ -43,24 +43,19 @@ namespace test {
 
 // \brief Checks that a vector input of type SimpleCarState is correctly
 // processed and translated into its ignition-msgs counterpart.
-GTEST_TEST(SimpleCarStateInputToIgnConverterTest, TestVectorToIgn) {
-  // The size of the vector.
-  const int kSize{1};
-
+GTEST_TEST(SimpleCarStateToIgnitionMessageConverterTest, TestVectorToIgn) {
   // Converter required by the ignition publisher.
-  auto converter = std::make_unique<SimpleCarStateInputToIgnConverter>(kSize);
+  auto converter = std::make_unique<SimpleCarStateToIgnitionMessageConverter>();
 
   // Since the IgnPublisherSystem takes ownership of the converter
   // declared above, it creates another one for testing purposes.
   auto test_converter =
-      std::make_unique<SimpleCarStateInputToIgnConverter>(kSize);
+      std::make_unique<SimpleCarStateToIgnitionMessageConverter>();
 
   // IgnitionPublisherSystem takes ownership over the converter.
   auto ign_publisher =
       std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
           "TEST_CHANNEL", std::move(converter));
-
-  test_converter->DeclareInputPort(ign_publisher.get());
 
   // Creates a context into the publisher.
   std::unique_ptr<drake::systems::Context<double>> context =

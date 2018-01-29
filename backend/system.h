@@ -60,7 +60,6 @@
 #endif
 #endif
 
-
 /// \def DELPHYNE_ASSERT
 /// Used to declare an assertion. Will quit execution otherwise.
 

@@ -27,7 +27,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/ign_publisher_system.h"
-#include "backend/abstract_input_to_ign_converter.h"
+#include "backend/abstract_value_to_ignition_message_converter.h"
 #include "backend/test/helpers.h"
 
 #include "gtest/gtest.h"
@@ -61,9 +61,9 @@ class IgnPublisherSystemTest : public ::testing::Test {
   ignition::msgs::Model_V ign_msg_;
 
   // Converter required by the ignition publisher
-  std::unique_ptr<InputPortToIgnConverter<ignition::msgs::Model_V>> converter_{
-      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
-                                                   ignition::msgs::Model_V>>()};
+  std::unique_ptr<IgnitionMessageConverter<ignition::msgs::Model_V>> converter_{
+      std::make_unique<AbstractValueToIgnitionMessageConverter<
+          drake::lcmt_viewer_draw, ignition::msgs::Model_V>>()};
 
   // Ignition Publisher System pointer.
   std::unique_ptr<IgnPublisherSystem<ignition::msgs::Model_V>> ign_publisher_{

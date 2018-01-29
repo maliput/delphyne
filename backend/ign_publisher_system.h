@@ -37,10 +37,10 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/leaf_system.h>
 
-#include "backend/input_port_to_ign_converter.h"
+#include "backend/discrete_value_to_ignition_message_converter.h"
+#include "backend/ignition_message_converter.h"
 
 using drake::systems::Context;
 using drake::systems::PublishEvent;
@@ -57,12 +57,6 @@ namespace backend {
 template <class IGN_TYPE>
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
-  // Make DeclareAbstractInputPort public.
-  using drake::systems::LeafSystem<double>::DeclareAbstractInputPort;
-
-  // Make DeclareInputPort public.
-  using drake::systems::LeafSystem<double>::DeclareInputPort;
-
   /// Default constructor.
   ///
   /// @param[in] topic_name The name of the ignition topic this system will
@@ -72,9 +66,14 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   /// message content from the data in the input port.
   explicit IgnPublisherSystem(
       const std::string& topic_name,
-      std::unique_ptr<InputPortToIgnConverter<IGN_TYPE>> converter)
+      std::unique_ptr<IgnitionMessageConverter<IGN_TYPE>> converter)
       : topic_name_(topic_name), converter_(std::move(converter)) {
-    converter_->DeclareInputPort(this);
+    if (converter_->handles_discrete_values()) {
+      this->DeclareInputPort(drake::systems::kVectorValued,
+                             converter_->get_vector_size());
+    } else {
+      this->DeclareAbstractInputPort();
+    }
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
 
@@ -115,7 +114,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   mutable ignition::transport::Node::Publisher publisher_;
 
   // Converts input port values to ignition messages.
-  mutable std::unique_ptr<InputPortToIgnConverter<IGN_TYPE>> converter_{};
+  mutable std::unique_ptr<IgnitionMessageConverter<IGN_TYPE>> converter_{};
 };
 
 }  // namespace backend

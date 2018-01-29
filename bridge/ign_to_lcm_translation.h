@@ -32,11 +32,13 @@
 namespace ignition {
 namespace msgs {
 class AutomotiveDrivingCommand;
+class Model_V;
 }
 }
 
 namespace drake {
 class lcmt_driving_command_t;
+class lcmt_viewer_draw;
 }
 
 namespace delphyne {
@@ -48,6 +50,12 @@ namespace bridge {
 /// \param[out] lcmDrivingCommand The resulting LCM command
 void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
               drake::lcmt_driving_command_t* lcmDrivingCommand);
+
+/// \brief Translate a model vector ignition message to an LCM view draw message
+/// \param[in]  robotModels An ignition message containing the model vector
+/// \param[out] robotDrawData The resulting LCM view draw message
+void ignToLcm(const ignition::msgs::Model_V& robotModels,
+              drake::lcmt_viewer_draw* robotDrawData);
 
 }  // namespace bridge
 }  // namespace delphyne

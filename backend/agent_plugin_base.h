@@ -48,6 +48,13 @@
 
 namespace delphyne {
 namespace backend {
+/// The abstract class that all plugins must inherit from.  Concrete
+/// implementations must implement both the 'configure' method and the
+/// 'initialize' method.
+///
+/// @tparam T must generally be a "double-like" type.  Currently, the supported
+///           template types are 'double', 'drake::AutoDiffXd', and
+///           'drake::symbolic::Expression'.
 template <typename T>
 class DELPHYNE_BACKEND_VISIBLE AgentPluginBase
     : public drake::systems::LeafSystem<T> {
@@ -86,6 +93,14 @@ typedef delphyne::backend::AgentPluginBase<::drake::AutoDiffXd>
 typedef delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>
     AgentPluginExpressionBase;
 
+/// The abstract class factory that all plugins must inherit from.  Concrete
+/// implementations must implement the 'Create' method that will return a
+/// std::unique_ptr of the concrete implementation that inherited from
+/// 'AgentPluginBase' above.
+///
+/// @tparam T must generally be a "double-like" type.  Currently, the supported
+///           template types are 'double', 'drake::AutoDiffXd', and
+///           'drake::symbolic::Expression'.
 template <typename T>
 class DELPHYNE_BACKEND_VISIBLE AgentPluginFactoryBase {
  public:

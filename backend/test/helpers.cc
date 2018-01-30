@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -66,7 +66,7 @@ void CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
     // Step 1: Checks there is a corresponding ignition model for the LCM link.
     ignition::msgs::Model model;
     for (int j = 0; j < ign_models.models_size(); ++j) {
-      if (ign_models.models(j).id() == (unsigned)lcm_msg.robot_num[i]) {
+      if (ign_models.models(j).id() == int64_t(lcm_msg.robot_num[i])) {
         model = ign_models.models(j);
       }
     }

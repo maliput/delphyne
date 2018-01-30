@@ -31,6 +31,7 @@
 #include "backend/test/helpers.h"
 
 #include <drake/lcmt_viewer_draw.hpp>
+#include <drake/systems/framework/framework_common.h>
 
 #include "gtest/gtest.h"
 
@@ -105,8 +106,12 @@ GTEST_TEST(AbstractInputToIgnConverterTest, TestDeclareInputPort) {
   // Make the test_converter add a second abstract input port to the system.
   test_converter->DeclareInputPort(ign_publisher.get());
 
-  // We should have two abstract inputs now.
+  // A new input must have been added to the system.
   EXPECT_EQ(ign_publisher->get_num_input_ports(), 2);
+
+  // And it must be of type abstract.
+  EXPECT_EQ(ign_publisher->get_input_port(1).get_data_type(), drake::systems::kAbstractValued);
+
 }
 
 }  // namespace backend

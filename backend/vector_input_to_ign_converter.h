@@ -31,6 +31,7 @@
 #include <memory>
 #include <vector>
 
+#include "backend/ign_publisher_system.h"
 #include "backend/input_port_to_ign_converter.h"
 
 using drake::systems::VectorBase;
@@ -58,12 +59,17 @@ class VectorToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
   ///
   /// @param[in] publisher The publisher for which we should define the port
   void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
+    DRAKE_DEMAND(publisher != nullptr);
+
     publisher->DeclareInputPort(drake::systems::kVectorValued, size_);
   }
 
   void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                     const drake::systems::Context<double>& context,
                     int port_index, IGN_TYPE* ign_message) override {
+    DRAKE_DEMAND(publisher != nullptr);
+    DRAKE_DEMAND(ign_message != nullptr);
+
     const VectorBase<double>* const input_vector =
         publisher->EvalVectorInput(context, port_index);
     vectorToIgn(*input_vector, context.get_time(), ign_message);

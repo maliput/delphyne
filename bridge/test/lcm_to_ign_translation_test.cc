@@ -26,11 +26,16 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "bridge/lcm_to_ign_translation.h"
+
 #include <iostream>
+
+#include "backend/test/helpers.h"
+
 #include <gtest/gtest.h>
+
 #include <ignition/msgs.hh>
 
-#include "bridge/lcm_to_ign_translation.h"
 
 namespace delphyne {
 namespace bridge {
@@ -61,43 +66,6 @@ class ViewerDrawTest : public ::testing::Test {
     drawMsg.position[1] = {4.0, 5.0, 6.0};
     drawMsg.quaternion[1] = {8.0, 7.0, 6.0, 5.0};
   }
-
-  //////////////////////////////////////////////////
-  /// \brief Checks that all the array-iterable values from
-  /// lcmt_viewer_draw are matching their ignition counterpart
-  void CheckMsgTranslation(const drake::lcmt_viewer_draw& lcmMsg,
-                           const ignition::msgs::Model_V& ignModel) {
-    for (int i = 0; i < lcmMsg.num_links; i++) {
-      // Step 1: Check there is a corresponding ignition model for the LCM link
-      ignition::msgs::Model model;
-      for (int j = 0; j < ignModel.models_size(); ++j) {
-        if (ignModel.models(j).id() == (unsigned)lcmMsg.robot_num[i]) {
-          model = ignModel.models(j);
-        }
-      }
-      ASSERT_NE(nullptr, &model);
-
-      // Step 2: Check there is a corresponding ignition link for the LCM link
-      ignition::msgs::Link link;
-      for (int j = 0; j < model.link_size(); ++j) {
-        if (model.link(j).name() == lcmMsg.link_name[i]) {
-          link = model.link(j);
-        }
-      }
-      ASSERT_NE(nullptr, &link);
-
-      // Step 3: Get the pose and compare the values
-      ignition::msgs::Pose pose = link.pose();
-
-      EXPECT_EQ(pose.position().x(), lcmMsg.position[i][0]);
-      EXPECT_EQ(pose.position().y(), lcmMsg.position[i][1]);
-      EXPECT_EQ(pose.position().z(), lcmMsg.position[i][2]);
-      EXPECT_EQ(pose.orientation().w(), lcmMsg.quaternion[i][0]);
-      EXPECT_EQ(pose.orientation().x(), lcmMsg.quaternion[i][1]);
-      EXPECT_EQ(pose.orientation().y(), lcmMsg.quaternion[i][2]);
-      EXPECT_EQ(pose.orientation().z(), lcmMsg.quaternion[i][3]);
-    }
-  }
 };
 
 //////////////////////////////////////////////////
@@ -127,7 +95,7 @@ TEST_F(ViewerDrawTest, TestOnePoseInPosesStamp) {
   drawMsg.quaternion.resize(1);
   ignition::msgs::Model_V ignMsg;
   lcmToIgn(drawMsg, &ignMsg);
-  CheckMsgTranslation(drawMsg, ignMsg);
+  EXPECT_TRUE(test::CheckMsgTranslation(drawMsg, ignMsg));
 }
 
 //////////////////////////////////////////////////
@@ -147,7 +115,7 @@ TEST_F(ViewerDrawTest, TestThreePosesInPosesStamp) {
   drawMsg.quaternion[2] = {12.0, 11.0, 10.0, 9.0};
   ignition::msgs::Model_V ignMsg;
   lcmToIgn(drawMsg, &ignMsg);
-  CheckMsgTranslation(drawMsg, ignMsg);
+  EXPECT_TRUE(test::CheckMsgTranslation(drawMsg, ignMsg));
 }
 
 //////////////////////////////////////////////////

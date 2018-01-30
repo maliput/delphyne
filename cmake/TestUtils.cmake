@@ -41,7 +41,7 @@ macro (delphyne_build_tests)
       pthread
       delphyne_protobuf_msgs
       delphyne_lcm_to_ign
-      test-helpers
+      test_helpers
     )
 
     # Remove a warning in GTest.

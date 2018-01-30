@@ -28,11 +28,11 @@
 
 #include "backend/abstract_input_to_ign_converter.h"
 #include "backend/ign_publisher_system.h"
-#include "backend/test/helpers.cc"
-
-#include "gtest/gtest.h"
+#include "backend/test/helpers.h"
 
 #include <drake/lcmt_viewer_draw.hpp>
+
+#include "gtest/gtest.h"
 
 #include <ignition/msgs.hh>
 
@@ -41,7 +41,7 @@ namespace backend {
 
 // \brief Checks that an lcm message from the input port is
 // correctly translated into its ignition-msgs counterpart.
-GTEST_TEST(AbstractInputToIgnConverterTest, TestProcessInputWithValidTypes) {
+GTEST_TEST(AbstractInputToIgnConverterTest, TestProcessInput) {
   // Converter required by the ignition publisher.
   auto converter =
       std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
@@ -61,29 +61,28 @@ GTEST_TEST(AbstractInputToIgnConverterTest, TestProcessInputWithValidTypes) {
   std::unique_ptr<drake::systems::Context<double>> context =
       ign_publisher->CreateDefaultContext();
 
-  auto lcm_msg{get_preloaded_draw_msg()};
-
-  auto ign_msg{std::make_unique<ignition::msgs::Model_V>()};
+  const drake::lcmt_viewer_draw lcm_msg{test::BuildPreloadedDrawMsg()};
 
   // Configures context's input with the pre-loaded message.
   context->FixInputPort(
       0, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
              lcm_msg));
 
-  int kPortIndex{0};
+  const int kPortIndex{0};
 
   // Calls the ProcessInput method from our test_converter object, since
   // the other converter now belongs to the ign_publisher object.
+  auto ign_msg = std::make_unique<ignition::msgs::Model_V>();
   test_converter->ProcessInput(ign_publisher.get(), *context, kPortIndex,
                                ign_msg.get());
 
   // Check translation's correctness.
-  CheckMsgTranslation(lcm_msg, *ign_msg);
+  EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, *ign_msg));
 }
 
 // \brief Checks that the DeclareInputPort methods
 // adds another input port to the IgnPublisherSystem.
-GTEST_TEST(AbstractInputToIgnConverterTest, TestProcessInputWithInvalidTypes) {
+GTEST_TEST(AbstractInputToIgnConverterTest, TestDeclareInputPort) {
   // Converter required by the ignition publisher.
   auto converter =
       std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,

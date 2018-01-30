@@ -46,18 +46,17 @@ install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 delphyne_build_tests(${gtest_sources})
 
 # Helpers
-add_library(test-helpers
+add_library(test_helpers
     test/helpers.cc)
 
-target_link_libraries(test-helpers
-  libgtest.a
-  libgtest_main.a
+target_link_libraries(test_helpers
+  gtest
+  gtest_main
   ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
+  ${IGNITION-MSGS_LIBRARIES}
 )
 
-target_include_directories(test-helpers PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 # ----------------------------------------
 # Python bindings
 

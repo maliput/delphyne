@@ -28,7 +28,7 @@
 
 #include "backend/abstract_input_to_ign_converter.h"
 #include "backend/ign_publisher_system.h"
-#include "backend/test/helpers.cc"
+#include "backend/test/helpers.h"
 
 #include "gtest/gtest.h"
 
@@ -88,7 +88,7 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
       ign_publisher_->CreateDefaultContext();
 
   // Fills the lcm message with sample data.
-  auto lcm_msg = get_preloaded_draw_msg();
+  const auto lcm_msg = test::BuildPreloadedDrawMsg();
 
   // Configures context's input with the pre-loaded message.
   context->FixInputPort(
@@ -105,7 +105,7 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
 
   // Verifies the equivalence of the original lcm message and
   // the received ignition-transport message.
-  CheckMsgTranslation(lcm_msg, ign_msg_);
+  EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg_));
 }
 
 }  // namespace backend

@@ -26,17 +26,21 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <string>
+
+#include "backend/test/helpers.h"
+
+#include <drake/common/drake_assert.h>
 #include <drake/lcmt_viewer_draw.hpp>
+
+#include <gtest/gtest.h>
 
 #include <ignition/msgs.hh>
 
-#include "gtest/gtest.h"
-
 namespace delphyne {
-namespace backend {
+namespace test {
 
-// Generates a pre-loaded lcmt_viewer_draw message.
-drake::lcmt_viewer_draw get_preloaded_draw_msg() {
+drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   drake::lcmt_viewer_draw msg;
   msg.timestamp = 0;
   msg.num_links = 1;
@@ -58,41 +62,200 @@ drake::lcmt_viewer_draw get_preloaded_draw_msg() {
   return msg;
 }
 
-// Checks that all the array-iterable values from
-// lcmt_viewer_draw matches their ignition counterpart.
-void CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
-                         const ignition::msgs::Model_V& ign_models) {
+::testing::AssertionResult CheckPositionTranslation(
+    const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
+    int lcm_index, double tolerance) {
+  // Asserts that the tolerance is not negative, aborts otherwise.
+  DRAKE_ASSERT(tolerance >= 0);
+  DRAKE_ASSERT(lcm_index >= 0);
+
+  std::string error_message;
+  bool fails(false);
+
+  double delta = std::abs(pose.position().x() - lcm_msg.position[lcm_index][0]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message + "Values for position are different at x.\n";
+  }
+  delta = std::abs(pose.position().y() - lcm_msg.position[lcm_index][1]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message + "Values for position are different at y.\n";
+  }
+  delta = std::abs(pose.position().z() - lcm_msg.position[lcm_index][2]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message + "Values for position are different at z.\n";
+  }
+  if (fails) {
+    return ::testing::AssertionFailure() << error_message;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckOrientationTranslation(
+    const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
+    int lcm_index, double tolerance) {
+  DRAKE_ASSERT(tolerance >= 0);
+  DRAKE_ASSERT(lcm_index >= 0);
+
+  std::string error_message;
+  bool fails(false);
+
+  double delta =
+      std::abs(pose.orientation().w() - lcm_msg.quaternion[lcm_index][0]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for orientation are different at w.\n";
+  }
+  delta = std::abs(pose.orientation().x() - lcm_msg.quaternion[lcm_index][1]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for orientation are different at x.\n";
+  }
+  delta = std::abs(pose.orientation().y() - lcm_msg.quaternion[lcm_index][2]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for orientation are different at y.\n";
+  }
+  delta = std::abs(pose.orientation().z() - lcm_msg.quaternion[lcm_index][3]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for orientation are different at z.\n";
+  }
+  if (fails) {
+    return ::testing::AssertionFailure() << error_message;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+namespace {
+::testing::AssertionResult AssertModelsEquivalence(
+    ignition::msgs::Model& model, const drake::lcmt_viewer_draw& lcm_msg,
+    int i) {
+  DRAKE_ASSERT(i >= 0);
+
+  bool failure = false;
+
+  // Asserts there is a corresponding ignition link for the LCM link.
+  bool found = false;
+  std::string error_msg;
+  ignition::msgs::Link link;
+  for (int j = 0; j < model.link_size(); ++j) {
+    if (model.link(j).name() == lcm_msg.link_name[i]) {
+      link = model.link(j);
+      found = true;
+    }
+  }
+  if (!found) {
+    error_msg =
+        "Couldn't find a matching link name in the translated ignition model "
+        "for its corresponding lcm message.\n";
+    failure = true;
+  }
+
+  // Gets the pose and compares the values.
+  const ignition::msgs::Pose pose = link.pose();
+
+  const double kPositionTolerance(0.0);
+  const double kOrientationTolerance(0.0);
+
+  ::testing::AssertionResult position_check_result(
+      CheckPositionTranslation(pose, lcm_msg, i, kPositionTolerance));
+
+  ::testing::AssertionResult orientation_check_result(
+      CheckOrientationTranslation(pose, lcm_msg, i, kOrientationTolerance));
+
+  // If any of the two checks above failed, set failure flag.
+  failure |= (!position_check_result || !orientation_check_result);
+
+  if (failure) {
+    // Appends the error messages from both, the position check and
+    // the orientation check into the AssertionResult.
+    error_msg += position_check_result.message();
+    error_msg += orientation_check_result.message();
+    return ::testing::AssertionFailure() << error_msg;
+  }
+  return ::testing::AssertionSuccess();
+}
+}  // namespace
+
+::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_draw& lcm_msg,
+    const ignition::msgs::Model_V& ign_models) {
+  bool failure = false;
+  std::string error_msg;
   for (int i = 0; i < lcm_msg.num_links; i++) {
-    // Step 1: Checks there is a corresponding ignition model for the LCM link.
+    // Checks there is a corresponding ignition model for the LCM link.
+    bool found = false;
     ignition::msgs::Model model;
     for (int j = 0; j < ign_models.models_size(); ++j) {
       if (ign_models.models(j).id() == int64_t(lcm_msg.robot_num[i])) {
         model = ign_models.models(j);
+        found = true;
+        break;
       }
     }
-    ASSERT_NE(nullptr, &model);
-
-    // Step 2: Checks there is a corresponding ignition link for the LCM link.
-    ignition::msgs::Link link;
-    for (int j = 0; j < model.link_size(); ++j) {
-      if (model.link(j).name() == lcm_msg.link_name[i]) {
-        link = model.link(j);
-      }
+    if (!found) {
+      error_msg +=
+          "Couldn't find a valid ignition model in the Model_V for the given "
+          "LCM link\n";
+      failure = true;
     }
-    ASSERT_NE(nullptr, &link);
 
-    // Step 3: Gets the pose and compares the values.
-    ignition::msgs::Pose pose = link.pose();
-
-    EXPECT_EQ(pose.position().x(), lcm_msg.position[i][0]);
-    EXPECT_EQ(pose.position().y(), lcm_msg.position[i][1]);
-    EXPECT_EQ(pose.position().z(), lcm_msg.position[i][2]);
-    EXPECT_EQ(pose.orientation().w(), lcm_msg.quaternion[i][0]);
-    EXPECT_EQ(pose.orientation().x(), lcm_msg.quaternion[i][1]);
-    EXPECT_EQ(pose.orientation().y(), lcm_msg.quaternion[i][2]);
-    EXPECT_EQ(pose.orientation().z(), lcm_msg.quaternion[i][3]);
+    const ::testing::AssertionResult models_equivalence_check =
+        AssertModelsEquivalence(model, lcm_msg, i);
+    if (!models_equivalence_check) {
+      error_msg += models_equivalence_check.message();
+      error_msg += "Models are not equivalent.\n";
+      failure = true;
+    }
   }
+  if (failure) {
+    return ::testing::AssertionFailure() << error_msg;
+  }
+  return ::testing::AssertionSuccess();
 }
 
-}  // namespace backend
+::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_draw& lcm_msg,
+    const ignition::msgs::Scene& scene) {
+  bool failure = false;
+  std::string error_msg;
+  for (int i = 0; i < lcm_msg.num_links; i++) {
+    // Checks there is a corresponding ignition model for the LCM link.
+    bool found(false);
+    ignition::msgs::Model model;
+    for (int j = 0; j < scene.model_size(); ++j) {
+      if (scene.model(j).id() == int64_t(lcm_msg.robot_num[i])) {
+        model = scene.model(j);
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      error_msg +=
+          "Couldn't find a valid ignition model in the Scene for the given LCM "
+          "link\n";
+      failure = true;
+    }
+    const ::testing::AssertionResult models_equivalence_check =
+        AssertModelsEquivalence(model, lcm_msg, i);
+    if (!models_equivalence_check) {
+      error_msg += models_equivalence_check.message();
+      error_msg += "Models are not equivalent.\n";
+      failure = true;
+    }
+  }
+  if (failure) {
+    return ::testing::AssertionFailure() << error_msg;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+}  // namespace test
 }  // namespace delphyne

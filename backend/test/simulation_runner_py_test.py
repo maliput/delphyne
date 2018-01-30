@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-"""Unit tests for the simulation_runner python binging"""
+"""Unit tests for the simulation_runner python binding"""
 
 # Copyright 2018 Open Source Robotics Foundation
 #
@@ -40,7 +40,7 @@ from simulation_runner_py import (
 
 class TestSimulationRunnerPy(unittest.TestCase):
     """
-    Unit tests for the simulation_runner python binging
+    Unit tests for the simulation_runner python binding
     """
 
     def __init__(self, *args, **kwargs):

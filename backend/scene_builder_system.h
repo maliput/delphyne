@@ -28,6 +28,7 @@
 
 #pragma once
 
+#include <memory>
 #include <vector>
 
 #include "drake/systems/framework/leaf_system.h"
@@ -48,8 +49,17 @@ namespace backend {
 /// TODO(basicNew): In the future we will move more code from the bridge into
 /// this class and create the model from scratch instead of updating an
 /// existing one. This process should include merging the work done in
-/// SceneSystem in this class.
-class SceneBuilderSystem : public drake::systems::LeafSystem<double> {
+/// SceneSystem in this class. See
+/// https://github.com/ToyotaResearchInstitute/delphyne/issues/218
+///
+/// @tparam T must be a valid Eigen ScalarType.
+///
+/// Instantiated templates for the following ScalarTypes are provided:
+/// - double
+///
+/// They are already available to link against in the containing library.
+template <typename T>
+class SceneBuilderSystem : public drake::systems::LeafSystem<T> {
  public:
   SceneBuilderSystem();
 
@@ -57,9 +67,8 @@ class SceneBuilderSystem : public drake::systems::LeafSystem<double> {
   ///
   /// Takes the data from the input port of the @p context and stores
   /// a copy of it, keeping a cache of the last pose bundle update.
-  void DoPublish(
-      const drake::systems::Context<double>& context,
-      const std::vector<const drake::systems::PublishEvent<double>*>&)
+  void DoPublish(const drake::systems::Context<T>& context,
+                 const std::vector<const drake::systems::PublishEvent<T>*>&)
       const override;
 
   /// Given a collection of models, update their poses based on the cached
@@ -70,7 +79,7 @@ class SceneBuilderSystem : public drake::systems::LeafSystem<double> {
 
  private:
   // Caches the last pose bundle received in the input port.
-  mutable std::unique_ptr<PoseBundle<double>> last_poses_update_;
+  mutable std::unique_ptr<PoseBundle<T>> last_poses_update_;
 };
 
 }  // namespace backend

@@ -39,18 +39,29 @@
 namespace delphyne {
 namespace backend {
 
-SceneBuilderSystem::SceneBuilderSystem() { this->DeclareAbstractInputPort(); }
-
-void SceneBuilderSystem::DoPublish(
-    const drake::systems::Context<double>& context,
-    const std::vector<const drake::systems::PublishEvent<double>*>&) const {
-  const PoseBundle<double>& poses =
-      this->EvalAbstractInput(context, 0)
-          ->template GetValue<PoseBundle<double>>();
-  last_poses_update_ = std::make_unique<PoseBundle<double>>(poses);
+template <typename T>
+SceneBuilderSystem<T>::SceneBuilderSystem() {
+  this->DeclareAbstractInputPort();
 }
 
-void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
+template <typename T>
+void SceneBuilderSystem<T>::DoPublish(
+    const drake::systems::Context<T>& context,
+    const std::vector<const drake::systems::PublishEvent<T>*>&) const {
+  const PoseBundle<T>& poses =
+      this->EvalAbstractInput(context, 0)->template GetValue<PoseBundle<T>>();
+  last_poses_update_ = std::make_unique<PoseBundle<T>>(poses);
+}
+
+// TODO(basicNew): This implementation has a big performance problem, as
+// we need to potentially iterate through all the models and all the links to
+// update each link's pose. We should find a better way of dealing with this as
+// part of tackling
+// https://github.com/ToyotaResearchInstitute/delphyne/issues/218, being the
+// most likely approach to generate the model on the proper global coordinates
+// from the start instead of creating it on the origin and later updating it.
+template <typename T>
+void SceneBuilderSystem<T>::UpdateModels(ignition::msgs::Model_V* robotModels) {
   const int n = last_poses_update_->get_num_poses();
 
   for (int pose_index = 0; pose_index < n; ++pose_index) {
@@ -68,7 +79,7 @@ void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
 
     if (model == nullptr) {
       ignerr << "No model matching id " << robot_id << std::endl;
-      return;
+      continue;
     }
 
     // Find the corresponding link for the pose.
@@ -85,7 +96,7 @@ void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
 
     if (link == nullptr) {
       ignerr << "No link matching name " << link_name << std::endl;
-      return;
+      continue;
     }
 
     // Get the pose and apply it to the model
@@ -107,6 +118,8 @@ void SceneBuilderSystem::UpdateModels(ignition::msgs::Model_V* robotModels) {
     orientation->set_z(quaternion.z());
   }
 }
+
+template class SceneBuilderSystem<double>;
 
 }  // namespace backend
 }  // namespace delphyne

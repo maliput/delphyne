@@ -82,7 +82,7 @@ def main():
         sys.stderr.write('ERROR: {}'.format(error_msg))
         sys.exit(1)
 
-    simulator = build_simple_car_simulator()
+    simulator = build_simple_car_simulator([(-5.0, -7.0), (1.0, -4.0)])
 
     # Use the optional third argument to instantiate a
     # simulator runner in paused mode

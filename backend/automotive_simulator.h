@@ -66,7 +66,9 @@
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
 #include "backend/ign_publisher_system.h"
+#include "backend/scene_builder_system.h"
 #include "backend/scene_system.h"
+
 #include "bridge/lcm_to_ign_translation.h"
 
 namespace delphyne {
@@ -383,6 +385,8 @@ class AutomotiveSimulator {
   // elements that make up the visualization of the vehicles. For a system-level
   // architecture diagram, see #5541.
   drake::automotive::CarVisApplicator<T>* car_vis_applicator_{};
+
+  SceneBuilderSystem<T>* scene_builder_{};
 
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.

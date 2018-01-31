@@ -3,14 +3,15 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 # ----------------------------------------
 # Prepare sources
 set (sources
+  abstract_input_to_ign_converter.h
   automotive_simulator.cc
-  scene_system.cc
-  simulation_runner.cc
   ign_publisher_system.h
   input_port_to_ign_converter.h
-  abstract_input_to_ign_converter.h
-  vector_input_to_ign_converter.h
+  scene_builder_system.cc
+  scene_system.cc
   simple_car_state_input_to_ign_converter.h
+  simulation_runner.cc
+  vector_input_to_ign_converter.h
 )
 
 set (gtest_sources
@@ -50,8 +51,9 @@ delphyne_build_tests(${gtest_sources})
 # Build the simulation support for python bindings as a library.
 add_library(simulation-support
     STATIC
+    automotive_simulator.cc
     simulation_runner.cc
-    automotive_simulator.cc)
+)
 
 target_link_libraries(simulation-support
   delphyne_protobuf_msgs
@@ -73,7 +75,9 @@ add_library(simulation_runner_py
   SHARED
   ign_publisher_system.h
   simulation_runner_py.cc
-  scene_system.cc)
+  scene_system.cc
+  scene_builder_system.cc
+)
 
 # Don't prepend wrapper library name with lib
 set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
@@ -87,7 +91,7 @@ target_link_libraries(simulation_runner_py
   ${IGNITION-TRANSPORT_LIBRARIES}
   pybind11::module
   ${PYTHON_LIBRARIES}
-  )
+)
 
 install(TARGETS simulation_runner_py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)

@@ -386,7 +386,7 @@ class AutomotiveSimulator {
   // architecture diagram, see #5541.
   drake::automotive::CarVisApplicator<T>* car_vis_applicator_{};
 
-  SceneBuilderSystem<double>* scene_builder_{};
+  SceneBuilderSystem<T>* scene_builder_{};
 
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.

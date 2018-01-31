@@ -26,53 +26,53 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "gtest/gtest.h"
+#include "backend/agent_plugin_loader.h"
 
 #include <stdlib.h>
 
-#include "backend/agent_plugin_loader.h"
+#include "gtest/gtest.h"
 
-TEST(agent_plugin_loader, invalid) {
-  auto agent = delphyne::backend::loadPlugin<double>("foo");
+TEST(AgentPluginLoader, Invalid) {
+  auto agent = delphyne::backend::LoadPlugin<double>("foo");
   ASSERT_EQ(nullptr, agent);
 }
 
 static const char* env = "AGENT_PLUGIN_PATH=test/agent_plugin";
 
-TEST(agent_plugin_loader, example_double) {
+TEST(AgentPluginLoader, ExampleDouble) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::backend::loadPlugin<double>("LoadableExampleDouble");
+  auto agent = delphyne::backend::LoadPlugin<double>("LoadableExampleDouble");
   ASSERT_NE(nullptr, agent);
 
-  std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->configure(params, nullptr, nullptr, "testname", 0,
+  const std::map<std::string, linb::any> params;
+  ASSERT_EQ(0, agent->Configure(params, nullptr, nullptr, "testname", 0,
                                 nullptr, nullptr));
 
-  ASSERT_EQ(0, agent->initialize(nullptr));
+  ASSERT_EQ(0, agent->Initialize(nullptr));
 }
 
-TEST(agent_plugin_loader, example_autodiff) {
+TEST(AgentPluginLoader, ExampleAutodiff) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::backend::loadPlugin<::drake::AutoDiffXd>(
+  auto agent = delphyne::backend::LoadPlugin<::drake::AutoDiffXd>(
       "LoadableExampleAutoDiffXd");
   ASSERT_NE(nullptr, agent);
 
-  std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->configure(params, nullptr, nullptr, "testname", 0,
+  const std::map<std::string, linb::any> params;
+  ASSERT_EQ(0, agent->Configure(params, nullptr, nullptr, "testname", 0,
                                 nullptr, nullptr));
 
-  ASSERT_EQ(0, agent->initialize(nullptr));
+  ASSERT_EQ(0, agent->Initialize(nullptr));
 }
 
-TEST(agent_plugin_loader, example_symbolic) {
+TEST(AgentPluginLoader, ExampleSymbolic) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::backend::loadPlugin<::drake::symbolic::Expression>(
+  auto agent = delphyne::backend::LoadPlugin<::drake::symbolic::Expression>(
       "LoadableExampleExpression");
   ASSERT_NE(nullptr, agent);
 
-  std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->configure(params, nullptr, nullptr, "testname", 0,
+  const std::map<std::string, linb::any> params;
+  ASSERT_EQ(0, agent->Configure(params, nullptr, nullptr, "testname", 0,
                                 nullptr, nullptr));
 
-  ASSERT_EQ(0, agent->initialize(nullptr));
+  ASSERT_EQ(0, agent->Initialize(nullptr));
 }

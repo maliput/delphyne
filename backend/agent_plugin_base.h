@@ -49,8 +49,9 @@
 namespace delphyne {
 namespace backend {
 /// The abstract class that all plugins must inherit from.  Concrete
-/// implementations must implement both the 'configure' method and the
-/// 'initialize' method.
+/// implementations must implement both the 'Configure' method and the
+/// 'Initialize' method; see the documentation for those methods for more
+/// information.
 ///
 /// @tparam T must generally be a "double-like" type.  Currently, the supported
 ///           template types are 'double', 'drake::AutoDiffXd', and
@@ -59,31 +60,37 @@ template <typename T>
 class DELPHYNE_BACKEND_VISIBLE AgentPluginBase
     : public drake::systems::LeafSystem<T> {
  public:
-  // The configure method is the main way that loadable agents get the
-  // information that they need to insert themselves into an automotive
-  // simulation.  The first argument is a map between string names and
-  // "linb::any", which is a drop-in replacement for std::any for older
-  // compilers.  This map is meant to hold agent-specific arguments that need
-  // to be passed down from the application into the loadable agent for it to
-  // properly configure itself.  The rest of the arguments are parameters that
-  // are needed by all (or at least most) loadable agents to insert themselves
-  // into the simulation.  For instance, the builder parameter is typically used
-  // by the loadable agent to connect internal methods into the overall Diagram
-  // that the automotive simulator is building.
-  virtual int configure(
+  /// The `Configure` method is the main way that loadable agents get the
+  /// information that they need to insert themselves into an automotive
+  /// simulation.  Concrete implementations should set themselves up and insert
+  /// themselves into the simulation during the `Configure` call.  The
+  /// `parameters` argument is a map between string names and "linb::any", which
+  /// is a drop-in replacement for std::any for older compilers.  This map is
+  /// meant to hold agent-specific arguments that need to be passed down from
+  /// the application into the loadable agent for it to properly configure
+  /// itself.  The rest of the arguments are parameters that are needed by all
+  /// (or at least most) loadable agents to insert themselves into the
+  /// simulation.  For instance, the `builder` parameter is typically used by
+  /// the loadable agent to connect internal methods into the overall Diagram
+  /// that the automotive simulator is building.  The `lcm` parameter is used
+  /// to attach an LCM subscriber or publisher to the concrete agent.
+  virtual int Configure(
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<T>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, const int id,
+      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
       drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
 
-  virtual int initialize(drake::systems::Context<T>* context) = 0;
+  /// The Initialize method is called right before the simualtion starts.  This
+  /// gives plugins a chance to initialize themselves for running.
+  virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
-  void setFactoryPlugin(ignition::common::PluginPtr plugin) {
-    plugin_ = plugin;
-  }
+  void SetPlugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
 
  protected:
+  // Store a pointer (actually a shared_ptr) to the plugin within this class.
+  // this is needed so that the plugin pointer doesn't go out of scope and get
+  // freed while it is still in use.
   ignition::common::PluginPtr plugin_;
 };
 

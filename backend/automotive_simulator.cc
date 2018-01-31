@@ -184,10 +184,10 @@ int AutomotiveSimulator<T>::AddLoadableCar(
   DRAKE_DEMAND(!has_started());
   DRAKE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
-  const int id = allocate_vehicle_number();
+  int id = allocate_vehicle_number();
 
   std::unique_ptr<delphyne::backend::AgentPluginBase<T>> agent =
-      delphyne::backend::loadPlugin<T>(plugin);
+      delphyne::backend::LoadPlugin<T>(plugin);
   if (agent == nullptr) {
     return -1;
   }
@@ -199,7 +199,7 @@ int AutomotiveSimulator<T>::AddLoadableCar(
   vehicles_[id] = car;
 
   loadable_car_initial_states_[car] = initial_state;
-  if (car->configure(parameters, builder_.get(), lcm_.get(), name, id,
+  if (car->Configure(parameters, builder_.get(), lcm_.get(), name, id,
                      aggregator_, car_vis_applicator_) < 0) {
     return -1;
   }
@@ -691,7 +691,7 @@ void AutomotiveSimulator<T>::InitializeLoadableCars() {
     DRAKE_ASSERT(state);
     state->set_value(initial_state->get_value());
 
-    car->initialize(&context);
+    car->Initialize(&context);
   }
 }
 

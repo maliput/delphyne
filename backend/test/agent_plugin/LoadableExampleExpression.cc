@@ -44,10 +44,10 @@
 class LoadableExampleExpression final
     : public delphyne::backend::AgentPluginExpressionBase {
  public:
-  int configure(
+  int Configure(
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<::drake::symbolic::Expression>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, const int id,
+      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
       drake::systems::rendering::PoseAggregator<::drake::symbolic::Expression>*
           aggregator,
       drake::automotive::CarVisApplicator<::drake::symbolic::Expression>*
@@ -55,7 +55,7 @@ class LoadableExampleExpression final
     return 0;
   }
 
-  int initialize(drake::systems::Context<::drake::symbolic::Expression>*
+  int Initialize(drake::systems::Context<::drake::symbolic::Expression>*
                      context) override {
     return 0;
   }

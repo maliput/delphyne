@@ -44,17 +44,17 @@
 class LoadableExampleDouble final
     : public delphyne::backend::AgentPluginDoubleBase {
  public:
-  int configure(const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
-                const int id,
+                int id,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {
     return 0;
   }
 
-  int initialize(drake::systems::Context<double>* context) override {
+  int Initialize(drake::systems::Context<double>* context) override {
     return 0;
   }
 };

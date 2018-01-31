@@ -44,10 +44,10 @@
 class LoadableExampleAutoDiffXd final
     : public delphyne::backend::AgentPluginAutoDiffXdBase {
  public:
-  int configure(const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<::drake::AutoDiffXd>* builder,
                 drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
-                const int id,
+                int id,
                 drake::systems::rendering::PoseAggregator<::drake::AutoDiffXd>*
                     aggregator,
                 drake::automotive::CarVisApplicator<::drake::AutoDiffXd>*
@@ -55,7 +55,7 @@ class LoadableExampleAutoDiffXd final
     return 0;
   }
 
-  int initialize(
+  int Initialize(
       drake::systems::Context<::drake::AutoDiffXd>* context) override {
     return 0;
   }

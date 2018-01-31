@@ -120,7 +120,8 @@ class AutomotiveSimulator {
   ///
   /// @param initial_state The vehicle's initial state.
   ///
-  /// @return The ID of the car that was just added to the simulation.
+  /// @return The ID of the car that was just added to the simulation, or -1 on
+  /// error.
   int AddLoadableCar(const std::string& plugin,
                      const std::map<std::string, linb::any>& parameters,
                      const std::string& name,

@@ -41,6 +41,8 @@
 
 #include "backend/agent_plugin_base.h"
 
+namespace {
+
 // default implementation
 template <typename T>
 struct TypeName {
@@ -64,65 +66,65 @@ struct TypeName<::drake::symbolic::Expression> {
   static const char* Get() { return "Expression"; }
 };
 
-/// The function that loads a plugin given the name of the plugin.  Given a
-/// plugin name like "Foo", this function will look for a file named 'libFoo.so'
-/// in the colon-separated paths in AGENT_PLUGIN_PATH, followed by
-/// ~/.delphyne/plugins.  If the file is found, it is loaded up, initialized,
-/// and a std::unique_ptr to the concrete class is returned.  If it cannot be
-/// found, or the load or initialization fails for some reason, a nullptr is
-/// returned.
-///
-/// @tparam T must generally be a "double-like" type.  Currently, the supported
-///           template types are 'double', 'drake::AutoDiffXd', and
-///           'drake::symbolic::Expression'.
-/// @tparam U must be one of the AgentPluginFactory types from
-///           agent_plugin_base.h.  Due to some current limitations, it cannot
-///           be a templated type like 'AgentPluginFactoryBase<double>';
-///           instead, it must be something like 'AgentPluginFactoryDoubleBase'.
+// The function that loads a plugin given the name of the plugin.  Given a
+// plugin name like "Foo", this function will look for a file named 'libFoo.so'
+// in the colon-separated paths in AGENT_PLUGIN_PATH, followed by
+// ~/.delphyne/plugins.  If the file is found, it is loaded up, initialized,
+// and a std::unique_ptr to the concrete class is returned.  If it cannot be
+// found, or the load or initialization fails for some reason, a nullptr is
+// returned.
+//
+// @tparam T must generally be a "double-like" type.  Currently, the supported
+//           template types are 'double', 'drake::AutoDiffXd', and
+//           'drake::symbolic::Expression'.
+// @tparam U must be one of the AgentPluginFactory types from
+//           agent_plugin_base.h.  Due to some current limitations, it cannot
+//           be a templated type like 'AgentPluginFactoryBase<double>';
+//           instead, it must be something like 'AgentPluginFactoryDoubleBase'.
 template <typename T, typename U>
-std::unique_ptr<delphyne::backend::AgentPluginBase<T>> loadPluginInternal(
-    const std::string& _filename) {
-  igndbg << "Loading plugin [" << _filename << "]" << std::endl;
+std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPluginInternal(
+    const std::string& file_name) {
+  igndbg << "Loading plugin [" << file_name << "]" << std::endl;
 
   // Setup the paths that we'll use to find the shared library.  Note that we
   // do not use the SetPluginPathEnv() method, since that puts the environment
   // variable at the back of the list, and we want to use it first.
-  ignition::common::SystemPaths systemPaths;
+  ignition::common::SystemPaths system_paths;
   std::string env;
   if (ignition::common::env("AGENT_PLUGIN_PATH", env)) {
-    systemPaths.AddPluginPaths(env);
+    system_paths.AddPluginPaths(env);
   }
   if (ignition::common::env("HOME", env)) {
-    systemPaths.AddPluginPaths(env + "/.delphyne/plugins");
+    system_paths.AddPluginPaths(env + "/.delphyne/plugins");
   }
 
   // Now find the shared library.
-  std::string pathToLib = systemPaths.FindSharedLibrary(_filename);
-  if (pathToLib.empty()) {
-    ignerr << "Failed to load plugin [" << _filename
+  const std::string path_to_lib = system_paths.FindSharedLibrary(file_name);
+  if (path_to_lib.empty()) {
+    ignerr << "Failed to load plugin [" << file_name
            << "] : couldn't find shared library." << std::endl;
     return nullptr;
   }
 
   // Load plugin
-  ignition::common::PluginLoader pluginLoader;
+  ignition::common::PluginLoader plugin_loader;
 
-  std::unordered_set<std::string> pluginNames =
-      pluginLoader.LoadLibrary(pathToLib);
-  if (pluginNames.empty()) {
-    ignerr << "Failed to load plugin [" << _filename
-           << "] : couldn't load library on path [" << pathToLib << "]."
+  const std::unordered_set<std::string> plugin_names =
+      plugin_loader.LoadLibrary(path_to_lib);
+  if (plugin_names.empty()) {
+    ignerr << "Failed to load plugin [" << file_name
+           << "] : couldn't load library on path [" << path_to_lib << "]."
            << std::endl;
     return nullptr;
   }
 
-  for (auto& pluginName : pluginNames) {
-    if (pluginName.empty()) {
+  for (const std::string& plugin_name : plugin_names) {
+    if (plugin_name.empty()) {
       continue;
     }
-    ignition::common::PluginPtr commonPlugin =
-        pluginLoader.Instantiate(pluginName);
-    if (!commonPlugin) {
+    ignition::common::PluginPtr common_plugin =
+        plugin_loader.Instantiate(plugin_name);
+    if (!common_plugin) {
       continue;
     }
 
@@ -132,36 +134,38 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> loadPluginInternal(
 
     // The reason for the factory style here is a bit opaque.  The problem is
     // that something has to hold onto the shared_ptr reference that is
-    // commonPlugin.  One way to do this is to use
-    // commonPlugin->QueryInterfaceSharedPtr() and return the shared_ptr, but
+    // common_plugin.  One way to do this is to use
+    // common_plugin->QueryInterfaceSharedPtr() and return the shared_ptr, but
     // the higher layers of the drake DiagramBuilder expect to get a unique_ptr
     // of which they control the lifecycle.  Just returning a raw pointer (such
-    // as what commonPlugin->QueryInterface would return) doesn't properly hold
+    // as what common_plugin->QueryInterface would return) doesn't properly hold
     // the reference, and hence the plugin would get destructed during the
     // return from this method.  Instead, the loadable agents actually expose
     // a factory method as their interface, and the code below calls the
     // ->Create() method on the factory to actually create the real object
     // inside of the loadable agent.  Once that is done, we use the
-    // ->setFactoryPlugin() method to store a reference to the commonPlugin
+    // ->SetPlugin() method to store a reference to the common_plugin
     // shared_ptr, which makes sure it stays around for the lifetime of the
     // loaded agent.
-    auto factory = commonPlugin->QueryInterface<U>(type.str());
+    U* factory = common_plugin->QueryInterface<U>(type.str());
     if (factory == nullptr) {
-      ignerr << "Failed to load plugin [" << _filename
+      ignerr << "Failed to load plugin [" << file_name
              << "] : couldn't load library factory." << std::endl;
       return nullptr;
     }
     std::unique_ptr<delphyne::backend::AgentPluginBase<T>> plugin =
         factory->Create();
-    plugin->setFactoryPlugin(commonPlugin);
+    plugin->SetPlugin(common_plugin);
     return plugin;
   }
 
-  ignerr << "Failed to load plugin [" << _filename
-         << "] : couldn't load library on path [" << pathToLib << "]."
+  ignerr << "Failed to load plugin [" << file_name
+         << "] : couldn't load library on path [" << path_to_lib << "]."
          << std::endl;
   return nullptr;
 }
+
+}  // namespace
 
 namespace delphyne {
 namespace backend {
@@ -170,28 +174,28 @@ namespace backend {
 // gcc bug.
 
 template <>
-std::unique_ptr<delphyne::backend::AgentPluginBase<double>> loadPlugin<double>(
-    const std::string& _filename) {
-  return loadPluginInternal<double,
+std::unique_ptr<delphyne::backend::AgentPluginBase<double>> LoadPlugin<double>(
+    const std::string& file_name) {
+  return LoadPluginInternal<double,
                             delphyne::backend::AgentPluginFactoryDoubleBase>(
-      _filename);
+      file_name);
 }
 
 template <>
 std::unique_ptr<delphyne::backend::AgentPluginBase<::drake::AutoDiffXd>>
-loadPlugin<::drake::AutoDiffXd>(const std::string& _filename) {
-  return loadPluginInternal<
+LoadPlugin<::drake::AutoDiffXd>(const std::string& file_name) {
+  return LoadPluginInternal<
       ::drake::AutoDiffXd, delphyne::backend::AgentPluginFactoryAutoDiffXdBase>(
-      _filename);
+      file_name);
 }
 
 template <>
 std::unique_ptr<
     delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>>
-loadPlugin<::drake::symbolic::Expression>(const std::string& _filename) {
-  return loadPluginInternal<
+LoadPlugin<::drake::symbolic::Expression>(const std::string& file_name) {
+  return LoadPluginInternal<
       ::drake::symbolic::Expression,
-      delphyne::backend::AgentPluginFactoryExpressionBase>(_filename);
+      delphyne::backend::AgentPluginFactoryExpressionBase>(file_name);
 }
 }  // namespace backend
 }  // namespace delphyne

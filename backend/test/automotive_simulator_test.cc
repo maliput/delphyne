@@ -825,7 +825,7 @@ static const char* env = "AGENT_PLUGIN_PATH=test/agent_plugin";
 GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  std::map<std::string, linb::any> params;
+  const std::map<std::string, linb::any> params;
 
   ASSERT_EQ(0, simulator->AddLoadableCar("LoadableExampleDouble", params,
                                          "my_test_model", nullptr));
@@ -835,7 +835,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {
 GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarNonExistent) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  std::map<std::string, linb::any> params;
+  const std::map<std::string, linb::any> params;
 
   ASSERT_EQ(-1, simulator->AddLoadableCar("NonExistentPlugin", params,
                                           "my_test_model", nullptr));

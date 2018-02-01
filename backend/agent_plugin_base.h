@@ -32,8 +32,7 @@
 #include <memory>
 #include <string>
 
-#include "linb-any"
-
+#include "backend/linb-any"
 #include "backend/system.h"
 
 #include <ignition/common/PluginLoader.hh>
@@ -101,9 +100,8 @@ typedef delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>
     AgentPluginExpressionBase;
 
 /// The abstract class factory that all plugins must inherit from.  Concrete
-/// implementations must implement the 'Create' method that will return a
-/// std::unique_ptr of the concrete implementation that inherited from
-/// 'AgentPluginBase' above.
+/// implementations must implement the 'Create' method; see the documentation
+/// for that method for more information.
 ///
 /// @tparam T must generally be a "double-like" type.  Currently, the supported
 ///           template types are 'double', 'drake::AutoDiffXd', and
@@ -111,6 +109,8 @@ typedef delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>
 template <typename T>
 class DELPHYNE_BACKEND_VISIBLE AgentPluginFactoryBase {
  public:
+  /// The `Create` method is used to get a std::unique_ptr of the concrete
+  /// class that inherited from from AgentPluginBase.
   virtual std::unique_ptr<AgentPluginBase<T>> Create() = 0;
 };
 

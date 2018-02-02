@@ -26,8 +26,8 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/abstract_input_to_ign_converter.h"
 #include "backend/ign_publisher_system.h"
+#include "backend/abstract_input_to_ign_converter.h"
 #include "backend/test/helpers.h"
 
 #include "gtest/gtest.h"
@@ -43,7 +43,6 @@
 
 namespace delphyne {
 namespace backend {
-
 
 class IgnPublisherSystemTest : public ::testing::Test {
   void SubscriberMockCallback(const ignition::msgs::Model_V& message) {

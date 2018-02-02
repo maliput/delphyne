@@ -62,6 +62,11 @@ void SceneBuilderSystem<T>::DoPublish(
 // from the start instead of creating it on the origin and later updating it.
 template <typename T>
 void SceneBuilderSystem<T>::UpdateModels(ignition::msgs::Model_V* robotModels) {
+  if (last_poses_update_ == nullptr) {
+    // We haven't yet done a publish, so there are no poses; skip the update.
+    return;
+  }
+
   const int n = last_poses_update_->get_num_poses();
 
   for (int pose_index = 0; pose_index < n; ++pose_index) {

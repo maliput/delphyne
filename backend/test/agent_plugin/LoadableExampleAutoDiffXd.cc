@@ -41,6 +41,9 @@
 #include "drake/systems/framework/diagram_builder.h"
 #include "drake/systems/rendering/pose_aggregator.h"
 
+// An example class that derives from the AgentPluginAutoDiffXdBase (see
+// agent_plugin_base.h for more information).  This simple class does nothing
+// except for return success for all method calls.
 class LoadableExampleAutoDiffXd final
     : public delphyne::backend::AgentPluginAutoDiffXdBase {
  public:
@@ -61,6 +64,11 @@ class LoadableExampleAutoDiffXd final
   }
 };
 
+// An example factory class that derives from AgentPluginFactoryAutoDiffXdBase
+// (see agent_plugin_base.h for more information).  This factory creates and
+// returns a std::unique_ptr of the LoadableExampleAutoDiffXd above, and
+// showcases the way almost all loadable plugins should implement the factory
+// class.
 class LoadableExampleFactoryAutoDiffXd final
     : public delphyne::backend::AgentPluginFactoryAutoDiffXdBase {
  public:

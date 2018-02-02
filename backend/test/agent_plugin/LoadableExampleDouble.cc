@@ -41,6 +41,9 @@
 #include "drake/systems/framework/diagram_builder.h"
 #include "drake/systems/rendering/pose_aggregator.h"
 
+// An example class that derives from the AgentPluginDoubleBase (see
+// agent_plugin_base.h for more information).  This simple class does nothing
+// except for return success for all method calls.
 class LoadableExampleDouble final
     : public delphyne::backend::AgentPluginDoubleBase {
  public:
@@ -59,6 +62,10 @@ class LoadableExampleDouble final
   }
 };
 
+// An example factory class that derives from AgentPluginFactoryDoubleBase
+// (see agent_plugin_base.h for more information).  This factory creates and
+// returns a std::unique_ptr of the LoadableExampleDouble above, and showcases
+// the way almost all loadable plugins should implement the factory class.
 class LoadableExampleFactoryDouble final
     : public delphyne::backend::AgentPluginFactoryDoubleBase {
  public:

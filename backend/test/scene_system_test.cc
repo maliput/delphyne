@@ -27,6 +27,8 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/scene_system.h"
+#include "backend/test/helpers.h"
+
 #include "gtest/gtest.h"
 
 #include <chrono>
@@ -38,46 +40,6 @@
 
 namespace delphyne {
 namespace backend {
-
-// Checks that all the array-iterable values from
-// lcmt_viewer_draw matches their ignition counterpart.
-void CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
-                         const ignition::msgs::Scene& scene) {
-  for (int i = 0; i < lcm_msg.num_links; i++) {
-    // Step 1: Checks there is a corresponding ignition model for the LCM link.
-    bool found = false;
-    ignition::msgs::Model model;
-    for (int j = 0; j < scene.model_size(); ++j) {
-      if (scene.model(j).id() == int64_t{lcm_msg.robot_num[i]}) {
-        model = scene.model(j);
-        found = true;
-      }
-    }
-    ASSERT_TRUE(found);
-
-    // Step 2: Checks there is a corresponding ignition link for the LCM link.
-    found = false;
-    ignition::msgs::Link link;
-    for (int j = 0; j < model.link_size(); ++j) {
-      if (model.link(j).name() == lcm_msg.link_name[i]) {
-        link = model.link(j);
-        found = true;
-      }
-    }
-    ASSERT_TRUE(found);
-
-    // Step 3: Gets the pose and compares the values.
-    const ignition::msgs::Pose pose = link.pose();
-
-    EXPECT_EQ(pose.position().x(), lcm_msg.position[i][0]);
-    EXPECT_EQ(pose.position().y(), lcm_msg.position[i][1]);
-    EXPECT_EQ(pose.position().z(), lcm_msg.position[i][2]);
-    EXPECT_EQ(pose.orientation().w(), lcm_msg.quaternion[i][0]);
-    EXPECT_EQ(pose.orientation().x(), lcm_msg.quaternion[i][1]);
-    EXPECT_EQ(pose.orientation().y(), lcm_msg.quaternion[i][2]);
-    EXPECT_EQ(pose.orientation().z(), lcm_msg.quaternion[i][3]);
-  }
-}
 
 class SceneSystemTest : public ::testing::Test {
  public:
@@ -99,28 +61,6 @@ class SceneSystemTest : public ::testing::Test {
     handler_called_ = false;
   }
 
-  drake::lcmt_viewer_draw get_preloaded_draw_msg() {
-    drake::lcmt_viewer_draw msg;
-    msg.timestamp = 0;
-    msg.num_links = 1;
-    msg.link_name.resize(msg.num_links);
-    msg.link_name[0] = "box";
-    msg.robot_num.resize(1);
-    msg.robot_num[0] = 1;
-    msg.position.resize(1);
-    msg.position[0].resize(3);
-    msg.position[0][0] = 0.0;
-    msg.position[0][1] = 0.0;
-    msg.position[0][2] = 0.0;
-    msg.quaternion.resize(1);
-    msg.quaternion[0].resize(4);
-    msg.quaternion[0][0] = 0.0;
-    msg.quaternion[0][1] = 0.0;
-    msg.quaternion[0][2] = 0.0;
-    msg.quaternion[0][3] = 1.0;
-    return msg;
-  }
-
  private:
   void SubscriberMockCallback(const ignition::msgs::Scene& message) {
     scene_msg_ = message;
@@ -135,7 +75,7 @@ TEST_F(SceneSystemTest, PublishTest) {
       scene_publisher_->CreateDefaultContext();
 
   // Fills the lcm message with sample data.
-  auto lcm_msg = get_preloaded_draw_msg();
+  const auto lcm_msg = test::BuildPreloadedDrawMsg();
 
   // Configures context's input with the pre-loaded message.
   context->FixInputPort(
@@ -152,7 +92,7 @@ TEST_F(SceneSystemTest, PublishTest) {
 
   // Verifies the equivalence of the original lcm message and
   // the received ignition-transport message.
-  CheckMsgTranslation(lcm_msg, scene_msg_);
+  EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, scene_msg_));
 }
 
 }  // namespace backend

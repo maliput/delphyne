@@ -15,6 +15,7 @@ set (sources
 )
 
 set (gtest_sources
+  abstract_input_to_ign_converter_test.cc
   automotive_simulator_test.cc
   ign_publisher_system_test.cc
   scene_system_test.cc
@@ -45,6 +46,18 @@ install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 # Tests
 delphyne_build_tests(${gtest_sources})
 
+# Helpers
+add_library(test_helpers
+    test/helpers.cc)
+
+target_link_libraries(test_helpers
+  gtest
+  gtest_main
+  ${drake_LIBRARIES}
+  ${IGNITION-MSGS_LIBRARIES}
+)
+
+target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 # ----------------------------------------
 # Python bindings
 

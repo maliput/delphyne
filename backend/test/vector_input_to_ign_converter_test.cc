@@ -1,4 +1,3 @@
-
 // Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
@@ -28,8 +27,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/vector_input_to_ign_converter.h"
-
-#include "backend/test/helpers.h"
 
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/systems/framework/framework_common.h>
@@ -72,8 +69,6 @@ class VectorInputToIgnConverterTest : public ::testing::Test {
       ign_publisher;
 
   const std::string channel{"TEST_CHANNEL"};
-
-  const drake::automotive::SimpleCarState<double> lcm_msg;
 
  public:
   void SetUp() override {

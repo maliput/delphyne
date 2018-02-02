@@ -24,6 +24,7 @@ set (gtest_sources
   scene_system_test.cc
   simulation_runner_test.cc
   vector_input_to_ign_converter_test.cc
+  simple_car_state_input_to_ign_converter_test.cc
 )
 
 add_subdirectory(test/agent_plugin)

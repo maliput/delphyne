@@ -135,7 +135,7 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
 
 namespace {
 ::testing::AssertionResult AssertModelsEquivalence(
-    ignition::msgs::Model& model, const drake::lcmt_viewer_draw& lcm_msg,
+    const ignition::msgs::Model& model, const drake::lcmt_viewer_draw& lcm_msg,
     int i) {
   DRAKE_ASSERT(i >= 0);
 

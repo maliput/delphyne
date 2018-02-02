@@ -36,7 +36,6 @@
 
 #include <ignition/msgs.hh>
 
-
 namespace delphyne {
 namespace bridge {
 

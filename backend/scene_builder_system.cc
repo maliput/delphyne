@@ -62,6 +62,12 @@ void SceneBuilderSystem<T>::DoPublish(
 // from the start instead of creating it on the origin and later updating it.
 template <typename T>
 void SceneBuilderSystem<T>::UpdateModels(ignition::msgs::Model_V* robotModels) {
+  // TODO(clalancette): We have the check for the nullptr below so that we
+  // don't attempt to dereference the last_poses_update pointer before
+  // 'DoPublish' above has been called and initialized it.  basicNew points
+  // out that the expectation was that the simulator would always do an
+  // evaluation, so this situation couldn't happen, but that appears not to be
+  // the case.  This needs more investigation.
   if (last_poses_update_ == nullptr) {
     // We haven't yet done a publish, so there are no poses; skip the update.
     return;

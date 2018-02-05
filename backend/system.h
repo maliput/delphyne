@@ -17,6 +17,8 @@
 
 #pragma once
 
+#include "drake/common/drake_assert.h"
+
 #if defined(__GNUC__)
 #define DELPHYNE_BACKEND_DEPRECATED(version) __attribute__((deprecated))
 #define DELPHYNE_BACKEND_FORCEINLINE __attribute__((always_inline))
@@ -57,3 +59,13 @@
 #define DELPHYNE_BACKEND_HIDDEN
 #endif
 #endif
+
+
+/// \def DELPHYNE_ASSERT
+/// Use to declare an assertion. Will quit execution otherwise.
+
+/// \def DELPHYNE_DEMAND
+/// Use to declare an demand. Will quit execution otherwise.
+
+#define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
+#define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)

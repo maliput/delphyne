@@ -29,8 +29,8 @@
 #include <string>
 
 #include "backend/test/helpers.h"
+#include "backend/system.h"
 
-#include <drake/common/drake_assert.h>
 #include <drake/lcmt_viewer_draw.hpp>
 
 #include <gtest/gtest.h>
@@ -66,8 +66,8 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
     const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
     int lcm_index, double tolerance) {
   // Asserts that the tolerance is not negative, aborts otherwise.
-  DRAKE_ASSERT(tolerance >= 0);
-  DRAKE_ASSERT(lcm_index >= 0);
+  DELPHYNE_ASSERT(tolerance >= 0);
+  DELPHYNE_ASSERT(lcm_index >= 0);
 
   std::string error_message;
   bool fails(false);
@@ -96,8 +96,8 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
 ::testing::AssertionResult CheckOrientationTranslation(
     const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
     int lcm_index, double tolerance) {
-  DRAKE_ASSERT(tolerance >= 0);
-  DRAKE_ASSERT(lcm_index >= 0);
+  DELPHYNE_ASSERT(tolerance >= 0);
+  DELPHYNE_ASSERT(lcm_index >= 0);
 
   std::string error_message;
   bool fails(false);
@@ -137,7 +137,7 @@ namespace {
 ::testing::AssertionResult AssertModelsEquivalence(
     ignition::msgs::Model& model, const drake::lcmt_viewer_draw& lcm_msg,
     int i) {
-  DRAKE_ASSERT(i >= 0);
+  DELPHYNE_ASSERT(i >= 0);
 
   bool failure = false;
 

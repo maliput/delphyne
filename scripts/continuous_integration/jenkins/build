@@ -29,57 +29,43 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set -eu
+set -euo pipefail
 
-# Here we install all of the dependencies necessary to build delphyne.  This
-# includes the direct dependencies (as called out in
-# https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md),
-# as well as the indirect dependencies that we have from drake.  Note that we
-# disable the '-o pipefail' directive above because we need to pipe 'yes'
-# into the drake 'install_prereqs.sh' script for it to succeed.  Given that we
-# have no other pipes in this file, this should be safe enough.
+JOBS=$( getconf _NPROCESSORS_ONLN )
+COMPILER_PATH="/usr/bin/g++-5"
 
-export DEBIAN_FRONTEND='noninteractive'
+pushd workspace
 
-# Install the direct delphyne dependencies.
-sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
-sudo apt-get update -qq
-sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' <<EOF
-awscli
-cmake
-coreutils
-curl
-gcovr
-git
-lcov
-libavdevice-dev
-libboost-filesystem-dev
-libfreeimage-dev
-libglew-dev
-libgts-dev
-libicu-dev
-libogre-1.9-dev
-libprotobuf-dev
-libprotoc-dev
-libqt5multimedia5
-libqwt-dev
-libtinyxml2-dev
-libzmq3-dev
-mercurial
-mesa-utils
-pkg-config
-protobuf-compiler
-python
-python3-vcstool
-qtbase5-dev
-ruby-ronn
-uuid-dev
-EOF
-)
+pushd drake
+bazel run --compiler=gcc-5 //:install `pwd`/../../install
+bazel build --compiler=gcc-5 //automotive:*
+popd # drake
 
-# Install the drake dependencies.
-wget https://raw.githubusercontent.com/RobotLocomotion/drake/master/setup/ubuntu/16.04/install_prereqs_binary_distribution.sh
-wget https://raw.githubusercontent.com/RobotLocomotion/drake/master/setup/ubuntu/16.04/install_prereqs.sh
-chmod +x install_prereqs.sh
-yes | sudo ./install_prereqs.sh
+popd # workspace
+
+mkdir -p build
+
+pushd build
+
+mkdir -p pybind11
+pushd pybind11
+CXX=$COMPILER_PATH cmake ../../workspace/pybind11 -DCMAKE_INSTALL_PREFIX=../../install -DPYBIND11_TEST=False
+make -j$JOBS VERBOSE=1 install
+popd # pybind11
+
+for dep in ign_cmake ign_tools ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
+    mkdir -p $dep
+    pushd $dep
+    CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_INSTALL_PREFIX=../../install
+    make -j$JOBS VERBOSE=1 install
+    popd
+done
+
+mkdir -p delphyne
+pushd delphyne
+CXX=$COMPILER_PATH cmake ../.. -DCMAKE_INSTALL_PREFIX=../../install
+make -j$JOBS VERBOSE=1 install
+popd
+
+popd # build
+

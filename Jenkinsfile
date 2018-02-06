@@ -33,8 +33,20 @@
 
 node('linux_xenial_unprovisioned') {
   try {
+    stage('checkout') {
+      checkout scm
+    }
     stage('setup') {
       sh './scripts/continuous_integration/jenkins/setup'
+    }
+    stage('build workspace') {
+      sh './scripts/continuous_integration/jenkins/build_workspace'
+    }
+    stage('build') {
+      sh './scripts/continuous_integration/jenkins/build'
+    }
+    stage('test') {
+      sh './scripts/continuous_integration/jenkins/test'
     }
   } finally {
     cleanWs(notFailBuild: true)

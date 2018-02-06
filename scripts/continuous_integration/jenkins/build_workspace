@@ -1,0 +1,113 @@
+#!/bin/bash
+
+# Copyright (c) 2017, Massachusetts Institute of Technology.
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of the Massachusetts Institute of Technology nor the names
+#   of its contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE MASSACHUSETTS INSTITUTE OF TECHNOLOGY AND
+# CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT
+# NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
+# PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE MASSACHUSETTS
+# INSTITUTE OF TECHNOLOGY OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+# INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+# OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+# LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+# NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+# EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+set -euo pipefail
+
+# We want to build up a workspace similar to the one that is recommended at
+# https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md
+# The workspace we use here will necessarily look a little different from the
+# one recommended for development based on the way Jenkins is configured.  In
+# particular, the README.md recommends a workspace that looks like this:
+#
+#  delphyne_ws/
+#      build
+#          delphyne
+#          drake
+#          ign_cmake
+#          ign_common
+#          ...
+#      install
+#          include
+#          lib
+#          ...
+#      src
+#          delphyne
+#              backend
+#              bridge
+#              ...
+#          drake
+#          ign_cmake
+#          ign_common
+#          ...
+#
+# For the purposes of Jenkins, our workspace will look like this:
+#
+#  delphyne/
+#      backend
+#      bridge
+#      build
+#          delphyne
+#          drake
+#          ign_cmake
+#          ign_common
+#          ...
+#      install
+#          include
+#          lib
+#          ...
+#      workspace
+#          delphyne_gui
+#          drake
+#          ign_cmake
+#          ign_common
+#          ...
+
+mkdir -p workspace
+pushd workspace
+
+# We need to checkout delphyne-gui to get access to the delphyne.repos file
+# to get all of our dependencies.  However, this is a private repository so we
+# need the ssh keys from TRI to access this.  The below code fetches the ssh
+# keys from an S3 bucket that TRI has, and is a bash version of the code located
+# at: https://github.com/RobotLocomotion/drake-ci/blob/master/driver/configurations/aws.cmake
+# and: https://github.com/RobotLocomotion/drake-ci/blob/master/tools/git_ssh.bash.in
+
+SSH_IDENTITY_FILE=$( mktemp /tmp/id_rsa_XXXXXXXX )
+aws s3 cp s3://drake-provisioning/id_rsa "$SSH_IDENTITY_FILE"
+SSH_IDENTITY_SHA1=$( sha1sum "$SSH_IDENTITY_FILE" | cut -d' ' -f1 )
+test "$SSH_IDENTITY_SHA1" = "8de7f79df9eb18344cf0e030d2ae3b658d81263b"
+chmod 0400 "$SSH_IDENTITY_FILE"
+GIT_SSH_FILE=$( mktemp /tmp/git_ssh_XXXXXXXX )
+cat > "$GIT_SSH_FILE" <<EOF
+ssh -i "$SSH_IDENTITY_FILE" -o StrictHostKeyChecking=no "\$@"
+EOF
+chmod 0755 "$GIT_SSH_FILE"
+GIT_SSH="$GIT_SSH_FILE" git clone git@github.com:ToyotaResearchInstitute/delphyne-gui.git delphyne_gui
+
+rm -f "$GIT_SSH_FILE"
+rm -f "$SSH_IDENTITY_FILE"
+
+popd # workspace
+
+# Make sure to remove both 'delphyne' and 'delphyne-gui' from 'delphyne.repos'
+# since vcs will not have the proper credentials to access them.
+sed -e '/^ *delphyne/d' workspace/delphyne_gui/delphyne.repos > deps.repos
+vcs import workspace < deps.repos

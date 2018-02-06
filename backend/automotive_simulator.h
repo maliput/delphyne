@@ -42,6 +42,7 @@
 #include <ignition/transport.hh>
 
 #include "backend/linb-any"
+#include "backend/system.h"
 
 #include "drake/automotive/car_vis_applicator.h"
 #include "drake/automotive/curve2.h"
@@ -87,7 +88,7 @@ namespace backend {
 ///
 /// They are already available to link against in the containing library.
 template <typename T>
-class AutomotiveSimulator {
+class DELPHYNE_BACKEND_VISIBLE AutomotiveSimulator {
  public:
   /// A constructor that configures this object to use DrakeLcm, which
   /// encapsulates a _real_ LCM instance.

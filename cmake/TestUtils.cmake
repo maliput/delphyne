@@ -24,6 +24,7 @@ macro (delphyne_build_tests)
 
     add_dependencies(${BINARY_NAME}
       gtest gtest_main
+      simulation_runner
     )
 
     target_link_libraries(${BINARY_NAME}
@@ -42,6 +43,7 @@ macro (delphyne_build_tests)
       delphyne_protobuf_msgs
       delphyne_lcm_to_ign
       test_helpers
+      simulation_runner
     )
 
     # Remove a warning in GTest.

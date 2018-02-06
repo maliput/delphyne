@@ -12,6 +12,7 @@ set (sources
   ignition_message_converter.h
   scene_builder_system.cc
   scene_system.cc
+  simple_car_state_input_to_ign_converter.h
   simple_car_state_to_ignition_message_converter.h
   simulation_runner.cc
   system.h
@@ -32,21 +33,43 @@ set (gtest_sources
 add_subdirectory(test/agent_plugin)
 
 # ----------------------------------------
+# Simulator-runner library
+
+add_library(simulation_runner
+  SHARED
+  simulation_runner.cc
+  system.h
+)
+
+target_link_libraries(simulation_runner
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  delphyne_protobuf_msgs
+  pybind11::module
+)
+
+target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
 # Automotive demo
 add_executable(automotive-demo
   automotive_demo.cc
+  system.h
   ${sources}
 )
 
 target_link_libraries(automotive-demo
-  delphyne_protobuf_msgs
-  delphyne_lcm_to_ign
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  pybind11::module
   ${PYTHON_LIBRARIES}
+  delphyne_lcm_to_ign
+  delphyne_protobuf_msgs
   pthread
+  pybind11::module
+  simulation_runner
 )
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
@@ -83,6 +106,7 @@ add_library(simulation-support
     agent_plugin_loader.cc
     automotive_simulator.cc
     simulation_runner.cc
+    system.h
 )
 
 target_link_libraries(simulation-support
@@ -96,6 +120,7 @@ target_link_libraries(simulation-support
 )
 
 target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
 
 # ----------------------------------------
 # Python bindings

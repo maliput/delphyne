@@ -12,8 +12,8 @@ set (sources
   scene_system.cc
   simple_car_state_input_to_ign_converter.h
   simulation_runner.cc
-  vector_input_to_ign_converter.h
   system.h
+  vector_input_to_ign_converter.h
 )
 
 set (gtest_sources

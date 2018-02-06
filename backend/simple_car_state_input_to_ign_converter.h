@@ -31,11 +31,11 @@
 #include <memory>
 #include <vector>
 
-#include "backend/vector_input_to_ign_converter.h"
-
 #include <drake/automotive/simple_car.h>
 
 #include <protobuf/simple_car_state.pb.h>
+
+#include "backend/vector_input_to_ign_converter.h"
 
 namespace delphyne {
 namespace backend {

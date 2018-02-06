@@ -27,8 +27,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/abstract_input_to_ign_converter.h"
-#include "backend/ign_publisher_system.h"
-#include "backend/test/helpers.h"
 
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/framework_common.h>
@@ -36,6 +34,9 @@
 #include "gtest/gtest.h"
 
 #include <ignition/msgs.hh>
+
+#include "backend/ign_publisher_system.h"
+#include "backend/test/helpers.h"
 
 namespace delphyne {
 namespace backend {
@@ -109,7 +110,7 @@ GTEST_TEST(AbstractInputToIgnConverterTest, TestDeclareInputPort) {
   // A new input must have been added to the system.
   EXPECT_EQ(ign_publisher->get_num_input_ports(), 2);
 
-  // And it must be of type abstract.
+  // And it must be of abstract type.
   EXPECT_EQ(ign_publisher->get_input_port(1).get_data_type(), drake::systems::kAbstractValued);
 
 }

@@ -34,10 +34,6 @@
 #include <map>
 #include <utility>
 
-#include "backend/agent_plugin_loader.h"
-#include "backend/linb-any"
-#include "backend/system.h"
-
 #include "drake/automotive/gen/driving_command.h"
 #include "drake/automotive/gen/driving_command_translator.h"
 #include "drake/automotive/gen/maliput_railcar_state_translator.h"
@@ -65,9 +61,12 @@
 #include "drake/systems/primitives/multiplexer.h"
 
 #include "backend/abstract_input_to_ign_converter.h"
+#include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
 #include "backend/input_port_to_ign_converter.h"
+#include "backend/linb-any"
 #include "backend/simple_car_state_input_to_ign_converter.h"
+#include "backend/system.h"
 
 namespace delphyne {
 

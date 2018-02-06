@@ -35,11 +35,10 @@
 #include "backend/input_port_to_ign_converter.h"
 #include "backend/system.h"
 
-
-using drake::systems::VectorBase;
-
 namespace delphyne {
 namespace backend {
+
+using drake::systems::VectorBase;
 
 /// This class is a specialization of InputPortToIgnConverter that handles
 /// only VectorBase input ports. Concrete subclasses only need to define

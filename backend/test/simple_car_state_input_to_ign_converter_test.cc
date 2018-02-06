@@ -27,7 +27,6 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/simple_car_state_input_to_ign_converter.h"
-#include "backend/test/helpers.h"
 
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/gen/simple_car_state_translator.h>
@@ -35,6 +34,8 @@
 #include "gtest/gtest.h"
 
 #include <protobuf/simple_car_state.pb.h>
+
+#include "backend/test/helpers.h"
 
 namespace delphyne {
 namespace backend {
@@ -44,7 +45,7 @@ namespace test {
 // processed and translated into its ignition-msgs counterpart.
 GTEST_TEST(SimpleCarStateInputToIgnConverterTest, TestVectorToIgn) {
   // The size of the vector.
-  const int kSize = 1;
+  const int kSize{1};
 
   // Converter required by the ignition publisher.
   auto converter = std::make_unique<SimpleCarStateInputToIgnConverter>(kSize);
@@ -65,18 +66,24 @@ GTEST_TEST(SimpleCarStateInputToIgnConverterTest, TestVectorToIgn) {
   std::unique_ptr<drake::systems::Context<double>> context =
       ign_publisher->CreateDefaultContext();
 
+  // Values used to check against.
+  const int kPortIndex{0};
+  const double kTimeSecs{123.456};
+  const double kExpectedX{1.9};
+  const double kExpectedY{2.8};
+  const double kExpectedHeading{3.7};
+  const double kExpectedVelocity{4.6};
+
   // Sets time value, since it'll be included as part of the
   // ignition message in the translation.
-  context->set_time(123.456);
+  context->set_time(kTimeSecs);
 
   // Loads the SimpleCarState message with constant values.
   drake::automotive::SimpleCarState<double> car_state;
-  car_state.set_x(1.9);
-  car_state.set_y(2.8);
-  car_state.set_heading(3.7);
-  car_state.set_velocity(4.6);
-
-  const int kPortIndex{0};
+  car_state.set_x(kExpectedX);
+  car_state.set_y(kExpectedY);
+  car_state.set_heading(kExpectedHeading);
+  car_state.set_velocity(kExpectedVelocity);
 
   // Configures context's input with the pre-loaded message.
   context->FixInputPort(
@@ -97,10 +104,10 @@ GTEST_TEST(SimpleCarStateInputToIgnConverterTest, TestVectorToIgn) {
   // Asserts that the vector message has been translated correctly.
   EXPECT_EQ(ign_msg->time().sec(), 123);
   EXPECT_EQ(ign_msg->time().nsec(), 456000000);
-  EXPECT_EQ(ign_msg->x(), 1.9);
-  EXPECT_EQ(ign_msg->y(), 2.8);
-  EXPECT_EQ(ign_msg->heading(), 3.7);
-  EXPECT_EQ(ign_msg->velocity(), 4.6);
+  EXPECT_EQ(ign_msg->x(), kExpectedX);
+  EXPECT_EQ(ign_msg->y(), kExpectedY);
+  EXPECT_EQ(ign_msg->heading(), kExpectedHeading);
+  EXPECT_EQ(ign_msg->velocity(), kExpectedVelocity);
 }
 
 }  // namespace test

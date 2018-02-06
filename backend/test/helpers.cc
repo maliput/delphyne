@@ -26,16 +26,17 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <string>
+#include "backend/helpers.h"
 
-#include "backend/test/helpers.h"
-#include "backend/system.h"
+#include <string>
 
 #include <drake/lcmt_viewer_draw.hpp>
 
 #include <gtest/gtest.h>
 
 #include <ignition/msgs.hh>
+
+#include "backend/system.h"
 
 namespace delphyne {
 namespace test {

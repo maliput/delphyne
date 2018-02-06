@@ -35,10 +35,11 @@
 
 #include <protobuf/simple_car_state.pb.h>
 
-using drake::automotive::SimpleCarStateIndices;
-
 namespace delphyne {
 namespace backend {
+
+using drake::automotive::SimpleCarStateIndices;
+
 namespace test {
 
 // Defines a VectorToIgnConverter inherited class that implements the
@@ -53,8 +54,7 @@ class MockedVectorInputToIgnConverter
   void vectorToIgn(const VectorBase<double>& input_vector, double time,
                    ignition::msgs::SimpleCarState* ign_message) override {
     // Sets a fixed time value to the ign_message.
-    const int64_t secs = 12345;
-    ign_message->mutable_time()->set_sec(secs);
+    ign_message->mutable_time()->set_sec(12345);
   }
 };
 

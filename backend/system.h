@@ -62,10 +62,10 @@
 
 
 /// \def DELPHYNE_ASSERT
-/// Use to declare an assertion. Will quit execution otherwise.
+/// Used to declare an assertion. Will quit execution otherwise.
 
 /// \def DELPHYNE_DEMAND
-/// Use to declare an demand. Will quit execution otherwise.
+/// Used to declare a demand. Will quit execution otherwise.
 
 #define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
 #define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)

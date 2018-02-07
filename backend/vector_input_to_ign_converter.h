@@ -31,12 +31,14 @@
 #include <memory>
 #include <vector>
 
+#include "backend/ign_publisher_system.h"
 #include "backend/input_port_to_ign_converter.h"
-
-using drake::systems::VectorBase;
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
+
+using drake::systems::VectorBase;
 
 /// This class is a specialization of InputPortToIgnConverter that handles
 /// only VectorBase input ports. Concrete subclasses only need to define
@@ -58,12 +60,17 @@ class VectorToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
   ///
   /// @param[in] publisher The publisher for which we should define the port
   void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
+    DELPHYNE_DEMAND(publisher != nullptr);
+
     publisher->DeclareInputPort(drake::systems::kVectorValued, size_);
   }
 
   void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                     const drake::systems::Context<double>& context,
                     int port_index, IGN_TYPE* ign_message) override {
+    DELPHYNE_DEMAND(publisher != nullptr);
+    DELPHYNE_DEMAND(ign_message != nullptr);
+
     const VectorBase<double>* const input_vector =
         publisher->EvalVectorInput(context, port_index);
     vectorToIgn(*input_vector, context.get_time(), ign_message);

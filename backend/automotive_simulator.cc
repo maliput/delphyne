@@ -34,9 +34,6 @@
 #include <map>
 #include <utility>
 
-#include "backend/agent_plugin_loader.h"
-#include "backend/linb-any"
-
 #include "drake/automotive/gen/driving_command.h"
 #include "drake/automotive/gen/driving_command_translator.h"
 #include "drake/automotive/gen/maliput_railcar_state_translator.h"
@@ -64,9 +61,12 @@
 #include "drake/systems/primitives/multiplexer.h"
 
 #include "backend/abstract_input_to_ign_converter.h"
+#include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
 #include "backend/input_port_to_ign_converter.h"
+#include "backend/linb-any"
 #include "backend/simple_car_state_input_to_ign_converter.h"
+#include "backend/system.h"
 
 namespace delphyne {
 
@@ -126,7 +126,7 @@ drake::lcm::DrakeLcmInterface* AutomotiveSimulator<T>::get_lcm() {
 
 template <typename T>
 drake::systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   return builder_.get();
 }
 
@@ -163,7 +163,7 @@ template <typename T>
 void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
     int id, const OutputPort<T>& pose_output,
     const OutputPort<T>& velocity_output) {
-  DRAKE_DEMAND(&pose_output.get_system() == &velocity_output.get_system());
+  DELPHYNE_DEMAND(&pose_output.get_system() == &velocity_output.get_system());
   const std::string name = pose_output.get_system().get_name();
   auto ports = aggregator_->AddSinglePoseAndVelocityInput(name, id);
   builder_->Connect(pose_output, ports.first);
@@ -181,8 +181,8 @@ int AutomotiveSimulator<T>::AddLoadableCar(
     const std::string& plugin,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
     drake::systems::BasicVector<T>* initial_state) {
-  DRAKE_DEMAND(!has_started());
-  DRAKE_DEMAND(aggregator_ != nullptr);
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   int id = allocate_vehicle_number();
 
@@ -211,14 +211,14 @@ template <typename T>
 int AutomotiveSimulator<T>::AddPriusSimpleCar(
     const std::string& name, const std::string& channel_name,
     const drake::automotive::SimpleCarState<T>& initial_state) {
-  DRAKE_DEMAND(!has_started());
-  DRAKE_DEMAND(aggregator_ != nullptr);
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   const int id = allocate_vehicle_number();
 
   static const drake::automotive::DrivingCommandTranslator
       driving_command_translator;
-  DRAKE_DEMAND(!channel_name.empty());
+  DELPHYNE_DEMAND(!channel_name.empty());
   auto command_subscriber =
       builder_->template AddSystem<drake::systems::lcm::LcmSubscriberSystem>(
           channel_name, driving_command_translator, lcm_.get());
@@ -241,8 +241,8 @@ template <typename T>
 int AutomotiveSimulator<T>::AddMobilControlledSimpleCar(
     const std::string& name, bool initial_with_s,
     const drake::automotive::SimpleCarState<T>& initial_state) {
-  DRAKE_DEMAND(!has_started());
-  DRAKE_DEMAND(aggregator_ != nullptr);
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   if (road_ == nullptr) {
     throw std::runtime_error(
@@ -309,8 +309,8 @@ template <typename T>
 int AutomotiveSimulator<T>::AddPriusTrajectoryCar(
     const std::string& name, const drake::automotive::Curve2<double>& curve,
     double speed, double start_position) {
-  DRAKE_DEMAND(!has_started());
-  DRAKE_DEMAND(aggregator_ != nullptr);
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   const int id = allocate_vehicle_number();
 
@@ -338,8 +338,8 @@ int AutomotiveSimulator<T>::AddPriusMaliputRailcar(
     const drake::automotive::LaneDirection& initial_lane_direction,
     const drake::automotive::MaliputRailcarParams<T>& params,
     const drake::automotive::MaliputRailcarState<T>& initial_state) {
-  DRAKE_DEMAND(!has_started());
-  DRAKE_DEMAND(aggregator_ != nullptr);
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   if (road_ == nullptr) {
     throw std::runtime_error(
@@ -386,7 +386,7 @@ int AutomotiveSimulator<T>::AddIdmControlledPriusMaliputRailcar(
   const drake::automotive::MaliputRailcar<T>* railcar =
       dynamic_cast<const drake::automotive::MaliputRailcar<T>*>(
           vehicles_.at(id));
-  DRAKE_DEMAND(railcar != nullptr);
+  DELPHYNE_DEMAND(railcar != nullptr);
   auto controller =
       builder_->template AddSystem<drake::automotive::IdmController<T>>(*road_);
   controller->set_name(name + "_IdmController");
@@ -404,7 +404,7 @@ int AutomotiveSimulator<T>::AddIdmControlledPriusMaliputRailcar(
 template <typename T>
 void AutomotiveSimulator<T>::SetMaliputRailcarAccelerationCommand(
     int id, double acceleration) {
-  DRAKE_DEMAND(has_started());
+  DELPHYNE_DEMAND(has_started());
   const auto iterator = vehicles_.find(id);
   if (iterator == vehicles_.end()) {
     throw std::runtime_error(
@@ -422,8 +422,8 @@ void AutomotiveSimulator<T>::SetMaliputRailcarAccelerationCommand(
         "id " +
         std::to_string(id) + " was not a MaliputRailcar.");
   }
-  DRAKE_ASSERT(diagram_ != nullptr);
-  DRAKE_ASSERT(simulator_ != nullptr);
+  DELPHYNE_ASSERT(diagram_ != nullptr);
+  DELPHYNE_ASSERT(simulator_ != nullptr);
   drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
       *railcar, &simulator_->get_mutable_context());
   context.FixInputPort(railcar->command_input().get_index(),
@@ -433,7 +433,7 @@ void AutomotiveSimulator<T>::SetMaliputRailcarAccelerationCommand(
 template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road) {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   road_ = std::move(road);
   GenerateAndLoadRoadNetworkUrdf();
   return road_.get();
@@ -481,7 +481,7 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
 template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::MaliputRailcar<T>& system, int vehicle_number) {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   static const drake::automotive::MaliputRailcarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_MALIPUT_RAILCAR_STATE";
@@ -493,7 +493,7 @@ void AutomotiveSimulator<T>::AddPublisher(
 template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
 
@@ -510,7 +510,7 @@ void AutomotiveSimulator<T>::AddPublisher(
 template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::TrajectoryCar<T>& system, int vehicle_number) {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   static const drake::automotive::SimpleCarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
@@ -522,7 +522,7 @@ void AutomotiveSimulator<T>::AddPublisher(
 template <typename T>
 drake::systems::System<T>& AutomotiveSimulator<T>::GetBuilderSystemByName(
     std::string name) {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   drake::systems::System<T>* result{nullptr};
   for (drake::systems::System<T>* system : builder_->GetMutableSystems()) {
     if (system->get_name() == name) {
@@ -537,7 +537,7 @@ drake::systems::System<T>& AutomotiveSimulator<T>::GetBuilderSystemByName(
 template <typename T>
 const drake::systems::System<T>& AutomotiveSimulator<T>::GetDiagramSystemByName(
     std::string name) const {
-  DRAKE_DEMAND(has_started());
+  DELPHYNE_DEMAND(has_started());
   const drake::systems::System<T>* result{nullptr};
   for (const drake::systems::System<T>* system : diagram_->GetSystems()) {
     if (system->get_name() == name) {
@@ -551,7 +551,7 @@ const drake::systems::System<T>& AutomotiveSimulator<T>::GetDiagramSystemByName(
 
 template <typename T>
 void AutomotiveSimulator<T>::Build() {
-  DRAKE_DEMAND(diagram_ == nullptr);
+  DELPHYNE_DEMAND(diagram_ == nullptr);
 
   builder_->Connect(aggregator_->get_output_port(0),
                     car_vis_applicator_->get_car_poses_input_port());
@@ -588,7 +588,7 @@ void AutomotiveSimulator<T>::Build() {
 
 template <typename T>
 void AutomotiveSimulator<T>::Start(double target_realtime_rate) {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   if (diagram_ == nullptr) {
     Build();
   }
@@ -624,7 +624,7 @@ void AutomotiveSimulator<T>::InitializeTrajectoryCars() {
             .get_mutable_vector();
     drake::automotive::TrajectoryCarState<T>* const state =
         dynamic_cast<drake::automotive::TrajectoryCarState<T>*>(&context_state);
-    DRAKE_ASSERT(state);
+    DELPHYNE_ASSERT(state);
     state->set_value(initial_state.get_value());
   }
 }
@@ -643,7 +643,7 @@ void AutomotiveSimulator<T>::InitializeSimpleCars() {
             .get_mutable_vector();
     drake::automotive::SimpleCarState<T>* const state =
         dynamic_cast<drake::automotive::SimpleCarState<T>*>(&context_state);
-    DRAKE_ASSERT(state);
+    DELPHYNE_ASSERT(state);
     state->set_value(initial_state.get_value());
   }
 }
@@ -665,7 +665,7 @@ void AutomotiveSimulator<T>::InitializeMaliputRailcars() {
     drake::automotive::MaliputRailcarState<T>* const state =
         dynamic_cast<drake::automotive::MaliputRailcarState<T>*>(
             &context_state);
-    DRAKE_ASSERT(state);
+    DELPHYNE_ASSERT(state);
     state->set_value(initial_state.get_value());
 
     drake::automotive::MaliputRailcarParams<T>& railcar_system_params =
@@ -688,7 +688,7 @@ void AutomotiveSimulator<T>::InitializeLoadableCars() {
         context.get_mutable_continuous_state().get_mutable_vector();
     drake::systems::BasicVector<T>* const state =
         dynamic_cast<drake::systems::BasicVector<T>*>(&context_state);
-    DRAKE_ASSERT(state);
+    DELPHYNE_ASSERT(state);
     state->set_value(initial_state->get_value());
 
     car->Initialize(&context);
@@ -704,7 +704,7 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 
 template <typename T>
 int AutomotiveSimulator<T>::allocate_vehicle_number() {
-  DRAKE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(!has_started());
   return next_vehicle_number_++;
 }
 
@@ -722,12 +722,12 @@ void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
 
 template <typename T>
 PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
-  DRAKE_DEMAND(has_started());
+  DELPHYNE_DEMAND(has_started());
   const auto& context = simulator_->get_context();
   std::unique_ptr<SystemOutput<T>> system_output =
       diagram_->AllocateOutput(context);
   diagram_->CalcOutput(context, system_output.get());
-  DRAKE_DEMAND(system_output->get_num_ports() == 1);
+  DELPHYNE_DEMAND(system_output->get_num_ports() == 1);
   const AbstractValue* abstract_value = system_output->get_data(0);
   const PoseBundle<T>& pose_bundle =
       abstract_value->GetValueOrThrow<PoseBundle<T>>();

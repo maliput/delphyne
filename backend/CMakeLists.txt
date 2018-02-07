@@ -12,6 +12,7 @@ set (sources
   scene_system.cc
   simple_car_state_input_to_ign_converter.h
   simulation_runner.cc
+  system.h
   vector_input_to_ign_converter.h
 )
 
@@ -22,7 +23,9 @@ set (gtest_sources
   ign_publisher_system_test.cc
   linb_any_test.cc
   scene_system_test.cc
+  simple_car_state_input_to_ign_converter_test.cc
   simulation_runner_test.cc
+  vector_input_to_ign_converter_test.cc
 )
 
 add_subdirectory(test/agent_plugin)

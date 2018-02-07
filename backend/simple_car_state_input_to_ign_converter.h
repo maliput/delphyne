@@ -31,6 +31,10 @@
 #include <memory>
 #include <vector>
 
+#include <drake/automotive/simple_car.h>
+
+#include <protobuf/simple_car_state.pb.h>
+
 #include "backend/vector_input_to_ign_converter.h"
 
 namespace delphyne {
@@ -51,7 +55,7 @@ class SimpleCarStateInputToIgnConverter
         dynamic_cast<const drake::automotive::SimpleCarState<double>*>(
             &input_vector);
     const int64_t secs = time;
-    const int64_t nsecs = (time - secs) * 1000000;
+    const int64_t nsecs = (time - secs) * 1000000000;
     ign_message->mutable_time()->set_sec(secs);
     ign_message->mutable_time()->set_nsec(nsecs);
     ign_message->set_x(vector->x());

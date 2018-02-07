@@ -44,6 +44,9 @@ macro (delphyne_build_tests)
       delphyne_lcm_to_ign
       test_helpers
       simulation_runner
+      ign_publisher_system
+      automotive_simulator
+      scene_system
     )
 
     # Remove a warning in GTest.

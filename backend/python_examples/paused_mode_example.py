@@ -68,7 +68,6 @@ from simulation_runner_py import SimulatorRunner
 from utils import (
     add_drake_resource_path,
     build_simple_car_simulator,
-    launch_bridge,
     launch_visualizer
 )
 
@@ -91,7 +90,6 @@ def main():
     runner = SimulatorRunner(simulator, 0.001, start_paused)
 
     try:
-        launch_bridge(launcher)
         launch_visualizer(launcher, "layoutWithTeleop.config")
         runner.Start()
         launcher.wait(float("Inf"))

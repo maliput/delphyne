@@ -72,8 +72,7 @@
 #include "backend/ign_subscriber_system.h"
 #include "backend/scene_builder_system.h"
 #include "backend/scene_system.h"
-
-#include "bridge/lcm_to_ign_translation.h"
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
@@ -88,7 +87,7 @@ namespace backend {
 ///
 /// They are already available to link against in the containing library.
 template <typename T>
-class DELPHYNE_BACKEND_VISIBLE AutomotiveSimulator {
+class AutomotiveSimulator {
  public:
   /// A constructor that configures this object to use DrakeLcm, which
   /// encapsulates a _real_ LCM instance.

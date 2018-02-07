@@ -38,6 +38,7 @@
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/leaf_system.h>
 
+#include "backend/system.h"
 #include "bridge/lcm_to_ign_translation.h"
 
 namespace delphyne {
@@ -45,7 +46,7 @@ namespace backend {
 
 /// Publishes an ignition-transport message containing
 /// information about the scene.
-class SceneSystem : public drake::systems::LeafSystem<double> {
+class DELPHYNE_BACKEND_VISIBLE SceneSystem : public drake::systems::LeafSystem<double> {
  public:
   // Class constructor. Accepts the topic name that will be used to publish
   // the scene message.

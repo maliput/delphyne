@@ -1,19 +1,12 @@
 include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
+include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
+
 # ----------------------------------------
 # Prepare sources
 set (sources
-  abstract_value_to_ignition_message_converter.h
   agent_plugin_loader.cc
-  automotive_simulator.cc
-  discrete_value_to_ignition_message_converter.h
-  ign_publisher_system.h
-  ign_subscriber_system.h
-  ignition_message_converter.h
-  scene_builder_system.cc
   scene_system.cc
-  simple_car_state_input_to_ign_converter.h
-  simple_car_state_to_ignition_message_converter.h
   simulation_runner.cc
   system.h
 )
@@ -33,10 +26,53 @@ set (gtest_sources
 add_subdirectory(test/agent_plugin)
 
 # ----------------------------------------
+# Ign publisher system library
+
+add_library(ign_publisher_system
+  SHARED
+  abstract_value_to_ignition_message_converter.h
+  discrete_value_to_ignition_message_converter.h
+  ign_publisher_system.h
+  ignition_message_converter.h
+  simple_car_state_to_ignition_message_converter.h
+  system.h
+)
+
+target_link_libraries(ign_publisher_system
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  delphyne_lcm_to_ign
+  delphyne_protobuf_msgs
+  scene_system
+)
+
+target_include_directories(ign_publisher_system PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Ign subscriber system library
+
+add_library(ign_subscriber_system
+  SHARED
+  ign_subscriber_system.h
+  ignition_message_converter.h
+)
+
+target_link_libraries(ign_subscriber_system
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  delphyne_protobuf_msgs
+)
+
+target_include_directories(ign_subscriber_system PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
 # Simulator-runner library
 
 add_library(simulation_runner
-  SHARED
+  STATIC
   simulation_runner.cc
   system.h
 )
@@ -52,6 +88,51 @@ target_link_libraries(simulation_runner
 
 target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+
+# ----------------------------------------
+# Automotive-simulator library
+
+add_library(automotive_simulator
+  STATIC
+  agent_plugin_loader.cc
+  automotive_simulator.cc
+  ign_subscriber_system.h
+  linb-any
+  system.h
+)
+
+target_link_libraries(automotive_simulator
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  delphyne_protobuf_msgs
+  delphyne_lcm_to_ign
+  ign_publisher_system
+  ign_subscriber_system
+  scene_system
+)
+
+target_include_directories(automotive_simulator PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Scene-builder library
+
+add_library(scene_system
+  SHARED
+  scene_builder_system.cc
+  scene_system.cc
+  system.h
+)
+
+target_link_libraries(scene_system
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  delphyne_lcm_to_ign
+)
+
+target_include_directories(scene_system PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 # ----------------------------------------
 # Automotive demo
 add_executable(automotive-demo
@@ -70,22 +151,22 @@ target_link_libraries(automotive-demo
   pthread
   pybind11::module
   simulation_runner
+  automotive_simulator
 )
-
-install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
   agent_plugin_base.h
-  system.h
   linb-any
+  system.h
 )
 
 # ----------------------------------------
-# Tests
+# C++ tests.
 delphyne_build_tests(${gtest_sources})
 
-# Helpers
+# ----------------------------------------
+# Test helper library.
 add_library(test_helpers
     test/helpers.cc)
 
@@ -97,63 +178,39 @@ target_link_libraries(test_helpers
 )
 
 target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
 # ----------------------------------------
-# Python bindings
+# Python bindings.
 
-# Build the simulation support for python bindings as a library.
-add_library(simulation-support
-    SHARED
-    agent_plugin_loader.cc
-    automotive_simulator.cc
-    simulation_runner.cc
-    system.h
-)
+pybind11_add_module(simulation_runner_py simulation_runner_py.cc)
 
-target_link_libraries(simulation-support
-  delphyne_protobuf_msgs
-  delphyne_lcm_to_ign
+target_link_libraries(simulation_runner_py PRIVATE
+  automotive_simulator
+  simulation_runner
   ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
   pybind11::module
   ${PYTHON_LIBRARIES}
 )
 
-target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-
 # ----------------------------------------
-# Python bindings
+# Installs libraries and binaries.
 
-# Define the wrapper library for python
-add_library(simulation_runner_py
-  SHARED
-  ign_publisher_system.h
-  ign_subscriber_system.h
-  simulation_runner_py.cc
-  scene_system.cc
-  scene_builder_system.cc
-)
-
-# Don't prepend wrapper library name with lib
-set_target_properties(simulation_runner_py PROPERTIES PREFIX "")
-
-target_link_libraries(simulation_runner_py
-  simulation-support
-  delphyne_protobuf_msgs
-  delphyne_lcm_to_ign
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  pybind11::module
-  ${PYTHON_LIBRARIES}
-)
-
-install(TARGETS simulation_runner_py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 install(FILES utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
-install(PROGRAMS python_examples/python_bindings_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(PROGRAMS python_examples/keyboard_controlled_simulation.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-install(PROGRAMS python_examples/paused_mode_example.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+install(TARGETS
+  automotive_simulator
+  scene_system
+  simulation_runner
+  simulation_runner_py
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
+install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+install(PROGRAMS
+  python_examples/keyboard_controlled_simulation.py
+  python_examples/paused_mode_example.py
+  python_examples/python_bindings_example.py
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Python tests
 install(PROGRAMS test/simulation_runner_py_test.py DESTINATION ${CMAKE_BINARY_DIR}/backend)

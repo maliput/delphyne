@@ -55,7 +55,7 @@ namespace backend {
 /// \brief Blocks the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
 /// function if you want to manage yourself SIGINT/SIGTERM.
-DELPHYNE_BACKEND_VISIBLE void WaitForShutdown();
+void WaitForShutdown();
 
 /// @brief A wrapper to execute the Drake simulator as a back-end.
 /// This class exposes some of the functionality of the simulator via Ignition
@@ -133,7 +133,7 @@ DELPHYNE_BACKEND_VISIBLE void WaitForShutdown();
 ///   is to add a sleep after calling `stop()` from the Python side, so the
 ///   processor is yielded and the RunThread can finish its current (and last)
 ///   loop before exiting the while.
-class DELPHYNE_BACKEND_VISIBLE SimulatorRunner {
+class SimulatorRunner {
  public:
   /// \brief Default constructor.
   /// \param[in] sim A pointer to a simulator. Note that we take ownership of

@@ -113,11 +113,12 @@ def main():
 
     try:
         launcher.launch([lcm_ign_bridge, "1"])
-        teleop_config = os.path.join(delphyne_ws_dir,
-                                     "install",
-                                     "share",
-                                     "delphyne",
-                                     "layoutWithTeleop.config")
+        layout_key = "--layout="
+        teleop_config = layout_key + os.path.join(delphyne_ws_dir,
+                                                  "install",
+                                                  "share",
+                                                  "delphyne",
+                                                  "layoutWithTeleop.config")
         launcher.launch([ign_visualizer, teleop_config])
 
         # TODO(basicNew) We need this to make sure the visualizer is up and

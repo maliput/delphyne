@@ -150,7 +150,8 @@ def main():
 
         if args.demo_name == "simple":
             # Load custom layout with two TeleopWidgets
-            teleop_config = os.path.join(
+            layout_key = "--layout="
+            teleop_config = layout_key + os.path.join(
                 delphyne_ws_dir,
                 "install",
                 "share",

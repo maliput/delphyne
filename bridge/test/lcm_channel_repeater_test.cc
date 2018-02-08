@@ -118,6 +118,8 @@ GTEST_TEST(LCMChannelRepeaterTest, TestEndToEndEcho) {
   // Consume LCM message
   lcm->handleTimeout(500);
 
+  sleep(1.0);
+
   // Check handler has been called
   ASSERT_TRUE(handler1Called);
 }
@@ -149,6 +151,8 @@ GTEST_TEST(LCMChannelRepeaterTest, TestHandlerNotCalled) {
 
   // Consume LCM message
   lcm->handleTimeout(500);
+
+  sleep(1.0);
 
   // Check handler has not been called
   ASSERT_FALSE(handler1Called);
@@ -201,6 +205,8 @@ GTEST_TEST(LCMChannelRepeaterTest, TestMultipleChannels) {
   // Consume LCM messages
   lcm->handleTimeout(500);
   lcm->handleTimeout(500);
+
+  sleep(1.0);
 
   // Check handlers have been called
   ASSERT_TRUE(handler1Called);

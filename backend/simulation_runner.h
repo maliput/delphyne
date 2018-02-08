@@ -272,7 +272,7 @@ class SimulatorRunner {
   std::vector<std::function<void()>> step_callbacks_;
 
   // The period between world statistics updates (ms).
-  const double kWorldStatsPeriodMs_ = 500.0;
+  const double kWorldStatsPeriodMs_ = 250.0;
 
   // The last time that the scene message was updated.
   std::chrono::steady_clock::time_point last_world_stats_update_;

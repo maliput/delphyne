@@ -29,6 +29,7 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -211,11 +212,17 @@ class SimulatorRunner {
   // \brief Sends all outgoing messages.
   void SendOutgoingMessages();
 
+  // \brief Sends all world stats (whether the world is paused for now).
+  void SendWorldStats();
+
   // \brief The service offered to control the simulation.
   const std::string kControlService{"/world_control"};
 
   // \brief The topic used to publish notifications.
   const std::string kNotificationsTopic{"/notifications"};
+
+  // \brief The topic used to publish world stats.
+  const std::string kWorldStatsTopic{"/world_stats"};
 
   // @brief The service used when receiving a robot request.
   const std::string kRobotRequestServiceName{"/get_robot_model"};
@@ -257,9 +264,18 @@ class SimulatorRunner {
   // \brief An Ignition Transport publisher for sending notifications.
   ignition::transport::Node::Publisher notifications_pub_;
 
+  // \brief An Ignition Transport publisher for sending world stats.
+  ignition::transport::Node::Publisher world_stats_pub_;
+
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
   std::vector<std::function<void()>> step_callbacks_;
+
+  // The period between world statistics updates (ms).
+  const double kWorldStatsPeriodMs_ = 250.0;
+
+  // The last time that the scene message was updated.
+  std::chrono::steady_clock::time_point last_world_stats_update_;
 };
 
 }  // namespace backend

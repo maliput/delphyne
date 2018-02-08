@@ -94,6 +94,10 @@ SimulatorRunner::SimulatorRunner(
   notifications_pub_ =
       node_.Advertise<ignition::msgs::WorldControl>(kNotificationsTopic);
 
+  // Advertise the topic for publishing world stats.
+  world_stats_pub_ =
+      node_.Advertise<ignition::msgs::WorldStatistics>(kWorldStatsTopic);
+
   // Advertise the service for receiving robot model requests from the frontend
   if (!node_.Advertise(kRobotRequestServiceName,
                        &SimulatorRunner::OnRobotModelRequest, this)) {
@@ -173,11 +177,13 @@ void SimulatorRunner::RunSimulationStep() {
   // way
   std::vector<std::function<void()>> callbacks;
 
-  // 3. Processes outgoing messages (notifications).
+  // 3. Processes outgoing messages (notifications) and send world stats.
   {
     std::lock_guard<std::mutex> lock(mutex_);
 
     SendOutgoingMessages();
+
+    SendWorldStats();
 
     // Makes a temporal copy of the python callbacks while we have the lock.
     callbacks = step_callbacks_;
@@ -236,6 +242,27 @@ void SimulatorRunner::SendOutgoingMessages() {
     // Sends the message.
     notifications_pub_.Publish(next_msg);
   }
+}
+
+void SimulatorRunner::SendWorldStats() {
+  // Check if it's time to update the world stats.
+  const auto now = std::chrono::steady_clock::now();
+  const auto elapsed = now - last_world_stats_update_;
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() <
+      kWorldStatsPeriodMs_) {
+    return;
+  }
+
+  // It's time to update the world stats!
+  last_world_stats_update_ = now;
+
+  ignition::msgs::WorldStatistics msg;
+  msg.set_paused(paused_);
+
+  // TODO(caguero): Fill other fields when relevant.
+
+  // Sends the message.
+  world_stats_pub_.Publish(msg);
 }
 
 void SimulatorRunner::ProcessWorldControlMessage(

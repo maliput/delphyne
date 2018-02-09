@@ -203,3 +203,7 @@ install(PROGRAMS
 
 # Python tests
 install(PROGRAMS test/simulation_runner_py_test.py DESTINATION ${CMAKE_BINARY_DIR}/backend)
+
+# Launcher
+install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
+install(PROGRAMS demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

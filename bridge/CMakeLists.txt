@@ -41,9 +41,6 @@ target_link_libraries(delphyne_lcm_to_ign
 
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
-install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
-install(PROGRAMS demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-
 # ----------------------------------------
 # Tests
 delphyne_build_tests(${gtest_sources})

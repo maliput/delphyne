@@ -6,6 +6,7 @@ set (sources
   abstract_value_to_ignition_message_converter.h
   agent_plugin_loader.cc
   automotive_simulator.cc
+  discrete_value_to_ignition_message_converter.h
   ign_publisher_system.h
   ign_subscriber_system.h
   ignition_message_converter.h
@@ -14,19 +15,18 @@ set (sources
   simple_car_state_to_ignition_message_converter.h
   simulation_runner.cc
   system.h
-  discrete_value_to_ignition_message_converter.h
 )
 
 set (gtest_sources
   abstract_value_to_ignition_message_converter_test.cc
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
+  discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
   linb_any_test.cc
   scene_system_test.cc
   simple_car_state_to_ignition_message_converter_test.cc
   simulation_runner_test.cc
-  discrete_value_to_ignition_message_converter_test.cc
 )
 
 add_subdirectory(test/agent_plugin)

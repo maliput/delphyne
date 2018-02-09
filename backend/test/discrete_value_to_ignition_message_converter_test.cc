@@ -53,14 +53,14 @@ class MockedVectorInputToIgnConverter
   int get_vector_size() { return SimpleCarStateIndices::kNumCoordinates; }
 
  protected:
-  void VectorToIgn(const SimpleCarState<double>& input_vector, double time,
+  void VectorToIgn(const SimpleCarState<double>&, double,
                    ignition::msgs::SimpleCarState* ign_message) override {
     // Sets a fixed time value to the ign_message.
     ign_message->mutable_time()->set_sec(12345);
   }
 
-  void IgnToVector(const ignition::msgs::SimpleCarState& ign_message,
-                   SimpleCarState<double>* output_vector) override{};
+  void IgnToVector(const ignition::msgs::SimpleCarState&,
+                   SimpleCarState<double>*) override{};
 };
 
 // \brief Testing class with common resources for all the tests.

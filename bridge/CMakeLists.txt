@@ -6,8 +6,8 @@ set_source_files_properties(${PROTO_SRC} ${PROTO_HEADER}
 # ----------------------------------------
 # Set sources and gtest_sources
 set (sources
-  ign_to_lcm_translation.cc
   lcm_to_ign_translation.cc
+  ign_to_lcm_translation.cc
   repeater_factory.cc
   repeater_manager.cc
   service_to_channel_translation.cc

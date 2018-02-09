@@ -45,6 +45,7 @@
 #include <protobuf/automotive_driving_command.pb.h>
 
 #include "backend/ignition_message_converter.h"
+#include "backend/system.h"
 
 using drake::systems::AbstractValue;
 using drake::systems::AbstractValues;
@@ -57,17 +58,12 @@ using drake::systems::LeafSystem;
 namespace delphyne {
 namespace backend {
 
-namespace {
-constexpr int kStateIndexMessage = 0;
-constexpr int kStateIndexMessageCount = 1;
-}  // namespace
-
 /// This class is the counterpart of Drake's LcmSubscriberSystem. Most of the
 /// code has been taken from that class and adapted to the types of values
 /// that we use (e.g. we don't make the distinction between having a
 /// serializer and a translator, we just have a converter).
 ///
-/// @tparam IGN_TYPE must be a valid ignition message type
+/// @tparam IGN_TYPE must be a valid ignition message type.
 template <class IGN_TYPE>
 class IgnSubscriberSystem : public LeafSystem<double> {
  public:
@@ -83,6 +79,8 @@ class IgnSubscriberSystem : public LeafSystem<double> {
       const std::string& topic_name,
       std::unique_ptr<IgnitionMessageConverter<IGN_TYPE>> converter)
       : topic_name_(topic_name), converter_(std::move(converter)) {
+    DELPHYNE_DEMAND(converter_ != nullptr);
+
     if (converter_->handles_discrete_values()) {
       DeclareVectorOutputPort(
           *AllocateDiscreteOutputValue(),
@@ -99,11 +97,11 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
     if (!node_.Subscribe(topic_name_,
                          &IgnSubscriberSystem<IGN_TYPE>::HandleMessage, this)) {
-      throw std::runtime_error("Error subscribing to topic: " + topic_name_);
+      ignerr << "Error subscribing to topic: " << topic_name_
+             << "\n Ignition Subscriber will not work" << std::endl;
     }
   }
 
-  /// Default destructor.
   ~IgnSubscriberSystem() override {}
 
   std::unique_ptr<DiscreteValues<double>> AllocateDiscreteState()
@@ -153,6 +151,11 @@ class IgnSubscriberSystem : public LeafSystem<double> {
   }
 
  protected:
+  /// Callback invoked each time a new message is received in the ignition
+  /// topic we are subscribed to. Set it as the last received message and
+  /// increase the received message count
+  ///
+  /// @param[in] ignition_message The message received.
   void HandleMessage(const IGN_TYPE& ignition_message) {
     std::lock_guard<std::mutex> lock(received_message_mutex_);
     last_received_message_ = ignition_message;
@@ -160,6 +163,11 @@ class IgnSubscriberSystem : public LeafSystem<double> {
     received_message_condition_variable_.notify_all();
   }
 
+  /// Allocates the object that will be used as a value in the output port.
+  /// Returns nullptr if the converter handles abstract values.
+  ///
+  /// @return A pointer to a BasicVector object that will be used as the output
+  /// value or a nullptr if this converter doesn't handle discrete values.
   std::unique_ptr<BasicVector<double>> AllocateDiscreteOutputValue() const {
     return converter_->AllocateDiscreteOutputValue();
   }
@@ -272,6 +280,12 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   // Converts an ignition message to an output port value.
   mutable std::unique_ptr<IgnitionMessageConverter<IGN_TYPE>> converter_{};
+
+  // The index of the state used to access the the message
+  static constexpr int kStateIndexMessage = 0;
+
+  // The index of the state used to access the the message count
+  static constexpr int kStateIndexMessageCount = 1;
 };
 
 }  // namespace backend

@@ -67,6 +67,9 @@ class DiscreteValueToIgnitionMessageConverter
                              VectorBase<double>* output_vector) override {
     auto* const driving_command_vector =
         dynamic_cast<VECTOR_BASE_TYPE*>(output_vector);
+
+    DELPHYNE_DEMAND(driving_command_vector != nullptr);
+
     IgnToVector(ign_message, driving_command_vector);
   }
 
@@ -80,31 +83,32 @@ class DiscreteValueToIgnitionMessageConverter
         publisher->EvalVectorInput(context, port_index);
     const auto* const vector =
         dynamic_cast<const VECTOR_BASE_TYPE*>(input_vector);
+
+    // TODO(basicNew): If we add this DELPHYNE_DEMAND the test for this class
+    // fails. We should review and fix the test.
+    // DELPHYNE_DEMAND(vector != nullptr);
+
     VectorToIgn(*vector, context.get_time(), ign_message);
   }
 
  protected:
-  /*
-   * Do the actual conversion from the input vector to the ignition message.
-   *
-   * @param[in] input_vector The vector retrieved from the input port.
-   *
-   * @param[in] time The current simulation time.
-   *
-   * @param[out] ign_message The ignition message, populated with the values
-   * from the input vector.
-   */
+  /// Do the actual conversion from the input vector to the ignition message.
+  ///
+  /// @param[in] input_vector The vector retrieved from the input port.
+  ///
+  /// @param[in] time The current simulation time.
+  ///
+  /// @param[out] ign_message The ignition message, populated with the values
+  /// from the input vector.
   virtual void VectorToIgn(const VECTOR_BASE_TYPE& input_vector, double time,
                            IGN_TYPE* ign_message) = 0;
 
-  /*
-   * Do the actual conversion from an ignition message to a vector-based object
-   * that will be used as an output value.
-   *
-   * @param[in] ign_message The ignition message that we need to convert.
-   *
-   * @param[out] output_vector The vector filled with the ign_message values.
-   */
+  /// Do the actual conversion from an ignition message to a vector-based object
+  /// that will be used as an output value.
+  ///
+  /// @param[in] ign_message The ignition message that we need to convert.
+  ///
+  /// @param[out] output_vector The vector filled with the ign_message values.
   virtual void IgnToVector(const IGN_TYPE& ign_message,
                            VECTOR_BASE_TYPE* output_vector) = 0;
 };

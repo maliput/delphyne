@@ -37,8 +37,8 @@ namespace delphyne {
 namespace backend {
 
 /// This class is a specialization of DiscreteValueToIgnitionMessageConverter
-/// that knows how
-/// to populate a SimpleCarState ignition message from an input vector.
+/// that knows how to populate a SimpleCarState ignition message from an input
+/// vector.
 class DrivingCommandToIgnitionMessageConverter
     : public DiscreteValueToIgnitionMessageConverter<
           ignition::msgs::AutomotiveDrivingCommand, DrivingCommand<double>> {
@@ -50,7 +50,7 @@ class DrivingCommandToIgnitionMessageConverter
       const DrivingCommand<double>& input_vector, double time,
       ignition::msgs::AutomotiveDrivingCommand* ign_message) override {
     const int64_t secs = time;
-    const int64_t nsecs = (time - secs) * 1000000;
+    const int64_t nsecs = (time - secs) * 1000000000;
     ign_message->mutable_time()->set_sec(secs);
     ign_message->mutable_time()->set_nsec(nsecs);
     ign_message->set_theta(input_vector.steering_angle());

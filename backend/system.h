@@ -68,3 +68,4 @@
 
 #define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
 #define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)
+#define DELPHYNE_ABORT() DRAKE_ABORT()

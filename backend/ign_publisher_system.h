@@ -41,6 +41,7 @@
 
 #include "backend/discrete_value_to_ignition_message_converter.h"
 #include "backend/ignition_message_converter.h"
+#include "backend/system.h"
 
 using drake::systems::Context;
 using drake::systems::PublishEvent;
@@ -68,6 +69,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
       const std::string& topic_name,
       std::unique_ptr<IgnitionMessageConverter<IGN_TYPE>> converter)
       : topic_name_(topic_name), converter_(std::move(converter)) {
+    DELPHYNE_DEMAND(converter_ != nullptr);
+
     if (converter_->handles_discrete_values()) {
       this->DeclareInputPort(drake::systems::kVectorValued,
                              converter_->get_vector_size());

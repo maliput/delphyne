@@ -89,11 +89,11 @@ class IgnitionMessageConverter {
   /// it to a discrete value to be sent to the output port.
   /// This is a no-op by default, subclasses should override when appropriate.
   ///
-  /// @param[in] ign_message The object received in the ignition channel that
-  /// we are subscribed to,
+  /// @param[in] ign_message The object received in the ignition channel
+  /// that we are subscribed to,
   ///
-  /// @param[out] output_vector The vector we should fill with ign_message data
-  /// to be sent to the output port.
+  /// @param[out] output_vector The vector we should fill with @p ign_message
+  /// data to be sent to the output port.
   virtual void ProcessDiscreteOutput(const IGN_TYPE& ign_message,
                                      VectorBase<double>* output_vector) {}
 
@@ -101,24 +101,25 @@ class IgnitionMessageConverter {
   /// it to an abstract value to be sent to the output port.
   /// This is a no-op by default, subclasses should override when appropriate.
   ///
-  /// @param[in] ign_message The object received in the ignition channel that
-  /// we are subscribed to,
+  /// @param[in] ign_message The object received in the ignition channel
+  /// that we are subscribed to.
   ///
-  /// @param[out] output_vector The vector we should fill with ign_message data
-  /// to be sent to the output port.
+  /// @param[out] output_vector The vector we should fill with @p ign_message
+  /// data to be sent to the output port.
   virtual void ProcessAbstractOutput(const IGN_TYPE& ign_message,
                                      AbstractValue* output_value) {}
 
   /// Get the data from the input port and populate the outgoing ignition
   /// message based on it. Subclasses must override this.
   ///
-  /// @param[in] publisher The publisher for which we are filling the message.
+  /// @param[in] publisher The publisher for which we are filling the
+  /// @p ign_message.
   ///
   /// @param[in] context The simulation context.
   ///
   /// @param[in] port_index The index of the port the converter must read from.
   ///
-  /// @param[out] ign_message The ignition message to populate
+  /// @param[out] ign_message The ignition message to populate.
   virtual void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                             const drake::systems::Context<double>& context,
                             int port_index, IGN_TYPE* ign_message) = 0;

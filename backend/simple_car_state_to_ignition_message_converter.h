@@ -41,8 +41,8 @@ namespace delphyne {
 namespace backend {
 
 /// This class is a specialization of DiscreteValueToIgnitionMessageConverter
-/// that knows how
-/// to populate a SimpleCarState ignition message from an input vector.
+/// that knows how to populate a SimpleCarState ignition message from an input
+/// vector.
 class SimpleCarStateToIgnitionMessageConverter
     : public DiscreteValueToIgnitionMessageConverter<
           ignition::msgs::SimpleCarState, SimpleCarState<double>> {

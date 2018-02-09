@@ -32,9 +32,8 @@
 
 #include <drake/lcmt_viewer_draw.hpp>
 
+#include "backend/lcm_to_ign_translation.h"
 #include "backend/scene_builder_system.h"
-
-#include "bridge/lcm_to_ign_translation.h"
 
 namespace delphyne {
 namespace backend {

@@ -26,38 +26,56 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <chrono>
-#include <cstdint>
+#include <iostream>
+#include <gtest/gtest.h>
+#include <ignition/msgs.hh>
 
-#include "bridge/ign_to_lcm_translation.h"
+#include "backend/ign_to_lcm_translation.h"
 #include "drake/lcmt_driving_command_t.hpp"
 #include "protobuf/automotive_driving_command.pb.h"
 
-#include "backend/system.h"
-
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
-void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
-              drake::lcmt_driving_command_t* lcmDrivingCommand) {
-  if (ignDrivingCommand.has_time()) {
-    lcmDrivingCommand->timestamp = ignDrivingCommand.time().sec() * 1000 +
-                                   ignDrivingCommand.time().nsec() / 1000000;
-  } else {
-    int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
-                           std::chrono::milliseconds(1);
-    lcmDrivingCommand->timestamp = milliseconds;
-  }
-  lcmDrivingCommand->steering_angle = ignDrivingCommand.theta();
-  lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
+//////////////////////////////////////////////////
+/// \brief Test that the ignition AutomotiveDrivingCommand
+/// message is properly translated to its LCM counterpart
+GTEST_TEST(ignToLcm, TestAutomotiveDrivingCommandTranslation) {
+  // Define the ignition command
+  ignition::msgs::AutomotiveDrivingCommand ignDrivingMsg;
+  // Define LCM expected message
+  drake::lcmt_driving_command_t lcmDrivingMsg;
+  // Fill LCM data
+  ignDrivingMsg.mutable_time()->set_sec(123);
+  ignDrivingMsg.mutable_time()->set_nsec(987222111);
+  ignDrivingMsg.set_theta(0.12);
+  ignDrivingMsg.set_acceleration(15.7);
+
+  // Translate from ignition to LCM
+  ignToLcm(ignDrivingMsg, &lcmDrivingMsg);
+
+  // Verify generated LCM message
+  EXPECT_EQ(123987, lcmDrivingMsg.timestamp);
+  EXPECT_EQ(0.12, lcmDrivingMsg.steering_angle);
+  EXPECT_EQ(15.7, lcmDrivingMsg.acceleration);
 }
 
-void ignToLcm(const ignition::msgs::Model_V& robotModels,
-              drake::lcmt_viewer_draw* robotDrawData) {
-  // No-op, since it is not being currently used.
-  // TODO(basicNew) actually implement this.
-  DELPHYNE_ABORT();
+//////////////////////////////////////////////////
+/// \brief Test that the ignition AutomotiveDrivingCommand
+/// message is properly translated to its LCM counterpart
+GTEST_TEST(ignToLcm, TestAutomotiveDrivingCommandTranslationDefaultValues) {
+  // Define the ignition command
+  ignition::msgs::AutomotiveDrivingCommand ignDrivingMsg;
+  // Define LCM expected message
+  drake::lcmt_driving_command_t lcmDrivingMsg;
+
+  // Translate from ignition to LCM
+  ignToLcm(ignDrivingMsg, &lcmDrivingMsg);
+
+  // Verify generated LCM message
+  EXPECT_EQ(lcmDrivingMsg.steering_angle, 0);
+  EXPECT_EQ(lcmDrivingMsg.acceleration, 0);
 }
 
-}  // namespace bridge
+}  // namespace backend
 }  // namespace delphyne

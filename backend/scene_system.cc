@@ -65,7 +65,7 @@ void SceneSystem::DoPublish(
   // Populate the list of models.
   ignition::msgs::Scene scene_msg;
   ignition::msgs::Model_V models;
-  delphyne::bridge::lcmToIgn(viewer_draw, &models);
+  lcmToIgn(viewer_draw, &models);
   for (int i = 0; i < models.models_size(); ++i) {
     auto newModel = scene_msg.add_model();
     newModel->CopyFrom(models.models(i));

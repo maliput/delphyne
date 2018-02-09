@@ -26,23 +26,38 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DELPHYNE_BRIDGE_SERVICETOCHANNELTRANSLATION_HH_
-#define DELPHYNE_BRIDGE_SERVICETOCHANNELTRANSLATION_HH_
+#include <chrono>
+#include <cstdint>
 
-#include <string>
-#include <ignition/msgs.hh>
-#include <ignition/transport.hh>
-#include <lcm/lcm-cpp.hpp>
-#include "drake/lcmt_viewer_command.hpp"
+#include "backend/ign_to_lcm_translation.h"
+#include "drake/lcmt_driving_command_t.hpp"
+#include "protobuf/automotive_driving_command.pb.h"
+
+#include "backend/system.h"
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
-/// \brief Generates an LCM message aimed to
-/// tell drake that the visualizer is ready
-drake::lcmt_viewer_command convertServiceToMsg(ignition::msgs::Empty request);
+void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
+              drake::lcmt_driving_command_t* lcmDrivingCommand) {
+  if (ignDrivingCommand.has_time()) {
+    lcmDrivingCommand->timestamp = ignDrivingCommand.time().sec() * 1000 +
+                                   ignDrivingCommand.time().nsec() / 1000000;
+  } else {
+    int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
+                           std::chrono::milliseconds(1);
+    lcmDrivingCommand->timestamp = milliseconds;
+  }
+  lcmDrivingCommand->steering_angle = ignDrivingCommand.theta();
+  lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
+}
 
-}  // namespace bridge
+void ignToLcm(const ignition::msgs::Model_V& robotModels,
+              drake::lcmt_viewer_draw* robotDrawData) {
+  // No-op, since it is not being currently used.
+  // TODO(basicNew) actually implement this.
+  DELPHYNE_ABORT();
+}
+
+}  // namespace backend
 }  // namespace delphyne
-
-#endif

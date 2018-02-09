@@ -11,6 +11,8 @@ set (gtest_sources
   automotive_simulator_test.cc
   discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
+  ign_to_lcm_translation.cc
+  lcm_to_ign_translation.cc
   linb_any_test.cc
   scene_system_test.cc
   simple_car_state_to_ignition_message_converter_test.cc
@@ -63,6 +65,24 @@ target_link_libraries(ign_subscriber_system
 )
 
 target_include_directories(ign_subscriber_system PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Lcm to ign translation library
+
+add_library(delphyne_lcm_to_ign
+  STATIC
+  lcm_to_ign_translation.cc
+  ign_to_lcm_translation.cc
+)
+
+target_link_libraries(delphyne_lcm_to_ign
+  ${IGNITION-MSGS_LIBRARIES}
+  ${drake_LIBRARIES}
+  ${lcm_LIBRARIES}
+  delphyne_protobuf_msgs
+)
+
+target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Simulator-runner library

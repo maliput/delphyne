@@ -26,8 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DELPHYNE_BRIDGE_LCMTOIGNTRANSLATION_HH_
-#define DELPHYNE_BRIDGE_LCMTOIGNTRANSLATION_HH_
+#pragma once
 
 #include <drake/lcmt_simple_car_state_t.hpp>
 #include <drake/lcmt_viewer_command.hpp>
@@ -41,10 +40,10 @@
 #include <protobuf/viewer2_comms.pb.h>
 #include <protobuf/viewer_command.pb.h>
 
-#include "bridge/translate_exception.h"
+#include "backend/translate_exception.h"
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
 /// \brief Translate a car status message from LCM to ignition
 /// \param[in]  lcmData An LCM message containing the the car state
@@ -126,7 +125,5 @@ void lcmToIgn(const float colorData[4], ignition::msgs::Color* colorModel);
 void lcmToIgn(const drake::lcmt_viewer_draw& robotDrawData,
               ignition::msgs::Model_V* robotModels);
 
-}  // namespace bridge
+}  // namespace backend
 }  // namespace delphyne
-
-#endif

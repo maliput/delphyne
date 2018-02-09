@@ -252,7 +252,6 @@ else (build_errors)
 
   set(TEST_TYPE "UNIT")
   add_subdirectory(backend)
-  add_subdirectory(bridge)
   add_subdirectory(protobuf)
   add_subdirectory(test)
 

@@ -26,38 +26,23 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#ifndef DELPHYNE_BRIDGE_IGNTOLCMTRANSLATION_HH_
-#define DELPHYNE_BRIDGE_IGNTOLCMTRANSLATION_HH_
+#pragma once
 
-namespace ignition {
-namespace msgs {
-class AutomotiveDrivingCommand;
-class Model_V;
-}
-}
-
-namespace drake {
-class lcmt_driving_command_t;
-class lcmt_viewer_draw;
-}
+#include <stdexcept>
+#include <string>
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
-/// \brief Translate a driving command from LCM to ignition
-/// \param[in]  ignDrivingCommand An ignition message containing the driving
-/// command
-/// \param[out] lcmDrivingCommand The resulting LCM command
-void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
-              drake::lcmt_driving_command_t* lcmDrivingCommand);
+// \brief TranslateException is used to signal an error when
+// performing a translation between ignition and LCM messages
+class TranslateException : public std::runtime_error {
+ public:
+  /// \brief Creates a new exception
+  /// \param[in]  message The message explaining the error
+  explicit TranslateException(std::string message)
+      : std::runtime_error(message) {}
+};
 
-/// \brief Translate a model vector ignition message to an LCM view draw message
-/// \param[in]  robotModels An ignition message containing the model vector
-/// \param[out] robotDrawData The resulting LCM view draw message
-void ignToLcm(const ignition::msgs::Model_V& robotModels,
-              drake::lcmt_viewer_draw* robotDrawData);
-
-}  // namespace bridge
+}  // namespace backend
 }  // namespace delphyne
-
-#endif

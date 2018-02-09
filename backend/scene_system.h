@@ -39,7 +39,7 @@
 #include <drake/systems/framework/leaf_system.h>
 
 #include "backend/system.h"
-#include "bridge/lcm_to_ign_translation.h"
+#include "backend/lcm_to_ign_translation.h"
 
 namespace delphyne {
 namespace backend {

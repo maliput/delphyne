@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
 
   // Adds a Loadable Prius Simple car.
   drake::automotive::SimpleCarState<double> state2;
-  state2.set_y(0.0);
+  state2.set_y(4.0);
   std::map<std::string, linb::any> simple_params;
   if (simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "1",
                                 &state2) < 0) {

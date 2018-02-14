@@ -36,17 +36,17 @@ macro (delphyne_build_tests)
       ${PROTOBUF_PROTOC_LIBRARY}
       ${lcm_LIBRARIES}
       ${PYTHON_LIBRARIES}
-      pybind11::module
-      libgtest.a
-      libgtest_main.a
-      pthread
-      delphyne_protobuf_msgs
-      delphyne_lcm_to_ign
-      test_helpers
-      simulation_runner
-      ign_publisher_system
       automotive_simulator
+      delphyne_lcm_to_ign
+      delphyne_protobuf_msgs
+      ign_publisher_system
+      libgtest_main.a
+      libgtest.a
+      pthread
+      pybind11::module
       scene_system
+      simulation_runner
+      test_helpers
     )
 
     # Remove a warning in GTest.

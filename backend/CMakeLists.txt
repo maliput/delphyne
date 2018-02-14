@@ -3,13 +3,7 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 
 # ----------------------------------------
-# Prepare sources
-set (sources
-  agent_plugin_loader.cc
-  scene_system.cc
-  simulation_runner.cc
-  system.h
-)
+# C++ tests.
 
 set (gtest_sources
   abstract_value_to_ignition_message_converter_test.cc
@@ -24,6 +18,8 @@ set (gtest_sources
 )
 
 add_subdirectory(test/agent_plugin)
+
+delphyne_build_tests(${gtest_sources})
 
 # ----------------------------------------
 # Ign publisher system library
@@ -88,7 +84,6 @@ target_link_libraries(simulation_runner
 
 target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-
 # ----------------------------------------
 # Automotive-simulator library
 
@@ -138,7 +133,6 @@ target_include_directories(scene_system PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 add_executable(automotive-demo
   automotive_demo.cc
   system.h
-  ${sources}
 )
 
 target_link_libraries(automotive-demo
@@ -162,13 +156,8 @@ delphyne_install_includes(
 )
 
 # ----------------------------------------
-# C++ tests.
-delphyne_build_tests(${gtest_sources})
-
-# ----------------------------------------
 # Test helper library.
-add_library(test_helpers
-    test/helpers.cc)
+add_library(test_helpers test/helpers.cc)
 
 target_link_libraries(test_helpers
   gtest

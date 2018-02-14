@@ -31,6 +31,8 @@
 
 set -euo pipefail
 
+. workspace/delphyne_gui/setup.bash
+
 pushd build/delphyne
 make test
 popd

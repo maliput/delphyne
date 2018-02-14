@@ -28,40 +28,46 @@
 
 #pragma once
 
-#include <memory>
-#include <vector>
-
 #include <drake/automotive/simple_car.h>
 
 #include <protobuf/simple_car_state.pb.h>
 
-#include "backend/vector_input_to_ign_converter.h"
+#include "backend/discrete_value_to_ignition_message_converter.h"
+
+using drake::automotive::SimpleCarState;
+using drake::automotive::SimpleCarStateIndices;
 
 namespace delphyne {
 namespace backend {
 
-/// This class is a specialization of VectorToIgnConverter that knows how
-/// to populate a SimpleCarState ignition message from an input vector.
-class SimpleCarStateInputToIgnConverter
-    : public VectorToIgnConverter<ignition::msgs::SimpleCarState> {
+/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
+/// that knows how to populate a SimpleCarState ignition message from an input
+/// vector.
+class SimpleCarStateToIgnitionMessageConverter
+    : public DiscreteValueToIgnitionMessageConverter<
+          ignition::msgs::SimpleCarState, SimpleCarState<double>> {
  public:
-  explicit SimpleCarStateInputToIgnConverter(int size)
-      : VectorToIgnConverter(size) {}
+  int get_vector_size() { return SimpleCarStateIndices::kNumCoordinates; }
 
  protected:
-  void vectorToIgn(const VectorBase<double>& input_vector, double time,
+  void VectorToIgn(const SimpleCarState<double>& input_vector, double time,
                    ignition::msgs::SimpleCarState* ign_message) override {
-    const auto* const vector =
-        dynamic_cast<const drake::automotive::SimpleCarState<double>*>(
-            &input_vector);
     const int64_t secs = time;
     const int64_t nsecs = (time - secs) * 1000000000;
     ign_message->mutable_time()->set_sec(secs);
     ign_message->mutable_time()->set_nsec(nsecs);
-    ign_message->set_x(vector->x());
-    ign_message->set_y(vector->y());
-    ign_message->set_heading(vector->heading());
-    ign_message->set_velocity(vector->velocity());
+    ign_message->set_x(input_vector.x());
+    ign_message->set_y(input_vector.y());
+    ign_message->set_heading(input_vector.heading());
+    ign_message->set_velocity(input_vector.velocity());
+  };
+
+  void IgnToVector(const ignition::msgs::SimpleCarState& ign_message,
+                   SimpleCarState<double>* output_vector) override {
+    output_vector->set_x(ign_message.x());
+    output_vector->set_y(ign_message.y());
+    output_vector->set_heading(ign_message.heading());
+    output_vector->set_velocity(ign_message.velocity());
   };
 };
 

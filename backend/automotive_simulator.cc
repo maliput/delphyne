@@ -56,21 +56,22 @@
 #include "drake/systems/framework/basic_vector.h"
 #include "drake/systems/framework/context.h"
 #include "drake/systems/framework/system.h"
-#include "drake/systems/lcm/lcm_subscriber_system.h"
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
-#include "backend/abstract_input_to_ign_converter.h"
+#include "backend/abstract_value_to_ignition_message_converter.h"
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
-#include "backend/input_port_to_ign_converter.h"
+#include "backend/driving_command_to_ignition_message_converter.h"
+#include "backend/ignition_message_converter.h"
 #include "backend/linb-any"
-#include "backend/simple_car_state_input_to_ign_converter.h"
+#include "backend/simple_car_state_to_ignition_message_converter.h"
 #include "backend/system.h"
 
 namespace delphyne {
 
 using drake::automotive::SimpleCarStateIndices;
+using drake::automotive::DrivingCommandIndices;
 using drake::maliput::api::Lane;
 using drake::maliput::api::LaneEnd;
 using drake::maliput::api::LaneId;
@@ -219,9 +220,10 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   static const drake::automotive::DrivingCommandTranslator
       driving_command_translator;
   DELPHYNE_DEMAND(!channel_name.empty());
-  auto command_subscriber =
-      builder_->template AddSystem<drake::systems::lcm::LcmSubscriberSystem>(
-          channel_name, driving_command_translator, lcm_.get());
+  auto converter = std::make_unique<DrivingCommandToIgnitionMessageConverter>();
+  auto command_subscriber = builder_->template AddSystem<
+      IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
+      channel_name, std::move(converter));
   auto simple_car =
       builder_->template AddSystem<drake::automotive::SimpleCar<T>>();
   simple_car->set_name(name);
@@ -497,8 +499,7 @@ void AutomotiveSimulator<T>::AddPublisher(
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
 
-  auto converter = std::make_unique<SimpleCarStateInputToIgnConverter>(
-      SimpleCarStateIndices::kNumCoordinates);
+  auto converter = std::make_unique<SimpleCarStateToIgnitionMessageConverter>();
 
   auto publisher = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
@@ -563,9 +564,8 @@ void AutomotiveSimulator<T>::Build() {
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       scene_builder_->get_input_port(0));
 
-  auto converter =
-      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
-                                                   ignition::msgs::Model_V>>();
+  auto converter = std::make_unique<AbstractValueToIgnitionMessageConverter<
+      drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
 
   ign_publisher_ = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(

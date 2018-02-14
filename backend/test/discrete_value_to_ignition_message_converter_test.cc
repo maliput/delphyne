@@ -26,7 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/vector_input_to_ign_converter.h"
+#include "backend/discrete_value_to_ignition_message_converter.h"
 
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/systems/framework/framework_common.h>
@@ -38,24 +38,29 @@
 namespace delphyne {
 namespace backend {
 
+using drake::automotive::SimpleCarState;
 using drake::automotive::SimpleCarStateIndices;
 
 namespace test {
 
-// Defines a VectorToIgnConverter inherited class that implements the
+// Defines a DiscreteValueToIgnitionMessageConverter inherited class that
+// implements the
 // abstract method vectorToIgn to set a single time.secs value.
 class MockedVectorInputToIgnConverter
-    : public VectorToIgnConverter<ignition::msgs::SimpleCarState> {
+    : public DiscreteValueToIgnitionMessageConverter<
+          ignition::msgs::SimpleCarState, SimpleCarState<double>> {
  public:
-  explicit MockedVectorInputToIgnConverter(int size)
-      : VectorToIgnConverter(size) {}
+  int get_vector_size() { return SimpleCarStateIndices::kNumCoordinates; }
 
  protected:
-  void vectorToIgn(const VectorBase<double>& input_vector, double time,
+  void VectorToIgn(const SimpleCarState<double>&, double,
                    ignition::msgs::SimpleCarState* ign_message) override {
     // Sets a fixed time value to the ign_message.
     ign_message->mutable_time()->set_sec(12345);
   }
+
+  void IgnToVector(const ignition::msgs::SimpleCarState&,
+                   SimpleCarState<double>*) override{};
 };
 
 // \brief Testing class with common resources for all the tests.
@@ -73,13 +78,11 @@ class VectorInputToIgnConverterTest : public ::testing::Test {
  public:
   void SetUp() override {
     // Converter required by the ignition publisher.
-    converter = std::make_unique<MockedVectorInputToIgnConverter>(
-        SimpleCarStateIndices::kNumCoordinates);
+    converter = std::make_unique<MockedVectorInputToIgnConverter>();
 
     // Since the IgnPublisherSystem takes ownership of the converter
     // declared above, we create another one for testing purposes.
-    test_converter = std::make_unique<MockedVectorInputToIgnConverter>(
-        SimpleCarStateIndices::kNumCoordinates);
+    test_converter = std::make_unique<MockedVectorInputToIgnConverter>();
 
     ign_publisher =
         std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
@@ -104,23 +107,6 @@ TEST_F(VectorInputToIgnConverterTest, TestProcessInput) {
 
   // Asserts that the vector message has been translated.
   EXPECT_EQ(ign_msg->time().sec(), 12345);
-}
-
-// \brief Asserts that a given input has been processed correctly by
-// verifying the value of the resulting ign_msg.
-TEST_F(VectorInputToIgnConverterTest, TestDeclareInputPort) {
-  // There must be a single input port at this point.
-  EXPECT_EQ(ign_publisher->get_num_input_ports(), 1);
-
-  // Makes the test_converter add a second abstract input port to the system.
-  test_converter->DeclareInputPort(ign_publisher.get());
-
-  // A new input must have been added to the system.
-  EXPECT_EQ(ign_publisher->get_num_input_ports(), 2);
-
-  // And it must be of type vector.
-  EXPECT_EQ(ign_publisher->get_input_port(1).get_data_type(),
-            drake::systems::kVectorValued);
 }
 
 }  // namespace test

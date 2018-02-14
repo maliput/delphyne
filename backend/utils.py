@@ -77,13 +77,6 @@ def get_from_env_or_fail(var):
     # strip it here
     return value.rstrip(':')
 
-
-def launch_bridge(launcher):
-    """Launches the duplex-ign-lcm-bridge"""
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
-    launcher.launch([lcm_ign_bridge, "1"])
-
-
 def launch_visualizer(launcher, layout_filename):
     """Launches the project's visualizer with a given layout"""
     ign_visualizer = "visualizer"

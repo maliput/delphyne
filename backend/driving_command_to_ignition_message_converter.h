@@ -28,42 +28,40 @@
 
 #pragma once
 
-#include "drake/systems/framework/context.h"
+#include "backend/discrete_value_to_ignition_message_converter.h"
+
+using drake::automotive::DrivingCommand;
+using drake::automotive::DrivingCommandIndices;
 
 namespace delphyne {
 namespace backend {
 
-template <class IGN_TYPE>
-class IgnPublisherSystem;
-
-/// Is in charge of converting the data of an input port to an ignition message.
-/// Since the converted knows what type of input port it works on it also
-/// has the responsibility of defining it.
-template <class IGN_TYPE>
-class InputPortToIgnConverter {
+/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
+/// that knows how to populate a SimpleCarState ignition message from an input
+/// vector.
+class DrivingCommandToIgnitionMessageConverter
+    : public DiscreteValueToIgnitionMessageConverter<
+          ignition::msgs::AutomotiveDrivingCommand, DrivingCommand<double>> {
  public:
-  /// Default constructor.
-  InputPortToIgnConverter() = default;
+  int get_vector_size() { return DrivingCommandIndices::kNumCoordinates; }
 
-  /// Declare the input port for an IgnPublisherSystem. Subclasses must
-  /// override this.
-  ///
-  /// @param[in] publisher The publisher for which we should define the port
-  virtual void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) = 0;
+ protected:
+  void VectorToIgn(
+      const DrivingCommand<double>& input_vector, double time,
+      ignition::msgs::AutomotiveDrivingCommand* ign_message) override {
+    const int64_t secs = time;
+    const int64_t nsecs = (time - secs) * 1000000000;
+    ign_message->mutable_time()->set_sec(secs);
+    ign_message->mutable_time()->set_nsec(nsecs);
+    ign_message->set_theta(input_vector.steering_angle());
+    ign_message->set_acceleration(input_vector.acceleration());
+  };
 
-  /// Get the data from the input port and populate the outgoing ignition
-  /// message based on it. Subclasses must override this.
-  ///
-  /// @param[in] publisher The publisher for which we are filling the message.
-  ///
-  /// @param[in] context The simulation context.
-  ///
-  /// @param[in] port_index The index of the port the converter must read from.
-  ///
-  /// @param[out] ign_message The ignition message to populate
-  virtual void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
-                            const drake::systems::Context<double>& context,
-                            int port_index, IGN_TYPE* ign_message) = 0;
+  void IgnToVector(const ignition::msgs::AutomotiveDrivingCommand& ign_message,
+                   DrivingCommand<double>* output_vector) override {
+    output_vector->set_steering_angle(ign_message.theta());
+    output_vector->set_acceleration(ign_message.acceleration());
+  };
 };
 
 }  // namespace backend

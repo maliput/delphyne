@@ -33,6 +33,8 @@
 #include "drake/lcmt_driving_command_t.hpp"
 #include "protobuf/automotive_driving_command.pb.h"
 
+#include "backend/system.h"
+
 namespace delphyne {
 namespace bridge {
 
@@ -48,6 +50,13 @@ void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
   }
   lcmDrivingCommand->steering_angle = ignDrivingCommand.theta();
   lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
+}
+
+void ignToLcm(const ignition::msgs::Model_V& robotModels,
+              drake::lcmt_viewer_draw* robotDrawData) {
+  // No-op, since it is not being currently used.
+  // TODO(basicNew) actually implement this.
+  DELPHYNE_ABORT();
 }
 
 }  // namespace bridge

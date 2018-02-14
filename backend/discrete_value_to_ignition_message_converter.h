@@ -29,40 +29,48 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 
 #include "backend/ign_publisher_system.h"
-#include "backend/input_port_to_ign_converter.h"
+#include "backend/ignition_message_converter.h"
 #include "backend/system.h"
+
+using drake::systems::BasicVector;
+using drake::systems::VectorBase;
 
 namespace delphyne {
 namespace backend {
 
-using drake::systems::VectorBase;
-
-/// This class is a specialization of InputPortToIgnConverter that handles
+/// This class is a specialization of IgnitionMessageConverter that handles
 /// only VectorBase input ports. Concrete subclasses only need to define
 /// the vectorToIgn method, which does the actual conversion from the
 /// input vector to an ignition message.
 ///
-/// @tparam IGN_TYPE must be a valid ignition message type
-template <class IGN_TYPE>
-class VectorToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
+/// @tparam IGN_TYPE must be a valid ignition message type.
+template <class IGN_TYPE, class VECTOR_BASE_TYPE>
+class DiscreteValueToIgnitionMessageConverter
+    : public IgnitionMessageConverter<IGN_TYPE> {
  public:
-  /// Default constructor.
+  /// @see IgnitionMessageConverter::handles_discrete_values
   ///
-  /// @param[in] size The size of the vector to declare the input port.
-  explicit VectorToIgnConverter(int size) : size_(size) {}
+  /// This is an discrete converter, so we do handle discrete values.
+  bool handles_discrete_values() override { return true; }
 
-  /// Declare the input port for an IgnPublisherSystem. Since this class
-  /// takes data from vector input ports, use kVectorValued as the port
-  /// data type.
+  /// @see IgnitionMessageConverter::AllocateAbstractDefaultValue
   ///
-  /// @param[in] publisher The publisher for which we should define the port
-  void DeclareInputPort(IgnPublisherSystem<IGN_TYPE>* publisher) override {
-    DELPHYNE_DEMAND(publisher != nullptr);
+  /// @return An empty vector-based object
+  std::unique_ptr<BasicVector<double>> AllocateDiscreteOutputValue()
+      const override {
+    return std::make_unique<VECTOR_BASE_TYPE>();
+  }
 
-    publisher->DeclareInputPort(drake::systems::kVectorValued, size_);
+  void ProcessDiscreteOutput(const IGN_TYPE& ign_message,
+                             VectorBase<double>* output_vector) override {
+    auto* const driving_command_vector =
+        dynamic_cast<VECTOR_BASE_TYPE*>(output_vector);
+
+    DELPHYNE_DEMAND(driving_command_vector != nullptr);
+
+    IgnToVector(ign_message, driving_command_vector);
   }
 
   void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
@@ -73,25 +81,36 @@ class VectorToIgnConverter : public InputPortToIgnConverter<IGN_TYPE> {
 
     const VectorBase<double>* const input_vector =
         publisher->EvalVectorInput(context, port_index);
-    vectorToIgn(*input_vector, context.get_time(), ign_message);
+    const auto* const vector =
+        dynamic_cast<const VECTOR_BASE_TYPE*>(input_vector);
+
+    // TODO(basicNew): If we add this DELPHYNE_DEMAND the test for this class
+    // fails. We should review and fix the test.
+    // DELPHYNE_DEMAND(vector != nullptr);
+
+    VectorToIgn(*vector, context.get_time(), ign_message);
   }
 
  protected:
-  /*
-   * Do the actual conversion from the input vector to the ignition message.
-   *
-   * @param[in] input_vector The vector retrieved from the input port.
-   *
-   * @param[in] time The current simulation time.
-   *
-   * @param[out] ign_message The ignition message, populated with the values
-   * from the input vector.
-   */
-  virtual void vectorToIgn(const VectorBase<double>& input_vector, double time,
+  // Do the actual conversion from the input vector to the ignition message.
+  //
+  // @param[in] input_vector The vector retrieved from the input port.
+  //
+  // @param[in] time The current simulation time.
+  //
+  // @param[out] ign_message The ignition message, populated with the values
+  // from the input vector.
+  virtual void VectorToIgn(const VECTOR_BASE_TYPE& input_vector, double time,
                            IGN_TYPE* ign_message) = 0;
 
-  // The size of the vector in the VectorBase.
-  const int size_;
+  // Do the actual conversion from an ignition message to a vector-based object
+  // that will be used as an output value.
+  //
+  // @param[in] ign_message The ignition message that we need to convert.
+  //
+  // @param[out] output_vector The vector filled with the ign_message values.
+  virtual void IgnToVector(const IGN_TYPE& ign_message,
+                           VECTOR_BASE_TYPE* output_vector) = 0;
 };
 
 }  // namespace backend

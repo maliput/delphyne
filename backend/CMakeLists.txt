@@ -3,29 +3,30 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 # ----------------------------------------
 # Prepare sources
 set (sources
-  abstract_input_to_ign_converter.h
+  abstract_value_to_ignition_message_converter.h
   agent_plugin_loader.cc
   automotive_simulator.cc
+  discrete_value_to_ignition_message_converter.h
   ign_publisher_system.h
-  input_port_to_ign_converter.h
+  ign_subscriber_system.h
+  ignition_message_converter.h
   scene_builder_system.cc
   scene_system.cc
-  simple_car_state_input_to_ign_converter.h
+  simple_car_state_to_ignition_message_converter.h
   simulation_runner.cc
   system.h
-  vector_input_to_ign_converter.h
 )
 
 set (gtest_sources
-  abstract_input_to_ign_converter_test.cc
+  abstract_value_to_ignition_message_converter_test.cc
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
+  discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
   linb_any_test.cc
   scene_system_test.cc
-  simple_car_state_input_to_ign_converter_test.cc
+  simple_car_state_to_ignition_message_converter_test.cc
   simulation_runner_test.cc
-  vector_input_to_ign_converter_test.cc
 )
 
 add_subdirectory(test/agent_plugin)
@@ -103,6 +104,7 @@ target_include_directories(simulation-support PRIVATE ${CMAKE_CURRENT_BINARY_DIR
 add_library(simulation_runner_py
   SHARED
   ign_publisher_system.h
+  ign_subscriber_system.h
   simulation_runner_py.cc
   scene_system.cc
   scene_builder_system.cc

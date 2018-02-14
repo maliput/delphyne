@@ -26,7 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/abstract_input_to_ign_converter.h"
+#include "backend/abstract_value_to_ignition_message_converter.h"
 
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/framework_common.h>
@@ -43,17 +43,16 @@ namespace backend {
 
 // \brief Checks that an lcm message from the input port is
 // correctly translated into its ignition-msgs counterpart.
-GTEST_TEST(AbstractInputToIgnConverterTest, TestProcessInput) {
+GTEST_TEST(AbstractValueToIgnitionMessageConverterTest, TestProcessInput) {
   // Converter required by the ignition publisher.
-  auto converter =
-      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
-                                                   ignition::msgs::Model_V>>();
+  auto converter = std::make_unique<AbstractValueToIgnitionMessageConverter<
+      drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
 
   // Since the IgnPublisherSystem takes ownership of the converter
   // declared above, we create another one for testing purposes.
   auto test_converter =
-      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
-                                                   ignition::msgs::Model_V>>();
+      std::make_unique<AbstractValueToIgnitionMessageConverter<
+          drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
 
   // IgnitionPublisherSystem takes ownership over the converter.
   auto ign_publisher =
@@ -80,39 +79,6 @@ GTEST_TEST(AbstractInputToIgnConverterTest, TestProcessInput) {
 
   // Check translation's correctness.
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, *ign_msg));
-}
-
-// \brief Checks that the DeclareInputPort methods
-// adds another input port to the IgnPublisherSystem.
-GTEST_TEST(AbstractInputToIgnConverterTest, TestDeclareInputPort) {
-  // Converter required by the ignition publisher.
-  auto converter =
-      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
-                                                   ignition::msgs::Model_V>>();
-
-  // Since the IgnPublisherSystem takes ownership of the converter
-  // declared above, we create another one for testing purposes.
-  auto test_converter =
-      std::make_unique<AbstractInputToIgnConverter<drake::lcmt_viewer_draw,
-                                                   ignition::msgs::Model_V>>();
-
-  // Ignition Publisher System takes ownership over the converter.
-  auto ign_publisher =
-      std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "DRAKE_VIEWER_DRAW", std::move(converter));
-
-  // We expect a single abstract input, added during the constructor call.
-  EXPECT_EQ(ign_publisher->get_num_input_ports(), 1);
-
-  // Make the test_converter add a second abstract input port to the system.
-  test_converter->DeclareInputPort(ign_publisher.get());
-
-  // A new input must have been added to the system.
-  EXPECT_EQ(ign_publisher->get_num_input_ports(), 2);
-
-  // And it must be of abstract type.
-  EXPECT_EQ(ign_publisher->get_input_port(1).get_data_type(), drake::systems::kAbstractValued);
-
 }
 
 }  // namespace backend

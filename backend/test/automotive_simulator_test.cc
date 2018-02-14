@@ -146,8 +146,7 @@ void GetLastPublishedSimpleCarState(
   translator.Deserialize(message.data(), message.size(), result);
 }
 
-// Covers AddPriusSimpleCar (and thus AddPublisher), Start, StepBy,
-// GetSystemByName.
+// Covers AddPriusSimpleCar (and thus AddPublisher), Start and StepBy
 GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
                                "/share/drake");
@@ -176,25 +175,22 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   const int id = simulator->AddPriusSimpleCar("Foo", kCommandChannelName);
   EXPECT_EQ(id, 0);
 
-  // Grab the systems we want while testing GetBuilderSystemByName() in the
-  // process.
-  auto& command_sub = dynamic_cast<drake::systems::lcm::LcmSubscriberSystem&>(
-      simulator->GetBuilderSystemByName(driving_command_name));
-
   // Finish all initialization, so that we can test the post-init state.
   simulator->Start();
 
-  // Set full throttle.
-  DrivingCommand<double> command;
-  command.set_acceleration(11.0);  // Arbitrary large positive.
-  drake::lcm::DrakeMockLcm* mock_lcm =
-      dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
-  ASSERT_NE(nullptr, mock_lcm);
-  std::vector<uint8_t> message_bytes;
-  command_sub.get_translator().Serialize(0.0 /* time */, command,
-                                         &message_bytes);
-  mock_lcm->InduceSubscriberCallback(kCommandChannelName, &message_bytes[0],
-                                     message_bytes.size());
+  // Simulate an external system sending a driving command to the car at
+  // full throttle
+  auto publisher = node.Advertise<ignition::msgs::AutomotiveDrivingCommand>(
+      "/" + kCommandChannelName);
+
+  ignition::msgs::AutomotiveDrivingCommand ignMsg;
+
+  ignMsg.mutable_time()->set_sec(0);
+  ignMsg.mutable_time()->set_nsec(0);
+  ignMsg.set_acceleration(11.0);
+  ignMsg.set_theta(0);
+
+  publisher.Publish(ignMsg);
 
   // Shortly after starting, we should have not have moved much. Take two
   // small steps so that we get a publish a small time after zero (publish
@@ -210,12 +206,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   for (int i = 0; i < 100; ++i) {
     simulator->StepBy(0.01);
   }
-  // TODO(jwnimmer-tri) Check the timestamp of the final publication.
-  EXPECT_GT(state_message.x(), 1.0);
 
-  // The subsystem pointers must not change.
-  EXPECT_EQ(&simulator->GetDiagramSystemByName(driving_command_name),
-            &command_sub);
+  EXPECT_GT(state_message.x(), 1.0);
 }
 
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.

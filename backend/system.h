@@ -60,7 +60,6 @@
 #endif
 #endif
 
-
 /// \def DELPHYNE_ASSERT
 /// Used to declare an assertion. Will quit execution otherwise.
 
@@ -69,3 +68,4 @@
 
 #define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
 #define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)
+#define DELPHYNE_ABORT() DRAKE_ABORT()

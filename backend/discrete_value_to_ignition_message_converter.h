@@ -92,23 +92,23 @@ class DiscreteValueToIgnitionMessageConverter
   }
 
  protected:
-  /// Do the actual conversion from the input vector to the ignition message.
-  ///
-  /// @param[in] input_vector The vector retrieved from the input port.
-  ///
-  /// @param[in] time The current simulation time.
-  ///
-  /// @param[out] ign_message The ignition message, populated with the values
-  /// from the input vector.
+  // Do the actual conversion from the input vector to the ignition message.
+  //
+  // @param[in] input_vector The vector retrieved from the input port.
+  //
+  // @param[in] time The current simulation time.
+  //
+  // @param[out] ign_message The ignition message, populated with the values
+  // from the input vector.
   virtual void VectorToIgn(const VECTOR_BASE_TYPE& input_vector, double time,
                            IGN_TYPE* ign_message) = 0;
 
-  /// Do the actual conversion from an ignition message to a vector-based object
-  /// that will be used as an output value.
-  ///
-  /// @param[in] ign_message The ignition message that we need to convert.
-  ///
-  /// @param[out] output_vector The vector filled with the ign_message values.
+  // Do the actual conversion from an ignition message to a vector-based object
+  // that will be used as an output value.
+  //
+  // @param[in] ign_message The ignition message that we need to convert.
+  //
+  // @param[out] output_vector The vector filled with the ign_message values.
   virtual void IgnToVector(const IGN_TYPE& ign_message,
                            VECTOR_BASE_TYPE* output_vector) = 0;
 };

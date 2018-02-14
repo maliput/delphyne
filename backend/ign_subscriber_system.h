@@ -151,11 +151,11 @@ class IgnSubscriberSystem : public LeafSystem<double> {
   }
 
  protected:
-  /// Callback invoked each time a new message is received in the ignition
-  /// topic we are subscribed to. Set it as the last received message and
-  /// increase the received message count
-  ///
-  /// @param[in] ignition_message The message received.
+  // Callback invoked each time a new message is received in the ignition
+  // topic we are subscribed to. Set it as the last received message and
+  // increase the received message count
+  //
+  // @param[in] ignition_message The message received.
   void HandleMessage(const IGN_TYPE& ignition_message) {
     std::lock_guard<std::mutex> lock(received_message_mutex_);
     last_received_message_ = ignition_message;
@@ -163,11 +163,11 @@ class IgnSubscriberSystem : public LeafSystem<double> {
     received_message_condition_variable_.notify_all();
   }
 
-  /// Allocates the object that will be used as a value in the output port.
-  /// Returns nullptr if the converter handles abstract values.
-  ///
-  /// @return A pointer to a BasicVector object that will be used as the output
-  /// value or a nullptr if this converter doesn't handle discrete values.
+  // Allocates the object that will be used as a value in the output port.
+  // Returns nullptr if the converter handles abstract values.
+  //
+  // @return A pointer to a BasicVector object that will be used as the output
+  // value or a nullptr if this converter doesn't handle discrete values.
   std::unique_ptr<BasicVector<double>> AllocateDiscreteOutputValue() const {
     return converter_->AllocateDiscreteOutputValue();
   }

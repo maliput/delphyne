@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,38 +26,25 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <chrono>
-#include <cstdint>
+#pragma once
 
-#include "bridge/ign_to_lcm_translation.h"
-#include "drake/lcmt_driving_command_t.hpp"
-#include "protobuf/automotive_driving_command.pb.h"
+#include <memory>
+#include <string>
 
-#include "backend/system.h"
+#include "backend/agent_plugin_base.h"
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
-void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
-              drake::lcmt_driving_command_t* lcmDrivingCommand) {
-  if (ignDrivingCommand.has_time()) {
-    lcmDrivingCommand->timestamp = ignDrivingCommand.time().sec() * 1000 +
-                                   ignDrivingCommand.time().nsec() / 1000000;
-  } else {
-    int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
-                           std::chrono::milliseconds(1);
-    lcmDrivingCommand->timestamp = milliseconds;
-  }
-  lcmDrivingCommand->steering_angle = ignDrivingCommand.theta();
-  lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
-}
-
-void ignToLcm(const ignition::msgs::Model_V& robotModels,
-              drake::lcmt_viewer_draw* robotDrawData) {
-  // No-op, since it is not being currently used.
-  // TODO(basicNew) actually implement this.
-  DELPHYNE_ABORT();
-}
-
-}  // namespace bridge
+/// The function that can be used to load in a loadable Agent from a shared
+/// object.  Given a `file_name`, this call will look for a file called
+/// `libfile_name.so` in the hard-coded ~/.delphyne/plugin path and the path
+/// referred to by the AGENT_PLUGIN_PATH environment variable.  If found, the
+/// shared object will be loaded into the simulation, configured, and
+/// initialized.  See `agent_plugin_base.h` for more information about the
+/// methods that a loadable agent need to implement to get loaded in.
+template <typename T>
+std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPlugin(
+    const std::string& file_name);
+}  // namespace backend
 }  // namespace delphyne

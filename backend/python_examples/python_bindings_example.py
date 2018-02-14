@@ -1,7 +1,7 @@
 #!/usr/bin/env python2.7
 
 """This is a minimal example of starting an automotive simulation using a
-python binding to the C++ SimulatorRunner class.
+python binding to the C++ `SimulatorRunner` class.
 
 Note that this is not a configurable demo, it will just create a sample
 simulation with a prius car that can be driven around.
@@ -40,52 +40,50 @@ interesting scripts.
 
 from __future__ import print_function
 
-import os
+import argparse
 import random
 import sys
 import time
 
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
-
-
-def get_from_env_or_fail(var):
-    """Retrieves an env variable for a given name, fails if not found."""
-    value = os.environ.get(var)
-    if value is None:
-        print("%s is not in the environment,"
-              "did you remember to source setup.bash?" % (var))
-        sys.exit(1)
-
-    # Since it is an environment variable, the very end may have a colon;
-    # strip it here
-    if value[-1] == ':':
-        value = value[:-1]
-
-    return value
+from utils import (
+    add_drake_resource_path,
+    build_simple_car_simulator,
+    launch_visualizer
+)
 
 
 class SimulationStats(object):
     """This is a simple class to keep statistics of the simulation, just
     averaging the time it takes to execute a simulation step from the outside
-    world. Every 1000 measures, the values are printed to stdout"""
+    world. Every 1000 measures, the values are printed to stdout.
+    """
+
     def __init__(self):
+        """Just init the stats"""
         self.reset()
 
     def reset(self):
+        """Clear all values"""
         self._time_sum = 0.0
         self._samples_count = 0
         self._current_start_time = None
 
     def print_stats(self):
+        """Print the stats"""
         print(
             "Average simulation step takes {delta}ms"
             .format(delta=(self._time_sum / self._samples_count) * 1000))
 
     def start(self):
+        """Record the time when we start measuring"""
         self._current_start_time = time.time()
 
     def record_tick(self):
+        """A simulation tick happened. Record it.
+        Every 1000 ticks print the stats and reset
+        """
         end_time = time.time()
         delta = end_time - self._current_start_time
         self._time_sum += delta
@@ -98,36 +96,33 @@ class SimulationStats(object):
 
 def random_print():
     """Print a message at random, roughly every 500 calls"""
-    if (random.randint(1, 500) == 1):
+    if random.randint(1, 500) == 1:
         print("One in five hundred")
 
 
 def main():
     """Spawn an automotive simulator making use of the python bindings"""
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--paused", action='store_true',
+                        dest='start_paused',
+                        default=False, help="Start simulator in paused mode")
+    args = parser.parse_args()
+
     stats = SimulationStats()
     launcher = Launcher()
 
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
-    lcm_ign_bridge = "duplex-ign-lcm-bridge"
-    ign_visualizer = "visualizer"
-
     try:
-        launcher.launch([lcm_ign_bridge, "1"])
-        layout_key = "--layout="
-        teleop_config = layout_key + os.path.join(delphyne_ws_dir,
-                                                  "install",
-                                                  "share",
-                                                  "delphyne",
-                                                  "layoutWithTeleop.config")
-        launcher.launch([ign_visualizer, teleop_config])
+        add_drake_resource_path()
+    except RuntimeError, error_msg:
+        sys.stderr.write('ERROR: {}'.format(error_msg))
+        sys.exit(1)
 
-        # TODO(basicNew) We need this to make sure the visualizer is up and
-        # running before we send the initial message to load the robot.
-        # This will go away once we have ported the automotive simulator to
-        # the backend.
-        time.sleep(1.0)
+    simulator = build_simple_car_simulator()
+    try:
+        launch_visualizer(launcher, "layoutWithTeleop.config")
 
-        runner = SimulatorRunner()
+        runner = SimulatorRunner(simulator, 0.001, args.start_paused)
+
         # Add a callback to record and print statistics
         runner.AddStepCallback(stats.record_tick)
         # Add a second callback that prints a message roughly every 500 calls
@@ -137,7 +132,6 @@ def main():
         runner.Start()
 
         launcher.wait(float("Inf"))
-
     finally:
         runner.Stop()
         # This is needed to avoid a possible deadlock. See SimulatorRunner

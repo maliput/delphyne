@@ -91,13 +91,11 @@ class RepeaterManager {
   /// will be received in that topic
   /// \param[out] response A boolean indicating if the manager was able to
   /// properly setup the repeater or not.
-  /// \param[out] result Always true
-  void IgnitionRepeaterServiceHandler(
+  /// \return True when the service succeed or false otherwise.
+  bool IgnitionRepeaterServiceHandler(
       const ignition::msgs::StringMsg& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      bool& result);
+      ignition::msgs::Boolean& response);
 
   /// \brief This method is set as a callback of the published service to
   /// start a new LCM to ignition repeater.
@@ -106,13 +104,11 @@ class RepeaterManager {
   /// will be received in that topic
   /// \param[out] response A boolean indicating if the manager was able to
   /// properly setup the repeater or not.
-  /// \param[out] result Always true
-  void LCMRepeaterServiceHandler(
+  /// \return True when the service succeed or false otherwise.
+  bool LCMRepeaterServiceHandler(
       const ignition::msgs::StringMsg& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      bool& result);
+      ignition::msgs::Boolean& response);
 
   /// \brief This method is set as a callback for all LCM channels. Each time
   /// a new message is received we verify if we are repeating that channel. If

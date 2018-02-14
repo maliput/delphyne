@@ -46,3 +46,9 @@ There's an automated script that will take care of building the project, running
 ```
 ./tools/run_coverage.sh
 ```
+
+## Instructions for running tests
+All the available tests, both C++ and Python, can be run by calling a single helper script. It can be invoked as follows:
+```
+./tools/run_tests.sh
+```

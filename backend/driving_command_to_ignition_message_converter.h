@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,38 +26,43 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include <chrono>
-#include <cstdint>
+#pragma once
 
-#include "bridge/ign_to_lcm_translation.h"
-#include "drake/lcmt_driving_command_t.hpp"
-#include "protobuf/automotive_driving_command.pb.h"
+#include "backend/discrete_value_to_ignition_message_converter.h"
 
-#include "backend/system.h"
+using drake::automotive::DrivingCommand;
+using drake::automotive::DrivingCommandIndices;
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
-void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
-              drake::lcmt_driving_command_t* lcmDrivingCommand) {
-  if (ignDrivingCommand.has_time()) {
-    lcmDrivingCommand->timestamp = ignDrivingCommand.time().sec() * 1000 +
-                                   ignDrivingCommand.time().nsec() / 1000000;
-  } else {
-    int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
-                           std::chrono::milliseconds(1);
-    lcmDrivingCommand->timestamp = milliseconds;
-  }
-  lcmDrivingCommand->steering_angle = ignDrivingCommand.theta();
-  lcmDrivingCommand->acceleration = ignDrivingCommand.acceleration();
-}
+/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
+/// that knows how to populate a SimpleCarState ignition message from an input
+/// vector.
+class DrivingCommandToIgnitionMessageConverter
+    : public DiscreteValueToIgnitionMessageConverter<
+          ignition::msgs::AutomotiveDrivingCommand, DrivingCommand<double>> {
+ public:
+  int get_vector_size() { return DrivingCommandIndices::kNumCoordinates; }
 
-void ignToLcm(const ignition::msgs::Model_V& robotModels,
-              drake::lcmt_viewer_draw* robotDrawData) {
-  // No-op, since it is not being currently used.
-  // TODO(basicNew) actually implement this.
-  DELPHYNE_ABORT();
-}
+ protected:
+  void VectorToIgn(
+      const DrivingCommand<double>& input_vector, double time,
+      ignition::msgs::AutomotiveDrivingCommand* ign_message) override {
+    const int64_t secs = time;
+    const int64_t nsecs = (time - secs) * 1000000000;
+    ign_message->mutable_time()->set_sec(secs);
+    ign_message->mutable_time()->set_nsec(nsecs);
+    ign_message->set_theta(input_vector.steering_angle());
+    ign_message->set_acceleration(input_vector.acceleration());
+  };
 
-}  // namespace bridge
+  void IgnToVector(const ignition::msgs::AutomotiveDrivingCommand& ign_message,
+                   DrivingCommand<double>* output_vector) override {
+    output_vector->set_steering_angle(ign_message.theta());
+    output_vector->set_acceleration(ign_message.acceleration());
+  };
+};
+
+}  // namespace backend
 }  // namespace delphyne

@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-"""Launches drake's automotive_demo along with the bridge and the
-ignition-visualizer.
+"""Launches drake's automotive_demo and delphyne's visualizer.
 """
 
 # Copyright 2017 Open Source Robotics Foundation
@@ -41,9 +40,7 @@ from utils import get_from_env_or_fail
 
 
 def main():
-    """Launches drake's automotive_demo along with the bridge and the
-    ignition-visualizer.
-    It can spawn optionally the drake-visualizer and the lcm tools.
+    """Launches drake's automotive_demo and delphyne's visualizer.
     Terminates all the processes if one of them is killed.
 
     Important: Many parts of this file are commented out as we are currently
@@ -56,9 +53,7 @@ def main():
         "simple": ["--num_simple_car=1"]
     }
 
-    # Number of cars on each demo, passed as arguments to the bridge
-    # this approach is temporal, and will be removed as soon as the
-    # dynamic creation of lcm-to-ign repeaters is ready
+    # Number of cars on each demo
     num_cars = {"simple": "1", "trajectory": "1", "dragway": "12"}
 
     # Optional arguments

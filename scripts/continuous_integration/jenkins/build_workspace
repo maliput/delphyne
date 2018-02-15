@@ -102,6 +102,15 @@ EOF
 chmod 0755 "$GIT_SSH_FILE"
 GIT_SSH="$GIT_SSH_FILE" git clone git@github.com:ToyotaResearchInstitute/delphyne-gui.git delphyne_gui
 
+if [ "$CHANGE_BRANCH" != "" ]; then
+    echo "**** Checking out delphyne-gui branch $CHANGE_BRANCH ****"
+    pushd delphyne_gui
+    git checkout "$CHANGE_BRANCH" || true
+    popd
+else
+    echo "**** Using delphyne-gui branch master ****"
+fi
+
 rm -f "$GIT_SSH_FILE"
 rm -f "$SSH_IDENTITY_FILE"
 

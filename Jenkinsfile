@@ -34,7 +34,10 @@
 node('linux_xenial_unprovisioned') {
   try {
     stage('checkout') {
-      checkout scm
+      node {
+        echo 'Pulling...' + env.BRANCH_NAME
+        checkout scm
+      }
     }
     stage('setup early') {
       sh './scripts/continuous_integration/jenkins/setup_early'

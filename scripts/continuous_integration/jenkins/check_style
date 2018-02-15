@@ -31,4 +31,6 @@
 
 set -euo pipefail
 
+cat backend/scene_builder_system.h
+
 ./tools/run_cpplint.sh

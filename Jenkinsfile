@@ -36,11 +36,14 @@ node('linux_xenial_unprovisioned') {
     stage('checkout') {
       checkout scm
     }
-    stage('setup') {
-      sh './scripts/continuous_integration/jenkins/setup'
+    stage('setup early') {
+      sh './scripts/continuous_integration/jenkins/setup_early'
     }
     stage('build workspace') {
       sh './scripts/continuous_integration/jenkins/build_workspace'
+    }
+    stage('setup late') {
+      sh './scripts/continuous_integration/jenkins/setup_late'
     }
     stage('build') {
       sh './scripts/continuous_integration/jenkins/build'

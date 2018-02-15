@@ -84,17 +84,26 @@ void WaitForShutdown() {
 }
 
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> sim,
-    double time_step)
-    : time_step_(time_step), simulator_(std::move(sim)) {
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    double time_step, bool paused)
+    : time_step_(time_step), simulator_(std::move(sim)), paused_(paused) {
   // Advertises the service for controlling the simulation.
-  node_.Advertise(kControlService, &SimulatorRunner::OnSimulationInMessage,
-                  this);
+  node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
 
   // Advertise the topic for publishing notifications.
   notifications_pub_ =
       node_.Advertise<ignition::msgs::WorldControl>(kNotificationsTopic);
 
+  // Advertise the topic for publishing world stats.
+  world_stats_pub_ =
+      node_.Advertise<ignition::msgs::WorldStatistics>(kWorldStatsTopic);
+
+  // Advertise the service for receiving robot model requests from the frontend
+  if (!node_.Advertise(kRobotRequestServiceName,
+                       &SimulatorRunner::OnRobotModelRequest, this)) {
+    ignerr << "Error advertising service [" << kRobotRequestServiceName << "]"
+           << std::endl;
+  }
   // Initializes the python machinery so we can invoke a python callback
   // function on each simulation step.
   Py_Initialize();
@@ -102,6 +111,11 @@ SimulatorRunner::SimulatorRunner(
 
   simulator_->Start();
 }
+
+SimulatorRunner::SimulatorRunner(
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    double time_step)
+    : SimulatorRunner(std::move(sim), time_step, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
   Stop();
@@ -135,59 +149,65 @@ void SimulatorRunner::Start() {
 
 void SimulatorRunner::Run() {
   while (enabled_) {
-    // Starts a timer to measure the time we spend doing tasks.
-    auto step_start = std::chrono::steady_clock::now();
-
-    // 1. Processes incoming messages (requests).
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-      ProcessIncomingMessages();
-    }
-
-    // 2. Steps the simulator (if needed).
-    if (!paused_) {
-      simulator_->StepBy(time_step_);
-    } else if (step_requested_) {
-      simulator_->StepBy(custom_time_step_);
-    }
-
-    // Removes any custom step request.
-    step_requested_ = false;
-
-    // A copy of the python callbacks so we can process them in a thread-safe
-    // way
-    std::vector<std::function<void()>> callbacks;
-
-    // 3. Processes outgoing messages (notifications).
-    {
-      std::lock_guard<std::mutex> lock(mutex_);
-
-      SendOutgoingMessages();
-
-      // Makes a temporal copy of the python callbacks while we have the lock.
-      callbacks = step_callbacks_;
-    }
-
-    // This if is here so that we only grab the python global interpreter lock
-    // if there is at least one callback.
-    if (callbacks.size() > 0) {
-      // 1. Acquires the lock to the python interpreter.
-      py::gil_scoped_acquire acquire;
-      // 2. Performs the callbacks.
-      for (std::function<void()> callback : callbacks) {
-        callback();
-      }
-    }
-
-    // Stops the timer.
-    auto step_end = std::chrono::steady_clock::now();
-
-    // Waits for the remaining time of this step.
-    auto step_elapsed = step_end - step_start;
-    std::this_thread::sleep_for(
-        std::chrono::microseconds(static_cast<int64_t>(time_step_ * 1e6)) -
-        step_elapsed);
+    RunSimulationStep();
   }
+}
+
+void SimulatorRunner::RunSimulationStep() {
+  // Starts a timer to measure the time we spend doing tasks.
+  auto step_start = std::chrono::steady_clock::now();
+
+  // 1. Processes incoming messages (requests).
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+    ProcessIncomingMessages();
+  }
+
+  // 2. Steps the simulator (if needed).
+  if (!paused_) {
+    simulator_->StepBy(time_step_);
+  } else if (step_requested_) {
+    simulator_->StepBy(custom_time_step_);
+  }
+
+  // Removes any custom step request.
+  step_requested_ = false;
+
+  // A copy of the python callbacks so we can process them in a thread-safe
+  // way
+  std::vector<std::function<void()>> callbacks;
+
+  // 3. Processes outgoing messages (notifications) and send world stats.
+  {
+    std::lock_guard<std::mutex> lock(mutex_);
+
+    SendOutgoingMessages();
+
+    SendWorldStats();
+
+    // Makes a temporal copy of the python callbacks while we have the lock.
+    callbacks = step_callbacks_;
+  }
+
+  // This if is here so that we only grab the python global interpreter lock
+  // if there is at least one callback and the simulation is unpaused.
+  if (callbacks.size() > 0 && !paused_) {
+    // 1. Acquires the lock to the python interpreter.
+    py::gil_scoped_acquire acquire;
+    // 2. Performs the callbacks.
+    for (std::function<void()> callback : callbacks) {
+      callback();
+    }
+  }
+
+  // Stops the timer.
+  auto step_end = std::chrono::steady_clock::now();
+
+  // Waits for the remaining time of this step.
+  auto step_elapsed = step_end - step_start;
+  std::this_thread::sleep_for(
+      std::chrono::microseconds(static_cast<int64_t>(time_step_ * 1e6)) -
+      step_elapsed);
 }
 
 void SimulatorRunner::ProcessIncomingMessages() {
@@ -200,10 +220,15 @@ void SimulatorRunner::ProcessIncomingMessages() {
       case ignition::msgs::SimulationInMessage::WORLDCONTROL:
         ProcessWorldControlMessage(next_msg.world_control());
         break;
+
+      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST:
+        this->ProcessRobotModelRequest(next_msg.robot_model_request());
+        break;
+
       default:
-        throw std::runtime_error(
-            "Unable to process msg of type: " +
-            SimulationInMessage_SimMsgType_Name(next_msg.type()));
+        ignerr << "Unable to process msg of type: "
+               << SimulationInMessage_SimMsgType_Name(next_msg.type())
+               << std::endl;
         break;
     }
   }
@@ -217,6 +242,27 @@ void SimulatorRunner::SendOutgoingMessages() {
     // Sends the message.
     notifications_pub_.Publish(next_msg);
   }
+}
+
+void SimulatorRunner::SendWorldStats() {
+  // Check if it's time to update the world stats.
+  const auto now = std::chrono::steady_clock::now();
+  const auto elapsed = now - last_world_stats_update_;
+  if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() <
+      kWorldStatsPeriodMs_) {
+    return;
+  }
+
+  // It's time to update the world stats!
+  last_world_stats_update_ = now;
+
+  ignition::msgs::WorldStatistics msg;
+  msg.set_paused(paused_);
+
+  // TODO(caguero): Fill other fields when relevant.
+
+  // Sends the message.
+  world_stats_pub_.Publish(msg);
 }
 
 void SimulatorRunner::ProcessWorldControlMessage(
@@ -234,16 +280,47 @@ void SimulatorRunner::ProcessWorldControlMessage(
   }
 }
 
-void SimulatorRunner::OnSimulationInMessage(
-    const ignition::msgs::SimulationInMessage& request,
-    ignition::msgs::Boolean& response, bool& result) {
-  drake::unused(response);
+void SimulatorRunner::ProcessRobotModelRequest(
+    const ignition::msgs::RobotModelRequest& msg) {
+  // Sets the string from the robot model request as
+  // the topic name where the robot model will be published
+  auto robot_model = simulator_->GetRobotModel();
+  std::string topic_name = msg.response_topic();
+
+  node_.Request(topic_name, *robot_model);
+}
+
+bool SimulatorRunner::OnWorldControl(
+    const ignition::msgs::WorldControl& request,
+    ignition::msgs::Boolean& response) {
+  // Fill the new message.
+  ignition::msgs::SimulationInMessage input_message;
+  input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
+  input_message.mutable_world_control()->CopyFrom(request);
+
   {
-    // Just queues the message.
+    // Queue the message.
     std::lock_guard<std::mutex> lock(mutex_);
-    incoming_msgs_.push(request);
+    incoming_msgs_.push(input_message);
   }
-  result = true;
+  return true;
+}
+
+bool SimulatorRunner::OnRobotModelRequest(
+    const ignition::msgs::RobotModelRequest& request,
+    ignition::msgs::Boolean& response) {
+  // Fill the new message.
+  ignition::msgs::SimulationInMessage input_message;
+  input_message.set_type(
+      ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
+  input_message.mutable_robot_model_request()->CopyFrom(request);
+
+  {
+    // Queue the message.
+    std::lock_guard<std::mutex> lock(mutex_);
+    incoming_msgs_.push(input_message);
+  }
+  return true;
 }
 
 }  // namespace backend

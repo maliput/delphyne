@@ -29,6 +29,7 @@
 #pragma once
 
 #include <atomic>
+#include <chrono>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -36,11 +37,12 @@
 #include <thread>
 #include <vector>
 
-#include <drake/automotive/automotive_simulator.h>
+#include "backend/automotive_simulator.h"
 
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
+#include <protobuf/robot_model_request.pb.h>
 #include <protobuf/simulation_in_message.pb.h>
 
 #include <pybind11/pybind11.h>
@@ -54,7 +56,7 @@ namespace backend {
 /// function if you want to manage yourself SIGINT/SIGTERM.
 void WaitForShutdown();
 
-/// \brief A wrapper to execute the Drake simulator as a back-end.
+/// @brief A wrapper to execute the Drake simulator as a back-end.
 /// This class exposes some of the functionality of the simulator via Ignition
 /// Transport services (e.g.: play/pause/step the simulation). At the same time,
 /// it has to periodically advance the simulation a certain amount of time.
@@ -137,8 +139,19 @@ class SimulatorRunner {
   /// the simulation.
   /// \param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
+  /// \param[in] paused A boolean value that if true, will start the
+  /// simulator in paused mode.
   SimulatorRunner(
-      std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> sim,
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double time_step, bool paused);
+
+  /// \brief Simplified constructor, starts the simulator with _paused = false
+  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  /// \param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
       double time_step);
 
   /// \brief Default destructor.
@@ -148,7 +161,7 @@ class SimulatorRunner {
   /// important to note that the simulation step will be effectively blocked
   /// by this the execution of the callbacks, so please consider this when
   /// adding it.
-  /// \param[in] callable A pointer to a callback function, coming from the
+  /// @param[in] callable A pointer to a callback function, coming from the
   /// python world.
   void AddStepCallback(std::function<void()> callable);
 
@@ -163,32 +176,56 @@ class SimulatorRunner {
   /// \brief Runs the main simulation loop.
   void Run();
 
+  /// \brief Advances a single simulation step by time_step_ seconds.
+  void RunSimulationStep();
+
  private:
+  // \brief Process one RobotModelRequest message.
+  // \param[in] msg The message
+  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& msg);
+
+  // \brief Service used to receive robot model request messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \return The result of the service.
+  bool OnRobotModelRequest(
+      const ignition::msgs::RobotModelRequest& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& response);
+
+  // \brief Processes one WorldControl message.
+  // \param[in] msg The message
+  void ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg);
+
+  // \brief Service used to receive world control messages.
+  // \param[in] request The request.
+  // \param[out] response The response (unused).
+  // \return The result of the service.
+  bool OnWorldControl(
+      const ignition::msgs::WorldControl& request,
+      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+      ignition::msgs::Boolean& response);
+
   // \brief Processes all pending incoming messages.
   void ProcessIncomingMessages();
 
   // \brief Sends all outgoing messages.
   void SendOutgoingMessages();
 
-  // \brief Processes one WorldControl message.
-  // \param[in] msg The message
-  void ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg);
-
-  // \brief Receives simulation input messages.
-  // \param[in] request The request.
-  // \param[out] response The response (unused).
-  // \param[out] result The result of the service.
-  void OnSimulationInMessage(
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      const ignition::msgs::SimulationInMessage& request,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response, bool& result);
+  // \brief Sends all world stats (whether the world is paused for now).
+  void SendWorldStats();
 
   // \brief The service offered to control the simulation.
   const std::string kControlService{"/world_control"};
 
   // \brief The topic used to publish notifications.
   const std::string kNotificationsTopic{"/notifications"};
+
+  // \brief The topic used to publish world stats.
+  const std::string kWorldStatsTopic{"/world_stats"};
+
+  // @brief The service used when receiving a robot request.
+  const std::string kRobotRequestServiceName{"/get_robot_model"};
 
   // \brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;
@@ -201,7 +238,7 @@ class SimulatorRunner {
   std::atomic<bool> enabled_{false};
 
   // \brief A pointer to the Drake simulator.
-  std::unique_ptr<drake::automotive::AutomotiveSimulator<double>> simulator_;
+  std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_;
 
   // \brief Whether the simulation is paused or not.
   bool paused_{false};
@@ -227,9 +264,18 @@ class SimulatorRunner {
   // \brief An Ignition Transport publisher for sending notifications.
   ignition::transport::Node::Publisher notifications_pub_;
 
+  // \brief An Ignition Transport publisher for sending world stats.
+  ignition::transport::Node::Publisher world_stats_pub_;
+
   // \brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
   std::vector<std::function<void()>> step_callbacks_;
+
+  // The period between world statistics updates (ms).
+  const double kWorldStatsPeriodMs_ = 250.0;
+
+  // The last time that the scene message was updated.
+  std::chrono::steady_clock::time_point last_world_stats_update_;
 };
 
 }  // namespace backend

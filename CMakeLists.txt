@@ -181,8 +181,8 @@ set(UNFILTERED_FLAGS "-Wc++14-compat")
 
 filter_valid_compiler_warnings(${WARN_LEVEL} -Wextra -Wno-long-long
   -Wno-unused-value -Wno-unused-value -Wno-unused-value -Wno-unused-value
-  -Wshadow -Winit-self -Wswitch-default
-  -Wmissing-include-dirs -pedantic -Wno-pragmas)
+  -Winit-self -Wswitch-default
+  -Wmissing-include-dirs -Wno-pragmas)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}${WARNING_CXX_FLAGS} ${UNFILTERED_FLAGS}")
 
 #################################################
@@ -270,7 +270,6 @@ else (build_errors)
   ########################################
   # Make the cmake config files
   set(PKG_NAME ${PROJECT_NAME_UPPER})
-  set(PKG_LIBRARIES ${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION})
   set(cmake_conf_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config.cmake")
   set(cmake_conf_version_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config-version.cmake")
 

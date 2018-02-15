@@ -70,28 +70,6 @@ REGISTER_STATIC_IGN_REPEATER("DRIVING_COMMAND_(.*)",
                              ignition::msgs::AutomotiveDrivingCommand,
                              drake::lcmt_driving_command_t)
 
-// Register a repeater, translating from drake::lcmt_viewer_load_robot
-// to ignition::msgs::Model_V
-REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_LOAD_ROBOT",
-                             drake::lcmt_viewer_load_robot,
-                             ignition::msgs::Model_V)
-
-// Register a repeater, translating from drake::lcmt_viewer_draw
-// to ignition::msgs::Model_V
-REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_DRAW", drake::lcmt_viewer_draw,
-                             ignition::msgs::Model_V)
-
-REGISTER_STATIC_LCM_REPEATER("DRAKE_VIEWER_STATUS", drake::lcmt_viewer_command,
-                             ignition::msgs::ViewerCommand)
-
-REGISTER_STATIC_LCM_REPEATER("(.*)_SIMPLE_CAR_STATE",
-                             drake::lcmt_simple_car_state_t,
-                             ignition::msgs::SimpleCarState)
-
-REGISTER_STATIC_LCM_REPEATER("DIRECTOR_TREE_VIEWER_RESPONSE",
-                             robotlocomotion::viewer2_comms_t,
-                             ignition::msgs::Viewer2Comms)
-
 /// \brief Flag used to break the LCM loop and terminate the program.
 static std::atomic<bool> terminatePub(false);
 
@@ -127,30 +105,6 @@ int main(int argc, char* argv[]) {
     ignerr << "Details: " << error.what() << std::endl;
     exit(1);
   }
-
-  // Start DRAKE_VIEWER_LOAD_ROBOT repeater. Since having this repeater running
-  // is a must, exit if the creation fails
-  if (!manager.StartRepeater("DRAKE_VIEWER_LOAD_ROBOT")) {
-    exit(1);
-  }
-
-  // Start DRAKE_VIEWER_DRAW repeater. Since having this repeater running
-  // is a must, exit if the creation fails
-  if (!manager.StartRepeater("DRAKE_VIEWER_DRAW")) {
-    exit(1);
-  }
-
-  manager.EnableLCMAutodiscovery();
-
-  // Service name
-  std::string notifierServiceName = "/visualizer_start_notifier";
-  std::string channelName = "DRAKE_VIEWER_STATUS";
-
-  // Start ignition service to lcm channel converter
-  delphyne::bridge::IgnitionServiceConverter<ignition::msgs::Empty,
-                                             drake::lcmt_viewer_command>
-      ignToLcmRepublisher(sharedLCM, notifierServiceName, channelName);
-  ignToLcmRepublisher.Start();
 
   while (!terminatePub) {
     sharedLCM->handleTimeout(100);

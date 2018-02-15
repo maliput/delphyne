@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
   // Instantiates a simulator.
   auto simulator =
-      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
   // Adds a Prius car.
   drake::automotive::SimpleCarState<double> state;

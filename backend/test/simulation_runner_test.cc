@@ -26,31 +26,60 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <chrono>
 #include <csignal>
 #include <cstdlib>
 #include <memory>
 #include <string>
 #include <thread>
-#include <drake/automotive/automotive_simulator.h>
 
-#include "backend/simulation_runner.h"
 #include "gtest/gtest.h"
+
+#include "backend/automotive_simulator.h"
+#include "backend/simulation_runner.h"
+
+#include <ignition/msgs.hh>
+#include <ignition/transport.hh>
+
+#include <protobuf/robot_model_request.pb.h>
 
 namespace delphyne {
 namespace backend {
 
-//////////////////////////////////////////////////
-/// \brief Check that WaitForShutdown captures the SIGINT signal and the
-/// simulation terminates gracefully.
-TEST(SimulationRunnerTest, sigIntTermination) {
-  // Instantiate a simulator.
-  auto simulator =
-      std::make_unique<drake::automotive::AutomotiveSimulator<double>>();
+class SimulationRunnerTest : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    auto simulator =
+        std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+    sim_runner_ =
+        std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
+  }
 
-  // Instantiate the simulator runner and pass the simulator.
-  auto timeStep = 0.001;
-  SimulatorRunner simRunner(std::move(simulator), timeStep);
-  simRunner.Start();
+  // Callback method for handlig RobotModelRequest service calls
+  void RobotModelRequestCallback(const ignition::msgs::Model_V& request) {
+    callback_called_ = true;
+  }
+
+  // Advertises a service for a given service_name, with
+  // the method RobotModelRequestCallback as callback
+  void AdvertiseRobotModelRequest(std::string service_name) {
+    node_.Advertise(service_name,
+                    &SimulationRunnerTest::RobotModelRequestCallback, this);
+  }
+
+  const double kTimeStep{0.01};  // 10 millis
+
+  bool callback_called_{false};
+
+  std::unique_ptr<SimulatorRunner> sim_runner_;
+
+  ignition::transport::Node node_;
+};
+
+// \brief Checks that WaitForShutdown captures the SIGINT signal and the
+// simulation terminates gracefully.
+TEST_F(SimulationRunnerTest, SigIntTermination) {
+  sim_runner_->Start();
 
   std::thread t([]() {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -63,10 +92,45 @@ TEST(SimulationRunnerTest, sigIntTermination) {
   if (t.joinable()) t.join();
 }
 
-//////////////////////////////////////////////////
-int main(int argc, char** argv) {
-  ::testing::InitGoogleTest(&argc, argv);
-  return RUN_ALL_TESTS();
+// \brief Checks the time elapsed during the simulation
+// step was at least as much as the defined kTimeStep.
+TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
+  auto step_start = std::chrono::steady_clock::now();
+  sim_runner_->RunSimulationStep();
+  auto step_end = std::chrono::steady_clock::now();
+
+  // Calculates duration in milliseconds.
+  const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+      step_end - step_start);
+
+  std::chrono::milliseconds min_simulation_time(10);
+
+  EXPECT_GE(duration, min_simulation_time);
+}
+
+// \brief Verifies that an incoming message has
+// been consumed from the incoming_msgs_ queue
+TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
+  const std::string service_name{"test_service_name"};
+
+  ignition::msgs::RobotModelRequest robot_model_request_msg;
+
+  robot_model_request_msg.set_response_topic(service_name);
+
+  AdvertiseRobotModelRequest(service_name);
+
+  ignition::msgs::Boolean response;
+  const unsigned int timeout = 100;
+  bool result = false;
+  const std::string service = "/get_robot_model";
+  node_.Request(service, robot_model_request_msg, timeout, response, result);
+
+  EXPECT_TRUE(result);
+  EXPECT_FALSE(callback_called_);
+
+  sim_runner_->RunSimulationStep();
+
+  EXPECT_TRUE(callback_called_);
 }
 
 }  // namespace backend

@@ -219,6 +219,7 @@ install(PROGRAMS
   python_examples/keyboard_controlled_simulation.py
   python_examples/paused_mode_example.py
   python_examples/python_bindings_example.py
+  python_examples/realtime_rate_changer.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Python tests

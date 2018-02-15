@@ -53,9 +53,6 @@ def main():
         "simple": ["--num_simple_car=1"]
     }
 
-    # Number of cars on each demo
-    num_cars = {"simple": "1", "trajectory": "1", "dragway": "12"}
-
     # Optional arguments
     parser.add_argument("--demo", default="simple", dest="demo_name",
                         action="store", choices=demo_arguments.keys(),

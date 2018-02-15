@@ -734,6 +734,21 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
   return pose_bundle;
 }
 
+template <typename T>
+void AutomotiveSimulator<T>::SetRealtimeRate(double realtime_rate) {
+  DELPHYNE_DEMAND(has_started());
+  // TODO(basicNew): We should revisit this once we get feedback on
+  // https://github.com/RobotLocomotion/drake/issues/8090
+  simulator_->ResetStatistics();
+  simulator_->set_target_realtime_rate(realtime_rate);
+}
+
+template <typename T>
+double AutomotiveSimulator<T>::GetRealtimeRate() const {
+  DELPHYNE_DEMAND(has_started());
+  return simulator_->get_target_realtime_rate();
+}
+
 template class AutomotiveSimulator<double>;
 
 }  // namespace backend

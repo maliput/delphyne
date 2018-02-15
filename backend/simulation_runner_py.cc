@@ -55,6 +55,10 @@ PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
+      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, double,
+                    bool>())
+      .def("SetRealtimeRate", &SimulatorRunner::SetRealtimeRate)
+      .def("GetRealtimeRate", &SimulatorRunner::GetRealtimeRate)
       .def("Start", &SimulatorRunner::Start)
       .def("Stop", &SimulatorRunner::Stop)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback)

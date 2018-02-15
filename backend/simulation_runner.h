@@ -140,13 +140,40 @@ class SimulatorRunner {
   /// the simulation.
   /// \param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
+  /// \param[in] realtime_rate. Desired rate relative to real time. See
+  /// documentation of Simulator::set_target_realtime_rate.
+  /// \param[in] paused A boolean value that if true, will start the
+  /// simulator in paused mode.
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double time_step, double realtime_rate, bool paused);
+
+  /// \brief Simplified constructor, starts the simulator a real-time rate of
+  /// 1.0.
+  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  /// \param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
   /// \param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
   SimulatorRunner(
       std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
       double time_step, bool paused);
 
+  /// \brief Simplified constructor, starts the simulator with _paused = false.
+  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  /// \param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
+  /// \param[in] realtime_rate. Desired rate relative to real time. See
+  /// documentation of Simulator::set_target_realtime_rate.
+
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double time_step, double realtime_rate);
+
   /// \brief Simplified constructor, starts the simulator with _paused = false
+  /// and a real-time rate of 1.0.
   /// \param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
   /// \param[in] time_step The slot of time (seconds) simulated in each
@@ -179,6 +206,14 @@ class SimulatorRunner {
 
   /// \brief Advances a single simulation step by time_step_ seconds.
   void RunSimulationStep();
+
+  /// See documentation of AutomotiveSimulator::SetRealtimeRate.
+  void SetRealtimeRate(double realtime_rate) {
+    simulator_->SetRealtimeRate(realtime_rate);
+  }
+
+  /// See documentation of AutomotiveSimulator::GetRealtimeRate.
+  double GetRealtimeRate() const { return simulator_->GetRealtimeRate(); }
 
  private:
   // \brief Process one RobotModelRequest message.

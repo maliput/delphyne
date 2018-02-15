@@ -38,6 +38,8 @@ interesting scripts.
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
+# pylint: disable=W0201
+
 from __future__ import print_function
 
 import argparse

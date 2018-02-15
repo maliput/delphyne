@@ -45,6 +45,9 @@ node('linux_xenial_unprovisioned') {
     stage('setup late') {
       sh './scripts/continuous_integration/jenkins/setup_late'
     }
+    stage('check style') {
+      sh './scripts/continuous_integration/jenkins/check_style'
+    }
     stage('build') {
       sh './scripts/continuous_integration/jenkins/build'
     }

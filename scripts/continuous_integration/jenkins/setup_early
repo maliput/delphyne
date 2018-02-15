@@ -29,10 +29,24 @@
 # NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
 # EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-set -eo pipefail
+set -euo pipefail
 
-. workspace/delphyne_gui/setup.bash
+# The setup_early script installs just the necessary bootstrap dependencies to
+# be able to build the workspace.  All other dependencies will be installed
+# during setup_late.
 
-pushd build/delphyne
-make test
-popd
+export DEBIAN_FRONTEND='noninteractive'
+
+# Install the direct delphyne dependencies.
+sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
+sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+sudo apt-get update -qq
+sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' <<EOF
+awscli
+git
+mercurial
+pkg-config
+protobuf-compiler
+python3-vcstool
+EOF
+)

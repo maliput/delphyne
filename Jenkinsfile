@@ -39,6 +39,9 @@ node('linux_xenial_unprovisioned') {
     stage('setup early') {
       sh './scripts/continuous_integration/jenkins/setup_early'
     }
+    stage('check style') {
+      sh './scripts/continuous_integration/jenkins/check_style'
+    }
     stage('build workspace') {
       sh './scripts/continuous_integration/jenkins/build_workspace'
     }

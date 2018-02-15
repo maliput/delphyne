@@ -31,10 +31,6 @@
 
 set -eu
 
-printenv
-exit 1
-
-
 # We want to build up a workspace similar to the one that is recommended at
 # https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md
 # The workspace we use here will necessarily look a little different from the
@@ -105,6 +101,12 @@ ssh -i "$SSH_IDENTITY_FILE" -o StrictHostKeyChecking=no "\$@"
 EOF
 chmod 0755 "$GIT_SSH_FILE"
 GIT_SSH="$GIT_SSH_FILE" git clone git@github.com:ToyotaResearchInstitute/delphyne-gui.git delphyne_gui
+
+if [ "$CHANGE_BRANCH" != "" ]; then
+    pushd delphyne_gui
+    git checkout "$CHANGE_BRANCH" || true
+    popd
+fi
 
 rm -f "$GIT_SSH_FILE"
 rm -f "$SSH_IDENTITY_FILE"

@@ -24,6 +24,7 @@ macro (delphyne_build_tests)
 
     add_dependencies(${BINARY_NAME}
       gtest gtest_main
+      simulation_runner
     )
 
     target_link_libraries(${BINARY_NAME}
@@ -35,12 +36,16 @@ macro (delphyne_build_tests)
       ${PROTOBUF_PROTOC_LIBRARY}
       ${lcm_LIBRARIES}
       ${PYTHON_LIBRARIES}
-      pybind11::module
-      libgtest.a
-      libgtest_main.a
-      pthread
-      delphyne_protobuf_msgs
+      automotive_simulator
       delphyne_lcm_to_ign
+      delphyne_protobuf_msgs
+      ign_publisher_system
+      libgtest_main.a
+      libgtest.a
+      pthread
+      pybind11::module
+      scene_system
+      simulation_runner
       test_helpers
     )
 

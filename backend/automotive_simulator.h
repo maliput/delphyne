@@ -41,8 +41,6 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include "backend/linb-any"
-
 #include "drake/automotive/car_vis_applicator.h"
 #include "drake/automotive/curve2.h"
 #include "drake/automotive/gen/maliput_railcar_state.h"
@@ -69,10 +67,10 @@
 
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
+#include "backend/linb-any"
 #include "backend/scene_builder_system.h"
 #include "backend/scene_system.h"
-
-#include "bridge/lcm_to_ign_translation.h"
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {

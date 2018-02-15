@@ -38,6 +38,7 @@
 #include <vector>
 
 #include "backend/automotive_simulator.h"
+#include "backend/system.h"
 
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>

@@ -89,7 +89,7 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPluginInternal(
   // variable at the back of the list, and we want to use it first.
   ignition::common::SystemPaths system_paths;
   std::string env;
-  if (ignition::common::env("AGENT_PLUGIN_PATH", env)) {
+  if (ignition::common::env("DELPHYNE_AGENT_PLUGIN_PATH", env)) {
     system_paths.AddPluginPaths(env);
   }
   if (ignition::common::env("HOME", env)) {

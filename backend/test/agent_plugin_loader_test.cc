@@ -37,7 +37,7 @@ TEST(AgentPluginLoader, Invalid) {
   ASSERT_EQ(nullptr, agent);
 }
 
-static const char* env = "AGENT_PLUGIN_PATH=test/agent_plugin";
+static const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=test/agent_plugin";
 
 TEST(AgentPluginLoader, ExampleDouble) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));

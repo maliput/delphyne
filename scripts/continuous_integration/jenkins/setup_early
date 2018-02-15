@@ -46,7 +46,6 @@ awscli
 git
 mercurial
 pkg-config
-protobuf-compiler
 python3-vcstool
 EOF
 )

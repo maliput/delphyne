@@ -52,6 +52,8 @@ class SimpleCarStateToIgnitionMessageConverter
  protected:
   void VectorToIgn(const SimpleCarState<double>& input_vector, double time,
                    ignition::msgs::SimpleCarState* ign_message) override {
+    DELPHYNE_DEMAND(ign_message != nullptr);
+
     const int64_t secs = time;
     const int64_t nsecs = (time - secs) * 1000000000;
     ign_message->mutable_time()->set_sec(secs);
@@ -64,6 +66,8 @@ class SimpleCarStateToIgnitionMessageConverter
 
   void IgnToVector(const ignition::msgs::SimpleCarState& ign_message,
                    SimpleCarState<double>* output_vector) override {
+    DELPHYNE_DEMAND(output_vector != nullptr);
+
     output_vector->set_x(ign_message.x());
     output_vector->set_y(ign_message.y());
     output_vector->set_heading(ign_message.heading());

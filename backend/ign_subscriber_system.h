@@ -132,6 +132,7 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   void SetDefaultState(const Context<double>&,
                        State<double>* state) const override {
+    DELPHYNE_DEMAND(state != nullptr);
     if (converter_->handles_discrete_values()) {
       ProcessMessageAndStoreToDiscreteState(
           &state->get_mutable_discrete_state());

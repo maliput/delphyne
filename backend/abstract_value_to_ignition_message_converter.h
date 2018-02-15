@@ -73,6 +73,7 @@ class AbstractValueToIgnitionMessageConverter
 
   void ProcessAbstractOutput(const IGN_TYPE& ign_message,
                              AbstractValue* output_value) override {
+    DRAKE_DEMAND(output_value != nullptr);
     LCM_TYPE& message = output_value->GetMutableValue<LCM_TYPE>();
     delphyne::bridge::ignToLcm(ign_message, &message);
   }

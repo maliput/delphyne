@@ -84,9 +84,7 @@ class DiscreteValueToIgnitionMessageConverter
     const auto* const vector =
         dynamic_cast<const VECTOR_BASE_TYPE*>(input_vector);
 
-    // TODO(basicNew): If we add this DELPHYNE_DEMAND the test for this class
-    // fails. We should review and fix the test.
-    // DELPHYNE_DEMAND(vector != nullptr);
+    DELPHYNE_DEMAND(vector != nullptr);
 
     VectorToIgn(*vector, context.get_time(), ign_message);
   }

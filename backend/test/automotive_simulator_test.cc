@@ -811,7 +811,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
                std::runtime_error);
 }
 
-static const char* env = "AGENT_PLUGIN_PATH=test/agent_plugin";
+static const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=test/agent_plugin";
 
 // Tests that AddLoadableCar basically works.
 GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {

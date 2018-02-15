@@ -45,8 +45,7 @@ namespace backend {
 /// initialized.  See `agent_plugin_base.h` for more information about the
 /// methods that a loadable agent need to implement to get loaded in.
 template <typename T>
-DELPHYNE_BACKEND_VISIBLE
-std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPlugin(
-    const std::string& file_name);
+DELPHYNE_BACKEND_VISIBLE std::unique_ptr<delphyne::backend::AgentPluginBase<T>>
+LoadPlugin(const std::string& file_name);
 }  // namespace backend
 }  // namespace delphyne

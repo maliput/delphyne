@@ -36,8 +36,8 @@
 
 #include <ignition/msgs.hh>
 
-#include "bridge/lcm_to_ign_translation.h"
 #include "backend/system.h"
+#include "bridge/lcm_to_ign_translation.h"
 
 using drake::systems::rendering::PoseBundle;
 using drake::systems::Context;
@@ -60,7 +60,8 @@ namespace backend {
 ///
 /// They are already available to link against in the containing library.
 template <typename T>
-class DELPHYNE_BACKEND_VISIBLE SceneBuilderSystem : public drake::systems::LeafSystem<T> {
+class DELPHYNE_BACKEND_VISIBLE SceneBuilderSystem
+    : public drake::systems::LeafSystem<T> {
  public:
   SceneBuilderSystem();
 

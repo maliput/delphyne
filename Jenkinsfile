@@ -42,11 +42,11 @@ node('linux_xenial_unprovisioned') {
     stage('build workspace') {
       sh './scripts/continuous_integration/jenkins/build_workspace'
     }
-    stage('setup late') {
-      sh './scripts/continuous_integration/jenkins/setup_late'
-    }
     stage('check style') {
       sh './scripts/continuous_integration/jenkins/check_style'
+    }
+    stage('setup late') {
+      sh './scripts/continuous_integration/jenkins/setup_late'
     }
     stage('build') {
       sh './scripts/continuous_integration/jenkins/build'

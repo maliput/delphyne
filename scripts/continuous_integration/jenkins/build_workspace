@@ -31,6 +31,10 @@
 
 set -eu
 
+printenv
+exit 1
+
+
 # We want to build up a workspace similar to the one that is recommended at
 # https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md
 # The workspace we use here will necessarily look a little different from the

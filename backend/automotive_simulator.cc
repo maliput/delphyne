@@ -217,8 +217,6 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   CheckNameUniqueness(name);
   const int id = allocate_vehicle_number();
 
-  static const drake::automotive::DrivingCommandTranslator
-      driving_command_translator;
   DELPHYNE_DEMAND(!channel_name.empty());
   auto converter = std::make_unique<DrivingCommandToIgnitionMessageConverter>();
   auto command_subscriber = builder_->template AddSystem<

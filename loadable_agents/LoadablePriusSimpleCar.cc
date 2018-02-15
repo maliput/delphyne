@@ -49,10 +49,15 @@
 #include <string>
 
 #include <backend/agent_plugin_base.h>
+#include <backend/driving_command_to_ignition_message_converter.h>
+#include <backend/ign_subscriber_system.h>
 #include <backend/linb-any>
+#include <backend/simple_car_state_to_ignition_message_converter.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
+#include <ignition/msgs.hh>
+#include <ignition/transport.hh>
 
 #include "drake/automotive/calc_smooth_acceleration.h"
 #include "drake/automotive/gen/driving_command.h"
@@ -135,22 +140,26 @@ class LoadablePriusSimpleCarDouble final
       override {
     igndbg << "LoadablePriusSimpleCar configure" << std::endl;
 
+    std::string channel_name = "DRIVING_COMMAND_" + name;
+    auto driving_converter =
+        std::make_unique<DrivingCommandToIgnitionMessageConverter>();
+    auto command_subscriber = builder->template AddSystem<
+        IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
+        channel_name, std::move(driving_converter));
+    builder->Connect(*command_subscriber, *this);
+
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(this->pose_output(), ports.first);
     builder->Connect(this->velocity_output(), ports.second);
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
-    std::string channel_name = "DRIVING_COMMAND_" + name;
-    auto command_subscriber =
-        builder->template AddSystem<drake::systems::lcm::LcmSubscriberSystem>(
-            channel_name, driving_command_translator_, lcm);
-    builder->Connect(*command_subscriber, *this);
-
     const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
-    auto publisher =
-        builder->template AddSystem<drake::systems::lcm::LcmPublisherSystem>(
-            channel, translator_, lcm);
+    auto pub_converter =
+        std::make_unique<SimpleCarStateToIgnitionMessageConverter>();
+    auto publisher = builder->AddSystem(
+        std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
+            channel, std::move(pub_converter)));
     builder->Connect(this->state_output(), publisher->get_input_port(0));
 
     return 0;

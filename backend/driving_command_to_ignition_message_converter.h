@@ -49,6 +49,8 @@ class DrivingCommandToIgnitionMessageConverter
   void VectorToIgn(
       const DrivingCommand<double>& input_vector, double time,
       ignition::msgs::AutomotiveDrivingCommand* ign_message) override {
+    DELPHYNE_DEMAND(ign_message != nullptr);
+
     const int64_t secs = time;
     const int64_t nsecs = (time - secs) * 1000000000;
     ign_message->mutable_time()->set_sec(secs);
@@ -59,6 +61,8 @@ class DrivingCommandToIgnitionMessageConverter
 
   void IgnToVector(const ignition::msgs::AutomotiveDrivingCommand& ign_message,
                    DrivingCommand<double>* output_vector) override {
+    DELPHYNE_DEMAND(output_vector != nullptr);
+
     output_vector->set_steering_angle(ign_message.theta());
     output_vector->set_acceleration(ign_message.acceleration());
   };

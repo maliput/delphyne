@@ -64,7 +64,7 @@ class MockedVectorInputToIgnConverter
 };
 
 // \brief Testing class with common resources for all the tests.
-class VectorInputToIgnConverterTest : public ::testing::Test {
+class DiscreteValueToIgnitionMessageConverterTest : public ::testing::Test {
  protected:
   std::unique_ptr<MockedVectorInputToIgnConverter> converter;
 
@@ -92,7 +92,7 @@ class VectorInputToIgnConverterTest : public ::testing::Test {
 
 // \brief Asserts that a given input has been processed
 // correctly by verifying the value of the resulting ign_msg.
-TEST_F(VectorInputToIgnConverterTest, TestProcessInput) {
+TEST_F(DiscreteValueToIgnitionMessageConverterTest, TestProcessInput) {
   std::unique_ptr<drake::systems::Context<double>> context =
       ign_publisher->CreateDefaultContext();
 
@@ -100,6 +100,9 @@ TEST_F(VectorInputToIgnConverterTest, TestProcessInput) {
   auto ign_msg = std::make_unique<ignition::msgs::SimpleCarState>();
 
   const int kPortIndex(0);
+
+  // Configures context's input with an empty car state message.
+  context->FixInputPort(kPortIndex, std::make_unique<SimpleCarState<double>>());
 
   // Processes the input from the publisher.
   test_converter->ProcessInput(ign_publisher.get(), *context, kPortIndex,

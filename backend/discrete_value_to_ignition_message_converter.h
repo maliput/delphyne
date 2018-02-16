@@ -76,6 +76,7 @@ class DiscreteValueToIgnitionMessageConverter
   void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                     const drake::systems::Context<double>& context,
                     int port_index, IGN_TYPE* ign_message) override {
+    DELPHYNE_DEMAND(port_index >= 0);
     DELPHYNE_DEMAND(publisher != nullptr);
     DELPHYNE_DEMAND(ign_message != nullptr);
 

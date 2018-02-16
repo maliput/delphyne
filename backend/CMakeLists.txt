@@ -11,8 +11,8 @@ set (gtest_sources
   automotive_simulator_test.cc
   discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
-  ign_to_lcm_translation.cc
-  lcm_to_ign_translation.cc
+  ign_to_lcm_translation_test.cc
+  lcm_to_ign_translation_test.cc
   linb_any_test.cc
   scene_system_test.cc
   simple_car_state_to_ignition_message_converter_test.cc

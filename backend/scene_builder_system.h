@@ -36,8 +36,8 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/system.h"
 #include "backend/lcm_to_ign_translation.h"
+#include "backend/system.h"
 
 using drake::systems::rendering::PoseBundle;
 using drake::systems::Context;

@@ -36,6 +36,7 @@
 #include "backend/ign_to_lcm_translation.h"
 #include "backend/ignition_message_converter.h"
 #include "backend/lcm_to_ign_translation.h"
+#include "backend/system.h"
 
 using drake::systems::AbstractValue;
 
@@ -72,6 +73,7 @@ class AbstractValueToIgnitionMessageConverter
 
   void ProcessAbstractOutput(const IGN_TYPE& ign_message,
                              AbstractValue* output_value) override {
+    DELPHYNE_DEMAND(output_value != nullptr);
     LCM_TYPE& message = output_value->GetMutableValue<LCM_TYPE>();
     ignToLcm(ign_message, &message);
   }
@@ -79,6 +81,7 @@ class AbstractValueToIgnitionMessageConverter
   void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
                     const drake::systems::Context<double>& context,
                     int port_index, IGN_TYPE* ign_message) override {
+    DELPHYNE_DEMAND(port_index >= 0);
     DELPHYNE_DEMAND(publisher != nullptr);
     DELPHYNE_DEMAND(ign_message != nullptr);
 

@@ -132,6 +132,7 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   void SetDefaultState(const Context<double>&,
                        State<double>* state) const override {
+    DELPHYNE_DEMAND(state != nullptr);
     if (converter_->handles_discrete_values()) {
       ProcessMessageAndStoreToDiscreteState(
           &state->get_mutable_discrete_state());
@@ -176,6 +177,9 @@ class IgnSubscriberSystem : public LeafSystem<double> {
       const Context<double>& context,
       drake::systems::CompositeEventCollection<double>* events,
       double* time) const override {
+    DELPHYNE_DEMAND(events != nullptr);
+    DELPHYNE_DEMAND(time != nullptr);
+
     const int last_message_count = GetMessageCount(context);
 
     const int received_message_count = [this]() {
@@ -211,6 +215,8 @@ class IgnSubscriberSystem : public LeafSystem<double> {
       const std::vector<
           const drake::systems::UnrestrictedUpdateEvent<double>*>&,
       State<double>* state) const override {
+    DELPHYNE_DEMAND(state != nullptr);
+
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
 
@@ -218,11 +224,15 @@ class IgnSubscriberSystem : public LeafSystem<double> {
       const Context<double>&,
       const std::vector<const drake::systems::DiscreteUpdateEvent<double>*>&,
       DiscreteValues<double>* discrete_state) const override {
+    DELPHYNE_DEMAND(discrete_state != nullptr);
+
     ProcessMessageAndStoreToDiscreteState(discrete_state);
   }
 
   void ProcessMessageAndStoreToDiscreteState(
       DiscreteValues<double>* discrete_state) const {
+    DELPHYNE_DEMAND(discrete_state != nullptr);
+
     if (received_message_count_ > 0) {
       drake::systems::VectorBase<double>* vector_base =
           &discrete_state->get_mutable_vector(kStateIndexMessage);
@@ -234,6 +244,8 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   void ProcessMessageAndStoreToAbstractState(
       AbstractValues* abstract_state) const {
+    DELPHYNE_DEMAND(abstract_state != nullptr);
+
     std::lock_guard<std::mutex> lock(received_message_mutex_);
     if (received_message_count_ > 0) {
       AbstractValue* abstract_value =
@@ -246,6 +258,8 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   void CalcDiscreteOutputValue(const Context<double>& context,
                                BasicVector<double>* output_vector) const {
+    DELPHYNE_DEMAND(output_vector != nullptr);
+
     output_vector->SetFrom(context.get_discrete_state(kStateIndexMessage));
   }
 
@@ -255,6 +269,8 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   void CalcAbstractOutputValue(const Context<double>& context,
                                AbstractValue* output_value) const {
+    DELPHYNE_DEMAND(output_value != nullptr);
+
     output_value->SetFrom(
         context.get_abstract_state().get_value(kStateIndexMessage));
   }

@@ -102,13 +102,13 @@ GTEST_TEST(ignToLcm, TestRobotModelTranslation) {
       link->set_name(std::to_string(i) + std::to_string(j));
 
       position->set_x(i);
-      position->set_y(j);
-      position->set_z(i);
+      position->set_y(j + 5);
+      position->set_z(i + 10);
 
       orientation->set_w(i);
-      orientation->set_x(j);
-      orientation->set_y(i);
-      orientation->set_z(j);
+      orientation->set_x(j + 5);
+      orientation->set_y(i + 10);
+      orientation->set_z(j + 15);
     }
   }
 
@@ -128,78 +128,78 @@ GTEST_TEST(ignToLcm, TestRobotModelTranslation) {
   EXPECT_EQ(robotDrawData.link_name[0], "00");
 
   EXPECT_EQ(robotDrawData.position[0][0], 0);
-  EXPECT_EQ(robotDrawData.position[0][1], 0);
-  EXPECT_EQ(robotDrawData.position[0][2], 0);
+  EXPECT_EQ(robotDrawData.position[0][1], 5);
+  EXPECT_EQ(robotDrawData.position[0][2], 10);
 
   EXPECT_EQ(robotDrawData.quaternion[0][0], 0);
-  EXPECT_EQ(robotDrawData.quaternion[0][1], 0);
-  EXPECT_EQ(robotDrawData.quaternion[0][2], 0);
-  EXPECT_EQ(robotDrawData.quaternion[0][3], 0);
+  EXPECT_EQ(robotDrawData.quaternion[0][1], 5);
+  EXPECT_EQ(robotDrawData.quaternion[0][2], 10);
+  EXPECT_EQ(robotDrawData.quaternion[0][3], 15);
 
   // Model 0 link 1
   EXPECT_EQ(robotDrawData.robot_num[1], 0);
   EXPECT_EQ(robotDrawData.link_name[1], "01");
 
   EXPECT_EQ(robotDrawData.position[1][0], 0);
-  EXPECT_EQ(robotDrawData.position[1][1], 1);
-  EXPECT_EQ(robotDrawData.position[1][2], 0);
+  EXPECT_EQ(robotDrawData.position[1][1], 6);
+  EXPECT_EQ(robotDrawData.position[1][2], 10);
 
   EXPECT_EQ(robotDrawData.quaternion[1][0], 0);
-  EXPECT_EQ(robotDrawData.quaternion[1][1], 1);
-  EXPECT_EQ(robotDrawData.quaternion[1][2], 0);
-  EXPECT_EQ(robotDrawData.quaternion[1][3], 1);
+  EXPECT_EQ(robotDrawData.quaternion[1][1], 6);
+  EXPECT_EQ(robotDrawData.quaternion[1][2], 10);
+  EXPECT_EQ(robotDrawData.quaternion[1][3], 16);
 
   // Model 1 link 0
   EXPECT_EQ(robotDrawData.robot_num[2], 1);
   EXPECT_EQ(robotDrawData.link_name[2], "10");
 
   EXPECT_EQ(robotDrawData.position[2][0], 1);
-  EXPECT_EQ(robotDrawData.position[2][1], 0);
-  EXPECT_EQ(robotDrawData.position[2][2], 1);
+  EXPECT_EQ(robotDrawData.position[2][1], 5);
+  EXPECT_EQ(robotDrawData.position[2][2], 11);
 
   EXPECT_EQ(robotDrawData.quaternion[2][0], 1);
-  EXPECT_EQ(robotDrawData.quaternion[2][1], 0);
-  EXPECT_EQ(robotDrawData.quaternion[2][2], 1);
-  EXPECT_EQ(robotDrawData.quaternion[2][3], 0);
+  EXPECT_EQ(robotDrawData.quaternion[2][1], 5);
+  EXPECT_EQ(robotDrawData.quaternion[2][2], 11);
+  EXPECT_EQ(robotDrawData.quaternion[2][3], 15);
 
   // Model 1 link 1
   EXPECT_EQ(robotDrawData.robot_num[3], 1);
   EXPECT_EQ(robotDrawData.link_name[3], "11");
 
   EXPECT_EQ(robotDrawData.position[3][0], 1);
-  EXPECT_EQ(robotDrawData.position[3][1], 1);
-  EXPECT_EQ(robotDrawData.position[3][2], 1);
+  EXPECT_EQ(robotDrawData.position[3][1], 6);
+  EXPECT_EQ(robotDrawData.position[3][2], 11);
 
   EXPECT_EQ(robotDrawData.quaternion[3][0], 1);
-  EXPECT_EQ(robotDrawData.quaternion[3][1], 1);
-  EXPECT_EQ(robotDrawData.quaternion[3][2], 1);
-  EXPECT_EQ(robotDrawData.quaternion[3][3], 1);
+  EXPECT_EQ(robotDrawData.quaternion[3][1], 6);
+  EXPECT_EQ(robotDrawData.quaternion[3][2], 11);
+  EXPECT_EQ(robotDrawData.quaternion[3][3], 16);
 
   // Model 2 link 0
   EXPECT_EQ(robotDrawData.robot_num[4], 2);
   EXPECT_EQ(robotDrawData.link_name[4], "20");
 
   EXPECT_EQ(robotDrawData.position[4][0], 2);
-  EXPECT_EQ(robotDrawData.position[4][1], 0);
-  EXPECT_EQ(robotDrawData.position[4][2], 2);
+  EXPECT_EQ(robotDrawData.position[4][1], 5);
+  EXPECT_EQ(robotDrawData.position[4][2], 12);
 
   EXPECT_EQ(robotDrawData.quaternion[4][0], 2);
-  EXPECT_EQ(robotDrawData.quaternion[4][1], 0);
-  EXPECT_EQ(robotDrawData.quaternion[4][2], 2);
-  EXPECT_EQ(robotDrawData.quaternion[4][3], 0);
+  EXPECT_EQ(robotDrawData.quaternion[4][1], 5);
+  EXPECT_EQ(robotDrawData.quaternion[4][2], 12);
+  EXPECT_EQ(robotDrawData.quaternion[4][3], 15);
 
   // Model 2 link 1
   EXPECT_EQ(robotDrawData.robot_num[5], 2);
   EXPECT_EQ(robotDrawData.link_name[5], "21");
 
   EXPECT_EQ(robotDrawData.position[5][0], 2);
-  EXPECT_EQ(robotDrawData.position[5][1], 1);
-  EXPECT_EQ(robotDrawData.position[5][2], 2);
+  EXPECT_EQ(robotDrawData.position[5][1], 6);
+  EXPECT_EQ(robotDrawData.position[5][2], 12);
 
   EXPECT_EQ(robotDrawData.quaternion[5][0], 2);
-  EXPECT_EQ(robotDrawData.quaternion[5][1], 1);
-  EXPECT_EQ(robotDrawData.quaternion[5][2], 2);
-  EXPECT_EQ(robotDrawData.quaternion[5][3], 1);
+  EXPECT_EQ(robotDrawData.quaternion[5][1], 6);
+  EXPECT_EQ(robotDrawData.quaternion[5][2], 12);
+  EXPECT_EQ(robotDrawData.quaternion[5][3], 16);
 }
 
 //////////////////////////////////////////////////

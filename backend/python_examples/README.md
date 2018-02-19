@@ -6,17 +6,6 @@ simulation runner.
 For all the examples below it's assumed that the Delphyne backend was successfully
 built with CMake, as shown in the instructions
 [here](https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md#build-delphyne-back-end) .
-<h1 id="python_bindings_example">python_bindings_example</h1>
-
-This is a minimal example of starting an automotive simulation using a
-python binding to the C++ `SimulatorRunner` class.
-
-Note that this is not a configurable demo, it will just create a sample
-simulation with a prius car that can be driven around.
-
-As we add more python bindings to the C++ classes we will start doing more
-interesting scripts.
-
 <h1 id="keyboard_controlled_simulation">keyboard_controlled_simulation</h1>
 
 
@@ -38,6 +27,17 @@ $ ./keyboard_controlled_simulation.py
 <`s`> will step the simulation once if paused.
 
 <`q`> will stop the simulation and quit the demo.
+
+<h1 id="python_bindings_example">python_bindings_example</h1>
+
+This is a minimal example of starting an automotive simulation using a
+python binding to the C++ `SimulatorRunner` class.
+
+Note that this is not a configurable demo, it will just create a sample
+simulation with a prius car that can be driven around.
+
+As we add more python bindings to the C++ classes we will start doing more
+interesting scripts.
 
 <h1 id="paused_mode_example">paused_mode_example</h1>
 

@@ -3,7 +3,7 @@
 set -e
 
 # Enables the python interpreter to find simulation_runner.so .
-PYTHONPATH=$PYTHONPATH:/home/alexis/delphyne_ws/install/bin
+PYTHONPATH=$PYTHONPATH:$DELPHYNE_WS_DIR/install/bin
 
 # Sets the path to the generated readme.
 PATH_TO_README=$DELPHYNE_WS_DIR/src/delphyne/backend/python_examples/README.md

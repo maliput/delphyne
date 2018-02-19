@@ -54,6 +54,10 @@ namespace {
 PYBIND11_MODULE(simulation_runner_py, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
+      // TODO(basicNew): Add the missing
+      // `unique_ptr<AutomotiveSimulator<double>>, double, double>()`
+      // constructor. Note that this means overloading by type, which I think
+      // will need a custom python constructor.
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, double,
                     bool>())

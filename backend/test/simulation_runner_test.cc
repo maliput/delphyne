@@ -106,13 +106,15 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 
   auto step_end = std::chrono::steady_clock::now();
 
-  const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+  const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
       step_end - step_start);
 
-  // Expected duration in milliseconds.
-  std::chrono::milliseconds min_simulation_time(10);
+  // Expected max/min duration in microseconds.
+  std::chrono::microseconds min_simulation_time(9500);
+  std::chrono::microseconds max_simulation_time(10500);
 
   EXPECT_GE(duration, min_simulation_time);
+  EXPECT_LE(duration, max_simulation_time);
 }
 
 // \brief Verifies that an incoming message has

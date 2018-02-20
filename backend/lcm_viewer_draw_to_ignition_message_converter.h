@@ -63,7 +63,8 @@ class LCMViewerDrawToIgnitionMessageConverter
     checkVectorSize(robotDrawData.quaternion.size(), robotDrawData.num_links,
                     "quaternion");
 
-    lcmToIgn(robotDrawData.timestamp, robotModels->mutable_header()->mutable_stamp());
+    lcmToIgn(robotDrawData.timestamp,
+             robotModels->mutable_header()->mutable_stamp());
 
     std::map<int32_t, ignition::msgs::Model*> models;
 

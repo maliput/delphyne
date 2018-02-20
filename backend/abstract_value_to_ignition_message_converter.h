@@ -111,7 +111,6 @@ class AbstractValueToIgnitionMessageConverter
   // @param[out] lcm_message The LCM message filled with the ign_message values.
   virtual void IgnToLcm(const IGN_TYPE& ign_message, LCM_TYPE* lcm_message) = 0;
 
-
   // Helper translation functions to be used by derived classes
 
   std::vector<float> ignToVector(const ignition::msgs::Vector3d& position) {
@@ -119,10 +118,12 @@ class AbstractValueToIgnitionMessageConverter
             static_cast<float>(position.z())};
   }
 
-  std::vector<float> ignToVector(const ignition::msgs::Quaternion& orientation) {
-    return {
-        static_cast<float>(orientation.w()), static_cast<float>(orientation.x()),
-        static_cast<float>(orientation.y()), static_cast<float>(orientation.z())};
+  std::vector<float> ignToVector(
+      const ignition::msgs::Quaternion& orientation) {
+    return {static_cast<float>(orientation.w()),
+            static_cast<float>(orientation.x()),
+            static_cast<float>(orientation.y()),
+            static_cast<float>(orientation.z())};
   }
 
   void lcmToIgn(const float positionData[3],
@@ -140,7 +141,8 @@ class AbstractValueToIgnitionMessageConverter
     quaternionModel->set_z(quaternionData[3]);
   }
 
-  void ignToLcm(const ::ignition::msgs::Time& ign_time, int64_t* lcm_timestamp_ms) {
+  void ignToLcm(const ::ignition::msgs::Time& ign_time,
+                int64_t* lcm_timestamp_ms) {
     *lcm_timestamp_ms = ign_time.sec() * 1000 + ign_time.nsec() / 1000000;
   }
 

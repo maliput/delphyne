@@ -65,9 +65,9 @@ GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessInput) {
   // Configures context's input with the pre-loaded message.
   const int kPortIndex{0};
   context->FixInputPort(
-      kPortIndex, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
-             lcm_msg));
-
+      kPortIndex,
+      std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
+          lcm_msg));
 
   // Calls the ProcessInput method from our test_converter object, since
   // the other converter now belongs to the ign_publisher object.

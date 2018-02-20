@@ -26,7 +26,7 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/abstract_value_to_ignition_message_converter.h"
+#include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
 
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/framework_common.h>
@@ -43,16 +43,14 @@ namespace backend {
 
 // \brief Checks that an lcm message from the input port is
 // correctly translated into its ignition-msgs counterpart.
-GTEST_TEST(AbstractValueToIgnitionMessageConverterTest, TestProcessInput) {
+GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessInput) {
   // Converter required by the ignition publisher.
-  auto converter = std::make_unique<AbstractValueToIgnitionMessageConverter<
-      drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
+  auto converter = std::make_unique<LCMViewerDrawToIgnitionMessageConverter>();
 
   // Since the IgnPublisherSystem takes ownership of the converter
   // declared above, we create another one for testing purposes.
   auto test_converter =
-      std::make_unique<AbstractValueToIgnitionMessageConverter<
-          drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
+      std::make_unique<LCMViewerDrawToIgnitionMessageConverter>();
 
   // IgnitionPublisherSystem takes ownership over the converter.
   auto ign_publisher =

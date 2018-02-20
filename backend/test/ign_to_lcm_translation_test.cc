@@ -35,6 +35,7 @@
 #include "drake/lcmt_viewer_draw.hpp"
 #include "gtest/gtest.h"
 #include "ignition/msgs.hh"
+
 #include "protobuf/automotive_driving_command.pb.h"
 
 namespace delphyne {

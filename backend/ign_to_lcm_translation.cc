@@ -34,6 +34,7 @@
 #include "drake/lcmt_driving_command_t.hpp"
 #include "drake/lcmt_viewer_draw.hpp"
 #include "ignition/msgs.hh"
+
 #include "protobuf/automotive_driving_command.pb.h"
 
 #include "backend/system.h"

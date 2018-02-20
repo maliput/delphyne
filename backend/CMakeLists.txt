@@ -111,6 +111,7 @@ add_library(automotive_simulator
   STATIC
   agent_plugin_loader.cc
   automotive_simulator.cc
+  driving_command_to_ignition_message_converter.cc
   ign_subscriber_system.h
   linb-any
   system.h

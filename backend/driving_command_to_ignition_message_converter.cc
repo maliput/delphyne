@@ -26,39 +26,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include "backend/driving_command_to_ignition_message_converter.h"
 
-#include "backend/discrete_value_to_ignition_message_converter.h"
-
-#include "drake/automotive/gen/driving_command.h"
-
-#include "protobuf/automotive_driving_command.pb.h"
-
-#include "system.h"
+using drake::automotive::DrivingCommand;
+using drake::automotive::DrivingCommandIndices;
 
 namespace delphyne {
 namespace backend {
 
-/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
-/// that knows how to populate a SimpleCarState ignition message from an input
-/// vector.
-class DELPHYNE_BACKEND_VISIBLE DrivingCommandToIgnitionMessageConverter
-    : public DiscreteValueToIgnitionMessageConverter<
-          ignition::msgs::AutomotiveDrivingCommand,
-          drake::automotive::DrivingCommand<double>> {
- public:
-  int get_vector_size();
+int DrivingCommandToIgnitionMessageConverter::get_vector_size() {
+  return DrivingCommandIndices::kNumCoordinates;
+}
 
- protected:
-  void VectorToIgn(
-      const drake::automotive::DrivingCommand<double>& input_vector,
-      double time,
-      ignition::msgs::AutomotiveDrivingCommand* ign_message) override;
+void DrivingCommandToIgnitionMessageConverter::VectorToIgn(
+    const DrivingCommand<double>& input_vector, double time,
+    ignition::msgs::AutomotiveDrivingCommand* ign_message) {
+  DELPHYNE_DEMAND(ign_message != nullptr);
 
-  void IgnToVector(
-      const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-      drake::automotive::DrivingCommand<double>* output_vector) override;
-};
+  const int64_t secs = time;
+  const int64_t nsecs = (time - secs) * 1000000000;
+  ign_message->mutable_time()->set_sec(secs);
+  ign_message->mutable_time()->set_nsec(nsecs);
+  ign_message->set_theta(input_vector.steering_angle());
+  ign_message->set_acceleration(input_vector.acceleration());
+}
+
+void DrivingCommandToIgnitionMessageConverter::IgnToVector(
+    const ignition::msgs::AutomotiveDrivingCommand& ign_message,
+    DrivingCommand<double>* output_vector) {
+  DELPHYNE_DEMAND(output_vector != nullptr);
+
+  output_vector->set_steering_angle(ign_message.theta());
+  output_vector->set_acceleration(ign_message.acceleration());
+}
 
 }  // namespace backend
 }  // namespace delphyne

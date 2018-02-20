@@ -63,6 +63,17 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   return msg;
 }
 
+bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
+                                 const ignition::msgs::Model_V& ign_models) {
+  int ign_links = 0;
+  for (int i = 0; i < ign_models.models_size(); ++i) {
+    const ::ignition::msgs::Model model = ign_models.models(i);
+    ign_links += model.link_size();
+  }
+
+  return lcm_msg.num_links == ign_links;
+}
+
 ::testing::AssertionResult CheckPositionTranslation(
     const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
     int lcm_index, double tolerance) {
@@ -188,8 +199,14 @@ namespace {
 ::testing::AssertionResult CheckMsgTranslation(
     const drake::lcmt_viewer_draw& lcm_msg,
     const ignition::msgs::Model_V& ign_models) {
-  bool failure = false;
+  if (!AssertLinkNumberEquivalence(lcm_msg, ign_models)) {
+    return ::testing::AssertionFailure()
+           << "Non-matching number of links "
+              "between the LCM and Model_V models.\n";
+  }
+
   std::string error_msg;
+  bool failure = false;
   for (int i = 0; i < lcm_msg.num_links; i++) {
     // Checks there is a corresponding ignition model for the LCM link.
     bool found = false;

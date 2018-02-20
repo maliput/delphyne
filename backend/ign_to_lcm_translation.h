@@ -44,17 +44,18 @@ namespace delphyne {
 namespace backend {
 
 /// \brief Translate a driving command from LCM to ignition
-/// \param[in]  ignDrivingCommand An ignition message containing the driving
+/// \param[in]  ign_driving_command An ignition message containing the driving
 /// command
-/// \param[out] lcmDrivingCommand The resulting LCM command
-void ignToLcm(const ignition::msgs::AutomotiveDrivingCommand& ignDrivingCommand,
-              drake::lcmt_driving_command_t* lcmDrivingCommand);
+/// \param[out] lcm_driving_command The resulting LCM command
+void ignToLcm(
+    const ignition::msgs::AutomotiveDrivingCommand& ign_driving_command,
+    drake::lcmt_driving_command_t* lcm_driving_command);
 
 /// \brief Translate a model vector ignition message to an LCM view draw message
-/// \param[in]  robotModels An ignition message containing the model vector
-/// \param[out] robotDrawData The resulting LCM view draw message
-void ignToLcm(const ignition::msgs::Model_V& robotModels,
-              drake::lcmt_viewer_draw* robotDrawData);
+/// \param[in]  robot_models An ignition message containing the model vector
+/// \param[out] robot_draw_data The resulting LCM view draw message
+void ignToLcm(const ignition::msgs::Model_V& robot_models,
+              drake::lcmt_viewer_draw* robot_draw_data);
 
 }  // namespace backend
 }  // namespace delphyne

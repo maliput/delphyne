@@ -739,6 +739,8 @@ void AutomotiveSimulator<T>::SetRealtimeRate(double realtime_rate) {
   DELPHYNE_DEMAND(has_started());
   // TODO(basicNew): We should revisit this once we get feedback on
   // https://github.com/RobotLocomotion/drake/issues/8090
+  igndbg << "Changing real-time rate and resetting simulation statistics"
+         << std::endl;
   simulator_->ResetStatistics();
   simulator_->set_target_realtime_rate(realtime_rate);
 }

@@ -96,7 +96,9 @@ def main():
 
     # Read the initial real-time rate from command line. Default to 1.0 if none
     # specified.
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser(
+        prog="realtime_rate_changer",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-r", "--realtime_rate", default=1.0,
                         type=check_positive_float,
                         help="""The real-time rate at which the simulation \
@@ -110,7 +112,7 @@ def main():
     try:
         add_drake_resource_path()
     except RuntimeError, error_msg:
-        sys.stderr.write('ERROR: {}'.format(error_msg))
+        sys.stderr.write("ERROR: {}".format(error_msg))
         sys.exit(1)
 
     launcher = Launcher()

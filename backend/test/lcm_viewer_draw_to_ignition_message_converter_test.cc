@@ -63,11 +63,11 @@ GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessInput) {
   const drake::lcmt_viewer_draw lcm_msg{test::BuildPreloadedDrawMsg()};
 
   // Configures context's input with the pre-loaded message.
+  const int kPortIndex{0};
   context->FixInputPort(
-      0, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
+      kPortIndex, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
              lcm_msg));
 
-  const int kPortIndex{0};
 
   // Calls the ProcessInput method from our test_converter object, since
   // the other converter now belongs to the ign_publisher object.
@@ -77,6 +77,21 @@ GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessInput) {
 
   // Check translation's correctness.
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, *ign_msg));
+}
+
+// \brief Checks that an lcm message from the output port is
+// correctly translated from its ignition-msgs counterpart.
+GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessOutput) {
+  auto converter = std::make_unique<LCMViewerDrawToIgnitionMessageConverter>();
+
+  const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
+
+  auto output_value = converter->AllocateAbstractDefaultValue();
+  converter->ProcessAbstractOutput(ign_msg, output_value.get());
+
+  // Check translation's correctness.
+  auto lcm_msg = output_value->GetMutableValue<drake::lcmt_viewer_draw>();
+  EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }
 
 }  // namespace backend

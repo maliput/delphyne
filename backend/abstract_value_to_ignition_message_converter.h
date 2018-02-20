@@ -33,7 +33,6 @@
 #include "drake/systems/framework/context.h"
 
 #include "backend/ign_publisher_system.h"
-#include "backend/ign_to_lcm_translation.h"
 #include "backend/ignition_message_converter.h"
 #include "backend/lcm_to_ign_translation.h"
 #include "backend/system.h"
@@ -112,6 +111,9 @@ class AbstractValueToIgnitionMessageConverter
   // @param[out] lcm_message The LCM message filled with the ign_message values.
   virtual void IgnToLcm(const IGN_TYPE& ign_message, LCM_TYPE* lcm_message) = 0;
 
+
+  // Helper translation functions to be used by derived classes
+
   std::vector<float> ignToVector(const ignition::msgs::Vector3d& position) {
     return {static_cast<float>(position.x()), static_cast<float>(position.y()),
             static_cast<float>(position.z())};
@@ -123,17 +125,29 @@ class AbstractValueToIgnitionMessageConverter
         static_cast<float>(orientation.y()), static_cast<float>(orientation.z())};
   }
 
-  int64_t millisFromSecs(int64_t secs) { return secs * 1000; }
+  void lcmToIgn(const float positionData[3],
+                ignition::msgs::Vector3d* positionModel) {
+    positionModel->set_x(positionData[0]);
+    positionModel->set_y(positionData[1]);
+    positionModel->set_z(positionData[2]);
+  }
 
-  int64_t millisFromNsecs(int64_t nsecs) { return nsecs / 1000000; }
+  void lcmToIgn(const float quaternionData[4],
+                ignition::msgs::Quaternion* quaternionModel) {
+    quaternionModel->set_w(quaternionData[0]);
+    quaternionModel->set_x(quaternionData[1]);
+    quaternionModel->set_y(quaternionData[2]);
+    quaternionModel->set_z(quaternionData[3]);
+  }
 
-  int64_t secsFromMillis(int64_t millis) { return millis / 1000; }
+  void ignToLcm(const ::ignition::msgs::Time& ign_time, int64_t* lcm_timestamp_ms) {
+    *lcm_timestamp_ms = ign_time.sec() * 1000 + ign_time.nsec() / 1000000;
+  }
 
-  int64_t nsecsFromMillis(int64_t millis) { return millis % 1000 * 1000000; }
-
-  int64_t secsFromMicros(int64_t micros) { return micros / 1000000; }
-
-  int64_t nsecsFromMicros(int64_t micros) { return micros % 1000000 * 1000; }
+  void lcmToIgn(int64_t lcm_timestamp_ms, ::ignition::msgs::Time* ign_time) {
+    ign_time->set_sec(lcm_timestamp_ms / 1000);
+    ign_time->set_nsec(lcm_timestamp_ms % 1000 * 1000000);
+  }
 };
 
 }  // namespace backend

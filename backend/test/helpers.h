@@ -43,6 +43,12 @@ namespace test {
 __attribute__((visibility("default"))) drake::lcmt_viewer_draw
 BuildPreloadedDrawMsg();
 
+// Generates a pre-loaded Model_V message.
+//
+// @return a loaded Model_V message.
+__attribute__((visibility("default"))) ignition::msgs::Model_V
+BuildPreloadedModelVMsg();
+
 // Asserts that all the array-iterable values from
 // lcm_msg matches the content of the ign_models object.
 //

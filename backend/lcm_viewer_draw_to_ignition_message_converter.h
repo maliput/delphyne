@@ -33,6 +33,7 @@
 #include <chrono>
 #include <cstdint>
 
+#include "backend/lcm_to_ign_translation.h"
 #include "drake/lcmt_viewer_draw.hpp"
 #include "ignition/msgs.hh"
 
@@ -62,13 +63,7 @@ class LCMViewerDrawToIgnitionMessageConverter
     checkVectorSize(robotDrawData.quaternion.size(), robotDrawData.num_links,
                     "quaternion");
 
-    // Convert from milliseconds to seconds
-    int64_t sec = secsFromMillis(robotDrawData.timestamp);
-    // Convert the remainder of division above to nanoseconds
-    int64_t nsec = nsecsFromMillis(robotDrawData.timestamp);
-
-    robotModels->mutable_header()->mutable_stamp()->set_sec(sec);
-    robotModels->mutable_header()->mutable_stamp()->set_nsec(nsec);
+    lcmToIgn(robotDrawData.timestamp, robotModels->mutable_header()->mutable_stamp());
 
     std::map<int32_t, ignition::msgs::Model*> models;
 
@@ -100,9 +95,7 @@ class LCMViewerDrawToIgnitionMessageConverter
 
   void IgnToLcm(const ignition::msgs::Model_V& robotModels,
                 drake::lcmt_viewer_draw* robotDrawData) override {
-    robotDrawData->timestamp =
-        millisFromSecs(robotModels.header().stamp().sec()) +
-        millisFromNsecs(robotModels.header().stamp().nsec());
+    ignToLcm(robotModels.header().stamp(), &(robotDrawData->timestamp));
 
     // Each ignition model has many links using the same id, but this is
     // flattened in LCM

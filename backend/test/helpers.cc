@@ -63,6 +63,38 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   return msg;
 }
 
+ignition::msgs::Model_V BuildPreloadedModelVMsg() {
+  ignition::msgs::Model_V robot_models;
+  robot_models.mutable_header()->mutable_stamp()->set_sec(123);
+  robot_models.mutable_header()->mutable_stamp()->set_nsec(456000000);
+
+  for (int i = 0; i < 3; ++i) {
+    ::ignition::msgs::Model* model = robot_models.add_models();
+    model->set_id(i);
+
+    for (int j = 0; j < 2; ++j) {
+      ::ignition::msgs::Link* link = model->add_link();
+
+      ::ignition::msgs::Pose* pose = link->mutable_pose();
+      ignition::msgs::Vector3d* position = pose->mutable_position();
+      ignition::msgs::Quaternion* orientation = pose->mutable_orientation();
+
+      link->set_name(std::to_string(i) + std::to_string(j));
+
+      position->set_x(i);
+      position->set_y(j + 5.0);
+      position->set_z(i + 10.0);
+
+      orientation->set_w(i);
+      orientation->set_x(j + 5.0);
+      orientation->set_y(i + 10.0);
+      orientation->set_z(j + 15.0);
+    }
+  }
+
+  return robot_models;
+}
+
 bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
                                  const ignition::msgs::Model_V& ign_models) {
   int ign_links = 0;

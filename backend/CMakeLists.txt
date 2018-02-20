@@ -10,7 +10,6 @@ set (gtest_sources
   automotive_simulator_test.cc
   discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
-  ign_to_lcm_translation_test.cc
   lcm_to_ign_translation_test.cc
   lcm_viewer_draw_to_ignition_message_converter_test.cc
   linb_any_test.cc
@@ -72,7 +71,6 @@ target_include_directories(ign_subscriber_system PUBLIC ${CMAKE_CURRENT_BINARY_D
 add_library(delphyne_lcm_to_ign
   STATIC
   lcm_to_ign_translation.cc
-  ign_to_lcm_translation.cc
 )
 
 target_link_libraries(delphyne_lcm_to_ign

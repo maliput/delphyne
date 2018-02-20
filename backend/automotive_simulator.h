@@ -323,18 +323,18 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
 
-  /// See documentation of Simulator::set_target_realtime_rate.
+  /// @see documentation of Simulator::set_target_realtime_rate.
   ///
   /// @pre Start() has been called.
   ///
   /// @param realtime_rate
   ///   Desired rate relative to real time. Set to 1 to track real time, 2 to
   ///   run twice as fast as real time, 0.5 for half speed, etc. Zero or
-  ///   negative restores the rate to its default of 0, meaning the simulation
-  ///   will proceed as fast as possible.
+  ///   negative values restore the rate to its default of 0, meaning the
+  ///   simulation will proceed as fast as possible.
   void SetRealtimeRate(double realtime_rate);
 
-  /// See documentation of Simulator::get_target_realtime_rate.
+  /// @see documentation of Simulator::get_target_realtime_rate.
   ///
   /// @pre Start() has been called.
   double GetRealtimeRate() const;

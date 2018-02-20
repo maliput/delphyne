@@ -310,7 +310,10 @@ class AutomotiveSimulator {
   /// after this has been called.
   ///
   /// @pre Start() has NOT been called.
-  void Start(double target_realtime_rate = 0.0);
+  ///
+  /// @param realtime_rate This value is passed to
+  /// systems::Simulator::set_target_realtime_rate().
+  void Start(double realtime_rate = 0.0);
 
   /// Returns whether the automotive simulator has started.
   bool has_started() const { return simulator_ != nullptr; }

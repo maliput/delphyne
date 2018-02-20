@@ -53,7 +53,7 @@ import time
 
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
-from utils import (
+from delphyne_utils import (
     add_drake_resource_path,
     build_simple_car_simulator,
     launch_visualizer
@@ -107,6 +107,9 @@ def main():
 
     initial_realtime_rate = args.realtime_rate
 
+    # Since this is the first time the simulator runs we compensate for the
+    # startup time by running it 4 times longer than the dynamically changing
+    # loop.
     initial_steps = int(initial_realtime_rate * 12000)
 
     try:

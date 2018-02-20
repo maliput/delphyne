@@ -49,7 +49,7 @@ import time
 
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
-from utils import (
+from delphyne_utils import (
     add_drake_resource_path,
     build_simple_car_simulator,
     launch_visualizer

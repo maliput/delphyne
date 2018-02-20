@@ -311,12 +311,9 @@ class AutomotiveSimulator {
   ///
   /// @pre Start() has NOT been called.
   ///
-  /// @param target_realtime_rate This value is passed to
+  /// @param realtime_rate This value is passed to
   /// systems::Simulator::set_target_realtime_rate().
-  //
-  // TODO(jwnimmer-tri) Perhaps our class should be AutomotiveSimulatorBuilder?
-  // Port a few more demo programs, then decide what looks best.
-  void Start(double target_realtime_rate = 0.0);
+  void Start(double realtime_rate = 0.0);
 
   /// Returns whether the automotive simulator has started.
   bool has_started() const { return simulator_ != nullptr; }
@@ -328,6 +325,22 @@ class AutomotiveSimulator {
   ///
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
+
+  /// @see documentation of Simulator::set_target_realtime_rate.
+  ///
+  /// @pre Start() has been called.
+  ///
+  /// @param realtime_rate
+  ///   Desired rate relative to real time. Set to 1 to track real time, 2 to
+  ///   run twice as fast as real time, 0.5 for half speed, etc. Zero or
+  ///   negative values restore the rate to its default of 0, meaning the
+  ///   simulation will proceed as fast as possible.
+  void SetRealtimeRate(double realtime_rate);
+
+  /// @see documentation of Simulator::get_target_realtime_rate.
+  ///
+  /// @pre Start() has been called.
+  double GetRealtimeRate() const;
 
  private:
   int allocate_vehicle_number();

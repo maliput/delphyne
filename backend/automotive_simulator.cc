@@ -587,7 +587,7 @@ void AutomotiveSimulator<T>::Build() {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::Start(double target_realtime_rate) {
+void AutomotiveSimulator<T>::Start(double realtime_rate) {
   DELPHYNE_DEMAND(!has_started());
   if (diagram_ == nullptr) {
     Build();
@@ -602,7 +602,7 @@ void AutomotiveSimulator<T>::Start(double target_realtime_rate) {
 
   lcm_->StartReceiveThread();
 
-  simulator_->set_target_realtime_rate(target_realtime_rate);
+  simulator_->set_target_realtime_rate(realtime_rate);
   const double max_step_size = 0.01;
   simulator_->template reset_integrator<RungeKutta2Integrator<T>>(
       *diagram_, max_step_size, &simulator_->get_mutable_context());
@@ -732,6 +732,23 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
   const PoseBundle<T>& pose_bundle =
       abstract_value->GetValueOrThrow<PoseBundle<T>>();
   return pose_bundle;
+}
+
+template <typename T>
+void AutomotiveSimulator<T>::SetRealtimeRate(double realtime_rate) {
+  DELPHYNE_DEMAND(has_started());
+  // TODO(basicNew): We should revisit this once we get feedback on
+  // https://github.com/RobotLocomotion/drake/issues/8090
+  igndbg << "Changing real-time rate and resetting simulation statistics"
+         << std::endl;
+  simulator_->ResetStatistics();
+  simulator_->set_target_realtime_rate(realtime_rate);
+}
+
+template <typename T>
+double AutomotiveSimulator<T>::GetRealtimeRate() const {
+  DELPHYNE_DEMAND(has_started());
+  return simulator_->get_target_realtime_rate();
 }
 
 template class AutomotiveSimulator<double>;

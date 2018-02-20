@@ -85,7 +85,7 @@ void WaitForShutdown() {
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-    double time_step, bool paused)
+    double time_step, double realtime_rate, bool paused)
     : time_step_(time_step), simulator_(std::move(sim)), paused_(paused) {
   // Advertises the service for controlling the simulation.
   node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
@@ -109,13 +109,23 @@ SimulatorRunner::SimulatorRunner(
   Py_Initialize();
   PyEval_InitThreads();
 
-  simulator_->Start();
+  simulator_->Start(realtime_rate);
 }
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    double time_step, bool paused)
+    : SimulatorRunner(std::move(sim), time_step, 1.0, paused) {}
+
+SimulatorRunner::SimulatorRunner(
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    double time_step, double realtime_rate)
+    : SimulatorRunner(std::move(sim), time_step, realtime_rate, false) {}
+
+SimulatorRunner::SimulatorRunner(
+    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
     double time_step)
-    : SimulatorRunner(std::move(sim), time_step, false) {}
+    : SimulatorRunner(std::move(sim), time_step, 1.0, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
   Stop();
@@ -154,16 +164,14 @@ void SimulatorRunner::Run() {
 }
 
 void SimulatorRunner::RunSimulationStep() {
-  // Starts a timer to measure the time we spend doing tasks.
-  auto step_start = std::chrono::steady_clock::now();
-
   // 1. Processes incoming messages (requests).
   {
     std::lock_guard<std::mutex> lock(mutex_);
     ProcessIncomingMessages();
   }
 
-  // 2. Steps the simulator (if needed).
+  // 2. Steps the simulator (if needed). Note that the simulator will sleep
+  // here if needed to adjust to the real-time rate.
   if (!paused_) {
     simulator_->StepBy(time_step_);
   } else if (step_requested_) {
@@ -199,15 +207,6 @@ void SimulatorRunner::RunSimulationStep() {
       callback();
     }
   }
-
-  // Stops the timer.
-  auto step_end = std::chrono::steady_clock::now();
-
-  // Waits for the remaining time of this step.
-  auto step_elapsed = step_end - step_start;
-  std::this_thread::sleep_for(
-      std::chrono::microseconds(static_cast<int64_t>(time_step_ * 1e6)) -
-      step_elapsed);
 }
 
 void SimulatorRunner::ProcessIncomingMessages() {

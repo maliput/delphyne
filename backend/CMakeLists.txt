@@ -204,7 +204,7 @@ target_link_libraries(simulation_runner_py PRIVATE
 # ----------------------------------------
 # Installs libraries and binaries.
 
-install(FILES utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
+install(FILES delphyne_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
 
 install(TARGETS
   automotive_simulator
@@ -219,6 +219,7 @@ install(PROGRAMS
   python_examples/keyboard_controlled_simulation.py
   python_examples/paused_mode_example.py
   python_examples/python_bindings_example.py
+  python_examples/realtime_rate_changer.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Python tests

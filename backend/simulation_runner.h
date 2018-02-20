@@ -52,7 +52,7 @@
 
 namespace delphyne {
 namespace backend {
-/// \brief Blocks the current thread until a SIGINT or SIGTERM is received.
+/// @brief Blocks the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
 /// function if you want to manage yourself SIGINT/SIGTERM.
 void WaitForShutdown();
@@ -135,30 +135,58 @@ void WaitForShutdown();
 ///   loop before exiting the while.
 class SimulatorRunner {
  public:
-  /// \brief Default constructor.
-  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @brief Default constructor.
+  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
-  /// \param[in] time_step The slot of time (seconds) simulated in each
+  /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
-  /// \param[in] paused A boolean value that if true, will start the
+  /// @param[in] realtime_rate. Desired rate relative to real time. See
+  /// documentation of Simulator::set_target_realtime_rate.
+  /// @param[in] paused A boolean value that if true, will start the
+  /// simulator in paused mode.
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double time_step, double realtime_rate, bool paused);
+
+  /// @brief Simplified constructor that starts the simulator at a real-time
+  /// rate of 1.0.
+  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  /// @param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
+  /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
   SimulatorRunner(
       std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
       double time_step, bool paused);
 
-  /// \brief Simplified constructor, starts the simulator with _paused = false
-  /// \param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @brief Simplified constructor that starts the simulator with
+  /// _paused = false.
+  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
-  /// \param[in] time_step The slot of time (seconds) simulated in each
+  /// @param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
+  /// @param[in] realtime_rate. Desired rate relative to real time. See
+  /// documentation of Simulator::set_target_realtime_rate.
+
+  SimulatorRunner(
+      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+      double time_step, double realtime_rate);
+
+  /// @brief Simplified constructor that starts the simulator with
+  /// _paused = false and a real-time rate of 1.0.
+  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
   SimulatorRunner(
       std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
       double time_step);
 
-  /// \brief Default destructor.
+  /// @brief Default destructor.
   virtual ~SimulatorRunner();
 
-  /// \brief Adds a python callback to be invoked on each simulation step. It is
+  /// @brief Adds a python callback to be invoked on each simulation step. It is
   /// important to note that the simulation step will be effectively blocked
   /// by this the execution of the callbacks, so please consider this when
   /// adding it.
@@ -166,109 +194,117 @@ class SimulatorRunner {
   /// python world.
   void AddStepCallback(std::function<void()> callable);
 
-  /// \brief Starts the thread that runs the simulation loop. If there was a
+  /// @brief Starts the thread that runs the simulation loop. If there was a
   /// previous call to Start(), this call will be ignored.
   void Start();
 
-  /// \brief Stops the thread that runs the simulation loop. If there was a
+  /// @brief Stops the thread that runs the simulation loop. If there was a
   /// previous call to Stop(), this call will be ignored.
   void Stop();
 
-  /// \brief Runs the main simulation loop.
+  /// @brief Runs the main simulation loop.
   void Run();
 
-  /// \brief Advances a single simulation step by time_step_ seconds.
+  /// @brief Advances a single simulation step by time_step_ seconds.
   void RunSimulationStep();
 
+  /// See documentation of AutomotiveSimulator::SetRealtimeRate.
+  void SetRealtimeRate(double realtime_rate) {
+    simulator_->SetRealtimeRate(realtime_rate);
+  }
+
+  /// See documentation of AutomotiveSimulator::GetRealtimeRate.
+  double GetRealtimeRate() const { return simulator_->GetRealtimeRate(); }
+
  private:
-  // \brief Process one RobotModelRequest message.
-  // \param[in] msg The message
+  // @brief Process one RobotModelRequest message.
+  // @param[in] msg The message
   void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& msg);
 
-  // \brief Service used to receive robot model request messages.
-  // \param[in] request The request.
-  // \param[out] response The response (unused).
-  // \return The result of the service.
+  // @brief Service used to receive robot model request messages.
+  // @param[in] request The request.
+  // @param[out] response The response (unused).
+  // @return The result of the service.
   bool OnRobotModelRequest(
       const ignition::msgs::RobotModelRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& response);
 
-  // \brief Processes one WorldControl message.
-  // \param[in] msg The message
+  // @brief Processes one WorldControl message.
+  // @param[in] msg The message
   void ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg);
 
-  // \brief Service used to receive world control messages.
-  // \param[in] request The request.
-  // \param[out] response The response (unused).
-  // \return The result of the service.
+  // @brief Service used to receive world control messages.
+  // @param[in] request The request.
+  // @param[out] response The response (unused).
+  // @return The result of the service.
   bool OnWorldControl(
       const ignition::msgs::WorldControl& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& response);
 
-  // \brief Processes all pending incoming messages.
+  // @brief Processes all pending incoming messages.
   void ProcessIncomingMessages();
 
-  // \brief Sends all outgoing messages.
+  // @brief Sends all outgoing messages.
   void SendOutgoingMessages();
 
-  // \brief Sends all world stats (whether the world is paused for now).
+  // @brief Sends all world stats (whether the world is paused for now).
   void SendWorldStats();
 
-  // \brief The service offered to control the simulation.
+  // @brief The service offered to control the simulation.
   const std::string kControlService{"/world_control"};
 
-  // \brief The topic used to publish notifications.
+  // @brief The topic used to publish notifications.
   const std::string kNotificationsTopic{"/notifications"};
 
-  // \brief The topic used to publish world stats.
+  // @brief The topic used to publish world stats.
   const std::string kWorldStatsTopic{"/world_stats"};
 
   // @brief The service used when receiving a robot request.
   const std::string kRobotRequestServiceName{"/get_robot_model"};
 
-  // \brief The time (seconds) that we simulate in each simulation step.
+  // @brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;
 
-  // \brief The time (seconds) that we simulate in a custom step requested
+  // @brief The time (seconds) that we simulate in a custom step requested
   // externally.
   double custom_time_step_{0.001};
 
-  // \brief Whether the main loop has been started or not.
+  // @brief Whether the main loop has been started or not.
   std::atomic<bool> enabled_{false};
 
-  // \brief A pointer to the Drake simulator.
+  // @brief A pointer to the Drake simulator.
   std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_;
 
-  // \brief Whether the simulation is paused or not.
+  // @brief Whether the simulation is paused or not.
   bool paused_{false};
 
-  // \brief Whether an external step was requested or not.
+  // @brief Whether an external step was requested or not.
   bool step_requested_{false};
 
-  // \brief A mutex to avoid races.
+  // @brief A mutex to avoid races.
   std::mutex mutex_;
 
-  // \brief The thread in charge of doing all the periodic tasks.
+  // @brief The thread in charge of doing all the periodic tasks.
   std::thread main_thread_;
 
-  // \brief A queue for storing the incoming messages (requests).
+  // @brief A queue for storing the incoming messages (requests).
   std::queue<ignition::msgs::SimulationInMessage> incoming_msgs_;
 
-  // \brief A queue for storing the outgoing messages (notifications).
+  // @brief A queue for storing the outgoing messages (notifications).
   std::queue<ignition::msgs::WorldControl> outgoing_msgs_;
 
-  // \brief An Ignition Transport node used for communication.
+  // @brief An Ignition Transport node used for communication.
   ignition::transport::Node node_;
 
-  // \brief An Ignition Transport publisher for sending notifications.
+  // @brief An Ignition Transport publisher for sending notifications.
   ignition::transport::Node::Publisher notifications_pub_;
 
-  // \brief An Ignition Transport publisher for sending world stats.
+  // @brief An Ignition Transport publisher for sending world stats.
   ignition::transport::Node::Publisher world_stats_pub_;
 
-  // \brief A vector that holds all the registered callbacks that need to be
+  // @brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
   std::vector<std::function<void()>> step_callbacks_;
 

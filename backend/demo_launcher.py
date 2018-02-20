@@ -36,7 +36,7 @@ from __future__ import print_function
 import argparse
 import os
 from launcher import Launcher
-from utils import get_from_env_or_fail
+from delphyne_utils import get_from_env_or_fail
 
 
 def main():
@@ -52,9 +52,6 @@ def main():
     demo_arguments = {
         "simple": ["--num_simple_car=1"]
     }
-
-    # Number of cars on each demo
-    num_cars = {"simple": "1", "trajectory": "1", "dragway": "12"}
 
     # Optional arguments
     parser.add_argument("--demo", default="simple", dest="demo_name",

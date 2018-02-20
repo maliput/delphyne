@@ -95,14 +95,21 @@ TEST_F(SimulationRunnerTest, SigIntTermination) {
 // \brief Checks the time elapsed during the simulation
 // step was at least as much as the defined kTimeStep.
 TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
-  auto step_start = std::chrono::steady_clock::now();
+  // Need to run a first step for the counters that handle real-time rate
+  // to be initialized.
   sim_runner_->RunSimulationStep();
+
+  // Run a step and record the delta time.
+  auto step_start = std::chrono::steady_clock::now();
+
+  sim_runner_->RunSimulationStep();
+
   auto step_end = std::chrono::steady_clock::now();
 
-  // Calculates duration in milliseconds.
   const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
       step_end - step_start);
 
+  // Expected duration in milliseconds.
   std::chrono::milliseconds min_simulation_time(10);
 
   EXPECT_GE(duration, min_simulation_time);

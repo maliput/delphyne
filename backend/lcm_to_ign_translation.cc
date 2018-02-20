@@ -34,11 +34,11 @@
 #include <vector>
 #include <ignition/msgs.hh>
 
-#include "bridge/lcm_to_ign_translation.h"
-#include "bridge/translate_exception.h"
+#include "backend/lcm_to_ign_translation.h"
+#include "backend/translate_exception.h"
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
 void translateBoxGeometry(const drake::lcmt_viewer_geometry_data& geometryData,
                           ignition::msgs::Geometry* geometryModel);
@@ -349,5 +349,5 @@ void checkVectorSize(int vectorSize, int expectedSize, std::string fieldName) {
   }
 }
 
-}  // namespace bridge
+}  // namespace backend
 }  // namespace delphyne

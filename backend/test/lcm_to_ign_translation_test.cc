@@ -26,10 +26,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "bridge/lcm_to_ign_translation.h"
-
 #include <iostream>
 
+#include "backend/lcm_to_ign_translation.h"
 #include "backend/test/helpers.h"
 
 #include <gtest/gtest.h>
@@ -37,7 +36,7 @@
 #include <ignition/msgs.hh>
 
 namespace delphyne {
-namespace bridge {
+namespace backend {
 
 //////////////////////////////////////////////////
 /// \brief Test that an LCM draw message is properly
@@ -561,5 +560,5 @@ GTEST_TEST(Viewer2CommsTest, TestViewer2CommsTranslation) {
   EXPECT_EQ("eac\x14\x1e\x5d", ignViewer2Comms.data());
 }
 
-}  // namespace bridge
+}  // namespace backend
 }  // namespace delphyne

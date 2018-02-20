@@ -153,7 +153,7 @@ AutomotiveSimulator<T>::GetRobotModel() {
   // TODO(basicNew): In the future we should remove this call and merge the
   // code in `lcmToIgn` with the one in `UpdateModels` (which will most
   // likely change its name to `CreateModels` or similar).
-  bridge::lcmToIgn(load_message, ign_message.get());
+  lcmToIgn(load_message, ign_message.get());
 
   scene_builder_->UpdateModels(ign_message.get());
 

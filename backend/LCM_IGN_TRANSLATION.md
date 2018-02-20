@@ -1,4 +1,4 @@
-# LCM to ign-transport bridge
+# LCM ignition translation
 
 ## DRAKE_VIEWER_LOAD_ROBOT mapping
 

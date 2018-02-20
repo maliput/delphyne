@@ -32,11 +32,10 @@
 
 #include "drake/systems/framework/context.h"
 
-#include "bridge/ign_to_lcm_translation.h"
-#include "bridge/lcm_to_ign_translation.h"
-
 #include "backend/ign_publisher_system.h"
+#include "backend/ign_to_lcm_translation.h"
 #include "backend/ignition_message_converter.h"
+#include "backend/lcm_to_ign_translation.h"
 #include "backend/system.h"
 
 using drake::systems::AbstractValue;
@@ -76,7 +75,7 @@ class AbstractValueToIgnitionMessageConverter
                              AbstractValue* output_value) override {
     DELPHYNE_DEMAND(output_value != nullptr);
     LCM_TYPE& message = output_value->GetMutableValue<LCM_TYPE>();
-    delphyne::bridge::ignToLcm(ign_message, &message);
+    ignToLcm(ign_message, &message);
   }
 
   void ProcessInput(const IgnPublisherSystem<IGN_TYPE>* publisher,
@@ -92,7 +91,7 @@ class AbstractValueToIgnitionMessageConverter
     const AbstractValue* input =
         publisher->EvalAbstractInput(context, port_index);
     const LCM_TYPE lcm_msg = input->GetValue<LCM_TYPE>();
-    delphyne::bridge::lcmToIgn(lcm_msg, ign_message);
+    lcmToIgn(lcm_msg, ign_message);
   }
 
   int get_vector_size() override { return 0; }

@@ -28,13 +28,12 @@
 
 #pragma once
 
-#include "backend/discrete_value_to_ignition_message_converter.h"
-
 #include "drake/automotive/gen/driving_command.h"
 
 #include "protobuf/automotive_driving_command.pb.h"
 
-#include "system.h"
+#include "backend/discrete_value_to_ignition_message_converter.h"
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {

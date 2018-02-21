@@ -38,19 +38,21 @@ namespace backend {
 
 namespace test {
 
-GTEST_TEST(DrivingCommandToIgnitionMessageConverter, TestAutomotiveDrivingCommandTranslation) {
+GTEST_TEST(DrivingCommandToIgnitionMessageConverter,
+           TestAutomotiveDrivingCommandTranslation) {
   ignition::msgs::AutomotiveDrivingCommand ign_driving_message;
 
   ign_driving_message.set_theta(0.12);
   ign_driving_message.set_acceleration(15.7);
 
   DrivingCommandToIgnitionMessageConverter converter;
-  std::unique_ptr<BasicVector<double>> output_vector = converter.AllocateDiscreteOutputValue();
+  std::unique_ptr<BasicVector<double>> output_vector =
+      converter.AllocateDiscreteOutputValue();
 
   converter.ProcessDiscreteOutput(ign_driving_message, output_vector.get());
 
   auto* const driving_command_vector =
-        dynamic_cast<DrivingCommand<double>*>(output_vector.get());
+      dynamic_cast<DrivingCommand<double>*>(output_vector.get());
 
   EXPECT_EQ(0.12, driving_command_vector->steering_angle());
   EXPECT_EQ(15.7, driving_command_vector->acceleration());

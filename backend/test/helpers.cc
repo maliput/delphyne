@@ -29,14 +29,12 @@
 #include "backend/test/helpers.h"
 
 #include <string>
-
-#include <drake/lcmt_viewer_draw.hpp>
-
-#include <gtest/gtest.h>
-
-#include <ignition/msgs.hh>
+#include <vector>
 
 #include "backend/system.h"
+#include "drake/lcmt_viewer_draw.hpp"
+#include "gtest/gtest.h"
+#include "ignition/msgs.hh"
 
 namespace delphyne {
 namespace test {

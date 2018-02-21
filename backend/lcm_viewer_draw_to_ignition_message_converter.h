@@ -31,6 +31,7 @@
 #include "backend/abstract_value_to_ignition_message_converter.h"
 
 #include <cstdint>
+#include <string>
 
 #include "backend/lcm_to_ign_translation.h"
 #include "drake/lcmt_viewer_draw.hpp"

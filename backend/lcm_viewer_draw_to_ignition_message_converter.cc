@@ -26,6 +26,9 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <map>
+#include <string>
+
 #include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
 
 namespace delphyne {
@@ -75,7 +78,7 @@ void LCMViewerDrawToIgnitionMessageConverter::LcmToIgn(
                     "quaternion[" + std::to_string(i) + "]");
     lcmToIgn(robotDrawData.quaternion[i].data(), pose->mutable_orientation());
   }
-};
+}
 
 void LCMViewerDrawToIgnitionMessageConverter::IgnToLcm(
     const ignition::msgs::Model_V& robotModels,
@@ -100,7 +103,7 @@ void LCMViewerDrawToIgnitionMessageConverter::IgnToLcm(
       robotDrawData->quaternion.push_back(ignToVector(pose.orientation()));
     }
   }
-};
+}
 
 void LCMViewerDrawToIgnitionMessageConverter::checkVectorSize(
     int vectorSize, int expectedSize, std::string fieldName) {

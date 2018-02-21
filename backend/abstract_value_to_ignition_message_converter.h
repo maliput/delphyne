@@ -29,6 +29,7 @@
 #pragma once
 
 #include <memory>
+#include <vector>
 
 #include "drake/systems/framework/context.h"
 

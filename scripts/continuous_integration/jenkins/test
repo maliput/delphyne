@@ -34,5 +34,5 @@ set -eo pipefail
 . workspace/delphyne_gui/setup.bash
 
 pushd build/delphyne
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test
 popd

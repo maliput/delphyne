@@ -9,6 +9,7 @@ set (gtest_sources
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   discrete_value_to_ignition_message_converter_test.cc
+  driving_command_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
   lcm_to_ign_translation_test.cc
   lcm_viewer_draw_to_ignition_message_converter_test.cc

@@ -33,9 +33,7 @@
 #include <protobuf/simple_car_state.pb.h>
 
 #include "backend/discrete_value_to_ignition_message_converter.h"
-
-using drake::automotive::SimpleCarState;
-using drake::automotive::SimpleCarStateIndices;
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
@@ -43,36 +41,21 @@ namespace backend {
 /// This class is a specialization of DiscreteValueToIgnitionMessageConverter
 /// that knows how to populate a SimpleCarState ignition message from an input
 /// vector.
-class SimpleCarStateToIgnitionMessageConverter
+class DELPHYNE_BACKEND_VISIBLE SimpleCarStateToIgnitionMessageConverter
     : public DiscreteValueToIgnitionMessageConverter<
-          ignition::msgs::SimpleCarState, SimpleCarState<double>> {
+          ignition::msgs::SimpleCarState,
+          drake::automotive::SimpleCarState<double>> {
  public:
-  int get_vector_size() { return SimpleCarStateIndices::kNumCoordinates; }
+  int get_vector_size();
 
  protected:
-  void VectorToIgn(const SimpleCarState<double>& input_vector, double time,
-                   ignition::msgs::SimpleCarState* ign_message) override {
-    DELPHYNE_DEMAND(ign_message != nullptr);
+  void VectorToIgn(
+      const drake::automotive::SimpleCarState<double>& input_vector,
+      double time, ignition::msgs::SimpleCarState* ign_message) override;
 
-    const int64_t secs = time;
-    const int64_t nsecs = (time - secs) * 1000000000;
-    ign_message->mutable_time()->set_sec(secs);
-    ign_message->mutable_time()->set_nsec(nsecs);
-    ign_message->set_x(input_vector.x());
-    ign_message->set_y(input_vector.y());
-    ign_message->set_heading(input_vector.heading());
-    ign_message->set_velocity(input_vector.velocity());
-  };
-
-  void IgnToVector(const ignition::msgs::SimpleCarState& ign_message,
-                   SimpleCarState<double>* output_vector) override {
-    DELPHYNE_DEMAND(output_vector != nullptr);
-
-    output_vector->set_x(ign_message.x());
-    output_vector->set_y(ign_message.y());
-    output_vector->set_heading(ign_message.heading());
-    output_vector->set_velocity(ign_message.velocity());
-  };
+  void IgnToVector(
+      const ignition::msgs::SimpleCarState& ign_message,
+      drake::automotive::SimpleCarState<double>* output_vector) override;
 };
 
 }  // namespace backend

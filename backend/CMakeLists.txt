@@ -31,6 +31,7 @@ add_library(ign_publisher_system
   discrete_value_to_ignition_message_converter.h
   ign_publisher_system.h
   ignition_message_converter.h
+  lcm_viewer_draw_to_ignition_message_converter.cc
   simple_car_state_to_ignition_message_converter.h
   system.h
 )

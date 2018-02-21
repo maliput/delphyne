@@ -10,4 +10,4 @@ make -j$( getconf _NPROCESSORS_ONLN )
 make test
 
 printf "\nRunning Python tests:\n"
-python -m unittest discover backend "*_test.py"
+python -m unittest discover backend/test "*_test.py"

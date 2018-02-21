@@ -749,6 +749,12 @@ double AutomotiveSimulator<T>::GetRealtimeRate() const {
   return simulator_->get_target_realtime_rate();
 }
 
+template <typename T>
+void AutomotiveSimulator<T>::ResetStatistics() {
+  DELPHYNE_DEMAND(has_started());
+  simulator_->ResetStatistics();
+}
+
 template class AutomotiveSimulator<double>;
 
 }  // namespace backend

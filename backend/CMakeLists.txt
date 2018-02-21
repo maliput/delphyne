@@ -209,6 +209,7 @@ install(FILES delphyne_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.
 
 install(TARGETS
   automotive_simulator
+  ign_publisher_system
   scene_system
   simulation_runner
   simulation_runner_py

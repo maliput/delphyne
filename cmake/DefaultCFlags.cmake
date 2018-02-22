@@ -1,9 +1,13 @@
+# Note that we have to put '-rdynamic' into all of the LINK_FLAGS so that
+# we get our symbols placed into the dynamic symbol table.  This is needed so
+# that our loadable agents have access to the internal symbols from our library.
+
 # Build type link flags
-set (CMAKE_LINK_FLAGS_RELEASE " " CACHE INTERNAL "Link flags for release" FORCE)
-set (CMAKE_LINK_FLAGS_RELWITHDEBINFO " " CACHE INTERNAL "Link flags for release with debug support" FORCE)
-set (CMAKE_LINK_FLAGS_DEBUG " " CACHE INTERNAL "Link flags for debug" FORCE)
-set (CMAKE_LINK_FLAGS_PROFILE " -pg" CACHE INTERNAL "Link flags for profile" FORCE)
-set (CMAKE_LINK_FLAGS_COVERAGE " --coverage" CACHE INTERNAL "Link flags for static code checking" FORCE)
+set (CMAKE_LINK_FLAGS_RELEASE " -rdynamic" CACHE INTERNAL "Link flags for release" FORCE)
+set (CMAKE_LINK_FLAGS_RELWITHDEBINFO " -rdynamic" CACHE INTERNAL "Link flags for release with debug support" FORCE)
+set (CMAKE_LINK_FLAGS_DEBUG " -rdynamic" CACHE INTERNAL "Link flags for debug" FORCE)
+set (CMAKE_LINK_FLAGS_PROFILE " -rdynamic -pg" CACHE INTERNAL "Link flags for profile" FORCE)
+set (CMAKE_LINK_FLAGS_COVERAGE " -rdynamic --coverage" CACHE INTERNAL "Link flags for static code checking" FORCE)
 
 set (CMAKE_C_FLAGS_RELEASE "")
 if (NOT APPLE)

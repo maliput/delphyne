@@ -62,6 +62,15 @@ int main(int argc, char* argv[]) {
   state.set_y(0.0);
   simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
 
+  // Adds a Loadable Prius Simple car.
+  drake::automotive::SimpleCarState<double> state2;
+  state2.set_y(4.0);
+  std::map<std::string, linb::any> simple_params;
+  if (simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "1",
+                                &state2) < 0) {
+    return 1;
+  }
+
   // Instantiates the simulator runner and starts it.
   const double kTimeStep = 0.001;
   delphyne::backend::SimulatorRunner prius_sim_runner(std::move(simulator),

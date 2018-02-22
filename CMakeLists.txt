@@ -252,6 +252,7 @@ else (build_errors)
 
   set(TEST_TYPE "UNIT")
   add_subdirectory(backend)
+  add_subdirectory(loadable_agents)
   add_subdirectory(protobuf)
   add_subdirectory(test)
 

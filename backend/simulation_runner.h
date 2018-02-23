@@ -1,3 +1,4 @@
+
 // Copyright 2017 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
@@ -215,6 +216,21 @@ class SimulatorRunner {
 
   /// See documentation of AutomotiveSimulator::GetRealtimeRate.
   double GetRealtimeRate() const { return simulator_->GetRealtimeRate(); }
+
+  /// @brief Returns the paused state of the simulation.
+  bool IsPaused() const;
+
+  /// @brief Requests the simulation to execute a single simulation step.
+  /// The simulation must be paused before calling this method.
+  /// @pre Start() has been called.
+  /// @pre Paused() has been called.
+  void RequestStep(double time_step);
+
+  ///  @brief Pauses the simulation, no-op if called multiple times.
+  void Pause();
+
+  ///  @brief Unauses the simulation, no-op if called multiple times.
+  void Unpause();
 
  private:
   // @brief Process one RobotModelRequest message.

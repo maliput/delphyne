@@ -1,3 +1,4 @@
+
 // Copyright 2017 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
@@ -50,17 +51,17 @@ namespace delphyne {
 namespace backend {
 namespace {
 
-// \brief Flag to detect SIGINT or SIGTERM while the code is executing
+// @brief Flag to detect SIGINT or SIGTERM while the code is executing
 // WaitForShutdown().
 static bool g_shutdown = false;
 
-// \brief Mutex to protect the boolean shutdown variable.
+// @brief Mutex to protect the boolean shutdown variable.
 static std::mutex g_shutdown_mutex;
 
-// \brief Condition variable to wakeup WaitForShutdown() and exit.
+// @brief Condition variable to wakeup WaitForShutdown() and exit.
 static std::condition_variable g_shutdown_cv;
 
-// \brief Function executed when a SIGINT or SIGTERM signals are captured.
+// @brief Function executed when a SIGINT or SIGTERM signals are captured.
 // \param[in] signal Signal received.
 static void SignalHandler(int signal) {
   if (signal == SIGINT || signal == SIGTERM) {
@@ -142,6 +143,29 @@ void SimulatorRunner::Stop() {
   }
 }
 
+bool SimulatorRunner::IsPaused() const { return paused_; }
+
+void SimulatorRunner::RequestStep(double time_step) {
+  DELPHYNE_DEMAND(enabled_);
+  DELPHYNE_DEMAND(paused_);
+  DELPHYNE_DEMAND(time_step > 0);
+
+  step_requested_ = true;
+  custom_time_step_ = time_step;
+}
+
+void SimulatorRunner::Unpause() {
+  // TODO(apojomovsky): We should revisit this once we get feedback on
+  // https://github.com/RobotLocomotion/drake/issues/8090
+  if (paused_) {
+    igndbg << "Resetting simulation statistics." << std::endl;
+    simulator_->ResetStatistics();
+    paused_ = false;
+  }
+}
+
+void SimulatorRunner::Pause() { paused_ = true; }
+
 void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(mutex_);
   step_callbacks_.push_back(callable);
@@ -197,9 +221,9 @@ void SimulatorRunner::RunSimulationStep() {
     callbacks = step_callbacks_;
   }
 
-  // This if is here so that we only grab the python global interpreter lock
-  // if there is at least one callback and the simulation is unpaused.
-  if (callbacks.size() > 0 && !paused_) {
+  // This if is here so that we only grab the python global
+  // interpreter lock if there is at least one callback.
+  if (callbacks.size() > 0) {
     // 1. Acquires the lock to the python interpreter.
     py::gil_scoped_acquire acquire;
     // 2. Performs the callbacks.
@@ -267,13 +291,15 @@ void SimulatorRunner::SendWorldStats() {
 void SimulatorRunner::ProcessWorldControlMessage(
     const ignition::msgs::WorldControl& msg) {
   if (msg.has_pause()) {
-    paused_ = msg.pause();
+    if (msg.pause()) {
+      Pause();
+    } else {
+      Unpause();
+    }
   } else if (msg.has_step() && msg.step()) {
-    step_requested_ = true;
-    custom_time_step_ = msg.step();
+    RequestStep(msg.step());
   } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
-    step_requested_ = true;
-    custom_time_step_ = time_step_ * msg.multi_step();
+    RequestStep(time_step_ * msg.multi_step());
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }

@@ -61,6 +61,7 @@ class Launcher(object):
         self.children = []  # list of TrackedProcess
         self.devnull = open('/dev/null')
         self.returncode = None  # First one to exit wins.
+        self.done = False  # Internal terminate signal.
         self.name = os.path.basename(__file__)
 
     def launch(self, command, label=None, cwd=None):
@@ -112,12 +113,12 @@ class Launcher(object):
         return self.returncode
 
     def _wait(self, duration):
-        done = False
+        self.done = False
         start = time.time()
-        while not done:
+        while not self.done:
             rlist, _, _ = select.select(self.children, [], [], 0.1)
             if self._poll() is not None:
-                done = True
+                self.done = True
 
             now = time.time()
             elapsed = now - start
@@ -125,7 +126,7 @@ class Launcher(object):
                 print "[%s] %s exited via duration elapsed" % (
                     self.name, self.name)
                 self.returncode = 0
-                done = True
+                self.done = True
 
             for child in rlist:
                 try:
@@ -162,3 +163,12 @@ class Launcher(object):
         for child in self.children:
             if child.process.poll() is None:
                 child.process.kill()
+
+    def terminate(self):
+        """Terminates all managed processes.
+        This avoids the launcher to print the exit
+        code of a process that was killed by himself.
+        """
+        self.returncode = 0
+        self.done = True
+        self.kill()

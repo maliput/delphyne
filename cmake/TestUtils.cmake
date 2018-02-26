@@ -47,6 +47,7 @@ macro (delphyne_build_tests)
       scene_system
       simulation_runner
       test_helpers
+      time_conversion
     )
 
     # Remove a warning in GTest.

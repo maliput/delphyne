@@ -35,6 +35,7 @@
 #include <ignition/msgs.hh>
 
 #include "backend/lcm_to_ign_translation.h"
+#include "backend/time_conversion.h"
 #include "backend/translate_exception.h"
 
 namespace delphyne {
@@ -56,21 +57,15 @@ void translateMeshGeometry(const drake::lcmt_viewer_geometry_data& geometryData,
 
 void checkVectorSize(int vectorSize, int expectedSize, std::string fieldName);
 
-int64_t secsFromMillis(int64_t millis) { return millis / 1000; }
-
-int64_t nsecsFromMillis(int64_t millis) { return millis % 1000 * 1000000; }
-
-int64_t secsFromMicros(int64_t micros) { return micros / 1000000; }
-
-int64_t nsecsFromMicros(int64_t micros) { return micros % 1000000 * 1000; }
-
 //////////////////////////////////////////////////
 void lcmToIgn(const drake::lcmt_simple_car_state_t& lcmData,
               ignition::msgs::SimpleCarState* ignData) {
   ignData->set_x(lcmData.x);
   ignData->set_y(lcmData.y);
-  ignData->mutable_time()->set_sec(secsFromMillis(lcmData.timestamp));
-  ignData->mutable_time()->set_nsec(nsecsFromMillis(lcmData.timestamp));
+  const std::pair<int64_t, int64_t> secs_and_nanos(
+      MillisToSecsAndNanos(lcmData.timestamp));
+  ignData->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
+  ignData->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
   ignData->set_heading(lcmData.heading);
   ignData->set_velocity(lcmData.velocity);
 }
@@ -85,9 +80,10 @@ void lcmToIgn(const drake::lcmt_viewer_command& lcmData,
 //////////////////////////////////////////////////
 void lcmToIgn(const robotlocomotion::viewer2_comms_t& lcmViewer2Data,
               ignition::msgs::Viewer2Comms* ignViewer2Data) {
-  ignViewer2Data->mutable_time()->set_sec(secsFromMicros(lcmViewer2Data.utime));
-  ignViewer2Data->mutable_time()->set_nsec(
-      nsecsFromMicros(lcmViewer2Data.utime));
+  const std::pair<int64_t, int64_t> secs_and_nanos(
+      MicrosToSecsAndNanos(lcmViewer2Data.utime));
+  ignViewer2Data->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
+  ignViewer2Data->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
   ignViewer2Data->set_format(lcmViewer2Data.format);
   ignViewer2Data->set_format_version_major(lcmViewer2Data.format_version_major);
   ignViewer2Data->set_format_version_minor(lcmViewer2Data.format_version_minor);
@@ -110,13 +106,13 @@ void lcmToIgn(const drake::lcmt_viewer_draw& robotDrawData,
   checkVectorSize(robotDrawData.quaternion.size(), robotDrawData.num_links,
                   "quaternion");
 
-  // Convert from milliseconds to seconds
-  int64_t sec = secsFromMillis(robotDrawData.timestamp);
-  // Convert the remainder of division above to nanoseconds
-  int64_t nsec = nsecsFromMillis(robotDrawData.timestamp);
+  const std::pair<int64_t, int64_t> secs_and_nanos(
+      MillisToSecsAndNanos(robotDrawData.timestamp));
 
-  robotModels->mutable_header()->mutable_stamp()->set_sec(sec);
-  robotModels->mutable_header()->mutable_stamp()->set_nsec(nsec);
+  robotModels->mutable_header()->mutable_stamp()->set_sec(
+      std::get<0>(secs_and_nanos));
+  robotModels->mutable_header()->mutable_stamp()->set_nsec(
+      std::get<1>(secs_and_nanos));
 
   std::map<int32_t, ignition::msgs::Model*> models;
 

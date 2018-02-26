@@ -26,24 +26,24 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "backend/ign_to_lcm_translation.h"
+
 #include <chrono>
 #include <cstdint>
 #include <vector>
 
-#include "backend/ign_to_lcm_translation.h"
 #include "drake/lcmt_driving_command_t.hpp"
 #include "drake/lcmt_viewer_draw.hpp"
+
 #include "ignition/msgs.hh"
+
 #include "protobuf/automotive_driving_command.pb.h"
 
 #include "backend/system.h"
+#include "backend/time_conversion.h"
 
 namespace delphyne {
 namespace backend {
-
-int64_t millisFromSecs(int64_t secs) { return secs * 1000; }
-
-int64_t millisFromNsecs(int64_t nsecs) { return nsecs / 1000000; }
 
 std::vector<float> ignToVector(const ignition::msgs::Vector3d& position) {
   return {static_cast<float>(position.x()), static_cast<float>(position.y()),
@@ -60,9 +60,8 @@ void ignToLcm(
     const ignition::msgs::AutomotiveDrivingCommand& ign_driving_command,
     drake::lcmt_driving_command_t* lcm_driving_command) {
   if (ign_driving_command.has_time()) {
-    lcm_driving_command->timestamp =
-        millisFromSecs(ign_driving_command.time().sec()) +
-        millisFromNsecs(ign_driving_command.time().nsec());
+    lcm_driving_command->timestamp = SecsAndNanosToMillis(
+        ign_driving_command.time().sec(), ign_driving_command.time().nsec());
   } else {
     int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
                            std::chrono::milliseconds(1);
@@ -75,8 +74,8 @@ void ignToLcm(
 void ignToLcm(const ignition::msgs::Model_V& robot_models,
               drake::lcmt_viewer_draw* robot_draw_data) {
   robot_draw_data->timestamp =
-      millisFromSecs(robot_models.header().stamp().sec()) +
-      millisFromNsecs(robot_models.header().stamp().nsec());
+      SecsAndNanosToMillis(robot_models.header().stamp().sec(),
+                           robot_models.header().stamp().nsec());
 
   // Each ignition model has many links using the same id, but this is
   // flattened in LCM

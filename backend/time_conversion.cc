@@ -26,38 +26,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/driving_command_to_ignition_message_converter.h"
 #include "backend/time_conversion.h"
 
-using drake::automotive::DrivingCommand;
-using drake::automotive::DrivingCommandIndices;
+#include <math.h>
 
 namespace delphyne {
 namespace backend {
 
-int DrivingCommandToIgnitionMessageConverter::get_vector_size() {
-  return DrivingCommandIndices::kNumCoordinates;
+std::pair<int64_t, int64_t> MicrosToSecsAndNanos(int64_t micros) {
+  double integral{}, decimal{};
+  decimal = modf(static_cast<double>(micros) * 1.0e-6, &integral);
+  const int64_t sec = static_cast<int64_t>(integral);
+  const int64_t nsecs = static_cast<int64_t>(decimal * 1.0e9);
+  return {sec, nsecs};
 }
 
-void DrivingCommandToIgnitionMessageConverter::VectorToIgn(
-    const DrivingCommand<double>& input_vector, double time,
-    ignition::msgs::AutomotiveDrivingCommand* ign_message) {
-  DELPHYNE_DEMAND(ign_message != nullptr);
-
-  const std::pair<int64_t, int64_t> secs_and_nanos(ToSecsAndNanos(time));
-  ign_message->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
-  ign_message->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
-  ign_message->set_theta(input_vector.steering_angle());
-  ign_message->set_acceleration(input_vector.acceleration());
+std::pair<int64_t, int64_t> MillisToSecsAndNanos(int64_t millis) {
+  double integral{}, decimal{};
+  decimal = modf(static_cast<double>(millis) * 1.0e-3, &integral);
+  const int64_t sec = static_cast<int64_t>(integral);
+  const int64_t nsecs = static_cast<int64_t>(decimal * 1.0e9);
+  return {sec, nsecs};
 }
 
-void DrivingCommandToIgnitionMessageConverter::IgnToVector(
-    const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-    DrivingCommand<double>* output_vector) {
-  DELPHYNE_DEMAND(output_vector != nullptr);
+double SecsAndNanosToMillis(int64_t secs, int64_t nsecs) {
+  return static_cast<double>(secs) * 1e3 + static_cast<double>(nsecs) * 1e-6;
+}
 
-  output_vector->set_steering_angle(ign_message.theta());
-  output_vector->set_acceleration(ign_message.acceleration());
+std::pair<int64_t, int64_t> ToSecsAndNanos(double time) {
+  double integral{}, decimal{};
+  decimal = modf(time, &integral);
+  const int64_t sec = static_cast<int64_t>(integral);
+  const int64_t nsecs = static_cast<int64_t>(decimal * 1.0e9);
+  return {sec, nsecs};
 }
 
 }  // namespace backend

@@ -26,39 +26,39 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/driving_command_to_ignition_message_converter.h"
-#include "backend/time_conversion.h"
+#pragma once
 
-using drake::automotive::DrivingCommand;
-using drake::automotive::DrivingCommandIndices;
+#include <cstdint>
+#include <vector>
+
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
 
-int DrivingCommandToIgnitionMessageConverter::get_vector_size() {
-  return DrivingCommandIndices::kNumCoordinates;
-}
+/// @brief Converts from an integer value in microseconds to a
+/// pair of integers containing the value in seconds and the
+/// reminder of that in nanoseconds.
+DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> MicrosToSecsAndNanos(
+    int64_t micros);
 
-void DrivingCommandToIgnitionMessageConverter::VectorToIgn(
-    const DrivingCommand<double>& input_vector, double time,
-    ignition::msgs::AutomotiveDrivingCommand* ign_message) {
-  DELPHYNE_DEMAND(ign_message != nullptr);
+/// @brief Converts from an integer value in milliseconds to a
+/// pair of integers containing the value in seconds and the
+/// reminder of that in nanoseconds.
+DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> MillisToSecsAndNanos(
+    int64_t millis);
 
-  const std::pair<int64_t, int64_t> secs_and_nanos(ToSecsAndNanos(time));
-  ign_message->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
-  ign_message->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
-  ign_message->set_theta(input_vector.steering_angle());
-  ign_message->set_acceleration(input_vector.acceleration());
-}
+/// @brief Converts from a pair of integers containing independent
+/// time values in seconds an nanoseconds into a single double in
+/// milliseconds.
+DELPHYNE_BACKEND_VISIBLE double SecsAndNanosToMillis(int64_t secs,
+                                                     int64_t nsecs);
 
-void DrivingCommandToIgnitionMessageConverter::IgnToVector(
-    const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-    DrivingCommand<double>* output_vector) {
-  DELPHYNE_DEMAND(output_vector != nullptr);
-
-  output_vector->set_steering_angle(ign_message.theta());
-  output_vector->set_acceleration(ign_message.acceleration());
-}
+/// @brief Converts from a double value in seconds to a pair of
+/// integers containing the value in seconds and the reminder
+/// of that in nanoseconds.
+DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> ToSecsAndNanos(
+    double time);
 
 }  // namespace backend
 }  // namespace delphyne

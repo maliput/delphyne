@@ -33,6 +33,7 @@
 #include <protobuf/simple_car_state.pb.h>
 
 #include "backend/discrete_value_to_ignition_message_converter.h"
+#include "backend/time_conversion.h"
 
 using drake::automotive::SimpleCarState;
 using drake::automotive::SimpleCarStateIndices;
@@ -49,10 +50,9 @@ void SimpleCarStateToIgnitionMessageConverter::VectorToIgn(
     ignition::msgs::SimpleCarState* ign_message) {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
-  const int64_t secs = time;
-  const int64_t nsecs = (time - secs) * 1000000000;
-  ign_message->mutable_time()->set_sec(secs);
-  ign_message->mutable_time()->set_nsec(nsecs);
+  const std::pair<int64_t, int64_t> secs_and_nanos(ToSecsAndNanos(time));
+  ign_message->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
+  ign_message->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
   ign_message->set_x(input_vector.x());
   ign_message->set_y(input_vector.y());
   ign_message->set_heading(input_vector.heading());

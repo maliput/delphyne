@@ -122,7 +122,7 @@ def main():
 
     simulator = build_simple_car_simulator()
 
-    runner = SimulatorRunner(simulator, 0.001, initial_realtime_rate, False)
+    runner = SimulatorRunner(simulator, 0.001, initial_realtime_rate)
 
     rate_changer = RealtimeRateChanger(runner, initial_steps)
 

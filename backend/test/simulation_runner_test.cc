@@ -76,7 +76,7 @@ class SimulationRunnerTest : public ::testing::Test {
   ignition::transport::Node node_;
 };
 
-// \brief Checks that WaitForShutdown captures the SIGINT signal and the
+// @brief Checks that WaitForShutdown captures the SIGINT signal and the
 // simulation terminates gracefully.
 TEST_F(SimulationRunnerTest, SigIntTermination) {
   sim_runner_->Start();
@@ -92,7 +92,7 @@ TEST_F(SimulationRunnerTest, SigIntTermination) {
   if (t.joinable()) t.join();
 }
 
-// \brief Checks the time elapsed during the simulation
+// @brief Checks the time elapsed during the simulation
 // step was at least as much as the defined kTimeStep.
 TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
   // Need to run a first step for the counters that handle real-time rate
@@ -106,16 +106,18 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 
   auto step_end = std::chrono::steady_clock::now();
 
-  const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(
+  const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
       step_end - step_start);
 
-  // Expected duration in milliseconds.
-  std::chrono::milliseconds min_simulation_time(10);
+  // Expected max/min duration in microseconds.
+  std::chrono::microseconds min_simulation_time(9500);
+  std::chrono::microseconds max_simulation_time(10500);
 
   EXPECT_GE(duration, min_simulation_time);
+  EXPECT_LE(duration, max_simulation_time);
 }
 
-// \brief Verifies that an incoming message has
+// @brief Asserts that an incoming message has
 // been consumed from the incoming_msgs_ queue
 TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   const std::string service_name{"test_service_name"};
@@ -138,6 +140,80 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   sim_runner_->RunSimulationStep();
 
   EXPECT_TRUE(callback_called_);
+}
+
+// @brief Asserts that an incoming message is consumed
+// from the queue even if the simulation is paused.
+TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
+  sim_runner_->Start();
+  sim_runner_->Pause();
+
+  const std::string service_name{"test_service_name"};
+
+  ignition::msgs::RobotModelRequest robot_model_request_msg;
+
+  robot_model_request_msg.set_response_topic(service_name);
+
+  AdvertiseRobotModelRequest(service_name);
+
+  ignition::msgs::Boolean response;
+  const unsigned int timeout = 100;
+  bool result = false;
+  const std::string service = "/get_robot_model";
+  node_.Request(service, robot_model_request_msg, timeout, response, result);
+  EXPECT_TRUE(result);
+
+  // Wait until the currently running step of the loop finishes.
+  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+  EXPECT_TRUE(callback_called_);
+}
+
+// @brief Asserts that the Pause method
+// pauses the advance of the simulation.
+TEST_F(SimulationRunnerTest, TestPauseSetMethod) {
+  sim_runner_->Start();
+
+  EXPECT_FALSE(sim_runner_->IsPaused());
+
+  sim_runner_->Pause();
+
+  EXPECT_TRUE(sim_runner_->IsPaused());
+}
+
+// @brief Asserts that the Unpause method lets the
+// simulator run again if it was previously paused.
+TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
+  sim_runner_->Start();
+  sim_runner_->Pause();
+
+  EXPECT_TRUE(sim_runner_->IsPaused());
+
+  sim_runner_->Unpause();
+
+  EXPECT_FALSE(sim_runner_->IsPaused());
+
+  // Calling the Unpause method when the simulation
+  // is already unpaused leads to a no-op.
+  sim_runner_->Unpause();
+
+  EXPECT_FALSE(sim_runner_->IsPaused());
+}
+
+// @brief Asserts that the execution breaks if a RequestStep
+// is received if the simulation hasn't started.
+TEST_F(SimulationRunnerTest, TestRequestStepWhenNotStarted) {
+  EXPECT_DEATH(sim_runner_->RequestStep(0.01), "condition 'enabled_' failed.");
+}
+
+// @brief Asserts that the execution breaks if a RequestStep
+// is received if the simulation is paused.
+TEST_F(SimulationRunnerTest, TestRequestStepWhenUnPaused) {
+  sim_runner_->Start();
+
+  EXPECT_FALSE(sim_runner_->IsPaused());
+
+  EXPECT_DEATH(sim_runner_->RequestStep(0.1), "condition 'paused_' failed.");
 }
 
 }  // namespace backend

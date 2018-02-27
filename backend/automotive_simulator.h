@@ -342,6 +342,11 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   double GetRealtimeRate() const;
 
+  /// @see documentation of Simulator::ResetStatistics.
+  ///
+  /// @pre Start() has been called.
+  void ResetStatistics();
+
  private:
   int allocate_vehicle_number();
 

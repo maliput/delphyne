@@ -217,8 +217,6 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   CheckNameUniqueness(name);
   const int id = allocate_vehicle_number();
 
-  static const drake::automotive::DrivingCommandTranslator
-      driving_command_translator;
   DELPHYNE_DEMAND(!channel_name.empty());
   auto converter = std::make_unique<DrivingCommandToIgnitionMessageConverter>();
   auto command_subscriber = builder_->template AddSystem<
@@ -748,6 +746,12 @@ template <typename T>
 double AutomotiveSimulator<T>::GetRealtimeRate() const {
   DELPHYNE_DEMAND(has_started());
   return simulator_->get_target_realtime_rate();
+}
+
+template <typename T>
+void AutomotiveSimulator<T>::ResetStatistics() {
+  DELPHYNE_DEMAND(has_started());
+  simulator_->ResetStatistics();
 }
 
 template class AutomotiveSimulator<double>;

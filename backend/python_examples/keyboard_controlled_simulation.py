@@ -65,6 +65,8 @@ from delphyne_utils import (
     launch_visualizer
 )
 
+SIMULATION_TIME_STEP = 0.001
+
 
 class KeyboardHandler(object):
     """A keyboard-interrupt poller. Allows users to read a keyboard
@@ -111,74 +113,68 @@ class KeyboardHandler(object):
         return key_hit != []
 
 
-def run_simulation_loop(sim_runner, simulation_time_step):
-    """Runs the keyboard-controlled simulation loop. Based on the key pressed
-    the simulation will play/pause/step.
+def demo_callback(runner, launcher, keyboard_handler):
+    """Callback function invoqued by the SimulatorRunner
+    every SIMULATION_TIME_STEP seconds.
     """
-    running = True
-    paused = False
-
-    keyboard = KeyboardHandler()
-    print("\n*************************************************************\n"
-          "* Instructions for running the demo:                        *\n"
-          "* <p> will pause the simulation if unpaused and viceversa.  *\n"
-          "* <s> will step the simulation once if paused.              *\n"
-          "* <q> will stop the simulation and quit the demo.           *\n"
-          "*************************************************************\n")
-    print("Simulation is running")
-    while running:
-        if keyboard.key_hit():
-            key = keyboard.get_character().lower()
-            if key == 'p':
-                paused = not paused
-                if paused:
-                    print("Simulation is paused")
-                else:
-                    print("Simulation is running")
-            elif key == 'q':
-                running = False
-                print("Quitting simulation")
-                break
-            elif key == 's':
-                if paused:
-                    sim_runner.RunSimulationStep()
-                    print("Simulation step of {0}s executed".
-                          format(simulation_time_step))
-                else:
-                    print("Simulation step only supported in paused mode")
-        elif not paused:
-            sim_runner.RunSimulationStep()
+    if keyboard_handler.key_hit():
+        key = keyboard_handler.get_character().lower()
+        if key == 'p':
+            if runner.IsPaused():
+                runner.Unpause()
+                print("Simulation is now running.")
+            else:
+                runner.Pause()
+                print("Simulation is now paused.")
+        elif key == 'q':
+            runner.Stop()
+            print("Quitting simulation.")
+            # This is needed to avoid a possible deadlock.
+            # See SimulatorRunner class description.
+            time.sleep(0.5)
+            launcher.terminate()
+        elif key == 's':
+            if runner.IsPaused():
+                runner.RequestStep(SIMULATION_TIME_STEP)
+                print("Simulation step of {0}s executed.".
+                      format(SIMULATION_TIME_STEP))
+            else:
+                print("Simulation step only supported in paused mode.")
 
 
 def main():
-    """Spawn an automotive simulator"""
-
-    # Checks for env variables presence, quits the demo otherwise.
+    """Runs the demo."""
     try:
+        # Checks for env variables presence, quits the demo otherwise.
         add_drake_resource_path()
+
+        launcher = Launcher()
+        simulator = build_simple_car_simulator()
+
+        runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
+
+        keyboard = KeyboardHandler()
+
+        launch_visualizer(launcher, "layoutWithTeleop.config")
+
+        runner.AddStepCallback(
+            lambda: demo_callback(runner, launcher, keyboard))
+        runner.Start()
+
+        print(
+            "\n*************************************************************\n"
+            "* Instructions for running the demo:                        *\n"
+            "* <p> will pause the simulation if unpaused and viceversa.  *\n"
+            "* <s> will step the simulation once if paused.              *\n"
+            "* <q> will stop the simulation and quit the demo.           *\n"
+            "*************************************************************\n"
+            "Simulation is now running.\n")
+
+        launcher.wait(float("Inf"))
+
     except RuntimeError, error_msg:
         sys.stderr.write('ERROR: {}'.format(error_msg))
         sys.exit(1)
-
-    launcher = Launcher()
-
-    simulator = build_simple_car_simulator()
-
-    try:
-        launch_visualizer(launcher, "layoutWithTeleop.config")
-
-        simulation_time_step = 0.001
-
-        runner = SimulatorRunner(simulator, simulation_time_step)
-
-        run_simulation_loop(runner, simulation_time_step)
-
-    finally:
-        runner.Stop()
-        # This is needed to avoid a possible deadlock. See SimulatorRunner
-        # class description.
-        time.sleep(0.5)
-        launcher.kill()
 
 
 if __name__ == "__main__":

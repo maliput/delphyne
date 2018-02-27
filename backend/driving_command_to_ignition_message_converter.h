@@ -33,9 +33,7 @@
 #include "protobuf/automotive_driving_command.pb.h"
 
 #include "backend/discrete_value_to_ignition_message_converter.h"
-
-using drake::automotive::DrivingCommand;
-using drake::automotive::DrivingCommandIndices;
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
@@ -43,33 +41,22 @@ namespace backend {
 /// This class is a specialization of DiscreteValueToIgnitionMessageConverter
 /// that knows how to populate a SimpleCarState ignition message from an input
 /// vector.
-class DrivingCommandToIgnitionMessageConverter
+class DELPHYNE_BACKEND_VISIBLE DrivingCommandToIgnitionMessageConverter
     : public DiscreteValueToIgnitionMessageConverter<
-          ignition::msgs::AutomotiveDrivingCommand, DrivingCommand<double>> {
+          ignition::msgs::AutomotiveDrivingCommand,
+          drake::automotive::DrivingCommand<double>> {
  public:
-  int get_vector_size() { return DrivingCommandIndices::kNumCoordinates; }
+  int get_vector_size();
 
  protected:
   void VectorToIgn(
-      const DrivingCommand<double>& input_vector, double time,
-      ignition::msgs::AutomotiveDrivingCommand* ign_message) override {
-    DELPHYNE_DEMAND(ign_message != nullptr);
+      const drake::automotive::DrivingCommand<double>& input_vector,
+      double time,
+      ignition::msgs::AutomotiveDrivingCommand* ign_message) override;
 
-    const int64_t secs = time;
-    const int64_t nsecs = (time - secs) * 1000000000;
-    ign_message->mutable_time()->set_sec(secs);
-    ign_message->mutable_time()->set_nsec(nsecs);
-    ign_message->set_theta(input_vector.steering_angle());
-    ign_message->set_acceleration(input_vector.acceleration());
-  };
-
-  void IgnToVector(const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-                   DrivingCommand<double>* output_vector) override {
-    DELPHYNE_DEMAND(output_vector != nullptr);
-
-    output_vector->set_steering_angle(ign_message.theta());
-    output_vector->set_acceleration(ign_message.acceleration());
-  };
+  void IgnToVector(
+      const ignition::msgs::AutomotiveDrivingCommand& ign_message,
+      drake::automotive::DrivingCommand<double>* output_vector) override;
 };
 
 }  // namespace backend

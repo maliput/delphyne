@@ -33,7 +33,7 @@ add_library(ign_publisher_system
   ign_publisher_system.h
   ignition_message_converter.h
   lcm_viewer_draw_to_ignition_message_converter.cc
-  simple_car_state_to_ignition_message_converter.h
+  simple_car_state_to_ignition_message_converter.cc
   system.h
 )
 
@@ -111,6 +111,7 @@ add_library(automotive_simulator
   STATIC
   agent_plugin_loader.cc
   automotive_simulator.cc
+  driving_command_to_ignition_message_converter.cc
   ign_subscriber_system.h
   linb-any
   system.h
@@ -208,6 +209,7 @@ install(FILES delphyne_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.
 
 install(TARGETS
   automotive_simulator
+  ign_publisher_system
   scene_system
   simulation_runner
   simulation_runner_py

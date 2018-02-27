@@ -50,9 +50,8 @@ void SimpleCarStateToIgnitionMessageConverter::VectorToIgn(
     ignition::msgs::SimpleCarState* ign_message) {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
-  const std::pair<int64_t, int64_t> secs_and_nanos(ToSecsAndNanos(time));
-  ign_message->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
-  ign_message->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
+  ign_message->mutable_time()->CopyFrom(SecsToIgnitionTime(time));
+
   ign_message->set_x(input_vector.x());
   ign_message->set_y(input_vector.y());
   ign_message->set_heading(input_vector.heading());

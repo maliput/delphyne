@@ -184,7 +184,6 @@ delphyne_install_includes(
 # Test helper library.
 add_library(time_conversion
   time_conversion.cc
-  system.h
 )
 
 target_link_libraries(time_conversion)

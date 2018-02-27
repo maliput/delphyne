@@ -27,6 +27,7 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include "backend/driving_command_to_ignition_message_converter.h"
+
 #include "backend/time_conversion.h"
 
 using drake::automotive::DrivingCommand;
@@ -44,9 +45,8 @@ void DrivingCommandToIgnitionMessageConverter::VectorToIgn(
     ignition::msgs::AutomotiveDrivingCommand* ign_message) {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
-  const std::pair<int64_t, int64_t> secs_and_nanos(ToSecsAndNanos(time));
-  ign_message->mutable_time()->set_sec(std::get<0>(secs_and_nanos));
-  ign_message->mutable_time()->set_nsec(std::get<1>(secs_and_nanos));
+  ign_message->mutable_time()->CopyFrom(SecsToIgnitionTime(time));
+
   ign_message->set_theta(input_vector.steering_angle());
   ign_message->set_acceleration(input_vector.acceleration());
 }

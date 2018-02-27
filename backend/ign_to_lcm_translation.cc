@@ -60,8 +60,8 @@ void ignToLcm(
     const ignition::msgs::AutomotiveDrivingCommand& ign_driving_command,
     drake::lcmt_driving_command_t* lcm_driving_command) {
   if (ign_driving_command.has_time()) {
-    lcm_driving_command->timestamp = SecsAndNanosToMillis(
-        ign_driving_command.time().sec(), ign_driving_command.time().nsec());
+    lcm_driving_command->timestamp =
+        IgnitionTimeToMillis(ign_driving_command.time());
   } else {
     int64_t milliseconds = std::chrono::system_clock::now().time_since_epoch() /
                            std::chrono::milliseconds(1);
@@ -74,8 +74,7 @@ void ignToLcm(
 void ignToLcm(const ignition::msgs::Model_V& robot_models,
               drake::lcmt_viewer_draw* robot_draw_data) {
   robot_draw_data->timestamp =
-      SecsAndNanosToMillis(robot_models.header().stamp().sec(),
-                           robot_models.header().stamp().nsec());
+      IgnitionTimeToMillis(robot_models.header().stamp());
 
   // Each ignition model has many links using the same id, but this is
   // flattened in LCM

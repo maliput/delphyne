@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -28,34 +28,36 @@
 
 #pragma once
 
-namespace ignition {
-namespace msgs {
-class AutomotiveDrivingCommand;
-class Model_V;
-}
-}
+#include <cstdint>
+#include <string>
 
-namespace drake {
-class lcmt_driving_command_t;
-class lcmt_viewer_draw;
-}
+#include "drake/lcmt_viewer_draw.hpp"
+#include "ignition/msgs.hh"
+
+#include "backend/abstract_value_to_ignition_message_converter.h"
+#include "backend/lcm_to_ign_translation.h"
+#include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
 
-/// \brief Translate a driving command from LCM to ignition
-/// \param[in]  ign_driving_command An ignition message containing the driving
-/// command
-/// \param[out] lcm_driving_command The resulting LCM command
-void ignToLcm(
-    const ignition::msgs::AutomotiveDrivingCommand& ign_driving_command,
-    drake::lcmt_driving_command_t* lcm_driving_command);
+/// This class is a specialization of AbstractValueToIgnitionMessageConverter
+/// that knows how to populate a Model_V ignition message from an
+/// LCM view draw message.
+class DELPHYNE_BACKEND_VISIBLE LCMViewerDrawToIgnitionMessageConverter
+    : public AbstractValueToIgnitionMessageConverter<ignition::msgs::Model_V,
+                                                     drake::lcmt_viewer_draw> {
+ protected:
+  void LcmToIgn(const drake::lcmt_viewer_draw& robotDrawData,
+                ignition::msgs::Model_V* robotModels) override;
 
-/// \brief Translate a model vector ignition message to an LCM view draw message
-/// \param[in]  robot_models An ignition message containing the model vector
-/// \param[out] robot_draw_data The resulting LCM view draw message
-void ignToLcm(const ignition::msgs::Model_V& robot_models,
-              drake::lcmt_viewer_draw* robot_draw_data);
+  void IgnToLcm(const ignition::msgs::Model_V& robotModels,
+                drake::lcmt_viewer_draw* robotDrawData) override;
+
+ private:
+  static const int kPositionVectorSize{3};
+  static const int kOrientationVectorSize{4};
+};
 
 }  // namespace backend
 }  // namespace delphyne

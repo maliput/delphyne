@@ -6,13 +6,13 @@ include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 # C++ tests.
 
 set (gtest_sources
-  abstract_value_to_ignition_message_converter_test.cc
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   discrete_value_to_ignition_message_converter_test.cc
+  driving_command_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
-  ign_to_lcm_translation_test.cc
   lcm_to_ign_translation_test.cc
+  lcm_viewer_draw_to_ignition_message_converter_test.cc
   linb_any_test.cc
   scene_system_test.cc
   simple_car_state_to_ignition_message_converter_test.cc
@@ -32,6 +32,7 @@ add_library(ign_publisher_system
   discrete_value_to_ignition_message_converter.h
   ign_publisher_system.h
   ignition_message_converter.h
+  lcm_viewer_draw_to_ignition_message_converter.cc
   simple_car_state_to_ignition_message_converter.cc
   system.h
 )
@@ -72,7 +73,6 @@ target_include_directories(ign_subscriber_system PUBLIC ${CMAKE_CURRENT_BINARY_D
 add_library(delphyne_lcm_to_ign
   STATIC
   lcm_to_ign_translation.cc
-  ign_to_lcm_translation.cc
 )
 
 target_link_libraries(delphyne_lcm_to_ign

@@ -59,11 +59,11 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
-#include "backend/abstract_value_to_ignition_message_converter.h"
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
 #include "backend/driving_command_to_ignition_message_converter.h"
 #include "backend/ignition_message_converter.h"
+#include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
 #include "backend/linb-any"
 #include "backend/simple_car_state_to_ignition_message_converter.h"
 #include "backend/system.h"
@@ -562,8 +562,7 @@ void AutomotiveSimulator<T>::Build() {
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       scene_builder_->get_input_port(0));
 
-  auto converter = std::make_unique<AbstractValueToIgnitionMessageConverter<
-      drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
+  auto converter = std::make_unique<LCMViewerDrawToIgnitionMessageConverter>();
 
   ign_publisher_ = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(

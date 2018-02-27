@@ -26,38 +26,40 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include "backend/driving_command_to_ignition_message_converter.h"
 
 #include "drake/automotive/gen/driving_command.h"
+#include "gtest/gtest.h"
 #include "ignition/msgs.hh"
 #include "protobuf/automotive_driving_command.pb.h"
 
-#include "backend/discrete_value_to_ignition_message_converter.h"
-#include "backend/system.h"
-
 namespace delphyne {
 namespace backend {
+namespace test {
 
-/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
-/// that knows how to populate a SimpleCarState ignition message from an input
-/// vector.
-class DELPHYNE_BACKEND_VISIBLE DrivingCommandToIgnitionMessageConverter
-    : public DiscreteValueToIgnitionMessageConverter<
-          ignition::msgs::AutomotiveDrivingCommand,
-          drake::automotive::DrivingCommand<double>> {
- public:
-  int get_vector_size();
+GTEST_TEST(DrivingCommandToIgnitionMessageConverter,
+           TestAutomotiveDrivingCommandTranslation) {
+  ignition::msgs::AutomotiveDrivingCommand ign_driving_message;
 
- protected:
-  void VectorToIgn(
-      const drake::automotive::DrivingCommand<double>& input_vector,
-      double time,
-      ignition::msgs::AutomotiveDrivingCommand* ign_message) override;
+  const double kTheta = 0.12;
+  const double kAcceleration = 15.7;
 
-  void IgnToVector(
-      const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-      drake::automotive::DrivingCommand<double>* output_vector) override;
-};
+  ign_driving_message.set_theta(kTheta);
+  ign_driving_message.set_acceleration(kAcceleration);
 
+  DrivingCommandToIgnitionMessageConverter converter;
+  std::unique_ptr<BasicVector<double>> output_vector =
+      converter.AllocateDiscreteOutputValue();
+
+  converter.ProcessDiscreteOutput(ign_driving_message, output_vector.get());
+
+  auto* const driving_command_vector =
+      dynamic_cast<DrivingCommand<double>*>(output_vector.get());
+
+  EXPECT_EQ(kTheta, driving_command_vector->steering_angle());
+  EXPECT_EQ(kAcceleration, driving_command_vector->acceleration());
+}
+
+}  // namespace test
 }  // namespace backend
 }  // namespace delphyne

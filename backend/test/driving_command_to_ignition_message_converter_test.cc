@@ -26,24 +26,26 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "backend/driving_command_to_ignition_message_converter.h"
+
 #include "drake/automotive/gen/driving_command.h"
 #include "gtest/gtest.h"
 #include "ignition/msgs.hh"
 #include "protobuf/automotive_driving_command.pb.h"
 
-#include "backend/driving_command_to_ignition_message_converter.h"
-
 namespace delphyne {
 namespace backend {
-
 namespace test {
 
 GTEST_TEST(DrivingCommandToIgnitionMessageConverter,
            TestAutomotiveDrivingCommandTranslation) {
   ignition::msgs::AutomotiveDrivingCommand ign_driving_message;
 
-  ign_driving_message.set_theta(0.12);
-  ign_driving_message.set_acceleration(15.7);
+  const double kTheta = 0.12;
+  const double kAcceleration = 15.7;
+
+  ign_driving_message.set_theta(kTheta);
+  ign_driving_message.set_acceleration(kAcceleration);
 
   DrivingCommandToIgnitionMessageConverter converter;
   std::unique_ptr<BasicVector<double>> output_vector =
@@ -54,11 +56,10 @@ GTEST_TEST(DrivingCommandToIgnitionMessageConverter,
   auto* const driving_command_vector =
       dynamic_cast<DrivingCommand<double>*>(output_vector.get());
 
-  EXPECT_EQ(0.12, driving_command_vector->steering_angle());
-  EXPECT_EQ(15.7, driving_command_vector->acceleration());
+  EXPECT_EQ(kTheta, driving_command_vector->steering_angle());
+  EXPECT_EQ(kAcceleration, driving_command_vector->acceleration());
 }
 
 }  // namespace test
-
 }  // namespace backend
 }  // namespace delphyne

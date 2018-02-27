@@ -63,7 +63,7 @@ class MockedVectorInputToIgnConverter
                    SimpleCarState<double>*) override{};
 };
 
-// \brief Testing class with common resources for all the tests.
+// @brief Testing class with common resources for all the tests.
 class DiscreteValueToIgnitionMessageConverterTest : public ::testing::Test {
  protected:
   std::unique_ptr<MockedVectorInputToIgnConverter> converter;
@@ -90,7 +90,7 @@ class DiscreteValueToIgnitionMessageConverterTest : public ::testing::Test {
   }
 };
 
-// \brief Asserts that a given input has been processed
+// @brief Asserts that a given input has been processed
 // correctly by verifying the value of the resulting ign_msg.
 TEST_F(DiscreteValueToIgnitionMessageConverterTest, TestProcessInput) {
   std::unique_ptr<drake::systems::Context<double>> context =

@@ -39,6 +39,8 @@
 namespace delphyne {
 namespace test {
 
+// The preloaded messages have kPreloadedModels models, each with
+// kPreloadedLinks links.
 const int kPreloadedModels{3};
 const int kPreloadedLinks{2};
 
@@ -51,12 +53,12 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
       lcm_msg.link_name.push_back(std::to_string(i) + std::to_string(j));
       lcm_msg.robot_num.push_back(i);
 
-      std::vector<float> position{static_cast<float>(i),
-                                  static_cast<float>(j + 5.0),
-                                  static_cast<float>(i + 10.0)};
+      const std::vector<float> position{static_cast<float>(i),
+                                        static_cast<float>(j + 5.0),
+                                        static_cast<float>(i + 10.0)};
       lcm_msg.position.push_back(position);
 
-      std::vector<float> quaternion{
+      const std::vector<float> quaternion{
           static_cast<float>(j), static_cast<float>(i + 5.0),
           static_cast<float>(j + 10.0), static_cast<float>(i + 15.0)};
       lcm_msg.quaternion.push_back(quaternion);
@@ -79,17 +81,16 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
 
     for (int j = 0; j < kPreloadedLinks; ++j) {
       ::ignition::msgs::Link* link = model->add_link();
-
-      ::ignition::msgs::Pose* pose = link->mutable_pose();
-      ignition::msgs::Vector3d* position = pose->mutable_position();
-      ignition::msgs::Quaternion* orientation = pose->mutable_orientation();
-
       link->set_name(std::to_string(i) + std::to_string(j));
 
+      ::ignition::msgs::Pose* pose = link->mutable_pose();
+
+      ignition::msgs::Vector3d* position = pose->mutable_position();
       position->set_x(i);
       position->set_y(j + 5.0);
       position->set_z(i + 10.0);
 
+      ignition::msgs::Quaternion* orientation = pose->mutable_orientation();
       orientation->set_w(j);
       orientation->set_x(i + 5.0);
       orientation->set_y(j + 10.0);

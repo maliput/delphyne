@@ -26,10 +26,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
+
 #include <map>
 #include <string>
-
-#include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
 
 namespace delphyne {
 namespace backend {
@@ -37,17 +37,14 @@ namespace backend {
 void LCMViewerDrawToIgnitionMessageConverter::LcmToIgn(
     const drake::lcmt_viewer_draw& robotDrawData,
     ignition::msgs::Model_V* robotModels) {
-  // Check the size of each vector on an lcm_viewer_draw message
-  // num_links represents the amount of links declared and
-  // should be matched by the size of each of the following vectors
-  checkVectorSize(robotDrawData.link_name.size(), robotDrawData.num_links,
-                  "link_name");
-  checkVectorSize(robotDrawData.robot_num.size(), robotDrawData.num_links,
-                  "robot_num");
-  checkVectorSize(robotDrawData.position.size(), robotDrawData.num_links,
-                  "position");
-  checkVectorSize(robotDrawData.quaternion.size(), robotDrawData.num_links,
-                  "quaternion");
+  DELPHYNE_DEMAND(robotDrawData.link_name.size() ==
+                  static_cast<unsigned int>(robotDrawData.num_links));
+  DELPHYNE_DEMAND(robotDrawData.robot_num.size() ==
+                  static_cast<unsigned int>(robotDrawData.num_links));
+  DELPHYNE_DEMAND(robotDrawData.position.size() ==
+                  static_cast<unsigned int>(robotDrawData.num_links));
+  DELPHYNE_DEMAND(robotDrawData.quaternion.size() ==
+                  static_cast<unsigned int>(robotDrawData.num_links));
 
   lcmToIgn(robotDrawData.timestamp,
            robotModels->mutable_header()->mutable_stamp());
@@ -56,26 +53,26 @@ void LCMViewerDrawToIgnitionMessageConverter::LcmToIgn(
 
   // Add one pose per link
   for (int i = 0; i < robotDrawData.num_links; ++i) {
-    int32_t robotId = robotDrawData.robot_num[i];
+    const int32_t robotId = robotDrawData.robot_num[i];
     if (models.count(robotId) == 0) {
       models[robotId] = robotModels->add_models();
       models[robotId]->set_id(robotId);
     }
 
     ignition::msgs::Model* robotModel = models[robotId];
-    ignition::msgs::Link* link = robotModel->add_link();
-    ignition::msgs::Pose* pose = link->mutable_pose();
 
+    ignition::msgs::Link* link = robotModel->add_link();
     link->set_name(robotDrawData.link_name[i]);
 
+    ignition::msgs::Pose* pose = link->mutable_pose();
+
     // Check position size and translate
-    checkVectorSize(robotDrawData.position[i].size(), 3,
-                    "position[" + std::to_string(i) + "]");
+    DELPHYNE_DEMAND(robotDrawData.position[i].size() == kPositionVectorSize);
     lcmToIgn(robotDrawData.position[i].data(), pose->mutable_position());
 
     // Check orientation size and translate
-    checkVectorSize(robotDrawData.quaternion[i].size(), 4,
-                    "quaternion[" + std::to_string(i) + "]");
+    DELPHYNE_DEMAND(robotDrawData.quaternion[i].size() ==
+                    kOrientationVectorSize);
     lcmToIgn(robotDrawData.quaternion[i].data(), pose->mutable_orientation());
   }
 }
@@ -102,16 +99,6 @@ void LCMViewerDrawToIgnitionMessageConverter::IgnToLcm(
       robotDrawData->position.push_back(ignToVector(pose.position()));
       robotDrawData->quaternion.push_back(ignToVector(pose.orientation()));
     }
-  }
-}
-
-void LCMViewerDrawToIgnitionMessageConverter::checkVectorSize(
-    int vectorSize, int expectedSize, std::string fieldName) {
-  if (vectorSize != expectedSize) {
-    std::stringstream message;
-    message << "Wrong size for " << fieldName << ": expecting " << expectedSize
-            << " elements but " << vectorSize << " given.";
-    throw TranslateException(message.str());
   }
 }
 

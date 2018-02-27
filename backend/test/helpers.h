@@ -28,11 +28,11 @@
 
 #pragma once
 
-#include <drake/lcmt_viewer_draw.hpp>
+#include "drake/lcmt_viewer_draw.hpp"
+#include "gtest/gtest.h"
+#include "ignition/msgs.hh"
 
-#include <gtest/gtest.h>
-
-#include <ignition/msgs.hh>
+#include "backend/system.h"
 
 namespace delphyne {
 namespace test {
@@ -40,14 +40,12 @@ namespace test {
 // Generates a pre-loaded lcmt_viewer_draw message.
 //
 // @return a loaded lcmt_viewer_draw message.
-__attribute__((visibility("default"))) drake::lcmt_viewer_draw
-BuildPreloadedDrawMsg();
+DELPHYNE_BACKEND_VISIBLE drake::lcmt_viewer_draw BuildPreloadedDrawMsg();
 
 // Generates a pre-loaded Model_V message.
 //
 // @return a loaded Model_V message.
-__attribute__((visibility("default"))) ignition::msgs::Model_V
-BuildPreloadedModelVMsg();
+DELPHYNE_BACKEND_VISIBLE ignition::msgs::Model_V BuildPreloadedModelVMsg();
 
 // Asserts that all the array-iterable values from
 // lcm_msg matches the content of the ign_models object.
@@ -55,9 +53,9 @@ BuildPreloadedModelVMsg();
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
 // @return a google test's AssertionResult.
-__attribute__((visibility("default")))::testing::AssertionResult
-CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
-                    const ignition::msgs::Model_V& ign_models);
+DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_draw& lcm_msg,
+    const ignition::msgs::Model_V& ign_models);
 
 // Asserts that all the array-iterable values from
 // lcm_msg matches the content of the scene object.
@@ -65,9 +63,8 @@ CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Scene with the translated values.
 // @return a google test's AssertionResult.
-__attribute__((visibility("default")))::testing::AssertionResult
-CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
-                    const ignition::msgs::Scene& scene);
+DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_draw& lcm_msg, const ignition::msgs::Scene& scene);
 
 // Asserts that the position values found on the original lcm message are
 // equivalent to the values found on the translated ignition object.

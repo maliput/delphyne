@@ -28,6 +28,10 @@
 
 #pragma once
 
+#include "drake/automotive/gen/driving_command.h"
+#include "ignition/msgs.hh"
+#include "protobuf/automotive_driving_command.pb.h"
+
 #include "backend/discrete_value_to_ignition_message_converter.h"
 
 using drake::automotive::DrivingCommand;

@@ -28,12 +28,10 @@
 
 #include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
 
-#include <drake/lcmt_viewer_draw.hpp>
-#include <drake/systems/framework/framework_common.h>
-
+#include "drake/lcmt_viewer_draw.hpp"
+#include "drake/systems/framework/framework_common.h"
 #include "gtest/gtest.h"
-
-#include <ignition/msgs.hh>
+#include "ignition/msgs.hh"
 
 #include "backend/ign_publisher_system.h"
 #include "backend/test/helpers.h"
@@ -41,7 +39,7 @@
 namespace delphyne {
 namespace backend {
 
-// \brief Checks that an lcm message from the input port is
+// @brief Checks that an lcm message from the input port is
 // correctly translated into its ignition-msgs counterpart.
 GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessInput) {
   // Converter required by the ignition publisher.
@@ -79,7 +77,7 @@ GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessInput) {
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, *ign_msg));
 }
 
-// \brief Checks that an lcm message from the output port is
+// @brief Checks that an lcm message from the output port is
 // correctly translated from its ignition-msgs counterpart.
 GTEST_TEST(LCMViewerDrawToIgnitionMessageConverterTest, TestProcessOutput) {
   auto converter = std::make_unique<LCMViewerDrawToIgnitionMessageConverter>();

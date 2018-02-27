@@ -97,7 +97,6 @@ class AbstractValueToIgnitionMessageConverter
   int get_vector_size() override { return 0; }
 
  protected:
-
   // @brief Do the actual conversion from the LCM message to the ignition
   //        message.
   //
@@ -118,7 +117,8 @@ class AbstractValueToIgnitionMessageConverter
   // @param[in] position The ign position message to convert.
   //
   // @return The vector filled with the position values.
-  std::vector<float> ignToVector(const ignition::msgs::Vector3d& position) const {
+  std::vector<float> ignToVector(
+      const ignition::msgs::Vector3d& position) const {
     return {static_cast<float>(position.x()), static_cast<float>(position.y()),
             static_cast<float>(position.z())};
   }
@@ -144,6 +144,8 @@ class AbstractValueToIgnitionMessageConverter
   // @param[out] lcm_timestamp_ms The lcm timestamp (in milliseconds).
   void ignToLcm(const ::ignition::msgs::Time& ign_time,
                 int64_t* lcm_timestamp_ms) const {
+    DELPHYNE_DEMAND(lcm_timestamp_ms != nullptr);
+
     *lcm_timestamp_ms = ign_time.sec() * 1000 + ign_time.nsec() / 1000000;
   }
 
@@ -154,6 +156,8 @@ class AbstractValueToIgnitionMessageConverter
   // @param[out] ign_position The ignition position message.
   void lcmToIgn(const float lcm_position[3],
                 ignition::msgs::Vector3d* ign_position) const {
+    DELPHYNE_DEMAND(ign_position != nullptr);
+
     ign_position->set_x(lcm_position[0]);
     ign_position->set_y(lcm_position[1]);
     ign_position->set_z(lcm_position[2]);
@@ -166,6 +170,8 @@ class AbstractValueToIgnitionMessageConverter
   // @param[out] ign_quaternion The ign quaternion message.
   void lcmToIgn(const float lcm_quaternion[4],
                 ignition::msgs::Quaternion* ign_quaternion) const {
+    DELPHYNE_DEMAND(ign_quaternion != nullptr);
+
     ign_quaternion->set_w(lcm_quaternion[0]);
     ign_quaternion->set_x(lcm_quaternion[1]);
     ign_quaternion->set_y(lcm_quaternion[2]);
@@ -177,7 +183,10 @@ class AbstractValueToIgnitionMessageConverter
   //
   // @param[in] lcm_timestamp_ms The LCM timestamp (in milliseconds).
   // @param[out] ign_time The ignition time message.
-  void lcmToIgn(int64_t lcm_timestamp_ms, ::ignition::msgs::Time* ign_time) const {
+  void lcmToIgn(int64_t lcm_timestamp_ms,
+                ::ignition::msgs::Time* ign_time) const {
+    DELPHYNE_DEMAND(ign_time != nullptr);
+
     ign_time->set_sec(lcm_timestamp_ms / 1000);
     ign_time->set_nsec(lcm_timestamp_ms % 1000 * 1000000);
   }

@@ -28,15 +28,14 @@
 
 #pragma once
 
-#include "backend/abstract_value_to_ignition_message_converter.h"
-
 #include <cstdint>
 #include <string>
 
-#include "backend/lcm_to_ign_translation.h"
 #include "drake/lcmt_viewer_draw.hpp"
 #include "ignition/msgs.hh"
 
+#include "backend/abstract_value_to_ignition_message_converter.h"
+#include "backend/lcm_to_ign_translation.h"
 #include "backend/system.h"
 
 namespace delphyne {
@@ -56,7 +55,8 @@ class DELPHYNE_BACKEND_VISIBLE LCMViewerDrawToIgnitionMessageConverter
                 drake::lcmt_viewer_draw* robotDrawData) override;
 
  private:
-  void checkVectorSize(int vectorSize, int expectedSize, std::string fieldName);
+  static const int kPositionVectorSize{3};
+  static const int kOrientationVectorSize{4};
 };
 
 }  // namespace backend

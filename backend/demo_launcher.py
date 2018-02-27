@@ -60,7 +60,7 @@ def main():
 
     args = parser.parse_args()
 
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
+    delphyne_resource_root = get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
 
     # Delphyne binaries; these are found through the standard PATH, so
     # they are relative
@@ -72,10 +72,7 @@ def main():
             # Load custom layout with two TeleopWidgets
             layout_key = "--layout="
             teleop_config = layout_key + os.path.join(
-                delphyne_ws_dir,
-                "install",
-                "share",
-                "delphyne",
+                delphyne_resource_root,
                 "layoutWithTeleop.config")
             launcher.launch([ign_visualizer, teleop_config])
         else:

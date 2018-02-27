@@ -66,7 +66,6 @@ import time
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 from delphyne_utils import (
-    add_drake_resource_path,
     build_simple_car_simulator,
     launch_visualizer
 )
@@ -75,12 +74,6 @@ from delphyne_utils import (
 def main():
     """Spawns a simulator_runner in paused mode"""
     launcher = Launcher()
-
-    try:
-        add_drake_resource_path()
-    except RuntimeError, error_msg:
-        sys.stderr.write('ERROR: {}'.format(error_msg))
-        sys.exit(1)
 
     simulator = build_simple_car_simulator([(-5.0, -7.0), (1.0, -4.0)])
 

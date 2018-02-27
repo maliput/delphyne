@@ -87,8 +87,6 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
 
 // Tests GetRobotModel to return the initial robot model
 GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   SimpleCarState<double> initial_state;
@@ -148,9 +146,6 @@ void GetLastPublishedSimpleCarState(
 
 // Covers AddPriusSimpleCar (and thus AddPublisher), Start and StepBy
 GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
-
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
       callback =
@@ -212,8 +207,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.
 GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
   const double kX{10};
@@ -251,8 +244,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 }
 
 GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
@@ -332,8 +323,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 
 //// Cover AddTrajectoryCar (and thus AddPublisher).
 GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   typedef Curve2<double> Curve2d;
   typedef Curve2d::Point2 Point2d;
   const std::vector<Point2d> waypoints{
@@ -454,8 +443,6 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 
 // Covers AddMaliputRailcar().
 GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -572,8 +559,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
 // LcmPublisherSystem are instantiated in AutomotiveSimulator's Diagram and
 // collectively result in the correct ignition messages being published.
 GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -631,8 +616,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
 // added to the simulation.
 GTEST_TEST(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -682,8 +665,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
 // Verifies that no exception is thrown when multiple IDM-controlled
 // MaliputRailcar vehicles are simulated. This prevents a regression of #5886.
 GTEST_TEST(AutomotiveSimulatorTest, TestIdmControllerUniqueName) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -708,8 +689,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestIdmControllerUniqueName) {
 // Verifies that the velocity outputs of the MaliputRailcars are connected to
 // the PoseAggregator, which prevents a regression of #5894.
 GTEST_TEST(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -753,8 +732,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 
 // Tests Build/Start logic
 GTEST_TEST(AutomotiveSimulatorTest, TestBuild) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   simulator->AddPriusSimpleCar("Model1", "Channel1");
@@ -771,8 +748,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild) {
 
 // Tests Build/Start logic (calling Start only)
 GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   simulator->AddPriusSimpleCar("Model1", "Channel1");
@@ -785,8 +760,6 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
 // Verifies that messages are no longer being published in LCM
 // DRAKE_VIEWER_LOAD_ROBOT and DRAKE_VIEWER_DRAW channels.
 GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 

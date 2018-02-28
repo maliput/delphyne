@@ -3,11 +3,9 @@
 This is the repository for Delphyne. As of right now, the only supported
 platform is Ubuntu 16.04 amd64.
 
-# Setup instructions
+# Instructions
 
-Please, follow the instructions detailed
-[here](https://github.com/ToyotaResearchInstitute/delphyne-gui) for
-building the dependencies and the Delphyne project.
+Instructions for setting up a delphyne workspace can be found in [Delphyne Guide#Installation](https://docs.google.com/document/d/1tQ9vDp084pMuHjYmtScLB3F1tdr4iP9w7_OTcoSM1zQ/edit#heading=h.e45b0m13gxl4).
 
 # Developer's section
 This section is aimed to show the scripts and tools available on delphyne for the developers.

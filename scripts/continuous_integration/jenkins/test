@@ -31,7 +31,7 @@
 
 set -eo pipefail
 
-. workspace/delphyne_gui/setup.bash
+. install/setup.bash
 
 pushd build/delphyne
 CTEST_OUTPUT_ON_FAILURE=1 make test

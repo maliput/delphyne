@@ -28,6 +28,8 @@
 
 #include "backend/driving_command_to_ignition_message_converter.h"
 
+#include "backend/time_conversion.h"
+
 using drake::automotive::DrivingCommand;
 using drake::automotive::DrivingCommandIndices;
 
@@ -43,10 +45,8 @@ void DrivingCommandToIgnitionMessageConverter::VectorToIgn(
     ignition::msgs::AutomotiveDrivingCommand* ign_message) {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
-  const int64_t secs = time;
-  const int64_t nsecs = (time - secs) * 1000000000;
-  ign_message->mutable_time()->set_sec(secs);
-  ign_message->mutable_time()->set_nsec(nsecs);
+  ign_message->mutable_time()->CopyFrom(SecsToIgnitionTime(time));
+
   ign_message->set_theta(input_vector.steering_angle());
   ign_message->set_acceleration(input_vector.acceleration());
 }

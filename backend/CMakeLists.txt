@@ -17,6 +17,7 @@ set (gtest_sources
   scene_system_test.cc
   simple_car_state_to_ignition_message_converter_test.cc
   simulation_runner_test.cc
+  time_conversion_test.cc
 )
 
 add_subdirectory(test/agent_plugin)
@@ -44,6 +45,7 @@ target_link_libraries(ign_publisher_system
   delphyne_lcm_to_ign
   delphyne_protobuf_msgs
   scene_system
+  time_conversion
 )
 
 target_include_directories(ign_publisher_system PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
@@ -80,6 +82,7 @@ target_link_libraries(delphyne_lcm_to_ign
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
   delphyne_protobuf_msgs
+  time_conversion
 )
 
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
@@ -127,6 +130,7 @@ target_link_libraries(automotive_simulator
   ign_publisher_system
   ign_subscriber_system
   scene_system
+  time_conversion
 )
 
 target_include_directories(automotive_simulator PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
@@ -178,6 +182,16 @@ delphyne_install_includes(
 
 # ----------------------------------------
 # Test helper library.
+add_library(time_conversion
+  time_conversion.cc
+)
+
+target_link_libraries(time_conversion)
+
+target_include_directories(time_conversion PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Test helper library.
 add_library(test_helpers test/helpers.cc)
 
 target_link_libraries(test_helpers
@@ -213,6 +227,7 @@ install(TARGETS
   scene_system
   simulation_runner
   simulation_runner_py
+  time_conversion
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

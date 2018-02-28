@@ -71,12 +71,8 @@ def get_from_env_or_fail(var):
 def launch_visualizer(launcher, layout_filename):
     """Launches the project's visualizer with a given layout"""
     ign_visualizer = "visualizer"
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
+    delphyne_resource_root = get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
     layout_key = "--layout="
-    layout_path = os.path.join(delphyne_ws_dir,
-                               "install",
-                               "share",
-                               "delphyne",
-                               layout_filename)
+    layout_path = os.path.join(delphyne_resource_root, layout_filename)
     teleop_config = layout_key + layout_path
     launcher.launch([ign_visualizer, teleop_config])

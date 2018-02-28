@@ -2,11 +2,16 @@
 
 set -e
 
-# Enables the python interpreter to find simulation_runner.so .
-PYTHONPATH=$PYTHONPATH:$DELPHYNE_WS_DIR/install/bin
+# Assumes some conventions about our workspace, namely:
+# + build/delphyne
+# + src/delphyne/tools/run_tests.sh
+
+SCRIPT_PATH=$( realpath ${BASH_SOURCE[0]} )
+SCRIPT_DIR=$( dirname $SCRIPT_PATH )
+DELPHYNE_SOURCE_DIR=$( dirname $SCRIPT_DIR )
 
 # Sets the path to the generated readme.
-PATH_TO_README=$DELPHYNE_WS_DIR/src/delphyne/backend/python_examples/README.md
+PATH_TO_README=${DELPHYNE_SOURCE_DIR}/backend/python_examples/README.md
 
 # Remove previous version of README.md .
 rm -f $PATH_TO_README && touch $PATH_TO_README

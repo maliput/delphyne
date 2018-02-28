@@ -32,20 +32,10 @@
 
 import os
 
-from pydrake.common import AddResourceSearchPath
-
 from simulation_runner_py import (
     AutomotiveSimulator,
     SimpleCarState,
 )
-
-
-def add_drake_resource_path():
-    """Adds the DRAKE_INSTALL_PATH environmental variable into
-    drake's resource search path.
-    """
-    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
-    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
 
 def build_simple_car_simulator(initial_positions=None):

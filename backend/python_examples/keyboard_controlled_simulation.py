@@ -60,7 +60,6 @@ import time
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 from delphyne_utils import (
-    add_drake_resource_path,
     build_simple_car_simulator,
     launch_visualizer
 )
@@ -145,9 +144,6 @@ def demo_callback(runner, launcher, keyboard_handler):
 def main():
     """Runs the demo."""
     try:
-        # Checks for env variables presence, quits the demo otherwise.
-        add_drake_resource_path()
-
         launcher = Launcher()
         simulator = build_simple_car_simulator()
 

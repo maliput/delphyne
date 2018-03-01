@@ -10,6 +10,9 @@ SCRIPT_PATH=$( realpath ${BASH_SOURCE[0]} )
 SCRIPT_DIR=$( dirname $SCRIPT_PATH )
 DELPHYNE_SOURCE_DIR=$( dirname $SCRIPT_DIR )
 
+# Enable pydocmd to find the examples
+PYTHONPATH=${DELPHYNE_SOURCE_DIR}/backend/python_examples:${PYTHONPATH}
+
 # Sets the path to the generated readme.
 PATH_TO_README=${DELPHYNE_SOURCE_DIR}/backend/python_examples/README.md
 

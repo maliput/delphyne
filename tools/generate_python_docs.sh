@@ -4,7 +4,7 @@ set -e
 
 # Assumes some conventions about our workspace, namely:
 # + build/delphyne
-# + src/delphyne/tools/run_tests.sh
+# + src/delphyne/tools/generate_python_docs.sh
 
 SCRIPT_PATH=$( realpath ${BASH_SOURCE[0]} )
 SCRIPT_DIR=$( dirname $SCRIPT_PATH )

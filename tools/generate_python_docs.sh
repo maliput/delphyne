@@ -16,9 +16,9 @@ PATH_TO_README=${DELPHYNE_SOURCE_DIR}/backend/python_examples/README.md
 # Remove previous version of README.md .
 rm -f $PATH_TO_README && touch $PATH_TO_README
 
-cat tools/python_examples_md_template.in > $PATH_TO_README
+cat ${DELPHYNE_SOURCE_DIR}/tools/python_examples_md_template.in > $PATH_TO_README
 
-cd backend/python_examples
+cd ${DELPHYNE_SOURCE_DIR}/backend/python_examples
 
 # Converts a python module docstring into markdown and appends it to the README.
 find . -iname '*.py' -printf '%f\n' | while read file ; do

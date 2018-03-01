@@ -38,7 +38,7 @@ die() {
 
 . install/setup.bash || die "failed to find install/setup.bash $?"
 
-echo "DELPHYNE_RESOURCE_ROOT ....... $DELPHYNE_RESOURCE_ROOT"
+export DRAKE_RESOURCE_ROOT="install/share"
 
 pushd build/delphyne
 CTEST_OUTPUT_ON_FAILURE=1 make test

@@ -67,4 +67,10 @@ CXX=$COMPILER_PATH cmake ../.. -DCMAKE_INSTALL_PREFIX=../../install
 make -j$JOBS VERBOSE=1 install
 popd
 
+mkdir -p delphyne_gui
+pushd delphyne_gui
+CXX=$COMPILER_PATH cmake ../../workspace/delphyne_gui -DCMAKE_INSTALL_PREFIX=../../install
+make -j$JOBS VERBOSE=1 install
+popd
+
 popd # build

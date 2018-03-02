@@ -36,9 +36,11 @@ die() {
     exit 1
 }
 
-. install/setup.bash || die "failed to find install/setup.bash $?"
+# . install/setup.bash || die "failed to find install/setup.bash $?"
 
-export DRAKE_RESOURCE_ROOT="install/share"
+PWD=`pwd`
+echo "PRESENT WORKING DIRECTORY=$PWD"
+export DRAKE_RESOURCE_ROOT=${PWD}/install/share
 
 pushd build/delphyne
 CTEST_OUTPUT_ON_FAILURE=1 make test

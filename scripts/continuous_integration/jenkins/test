@@ -36,10 +36,16 @@ die() {
     exit 1
 }
 
+# Do not yet need this for tests
 # . install/setup.bash || die "failed to find install/setup.bash $?"
 
-PWD=`pwd`
-echo "PRESENT WORKING DIRECTORY=$PWD"
+# Should not need this, but there is a bug with the drake resource lookup
+# that gets triggered due to the configuration of this workspace inducing
+# relative linking paths to drake and it's dependencies. Until that's resolved
+# we'll hijack the DRAKE_RESOURCE_ROOT method.
+#
+#    https://github.com/RobotLocomotion/drake/issues/8225
+#
 export DRAKE_RESOURCE_ROOT=${PWD}/install/share
 
 pushd build/delphyne

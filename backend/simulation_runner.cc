@@ -32,6 +32,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
+#include <limits>
 #include <memory>
 #include <mutex>
 #include <thread>
@@ -129,18 +130,18 @@ SimulatorRunner::SimulatorRunner(
     : SimulatorRunner(std::move(sim), time_step, 1.0, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
-  Stop();
+  // Only do this if we are running the simulation.
+  if (enabled_) {
+    enabled_ = false;
+  }
   if (main_thread_.joinable()) {
     main_thread_.join();
   }
 }
 
 void SimulatorRunner::Stop() {
-  // Only do this if we are running the simulation.
-  if (enabled_) {
-    // Tells the main loop thread to terminate.
-    enabled_ = false;
-  }
+  DELPHYNE_DEMAND(enabled_);
+  enabled_ = false;
 }
 
 bool SimulatorRunner::IsPaused() const { return paused_; }
@@ -172,19 +173,37 @@ void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
 }
 
 void SimulatorRunner::Start() {
-  // The main loop is already running.
-  if (enabled_) return;
-
-  enabled_ = true;
-
-  // Starts the thread that receives discovery information.
-  main_thread_ = std::thread(&SimulatorRunner::Run, this);
+  this->RunAsyncFor(std::numeric_limits<double>::infinity(), [] {});
 }
 
-void SimulatorRunner::Run() {
-  while (enabled_) {
+void SimulatorRunner::RunAsyncFor(double duration,
+                                  std::function<void()> callback) {
+  DELPHYNE_DEMAND(!enabled_);
+  enabled_ = true;
+  main_thread_ = std::thread([this, duration, callback]() {
+    this->RunSimulationLoopFor(duration, callback);
+  });
+}
+
+void SimulatorRunner::RunSyncFor(double duration) {
+  DELPHYNE_DEMAND(!enabled_);
+  enabled_ = true;
+  this->RunSimulationLoopFor(duration, [] {});
+}
+
+void SimulatorRunner::RunSimulationLoopFor(double duration,
+                                           std::function<void()> callback) {
+  DELPHYNE_DEMAND(duration >= 0);
+
+  const double sim_end = simulator_->get_current_simulation_time() + duration;
+
+  while (enabled_ && (simulator_->get_current_simulation_time() < sim_end)) {
     RunSimulationStep();
   }
+
+  enabled_ = false;
+
+  callback();
 }
 
 void SimulatorRunner::RunSimulationStep() {

@@ -87,3 +87,18 @@ $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl --
 `Play` / `Pause` / `Step` buttons from the GUI.
 
 
+<h1 id="time_bounded_simulation">time_bounded_simulation</h1>
+
+
+This example shows how to run a simulation for a fixed period of time (15
+seconds by default). As an added bonus, the user can also specify the real-time
+simulation rate (which by default is 1.0).
+
+The following command depicts how to run a simulation for 30 sim seconds using
+a real-time rate of 2x (so it should run in approximately 15 wall clock
+seconds):
+
+```
+$ time_bounded_simulation.py --realtime_rate=2.0 --duration=30.0
+```
+

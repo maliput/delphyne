@@ -27,9 +27,11 @@
 // POSSIBILITY OF SUCH DAMAGE.
 
 #include <chrono>
+#include <condition_variable>
 #include <csignal>
 #include <cstdlib>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <thread>
 
@@ -203,17 +205,84 @@ TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
 // @brief Asserts that the execution breaks if a RequestStep
 // is received if the simulation hasn't started.
 TEST_F(SimulationRunnerTest, TestRequestStepWhenNotStarted) {
+  // We need this flag for safe multithreaded death tests
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   EXPECT_DEATH(sim_runner_->RequestStep(0.01), "condition 'enabled_' failed.");
+}
+
+// @brief Asserts that the execution breaks if a Start() is requested twice
+TEST_F(SimulationRunnerTest, TestCantStartTwice) {
+  // We need this flag for safe multithreaded death tests
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  sim_runner_->Start();
+  EXPECT_DEATH(sim_runner_->Start(), "condition '!enabled_' failed.");
+}
+
+// @brief Asserts that the execution breaks if Stopt() is called and the
+// simulation runner hasn't started yet.
+TEST_F(SimulationRunnerTest, TestStopWithoutStartShouldFail) {
+  // We need this flag for safe multithreaded death tests
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
+  EXPECT_DEATH(sim_runner_->Stop(), "condition 'enabled_' failed.");
 }
 
 // @brief Asserts that the execution breaks if a RequestStep
 // is received if the simulation is paused.
 TEST_F(SimulationRunnerTest, TestRequestStepWhenUnPaused) {
+  // We need this flag for safe multithreaded death tests
+  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   sim_runner_->Start();
 
   EXPECT_FALSE(sim_runner_->IsPaused());
 
   EXPECT_DEATH(sim_runner_->RequestStep(0.1), "condition 'paused_' failed.");
+}
+
+// @brief Checks that RunSyncFor executes the simulation for the expected
+// simulation time
+TEST_F(SimulationRunnerTest, TestRunSyncFor) {
+  // Make the simulation run twice as fast as wall clock.
+  sim_runner_->SetRealtimeRate(2.0);
+
+  sim_runner_->RunSyncFor(0.2);
+
+  // Compare simulation time
+  const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
+
+  EXPECT_GE(elapsed_sim_time, 0.195);
+  EXPECT_LE(elapsed_sim_time, 0.205);
+}
+
+// @brief Checks that RunSyncFor executes the simulation for the expected
+// simulation time
+TEST_F(SimulationRunnerTest, TestRunAsyncFor) {
+  // Make the simulation run four times faster than wall clock.
+  sim_runner_->SetRealtimeRate(4.0);
+
+  // Variables requires to wait on the async callback
+  bool callback_executed(false);
+  std::mutex m;
+  std::condition_variable cv;
+
+  // Run the simulation and flag the condition variable when done.
+  sim_runner_->RunAsyncFor(0.2, [&callback_executed, &m, &cv]() {
+    std::unique_lock<std::mutex> lock(m);
+    callback_executed = true;
+    cv.notify_one();
+  });
+
+  std::unique_lock<std::mutex> lock(m);
+
+  // While required to handle spurious wakeups
+  while (!callback_executed) {
+    cv.wait(lock);
+  }
+
+  // Compare simulation time
+  const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
+
+  EXPECT_GE(elapsed_sim_time, 0.195);
+  EXPECT_LE(elapsed_sim_time, 0.205);
 }
 
 }  // namespace backend

@@ -137,12 +137,16 @@ void WaitForShutdown();
 class SimulatorRunner {
  public:
   /// @brief Default constructor.
+  ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
+  ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
+  ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
+  ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
   SimulatorRunner(
@@ -151,10 +155,13 @@ class SimulatorRunner {
 
   /// @brief Simplified constructor that starts the simulator at a real-time
   /// rate of 1.0.
+  ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
+  ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
+  ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
   SimulatorRunner(
@@ -163,21 +170,25 @@ class SimulatorRunner {
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false.
+  ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
+  ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
+  ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-
   SimulatorRunner(
       std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
       double time_step, double realtime_rate);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false and a real-time rate of 1.0.
+  ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
+  ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
   SimulatorRunner(
@@ -191,22 +202,41 @@ class SimulatorRunner {
   /// important to note that the simulation step will be effectively blocked
   /// by this the execution of the callbacks, so please consider this when
   /// adding it.
+  ///
   /// @param[in] callable A pointer to a callback function, coming from the
   /// python world.
   void AddStepCallback(std::function<void()> callable);
 
-  /// @brief Starts the thread that runs the simulation loop. If there was a
-  /// previous call to Start(), this call will be ignored.
+  /// @brief Starts the thread that runs the simulation loop.
+  ///
+  /// @pre The simulation should not be running.
   void Start();
 
   /// @brief Stops the thread that runs the simulation loop. If there was a
   /// previous call to Stop(), this call will be ignored.
   void Stop();
 
-  /// @brief Runs the main simulation loop.
-  void Run();
+  /// @brief Spawns a new thread that runs the main simulation loop for the
+  /// provided time period.
+  ///
+  /// @param[in] duration The duration that the simulation loop should run for.
+  /// Note that the time stated here is simulation time, expressed in seconds.
+  ///
+  /// @param[in] callback A callback function that will be executed when the
+  /// simulation has finished.
+  void RunAsyncFor(double duration, std::function<void()> callback);
 
-  /// @brief Advances a single simulation step by time_step_ seconds.
+  /// @brief Runs the main simulation loop for the provided time period.
+  ///
+  /// @param[in] duration The duration that the simulation loop should run for.
+  /// Note that the time stated here is simulation time, expressed in seconds.
+  void RunSyncFor(double duration);
+
+  /// @brief Advances the simulation by a single step. The amount of simulated
+  /// time to advance is provided by the time_step_ field and the ratio between
+  /// real time and simulation time is provided by the configured real-time
+  /// rate.
+  /// Note that this is a blocking call.
   void RunSimulationStep();
 
   /// See documentation of AutomotiveSimulator::SetRealtimeRate.
@@ -232,13 +262,32 @@ class SimulatorRunner {
   ///  @brief Unauses the simulation, no-op if called multiple times.
   void Unpause();
 
+  /// Returns the current simulation time in seconds.
+  double get_current_simulation_time() const {
+    return simulator_->get_current_simulation_time();
+  }
+
+ protected:
+  // @brief Runs the main simulation loop for the provided time period. Note
+  // that this is a blocking call (i.e. it does not spawn a new thread to run)
+  //
+  // @param[in] duration The duration that the simulation loop should run for.
+  // Note that the time stated here is simulation time, expressed in seconds.
+  //
+  // @param[in] callback A callback function that will be executed when the
+  // simulation has finished.
+  void RunSimulationLoopFor(double duration, std::function<void()> callback);
+
  private:
   // @brief Process one RobotModelRequest message.
+  //
   // @param[in] msg The message
   void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& msg);
 
   // @brief Service used to receive robot model request messages.
+  //
   // @param[in] request The request.
+  //
   // @param[out] response The response (unused).
   // @return The result of the service.
   bool OnRobotModelRequest(
@@ -247,11 +296,14 @@ class SimulatorRunner {
       ignition::msgs::Boolean& response);
 
   // @brief Processes one WorldControl message.
+  //
   // @param[in] msg The message
   void ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg);
 
   // @brief Service used to receive world control messages.
+  //
   // @param[in] request The request.
+  //
   // @param[out] response The response (unused).
   // @return The result of the service.
   bool OnWorldControl(

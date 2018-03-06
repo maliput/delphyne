@@ -267,7 +267,7 @@ class SimulatorRunner {
     return simulator_->get_current_simulation_time();
   }
 
- protected:
+ private:
   // @brief Runs the main simulation loop for the provided time period. Note
   // that this is a blocking call (i.e. it does not spawn a new thread to run)
   //
@@ -278,7 +278,6 @@ class SimulatorRunner {
   // simulation has finished.
   void RunSimulationLoopFor(double duration, std::function<void()> callback);
 
- private:
   // @brief Process one RobotModelRequest message.
   //
   // @param[in] msg The message

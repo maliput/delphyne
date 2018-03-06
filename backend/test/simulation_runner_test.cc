@@ -218,7 +218,7 @@ TEST_F(SimulationRunnerTest, TestCantStartTwice) {
   EXPECT_DEATH(sim_runner_->Start(), "condition '!enabled_' failed.");
 }
 
-// @brief Asserts that the execution breaks if Stopt() is called and the
+// @brief Asserts that the execution breaks if Stop() is called and the
 // simulation runner hasn't started yet.
 TEST_F(SimulationRunnerTest, TestStopWithoutStartShouldFail) {
   // We need this flag for safe multithreaded death tests
@@ -241,21 +241,27 @@ TEST_F(SimulationRunnerTest, TestRequestStepWhenUnPaused) {
 // @brief Checks that RunSyncFor executes the simulation for the expected
 // simulation time
 TEST_F(SimulationRunnerTest, TestRunSyncFor) {
+  const double kDuration = 1.0;
+  const double kRelativeTolerance = 0.025;
+
   // Make the simulation run twice as fast as wall clock.
   sim_runner_->SetRealtimeRate(2.0);
 
-  sim_runner_->RunSyncFor(0.2);
+  sim_runner_->RunSyncFor(kDuration);
 
   // Compare simulation time
   const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
 
-  EXPECT_GE(elapsed_sim_time, 0.195);
-  EXPECT_LE(elapsed_sim_time, 0.205);
+  EXPECT_GE(elapsed_sim_time, kDuration * (1. - kRelativeTolerance));
+  EXPECT_LE(elapsed_sim_time, kDuration * (1. + kRelativeTolerance));
 }
 
-// @brief Checks that RunSyncFor executes the simulation for the expected
+// @brief Checks that RunAsyncFor executes the simulation for the expected
 // simulation time
 TEST_F(SimulationRunnerTest, TestRunAsyncFor) {
+  const double kDuration = 1.0;
+  const double kRelativeTolerance = 0.025;
+
   // Make the simulation run four times faster than wall clock.
   sim_runner_->SetRealtimeRate(4.0);
 
@@ -265,7 +271,7 @@ TEST_F(SimulationRunnerTest, TestRunAsyncFor) {
   std::condition_variable cv;
 
   // Run the simulation and flag the condition variable when done.
-  sim_runner_->RunAsyncFor(0.2, [&callback_executed, &m, &cv]() {
+  sim_runner_->RunAsyncFor(kDuration, [&callback_executed, &m, &cv]() {
     std::unique_lock<std::mutex> lock(m);
     callback_executed = true;
     cv.notify_one();
@@ -281,8 +287,78 @@ TEST_F(SimulationRunnerTest, TestRunAsyncFor) {
   // Compare simulation time
   const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
 
-  EXPECT_GE(elapsed_sim_time, 0.195);
-  EXPECT_LE(elapsed_sim_time, 0.205);
+  EXPECT_GE(elapsed_sim_time, kDuration * (1. - kRelativeTolerance));
+  EXPECT_LE(elapsed_sim_time, kDuration * (1. + kRelativeTolerance));
+}
+
+// @brief Checks that play/pause is properly handed on RunAsyncFor
+TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
+  // Simulation time measured in seconds
+  const double kSimulationDuration = 0.5;
+  const double kSimulationRelativeTolerance = 0.05;
+
+  // Wall clock measured in milliseconds
+  const int kMinWallClockDuration = 600;
+  const int kDelayForPause = 300;
+  const int kMaxWallClockDuration =
+      kMinWallClockDuration + kDelayForPause + kSimulationDuration * 1000;
+
+  // Variables requires to wait on the async callback
+  bool callback_executed(false);
+  std::mutex m;
+  std::condition_variable cv;
+
+  // Record the wall-clock time when the simulation starts.
+  const auto wall_clock_start = std::chrono::steady_clock::now();
+
+  // Run the simulation and flag the condition variable when done.
+  sim_runner_->RunAsyncFor(kSimulationDuration,
+                           [&callback_executed, &m, &cv]() {
+                             std::unique_lock<std::mutex> lock(m);
+                             callback_executed = true;
+                             cv.notify_one();
+                           });
+
+  // Wait for 50 milliseconds and pause the execution.
+  std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
+  sim_runner_->Pause();
+
+  // Wait for 300 milliseconds and resume the execution.
+  std::this_thread::sleep_for(std::chrono::milliseconds(kMinWallClockDuration));
+
+  sim_runner_->Unpause();
+
+  // Wait for the callback.
+  std::unique_lock<std::mutex> lock(m);
+
+  // While required to handle spurious wakeups.
+  while (!callback_executed) {
+    cv.wait(lock);
+  }
+
+  // Record the wall-clock time when the simulation ends.
+  const auto wall_clock_end = std::chrono::steady_clock::now();
+
+  // Compare wall clock time.
+  const auto wall_clock_duration =
+      std::chrono::duration_cast<std::chrono::milliseconds>(wall_clock_end -
+                                                            wall_clock_start);
+
+  // Expected max/min duration in milliseconds.
+  const std::chrono::milliseconds min_wall_clock_time(kMinWallClockDuration);
+  const std::chrono::milliseconds max_wall_clock_time(kMaxWallClockDuration);
+
+  EXPECT_GE(wall_clock_duration, min_wall_clock_time);
+  EXPECT_LE(wall_clock_duration, max_wall_clock_time);
+
+  // Compare simulation time
+  const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
+
+  EXPECT_GE(elapsed_sim_time,
+            kSimulationDuration * (1. - kSimulationRelativeTolerance));
+  EXPECT_LE(elapsed_sim_time,
+            kSimulationDuration * (1. + kSimulationRelativeTolerance));
 }
 
 }  // namespace backend

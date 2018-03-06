@@ -79,14 +79,14 @@ def main():
                         help="The duration the simulation should run for")
     parser.add_argument("-r", "--realtime_rate", default=1.0,
                         type=check_positive_float,
-                        help="""The real-time rate at which the simulation \
-                             should start running""")
+                        help="The real-time rate at which the simulation \
+                             should start running")
 
     args = parser.parse_args()
 
     simulation_duration = args.duration
 
-    realtime_rate = float(args.realtime_rate)
+    realtime_rate = args.realtime_rate
 
     try:
         add_drake_resource_path()

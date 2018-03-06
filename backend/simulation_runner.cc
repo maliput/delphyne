@@ -130,10 +130,9 @@ SimulatorRunner::SimulatorRunner(
     : SimulatorRunner(std::move(sim), time_step, 1.0, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
-  // Only do this if we are running the simulation.
-  if (enabled_) {
-    enabled_ = false;
-  }
+  // In case the simulation thread was running and the client code didn't
+  // call the Stop() method.
+  enabled_ = false;
   if (main_thread_.joinable()) {
     main_thread_.join();
   }
@@ -194,6 +193,7 @@ void SimulatorRunner::RunSyncFor(double duration) {
 void SimulatorRunner::RunSimulationLoopFor(double duration,
                                            std::function<void()> callback) {
   DELPHYNE_DEMAND(duration >= 0);
+  DELPHYNE_DEMAND(callback != nullptr);
 
   const double sim_end = simulator_->get_current_simulation_time() + duration;
 

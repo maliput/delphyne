@@ -33,6 +33,8 @@
 #include "backend/automotive_simulator.h"
 
 #include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <stdexcept>
 #include <thread>
 
@@ -597,18 +599,20 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   std::condition_variable cv;
   // Mutex for critical section.
   std::mutex mtx;
-  std::unique_lock<std::mutex> lck(mtx);
 
+  // This counter keeps track of the number of times that the
+  // callback function has been called.
   int num_of_callback_calls = 0;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback = [&draw_message, &cv, &num_of_callback_calls](
+      viewer_draw_callback = [&draw_message, &mtx, &cv, &num_of_callback_calls](
           const ignition::msgs::Model_V& ign_message) {
+        std::unique_lock<std::mutex> lck(mtx);
         draw_message = ign_message;
         // Increases the counter to keep track of how
-        // much times the callback has been called.
+        // many times the callback has been called.
         num_of_callback_calls++;
-        // Notifies main thread that it's his turn.
+        // Notifies the main thread that the counter was increased.
         cv.notify_one();
       };
 
@@ -640,8 +644,9 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   // Runs a single simulation step.
   simulator->StepBy(1e-3);
 
-  // Waits here until the callack has been executed at least twice,
-  // so that the integrity of the draw_message variale can be ensured.
+  // Waits until the callback has been executed twice, as that
+  // ensures that draw_message will not be further changed.
+  std::unique_lock<std::mutex> lck(mtx);
   while (num_of_callback_calls < 2) {
     cv.wait(lck);
   }

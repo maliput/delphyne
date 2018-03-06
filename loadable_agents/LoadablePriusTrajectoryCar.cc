@@ -48,11 +48,6 @@
 #include <memory>
 #include <string>
 
-#include <backend/agent_plugin_base.h>
-#include <backend/ign_subscriber_system.h>
-#include <backend/linb-any>
-#include <backend/simple_car_state_to_ignition_message_converter.h>
-
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
 #include <ignition/msgs.hh>
@@ -73,6 +68,11 @@
 #include "drake/systems/lcm/lcm_publisher_system.h"
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
+
+#include <backend/agent_plugin_base.h>
+#include <backend/ign_subscriber_system.h>
+#include <backend/linb-any>
+#include <backend/simple_car_state_to_ignition_message_converter.h>
 
 namespace delphyne {
 namespace backend {
@@ -246,7 +246,7 @@ class LoadablePriusTrajectoryCarDouble final
     const drake::automotive::TrajectoryCarState<double>* const state =
         dynamic_cast<const drake::automotive::TrajectoryCarState<double>*>(
             &context.get_continuous_state_vector());
-    DRAKE_ASSERT(state);
+    DELPHYNE_ASSERT(state);
 
     // Obtain the input.
     const drake::systems::BasicVector<double>* input =
@@ -257,17 +257,17 @@ class LoadablePriusTrajectoryCarDouble final
     if (input == nullptr) {
       input = default_input.get();
     }
-    DRAKE_ASSERT(input->size() == 1);  // Expect the input to have only a single
+    DELPHYNE_ASSERT(input->size() == 1);  // Expect the input to have only a single
                                        // acceleration value.
 
     // Obtain the result structure.
-    DRAKE_ASSERT(derivatives != nullptr);
+    DELPHYNE_ASSERT(derivatives != nullptr);
     drake::systems::VectorBase<double>& vector_derivatives =
         derivatives->get_mutable_vector();
     drake::automotive::TrajectoryCarState<double>* const rates =
         dynamic_cast<drake::automotive::TrajectoryCarState<double>*>(
             &vector_derivatives);
-    DRAKE_ASSERT(rates);
+    DELPHYNE_ASSERT(rates);
 
     ImplCalcTimeDerivatives(params, *state, *input, rates);
   }
@@ -343,7 +343,7 @@ class LoadablePriusTrajectoryCarDouble final
     auto state =
         dynamic_cast<const drake::automotive::TrajectoryCarState<double>*>(
             &context.get_continuous_state_vector());
-    DRAKE_DEMAND(state != nullptr);
+    DELPHYNE_DEMAND(state != nullptr);
     return *state;
   }
 
@@ -361,7 +361,7 @@ class LoadablePriusTrajectoryCarDouble final
     // TODO(jadecastro): Now that the curve is a function of position rather
     // than time, we are not acting on a `trajectory` anymore.  Rename this
     // System to PathFollowingCar or something similar.
-    DRAKE_ASSERT(pose.position_dot.norm() > 0.0);
+    DELPHYNE_ASSERT(pose.position_dot.norm() > 0.0);
 
     result.position = pose.position;
     result.heading = atan2(pose.position_dot[1], pose.position_dot[0]);

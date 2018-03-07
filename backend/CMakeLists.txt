@@ -237,6 +237,7 @@ install(PROGRAMS
   python_examples/paused_mode_example.py
   python_examples/python_bindings_example.py
   python_examples/realtime_rate_changer.py
+  python_examples/time_bounded_simulation.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Python tests

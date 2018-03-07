@@ -347,6 +347,7 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   void ResetStatistics();
 
+  /// Returns the current simulation time in seconds.
   /// @see documentation of Simulator::Context::get_time.
   double get_current_simulation_time() const;
 

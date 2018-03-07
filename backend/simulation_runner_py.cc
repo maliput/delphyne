@@ -62,6 +62,8 @@ PYBIND11_MODULE(simulation_runner_py, m) {
       .def("GetRealtimeRate", &SimulatorRunner::GetRealtimeRate)
       .def("Start", &SimulatorRunner::Start)
       .def("Stop", &SimulatorRunner::Stop)
+      .def("RunAsyncFor", &SimulatorRunner::RunAsyncFor)
+      .def("RunSyncFor", &SimulatorRunner::RunSyncFor)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback)
       .def("RunSimulationStep", &SimulatorRunner::RunSimulationStep)
       .def("IsPaused", &SimulatorRunner::IsPaused)

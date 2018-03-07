@@ -96,7 +96,7 @@ def main():
     try:
         launch_visualizer(launcher, "layoutWithTeleop.config")
 
-        print("Running simulation for {0} seconds @ {1}x reat-time rate "
+        print("Running simulation for {0} seconds @ {1}x real-time rate "
               .format(simulation_duration, realtime_rate))
 
         runner.RunAsyncFor(simulation_duration, launcher.terminate)

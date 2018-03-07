@@ -51,7 +51,6 @@ import time
 from launcher import Launcher
 from simulation_runner_py import SimulatorRunner
 from delphyne_utils import (
-    add_drake_resource_path,
     build_simple_car_simulator,
     launch_visualizer
 )
@@ -87,12 +86,6 @@ def main():
     simulation_duration = args.duration
 
     realtime_rate = args.realtime_rate
-
-    try:
-        add_drake_resource_path()
-    except RuntimeError, error_msg:
-        sys.stderr.write("ERROR: {}".format(error_msg))
-        sys.exit(1)
 
     launcher = Launcher()
 

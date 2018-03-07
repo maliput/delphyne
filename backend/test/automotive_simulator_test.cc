@@ -33,6 +33,8 @@
 #include "backend/automotive_simulator.h"
 
 #include <chrono>
+#include <condition_variable>
+#include <mutex>
 #include <stdexcept>
 #include <thread>
 
@@ -593,11 +595,26 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   // that is published to DRAKE_VIEWER_DRAW
   ignition::msgs::Model_V draw_message;
 
+  // Condition variable for critical section.
+  std::condition_variable cv;
+  // Mutex for critical section.
+  std::mutex mtx;
+
+  // This counter keeps track of the number of times that the
+  // callback function has been called.
+  int num_of_callback_calls = 0;
+
   std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback =
-          [&draw_message](const ignition::msgs::Model_V& ign_message) {
-            draw_message = ign_message;
-          };
+      viewer_draw_callback = [&draw_message, &mtx, &cv, &num_of_callback_calls](
+          const ignition::msgs::Model_V& ign_message) {
+        std::unique_lock<std::mutex> lck(mtx);
+        draw_message = ign_message;
+        // Increases the counter to keep track of how
+        // many times the callback has been called.
+        num_of_callback_calls++;
+        // Notifies the main thread that the counter was increased.
+        cv.notify_one();
+      };
 
   ignition::transport::Node node;
 
@@ -621,10 +638,20 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
     }
   }
 
+  // Checks number of links in the robot message.
   EXPECT_EQ(robot_model_link_count, expected_num_links);
 
+  // Runs a single simulation step.
   simulator->StepBy(1e-3);
 
+  // Waits until the callback has been executed twice, as that
+  // ensures that draw_message will not be further changed.
+  std::unique_lock<std::mutex> lck(mtx);
+  while (num_of_callback_calls < 2) {
+    cv.wait(lck);
+  }
+
+  // Checks number of links in the viewer_draw message.
   EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
 }
 

@@ -69,7 +69,7 @@ class DELPHYNE_BACKEND_VISIBLE SceneSystem
 
  private:
   // The period between scene updates (ms).
-  const double kScenePeriodMs_ = 25.0;
+  const double kScenePeriodMs_ = 250.0;
   // The topic on which to publish ign-transport messages.
   const std::string topic_;
   // Ignition transport node.

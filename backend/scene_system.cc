@@ -29,6 +29,7 @@
 #include <ignition/common/Time.hh>
 
 #include "backend/scene_system.h"
+#include "backend/time_conversion.h"
 
 using drake::systems::AbstractValue;
 using drake::systems::Context;
@@ -68,9 +69,7 @@ void SceneSystem::DoPublish(
 
   // Stamp the message.
   auto t = drake::ExtractDoubleOrThrow(context.get_time());
-  ignition::common::Time sim_time(t);
-  scene_msg.mutable_header()->mutable_stamp()->set_sec(sim_time.sec);
-  scene_msg.mutable_header()->mutable_stamp()->set_nsec(sim_time.nsec);
+  *scene_msg.mutable_header()->mutable_stamp() = SecsToIgnitionTime(t);
 
   // Populate the list of models.
   ignition::msgs::Model_V models;

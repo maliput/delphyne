@@ -2,7 +2,7 @@
 
 set -e
 
-# Assumes some conventions about our workspace, namely:
+# This script assumes some conventions about our workspace, namely:
 # + build/delphyne
 # + src/delphyne/tools/generate_python_docs.sh
 

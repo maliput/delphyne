@@ -257,8 +257,8 @@ class LoadablePriusTrajectoryCarDouble final
     if (input == nullptr) {
       input = default_input.get();
     }
-    DELPHYNE_ASSERT(input->size() == 1);  // Expect the input to have only a single
-                                       // acceleration value.
+    DELPHYNE_ASSERT(input->size() == 1);  // Expect the input to have only a
+                                          // single acceleration value.
 
     // Obtain the result structure.
     DELPHYNE_ASSERT(derivatives != nullptr);

@@ -32,20 +32,10 @@
 
 import os
 
-from pydrake.common import AddResourceSearchPath
-
 from simulation_runner_py import (
     AutomotiveSimulator,
     SimpleCarState,
 )
-
-
-def add_drake_resource_path():
-    """Adds the DRAKE_INSTALL_PATH environmental variable into
-    drake's resource search path.
-    """
-    drake_install_path = get_from_env_or_fail('DRAKE_INSTALL_PATH')
-    AddResourceSearchPath(os.path.join(drake_install_path, "share", "drake"))
 
 
 def build_simple_car_simulator(initial_positions=None):
@@ -81,12 +71,8 @@ def get_from_env_or_fail(var):
 def launch_visualizer(launcher, layout_filename):
     """Launches the project's visualizer with a given layout"""
     ign_visualizer = "visualizer"
-    delphyne_ws_dir = get_from_env_or_fail('DELPHYNE_WS_DIR')
+    delphyne_resource_root = get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
     layout_key = "--layout="
-    layout_path = os.path.join(delphyne_ws_dir,
-                               "install",
-                               "share",
-                               "delphyne",
-                               layout_filename)
+    layout_path = os.path.join(delphyne_resource_root, layout_filename)
     teleop_config = layout_key + layout_path
     launcher.launch([ign_visualizer, teleop_config])

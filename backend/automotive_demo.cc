@@ -49,10 +49,6 @@ std::string MakeChannelName(const std::string& name) {
 }
 
 int main(int argc, char* argv[]) {
-  // Enables to resolve relative path to resources on AddPriusSimpleCar.
-  drake::AddResourceSearchPath(std::string(std::getenv("DRAKE_INSTALL_PATH")) +
-                               "/share/drake");
-
   // Instantiates a simulator.
   auto simulator =
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();

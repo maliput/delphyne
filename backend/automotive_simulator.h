@@ -347,6 +347,9 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   void ResetStatistics();
 
+  /// @see documentation of Simulator::Context::get_time.
+  double get_current_simulation_time() const;
+
  private:
   int allocate_vehicle_number();
 

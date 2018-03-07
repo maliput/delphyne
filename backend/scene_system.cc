@@ -26,7 +26,10 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
+#include <ignition/common/Time.hh>
+
 #include "backend/scene_system.h"
+#include "backend/time_conversion.h"
 
 using drake::systems::AbstractValue;
 using drake::systems::Context;
@@ -62,8 +65,13 @@ void SceneSystem::DoPublish(
   const AbstractValue* input = EvalAbstractInput(context, 0);
   const auto& viewer_draw = input->GetValue<drake::lcmt_viewer_draw>();
 
-  // Populate the list of models.
   ignition::msgs::Scene scene_msg;
+
+  // Stamp the message.
+  auto t = drake::ExtractDoubleOrThrow(context.get_time());
+  *scene_msg.mutable_header()->mutable_stamp() = SecsToIgnitionTime(t);
+
+  // Populate the list of models.
   ignition::msgs::Model_V models;
   lcmToIgn(viewer_draw, &models);
   for (int i = 0; i < models.models_size(); ++i) {

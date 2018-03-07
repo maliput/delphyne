@@ -755,6 +755,11 @@ void AutomotiveSimulator<T>::ResetStatistics() {
   simulator_->ResetStatistics();
 }
 
+template <typename T>
+double AutomotiveSimulator<T>::get_current_simulation_time() const {
+  return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
+}
+
 template class AutomotiveSimulator<double>;
 
 }  // namespace backend

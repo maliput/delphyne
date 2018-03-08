@@ -4,6 +4,7 @@
 
 #include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
+#include "backend/road_builder.h"
 
 #include <drake/common/find_resource.h>
 
@@ -15,6 +16,7 @@ namespace py = pybind11;
 using std::unique_ptr;
 
 using delphyne::backend::AutomotiveSimulator;
+using delphyne::backend::RoadBuilder;
 using delphyne::backend::SimulatorRunner;
 using drake::automotive::SimpleCarState;
 
@@ -25,7 +27,7 @@ using drake::automotive::SimpleCarState;
 // python scripts that launches the simulation.
 
 namespace {
-PYBIND11_MODULE(simulation_runner_py, m) {
+PYBIND11_MODULE(python_bindings, m) {
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
@@ -44,6 +46,13 @@ PYBIND11_MODULE(simulation_runner_py, m) {
       .def("Pause", &SimulatorRunner::Pause)
       .def("RequestStep", &SimulatorRunner::RequestStep)
       .def("Unpause", &SimulatorRunner::Unpause);
+
+  py::class_<RoadBuilder<double>>(m, "RoadBuilder")
+      .def(py::init<AutomotiveSimulator<double>*>())
+      .def(py::init<AutomotiveSimulator<double>*, double, double>())
+      .def("AddDragway", &RoadBuilder<double>::AddDragway)
+      .def("AddOnramp", &RoadBuilder<double>::AddOnramp);
+
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))

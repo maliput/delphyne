@@ -1,7 +1,4 @@
 #!/usr/bin/env python2.7
-#
-# Copyright 2017 Toyota Research Institute
-#
 
 """
 This example shows how to run a simulation for a fixed period of time (15
@@ -24,57 +21,53 @@ import sys
 import time
 
 from launcher import Launcher
-from python_bindings import SimulatorRunner
+from python_bindings import (
+    SimulatorRunner,
+    RoadBuilder
+)
 from delphyne_utils import (
     build_simple_car_simulator,
     launch_visualizer
 )
 
 
-def check_positive_float(value):
-    """Check that the passed argument is a positive float value"""
-    float_value = float(value)
-    if float_value <= 0.0:
-        raise argparse.ArgumentTypeError("%s is not a positive float value"
-                                         % value)
-    return float_value
-
-
 def main():
-    """Spawns a simulator_runner in paused mode"""
 
-    # Read the initial real-time rate and simulation duration from command
-    # line.
+    available_roads = ["dragway", "onramp"]
+
     parser = argparse.ArgumentParser(
-        prog="time_bounded_simulation",
+        prog="roads",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-d", "--duration", default=15.0,
-                        type=check_positive_float,
-                        help="The duration the simulation should run for")
-    parser.add_argument("-r", "--realtime_rate", default=1.0,
-                        type=check_positive_float,
-                        help="The real-time rate at which the simulation \
-                             should start running")
+    parser.add_argument("-r", "--road",
+                    default=available_roads[0],
+                    const=available_roads[0],
+                    nargs='?',
+                    choices=available_roads,
+                    help='The road to display')
 
     args = parser.parse_args()
 
-    simulation_duration = args.duration
-
-    realtime_rate = args.realtime_rate
+    road = args.road
 
     launcher = Launcher()
 
     simulator = build_simple_car_simulator()
 
-    runner = SimulatorRunner(simulator, 0.001, realtime_rate)
+    builder = RoadBuilder(simulator)
+
+    if road == "dragway":
+        builder.AddDragway("Demo dragway", 3, 100.0, 3.7, 1.0, 5.0)
+    elif road == "onramp":
+        builder.AddOnramp()
+    else:
+        raise RuntimeError("Option {} not recognized".format(road))
+
+    runner = SimulatorRunner(simulator, 0.001)
 
     try:
         launch_visualizer(launcher, "layoutWithTeleop.config")
 
-        print("Running simulation for {0} seconds @ {1}x real-time rate "
-              .format(simulation_duration, realtime_rate))
-
-        runner.RunAsyncFor(simulation_duration, launcher.terminate)
+        runner.Start()
 
         launcher.wait(float("Inf"))
 

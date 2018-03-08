@@ -116,6 +116,7 @@ add_library(automotive_simulator
   automotive_simulator.cc
   driving_command_to_ignition_message_converter.cc
   ign_subscriber_system.h
+  road_builder.h
   linb-any
   system.h
 )
@@ -206,9 +207,9 @@ target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 # ----------------------------------------
 # Python bindings.
 
-pybind11_add_module(simulation_runner_py simulation_runner_py.cc)
+pybind11_add_module(python_bindings python_bindings.cc)
 
-target_link_libraries(simulation_runner_py PRIVATE
+target_link_libraries(python_bindings PRIVATE
   automotive_simulator
   simulation_runner
   ${drake_LIBRARIES}
@@ -226,13 +227,14 @@ install(TARGETS
   ign_publisher_system
   scene_system
   simulation_runner
-  simulation_runner_py
+  python_bindings
   time_conversion
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(PROGRAMS
+  python_examples/roads.py
   python_examples/keyboard_controlled_simulation.py
   python_examples/paused_mode_example.py
   python_examples/python_bindings_example.py

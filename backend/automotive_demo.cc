@@ -5,6 +5,7 @@
 #include <string>
 
 #include "backend/simulation_runner.h"
+#include "backend/road_builder.h"
 
 #include <drake/automotive/automotive_simulator.h>
 #include <drake/common/find_resource.h>
@@ -26,6 +27,11 @@ int main(int argc, char* argv[]) {
   // Instantiates a simulator.
   auto simulator =
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+
+  auto builder = std::make_unique<delphyne::backend::RoadBuilder<double>>(
+      simulator.get());
+
+  builder->AddOnramp();
 
   // Adds a Prius car.
   drake::automotive::SimpleCarState<double> state;

@@ -37,14 +37,6 @@ In order to get the project's source code analyzed by cpplint, you can run a wra
 
 This command will run the tool and print the results to console.
 
-## Instructions for running code-coverage tools
-Delphyne includes a third party CMake tool aimed to ease the use of code-coverage tools, which enable us to run them from a simple make command.
-
-There's an automated script that will take care of building the project, running the tests, and finally running the code coverage tool, displaying the HTML report in your web browser when it is done.  It can be invoked as follows:
-```
-./tools/run_coverage.sh
-```
-
 ## Instructions for running tests
 All the available tests, both C++ and Python, can be run by calling a single helper script. It can be invoked as follows:
 ```

@@ -7,7 +7,6 @@ set (CMAKE_LINK_FLAGS_RELEASE " -rdynamic" CACHE INTERNAL "Link flags for releas
 set (CMAKE_LINK_FLAGS_RELWITHDEBINFO " -rdynamic" CACHE INTERNAL "Link flags for release with debug support" FORCE)
 set (CMAKE_LINK_FLAGS_DEBUG " -rdynamic" CACHE INTERNAL "Link flags for debug" FORCE)
 set (CMAKE_LINK_FLAGS_PROFILE " -rdynamic -pg" CACHE INTERNAL "Link flags for profile" FORCE)
-set (CMAKE_LINK_FLAGS_COVERAGE " -rdynamic --coverage" CACHE INTERNAL "Link flags for static code checking" FORCE)
 
 set (CMAKE_C_FLAGS_RELEASE "")
 if (NOT APPLE)
@@ -28,18 +27,6 @@ set (CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
 
 set (CMAKE_C_FLAGS_PROFILE " -fno-omit-frame-pointer -g -pg ${CMAKE_C_FLAGS_ALL}" CACHE INTERNAL "C Flags for profile" FORCE)
 set (CMAKE_CXX_FLAGS_PROFILE ${CMAKE_C_FLAGS_PROFILE})
-
-set (CMAKE_C_FLAGS_COVERAGE " -g -O0 -Wformat=2 --coverage -fno-inline ${CMAKE_C_FLAGS_ALL}" CACHE INTERNAL "C Flags for static code checking" FORCE)
-set (CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_C_FLAGS_COVERAGE}")
-foreach(flag
-        -fno-default-inline
-        -fno-elide-constructors
-        -fno-implicit-inline-templates)
-  CHECK_CXX_COMPILER_FLAG(${flag} R${flag})
-  if (R${flag})
-    set (CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_COVERAGE} ${flag}")
-  endif()
-endforeach()
 
 #####################################
 # Set all the global build flags

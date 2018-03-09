@@ -23,7 +23,6 @@ to `1.6` to depict how dynamic real-time rate impacts on the simulation.
 from __future__ import print_function
 
 import argparse
-import sys
 import time
 
 from launcher import Launcher

@@ -3,8 +3,8 @@
 #include <memory>
 
 #include "backend/automotive_simulator.h"
-#include "backend/simulation_runner.h"
 #include "backend/road_builder.h"
+#include "backend/simulation_runner.h"
 
 #include <drake/common/find_resource.h>
 

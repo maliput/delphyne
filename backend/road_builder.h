@@ -1,6 +1,11 @@
+// Copyright 2017 Toyota Research Institute
+
 #pragma once
 
+#include <limits>
 #include <memory>
+#include <string>
+#include <utility>
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/automotive/monolane_onramp_merge.h>
@@ -19,7 +24,7 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   /// @param[in] simulator A pointer to the automotive simulator where the
   /// roads will be added.
   explicit RoadBuilder(AutomotiveSimulator<double>* simulator)
-      : simulator_(simulator){};
+      : simulator_(simulator) {}
 
   /// @brief Default constructor.
   ///
@@ -31,8 +36,11 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   ///
   /// @param[in] angular_tolerance The tolerance guaranteed for angular
   /// measurements (orientations).
-  RoadBuilder(AutomotiveSimulator<double>* simulator, double linear_tolerance, double angular_tolerance)
-      : simulator_(simulator),  linear_tolerance_(linear_tolerance), angular_tolerance_(angular_tolerance) {};
+  RoadBuilder(AutomotiveSimulator<double>* simulator, double linear_tolerance,
+              double angular_tolerance)
+      : simulator_(simulator),
+        linear_tolerance_(linear_tolerance),
+        angular_tolerance_(angular_tolerance) {}
 
   /// @brief Adds a dragway to the underlying simulator.
   ///
@@ -64,9 +72,10 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   /// @brief Adds a monolane-based on-ramp road network to the underlying
   /// simulator.
   void AddOnramp() {
-    auto onramp_generator = std::make_unique<drake::automotive::MonolaneOnrampMerge>();
+    auto onramp_generator =
+        std::make_unique<drake::automotive::MonolaneOnrampMerge>();
     simulator_->SetRoadGeometry(onramp_generator->BuildOnramp());
-}
+  }
 
  private:
   // The automotive simulator were the different roads will be added.

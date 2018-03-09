@@ -6,6 +6,24 @@ simulation runner.
 For all the examples below it's assumed that the Delphyne backend was successfully
 built with CMake, as shown in the instructions
 [here](https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md#build-delphyne-back-end) .
+<h1 id="realtime_rate_changer">realtime_rate_changer</h1>
+
+
+This example shows how the real-time simulation rate can be set both when the
+simulator runner is created and while the simulation is running.
+
+To pass an initial real-time rate use the `--realtime_rate` flag, like:
+
+```
+$ realtime_rate_changer.py --realtime_rate=2.0
+```
+
+If none is specified the default will be set to `1.0` (i.e. run the simulation
+in real-time).
+
+Once the scripts starts running it will cycle between a real-time rate of `0.6`
+to `1.6` to depict how dynamic real-time rate impacts on the simulation.
+
 <h1 id="keyboard_controlled_simulation">keyboard_controlled_simulation</h1>
 
 
@@ -28,23 +46,27 @@ $ ./keyboard_controlled_simulation.py
 
 <`q`> will stop the simulation and quit the demo.
 
-<h1 id="realtime_rate_changer">realtime_rate_changer</h1>
+<h1 id="roads">roads</h1>
 
 
-This example shows how the real-time simulation rate can be set both when the
-simulator runner is created and while the simulation is running.
-
-To pass an initial real-time rate use the `--realtime_rate` flag, like:
+This example shows how to run a simulation that includes a road. For the
+time being two road examples are supported: dragway and onramp. To launch this
+demo with the default values do:
 
 ```
-$ realtime_rate_changer.py --realtime_rate=2.0
+$ roads.py
 ```
 
-If none is specified the default will be set to `1.0` (i.e. run the simulation
-in real-time).
+Or explicitly pass the desired road:
 
-Once the scripts starts running it will cycle between a real-time rate of `0.6`
-to `1.6` to depict how dynamic real-time rate impacts on the simulation.
+```
+$ roads.py --road='dragway'
+```
+
+```
+$ roads.py --road='dragway'
+```
+
 
 <h1 id="python_bindings_example">python_bindings_example</h1>
 

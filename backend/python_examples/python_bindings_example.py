@@ -19,7 +19,6 @@ from __future__ import print_function
 
 import argparse
 import random
-import sys
 import time
 
 from launcher import Launcher

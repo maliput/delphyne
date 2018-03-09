@@ -1,18 +1,29 @@
 #!/usr/bin/env python2.7
 
 """
-This example shows how to run a simulation for a fixed period of time (15
-seconds by default). As an added bonus, the user can also specify the real-time
-simulation rate (which by default is 1.0).
-
-The following command depicts how to run a simulation for 30 sim seconds using
-a real-time rate of 2x (so it should run in approximately 15 wall clock
-seconds):
+This example shows how to run a simulation that includes a road. For the
+time being two road examples are supported: dragway and onramp. To launch this
+demo with the default values do:
 
 ```
-$ time_bounded_simulation.py --realtime_rate=2.0 --duration=30.0
+$ roads.py
 ```
+
+Or explicitly pass the desired road:
+
+```
+$ roads.py --road='dragway'
+```
+
+```
+$ roads.py --road='dragway'
+```
+
 """
+
+#
+# Copyright 2017 Toyota Research Institute
+#
 
 from __future__ import print_function
 
@@ -32,6 +43,8 @@ from delphyne_utils import (
 
 
 def main():
+    """Simple demo that shows how to add a road to a simulation. Reads the
+    road to be added from the command line args"""
 
     available_roads = ["dragway", "onramp"]
 
@@ -39,11 +52,11 @@ def main():
         prog="roads",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-r", "--road",
-                    default=available_roads[0],
-                    const=available_roads[0],
-                    nargs='?',
-                    choices=available_roads,
-                    help='The road to display')
+                        default=available_roads[0],
+                        const=available_roads[0],
+                        nargs='?',
+                        choices=available_roads,
+                        help='The road to display')
 
     args = parser.parse_args()
 

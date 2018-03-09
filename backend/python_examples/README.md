@@ -54,17 +54,17 @@ time being two road examples are supported: dragway and onramp. To launch this
 demo with the default values do:
 
 ```
-$ roads.py
+$ road_loading_example.py
 ```
 
 Or explicitly pass the desired road:
 
 ```
-$ roads.py --road='dragway'
+$ road_loading_example.py --road='dragway'
 ```
 
 ```
-$ roads.py --road='dragway'
+$ road_loading_example.py --road='onramp'
 ```
 
 

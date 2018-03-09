@@ -116,8 +116,8 @@ add_library(automotive_simulator
   automotive_simulator.cc
   driving_command_to_ignition_message_converter.cc
   ign_subscriber_system.h
-  road_builder.h
   linb-any
+  road_builder.h
   system.h
 )
 
@@ -234,11 +234,11 @@ install(TARGETS
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(PROGRAMS
-  python_examples/roads.py
   python_examples/keyboard_controlled_simulation.py
   python_examples/paused_mode_example.py
   python_examples/python_bindings_example.py
   python_examples/realtime_rate_changer.py
+  python_examples/road_loading_example.py
   python_examples/time_bounded_simulation.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 

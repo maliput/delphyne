@@ -16,6 +16,12 @@
 namespace delphyne {
 namespace backend {
 
+/// This class is used to build and add different types of maliput roads to a
+/// simulator. Linear and angular tolerances can be specified when a builder
+/// is created and will be applied to all the roads constructed (otherwise
+/// std::numeric_limits<double>::epsilon() is used).
+///
+/// @tparam T must be a valid Eigen ScalarType.
 template <typename T>
 class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
  public:
@@ -23,7 +29,7 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   ///
   /// @param[in] simulator A pointer to the automotive simulator where the
   /// roads will be added.
-  explicit RoadBuilder(AutomotiveSimulator<double>* simulator)
+  explicit RoadBuilder(AutomotiveSimulator<T>* simulator)
       : simulator_(simulator) {}
 
   /// @brief Default constructor.
@@ -36,8 +42,8 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   ///
   /// @param[in] angular_tolerance The tolerance guaranteed for angular
   /// measurements (orientations).
-  RoadBuilder(AutomotiveSimulator<double>* simulator, double linear_tolerance,
-              double angular_tolerance)
+  explicit RoadBuilder(AutomotiveSimulator<T>* simulator,
+                       double linear_tolerance, double angular_tolerance)
       : simulator_(simulator),
         linear_tolerance_(linear_tolerance),
         angular_tolerance_(angular_tolerance) {}
@@ -58,7 +64,7 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   ///
   /// @param[in] maximum_height The maximum height above the road surface
   /// modelled by the RoadGeometry.
-  void AddDragway(std::string name, int num_lanes, double length,
+  void AddDragway(const std::string& name, int num_lanes, double length,
                   double lane_width, double shoulder_width,
                   double maximum_height) {
     auto id = drake::maliput::api::RoadGeometryId(name);
@@ -79,7 +85,7 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
 
  private:
   // The automotive simulator were the different roads will be added.
-  AutomotiveSimulator<double>* simulator_{nullptr};
+  AutomotiveSimulator<T>* simulator_{nullptr};
 
   // The tolerance guaranteed for linear measurements (positions).
   double linear_tolerance_{std::numeric_limits<double>::epsilon()};

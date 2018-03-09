@@ -6,17 +6,17 @@ time being two road examples are supported: dragway and onramp. To launch this
 demo with the default values do:
 
 ```
-$ roads.py
+$ road_loading_example.py
 ```
 
 Or explicitly pass the desired road:
 
 ```
-$ roads.py --road='dragway'
+$ road_loading_example.py --road='dragway'
 ```
 
 ```
-$ roads.py --road='dragway'
+$ road_loading_example.py --road='onramp'
 ```
 
 """
@@ -33,8 +33,8 @@ import time
 
 from launcher import Launcher
 from python_bindings import (
-    SimulatorRunner,
-    RoadBuilder
+    RoadBuilder,
+    SimulatorRunner
 )
 from delphyne_utils import (
     build_simple_car_simulator,
@@ -69,6 +69,9 @@ def main():
     builder = RoadBuilder(simulator)
 
     if road == "dragway":
+        # Add a dragway with 3 lanes and 100 meters long. Each lane is 3.7
+        # meters wide and the road shoulder is 1 meter on each side. Finally
+        # the maximum height of the road is 5 meters.
         builder.AddDragway("Demo dragway", 3, 100.0, 3.7, 1.0, 5.0)
     elif road == "onramp":
         builder.AddOnramp()

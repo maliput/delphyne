@@ -40,6 +40,7 @@ macro (delphyne_build_tests)
       delphyne_lcm_to_ign
       delphyne_protobuf_msgs
       ign_publisher_system
+      lcm_ign_translator_systems
       libgtest_main.a
       libgtest.a
       pthread

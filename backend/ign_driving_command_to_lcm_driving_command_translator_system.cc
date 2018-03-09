@@ -1,4 +1,4 @@
-// Copyright 2017 Open Source Robotics Foundation
+// Copyright 2018 Open Source Robotics Foundation
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are met:
@@ -26,36 +26,25 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
-
-namespace ignition {
-namespace msgs {
-class AutomotiveDrivingCommand;
-class Model_V;
-}
-}
-
-namespace drake {
-class lcmt_driving_command_t;
-class lcmt_viewer_draw;
-}
+#include "backend/ign_driving_command_to_lcm_driving_command_translator_system.h"
 
 namespace delphyne {
 namespace backend {
 
-/// \brief Translate a driving command from LCM to ignition
-/// \param[in]  ign_driving_command An ignition message containing the driving
-/// command
-/// \param[out] lcm_driving_command The resulting LCM command
-void ignToLcm(
-    const ignition::msgs::AutomotiveDrivingCommand& ign_driving_command,
-    drake::lcmt_driving_command_t* lcm_driving_command);
+IgnDrivingCommandToLcmDrivingCommandTranslatorSystem::
+    IgnDrivingCommandToLcmDrivingCommandTranslatorSystem() {
+  InitPorts();
+}
 
-/// \brief Translate a model vector ignition message to an LCM view draw message
-/// \param[in]  robot_models An ignition message containing the model vector
-/// \param[out] robot_draw_data The resulting LCM view draw message
-void ignToLcm(const ignition::msgs::Model_V& robot_models,
-              drake::lcmt_viewer_draw* robot_draw_data);
+void IgnDrivingCommandToLcmDrivingCommandTranslatorSystem::
+    DoIgnToLcmTranslation(
+        const ignition::msgs::AutomotiveDrivingCommand& ign_message,
+        drake::automotive::DrivingCommand<double>* lcm_message) const {
+  DELPHYNE_DEMAND(lcm_message != nullptr);
+
+  lcm_message->set_steering_angle(ign_message.theta());
+  lcm_message->set_acceleration(ign_message.acceleration());
+}
 
 }  // namespace backend
 }  // namespace delphyne

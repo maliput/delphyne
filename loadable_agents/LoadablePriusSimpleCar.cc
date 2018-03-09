@@ -49,7 +49,7 @@
 #include <string>
 
 #include <backend/agent_plugin_base.h>
-#include <backend/driving_command_to_ignition_message_converter.h>
+#include <backend/ign_driving_command_to_lcm_driving_command_translator_system.h>
 #include <backend/ign_subscriber_system.h>
 #include <backend/linb-any>
 #include <backend/simple_car_state_to_ignition_message_converter.h>
@@ -141,12 +141,17 @@ class LoadablePriusSimpleCarDouble final
     igndbg << "LoadablePriusSimpleCar configure" << std::endl;
 
     std::string channel_name = "DRIVING_COMMAND_" + name;
-    auto driving_converter =
-        std::make_unique<DrivingCommandToIgnitionMessageConverter>();
+
     auto command_subscriber = builder->template AddSystem<
         IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
-        channel_name, std::move(driving_converter));
-    builder->Connect(*command_subscriber, *this);
+        channel_name);
+
+    auto command_translator = builder->template AddSystem<
+        IgnDrivingCommandToLcmDrivingCommandTranslatorSystem>();
+
+    builder->Connect(*command_subscriber, *command_translator);
+
+    builder->Connect(*command_translator, *this);
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(this->pose_output(), ports.first);

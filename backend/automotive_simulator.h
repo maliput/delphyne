@@ -65,7 +65,7 @@
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
-#include "backend/ign_publisher_system.h"
+#include "backend/ign_publisher_system_old.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/linb-any"
 #include "backend/scene_builder_system.h"

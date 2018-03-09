@@ -6,13 +6,16 @@ include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 # C++ tests.
 
 set (gtest_sources
-  abstract_value_to_ignition_message_converter_test.cc
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
-  ign_to_lcm_translation_test.cc
+  ign_driving_command_to_lcm_driving_command_translator_system_test.cc
+  ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
   lcm_to_ign_translation_test.cc
+  lcm_driving_command_to_ign_driving_command_translator_system_test.cc
+  lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
+  lcm_viewer_draw_to_ignition_message_converter_test.cc
   linb_any_test.cc
   scene_system_test.cc
   simple_car_state_to_ignition_message_converter_test.cc
@@ -31,9 +34,9 @@ add_library(ign_publisher_system
   SHARED
   abstract_value_to_ignition_message_converter.h
   discrete_value_to_ignition_message_converter.h
-  ign_publisher_system.h
   ignition_message_converter.h
   simple_car_state_to_ignition_message_converter.cc
+  lcm_viewer_draw_to_ignition_message_converter.cc
   system.h
 )
 
@@ -55,7 +58,6 @@ target_include_directories(ign_publisher_system PUBLIC ${CMAKE_CURRENT_BINARY_DI
 
 add_library(ign_subscriber_system
   SHARED
-  ign_subscriber_system.h
   ignition_message_converter.h
 )
 
@@ -74,7 +76,6 @@ target_include_directories(ign_subscriber_system PUBLIC ${CMAKE_CURRENT_BINARY_D
 add_library(delphyne_lcm_to_ign
   STATIC
   lcm_to_ign_translation.cc
-  ign_to_lcm_translation.cc
 )
 
 target_link_libraries(delphyne_lcm_to_ign
@@ -86,6 +87,25 @@ target_link_libraries(delphyne_lcm_to_ign
 )
 
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+
+# ----------------------------------------
+# Lcm to ign translator system library
+add_library(lcm_ign_translator_systems
+  STATIC
+  lcm_viewer_draw_to_ign_model_v_translator_system.cc
+  lcm_driving_command_to_ign_driving_command_translator_system.cc
+  ign_driving_command_to_lcm_driving_command_translator_system.cc
+  ign_model_v_to_lcm_viewer_draw_translator_system.cc
+)
+
+target_link_libraries(lcm_ign_translator_systems
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  delphyne_protobuf_msgs
+)
+
+target_include_directories(lcm_ign_translator_systems PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Simulator-runner library
@@ -114,8 +134,6 @@ add_library(automotive_simulator
   STATIC
   agent_plugin_loader.cc
   automotive_simulator.cc
-  driving_command_to_ignition_message_converter.cc
-  ign_subscriber_system.h
   linb-any
   system.h
 )
@@ -129,6 +147,7 @@ target_link_libraries(automotive_simulator
   delphyne_lcm_to_ign
   ign_publisher_system
   ign_subscriber_system
+  lcm_ign_translator_systems
   scene_system
   time_conversion
 )

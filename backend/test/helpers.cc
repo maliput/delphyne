@@ -29,38 +29,76 @@
 #include "backend/test/helpers.h"
 
 #include <string>
-
-#include <drake/lcmt_viewer_draw.hpp>
-
-#include <gtest/gtest.h>
-
-#include <ignition/msgs.hh>
+#include <vector>
 
 #include "backend/system.h"
+#include "drake/lcmt_viewer_draw.hpp"
+#include "gtest/gtest.h"
+#include "ignition/msgs.hh"
 
 namespace delphyne {
 namespace test {
 
+// The preloaded messages have kPreloadedModels models, each with
+// kPreloadedLinks links.
+const int kPreloadedModels{3};
+const int kPreloadedLinks{2};
+
 drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
-  drake::lcmt_viewer_draw msg;
-  msg.timestamp = 0;
-  msg.num_links = 1;
-  msg.link_name.resize(msg.num_links);
-  msg.link_name[0] = "box";
-  msg.robot_num.resize(1);
-  msg.robot_num[0] = 1;
-  msg.position.resize(1);
-  msg.position[0].resize(3);
-  msg.position[0][0] = 0.0;
-  msg.position[0][1] = 0.0;
-  msg.position[0][2] = 0.0;
-  msg.quaternion.resize(1);
-  msg.quaternion[0].resize(4);
-  msg.quaternion[0][0] = 0.0;
-  msg.quaternion[0][1] = 0.0;
-  msg.quaternion[0][2] = 0.0;
-  msg.quaternion[0][3] = 1.0;
-  return msg;
+  drake::lcmt_viewer_draw lcm_msg;
+  lcm_msg.timestamp = 123456;
+
+  for (int i = 0; i < kPreloadedModels; ++i) {
+    for (int j = 0; j < kPreloadedLinks; ++j) {
+      lcm_msg.link_name.push_back(std::to_string(i) + std::to_string(j));
+      lcm_msg.robot_num.push_back(i);
+
+      const std::vector<float> position{static_cast<float>(i),
+                                        static_cast<float>(j + 5.0),
+                                        static_cast<float>(i + 10.0)};
+      lcm_msg.position.push_back(position);
+
+      const std::vector<float> quaternion{
+          static_cast<float>(j), static_cast<float>(i + 5.0),
+          static_cast<float>(j + 10.0), static_cast<float>(i + 15.0)};
+      lcm_msg.quaternion.push_back(quaternion);
+    }
+  }
+
+  lcm_msg.num_links = kPreloadedModels * kPreloadedLinks;
+
+  return lcm_msg;
+}
+
+ignition::msgs::Model_V BuildPreloadedModelVMsg() {
+  ignition::msgs::Model_V robot_models;
+  robot_models.mutable_header()->mutable_stamp()->set_sec(123);
+  robot_models.mutable_header()->mutable_stamp()->set_nsec(456000000);
+
+  for (int i = 0; i < kPreloadedModels; ++i) {
+    ::ignition::msgs::Model* model = robot_models.add_models();
+    model->set_id(i);
+
+    for (int j = 0; j < kPreloadedLinks; ++j) {
+      ::ignition::msgs::Link* link = model->add_link();
+      link->set_name(std::to_string(i) + std::to_string(j));
+
+      ::ignition::msgs::Pose* pose = link->mutable_pose();
+
+      ignition::msgs::Vector3d* position = pose->mutable_position();
+      position->set_x(i);
+      position->set_y(j + 5.0);
+      position->set_z(i + 10.0);
+
+      ignition::msgs::Quaternion* orientation = pose->mutable_orientation();
+      orientation->set_w(j);
+      orientation->set_x(i + 5.0);
+      orientation->set_y(j + 10.0);
+      orientation->set_z(i + 15.0);
+    }
+  }
+
+  return robot_models;
 }
 
 bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
@@ -273,6 +311,15 @@ namespace {
     return ::testing::AssertionFailure() << error_msg;
   }
   return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckProtobufMsgEquality(
+    const google::protobuf::MessageLite& lhs,
+    const google::protobuf::MessageLite& rhs) {
+  return ((lhs.GetTypeName() == rhs.GetTypeName()) &&
+          (lhs.SerializeAsString() == rhs.SerializeAsString()))
+             ? ::testing::AssertionSuccess()
+             : ::testing::AssertionFailure();
 }
 
 }  // namespace test

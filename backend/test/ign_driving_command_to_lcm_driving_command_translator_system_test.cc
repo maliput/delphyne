@@ -26,38 +26,42 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#include "backend/driving_command_to_ignition_message_converter.h"
+#include "backend/ign_driving_command_to_lcm_driving_command_translator_system.h"
 
-#include "backend/time_conversion.h"
+#include "drake/systems/framework/framework_common.h"
 
-using drake::automotive::DrivingCommand;
-using drake::automotive::DrivingCommandIndices;
+#include "gtest/gtest.h"
 
 namespace delphyne {
 namespace backend {
 
-int DrivingCommandToIgnitionMessageConverter::get_vector_size() {
-  return DrivingCommandIndices::kNumCoordinates;
-}
+// @brief Checks that an ignition driving command message on the input port is
+// correctly
+//        translated into an LCM driving command message.
+GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
+           TestTranslation) {
+  const double kTheta{0.12};
+  const double kAcceleration{15.7};
 
-void DrivingCommandToIgnitionMessageConverter::VectorToIgn(
-    const DrivingCommand<double>& input_vector, double time,
-    ignition::msgs::AutomotiveDrivingCommand* ign_message) {
-  DELPHYNE_DEMAND(ign_message != nullptr);
+  ignition::msgs::AutomotiveDrivingCommand ign_msg;
+  ign_msg.set_theta(kTheta);
+  ign_msg.set_acceleration(kAcceleration);
 
-  ign_message->mutable_time()->CopyFrom(SecsToIgnitionTime(time));
+  IgnDrivingCommandToLcmDrivingCommandTranslatorSystem translator;
+  auto context = translator.AllocateContext();
+  const int kPortIndex{0};
+  context->FixInputPort(kPortIndex,
+                        drake::systems::AbstractValue::Make(ign_msg));
 
-  ign_message->set_theta(input_vector.steering_angle());
-  ign_message->set_acceleration(input_vector.acceleration());
-}
+  auto output = translator.AllocateOutput(*context);
+  translator.CalcOutput(*context, output.get());
 
-void DrivingCommandToIgnitionMessageConverter::IgnToVector(
-    const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-    DrivingCommand<double>* output_vector) {
-  DELPHYNE_DEMAND(output_vector != nullptr);
+  const auto* vector = output->get_vector_data(kPortIndex);
+  const auto lcm_msg =
+      dynamic_cast<const drake::automotive::DrivingCommand<double>*>(vector);
 
-  output_vector->set_steering_angle(ign_message.theta());
-  output_vector->set_acceleration(ign_message.acceleration());
+  EXPECT_EQ(lcm_msg->steering_angle(), kTheta);
+  EXPECT_EQ(lcm_msg->acceleration(), kAcceleration);
 }
 
 }  // namespace backend

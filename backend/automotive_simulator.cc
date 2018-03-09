@@ -59,11 +59,11 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
-#include "backend/abstract_value_to_ignition_message_converter.h"
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
-#include "backend/driving_command_to_ignition_message_converter.h"
+#include "backend/ign_driving_command_to_lcm_driving_command_translator_system.h"
 #include "backend/ignition_message_converter.h"
+#include "backend/lcm_viewer_draw_to_ignition_message_converter.h"
 #include "backend/linb-any"
 #include "backend/simple_car_state_to_ignition_message_converter.h"
 #include "backend/system.h"
@@ -218,10 +218,16 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   const int id = allocate_vehicle_number();
 
   DELPHYNE_DEMAND(!channel_name.empty());
-  auto converter = std::make_unique<DrivingCommandToIgnitionMessageConverter>();
+
   auto command_subscriber = builder_->template AddSystem<
       IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
-      channel_name, std::move(converter));
+      channel_name);
+
+  auto command_translator = builder_->template AddSystem<
+      IgnDrivingCommandToLcmDrivingCommandTranslatorSystem>();
+
+  builder_->Connect(*command_subscriber, *command_translator);
+
   auto simple_car =
       builder_->template AddSystem<drake::automotive::SimpleCar<T>>();
   simple_car->set_name(name);
@@ -231,7 +237,7 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   ConnectCarOutputsAndPriusVis(id, simple_car->pose_output(),
                                simple_car->velocity_output());
 
-  builder_->Connect(*command_subscriber, *simple_car);
+  builder_->Connect(*command_translator, *simple_car);
 
   AddPublisher(*simple_car, id);
   return id;
@@ -562,8 +568,7 @@ void AutomotiveSimulator<T>::Build() {
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       scene_builder_->get_input_port(0));
 
-  auto converter = std::make_unique<AbstractValueToIgnitionMessageConverter<
-      drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
+  auto converter = std::make_unique<LCMViewerDrawToIgnitionMessageConverter>();
 
   ign_publisher_ = builder_->AddSystem(
       std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(

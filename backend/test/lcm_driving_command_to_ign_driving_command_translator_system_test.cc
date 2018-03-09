@@ -26,38 +26,49 @@
 // ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-#pragma once
+#include "backend/lcm_driving_command_to_ign_driving_command_translator_system.h"
 
-#include "drake/automotive/gen/driving_command.h"
+#include <memory>
 
-#include "protobuf/automotive_driving_command.pb.h"
+#include "drake/systems/framework/framework_common.h"
 
-#include "backend/discrete_value_to_ignition_message_converter.h"
-#include "backend/system.h"
+#include "gtest/gtest.h"
+
+#include "backend/test/helpers.h"
 
 namespace delphyne {
 namespace backend {
 
-/// This class is a specialization of DiscreteValueToIgnitionMessageConverter
-/// that knows how to populate a SimpleCarState ignition message from an input
-/// vector.
-class DELPHYNE_BACKEND_VISIBLE DrivingCommandToIgnitionMessageConverter
-    : public DiscreteValueToIgnitionMessageConverter<
-          ignition::msgs::AutomotiveDrivingCommand,
-          drake::automotive::DrivingCommand<double>> {
- public:
-  int get_vector_size();
+// @brief Checks that an LCM driving command message on the input port is
+// correctly
+//        translated into an ignition driving command message.
+GTEST_TEST(LcmDrivingCommandToIgnDrivingCommandTranslatorSystemTest,
+           TestTranslation) {
+  const double kTheta{0.12};
+  const double kAcceleration{15.7};
 
- protected:
-  void VectorToIgn(
-      const drake::automotive::DrivingCommand<double>& input_vector,
-      double time,
-      ignition::msgs::AutomotiveDrivingCommand* ign_message) override;
+  drake::automotive::DrivingCommand<double> lcm_msg;
+  lcm_msg.set_steering_angle(kTheta);
+  lcm_msg.set_acceleration(kAcceleration);
 
-  void IgnToVector(
-      const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-      drake::automotive::DrivingCommand<double>* output_vector) override;
-};
+  LcmDrivingCommandToIgnDrivingCommandTranslatorSystem translator;
+  auto context = translator.AllocateContext();
+  const int kPortIndex{0};
+  context->FixInputPort(
+      kPortIndex,
+      std::make_unique<
+          drake::systems::Value<drake::systems::BasicVector<double>>>(lcm_msg));
+
+  auto output = translator.AllocateOutput(*context);
+  translator.CalcOutput(*context, output.get());
+
+  const auto& ign_msg =
+      output->get_data(kPortIndex)
+          ->GetValue<ignition::msgs::AutomotiveDrivingCommand>();
+
+  EXPECT_EQ(ign_msg.theta(), kTheta);
+  EXPECT_EQ(ign_msg.acceleration(), kAcceleration);
+}
 
 }  // namespace backend
 }  // namespace delphyne

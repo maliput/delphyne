@@ -30,7 +30,7 @@
 
 #include <memory>
 
-#include "backend/ign_publisher_system.h"
+#include "backend/ign_publisher_system_old.h"
 #include "backend/ignition_message_converter.h"
 #include "backend/system.h"
 

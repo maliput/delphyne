@@ -19,3 +19,19 @@ target_include_directories(LoadablePriusSimpleCar PRIVATE
 )
 
 install(TARGETS LoadablePriusSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)
+
+############## LoadablePriusTrajectoryCar #####################
+add_library(LoadablePriusTrajectoryCar SHARED
+  LoadablePriusTrajectoryCar.cc
+)
+
+target_include_directories(LoadablePriusTrajectoryCar PRIVATE
+  ${DRAKE_INCLUDE_DIRS}
+  ${DRAKE_LCMTYPES_INCLUDE_DIRS}
+  ${STX_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
+  ${DELPHYNE_INCLUDE_DIRS}
+  ${IGNITION-COMMON_INCLUDE_DIRS}
+)
+
+install(TARGETS LoadablePriusTrajectoryCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)

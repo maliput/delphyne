@@ -38,7 +38,6 @@
 
 #include <drake/systems/framework/leaf_system.h>
 
-#include "backend/ignition_message_converter.h"
 #include "backend/system.h"
 
 namespace delphyne {

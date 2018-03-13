@@ -39,11 +39,17 @@ IgnModelVToLcmViewerDrawTranslatorSystem::
 void IgnModelVToLcmViewerDrawTranslatorSystem::DoIgnToLcmTranslation(
     const ignition::msgs::Model_V& ign_message,
     drake::lcmt_viewer_draw* lcm_message) const {
+  // Clear old state
+  lcm_message->num_links = 0;
+  lcm_message->link_name.clear();
+  lcm_message->robot_num.clear();
+  lcm_message->position.clear();
+  lcm_message->quaternion.clear();
+
   lcm_message->timestamp = ignTimeToTimestamp(ign_message.header().stamp());
 
   // Each ignition model has many links using the same id, but this is
   // flattened in LCM
-  lcm_message->num_links = 0;
   for (int i = 0; i < ign_message.models_size(); ++i) {
     const ::ignition::msgs::Model& robot_model = ign_message.models(i);
 

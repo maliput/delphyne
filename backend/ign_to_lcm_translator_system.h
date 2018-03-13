@@ -53,6 +53,10 @@ class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
  protected:
   // @brief Translates an @p ign_message into a @p lcm_message. All derived
   //        translators must implement this method with the actual translation.
+  //        @p lcm_message is NOT re-constructed on each call: the same object
+  //        is copied and passed again. This function must perform any required
+  //        cleanup from the previous call. @see DeclareAbstractOutputPort
+  //        @see DeclareVectorOutputPort
   virtual void DoIgnToLcmTranslation(const IGN_TYPE& ign_message,
                                      LCM_TYPE* lcm_message) const = 0;
 
@@ -98,20 +102,14 @@ class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
 
  private:
   // Depending on the type of LCM_TYPE (whether or not it inherits from
-  // drake::systems::VectorBase), we need to declare a vector output port, or an
-  // abstract output port. The problem is those functions perform assertions on
-  // the signature of the function they are called with, so we get compiler
-  // errors if a call to the function is compiled (even if the function call
-  // would be later optimized out of the code!).
+  // drake::systems::VectorBase), we need to read from a vector input port, or
+  // from an abstract output port. The problem is those functions perform
+  // assertions on the inferred return type, so we get compiler errors if a call
+  // to the function is compiled.
   // The solution to this issue is to use std::enable_if, which relies in SFINAE
-  // to prevent compilation of ill-formed functions.
+  // to prevent compilation of ill-formed overloads.
   // When (if) we switch to C++17, all of this can be replaced with a simple
   // constexpr if.
-
-  // (nventuro) This extra template assignment looks like a no-op, but it's
-  // present on all of the std::enable_if I've seen, and I couldn't get it to
-  // work without it. Sadly, I don't know enough about the type system and
-  // templates to explain why it's needed.
   template <class T = LCM_TYPE>
   typename std::enable_if<
       std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type

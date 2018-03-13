@@ -66,8 +66,7 @@ GTEST_TEST(LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystemTest,
   translator.CalcOutput(*context, output.get());
 
   const auto& ign_msg =
-      output->get_data(kPortIndex)
-          ->GetValue<ignition::msgs::SimpleCarState>();
+      output->get_data(kPortIndex)->GetValue<ignition::msgs::SimpleCarState>();
 
   EXPECT_EQ(ign_msg.x(), kExpectedX);
   EXPECT_EQ(ign_msg.y(), kExpectedY);

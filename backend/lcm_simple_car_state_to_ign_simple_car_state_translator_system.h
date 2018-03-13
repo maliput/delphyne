@@ -44,9 +44,8 @@ namespace backend {
 /// simple car state messages.
 class DELPHYNE_BACKEND_VISIBLE
     LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem
-    : public LcmToIgnTranslatorSystem<
-          drake::automotive::SimpleCarState<double>,
-          ignition::msgs::SimpleCarState> {
+    : public LcmToIgnTranslatorSystem<drake::automotive::SimpleCarState<double>,
+                                      ignition::msgs::SimpleCarState> {
  public:
   /// @brief Default constructor. @see LcmToIgnTranslatorSystem::InitPorts.
   LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem();

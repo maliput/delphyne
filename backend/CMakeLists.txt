@@ -8,7 +8,6 @@ include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 set (gtest_sources
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
-  discrete_value_to_ignition_message_converter_test.cc
   ign_publisher_system_test.cc
   ign_driving_command_to_lcm_driving_command_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
@@ -17,7 +16,6 @@ set (gtest_sources
   lcm_driving_command_to_ign_driving_command_translator_system_test.cc
   lcm_simple_car_state_to_ign_simple_car_state_translator_system_test.cc
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
-  lcm_viewer_draw_to_ignition_message_converter_test.cc
   linb_any_test.cc
   scene_system_test.cc
   simulation_runner_test.cc
@@ -27,49 +25,6 @@ set (gtest_sources
 add_subdirectory(test/agent_plugin)
 
 delphyne_build_tests(${gtest_sources})
-
-# ----------------------------------------
-# Ign publisher system library
-
-add_library(ign_publisher_system
-  SHARED
-  abstract_value_to_ignition_message_converter.h
-  discrete_value_to_ignition_message_converter.h
-  ignition_message_converter.h
-  simple_car_state_to_ignition_message_converter.cc
-  lcm_viewer_draw_to_ignition_message_converter.cc
-  system.h
-)
-
-target_link_libraries(ign_publisher_system
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  delphyne_lcm_to_ign
-  delphyne_protobuf_msgs
-  scene_system
-  time_conversion
-)
-
-target_include_directories(ign_publisher_system PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-# ----------------------------------------
-# Ign subscriber system library
-
-add_library(ign_subscriber_system
-  SHARED
-  ignition_message_converter.h
-)
-
-target_link_libraries(ign_subscriber_system
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  delphyne_protobuf_msgs
-)
-
-target_include_directories(ign_subscriber_system PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Lcm to ign translation library
@@ -148,8 +103,6 @@ target_link_libraries(automotive_simulator
   ${PYTHON_LIBRARIES}
   delphyne_protobuf_msgs
   delphyne_lcm_to_ign
-  ign_publisher_system
-  ign_subscriber_system
   lcm_ign_translator_systems
   scene_system
   time_conversion
@@ -245,7 +198,6 @@ install(FILES delphyne_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.
 
 install(TARGETS
   automotive_simulator
-  ign_publisher_system
   scene_system
   simulation_runner
   simulation_runner_py

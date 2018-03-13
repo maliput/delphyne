@@ -50,9 +50,10 @@
 
 #include <backend/agent_plugin_base.h>
 #include <backend/ign_driving_command_to_lcm_driving_command_translator_system.h>
+#include <backend/ign_publisher_system.h>
 #include <backend/ign_subscriber_system.h>
+#include <backend/lcm_simple_car_state_to_ign_simple_car_state_translator_system.h>
 #include <backend/linb-any>
-#include <backend/simple_car_state_to_ignition_message_converter.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -142,16 +143,16 @@ class LoadablePriusSimpleCarDouble final
 
     std::string channel_name = "DRIVING_COMMAND_" + name;
 
-    auto command_subscriber = builder->template AddSystem<
+    auto driving_command_subscriber = builder->template AddSystem<
         IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         channel_name);
 
-    auto command_translator = builder->template AddSystem<
+    auto driving_command_translator = builder->template AddSystem<
         IgnDrivingCommandToLcmDrivingCommandTranslatorSystem>();
 
-    builder->Connect(*command_subscriber, *command_translator);
+    builder->Connect(*driving_command_subscriber, *driving_command_translator);
 
-    builder->Connect(*command_translator, *this);
+    builder->Connect(*driving_command_translator, *this);
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(this->pose_output(), ports.first);
@@ -159,13 +160,17 @@ class LoadablePriusSimpleCarDouble final
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
+    auto car_state_translator = builder->template AddSystem<
+        LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
+
+    builder->Connect(this->state_output(),
+                     car_state_translator->get_input_port(0));
+
     const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
-    auto pub_converter =
-        std::make_unique<SimpleCarStateToIgnitionMessageConverter>();
-    auto publisher = builder->AddSystem(
-        std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-            channel, std::move(pub_converter)));
-    builder->Connect(this->state_output(), publisher->get_input_port(0));
+    auto car_state_publisher = builder->template AddSystem<
+        IgnPublisherSystem<ignition::msgs::SimpleCarState>>(channel_name);
+
+    builder->Connect(*car_state_translator, *car_state_publisher);
 
     return 0;
   }

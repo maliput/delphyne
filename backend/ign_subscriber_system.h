@@ -44,7 +44,6 @@
 
 #include <protobuf/automotive_driving_command.pb.h>
 
-#include "backend/ignition_message_converter.h"
 #include "backend/system.h"
 
 using drake::systems::Value;

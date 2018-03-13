@@ -54,6 +54,9 @@ void LcmViewerDrawToIgnModelVTranslatorSystem::DoLcmToIgnTranslation(
   LcmTimestampToIgnition(lcm_message.timestamp,
                          ign_message->mutable_header()->mutable_stamp());
 
+  // Clear old links
+  ign_message->Clear();
+
   std::map<int32_t, ignition::msgs::Model*> models;
 
   // Add one pose per link

@@ -35,11 +35,10 @@ $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl \
 
 from __future__ import print_function
 
-import sys
 import time
 
 from launcher import Launcher
-from simulation_runner_py import SimulatorRunner
+from python_bindings import SimulatorRunner
 from delphyne_utils import (
     build_simple_car_simulator,
     launch_visualizer

@@ -23,11 +23,10 @@ to `1.6` to depict how dynamic real-time rate impacts on the simulation.
 from __future__ import print_function
 
 import argparse
-import sys
 import time
 
 from launcher import Launcher
-from simulation_runner_py import SimulatorRunner
+from python_bindings import SimulatorRunner
 from delphyne_utils import (
     build_simple_car_simulator,
     launch_visualizer

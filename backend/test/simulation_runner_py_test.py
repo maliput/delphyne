@@ -7,7 +7,7 @@
 
 import time
 import unittest
-from simulation_runner_py import (
+from python_bindings import (
     AutomotiveSimulator,
     SimpleCarState,
     SimulatorRunner

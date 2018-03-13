@@ -12,13 +12,14 @@ set (gtest_sources
   ign_publisher_system_test.cc
   ign_driving_command_to_lcm_driving_command_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
+  ign_simple_car_state_to_lcm_simple_car_state_translator_system_test.cc
   lcm_to_ign_translation_test.cc
   lcm_driving_command_to_ign_driving_command_translator_system_test.cc
+  lcm_simple_car_state_to_ign_simple_car_state_translator_system_test.cc
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
   lcm_viewer_draw_to_ignition_message_converter_test.cc
   linb_any_test.cc
   scene_system_test.cc
-  simple_car_state_to_ignition_message_converter_test.cc
   simulation_runner_test.cc
   time_conversion_test.cc
 )
@@ -92,10 +93,12 @@ target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DI
 # Lcm to ign translator system library
 add_library(lcm_ign_translator_systems
   STATIC
-  lcm_viewer_draw_to_ign_model_v_translator_system.cc
   lcm_driving_command_to_ign_driving_command_translator_system.cc
+  lcm_simple_car_state_to_ign_simple_car_state_translator_system.cc
+  lcm_viewer_draw_to_ign_model_v_translator_system.cc
   ign_driving_command_to_lcm_driving_command_translator_system.cc
   ign_model_v_to_lcm_viewer_draw_translator_system.cc
+  ign_simple_car_state_to_lcm_simple_car_state_translator_system.cc
 )
 
 target_link_libraries(lcm_ign_translator_systems

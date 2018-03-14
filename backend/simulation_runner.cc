@@ -118,6 +118,8 @@ void SimulatorRunner::Stop() {
 
 bool SimulatorRunner::IsPaused() const { return paused_; }
 
+bool SimulatorRunner::IsRunning() const { return enabled_; }
+
 void SimulatorRunner::RequestStep(double time_step) {
   DELPHYNE_DEMAND(enabled_);
   DELPHYNE_DEMAND(paused_);

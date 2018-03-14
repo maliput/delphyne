@@ -220,7 +220,7 @@ target_link_libraries(python_bindings PRIVATE
 # ----------------------------------------
 # Installs libraries and binaries.
 
-install(FILES delphyne_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
+install(FILES python/simulation_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
 
 install(TARGETS
   automotive_simulator
@@ -234,17 +234,17 @@ install(TARGETS
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(PROGRAMS
-  python_examples/keyboard_controlled_simulation.py
-  python_examples/paused_mode_example.py
-  python_examples/python_bindings_example.py
-  python_examples/realtime_rate_changer.py
-  python_examples/road_loading_example.py
-  python_examples/time_bounded_simulation.py
+  python/examples/keyboard_controlled_simulation.py
+  python/examples/realtime_rate_changer.py
+  python/examples/road_loading.py
+  python/examples/simple_python_binding.py
+  python/examples/start_simulation_paused.py
+  python/examples/time_bounded_simulation.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 # Python tests
 install(PROGRAMS test/simulation_runner_py_test.py DESTINATION ${CMAKE_BINARY_DIR}/backend)
 
 # Launcher
-install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
-install(PROGRAMS demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
+install(PROGRAMS python/demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

@@ -9,8 +9,7 @@ python binding to the C++ `SimulatorRunner` class.
 Note that this is not a configurable demo, it will just create a sample
 simulation with a prius car that can be driven around.
 
-As we add more python bindings to the C++ classes we will start doing more
-interesting scripts.
+Check the other examples in this directory for more advanced uses.
 """
 
 # pylint: disable=W0201
@@ -21,12 +20,13 @@ import argparse
 import random
 import time
 
-from launcher import Launcher
 from python_bindings import SimulatorRunner
-from delphyne_utils import (
+from simulation_utils import (
     build_simple_car_simulator,
-    launch_visualizer
+    launch_interactive_simulation
 )
+
+SIMULATION_TIME_STEP = 0.001
 
 
 class SimulationStats(object):
@@ -84,29 +84,23 @@ def main():
     args = parser.parse_args()
 
     stats = SimulationStats()
-    launcher = Launcher()
 
     simulator = build_simple_car_simulator()
-    try:
-        launch_visualizer(launcher, "layoutWithTeleop.config")
 
-        runner = SimulatorRunner(simulator, 0.001, args.start_paused)
+    runner = SimulatorRunner(simulator,
+                             SIMULATION_TIME_STEP,
+                             args.start_paused)
 
+    with launch_interactive_simulation(runner):
         # Add a callback to record and print statistics
         runner.AddStepCallback(stats.record_tick)
+
         # Add a second callback that prints a message roughly every 500 calls
         runner.AddStepCallback(random_print)
 
         stats.start()
-        runner.Start()
 
-        launcher.wait(float("Inf"))
-    finally:
-        runner.Stop()
-        # This is needed to avoid a possible deadlock. See SimulatorRunner
-        # class description.
-        time.sleep(0.5)
-        launcher.kill()
+        runner.Start()
 
 
 if __name__ == "__main__":

@@ -1,9 +1,11 @@
 // Copyright 2018 Toyota Research Institute
 
+#include "backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h"
+
 #include <map>
 #include <string>
 
-#include "backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h"
+#include "backend/time_conversion.h"
 
 namespace delphyne {
 namespace backend {
@@ -17,7 +19,7 @@ void DrakeSimpleCarStateToIgnSimpleCarState::DoDrakeToIgnTranslation(
     ignition::msgs::SimpleCarState* ign_message, int64_t time_ms) const {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
-  LcmTimestampToIgnition(time_ms, ign_message->mutable_time());
+  *(ign_message->mutable_time()) = MillisToIgnitionTime(time_ms);
   ign_message->set_x(drake_message.x());
   ign_message->set_y(drake_message.y());
   ign_message->set_heading(drake_message.heading());

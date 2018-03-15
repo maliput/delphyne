@@ -2,6 +2,8 @@
 
 #include "backend/translation_systems/ign_model_v_to_lcm_viewer_draw.h"
 
+#include "backend/time_conversion.h"
+
 namespace delphyne {
 namespace backend {
 namespace translation_systems {
@@ -17,7 +19,10 @@ void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
   lcm_message->quaternion.clear();
   lcm_message->num_links = 0;
 
-  lcm_message->timestamp = ignTimeToTimestamp(ign_message.header().stamp());
+  // LCM timestamps are in milliseconds.
+  const auto& ign_timestamp = ign_message.header().stamp();
+  lcm_message->timestamp =
+      SecsAndNanosToMillis(ign_timestamp.sec(), ign_timestamp.nsec());
 
   // Ignition models have a hierarchical structure, where each model contains
   // its many links, whereas LCM flattens this into a single array, using the id

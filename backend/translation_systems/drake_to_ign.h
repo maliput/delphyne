@@ -102,19 +102,6 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     ign_quaternion->set_z(lcm_quaternion[3]);
   }
 
-  // @brief Converts an LCM timestamp (in milliseconds) to an ignition time
-  // message.
-  //
-  // @param[in] lcm_timestamp_ms The LCM timestamp (in milliseconds).
-  // @param[out] ign_time The ignition time message.
-  void LcmTimestampToIgnition(int64_t lcm_timestamp_ms,
-                              ::ignition::msgs::Time* ign_time) const {
-    DELPHYNE_DEMAND(ign_time != nullptr);
-
-    ign_time->set_sec(lcm_timestamp_ms / 1000);
-    ign_time->set_nsec(lcm_timestamp_ms % 1000 * 1000000);
-  }
-
  private:
   // The translator has a single input port, and a single output port.
   const int kPortIndex = 0;

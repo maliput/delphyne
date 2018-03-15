@@ -48,12 +48,6 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // Translation helper functions and constants, to be used by derived
   // translators.
 
-  // @brief Converts an ignition time message to an timestamp in milliseconds
-  // (which is what LCM messages use).
-  int64_t ignTimeToTimestamp(const ::ignition::msgs::Time& ign_time) const {
-    return ign_time.sec() * 1000 + ign_time.nsec() / 1000000;
-  }
-
   // @brief Convert an ignition position message to a vector of floats (LCM's
   // type for positions).
   std::vector<float> ignPositionToVector(

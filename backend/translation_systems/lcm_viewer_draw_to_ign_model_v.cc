@@ -1,9 +1,11 @@
 // Copyright 2018 Toyota Research Institute
 
+#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
+
 #include <map>
 #include <string>
 
-#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
+#include "backend/time_conversion.h"
 
 namespace delphyne {
 namespace backend {
@@ -21,8 +23,9 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
   DELPHYNE_DEMAND(lcm_message.quaternion.size() ==
                   static_cast<unsigned int>(lcm_message.num_links));
 
-  LcmTimestampToIgnition(lcm_message.timestamp,
-                         ign_message->mutable_header()->mutable_stamp());
+  // LCM timestamps are in milliseconds.
+  *(ign_message->mutable_header()->mutable_stamp()) =
+      MillisToIgnitionTime(lcm_message.timestamp);
 
   // Clears state from the previous call.
   // @see LcmToIgn::DoDrakeToIgnTranslation

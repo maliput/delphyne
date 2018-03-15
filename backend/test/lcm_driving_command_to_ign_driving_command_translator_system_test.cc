@@ -26,7 +26,7 @@ GTEST_TEST(LcmDrivingCommandToIgnDrivingCommandTranslatorSystemTest,
   lcm_msg.set_acceleration(kAcceleration);
 
   LcmDrivingCommandToIgnDrivingCommandTranslatorSystem translator;
-  auto context = translator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(
       kPortIndex,

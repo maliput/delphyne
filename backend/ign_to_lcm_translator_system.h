@@ -27,14 +27,17 @@ class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
  protected:
   // @brief Translates an @p ign_message into a @p lcm_message. All derived
   //        translators must implement this method with the actual translation.
-  //        @p lcm_message is NOT re-constructed on each call: the same object
-  //        is copied and passed again. This function must perform any required
-  //        cleanup from the previous call. @see DeclareAbstractOutputPort
+  //        @p lcm_message is guaranteed to not be null, but it is NOT
+  //        re-constructed on each call: the same object is copied and passed
+  //        on each call. This function must perform any required cleanup from
+  //        the previous call.
   //        @see DeclareVectorOutputPort
+  //        @see DeclareAbstractOutputPort
   virtual void DoIgnToLcmTranslation(const IGN_TYPE& ign_message,
                                      LCM_TYPE* lcm_message) const = 0;
 
-  // @brief Since this function contains virtual calls, in cannot be called from
+  // @brief Initializes the system's input and output ports.
+  //        Since this function contains virtual calls, in cannot be called from
   //        IgnToLcmTranslatorSystem's constructor: all derived classes must
   //        call this function once before using the translator system to
   //        prevent runtime errors. The recommended way of doing this is to
@@ -108,8 +111,9 @@ class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
   //                         port.
   void CalcLcmMessage(const drake::systems::Context<double>& context,
                       LCM_TYPE* lcm_message) const {
-    // Retrieves the ignition message from the input port
+    DELPHYNE_DEMAND(lcm_message != nullptr);
 
+    // Retrieves the ignition message from the input port
     const drake::systems::AbstractValue* input =
         EvalAbstractInput(context, kPortIndex);
     DELPHYNE_DEMAND(input != nullptr);

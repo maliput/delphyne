@@ -17,7 +17,7 @@ GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
 
   IgnModelVToLcmViewerDrawTranslatorSystem translator;
-  auto context = translator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
                         drake::systems::AbstractValue::Make(ign_msg));

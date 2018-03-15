@@ -23,9 +23,9 @@ class DELPHYNE_BACKEND_VISIBLE LcmViewerDrawToIgnModelVTranslatorSystem
 
  protected:
   // @brief @see LcmToIgnTranslatorSystem::DoLcmToIgnTranslation.
-  void DoLcmToIgnTranslation(
-      const drake::lcmt_viewer_draw& lcm_message,
-      ignition::msgs::Model_V* ign_message) const override;
+  void DoLcmToIgnTranslation(const drake::lcmt_viewer_draw& lcm_message,
+                             ignition::msgs::Model_V* ign_message,
+                             int64_t time) const override;
 };
 
 }  // namespace backend

@@ -20,13 +20,6 @@
 
 #include "backend/system.h"
 
-using drake::systems::Value;
-using drake::systems::AbstractValue;
-using drake::systems::AbstractValues;
-using drake::systems::Context;
-using drake::systems::LeafSystem;
-using drake::systems::State;
-
 namespace delphyne {
 namespace backend {
 
@@ -36,7 +29,7 @@ namespace backend {
 ///
 /// @tparam IGN_TYPE must be a valid ignition message type.
 template <class IGN_TYPE>
-class IgnSubscriberSystem : public LeafSystem<double> {
+class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
  public:
   /// Default constructor.
   ///
@@ -45,10 +38,11 @@ class IgnSubscriberSystem : public LeafSystem<double> {
   explicit IgnSubscriberSystem(const std::string& topic_name)
       : topic_name_(topic_name) {
     DeclareAbstractOutputPort(
-        [this](const Context<double>&) {
+        [this](const drake::systems::Context<double>&) {
           return this->AllocateDefaultAbstractValue();
         },
-        [this](const Context<double>& context, AbstractValue* out) {
+        [this](const drake::systems::Context<double>& context,
+               drake::systems::AbstractValue* out) {
           this->IgnSubscriberSystem::CalcIgnMessage(context, out);
         });
 
@@ -61,19 +55,24 @@ class IgnSubscriberSystem : public LeafSystem<double> {
 
   ~IgnSubscriberSystem() override {}
 
-  std::unique_ptr<AbstractValue> AllocateDefaultAbstractValue() const {
+  std::unique_ptr<drake::systems::AbstractValue> AllocateDefaultAbstractValue()
+      const {
     return std::make_unique<drake::systems::Value<IGN_TYPE>>(IGN_TYPE{});
   }
 
-  std::unique_ptr<AbstractValues> AllocateAbstractState() const override {
-    std::vector<std::unique_ptr<AbstractValue>> abstract_vals(2);
-    abstract_vals[kStateIndexMessage] = AllocateDefaultAbstractValue();
-    abstract_vals[kStateIndexMessageCount] = AbstractValue::Make<int>(0);
-    return std::make_unique<AbstractValues>(std::move(abstract_vals));
+  std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
+      const override {
+    std::vector<std::unique_ptr<drake::systems::AbstractValue>> abstract_values(
+        2);
+    abstract_values[kStateIndexMessage] = AllocateDefaultAbstractValue();
+    abstract_values[kStateIndexMessageCount] =
+        drake::systems::AbstractValue::Make<int>(0);
+    return std::make_unique<drake::systems::AbstractValues>(
+        std::move(abstract_values));
   }
 
-  void SetDefaultState(const Context<double>&,
-                       State<double>* state) const override {
+  void SetDefaultState(const drake::systems::Context<double>&,
+                       drake::systems::State<double>* state) const override {
     DELPHYNE_DEMAND(state != nullptr);
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
@@ -82,7 +81,7 @@ class IgnSubscriberSystem : public LeafSystem<double> {
   inline const std::string& get_topic_name() { return topic_name_; }
 
   /// Returns the message counter stored in @p context.
-  int GetMessageCount(const Context<double>& context) const {
+  int GetMessageCount(const drake::systems::Context<double>& context) const {
     return context.get_abstract_state()
         .get_value(kStateIndexMessageCount)
         .GetValue<int>();
@@ -101,7 +100,7 @@ class IgnSubscriberSystem : public LeafSystem<double> {
   }
 
   void DoCalcNextUpdateTime(
-      const Context<double>& context,
+      const drake::systems::Context<double>& context,
       drake::systems::CompositeEventCollection<double>* events,
       double* time) const override {
     DELPHYNE_DEMAND(events != nullptr);
@@ -131,17 +130,17 @@ class IgnSubscriberSystem : public LeafSystem<double> {
   }
 
   void DoCalcUnrestrictedUpdate(
-      const Context<double>&,
+      const drake::systems::Context<double>&,
       const std::vector<
           const drake::systems::UnrestrictedUpdateEvent<double>*>&,
-      State<double>* state) const override {
+      drake::systems::State<double>* state) const override {
     DELPHYNE_DEMAND(state != nullptr);
 
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
 
   void ProcessMessageAndStoreToAbstractState(
-      AbstractValues* abstract_state) const {
+      drake::systems::AbstractValues* abstract_state) const {
     DELPHYNE_DEMAND(abstract_state != nullptr);
 
     std::lock_guard<std::mutex> lock(received_message_mutex_);
@@ -155,8 +154,8 @@ class IgnSubscriberSystem : public LeafSystem<double> {
         .GetMutableValue<int>() = received_message_count_;
   }
 
-  void CalcIgnMessage(const Context<double>& context,
-                      AbstractValue* output_value) const {
+  void CalcIgnMessage(const drake::systems::Context<double>& context,
+                      drake::systems::AbstractValue* output_value) const {
     DELPHYNE_DEMAND(output_value != nullptr);
 
     output_value->SetFrom(

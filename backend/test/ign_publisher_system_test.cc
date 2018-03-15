@@ -54,8 +54,8 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
   std::unique_ptr<drake::systems::Context<double>> context =
       ign_publisher_->CreateDefaultContext();
 
-  // Fills the igm message with sample data.
-  const auto ign_msg = test::BuildPreloadedModelVMsg();
+  // Fills the ign message with sample data.
+  const ignition::msgs::Model_V ign_msg = test::BuildPreloadedModelVMsg();
 
   // Configures context's input with the pre-loaded message.
   context->FixInputPort(

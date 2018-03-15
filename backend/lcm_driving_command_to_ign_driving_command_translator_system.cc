@@ -10,25 +10,19 @@ namespace backend {
 
 LcmDrivingCommandToIgnDrivingCommandTranslatorSystem::
     LcmDrivingCommandToIgnDrivingCommandTranslatorSystem() {
-  InitPorts();
+  InitPorts(drake::automotive::DrivingCommandIndices::kNumCoordinates);
 }
 
 void LcmDrivingCommandToIgnDrivingCommandTranslatorSystem::
     DoLcmToIgnTranslation(
         const drake::automotive::DrivingCommand<double>& lcm_message,
-        ignition::msgs::AutomotiveDrivingCommand* ign_message) const {
+        ignition::msgs::AutomotiveDrivingCommand* ign_message,
+        int64_t time_ms) const {
   DELPHYNE_DEMAND(ign_message != nullptr);
-
-  auto time_ms = static_cast<int64_t>(translation_context->get_time()) * 1000;
 
   LcmTimestampToIgnition(time_ms, ign_message->mutable_time());
   ign_message->set_theta(lcm_message.steering_angle());
   ign_message->set_acceleration(lcm_message.acceleration());
-}
-
-int LcmDrivingCommandToIgnDrivingCommandTranslatorSystem::GetVectorSize()
-    const {
-  return drake::automotive::DrivingCommandIndices::kNumCoordinates;
 }
 
 }  // namespace backend

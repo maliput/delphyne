@@ -29,9 +29,8 @@ class DELPHYNE_BACKEND_VISIBLE
   // @brief @see LcmToIgnTranslatorSystem::DoLcmToIgnTranslation.
   void DoLcmToIgnTranslation(
       const drake::automotive::DrivingCommand<double>& lcm_message,
-      ignition::msgs::AutomotiveDrivingCommand* ign_message) const override;
-
-  int GetVectorSize() const override;
+      ignition::msgs::AutomotiveDrivingCommand* ign_message,
+      int64_t time_ms) const override;
 };
 
 }  // namespace backend

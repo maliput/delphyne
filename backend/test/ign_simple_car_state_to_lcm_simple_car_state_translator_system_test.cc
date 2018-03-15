@@ -25,7 +25,7 @@ GTEST_TEST(IgnSimpleCarStateToLcmSimpleCarStateTranslatorSystemTest,
   ign_msg.set_velocity(kExpectedVelocity);
 
   IgnSimpleCarStateToLcmSimpleCarStateTranslatorSystem translator;
-  auto context = translator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
                         drake::systems::AbstractValue::Make(ign_msg));

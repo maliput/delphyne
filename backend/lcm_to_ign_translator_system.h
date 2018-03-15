@@ -28,35 +28,54 @@ class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   //        VectorBase) must override this method.
   virtual int GetVectorSize() const { DELPHYNE_ABORT(); }
 
+  //
   // @brief Translates an @p lcm_message into a @p ign_message. All derived
   //        translators must implement this method with the actual translation.
-  //        @p ign_message is NOT re-constructed on each call: the same object
-  //        is copied and passed again. This function must perform any required
-  //        cleanup from the previous call. @see DeclareAbstractOutputPort
+  //        @p ign_message is guaranteed to not be null, but it is NOT
+  //        re-constructed on each call: the same object is copied and passed
+  //        on each call. This function must perform any required cleanup from
+  //        the previous call.
+  // @see DeclareAbstractOutputPort
+  //
+  // @param[in] time_ms The curent time, in milliseconds.
+  //
   virtual void DoLcmToIgnTranslation(const LCM_TYPE& lcm_message,
-                                     IGN_TYPE* ign_message) const = 0;
+                                     IGN_TYPE* ign_message, int64_t) const = 0;
 
-  // @brief Since this function contains virtual calls, in cannot be called from
+  // @brief Initializes the system's input and output ports.
+  //        Since this function contains virtual calls, in cannot be called from
   //        LcmToIgnTranslatorSystem's constructor: all derived classes must
   //        call this function once before using the translator system to
   //        prevent runtime errors. The recommended way of doing this is to
   //        place this call in the derived translator's constructor.
-  void InitPorts() {
-    // Input port (discrete or abstract, depending on the type of LCM_TYPE)
-    if (IsVectorBasedTranslator()) {
-      DeclareInputPort(drake::systems::kVectorValued, GetVectorSize());
-    } else {
-      DeclareAbstractInputPort();
-    }
 
-    // Output port (always abstract for ignition types)
+  // Overload for LCM_TYPEs that inherit from drake::systems::VectorBase (which have
+  // an associated vector size).
+  template <class T = LCM_TYPE>
+  typename std::enable_if<
+      std::is_base_of<drake::systems::VectorBase<double>, T>::value,
+      void>::type
+  InitPorts(int vector_size) {
+    DeclareInputPort(drake::systems::kVectorValued, vector_size);
+
+    // Ingition types always go in abstract output ports.
+    DeclareAbstractOutputPort(&LcmToIgnTranslatorSystem::CalcIgnMessage);
+  }
+
+  // Overload for LCM_TYPEs that do not inherit from drake::systems::VectorBase.
+  template <class T = LCM_TYPE>
+  typename std::enable_if<
+      !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
+      void>::type
+  InitPorts() {
+    DeclareAbstractInputPort();
+
+    // Ingition types always go in abstract output ports.
     DeclareAbstractOutputPort(&LcmToIgnTranslatorSystem::CalcIgnMessage);
   }
 
   // Translation helper functions and constants, to be used by derived
   // translators.
-
-  mutable drake::systems::Context<double> const* translation_context;
 
   const unsigned int kPositionVectorSize{3};
   const unsigned int kOrientationVectorSize{4};
@@ -119,13 +138,14 @@ class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   //                         output port.
   void CalcIgnMessage(const drake::systems::Context<double>& context,
                       IGN_TYPE* ign_message) const {
-    translation_context = &context;
+    DELPHYNE_DEMAND(ign_message != nullptr);
 
-    // Retrieves the LCM message from the input port
+    // Retrieves the LCM message from the input port.
     const LCM_TYPE& lcm_message = ReadInputPort(context);
 
-    // And then translates to ignition
-    DoLcmToIgnTranslation(lcm_message, ign_message);
+    // And then translates to ignition.
+    auto time_ms = static_cast<int64_t>(context.get_time()) * 1000;
+    DoLcmToIgnTranslation(lcm_message, ign_message, time_ms);
   }
 
   // Depending on the type of LCM_TYPE (whether or not it inherits from

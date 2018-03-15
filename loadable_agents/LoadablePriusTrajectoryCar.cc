@@ -160,17 +160,17 @@ class LoadablePriusTrajectoryCarDouble final
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
-    auto car_state_translator = builder->AddSystem(
-        std::make_unique<
-            LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem>());
+    auto car_state_translator =
+        builder
+            ->AddSystem<LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
 
     builder->Connect(this->raw_pose_output(),
                      car_state_translator->get_input_port(0));
 
     const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
-    auto car_state_publisher = builder->AddSystem(
-        std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-            channel));
+    auto car_state_publisher =
+        builder->AddSystem<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
+            channel);
 
     builder->Connect(*car_state_translator, *car_state_publisher);
 

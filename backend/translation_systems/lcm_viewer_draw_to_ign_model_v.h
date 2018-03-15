@@ -6,8 +6,8 @@
 
 #include "ignition/msgs.hh"
 
-#include "backend/drake_to_ign_translator_system.h"
 #include "backend/system.h"
+#include "backend/translation_systems/drake_to_ign.h"
 
 namespace delphyne {
 namespace backend {

@@ -70,9 +70,9 @@
 #include "drake/systems/rendering/pose_vector.h"
 
 #include <backend/agent_plugin_base.h>
-#include <backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h>
 #include <backend/ign_publisher_system.h>
 #include <backend/linb-any>
+#include <backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h>
 
 namespace delphyne {
 namespace backend {

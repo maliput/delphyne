@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/ign_driving_command_to_drake_driving_command_translator_system.h"
+#include "backend/translation_systems/ign_driving_command_to_drake_driving_command.h"
 
 namespace delphyne {
 namespace backend {

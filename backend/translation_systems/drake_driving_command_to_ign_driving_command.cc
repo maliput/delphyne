@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#include "backend/drake_driving_command_to_ign_driving_command_translator_system.h"
+#include "backend/translation_systems/drake_driving_command_to_ign_driving_command.h"
 
 namespace delphyne {
 namespace backend {

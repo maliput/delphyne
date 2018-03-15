@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/ign_model_v_to_lcm_viewer_draw_translator_system.h"
+#include "backend/translation_systems/ign_model_v_to_lcm_viewer_draw.h"
 
 namespace delphyne {
 namespace backend {

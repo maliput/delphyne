@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/lcm_viewer_draw_to_ign_model_v_translator_system.h"
+#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 
 #include "drake/systems/framework/framework_common.h"
 

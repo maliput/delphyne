@@ -3,7 +3,7 @@
 #include <map>
 #include <string>
 
-#include "backend/lcm_viewer_draw_to_ign_model_v_translator_system.h"
+#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 
 namespace delphyne {
 namespace backend {

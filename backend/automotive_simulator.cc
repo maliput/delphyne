@@ -31,12 +31,12 @@
 
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
-#include "backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h"
-#include "backend/ign_driving_command_to_drake_driving_command_translator_system.h"
-#include "backend/lcm_viewer_draw_to_ign_model_v_translator_system.h"
 #include "backend/linb-any"
 #include "backend/scene_system.h"
 #include "backend/system.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h"
+#include "backend/translation_systems/ign_driving_command_to_drake_driving_command.h"
+#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 
 namespace delphyne {
 

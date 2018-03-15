@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h"
 
 #include <memory>
 

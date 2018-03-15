@@ -8,8 +8,8 @@
 
 #include "protobuf/automotive_driving_command.pb.h"
 
-#include "backend/drake_to_ign_translator_system.h"
 #include "backend/system.h"
+#include "backend/translation_systems/drake_to_ign.h"
 
 namespace delphyne {
 namespace backend {

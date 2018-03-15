@@ -45,27 +45,6 @@ target_link_libraries(delphyne_lcm_to_ign
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
-# Drake-ignition translator system library
-add_library(drake_ign_translator_systems
-  STATIC
-  drake_driving_command_to_ign_driving_command_translator_system.cc
-  drake_simple_car_state_to_ign_simple_car_state_translator_system.cc
-  lcm_viewer_draw_to_ign_model_v_translator_system.cc
-  ign_driving_command_to_drake_driving_command_translator_system.cc
-  ign_model_v_to_lcm_viewer_draw_translator_system.cc
-  ign_simple_car_state_to_drake_simple_car_state_translator_system.cc
-)
-
-target_link_libraries(drake_ign_translator_systems
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  delphyne_protobuf_msgs
-)
-
-target_include_directories(drake_ign_translator_systems PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-# ----------------------------------------
 # Simulator-runner library
 
 add_library(simulation_runner
@@ -104,7 +83,7 @@ target_link_libraries(automotive_simulator
   ${PYTHON_LIBRARIES}
   delphyne_protobuf_msgs
   delphyne_lcm_to_ign
-  drake_ign_translator_systems
+  drake_ign_translation_systems
   scene_system
   time_conversion
 )
@@ -179,6 +158,8 @@ target_link_libraries(test_helpers
 
 target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
+add_subdirectory(translation_systems)
+
 # ----------------------------------------
 # Python bindings.
 
@@ -222,3 +203,4 @@ install(PROGRAMS test/simulation_runner_py_test.py DESTINATION ${CMAKE_BINARY_DI
 # Launcher
 install(FILES launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
 install(PROGRAMS demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+

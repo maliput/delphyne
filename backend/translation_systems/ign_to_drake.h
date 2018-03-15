@@ -15,11 +15,11 @@ namespace backend {
 namespace translation_systems {
 
 /// @brief A system that translates ignition messages on its single abstract
-///        input port to a Drake message on its single output port (which will
-///        be vector based or abstract depending on the type of the Drake
-///        message). This is a base class that provides the input-output port
-///        boilerplate and helper translator functions: derived classes need to
-///        implement the actual translation.
+/// input port to a Drake message on its single output port (which will be
+/// vector based or abstract depending on the type of the Drake message). This
+/// is a base class that provides the input-output port boilerplate and helper
+/// translator functions: derived classes need to implement the actual
+/// translation.
 ///
 /// @tparam IGN_TYPE must be a valid ignition message type.
 /// @tparam DRAKE_TYPE must be a valid Drake message type.
@@ -36,13 +36,12 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
 
  protected:
   // @brief Translates an @p ign_message into a @p drake_message. All derived
-  //        translators must implement this method with the actual translation.
-  //        @p drake_message is guaranteed to not be null, but it is NOT
-  //        re-constructed on each call: the same object is copied and passed
-  //        on each call. This function must perform any required cleanup from
-  //        the previous call.
-  //        @see DeclareVectorOutputPort
-  //        @see DeclareAbstractOutputPort
+  // translators must implement this method with the actual translation.
+  // @p drake_message is guaranteed to not be null, but it is NOT ever
+  // re-constructed: the same object is copied and passed on each call. This
+  // function must perform any required cleanup from the previous call.
+  // @see DeclareVectorOutputPort
+  // @see DeclareAbstractOutputPort
   virtual void DoIgnToDrakeTranslation(const IGN_TYPE& ign_message,
                                        DRAKE_TYPE* drake_message) const = 0;
 
@@ -50,13 +49,13 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // translators.
 
   // @brief Converts an ignition time message to an timestamp in milliseconds
-  //        (which is what LCM messages use).
+  // (which is what LCM messages use).
   int64_t ignTimeToTimestamp(const ::ignition::msgs::Time& ign_time) const {
     return ign_time.sec() * 1000 + ign_time.nsec() / 1000000;
   }
 
   // @brief Convert an ignition position message to a vector of floats (LCM's
-  //        type for positions).
+  // type for positions).
   std::vector<float> ignPositionToVector(
       const ignition::msgs::Vector3d& position) const {
     return {static_cast<float>(position.x()), static_cast<float>(position.y()),
@@ -64,7 +63,7 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   }
 
   // @brief Convert an ignition quaterion message to a vector of floats (LCM's
-  //        type for orientations).
+  // type for orientations).
   std::vector<float> ignQuaternionToVector(
       const ignition::msgs::Quaternion& orientation) const {
     return {static_cast<float>(orientation.w()),
@@ -86,7 +85,7 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // constexpr if.
 
   // @brief Output port initialization for Drake objects that inherit from
-  //        VectorBase.
+  // VectorBase.
   template <class T = DRAKE_TYPE>
   typename std::enable_if<
       std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
@@ -95,7 +94,7 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   }
 
   // @brief Output port initialization for Drake objects that do not inherit
-  //        from VectorBase.
+  // from VectorBase.
   template <class T = DRAKE_TYPE>
   typename std::enable_if<
       !std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
@@ -110,7 +109,7 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   //
   // @param[in] context The Drake system context.
   // @param[out] drake_message The Drake message that will be stored in the
-  //                           output port.
+  // output port.
   void CalcDrakeMessage(const drake::systems::Context<double>& context,
                         DRAKE_TYPE* drake_message) const {
     DELPHYNE_DEMAND(drake_message != nullptr);

@@ -14,11 +14,10 @@ namespace backend {
 namespace translation_systems {
 
 /// @brief A system that translates Drake messages on its single input port
-///        (which will be discrete or abstract based on the type of the Drake
-///        message) to an ignition message on its single abstract output port.
-///        This is a base class that provides the input-output port boilerplate
-///        and helper translator functions: derived classes need to implement
-///        the actual translation.
+/// (which will be discrete or abstract based on the type of the Drake message)
+/// to an ignition message on its single abstract output port. This is a base
+/// class that provides the input-output port boilerplate and helper translator
+/// functions: derived classes need to implement the actual translation.
 ///
 /// @tparam DRAKE_TYPE must be a valid Drake message type.
 /// @tparam IGN_TYPE must be a valid ignition message type.
@@ -56,11 +55,10 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
 
  protected:
   // @brief Translates a @p drake_message into an @p ign_message. All derived
-  //        translators must implement this method with the actual translation.
-  //        @p ign_message is guaranteed to not be null, but it is NOT
-  //        re-constructed on each call: the same object is copied and passed
-  //        on each call. This function must perform any required cleanup from
-  //        the previous call.
+  // translators must implement this method with the actual translation.
+  // @p ign_message is guaranteed to not be null, but it is NOT ever
+  // re-constructed: the same object is copied and passed on each call. This
+  // function must perform any required cleanup from the previous call.
   // @see DeclareAbstractOutputPort
   //
   // @param[in] time_ms The curent time, in milliseconds.
@@ -75,7 +73,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   const unsigned int kOrientationVectorSize{4};
 
   // @brief Converts an array of floats (LCM's type for positions) to an
-  //        ignition position message.
+  // ignition position message.
   //
   // @param[in] lcm_position The LCM position array.
   // @param[out] ign_position The ignition position message.
@@ -89,7 +87,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   }
 
   // @brief Converts an array of floats (LCM's type for quaternions) to an
-  //        ignition quaterion message.
+  // ignition quaterion message.
   //
   // @param[in] lcm_quaternion The LCM orientation array.
   // @param[out] ign_quaternion The ign quaternion message.
@@ -105,7 +103,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   }
 
   // @brief Converts an LCM timestamp (in milliseconds) to an ignition time
-  //        message.
+  // message.
   //
   // @param[in] lcm_timestamp_ms The LCM timestamp (in milliseconds).
   // @param[out] ign_time The ignition time message.
@@ -125,7 +123,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   //
   // @param[in] context The Drake system context.
   // @param[out] ign_message The ignition message that will be stored in the
-  //                         output port.
+  // output port.
   void CalcIgnMessage(const drake::systems::Context<double>& context,
                       IGN_TYPE* ign_message) const {
     DELPHYNE_DEMAND(ign_message != nullptr);
@@ -167,7 +165,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   }
 
   // @brief Reads an input port for Drake objects that do not inherit from
-  //        VectorBase.
+  // VectorBase.
   template <class T = DRAKE_TYPE>
   typename std::enable_if<
       !std::is_base_of<drake::systems::VectorBase<double>, T>::value,

@@ -65,6 +65,7 @@
 #include "drake/automotive/maliput/api/road_geometry.h"
 #include "drake/automotive/maliput/utility/generate_urdf.h"
 #include "drake/automotive/mobil_planner.h"
+#include "drake/automotive/pose_selector.h"
 #include "drake/automotive/prius_vis.h"
 #include "drake/automotive/pure_pursuit_controller.h"
 #include "drake/common/eigen_types.h"
@@ -161,12 +162,14 @@ class LoadableMobilControlledSimpleCarDouble final
 
     auto mobil_planner =
         builder->template AddSystem<drake::automotive::MobilPlanner<double>>(
-            *road, initial_with_s);
+            *road, initial_with_s,
+            drake::automotive::RoadPositionStrategy::kCache, 1.);
     mobil_planner->set_name(name + "_mobil_planner");
 
     auto idm_controller =
         builder->template AddSystem<drake::automotive::IdmController<double>>(
-            *road);
+            *road, drake::automotive::ScanStrategy::kBranches,
+            drake::automotive::RoadPositionStrategy::kCache, 1.);
     idm_controller->set_name(name + "_idm_controller");
 
     auto pursuit = builder->template AddSystem<
@@ -203,8 +206,8 @@ class LoadableMobilControlledSimpleCarDouble final
     builder->Connect(mux->get_output_port(0), this->get_input_port(0));
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
-    builder->Connect(this->pose_output(), ports.first);
-    builder->Connect(this->velocity_output(), ports.second);
+    builder->Connect(this->pose_output(), ports.pose_descriptor);
+    builder->Connect(this->velocity_output(), ports.velocity_descriptor);
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 

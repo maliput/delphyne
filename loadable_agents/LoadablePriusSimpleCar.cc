@@ -127,8 +127,8 @@ class LoadablePriusSimpleCarDouble final
     builder->Connect(*driving_command_translator, *this);
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
-    builder->Connect(this->pose_output(), ports.first);
-    builder->Connect(this->velocity_output(), ports.second);
+    builder->Connect(this->pose_output(), ports.pose_descriptor);
+    builder->Connect(this->velocity_output(), ports.velocity_descriptor);
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 

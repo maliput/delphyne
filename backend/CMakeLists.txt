@@ -9,12 +9,12 @@ set (gtest_sources
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   ign_publisher_system_test.cc
-  ign_driving_command_to_lcm_driving_command_translator_system_test.cc
+  ign_driving_command_to_drake_driving_command_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
-  ign_simple_car_state_to_lcm_simple_car_state_translator_system_test.cc
+  ign_simple_car_state_to_drake_simple_car_state_translator_system_test.cc
   lcm_to_ign_translation_test.cc
-  lcm_driving_command_to_ign_driving_command_translator_system_test.cc
-  lcm_simple_car_state_to_ign_simple_car_state_translator_system_test.cc
+  drake_driving_command_to_ign_driving_command_translator_system_test.cc
+  drake_simple_car_state_to_ign_simple_car_state_translator_system_test.cc
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
   linb_any_test.cc
   scene_system_test.cc
@@ -45,25 +45,25 @@ target_link_libraries(delphyne_lcm_to_ign
 target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
-# Lcm to ign translator system library
-add_library(lcm_ign_translator_systems
+# Drake-ignition translator system library
+add_library(drake_ign_translator_systems
   STATIC
-  lcm_driving_command_to_ign_driving_command_translator_system.cc
-  lcm_simple_car_state_to_ign_simple_car_state_translator_system.cc
+  drake_driving_command_to_ign_driving_command_translator_system.cc
+  drake_simple_car_state_to_ign_simple_car_state_translator_system.cc
   lcm_viewer_draw_to_ign_model_v_translator_system.cc
-  ign_driving_command_to_lcm_driving_command_translator_system.cc
+  ign_driving_command_to_drake_driving_command_translator_system.cc
   ign_model_v_to_lcm_viewer_draw_translator_system.cc
-  ign_simple_car_state_to_lcm_simple_car_state_translator_system.cc
+  ign_simple_car_state_to_drake_simple_car_state_translator_system.cc
 )
 
-target_link_libraries(lcm_ign_translator_systems
+target_link_libraries(drake_ign_translator_systems
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
   delphyne_protobuf_msgs
 )
 
-target_include_directories(lcm_ign_translator_systems PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(drake_ign_translator_systems PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Simulator-runner library
@@ -104,7 +104,7 @@ target_link_libraries(automotive_simulator
   ${PYTHON_LIBRARIES}
   delphyne_protobuf_msgs
   delphyne_lcm_to_ign
-  lcm_ign_translator_systems
+  drake_ign_translator_systems
   scene_system
   time_conversion
 )

@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/ign_driving_command_to_lcm_driving_command_translator_system.h"
+#include "backend/ign_driving_command_to_drake_driving_command_translator_system.h"
 
 #include "drake/systems/framework/framework_common.h"
 
@@ -10,8 +10,7 @@ namespace delphyne {
 namespace backend {
 
 // @brief Checks that an ignition driving command message on the input port is
-// correctly
-//        translated into an LCM driving command message.
+// correctly translated into a Drake driving command message.
 GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
            TestTranslation) {
   const double kTheta{0.12};
@@ -21,8 +20,9 @@ GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
   ign_msg.set_theta(kTheta);
   ign_msg.set_acceleration(kAcceleration);
 
-  IgnDrivingCommandToLcmDrivingCommandTranslatorSystem translator;
-  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
+  IgnDrivingCommandToDrakeDrivingCommandTranslatorSystem translator;
+  std::unique_ptr<drake::systems::Context<double>> context =
+      translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
                         drake::systems::AbstractValue::Make(ign_msg));
@@ -31,11 +31,11 @@ GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
   translator.CalcOutput(*context, output.get());
 
   const auto* vector = output->get_vector_data(kPortIndex);
-  const auto lcm_msg =
+  const auto drake_msg =
       dynamic_cast<const drake::automotive::DrivingCommand<double>*>(vector);
 
-  EXPECT_EQ(lcm_msg->steering_angle(), kTheta);
-  EXPECT_EQ(lcm_msg->acceleration(), kAcceleration);
+  EXPECT_EQ(drake_msg->steering_angle(), kTheta);
+  EXPECT_EQ(drake_msg->acceleration(), kAcceleration);
 }
 
 }  // namespace backend

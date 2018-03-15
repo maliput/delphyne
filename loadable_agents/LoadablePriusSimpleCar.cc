@@ -19,10 +19,10 @@
 #include <string>
 
 #include <backend/agent_plugin_base.h>
-#include <backend/ign_driving_command_to_lcm_driving_command_translator_system.h>
+#include <backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h>
+#include <backend/ign_driving_command_to_drake_driving_command_translator_system.h>
 #include <backend/ign_publisher_system.h>
 #include <backend/ign_subscriber_system.h>
-#include <backend/lcm_simple_car_state_to_ign_simple_car_state_translator_system.h>
 #include <backend/linb-any>
 
 #include <ignition/common/Console.hh>
@@ -112,16 +112,18 @@ class LoadablePriusSimpleCarDouble final
     igndbg << "LoadablePriusSimpleCar configure" << std::endl;
 
     std::string channel_name = "DRIVING_COMMAND_" + name;
-
     auto driving_command_subscriber = builder->template AddSystem<
         IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         channel_name);
 
     auto driving_command_translator = builder->template AddSystem<
-        IgnDrivingCommandToLcmDrivingCommandTranslatorSystem>();
+        IgnDrivingCommandToDrakeDrivingCommandTranslatorSystem>();
 
+    // Ignition driving commands received through the subscriber are translated
+    // to Drake.
     builder->Connect(*driving_command_subscriber, *driving_command_translator);
 
+    // And then the translated Drake command is sent to the car.
     builder->Connect(*driving_command_translator, *this);
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
@@ -131,15 +133,17 @@ class LoadablePriusSimpleCarDouble final
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
     auto car_state_translator = builder->template AddSystem<
-        LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
-
-    builder->Connect(this->state_output(),
-                     car_state_translator->get_input_port(0));
+        DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
 
     const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
     auto car_state_publisher = builder->template AddSystem<
         IgnPublisherSystem<ignition::msgs::SimpleCarState>>(channel_name);
 
+    // Drake car states are translated to ignition.
+    builder->Connect(this->state_output(),
+                     car_state_translator->get_input_port(0));
+
+    // And then the translated ingition car state is published.
     builder->Connect(*car_state_translator, *car_state_publisher);
 
     return 0;

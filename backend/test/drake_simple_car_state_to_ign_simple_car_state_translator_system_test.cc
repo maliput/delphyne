@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/lcm_simple_car_state_to_ign_simple_car_state_translator_system.h"
+#include "backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h"
 
 #include <memory>
 
@@ -13,28 +13,29 @@
 namespace delphyne {
 namespace backend {
 
-// @brief Checks that an LCM simple car state message on the input port is
+// @brief Checks that a Drake simple car state message on the input port is
 // correctly translated into an ignition simple car state message.
-GTEST_TEST(LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystemTest,
+GTEST_TEST(DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystemTest,
            TestTranslation) {
   const double kExpectedX{1.9};
   const double kExpectedY{2.8};
   const double kExpectedHeading{3.7};
   const double kExpectedVelocity{4.6};
 
-  drake::automotive::SimpleCarState<double> lcm_msg;
-  lcm_msg.set_x(kExpectedX);
-  lcm_msg.set_y(kExpectedY);
-  lcm_msg.set_heading(kExpectedHeading);
-  lcm_msg.set_velocity(kExpectedVelocity);
+  drake::automotive::SimpleCarState<double> drake_msg;
+  drake_msg.set_x(kExpectedX);
+  drake_msg.set_y(kExpectedY);
+  drake_msg.set_heading(kExpectedHeading);
+  drake_msg.set_velocity(kExpectedVelocity);
 
-  LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem translator;
-  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
+  DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem translator;
+  std::unique_ptr<drake::systems::Context<double>> context =
+      translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(
       kPortIndex,
       std::make_unique<
-          drake::systems::Value<drake::systems::BasicVector<double>>>(lcm_msg));
+          drake::systems::Value<drake::systems::BasicVector<double>>>(drake_msg));
 
   auto output = translator.AllocateOutput(*context);
   translator.CalcOutput(*context, output.get());

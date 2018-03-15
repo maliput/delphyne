@@ -13,48 +13,43 @@
 namespace delphyne {
 namespace backend {
 
-/// @brief A system that translates LCM objects on it's single input port (which
-///        will be discrete or abstract based on the type of the LCM object) to
-///        an IGN object on it's single abstract output port. This is a base
-///        class that provides the input-output port boilerplate and helper
-///        translator functions: derived classes need to implement the actual
-///        translation.
+/// @brief A system that translates ignition messages on its single abstract
+///        input port to a Drake message on its single output port (which will
+///        be vector based or abstract depending on the type of the Drake
+///        message). This is a base class that provides the input-output port
+///        boilerplate and helper translator functions: derived classes need to
+///        implement the actual translation.
 ///
 /// @tparam IGN_TYPE must be a valid ignition message type.
-/// @tparam LCM_TYPE must be a valid LCM message type.
-template <class IGN_TYPE, class LCM_TYPE>
-class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
+/// @tparam DRAKE_TYPE must be a valid Drake message type.
+template <class IGN_TYPE, class DRAKE_TYPE>
+class IgnToDrakeTranslatorSystem : public drake::systems::LeafSystem<double> {
+ public:
+  IgnToDrakeTranslatorSystem() {
+    // Input port (abstract for all ignition types).
+    DeclareAbstractInputPort();
+
+    // Output port (vector or abstract, depending on DRAKE_TYPE).
+    InitOutputPort();
+  }
+
  protected:
-  // @brief Translates an @p ign_message into a @p lcm_message. All derived
+  // @brief Translates an @p ign_message into a @p drake_message. All derived
   //        translators must implement this method with the actual translation.
-  //        @p lcm_message is guaranteed to not be null, but it is NOT
+  //        @p drake_message is guaranteed to not be null, but it is NOT
   //        re-constructed on each call: the same object is copied and passed
   //        on each call. This function must perform any required cleanup from
   //        the previous call.
   //        @see DeclareVectorOutputPort
   //        @see DeclareAbstractOutputPort
-  virtual void DoIgnToLcmTranslation(const IGN_TYPE& ign_message,
-                                     LCM_TYPE* lcm_message) const = 0;
-
-  // @brief Initializes the system's input and output ports.
-  //        Since this function contains virtual calls, in cannot be called from
-  //        IgnToLcmTranslatorSystem's constructor: all derived classes must
-  //        call this function once before using the translator system to
-  //        prevent runtime errors. The recommended way of doing this is to
-  //        place this call in the derived translator's constructor.
-  void InitPorts() {
-    // Input port (always abstract for ignition types)
-    DeclareAbstractInputPort();
-
-    // Output port (discrete or abstract, depending on the type of LCM_TYPE)
-    InitOutputPort();
-  }
+  virtual void DoIgnToDrakeTranslation(const IGN_TYPE& ign_message,
+                                       DRAKE_TYPE* drake_message) const = 0;
 
   // Translation helper functions and constants, to be used by derived
   // translators.
 
   // @brief Converts an ignition time message to an timestamp in milliseconds
-  //        (which is what LCM uses).
+  //        (which is what LCM messages use).
   int64_t ignTimeToTimestamp(const ::ignition::msgs::Time& ign_time) const {
     return ign_time.sec() * 1000 + ign_time.nsec() / 1000000;
   }
@@ -78,27 +73,33 @@ class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
   }
 
  private:
-  // Depending on the type of LCM_TYPE (whether or not it inherits from
-  // drake::systems::VectorBase), we need to read from a vector input port, or
-  // from an abstract output port. The problem is those functions perform
-  // assertions on the inferred return type, so we get compiler errors if a call
-  // to the function is compiled.
+  // Depending on DRAKE_TYPE (whether or not it inherits from
+  // drake::systems::VectorBase), we need to write to a vector output port, or
+  // to an abstract output port. The problem is Drake's functions perform
+  // assertions on the written object type, so we get compiler errors if a call
+  // to the wrong function is compiled (e.g. a call to write a vector output
+  // port with a non-vector object).
   // The solution to this issue is to use std::enable_if, which relies in SFINAE
   // to prevent compilation of ill-formed overloads.
   // When (if) we switch to C++17, all of this can be replaced with a simple
   // constexpr if.
-  template <class T = LCM_TYPE>
+
+  // @brief Output port initialization for Drake objects that inherit from
+  //        VectorBase.
+  template <class T = DRAKE_TYPE>
   typename std::enable_if<
       std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
   InitOutputPort() {
-    DeclareVectorOutputPort(&IgnToLcmTranslatorSystem::CalcLcmMessage);
+    DeclareVectorOutputPort(&IgnToDrakeTranslatorSystem::CalcDrakeMessage);
   }
 
-  template <class T = LCM_TYPE>
+  // @brief Output port initialization for Drake objects that do not inherit
+  //        from VectorBase.
+  template <class T = DRAKE_TYPE>
   typename std::enable_if<
       !std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
   InitOutputPort() {
-    DeclareAbstractOutputPort(&IgnToLcmTranslatorSystem::CalcLcmMessage);
+    DeclareAbstractOutputPort(&IgnToDrakeTranslatorSystem::CalcDrakeMessage);
   }
 
   // The translator has a single input port, and a single output port.
@@ -107,21 +108,21 @@ class IgnToLcmTranslatorSystem : public drake::systems::LeafSystem<double> {
   // @brief Calculates the state of the system's output port.
   //
   // @param[in] context The Drake system context.
-  // @param[out] lcm_message The LCM message that will be stored in the output
-  //                         port.
-  void CalcLcmMessage(const drake::systems::Context<double>& context,
-                      LCM_TYPE* lcm_message) const {
-    DELPHYNE_DEMAND(lcm_message != nullptr);
+  // @param[out] drake_message The Drake message that will be stored in the
+  //                           output port.
+  void CalcDrakeMessage(const drake::systems::Context<double>& context,
+                        DRAKE_TYPE* drake_message) const {
+    DELPHYNE_DEMAND(drake_message != nullptr);
 
-    // Retrieves the ignition message from the input port
+    // Retrieves the ignition message from the input port.
     const drake::systems::AbstractValue* input =
         EvalAbstractInput(context, kPortIndex);
     DELPHYNE_DEMAND(input != nullptr);
 
     const IGN_TYPE& ign_message = input->GetValue<IGN_TYPE>();
 
-    // And then translates to ignition
-    DoIgnToLcmTranslation(ign_message, lcm_message);
+    // And then translates to Drake.
+    DoIgnToDrakeTranslation(ign_message, drake_message);
   }
 };
 

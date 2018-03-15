@@ -5,16 +5,11 @@
 namespace delphyne {
 namespace backend {
 
-IgnModelVToLcmViewerDrawTranslatorSystem::
-    IgnModelVToLcmViewerDrawTranslatorSystem() {
-  InitPorts();
-}
-
-void IgnModelVToLcmViewerDrawTranslatorSystem::DoIgnToLcmTranslation(
+void IgnModelVToLcmViewerDrawTranslatorSystem::DoIgnToDrakeTranslation(
     const ignition::msgs::Model_V& ign_message,
     drake::lcmt_viewer_draw* lcm_message) const {
   // Clears state from the previous call.
-  // @see IgnToLcmTranslatorSystem::DoIgnToLcmTranslation
+  // @see IgnToDrakeTranslatorSystem::DoIgnToDrakeTranslation
   lcm_message->link_name.clear();
   lcm_message->robot_num.clear();
   lcm_message->position.clear();

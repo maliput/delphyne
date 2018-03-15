@@ -8,27 +8,26 @@
 
 #include "protobuf/automotive_driving_command.pb.h"
 
-#include "backend/lcm_to_ign_translator_system.h"
+#include "backend/drake_to_ign_translator_system.h"
 #include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
 
-/// @brief A system that translates LCM driving command messages to ignition
-/// driving command messages.
+/// @brief A system that translates Drake driving command messages to ignition
+///        driving command messages.
 class DELPHYNE_BACKEND_VISIBLE
-    LcmDrivingCommandToIgnDrivingCommandTranslatorSystem
-    : public LcmToIgnTranslatorSystem<
+    DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem
+    : public DrakeToIgnTranslatorSystem<
           drake::automotive::DrivingCommand<double>,
           ignition::msgs::AutomotiveDrivingCommand> {
  public:
-  /// @brief Default constructor. @see LcmToIgnTranslatorSystem::InitPorts.
-  LcmDrivingCommandToIgnDrivingCommandTranslatorSystem();
+  DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem();
 
  protected:
-  // @brief @see LcmToIgnTranslatorSystem::DoLcmToIgnTranslation.
-  void DoLcmToIgnTranslation(
-      const drake::automotive::DrivingCommand<double>& lcm_message,
+  // @brief @see DrakeToIgnTranslatorSystem::DoDrakeToIgnTranslation.
+  void DoDrakeToIgnTranslation(
+      const drake::automotive::DrivingCommand<double>& drake_message,
       ignition::msgs::AutomotiveDrivingCommand* ign_message,
       int64_t time_ms) const override;
 };

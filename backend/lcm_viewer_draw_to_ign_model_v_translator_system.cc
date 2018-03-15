@@ -8,12 +8,7 @@
 namespace delphyne {
 namespace backend {
 
-LcmViewerDrawToIgnModelVTranslatorSystem::
-    LcmViewerDrawToIgnModelVTranslatorSystem() {
-  InitPorts();
-}
-
-void LcmViewerDrawToIgnModelVTranslatorSystem::DoLcmToIgnTranslation(
+void LcmViewerDrawToIgnModelVTranslatorSystem::DoDrakeToIgnTranslation(
     const drake::lcmt_viewer_draw& lcm_message,
     ignition::msgs::Model_V* ign_message, int64_t time) const {
   DELPHYNE_DEMAND(lcm_message.link_name.size() ==
@@ -29,7 +24,7 @@ void LcmViewerDrawToIgnModelVTranslatorSystem::DoLcmToIgnTranslation(
                          ign_message->mutable_header()->mutable_stamp());
 
   // Clears state from the previous call.
-  // @see LcmToIgnTranslatorSystem::DoLcmToIgnTranslation
+  // @see LcmToIgnTranslatorSystem::DoDrakeToIgnTranslation
   ign_message->Clear();
 
   std::map<int32_t, ignition::msgs::Model*> models;

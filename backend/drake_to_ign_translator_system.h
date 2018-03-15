@@ -12,24 +12,51 @@
 namespace delphyne {
 namespace backend {
 
-/// @brief A system that translates LCM objects on it's single input port (which
-///        will be discrete or abstract based on the type of the LCM object) to
-///        an IGN object on it's single abstract output port. This is a base
-///        class that provides the input-output port boilerplate and helper
-///        translator functions: derived classes need to implement the actual
-///        translation.
+/// @brief A system that translates Drake messages on its single input port
+///        (which will be discrete or abstract based on the type of the Drake
+///        message) to an ignition message on its single abstract output port.
+///        This is a base class that provides the input-output port boilerplate
+///        and helper translator functions: derived classes need to implement
+///        the actual translation.
 ///
-/// @tparam LCM_TYPE must be a valid LCM message type.
+/// @tparam DRAKE_TYPE must be a valid Drake message type.
 /// @tparam IGN_TYPE must be a valid ignition message type.
-template <class LCM_TYPE, class IGN_TYPE>
-class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
- protected:
-  // @brief Derived translators for discrete LCM types (types that inherit from
-  //        VectorBase) must override this method.
-  virtual int GetVectorSize() const { DELPHYNE_ABORT(); }
+template <class DRAKE_TYPE, class IGN_TYPE>
+class DrakeToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
+ public:
+  // Two constructors exist, but only one is enabled, depending on DRAKE_TYPE.
 
-  //
-  // @brief Translates an @p lcm_message into a @p ign_message. All derived
+  // Constructor for translators with a DRAKE_TYPE that inherits from
+  // drake::systems::VectorBase.
+  template <class T = DRAKE_TYPE>
+  DrakeToIgnTranslatorSystem(
+      int vector_size,
+      typename std::enable_if<
+          std::is_base_of<drake::systems::VectorBase<double>, T>::value,
+          void>::type* = 0) {
+    // Vector input port.
+    DeclareInputPort(drake::systems::kVectorValued, vector_size);
+
+    // Output port (abstract for all ignition types).
+    DeclareAbstractOutputPort(&DrakeToIgnTranslatorSystem::CalcIgnMessage);
+  }
+
+  // Constructor for translators with a DRAKE_TYPE that does not inherit from
+  // drake::systems::VectorBase.
+  template <class T = DRAKE_TYPE>
+  DrakeToIgnTranslatorSystem(
+      typename std::enable_if<
+          !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
+          void>::type* = 0) {
+    // Abstract input port.
+    DeclareAbstractInputPort();
+
+    // Output port (abstract for all ignition types).
+    DeclareAbstractOutputPort(&DrakeToIgnTranslatorSystem::CalcIgnMessage);
+  }
+
+ protected:
+  // @brief Translates a @p drake_message into an @p ign_message. All derived
   //        translators must implement this method with the actual translation.
   //        @p ign_message is guaranteed to not be null, but it is NOT
   //        re-constructed on each call: the same object is copied and passed
@@ -38,41 +65,8 @@ class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   // @see DeclareAbstractOutputPort
   //
   // @param[in] time_ms The curent time, in milliseconds.
-  //
-  virtual void DoLcmToIgnTranslation(const LCM_TYPE& lcm_message,
+  virtual void DoDrakeToIgnTranslation(const DRAKE_TYPE& drake_message,
                                      IGN_TYPE* ign_message, int64_t) const = 0;
-
-  // @brief Initializes the system's input and output ports.
-  //        Since this function contains virtual calls, in cannot be called from
-  //        LcmToIgnTranslatorSystem's constructor: all derived classes must
-  //        call this function once before using the translator system to
-  //        prevent runtime errors. The recommended way of doing this is to
-  //        place this call in the derived translator's constructor.
-
-  // Overload for LCM_TYPEs that inherit from drake::systems::VectorBase (which have
-  // an associated vector size).
-  template <class T = LCM_TYPE>
-  typename std::enable_if<
-      std::is_base_of<drake::systems::VectorBase<double>, T>::value,
-      void>::type
-  InitPorts(int vector_size) {
-    DeclareInputPort(drake::systems::kVectorValued, vector_size);
-
-    // Ingition types always go in abstract output ports.
-    DeclareAbstractOutputPort(&LcmToIgnTranslatorSystem::CalcIgnMessage);
-  }
-
-  // Overload for LCM_TYPEs that do not inherit from drake::systems::VectorBase.
-  template <class T = LCM_TYPE>
-  typename std::enable_if<
-      !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
-      void>::type
-  InitPorts() {
-    DeclareAbstractInputPort();
-
-    // Ingition types always go in abstract output ports.
-    DeclareAbstractOutputPort(&LcmToIgnTranslatorSystem::CalcIgnMessage);
-  }
 
   // Translation helper functions and constants, to be used by derived
   // translators.
@@ -110,7 +104,7 @@ class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
     ign_quaternion->set_z(lcm_quaternion[3]);
   }
 
-  // @brief Converts an LCM timestamp (in milliseconds) to an ingition time
+  // @brief Converts an LCM timestamp (in milliseconds) to an ignition time
   //        message.
   //
   // @param[in] lcm_timestamp_ms The LCM timestamp (in milliseconds).
@@ -124,10 +118,6 @@ class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   }
 
  private:
-  constexpr bool IsVectorBasedTranslator() const {
-    return std::is_base_of<drake::systems::VectorBase<double>, LCM_TYPE>::value;
-  }
-
   // The translator has a single input port, and a single output port.
   const int kPortIndex = 0;
 
@@ -140,48 +130,55 @@ class LcmToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
                       IGN_TYPE* ign_message) const {
     DELPHYNE_DEMAND(ign_message != nullptr);
 
-    // Retrieves the LCM message from the input port.
-    const LCM_TYPE& lcm_message = ReadInputPort(context);
+    // Retrieves the Drake message from the input port.
+    const DRAKE_TYPE& drake_message = ReadInputPort(context);
 
     // And then translates to ignition.
     auto time_ms = static_cast<int64_t>(context.get_time()) * 1000;
-    DoLcmToIgnTranslation(lcm_message, ign_message, time_ms);
+    DoDrakeToIgnTranslation(drake_message, ign_message, time_ms);
   }
 
-  // Depending on the type of LCM_TYPE (whether or not it inherits from
+  // Depending on the type of DRAKE_TYPE (whether or not it inherits from
   // drake::systems::VectorBase), we need to read from a vector input port, or
   // from an abstract output port. The problem is those functions perform
   // assertions on the inferred return type, so we get compiler errors if a call
-  // to the function is compiled.
+  // to the wrong function is compiled (e.g. a call to read a vector input port
+  // into a non-vector object).
   // The solution to this issue is to use std::enable_if, which relies in SFINAE
   // to prevent compilation of ill-formed overloads.
   // When (if) we switch to C++17, all of this can be replaced with a simple
   // constexpr if.
-  template <class T = LCM_TYPE>
+
+
+  // @brief Reads an input port for Drake objects that inherit from VectorBase.
+  template <class T = DRAKE_TYPE>
   typename std::enable_if<
       std::is_base_of<drake::systems::VectorBase<double>, T>::value,
-      const LCM_TYPE&>::type
+      const DRAKE_TYPE&>::type
   ReadInputPort(const drake::systems::Context<double>& context) const {
     const drake::systems::VectorBase<double>* const input_vector =
         EvalVectorInput(context, kPortIndex);
     DELPHYNE_DEMAND(input_vector != nullptr);
 
-    const LCM_TYPE* const vector = dynamic_cast<const LCM_TYPE*>(input_vector);
+    const DRAKE_TYPE* const vector =
+        dynamic_cast<const DRAKE_TYPE*>(input_vector);
     DELPHYNE_DEMAND(vector != nullptr);
 
     return *vector;
   }
 
-  template <class T = LCM_TYPE>
+  // @brief Reads an input port for Drake objects that do not inherit from
+  //        VectorBase.
+  template <class T = DRAKE_TYPE>
   typename std::enable_if<
       !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
-      const LCM_TYPE&>::type
+      const DRAKE_TYPE&>::type
   ReadInputPort(const drake::systems::Context<double>& context) const {
     const drake::systems::AbstractValue* input =
         EvalAbstractInput(context, kPortIndex);
     DELPHYNE_DEMAND(input != nullptr);
 
-    return input->GetValue<LCM_TYPE>();
+    return input->GetValue<DRAKE_TYPE>();
   }
 };
 

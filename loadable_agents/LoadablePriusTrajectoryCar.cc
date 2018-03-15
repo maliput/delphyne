@@ -71,7 +71,7 @@
 
 #include <backend/agent_plugin_base.h>
 #include <backend/ign_publisher_system.h>
-#include <backend/lcm_simple_car_state_to_ign_simple_car_state_translator_system.h>
+#include <backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h>
 #include <backend/linb-any>
 
 namespace delphyne {
@@ -162,16 +162,17 @@ class LoadablePriusTrajectoryCarDouble final
 
     auto car_state_translator =
         builder
-            ->AddSystem<LcmSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
-
-    builder->Connect(this->raw_pose_output(),
-                     car_state_translator->get_input_port(0));
+            ->AddSystem<DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
 
     const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
     auto car_state_publisher =
         builder->AddSystem<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
             channel);
 
+    // The Drake car state is translated to ignition.
+    builder->Connect(this->raw_pose_output(), car_state_translator->get_input_port(0));
+
+    // And then the translated ignition message is published.
     builder->Connect(*car_state_translator, *car_state_publisher);
 
     return 0;
@@ -375,7 +376,6 @@ class LoadablePriusTrajectoryCarDouble final
   }
 
   const drake::automotive::Curve2<double>* curve_;
-  const drake::automotive::SimpleCarStateTranslator translator_;
 };
 
 class LoadablePriusTrajectoryCarFactoryDouble final

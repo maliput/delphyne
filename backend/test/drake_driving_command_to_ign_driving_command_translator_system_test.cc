@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/lcm_driving_command_to_ign_driving_command_translator_system.h"
+#include "backend/drake_driving_command_to_ign_driving_command_translator_system.h"
 
 #include <memory>
 
@@ -13,25 +13,25 @@
 namespace delphyne {
 namespace backend {
 
-// @brief Checks that an LCM driving command message on the input port is
-// correctly
-//        translated into an ignition driving command message.
-GTEST_TEST(LcmDrivingCommandToIgnDrivingCommandTranslatorSystemTest,
+// @brief Checks that a Drake driving command message on the input port is
+// correctly translated into an ignition driving command message.
+GTEST_TEST(DrakeDrivingCommandToIgnDrivingCommandTranslatorSystemTest,
            TestTranslation) {
   const double kTheta{0.12};
   const double kAcceleration{15.7};
 
-  drake::automotive::DrivingCommand<double> lcm_msg;
-  lcm_msg.set_steering_angle(kTheta);
-  lcm_msg.set_acceleration(kAcceleration);
+  drake::automotive::DrivingCommand<double> drake_msg;
+  drake_msg.set_steering_angle(kTheta);
+  drake_msg.set_acceleration(kAcceleration);
 
-  LcmDrivingCommandToIgnDrivingCommandTranslatorSystem translator;
-  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
+  DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem translator;
+  std::unique_ptr<drake::systems::Context<double>> context =
+      translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(
       kPortIndex,
       std::make_unique<
-          drake::systems::Value<drake::systems::BasicVector<double>>>(lcm_msg));
+          drake::systems::Value<drake::systems::BasicVector<double>>>(drake_msg));
 
   auto output = translator.AllocateOutput(*context);
   translator.CalcOutput(*context, output.get());

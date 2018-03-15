@@ -7,8 +7,9 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
-void LcmViewerDrawToIgnModelVTranslatorSystem::DoDrakeToIgnTranslation(
+void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
     const drake::lcmt_viewer_draw& lcm_message,
     ignition::msgs::Model_V* ign_message, int64_t time) const {
   DELPHYNE_DEMAND(lcm_message.link_name.size() ==
@@ -24,7 +25,7 @@ void LcmViewerDrawToIgnModelVTranslatorSystem::DoDrakeToIgnTranslation(
                          ign_message->mutable_header()->mutable_stamp());
 
   // Clears state from the previous call.
-  // @see LcmToIgnTranslatorSystem::DoDrakeToIgnTranslation
+  // @see LcmToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
 
   std::map<int32_t, ignition::msgs::Model*> models;
@@ -56,5 +57,6 @@ void LcmViewerDrawToIgnModelVTranslatorSystem::DoDrakeToIgnTranslation(
   }
 }
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

@@ -12,6 +12,7 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
 /// @brief A system that translates ignition messages on its single abstract
 ///        input port to a Drake message on its single output port (which will
@@ -23,9 +24,9 @@ namespace backend {
 /// @tparam IGN_TYPE must be a valid ignition message type.
 /// @tparam DRAKE_TYPE must be a valid Drake message type.
 template <class IGN_TYPE, class DRAKE_TYPE>
-class IgnToDrakeTranslatorSystem : public drake::systems::LeafSystem<double> {
+class IgnToDrake : public drake::systems::LeafSystem<double> {
  public:
-  IgnToDrakeTranslatorSystem() {
+  IgnToDrake() {
     // Input port (abstract for all ignition types).
     DeclareAbstractInputPort();
 
@@ -90,7 +91,7 @@ class IgnToDrakeTranslatorSystem : public drake::systems::LeafSystem<double> {
   typename std::enable_if<
       std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
   InitOutputPort() {
-    DeclareVectorOutputPort(&IgnToDrakeTranslatorSystem::CalcDrakeMessage);
+    DeclareVectorOutputPort(&IgnToDrake::CalcDrakeMessage);
   }
 
   // @brief Output port initialization for Drake objects that do not inherit
@@ -99,7 +100,7 @@ class IgnToDrakeTranslatorSystem : public drake::systems::LeafSystem<double> {
   typename std::enable_if<
       !std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
   InitOutputPort() {
-    DeclareAbstractOutputPort(&IgnToDrakeTranslatorSystem::CalcDrakeMessage);
+    DeclareAbstractOutputPort(&IgnToDrake::CalcDrakeMessage);
   }
 
   // The translator has a single input port, and a single output port.
@@ -126,5 +127,6 @@ class IgnToDrakeTranslatorSystem : public drake::systems::LeafSystem<double> {
   }
 };
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

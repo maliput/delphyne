@@ -13,24 +13,24 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
 /// @brief A system that translates Drake simple car state messages to ignition
 ///        simple car state messages.
-class DELPHYNE_BACKEND_VISIBLE
-    DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem
-    : public DrakeToIgnTranslatorSystem<
-          drake::automotive::SimpleCarState<double>,
-          ignition::msgs::SimpleCarState> {
+class DELPHYNE_BACKEND_VISIBLE DrakeSimpleCarStateToIgnSimpleCarState
+    : public DrakeToIgn<drake::automotive::SimpleCarState<double>,
+                        ignition::msgs::SimpleCarState> {
  public:
-  DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem();
+  DrakeSimpleCarStateToIgnSimpleCarState();
 
  protected:
-  // @brief @see DrakeToIgnTranslatorSystem::DoDrakeToIgnTranslation.
+  // @brief @see DrakeToIgn::DoDrakeToIgnTranslation.
   void DoDrakeToIgnTranslation(
       const drake::automotive::SimpleCarState<double>& drake_message,
       ignition::msgs::SimpleCarState* ign_message,
       int64_t time_ms) const override;
 };
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

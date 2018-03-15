@@ -24,7 +24,7 @@ GTEST_TEST(IgnSimpleCarStateToDrakeSimpleCarStateTranslatorSystemTest,
   ign_msg.set_heading(kExpectedHeading);
   ign_msg.set_velocity(kExpectedVelocity);
 
-  IgnSimpleCarStateToDrakeSimpleCarStateTranslatorSystem translator;
+  translation_systems::IgnSimpleCarStateToDrakeSimpleCarState translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

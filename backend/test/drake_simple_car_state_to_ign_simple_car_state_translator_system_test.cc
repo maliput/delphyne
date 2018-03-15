@@ -28,14 +28,15 @@ GTEST_TEST(DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystemTest,
   drake_msg.set_heading(kExpectedHeading);
   drake_msg.set_velocity(kExpectedVelocity);
 
-  DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem translator;
+  translation_systems::DrakeSimpleCarStateToIgnSimpleCarState translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(
       kPortIndex,
       std::make_unique<
-          drake::systems::Value<drake::systems::BasicVector<double>>>(drake_msg));
+          drake::systems::Value<drake::systems::BasicVector<double>>>(
+          drake_msg));
 
   auto output = translator.AllocateOutput(*context);
   translator.CalcOutput(*context, output.get());

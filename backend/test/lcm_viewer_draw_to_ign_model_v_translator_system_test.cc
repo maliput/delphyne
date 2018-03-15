@@ -16,7 +16,7 @@ namespace backend {
 GTEST_TEST(LCMViewerDrawToIgnModelVTranslatorSystemTest, TestTranslation) {
   const drake::lcmt_viewer_draw lcm_msg{test::BuildPreloadedDrawMsg()};
 
-  LcmViewerDrawToIgnModelVTranslatorSystem translator;
+  translation_systems::LcmViewerDrawToIgnModelV translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

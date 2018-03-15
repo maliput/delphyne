@@ -16,7 +16,7 @@ namespace backend {
 GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
 
-  IgnModelVToLcmViewerDrawTranslatorSystem translator;
+  translation_systems::IgnModelVToLcmViewerDraw translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

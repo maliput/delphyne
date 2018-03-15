@@ -13,20 +13,20 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
 /// @brief A system that translates ignition driving command messages to Drake
 ///        driving command messages.
-class DELPHYNE_BACKEND_VISIBLE
-    IgnDrivingCommandToDrakeDrivingCommandTranslatorSystem
-    : public IgnToDrakeTranslatorSystem<
-          ignition::msgs::AutomotiveDrivingCommand,
-          drake::automotive::DrivingCommand<double>> {
+class DELPHYNE_BACKEND_VISIBLE IgnDrivingCommandToDrakeDrivingCommand
+    : public IgnToDrake<ignition::msgs::AutomotiveDrivingCommand,
+                        drake::automotive::DrivingCommand<double>> {
  protected:
-  // @brief @see IgnToDrakeTranslatorSystem::DoIgnToDrakeTranslation.
+  // @brief @see IgnToDrake::DoIgnToDrakeTranslation.
   void DoIgnToDrakeTranslation(
       const ignition::msgs::AutomotiveDrivingCommand& ign_message,
       drake::automotive::DrivingCommand<double>* drake_message) const override;
 };
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

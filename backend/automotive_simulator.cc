@@ -31,8 +31,8 @@
 
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
-#include "backend/ign_driving_command_to_drake_driving_command_translator_system.h"
 #include "backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h"
+#include "backend/ign_driving_command_to_drake_driving_command_translator_system.h"
 #include "backend/lcm_viewer_draw_to_ign_model_v_translator_system.h"
 #include "backend/linb-any"
 #include "backend/scene_system.h"
@@ -195,7 +195,7 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
       channel_name);
 
   auto driving_command_translator = builder_->template AddSystem<
-      IgnDrivingCommandToDrakeDrivingCommandTranslatorSystem>();
+      translation_systems::IgnDrivingCommandToDrakeDrivingCommand>();
 
   // Those messages are then translated to Drake driving command messages.
   builder_->Connect(*driving_command_subscriber, *driving_command_translator);
@@ -477,7 +477,7 @@ void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
   auto simple_car_translator = builder_->template AddSystem<
-      DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
+      translation_systems::DrakeSimpleCarStateToIgnSimpleCarState>();
 
   // The car state is first translated into an ignition car state.
   builder_->Connect(system.state_output(),
@@ -551,7 +551,8 @@ void AutomotiveSimulator<T>::Build() {
       scene_builder_->get_input_port(0));
 
   auto viewer_draw_translator =
-      builder_->template AddSystem<LcmViewerDrawToIgnModelVTranslatorSystem>();
+      builder_
+          ->template AddSystem<translation_systems::LcmViewerDrawToIgnModelV>();
 
   // The LCM viewer draw message is translated into an ignition Model V message.
   builder_->Connect(bundle_to_draw_->get_output_port(0),

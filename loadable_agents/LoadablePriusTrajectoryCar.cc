@@ -70,8 +70,8 @@
 #include "drake/systems/rendering/pose_vector.h"
 
 #include <backend/agent_plugin_base.h>
-#include <backend/ign_publisher_system.h>
 #include <backend/drake_simple_car_state_to_ign_simple_car_state_translator_system.h>
+#include <backend/ign_publisher_system.h>
 #include <backend/linb-any>
 
 namespace delphyne {
@@ -160,9 +160,8 @@ class LoadablePriusTrajectoryCarDouble final
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
-    auto car_state_translator =
-        builder
-            ->AddSystem<DrakeSimpleCarStateToIgnSimpleCarStateTranslatorSystem>();
+    auto car_state_translator = builder->AddSystem<
+        translation_systems::DrakeSimpleCarStateToIgnSimpleCarState>();
 
     const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
     auto car_state_publisher =
@@ -170,7 +169,8 @@ class LoadablePriusTrajectoryCarDouble final
             channel);
 
     // The Drake car state is translated to ignition.
-    builder->Connect(this->raw_pose_output(), car_state_translator->get_input_port(0));
+    builder->Connect(this->raw_pose_output(),
+                     car_state_translator->get_input_port(0));
 
     // And then the translated ignition message is published.
     builder->Connect(*car_state_translator, *car_state_publisher);

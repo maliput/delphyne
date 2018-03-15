@@ -4,12 +4,13 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
-void IgnModelVToLcmViewerDrawTranslatorSystem::DoIgnToDrakeTranslation(
+void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
     const ignition::msgs::Model_V& ign_message,
     drake::lcmt_viewer_draw* lcm_message) const {
   // Clears state from the previous call.
-  // @see IgnToDrakeTranslatorSystem::DoIgnToDrakeTranslation
+  // @see IgnToDrake::DoIgnToDrakeTranslation
   lcm_message->link_name.clear();
   lcm_message->robot_num.clear();
   lcm_message->position.clear();
@@ -40,5 +41,6 @@ void IgnModelVToLcmViewerDrawTranslatorSystem::DoIgnToDrakeTranslation(
   }
 }
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

@@ -11,6 +11,7 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
 /// @brief A system that translates Drake messages on its single input port
 ///        (which will be discrete or abstract based on the type of the Drake
@@ -22,37 +23,35 @@ namespace backend {
 /// @tparam DRAKE_TYPE must be a valid Drake message type.
 /// @tparam IGN_TYPE must be a valid ignition message type.
 template <class DRAKE_TYPE, class IGN_TYPE>
-class DrakeToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
+class DrakeToIgn : public drake::systems::LeafSystem<double> {
  public:
   // Two constructors exist, but only one is enabled, depending on DRAKE_TYPE.
 
   // Constructor for translators with a DRAKE_TYPE that inherits from
   // drake::systems::VectorBase.
   template <class T = DRAKE_TYPE>
-  DrakeToIgnTranslatorSystem(
-      int vector_size,
-      typename std::enable_if<
-          std::is_base_of<drake::systems::VectorBase<double>, T>::value,
-          void>::type* = 0) {
+  DrakeToIgn(int vector_size,
+             typename std::enable_if<
+                 std::is_base_of<drake::systems::VectorBase<double>, T>::value,
+                 void>::type* = 0) {
     // Vector input port.
     DeclareInputPort(drake::systems::kVectorValued, vector_size);
 
     // Output port (abstract for all ignition types).
-    DeclareAbstractOutputPort(&DrakeToIgnTranslatorSystem::CalcIgnMessage);
+    DeclareAbstractOutputPort(&DrakeToIgn::CalcIgnMessage);
   }
 
   // Constructor for translators with a DRAKE_TYPE that does not inherit from
   // drake::systems::VectorBase.
   template <class T = DRAKE_TYPE>
-  DrakeToIgnTranslatorSystem(
-      typename std::enable_if<
-          !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
-          void>::type* = 0) {
+  DrakeToIgn(typename std::enable_if<
+                 !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
+                 void>::type* = 0) {
     // Abstract input port.
     DeclareAbstractInputPort();
 
     // Output port (abstract for all ignition types).
-    DeclareAbstractOutputPort(&DrakeToIgnTranslatorSystem::CalcIgnMessage);
+    DeclareAbstractOutputPort(&DrakeToIgn::CalcIgnMessage);
   }
 
  protected:
@@ -66,7 +65,8 @@ class DrakeToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   //
   // @param[in] time_ms The curent time, in milliseconds.
   virtual void DoDrakeToIgnTranslation(const DRAKE_TYPE& drake_message,
-                                     IGN_TYPE* ign_message, int64_t) const = 0;
+                                       IGN_TYPE* ign_message,
+                                       int64_t) const = 0;
 
   // Translation helper functions and constants, to be used by derived
   // translators.
@@ -149,7 +149,6 @@ class DrakeToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   // When (if) we switch to C++17, all of this can be replaced with a simple
   // constexpr if.
 
-
   // @brief Reads an input port for Drake objects that inherit from VectorBase.
   template <class T = DRAKE_TYPE>
   typename std::enable_if<
@@ -182,5 +181,6 @@ class DrakeToIgnTranslatorSystem : public drake::systems::LeafSystem<double> {
   }
 };
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

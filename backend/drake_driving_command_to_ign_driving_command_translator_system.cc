@@ -7,17 +7,15 @@
 
 namespace delphyne {
 namespace backend {
+namespace translation_systems {
 
-DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem::
-    DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem()
-    : DrakeToIgnTranslatorSystem(
-          drake::automotive::DrivingCommandIndices::kNumCoordinates) {}
+DrakeDrivingCommandToIgnDrivingCommand::DrakeDrivingCommandToIgnDrivingCommand()
+    : DrakeToIgn(drake::automotive::DrivingCommandIndices::kNumCoordinates) {}
 
-void DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem::
-    DoDrakeToIgnTranslation(
-        const drake::automotive::DrivingCommand<double>& drake_message,
-        ignition::msgs::AutomotiveDrivingCommand* ign_message,
-        int64_t time_ms) const {
+void DrakeDrivingCommandToIgnDrivingCommand::DoDrakeToIgnTranslation(
+    const drake::automotive::DrivingCommand<double>& drake_message,
+    ignition::msgs::AutomotiveDrivingCommand* ign_message,
+    int64_t time_ms) const {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
   LcmTimestampToIgnition(time_ms, ign_message->mutable_time());
@@ -25,5 +23,6 @@ void DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem::
   ign_message->set_acceleration(drake_message.acceleration());
 }
 
+}  // namespace translation_systems
 }  // namespace backend
 }  // namespace delphyne

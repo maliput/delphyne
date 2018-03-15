@@ -20,7 +20,7 @@ GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
   ign_msg.set_theta(kTheta);
   ign_msg.set_acceleration(kAcceleration);
 
-  IgnDrivingCommandToDrakeDrivingCommandTranslatorSystem translator;
+  translation_systems::IgnDrivingCommandToDrakeDrivingCommand translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

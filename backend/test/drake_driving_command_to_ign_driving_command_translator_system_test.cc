@@ -24,14 +24,15 @@ GTEST_TEST(DrakeDrivingCommandToIgnDrivingCommandTranslatorSystemTest,
   drake_msg.set_steering_angle(kTheta);
   drake_msg.set_acceleration(kAcceleration);
 
-  DrakeDrivingCommandToIgnDrivingCommandTranslatorSystem translator;
+  translation_systems::DrakeDrivingCommandToIgnDrivingCommand translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(
       kPortIndex,
       std::make_unique<
-          drake::systems::Value<drake::systems::BasicVector<double>>>(drake_msg));
+          drake::systems::Value<drake::systems::BasicVector<double>>>(
+          drake_msg));
 
   auto output = translator.AllocateOutput(*context);
   translator.CalcOutput(*context, output.get());

@@ -63,7 +63,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
       const override {
     std::vector<std::unique_ptr<drake::systems::AbstractValue>> abstract_values(
-        2);
+        kTotalStateValues);
     abstract_values[kStateIndexMessage] = AllocateDefaultAbstractValue();
     abstract_values[kStateIndexMessageCount] =
         drake::systems::AbstractValue::Make<int>(0);
@@ -178,11 +178,14 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   // A message counter that's incremented every time the handler is called.
   int received_message_count_{0};
 
-  // The index of the state used to access the the message
+  // The index of the state used to access the the message.
   static constexpr int kStateIndexMessage = 0;
 
-  // The index of the state used to access the the message count
+  // The index of the state used to access the the message count.
   static constexpr int kStateIndexMessageCount = 1;
+
+  // The total number of states used by the system.
+  static constexpr int kTotalStateValues = 2;
 };
 
 }  // namespace backend

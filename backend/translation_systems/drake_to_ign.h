@@ -26,8 +26,10 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
  public:
   // Two constructors exist, but only one is enabled, depending on DRAKE_TYPE.
 
-  // Constructor for translators with a DRAKE_TYPE that inherits from
+  // @brief Constructor for translators with a DRAKE_TYPE that inherits from
   // drake::systems::VectorBase.
+  //
+  // @param[in] vector_size The size of the vector stored in the input port.
   template <class T = DRAKE_TYPE>
   DrakeToIgn(int vector_size,
              typename std::enable_if<
@@ -40,8 +42,11 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     DeclareAbstractOutputPort(&DrakeToIgn::CalcIgnMessage);
   }
 
-  // Constructor for translators with a DRAKE_TYPE that does not inherit from
+  // @brief Constructor for translators with a DRAKE_TYPE that does not inherit
+  // from
   // drake::systems::VectorBase.
+  //
+  // Takes no parameters.
   template <class T = DRAKE_TYPE>
   DrakeToIgn(typename std::enable_if<
                  !std::is_base_of<drake::systems::VectorBase<double>, T>::value,

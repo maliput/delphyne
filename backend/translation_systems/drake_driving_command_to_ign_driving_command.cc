@@ -20,7 +20,7 @@ void DrakeDrivingCommandToIgnDrivingCommand::DoDrakeToIgnTranslation(
     int64_t time_ms) const {
   DELPHYNE_DEMAND(ign_message != nullptr);
 
-  *(ign_message->mutable_time()) = MillisToIgnitionTime(time_ms);
+  ign_message->mutable_time()->CopyFrom(MillisToIgnitionTime(time_ms));
   ign_message->set_theta(drake_message.steering_angle());
   ign_message->set_acceleration(drake_message.acceleration());
 }

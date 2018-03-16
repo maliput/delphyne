@@ -20,7 +20,7 @@ void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
   lcm_message->num_links = 0;
 
   // LCM timestamps are in milliseconds.
-  const auto& ign_timestamp = ign_message.header().stamp();
+  const ignition::msgs::Time& ign_timestamp = ign_message.header().stamp();
   lcm_message->timestamp =
       SecsAndNanosToMillis(ign_timestamp.sec(), ign_timestamp.nsec());
 

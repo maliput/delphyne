@@ -7,6 +7,9 @@
 #include "backend/simulation_runner.h"
 
 #include <drake/automotive/automotive_simulator.h>
+#include <drake/automotive/lane_direction.h>
+#include <drake/automotive/maliput/dragway/lane.h>
+#include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/common/find_resource.h>
 
 namespace delphyne {
@@ -82,6 +85,30 @@ CreateTrajectoryParams(int index) {
   return std::make_tuple(curve, kSpeed, start_time);
 }
 
+// The distance between the coordinates of consecutive rows of railcars and
+// other controlled cars (e.g. MOBIL) on a dragway. 5 m ensures a gap between
+// consecutive rows of Prius vehicles. It was empirically chosen.
+constexpr double kRailcarRowSpacing{5};
+constexpr double kControlledCarRowSpacing{5};
+
+const drake::maliput::api::RoadGeometry* AddDragway(
+    delphyne::backend::AutomotiveSimulator<double>* simulator) {
+  const double kMaximumHeight = 5.;  // meters
+  const double kLinearTolerance = std::numeric_limits<double>::epsilon();
+  const double kAngularTolerance = std::numeric_limits<double>::epsilon();
+  const int num_dragway_lanes = 3;
+  const int dragway_length = 100;
+  const double dragway_lane_width = 3.7;
+  const double dragway_shoulder_width = 3.0;
+  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry =
+      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+          drake::maliput::api::RoadGeometryId("Automotive Demo Dragway"),
+          num_dragway_lanes, dragway_length, dragway_lane_width,
+          dragway_shoulder_width, kMaximumHeight, kLinearTolerance,
+          kAngularTolerance);
+  return simulator->SetRoadGeometry(std::move(road_geometry));
+}
+
 int main(int argc, char* argv[]) {
   // Instantiates a simulator.
   auto simulator =
@@ -110,6 +137,32 @@ int main(int argc, char* argv[]) {
   state3.set_position(std::get<2>(params));
   if (simulator->AddLoadableCar("LoadablePriusTrajectoryCar", traj_params,
                                 "TrajectoryCar0", &state3) < 0) {
+    return 1;
+  }
+
+  // Add a Loadable MOBIL Simple Car
+  auto road_geometry = AddDragway(simulator.get());
+  const drake::maliput::dragway::RoadGeometry* dragway_road_geometry =
+      dynamic_cast<const drake::maliput::dragway::RoadGeometry*>(road_geometry);
+
+  drake::automotive::SimpleCarState<double> state4;
+  const int lane_index = 0;
+  const int row = 0;
+  const double x_offset = kControlledCarRowSpacing * row;
+  const drake::maliput::api::Lane* lane =
+      dragway_road_geometry->junction(0)->segment(0)->lane(lane_index);
+  if (x_offset >= lane->length()) {
+    throw std::runtime_error(
+        "Ran out of lane length to add new MOBIL-controlled SimpleCars.");
+  }
+  const double y_offset = lane->ToGeoPosition({0., 0., 0.}).y();
+  state4.set_x(x_offset);
+  state4.set_y(y_offset);
+  std::map<std::string, linb::any> mobil_params;
+  mobil_params["road"] = road_geometry;
+  mobil_params["initial_with_s"] = true;
+  if (simulator->AddLoadableCar("LoadableMobilControlledSimpleCar",
+                                mobil_params, "MOBIL0", &state4) < 0) {
     return 1;
   }
 

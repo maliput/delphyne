@@ -1,9 +1,41 @@
-// Copyright 2017 Toyota Research Institute
+// All components of Drake are licensed under the BSD 3-Clause License
+// shown below. Where noted in the source code, some portions may
+// be subject to other permissive, non-viral licenses.
+
+// Copyright 2012-2016 Robot Locomotion Group @ CSAIL
+// All rights reserved.
+
+// Redistribution and use in source and binary forms, with or without
+// modification, are permitted provided that the following conditions are
+// met:
+
+// Redistributions of source code must retain the above copyright notice,
+// this list of conditions and the following disclaimer.  Redistributions
+// in binary form must reproduce the above copyright notice, this list of
+// conditions and the following disclaimer in the documentation and/or
+// other materials provided with the distribution.  Neither the name of
+// the Massachusetts Institute of Technology nor the names of its
+// contributors may be used to endorse or promote products derived from
+// this software without specific prior written permission.
+
+// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 // clalancette: The vast majority of the code below is copied from
 // https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/simple_car.cc
 // and
 // https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/simple_car.h
+// and
+// https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/automotive_simulator.cc
 //
 // I've modified it slightly to
 // 1) Combine the .cc and .h into one file (given that we build this into a .so
@@ -18,13 +50,6 @@
 #include <memory>
 #include <string>
 
-#include <backend/agent_plugin_base.h>
-#include <backend/ign_publisher_system.h>
-#include <backend/ign_subscriber_system.h>
-#include <backend/linb-any>
-#include <backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h>
-#include <backend/translation_systems/ign_driving_command_to_drake_driving_command.h>
-
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
 #include <ignition/msgs.hh>
@@ -36,22 +61,33 @@
 #include "drake/automotive/gen/simple_car_params.h"
 #include "drake/automotive/gen/simple_car_state.h"
 #include "drake/automotive/gen/simple_car_state_translator.h"
+#include "drake/automotive/idm_controller.h"
+#include "drake/automotive/maliput/api/road_geometry.h"
+#include "drake/automotive/maliput/utility/generate_urdf.h"
+#include "drake/automotive/mobil_planner.h"
 #include "drake/automotive/prius_vis.h"
+#include "drake/automotive/pure_pursuit_controller.h"
 #include "drake/common/eigen_types.h"
 #include "drake/math/saturate.h"
+#include "drake/multibody/parsers/urdf_parser.h"
 #include "drake/systems/framework/leaf_system.h"
 #include "drake/systems/framework/system_constraint.h"
 #include "drake/systems/lcm/lcm_publisher_system.h"
 #include "drake/systems/lcm/lcm_subscriber_system.h"
+#include "drake/systems/primitives/multiplexer.h"
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
+
+#include <backend/agent_plugin_base.h>
+#include <backend/ign_publisher_system.h>
+#include <backend/linb-any>
+#include <backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h>
 
 namespace delphyne {
 namespace backend {
 
 namespace {
 
-// Obtain our continuous state from a context.
 template <typename T>
 const drake::automotive::SimpleCarState<T>& get_state(
     const drake::systems::Context<T>& context) {
@@ -59,7 +95,7 @@ const drake::automotive::SimpleCarState<T>& get_state(
       context.get_continuous_state_vector();
   const drake::automotive::SimpleCarState<T>* const state =
       dynamic_cast<const drake::automotive::SimpleCarState<T>*>(&context_state);
-  DRAKE_DEMAND(state);
+  DELPHYNE_DEMAND(state);
   return *state;
 }
 
@@ -70,35 +106,38 @@ const drake::automotive::SimpleCarParams<T>& get_params(
   const drake::automotive::SimpleCarParams<T>* const params =
       dynamic_cast<const drake::automotive::SimpleCarParams<T>*>(
           &context.get_numeric_parameter(0));
-  DRAKE_DEMAND(params);
+  DELPHYNE_DEMAND(params);
   return *params;
 }
 
 }  // namespace
 
-class LoadablePriusSimpleCarDouble final
+class LoadableMobilControlledSimpleCarDouble final
     : public delphyne::backend::AgentPluginDoubleBase {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusSimpleCarDouble)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMobilControlledSimpleCarDouble)
 
-  LoadablePriusSimpleCarDouble() {
-    igndbg << "LoadablePriusSimpleCar constructor" << std::endl;
+  LoadableMobilControlledSimpleCarDouble() {
+    igndbg << "LoadableMobilControlledSimpleCar constructor" << std::endl;
+
     this->DeclareVectorInputPort(drake::automotive::DrivingCommand<double>());
     this->DeclareVectorOutputPort(
-        &LoadablePriusSimpleCarDouble::CalcStateOutput);
-    this->DeclareVectorOutputPort(&LoadablePriusSimpleCarDouble::CalcPose);
-    this->DeclareVectorOutputPort(&LoadablePriusSimpleCarDouble::CalcVelocity);
+        &LoadableMobilControlledSimpleCarDouble::CalcStateOutput);
+    this->DeclareVectorOutputPort(
+        &LoadableMobilControlledSimpleCarDouble::CalcPose);
+    this->DeclareVectorOutputPort(
+        &LoadableMobilControlledSimpleCarDouble::CalcVelocity);
     this->DeclareContinuousState(drake::automotive::SimpleCarState<double>());
     this->DeclareNumericParameter(drake::automotive::SimpleCarParams<double>());
 
     this->DeclareInequalityConstraint(
-        &LoadablePriusSimpleCarDouble::CalcSteeringAngleConstraint, 2,
+        &LoadableMobilControlledSimpleCarDouble::CalcSteeringAngleConstraint, 2,
         "steering angle limit");
     this->DeclareInequalityConstraint(
-        &LoadablePriusSimpleCarDouble::CalcAccelerationConstraint, 2,
+        &LoadableMobilControlledSimpleCarDouble::CalcAccelerationConstraint, 2,
         "acceleration limit");
     this->DeclareInequalityConstraint(
-        &LoadablePriusSimpleCarDouble::CalcVelocityConstraint, 2,
+        &LoadableMobilControlledSimpleCarDouble::CalcVelocityConstraint, 2,
         "velocity limit");
   }
 
@@ -109,22 +148,59 @@ class LoadablePriusSimpleCarDouble final
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {
-    igndbg << "LoadablePriusSimpleCar configure" << std::endl;
+    igndbg << "LoadableMobilControlledSimpleCar configure" << std::endl;
+    auto road = linb::any_cast<const drake::maliput::api::RoadGeometry*>(
+        parameters.at("road"));
+    if (road == nullptr) {
+      ignerr << "RoadGeometry not valid. Please create a valid road before "
+             << "instantiating this module" << std::endl;
+      return -1;
+    }
 
-    std::string command_channel = "DRIVING_COMMAND_" + name;
-    auto driving_command_subscriber = builder->template AddSystem<
-        IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
-        command_channel);
+    bool initial_with_s = linb::any_cast<bool>(parameters.at("initial_with_s"));
 
-    auto driving_command_translator = builder->template AddSystem<
-        translation_systems::IgnDrivingCommandToDrakeDrivingCommand>();
+    auto mobil_planner =
+        builder->template AddSystem<drake::automotive::MobilPlanner<double>>(
+            *road, initial_with_s);
+    mobil_planner->set_name(name + "_mobil_planner");
 
-    // Ignition driving commands received through the subscriber are translated
-    // to Drake.
-    builder->Connect(*driving_command_subscriber, *driving_command_translator);
+    auto idm_controller =
+        builder->template AddSystem<drake::automotive::IdmController<double>>(
+            *road);
+    idm_controller->set_name(name + "_idm_controller");
 
-    // And then the translated Drake command is sent to the car.
-    builder->Connect(*driving_command_translator, *this);
+    auto pursuit = builder->template AddSystem<
+        drake::automotive::PurePursuitController<double>>();
+    pursuit->set_name(name + "_pure_pursuit_controller");
+
+    auto mux = builder->template AddSystem<drake::systems::Multiplexer<double>>(
+        drake::automotive::DrivingCommand<double>());
+    mux->set_name(name + "_mux");
+
+    // Wire up MobilPlanner and IdmController.
+    builder->Connect(this->pose_output(), mobil_planner->ego_pose_input());
+    builder->Connect(this->velocity_output(),
+                     mobil_planner->ego_velocity_input());
+    builder->Connect(idm_controller->acceleration_output(),
+                     mobil_planner->ego_acceleration_input());
+    builder->Connect(aggregator->get_output_port(0),
+                     mobil_planner->traffic_input());
+
+    builder->Connect(this->pose_output(), idm_controller->ego_pose_input());
+    builder->Connect(this->velocity_output(),
+                     idm_controller->ego_velocity_input());
+    builder->Connect(aggregator->get_output_port(0),
+                     idm_controller->traffic_input());
+
+    builder->Connect(this->pose_output(), pursuit->ego_pose_input());
+    builder->Connect(mobil_planner->lane_output(), pursuit->lane_input());
+    // Build DrivingCommand via a mux of two scalar outputs (a BasicVector where
+    // row 0 = steering command, row 1 = acceleration command).
+    builder->Connect(pursuit->steering_command_output(),
+                     mux->get_input_port(0));
+    builder->Connect(idm_controller->acceleration_output(),
+                     mux->get_input_port(1));
+    builder->Connect(mux->get_output_port(0), this->get_input_port(0));
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(this->pose_output(), ports.first);
@@ -150,23 +226,23 @@ class LoadablePriusSimpleCarDouble final
   }
 
   int Initialize(drake::systems::Context<double>* context) override {
-    igndbg << "LoadablePriusSimpleCar initialize" << std::endl;
+    igndbg << "LoadableMobilControlledSimpleCar initialize" << std::endl;
     return 0;
   }
 
  private:
   const drake::systems::OutputPort<double>& state_output() const {
-    igndbg << "LoadablePriusSimpleCar state_output" << std::endl;
+    igndbg << "LoadableMobilControlledSimpleCar state_output" << std::endl;
     return this->get_output_port(0);
   }
 
   const drake::systems::OutputPort<double>& pose_output() const {
-    igndbg << "LoadablePriusSimpleCar pose_output" << std::endl;
+    igndbg << "LoadableMobilControlledSimpleCar pose_output" << std::endl;
     return this->get_output_port(1);
   }
 
   const drake::systems::OutputPort<double>& velocity_output() const {
-    igndbg << "LoadablePriusSimpleCar velocity_output" << std::endl;
+    igndbg << "LoadableMobilControlledSimpleCar velocity_output" << std::endl;
     return this->get_output_port(2);
   }
 
@@ -227,7 +303,7 @@ class LoadablePriusSimpleCarDouble final
     using std::sin;
 
     // Sanity check our input.
-    DRAKE_DEMAND(abs(input.steering_angle()) < M_PI);
+    DELPHYNE_DEMAND(abs(input.steering_angle()) < M_PI);
 
     // Compute the smooth acceleration that the vehicle actually executes.
     // TODO(jwnimmer-tri) We should saturate to params.max_acceleration().
@@ -268,16 +344,16 @@ class LoadablePriusSimpleCarDouble final
     const drake::automotive::DrivingCommand<double>* const input =
         this->template EvalVectorInput<drake::automotive::DrivingCommand>(
             context, 0);
-    DRAKE_ASSERT(input);
+    DELPHYNE_ASSERT(input);
 
     // Obtain the result structure.
-    DRAKE_ASSERT(derivatives != nullptr);
+    DELPHYNE_ASSERT(derivatives != nullptr);
     drake::systems::VectorBase<double>& vector_derivatives =
         derivatives->get_mutable_vector();
     drake::automotive::SimpleCarState<double>* const rates =
         dynamic_cast<drake::automotive::SimpleCarState<double>*>(
             &vector_derivatives);
-    DRAKE_ASSERT(rates);
+    DELPHYNE_ASSERT(rates);
 
     ImplCalcTimeDerivatives(params, state, *input, rates);
   }
@@ -323,15 +399,19 @@ class LoadablePriusSimpleCarDouble final
                                     state.velocity());
   }
 
+  drake::optional<bool> DoHasDirectFeedthrough(int, int) const override {
+    return false;
+  }
+
   const drake::automotive::DrivingCommandTranslator driving_command_translator_;
   const drake::automotive::SimpleCarStateTranslator translator_;
 };
 
-class LoadablePriusSimpleCarFactoryDouble final
+class LoadableMobilControlledSimpleCarFactoryDouble final
     : public delphyne::backend::AgentPluginFactoryDoubleBase {
  public:
   std::unique_ptr<delphyne::backend::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadablePriusSimpleCarDouble>();
+    return std::make_unique<LoadableMobilControlledSimpleCarDouble>();
   }
 };
 
@@ -339,5 +419,5 @@ class LoadablePriusSimpleCarFactoryDouble final
 }  // namespace delphyne
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::backend::LoadablePriusSimpleCarFactoryDouble,
+    delphyne::backend::LoadableMobilControlledSimpleCarFactoryDouble,
     delphyne::backend::AgentPluginFactoryDoubleBase)

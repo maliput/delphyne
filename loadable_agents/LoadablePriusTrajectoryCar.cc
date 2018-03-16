@@ -163,10 +163,10 @@ class LoadablePriusTrajectoryCarDouble final
     auto car_state_translator = builder->AddSystem<
         translation_systems::DrakeSimpleCarStateToIgnSimpleCarState>();
 
-    const std::string channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
+    const std::string car_state_channel = std::to_string(id) + "_SIMPLE_CAR_STATE";
     auto car_state_publisher =
         builder->AddSystem<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-            channel);
+            car_state_channel);
 
     // The Drake car state is translated to ignition.
     builder->Connect(this->raw_pose_output(),

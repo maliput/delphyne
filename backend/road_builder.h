@@ -8,6 +8,7 @@
 #include <utility>
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
+#include <drake/automotive/maliput/monolane/loader.h>
 #include <drake/automotive/monolane_onramp_merge.h>
 
 #include "backend/automotive_simulator.h"
@@ -81,6 +82,13 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
     auto onramp_generator =
         std::make_unique<drake::automotive::MonolaneOnrampMerge>();
     simulator_->SetRoadGeometry(onramp_generator->BuildOnramp());
+  }
+
+  /// @brief Adds a monolane-based road network, loading it from the specified
+  /// file path
+  void LoadMonolane(const std::string& file_path) {
+    auto road_geometry = drake::maliput::monolane::LoadFile(file_path);
+    simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 
  private:

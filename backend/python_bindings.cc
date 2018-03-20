@@ -53,7 +53,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init<AutomotiveSimulator<double>*, double, double>())
       .def("AddDragway", &RoadBuilder<double>::AddDragway)
       .def("AddOnramp", &RoadBuilder<double>::AddOnramp)
-      .def("LoadMonolane", &RoadBuilder<double>::LoadMonolane);
+      .def("AddMonolaneFromFile", &RoadBuilder<double>::AddMonolaneFromFile);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(

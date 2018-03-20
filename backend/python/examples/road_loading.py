@@ -36,13 +36,14 @@ $ road_loading_example.py monolane
 from __future__ import print_function
 
 import argparse
+import sys
 
 from python_bindings import (
+    AutomotiveSimulator,
     RoadBuilder,
-    SimulatorRunner,
-    AutomotiveSimulator
+    SimulatorRunner
 )
-from simulation_utils import launch_visualizer
+from simulation_utils import launch_interactive_simulation
 
 SIMULATION_TIME_STEP = 0.001
 
@@ -52,7 +53,9 @@ def main():
     road to be added from the command line args"""
 
     parser = argparse.ArgumentParser(
-        prog="roads",
+        prog="road_loading",
+        description="Simple demo that shows how to load a road network in a \
+        simulation by using the RoadBuilder class.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     subparsers = parser.add_subparsers(dest="road_type")
 
@@ -60,21 +63,21 @@ def main():
     dragway_parser = subparsers.add_parser("dragway")
     dragway_parser.add_argument("--lanes", default=3,
                                 type=int,
-                                help="The number of lanes the dragway has")
+                                help="the number of lanes the dragway has")
     dragway_parser.add_argument("--length", default=100.0,
                                 type=float,
-                                help="The length of the dragway, in meters")
+                                help="the length of the dragway, in meters")
     dragway_parser.add_argument("--lane-width", default=3.7,
                                 type=float,
-                                help="The width of each lane, in meters")
+                                help="the width of each lane, in meters")
     dragway_parser.add_argument("--shoulder-width", default=1.0,
                                 type=float,
-                                help="The width of the road shoulder, \
+                                help="the width of the road shoulder,\
                                 in meters")
     dragway_parser.add_argument("--max-height", default=5.0,
                                 type=float,
-                                help="The maximum allowed height for the road\
-                                , in meters")
+                                help="the maximum allowed height for the road,\
+                                in meters")
 
     # Onramp subcommand
     subparsers.add_parser("onramp")
@@ -82,14 +85,12 @@ def main():
     # Monolane subcommand
     monolane_parser = subparsers.add_parser("monolane")
     monolane_parser.add_argument("--filename",
-                                 help="Monolane file path",
+                                 help="monolane file path",
                                  required=True)
 
     args = parser.parse_args()
 
     road_type = args.road_type
-
-    launcher = Launcher()
 
     simulator = AutomotiveSimulator()
 
@@ -105,7 +106,13 @@ def main():
     elif road_type == "onramp":
         builder.AddOnramp()
     elif road_type == "monolane":
-        builder.LoadMonolane(args.filename)
+        try:
+            builder.AddMonolaneFromFile(args.filename)
+        except RuntimeError, error:
+            print("There was an error trying to load the monolane file:")
+            print(str(error))
+            print("Exiting the simulation")
+            sys.exit()
     else:
         raise RuntimeError("Option {} not recognized".format(road_type))
 

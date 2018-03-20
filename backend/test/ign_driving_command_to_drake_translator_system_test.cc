@@ -19,7 +19,7 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   ign_msg.set_theta(kTheta);
   ign_msg.set_acceleration(kAcceleration);
 
-  translation_systems::IgnDrivingCommandToDrake translator;
+  const translation_systems::IgnDrivingCommandToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

@@ -11,19 +11,20 @@
 namespace delphyne {
 namespace backend {
 
-// @brief Checks that an ignition Model V on the input port is correctly
+// @brief Checks that an ignition Model_V message on the input port is correctly
 //        translated into an LCM viewer draw message.
 GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
 
-  translation_systems::IgnModelVToLcmViewerDraw translator;
+  const translation_systems::IgnModelVToLcmViewerDraw translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
                         drake::systems::AbstractValue::Make(ign_msg));
 
-  auto output = translator.AllocateOutput(*context);
+  std::unique_ptr<drake::systems::SystemOutput<double>> output =
+      translator.AllocateOutput(*context);
   translator.CalcOutput(*context, output.get());
 
   const auto& lcm_msg =

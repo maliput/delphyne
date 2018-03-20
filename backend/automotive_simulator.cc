@@ -556,7 +556,7 @@ void AutomotiveSimulator<T>::Build() {
       builder_
           ->template AddSystem<translation_systems::LcmViewerDrawToIgnModelV>();
 
-  // The LCM viewer draw message is translated into an ignition Model V message.
+  // The LCM viewer draw message is translated into an ignition Model_V message.
   builder_->Connect(bundle_to_draw_->get_output_port(0),
                     viewer_draw_translator->get_input_port(0));
 

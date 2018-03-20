@@ -23,17 +23,19 @@ GTEST_TEST(IgnSimpleCarStateToDrakeTranslatorSystemTest, TestTranslation) {
   ign_msg.set_heading(kExpectedHeading);
   ign_msg.set_velocity(kExpectedVelocity);
 
-  translation_systems::IgnSimpleCarStateToDrake translator;
+  const translation_systems::IgnSimpleCarStateToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
                         drake::systems::AbstractValue::Make(ign_msg));
 
-  auto output = translator.AllocateOutput(*context);
+  std::unique_ptr<drake::systems::SystemOutput<double>> output =
+      translator.AllocateOutput(*context);
   translator.CalcOutput(*context, output.get());
 
-  const auto* vector = output->get_vector_data(kPortIndex);
+  const drake::systems::BasicVector<double>* vector =
+      output->get_vector_data(kPortIndex);
   const auto drake_msg =
       dynamic_cast<const drake::automotive::SimpleCarState<double>*>(vector);
 

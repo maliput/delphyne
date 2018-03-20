@@ -27,11 +27,11 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   IgnSubscriberSystem<ignition::msgs::Model_V> subscriber_system(kTopicName);
 
   // Ignition transport node.
-  ignition::transport::Node node_;
+  ignition::transport::Node node;
 
   // Ignition transport publisher.
   ignition::transport::Node::Publisher publisher =
-      node_.Advertise<ignition::msgs::Model_V>(kTopicName);
+      node.Advertise<ignition::msgs::Model_V>(kTopicName);
 
   // Wait for both the subscriber and publisher to be connected before doing the
   // actual publishing.
@@ -47,8 +47,10 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   // To trigger the subscriber system's sync mechanism, we need to have it
   // trigger and process an unrestricted update event.
 
-  auto context = subscriber_system.AllocateContext();
-  auto event_info = subscriber_system.AllocateCompositeEventCollection();
+  std::unique_ptr<drake::systems::Context<double>> context =
+      subscriber_system.AllocateContext();
+  std::unique_ptr<drake::systems::CompositeEventCollection<double>> event_info =
+      subscriber_system.AllocateCompositeEventCollection();
 
   // This call should make the system create a new update event.
   subscriber_system.CalcNextUpdateTime(*context, event_info.get());
@@ -65,7 +67,8 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
 
   // Finally, the context containing the results of the update can be used to
   // calculate the system's output.
-  auto output = subscriber_system.AllocateOutput(*context);
+  std::unique_ptr<drake::systems::SystemOutput<double>> output =
+      subscriber_system.AllocateOutput(*context);
   subscriber_system.CalcOutput(*context, output.get());
 
   const auto& received_message =

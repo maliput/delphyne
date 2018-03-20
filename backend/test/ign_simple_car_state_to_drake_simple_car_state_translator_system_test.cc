@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/ign_simple_car_state_to_drake_simple_car_state.h"
+#include "backend/translation_systems/ign_simple_car_state_to_drake.h"
 
 #include "drake/systems/framework/framework_common.h"
 
@@ -11,8 +11,7 @@ namespace backend {
 
 // @brief Checks that an ignition simple car state message on the input port is
 // correctly translated into a Drake simple car state message.
-GTEST_TEST(IgnSimpleCarStateToDrakeSimpleCarStateTranslatorSystemTest,
-           TestTranslation) {
+GTEST_TEST(IgnSimpleCarStateToDrakeTranslatorSystemTest, TestTranslation) {
   const double kExpectedX{1.9};
   const double kExpectedY{2.8};
   const double kExpectedHeading{3.7};
@@ -24,7 +23,7 @@ GTEST_TEST(IgnSimpleCarStateToDrakeSimpleCarStateTranslatorSystemTest,
   ign_msg.set_heading(kExpectedHeading);
   ign_msg.set_velocity(kExpectedVelocity);
 
-  translation_systems::IgnSimpleCarStateToDrakeSimpleCarState translator;
+  translation_systems::IgnSimpleCarStateToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

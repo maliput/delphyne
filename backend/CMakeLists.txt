@@ -9,12 +9,12 @@ set (gtest_sources
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   ign_publisher_system_test.cc
-  ign_driving_command_to_drake_driving_command_translator_system_test.cc
+  ign_driving_command_to_drake_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
-  ign_simple_car_state_to_drake_simple_car_state_translator_system_test.cc
+  ign_simple_car_state_to_drake_translator_system_test.cc
   lcm_to_ign_translation_test.cc
-  drake_driving_command_to_ign_driving_command_translator_system_test.cc
-  drake_simple_car_state_to_ign_simple_car_state_translator_system_test.cc
+  drake_driving_command_to_ign_translator_system_test.cc
+  drake_simple_car_state_to_ign_translator_system_test.cc
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
   linb_any_test.cc
   scene_system_test.cc

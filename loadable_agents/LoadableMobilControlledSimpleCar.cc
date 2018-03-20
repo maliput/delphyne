@@ -81,7 +81,7 @@
 #include <backend/agent_plugin_base.h>
 #include <backend/ign_publisher_system.h>
 #include <backend/linb-any>
-#include <backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h>
+#include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
 namespace delphyne {
 namespace backend {
@@ -209,7 +209,7 @@ class LoadableMobilControlledSimpleCarDouble final
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
     auto car_state_translator = builder->template AddSystem<
-        translation_systems::DrakeSimpleCarStateToIgnSimpleCarState>();
+        translation_systems::DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
         std::to_string(id) + "_SIMPLE_CAR_STATE";

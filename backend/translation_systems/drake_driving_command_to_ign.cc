@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/drake_driving_command_to_ign_driving_command.h"
+#include "backend/translation_systems/drake_driving_command_to_ign.h"
 
 #include <map>
 #include <string>
@@ -11,10 +11,10 @@ namespace delphyne {
 namespace backend {
 namespace translation_systems {
 
-DrakeDrivingCommandToIgnDrivingCommand::DrakeDrivingCommandToIgnDrivingCommand()
+DrakeDrivingCommandToIgn::DrakeDrivingCommandToIgn()
     : DrakeToIgn(drake::automotive::DrivingCommandIndices::kNumCoordinates) {}
 
-void DrakeDrivingCommandToIgnDrivingCommand::DoDrakeToIgnTranslation(
+void DrakeDrivingCommandToIgn::DoDrakeToIgnTranslation(
     const drake::automotive::DrivingCommand<double>& drake_message,
     ignition::msgs::AutomotiveDrivingCommand* ign_message,
     int64_t time_ms) const {

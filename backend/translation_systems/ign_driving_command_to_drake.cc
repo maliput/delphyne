@@ -1,12 +1,12 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/ign_driving_command_to_drake_driving_command.h"
+#include "backend/translation_systems/ign_driving_command_to_drake.h"
 
 namespace delphyne {
 namespace backend {
 namespace translation_systems {
 
-void IgnDrivingCommandToDrakeDrivingCommand::DoIgnToDrakeTranslation(
+void IgnDrivingCommandToDrake::DoIgnToDrakeTranslation(
     const ignition::msgs::AutomotiveDrivingCommand& ign_message,
     drake::automotive::DrivingCommand<double>* drake_message) const {
   DELPHYNE_DEMAND(drake_message != nullptr);

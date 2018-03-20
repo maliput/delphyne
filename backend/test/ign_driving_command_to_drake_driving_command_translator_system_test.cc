@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/ign_driving_command_to_drake_driving_command.h"
+#include "backend/translation_systems/ign_driving_command_to_drake.h"
 
 #include "drake/systems/framework/framework_common.h"
 
@@ -11,8 +11,7 @@ namespace backend {
 
 // @brief Checks that an ignition driving command message on the input port is
 // correctly translated into a Drake driving command message.
-GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
-           TestTranslation) {
+GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   const double kTheta{0.12};
   const double kAcceleration{15.7};
 
@@ -20,7 +19,7 @@ GTEST_TEST(IgnDrivingCommandToLcmDrivingCommandTranslatorSystemTest,
   ign_msg.set_theta(kTheta);
   ign_msg.set_acceleration(kAcceleration);
 
-  translation_systems::IgnDrivingCommandToDrakeDrivingCommand translator;
+  translation_systems::IgnDrivingCommandToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

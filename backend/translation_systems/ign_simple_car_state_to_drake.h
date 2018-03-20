@@ -17,7 +17,7 @@ namespace translation_systems {
 
 /// @brief A system that translates ignition simple car state messages to Drake
 /// simple car state messages.
-class DELPHYNE_BACKEND_VISIBLE IgnSimpleCarStateToDrakeSimpleCarState
+class DELPHYNE_BACKEND_VISIBLE IgnSimpleCarStateToDrake
     : public IgnToDrake<ignition::msgs::SimpleCarState,
                         drake::automotive::SimpleCarState<double>> {
  protected:

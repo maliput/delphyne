@@ -18,7 +18,7 @@ namespace delphyne {
 namespace backend {
 
 /// Publishes an ignition-transport message. The data to populate the message
-/// comes from the system's abtract input port.
+/// comes from the system's abstract input port.
 ///
 /// @tparam IGN_TYPE must be a valid ignition message type
 template <class IGN_TYPE>

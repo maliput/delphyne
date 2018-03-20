@@ -22,8 +22,8 @@
 #include <backend/ign_publisher_system.h>
 #include <backend/ign_subscriber_system.h>
 #include <backend/linb-any>
-#include <backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h>
-#include <backend/translation_systems/ign_driving_command_to_drake_driving_command.h>
+#include <backend/translation_systems/drake_simple_car_state_to_ign.h>
+#include <backend/translation_systems/ign_driving_command_to_drake.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -117,7 +117,7 @@ class LoadablePriusSimpleCarDouble final
         command_channel);
 
     auto driving_command_translator = builder->template AddSystem<
-        translation_systems::IgnDrivingCommandToDrakeDrivingCommand>();
+        translation_systems::IgnDrivingCommandToDrake>();
 
     // Ignition driving commands received through the subscriber are translated
     // to Drake.
@@ -133,7 +133,7 @@ class LoadablePriusSimpleCarDouble final
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
     auto car_state_translator = builder->template AddSystem<
-        translation_systems::DrakeSimpleCarStateToIgnSimpleCarState>();
+        translation_systems::DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
         std::to_string(id) + "_SIMPLE_CAR_STATE";

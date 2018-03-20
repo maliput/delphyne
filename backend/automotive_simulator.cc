@@ -34,8 +34,8 @@
 #include "backend/linb-any"
 #include "backend/scene_system.h"
 #include "backend/system.h"
-#include "backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h"
-#include "backend/translation_systems/ign_driving_command_to_drake_driving_command.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
+#include "backend/translation_systems/ign_driving_command_to_drake.h"
 #include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 
 namespace delphyne {
@@ -194,8 +194,9 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
       IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
       channel_name);
 
-  auto driving_command_translator = builder_->template AddSystem<
-      translation_systems::IgnDrivingCommandToDrakeDrivingCommand>();
+  auto driving_command_translator =
+      builder_
+          ->template AddSystem<translation_systems::IgnDrivingCommandToDrake>();
 
   // Those messages are then translated to Drake driving command messages.
   builder_->Connect(*driving_command_subscriber, *driving_command_translator);
@@ -463,7 +464,7 @@ void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::MaliputRailcar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
 
-  // TODO(nventuro): add a translator to ignitnion. See #302
+  // TODO(nventuro): add a translator to ignition. See #302
   static const drake::automotive::MaliputRailcarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_MALIPUT_RAILCAR_STATE";
@@ -476,8 +477,9 @@ template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
-  auto simple_car_translator = builder_->template AddSystem<
-      translation_systems::DrakeSimpleCarStateToIgnSimpleCarState>();
+  auto simple_car_translator =
+      builder_
+          ->template AddSystem<translation_systems::DrakeSimpleCarStateToIgn>();
 
   // The car state is first translated into an ignition car state.
   builder_->Connect(system.state_output(),
@@ -497,7 +499,7 @@ void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::TrajectoryCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
 
-  // TODO(nventuro): add a translator to ignitnion. See #302
+  // TODO(nventuro): add a translator to ignition. See #302
   static const drake::automotive::SimpleCarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";

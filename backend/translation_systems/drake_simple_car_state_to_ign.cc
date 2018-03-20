@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/drake_simple_car_state_to_ign_simple_car_state.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
 
 #include <map>
 #include <string>
@@ -11,10 +11,10 @@ namespace delphyne {
 namespace backend {
 namespace translation_systems {
 
-DrakeSimpleCarStateToIgnSimpleCarState::DrakeSimpleCarStateToIgnSimpleCarState()
+DrakeSimpleCarStateToIgn::DrakeSimpleCarStateToIgn()
     : DrakeToIgn(drake::automotive::SimpleCarStateIndices::kNumCoordinates) {}
 
-void DrakeSimpleCarStateToIgnSimpleCarState::DoDrakeToIgnTranslation(
+void DrakeSimpleCarStateToIgn::DoDrakeToIgnTranslation(
     const drake::automotive::SimpleCarState<double>& drake_message,
     ignition::msgs::SimpleCarState* ign_message, int64_t time_ms) const {
   DELPHYNE_DEMAND(ign_message != nullptr);

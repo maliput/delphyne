@@ -1,12 +1,12 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/ign_simple_car_state_to_drake_simple_car_state.h"
+#include "backend/translation_systems/ign_simple_car_state_to_drake.h"
 
 namespace delphyne {
 namespace backend {
 namespace translation_systems {
 
-void IgnSimpleCarStateToDrakeSimpleCarState::DoIgnToDrakeTranslation(
+void IgnSimpleCarStateToDrake::DoIgnToDrakeTranslation(
     const ignition::msgs::SimpleCarState& ign_message,
     drake::automotive::SimpleCarState<double>* drake_message) const {
   DELPHYNE_DEMAND(drake_message != nullptr);

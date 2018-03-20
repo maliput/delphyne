@@ -12,6 +12,7 @@ set (gtest_sources
   ign_driving_command_to_drake_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
   ign_simple_car_state_to_drake_translator_system_test.cc
+  ign_subscriber_system_test.cc
   lcm_to_ign_translation_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
   drake_simple_car_state_to_ign_translator_system_test.cc

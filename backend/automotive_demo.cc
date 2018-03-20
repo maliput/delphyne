@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "backend/road_builder.h"
 #include "backend/simulation_runner.h"
 
 #include <drake/automotive/automotive_simulator.h>
@@ -93,20 +94,17 @@ constexpr double kControlledCarRowSpacing{5};
 
 const drake::maliput::api::RoadGeometry* AddDragway(
     delphyne::backend::AutomotiveSimulator<double>* simulator) {
-  const double kMaximumHeight = 5.;  // meters
-  const double kLinearTolerance = std::numeric_limits<double>::epsilon();
-  const double kAngularTolerance = std::numeric_limits<double>::epsilon();
-  const int num_dragway_lanes = 3;
-  const int dragway_length = 100;
-  const double dragway_lane_width = 3.7;
-  const double dragway_shoulder_width = 3.0;
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry =
-      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("Automotive Demo Dragway"),
-          num_dragway_lanes, dragway_length, dragway_lane_width,
-          dragway_shoulder_width, kMaximumHeight, kLinearTolerance,
-          kAngularTolerance);
-  return simulator->SetRoadGeometry(std::move(road_geometry));
+  const double kMaximumHeight = 5.0;  // meters
+  const int kNumDragwayLanes = 3;
+  const double kDragwayLength = 100.0;       // meters
+  const double kDragwayLaneWidth = 3.7;      // meters
+  const double kDragwayShoulderWidth = 3.0;  // meters
+
+  auto road_builder =
+      std::make_unique<delphyne::backend::RoadBuilder<double>>(simulator);
+  return road_builder->AddDragway("Automotive Demo Dragway", kNumDragwayLanes,
+                                  kDragwayLength, kDragwayLaneWidth,
+                                  kDragwayShoulderWidth, kMaximumHeight);
 }
 
 int main(int argc, char* argv[]) {

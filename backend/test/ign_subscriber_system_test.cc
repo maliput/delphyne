@@ -33,6 +33,10 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   ignition::transport::Node::Publisher publisher =
       node_.Advertise<ignition::msgs::Model_V>(kTopicName);
 
+  // Wait for both the subscriber and publisher to be connected before doing the
+  // actual publishing.
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
   // Fills the ign message with sample data, and publishes it.
   const ignition::msgs::Model_V ign_message = test::BuildPreloadedModelVMsg();
   publisher.Publish(ign_message);

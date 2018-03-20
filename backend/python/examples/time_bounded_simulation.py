@@ -20,15 +20,14 @@ $ time_bounded_simulation.py --realtime_rate=2.0 --duration=30.0
 from __future__ import print_function
 
 import argparse
-import sys
-import time
 
-from launcher import Launcher
 from python_bindings import SimulatorRunner
-from delphyne_utils import (
+from simulation_utils import (
     build_simple_car_simulator,
-    launch_visualizer
+    launch_interactive_simulation
 )
+
+SIMULATION_TIME_STEP = 0.001
 
 
 def check_positive_float(value):
@@ -62,32 +61,16 @@ def main():
 
     realtime_rate = args.realtime_rate
 
-    launcher = Launcher()
-
     simulator = build_simple_car_simulator()
 
-    runner = SimulatorRunner(simulator, 0.001, realtime_rate)
+    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP, realtime_rate)
 
-    try:
-        launch_visualizer(launcher, "layoutWithTeleop.config")
+    with launch_interactive_simulation(runner) as launcher:
 
         print("Running simulation for {0} seconds @ {1}x real-time rate "
               .format(simulation_duration, realtime_rate))
 
         runner.RunAsyncFor(simulation_duration, launcher.terminate)
-
-        launcher.wait(float("Inf"))
-
-    except RuntimeError, error_msg:
-        sys.stderr.write('ERROR: {}'.format(error_msg))
-        sys.exit(1)
-
-    finally:
-        print("Simulation ended")
-        # This is needed to avoid a possible deadlock. See SimulatorRunner
-        # class description.
-        time.sleep(0.5)
-        launcher.kill()
 
 
 if __name__ == "__main__":

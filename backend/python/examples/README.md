@@ -5,7 +5,29 @@ simulation runner.
 
 For all the examples below it's assumed that the Delphyne backend was successfully
 built with CMake, as shown in the instructions
-[here](https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md#build-delphyne-back-end) .
+[here](https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md).
+<h1 id="road_loading">road_loading</h1>
+
+
+This example shows how to run a simulation that includes a road. For the
+time being two road examples are supported: dragway and onramp. To launch this
+demo with the default values do:
+
+```
+$ road_loading.py
+```
+
+Or explicitly pass the desired road:
+
+```
+$ road_loading.py --road='dragway'
+```
+
+```
+$ road_loading.py --road='onramp'
+```
+
+
 <h1 id="realtime_rate_changer">realtime_rate_changer</h1>
 
 
@@ -46,29 +68,7 @@ $ ./keyboard_controlled_simulation.py
 
 <`q`> will stop the simulation and quit the demo.
 
-<h1 id="roads">roads</h1>
-
-
-This example shows how to run a simulation that includes a road. For the
-time being two road examples are supported: dragway and onramp. To launch this
-demo with the default values do:
-
-```
-$ road_loading_example.py
-```
-
-Or explicitly pass the desired road:
-
-```
-$ road_loading_example.py --road='dragway'
-```
-
-```
-$ road_loading_example.py --road='onramp'
-```
-
-
-<h1 id="python_bindings_example">python_bindings_example</h1>
+<h1 id="simple_python_binding">simple_python_binding</h1>
 
 This is a minimal example of starting an automotive simulation using a
 python binding to the C++ `SimulatorRunner` class.
@@ -76,10 +76,9 @@ python binding to the C++ `SimulatorRunner` class.
 Note that this is not a configurable demo, it will just create a sample
 simulation with a prius car that can be driven around.
 
-As we add more python bindings to the C++ classes we will start doing more
-interesting scripts.
+Check the other examples in this directory for more advanced uses.
 
-<h1 id="paused_mode_example">paused_mode_example</h1>
+<h1 id="start_simulation_paused">start_simulation_paused</h1>
 
 
 This example show how to use the `SimulationRunner`'s (optional) third
@@ -87,26 +86,25 @@ constructor argument to start in pause mode.
 
 ```
 $ cd <delphyne_ws>/install/bin
-$ ./paused_mode_example.py
+$ ./start_simulation_paused.py
 ```
 
-This command will spawn a visualizer instance and start the simulation
-in paused mode.
+This command will spawn a visualizer instance and start the simulation in
+paused mode.
 
  ## Unpausing the simulation
 
-- At this moment, the only available way of achieving this is by making
-use of a `WorldControl` service, publishing a message with the right
-content into the `/world_control` channel:
+- The most user-friendly way of unpausing the simulation is by using the
+`TimePanel` widget in the visualizer. This panel allows to control the
+simulation with `Play` / `Pause` / `Step` buttons from the GUI.
+
+- Through the command line, by using the `WorldControl` service, publishing a
+message with the right content into the `/world_control` channel:
 
 ```
 $ cd <delphyne_ws>/install/bin
 $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl --reptype ignition.msgs.Boolean --timeout 500 --req 'pause: false'
 ```
-
-- An alternative way will be to use the `TimePanel` widget in the visualizer
-(currently under development), which will allow to control the simulation with
-`Play` / `Pause` / `Step` buttons from the GUI.
 
 
 <h1 id="time_bounded_simulation">time_bounded_simulation</h1>

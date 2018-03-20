@@ -6,17 +6,17 @@ time being two road examples are supported: dragway and onramp. To launch this
 demo with the default values do:
 
 ```
-$ road_loading_example.py
+$ road_loading.py
 ```
 
 Or explicitly pass the desired road:
 
 ```
-$ road_loading_example.py --road='dragway'
+$ road_loading.py --road='dragway'
 ```
 
 ```
-$ road_loading_example.py --road='onramp'
+$ road_loading.py --road='onramp'
 ```
 
 """
@@ -28,18 +28,17 @@ $ road_loading_example.py --road='onramp'
 from __future__ import print_function
 
 import argparse
-import sys
-import time
 
-from launcher import Launcher
 from python_bindings import (
     RoadBuilder,
     SimulatorRunner
 )
-from delphyne_utils import (
+from simulation_utils import (
     build_simple_car_simulator,
-    launch_visualizer
+    launch_interactive_simulation
 )
+
+SIMULATION_TIME_STEP = 0.001
 
 
 def main():
@@ -62,8 +61,6 @@ def main():
 
     road = args.road
 
-    launcher = Launcher()
-
     simulator = build_simple_car_simulator()
 
     builder = RoadBuilder(simulator)
@@ -78,25 +75,10 @@ def main():
     else:
         raise RuntimeError("Option {} not recognized".format(road))
 
-    runner = SimulatorRunner(simulator, 0.001)
+    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
 
-    try:
-        launch_visualizer(launcher, "layoutWithTeleop.config")
-
+    with launch_interactive_simulation(runner):
         runner.Start()
-
-        launcher.wait(float("Inf"))
-
-    except RuntimeError, error_msg:
-        sys.stderr.write('ERROR: {}'.format(error_msg))
-        sys.exit(1)
-
-    finally:
-        print("Simulation ended")
-        # This is needed to avoid a possible deadlock. See SimulatorRunner
-        # class description.
-        time.sleep(0.5)
-        launcher.kill()
 
 
 if __name__ == "__main__":

@@ -40,6 +40,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("Stop", &SimulatorRunner::Stop)
       .def("RunAsyncFor", &SimulatorRunner::RunAsyncFor)
       .def("RunSyncFor", &SimulatorRunner::RunSyncFor)
+      .def("IsRunning", &SimulatorRunner::IsRunning)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback)
       .def("RunSimulationStep", &SimulatorRunner::RunSimulationStep)
       .def("IsPaused", &SimulatorRunner::IsPaused)

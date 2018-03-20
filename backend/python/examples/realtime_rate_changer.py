@@ -23,14 +23,14 @@ to `1.6` to depict how dynamic real-time rate impacts on the simulation.
 from __future__ import print_function
 
 import argparse
-import time
 
-from launcher import Launcher
 from python_bindings import SimulatorRunner
-from delphyne_utils import (
+from simulation_utils import (
     build_simple_car_simulator,
-    launch_visualizer
+    launch_interactive_simulation
 )
+
+SIMULATION_TIME_STEP = 0.001
 
 
 def check_positive_float(value):
@@ -85,28 +85,20 @@ def main():
     # loop.
     initial_steps = int(initial_realtime_rate * 12000)
 
-    launcher = Launcher()
-
     simulator = build_simple_car_simulator()
 
-    runner = SimulatorRunner(simulator, 0.001, initial_realtime_rate)
+    runner = SimulatorRunner(simulator,
+                             SIMULATION_TIME_STEP,
+                             initial_realtime_rate)
 
     rate_changer = RealtimeRateChanger(runner, initial_steps)
 
     runner.AddStepCallback(rate_changer.tick)
 
-    try:
-        launch_visualizer(launcher, "layoutWithTeleop.config")
-        runner.Start()
+    with launch_interactive_simulation(runner):
         print("Running at real-time rate {0} for {1} steps"
               .format(runner.GetRealtimeRate(), initial_steps))
-        launcher.wait(float("Inf"))
-    finally:
-        runner.Stop()
-        # This is needed to avoid a possible deadlock. See SimulatorRunner
-        # class description.
-        time.sleep(0.5)
-        launcher.kill()
+        runner.Start()
 
 
 if __name__ == "__main__":

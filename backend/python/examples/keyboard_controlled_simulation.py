@@ -32,11 +32,10 @@ import sys
 import termios
 import time
 
-from launcher import Launcher
 from python_bindings import SimulatorRunner
-from delphyne_utils import (
+from simulation_utils import (
     build_simple_car_simulator,
-    launch_visualizer
+    launch_interactive_simulation
 )
 
 SIMULATION_TIME_STEP = 0.001
@@ -118,34 +117,25 @@ def demo_callback(runner, launcher, keyboard_handler):
 
 def main():
     """Runs the demo."""
-    try:
-        launcher = Launcher()
-        simulator = build_simple_car_simulator()
+    simulator = build_simple_car_simulator()
 
-        runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
+    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
 
-        keyboard = KeyboardHandler()
+    keyboard = KeyboardHandler()
 
-        launch_visualizer(launcher, "layoutWithTeleop.config")
+    runner.AddStepCallback(
+        lambda: demo_callback(runner, launcher, keyboard))
 
-        runner.AddStepCallback(
-            lambda: demo_callback(runner, launcher, keyboard))
+    with launch_interactive_simulation(runner) as launcher:
+        print("\n"
+              "************************************************************\n"
+              "* Instructions for running the demo:                       *\n"
+              "* <p> will pause the simulation if unpaused and viceversa. *\n"
+              "* <s> will step the simulation once if paused.             *\n"
+              "* <q> will stop the simulation and quit the demo.          *\n"
+              "************************************************************\n")
+
         runner.Start()
-
-        print(
-            "\n*************************************************************\n"
-            "* Instructions for running the demo:                        *\n"
-            "* <p> will pause the simulation if unpaused and viceversa.  *\n"
-            "* <s> will step the simulation once if paused.              *\n"
-            "* <q> will stop the simulation and quit the demo.           *\n"
-            "*************************************************************\n"
-            "Simulation is now running.\n")
-
-        launcher.wait(float("Inf"))
-
-    except RuntimeError, error_msg:
-        sys.stderr.write('ERROR: {}'.format(error_msg))
-        sys.exit(1)
 
 
 if __name__ == "__main__":

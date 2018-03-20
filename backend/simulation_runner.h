@@ -223,6 +223,10 @@ class SimulatorRunner {
   /// @brief Returns the paused state of the simulation.
   bool IsPaused() const;
 
+  /// @brief Returns if there is currently running a simulation loop. Note that
+  /// the simulation loop may be running, but the simulation itself be paused.
+  bool IsRunning() const;
+
   /// @brief Requests the simulation to execute a single simulation step.
   /// The simulation must be paused before calling this method.
   /// @pre Start() has been called.

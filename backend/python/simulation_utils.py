@@ -3,14 +3,46 @@
 # Copyright 2017 Toyota Research Institute
 #
 
-"""A group of common functions useful for the delphyne project"""
+"""A group of common functions useful for python-scripted simulations"""
+
+from __future__ import print_function
 
 import os
+import sys
+import time
 
+from contextlib import contextmanager
+
+from launcher import Launcher
 from python_bindings import (
     AutomotiveSimulator,
     SimpleCarState,
 )
+
+
+@contextmanager
+def launch_interactive_simulation(simulator_runner,
+                                  layout="layoutWithTeleop.config"):
+    """Defines a context manager function used to hande the execution of an
+    interactive simulation. An interactive simulation launches the delphyne
+    visualizer in a separate process and ends the simulation when the
+    visualizer is closed."""
+
+    launcher = Launcher()
+    try:
+        launch_visualizer(launcher, layout)
+        yield launcher
+        launcher.wait(float("Inf"))
+    except RuntimeError, error_msg:
+        sys.stderr.write("ERROR: {}".format(error_msg))
+    finally:
+        if simulator_runner.IsRunning():
+            simulator_runner.Stop()
+        print("Simulation ended")
+        # This is needed to avoid a possible deadlock. See SimulatorRunner
+        # class description.
+        time.sleep(0.5)
+        launcher.kill()
 
 
 def build_simple_car_simulator(initial_positions=None):

@@ -24,8 +24,8 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
                   static_cast<unsigned int>(lcm_message.num_links));
 
   // LCM timestamps are in milliseconds.
-  *(ign_message->mutable_header()->mutable_stamp()) =
-      MillisToIgnitionTime(lcm_message.timestamp);
+  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
+      MillisToIgnitionTime(lcm_message.timestamp));
 
   // Clears state from the previous call.
   // @see LcmToIgn::DoDrakeToIgnTranslation

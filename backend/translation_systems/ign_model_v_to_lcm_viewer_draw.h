@@ -13,7 +13,7 @@ namespace delphyne {
 namespace backend {
 namespace translation_systems {
 
-/// @brief A system that translates ignition Model V messages to LCM viewer draw
+/// @brief A system that translates ignition Model_V messages to LCM viewer draw
 /// messages.
 class DELPHYNE_BACKEND_VISIBLE IgnModelVToLcmViewerDraw
     : public IgnToDrake<ignition::msgs::Model_V, drake::lcmt_viewer_draw> {

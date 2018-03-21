@@ -2,6 +2,8 @@
 
 #include "backend/agent_plugin_loader.h"
 
+#include "drake/systems/framework/diagram_builder.h"
+
 #include <stdlib.h>
 
 #include "gtest/gtest.h"
@@ -18,8 +20,15 @@ TEST(AgentPluginLoader, ExampleDouble) {
   auto agent = delphyne::backend::LoadPlugin<double>("LoadableExampleDouble");
   ASSERT_NE(nullptr, agent);
 
+  // We construct and use a drake DiagramBuilder here just to ensure that we
+  // have at least one symbol referencing libdrake.so so the linker properly
+  // links it in.  Otherwise, when the modules attempt to load, the drake
+  // symbols are missing and they fail to load.
+  std::unique_ptr<drake::systems::DiagramBuilder<double>> builder{
+      std::make_unique<drake::systems::DiagramBuilder<double>>()};
+
   const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, nullptr, nullptr, "testname", 0,
+  ASSERT_EQ(0, agent->Configure(params, builder.get(), nullptr, "testname", 0,
                                 nullptr, nullptr));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));
@@ -31,8 +40,15 @@ TEST(AgentPluginLoader, ExampleAutodiff) {
       "LoadableExampleAutoDiffXd");
   ASSERT_NE(nullptr, agent);
 
+  // We construct and use a drake DiagramBuilder here just to ensure that we
+  // have at least one symbol referencing libdrake.so so the linker properly
+  // links it in.  Otherwise, when the modules attempt to load, the drake
+  // symbols are missing and they fail to load.
+  std::unique_ptr<drake::systems::DiagramBuilder<::drake::AutoDiffXd>> builder{
+      std::make_unique<drake::systems::DiagramBuilder<::drake::AutoDiffXd>>()};
+
   const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, nullptr, nullptr, "testname", 0,
+  ASSERT_EQ(0, agent->Configure(params, builder.get(), nullptr, "testname", 0,
                                 nullptr, nullptr));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));
@@ -44,8 +60,16 @@ TEST(AgentPluginLoader, ExampleSymbolic) {
       "LoadableExampleExpression");
   ASSERT_NE(nullptr, agent);
 
+  // We construct and use a drake DiagramBuilder here just to ensure that we
+  // have at least one symbol referencing libdrake.so so the linker properly
+  // links it in.  Otherwise, when the modules attempt to load, the drake
+  // symbols are missing and they fail to load.
+  std::unique_ptr<drake::systems::DiagramBuilder<::drake::symbolic::Expression>>
+      builder{std::make_unique<
+          drake::systems::DiagramBuilder<::drake::symbolic::Expression>>()};
+
   const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, nullptr, nullptr, "testname", 0,
+  ASSERT_EQ(0, agent->Configure(params, builder.get(), nullptr, "testname", 0,
                                 nullptr, nullptr));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));

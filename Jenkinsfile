@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-node('linux_xenial_unprovisioned') {
+node('delphyne_linux_xenial_unprovisioned') {
   try {
     stage('checkout') {
       checkout scm

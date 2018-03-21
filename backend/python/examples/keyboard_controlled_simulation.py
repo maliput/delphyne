@@ -32,7 +32,7 @@ import sys
 import termios
 import time
 
-from python_bindings import SimulatorRunner
+from delphyne import SimulatorRunner
 from simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation

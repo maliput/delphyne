@@ -115,6 +115,31 @@ $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl --
 ```
 
 
+<h1 id="loadable_agent_simulation">loadable_agent_simulation</h1>
+
+
+This example shows how to run a simulation that dynamically loads a car agent.
+For the time being two car types are supported:
+
+
+- simple, which just places a `LoadablePriusSimpleCarDouble` in an empty world.
+- mobil, which places a `LoadableMobilControlledSimpleCarDouble` at the start
+of a 200 meters dragway.
+
+
+These examples can be executed by doing:
+
+```
+$ loadable_agent_simulation.py --type="simple"
+```
+
+and
+
+```
+$ loadable_agent_simulation.py --type="mobil"
+
+```
+
 <h1 id="time_bounded_simulation">time_bounded_simulation</h1>
 
 

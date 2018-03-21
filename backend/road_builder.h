@@ -86,9 +86,10 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
 
   /// @brief Adds a monolane-based road network, loading it from the specified
   /// file path
-  void AddMonolaneFromFile(const std::string& file_path) {
+  const drake::maliput::api::RoadGeometry* AddMonolaneFromFile(
+      const std::string& file_path) {
     auto road_geometry = drake::maliput::monolane::LoadFile(file_path);
-    simulator_->SetRoadGeometry(std::move(road_geometry));
+    return simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 
  private:

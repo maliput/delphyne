@@ -3,13 +3,16 @@
 #include <memory>
 
 #include "backend/automotive_simulator.h"
+#include "backend/linb-any"
 #include "backend/road_builder.h"
 #include "backend/simulation_runner.h"
 
 #include <drake/common/find_resource.h>
+#include <drake/systems/framework/basic_vector.h>
 
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 namespace py = pybind11;
 
@@ -19,15 +22,54 @@ using delphyne::backend::AutomotiveSimulator;
 using delphyne::backend::RoadBuilder;
 using delphyne::backend::SimulatorRunner;
 using drake::automotive::SimpleCarState;
-
-// Since we are not yet exporting the AutomotiveSimulator class we need to
-// provide a ready-to-run SimulatorRunner. To do so we create a parameterless
-// constructor that sets up a simulation runner with a prius car in it. As we
-// keep adding python bindings to C++ classes this code will be moved to the
-// python scripts that launches the simulation.
+using drake::maliput::api::RoadGeometry;
 
 namespace {
 PYBIND11_MODULE(python_bindings, m) {
+  // TODO(basicNew): Import these from Drake. We are currently defining
+  // VectorBase binding so we can use BasicVector (see below), but all these
+  // bindings are already defined in Drake, so we should import and use them
+  // directly instead of redefining.
+  py::class_<VectorBase<double>>(m, "VectorBase")
+      .def("CopyToVector", &VectorBase<double>::CopyToVector)
+      .def("SetFromVector", &VectorBase<double>::SetFromVector)
+      .def("size", &VectorBase<double>::size);
+
+  // TODO(basicNew): Import these from Drake. We are currently defining
+  // BasicVector binding so we can use SimpleCarState (see below), but all these
+  // bindings are already defined in Drake, so we should import and use them
+  // directly instead of redefining.
+  py::class_<BasicVector<double>, VectorBase<double>>(m, "BasicVector")
+      .def(py::init<int>());
+
+  // TODO(basicNew): Import these from Drake. We are currently defining
+  // SimpleCarState so we can use it as a parameter of the  SimulatorRunner,
+  // but this class is already defined in Drake, so we should import and use
+  // it directly instead of redefining.
+  py::class_<SimpleCarState<double>, BasicVector<double>>(m, "SimpleCarState")
+      .def(py::init<>())
+      .def_property("x", &SimpleCarState<double>::x,
+                    &SimpleCarState<double>::set_x)
+      .def_property("y", &SimpleCarState<double>::y,
+                    &SimpleCarState<double>::set_y)
+      .def_property("heading", &SimpleCarState<double>::heading,
+                    &SimpleCarState<double>::set_heading)
+      .def_property("velocity", &SimpleCarState<double>::velocity,
+                    &SimpleCarState<double>::set_velocity)
+      .def("get_coordinates_names",
+           &SimpleCarState<double>::GetCoordinateNames);
+
+  // TODO(basicNew): Properly fill this binding and submit to Drake. We are
+  // currently defining just the class name so we can use it to pass road
+  // geometry pointers around.
+  py::class_<RoadGeometry>(m, "RoadGeometry");
+
+  // TODO(basicNew): Properly fill this binding with the remaining methods and
+  // overloaded constructors.
+  py::class_<linb::any>(m, "Any")
+      .def(py::init<bool&&>())
+      .def(py::init<const RoadGeometry*&&>());
+
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
@@ -59,52 +101,10 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
+      .def("AddLoadableCar", &AutomotiveSimulator<double>::AddLoadableCar)
       .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
       .def("AddMobilControlledSimpleCar",
            &AutomotiveSimulator<double>::AddMobilControlledSimpleCar);
-  // TODO(mikaelarguedas) bind more method depending on what we need
-  // Needs drake::automotive::Curve2<double>&
-  // .def("AddPriusTrajectoryCar",
-  // &AutomotiveSimulator<double>::AddPriusTrajectoryCar)
-  // Needs:
-  //  - drake::automotive::LaneDirection
-  //  - drake::automotive::MaliputRailcarParams<T>
-  //  - drake::automotive::MaliputRailcarState<T>
-  // .def("AddPriusMaliputRailcar",
-  // &AutomotiveSimulator<double>::AddPriusMaliputRailcar)
-  // Needs:
-  //  - drake::automotive::LaneDirection
-  //  - drake::automotive::MaliputRailcarParams<T>
-  //  - drake::automotive::MaliputRailcarState<T>
-  // .def("AddIdmControlledPriusMaliputRailcar",
-  // &AutomotiveSimulator<double>::AddIdmControlledPriusMaliputRailcar)
-  // .def("SetMaliputRailcarAccelerationCommand",
-  // &AutomotiveSimulator<double>::SetMaliputRailcarAccelerationCommand)
-  // Needs drake::maliput::api::RoadGeometry binding
-  // .def("SetRoadGeometry", &AutomotiveSimulator<double>::SetRoadGeometry)
-  // Needs drake::maliput::api::Lane binding
-  // .def("FindLane", &AutomotiveSimulator<double>::FindLane)
-  // Needs drake::systems::System<T> binding
-  // .def("GetDiagramSystemByName",
-  // &AutomotiveSimulator<double>::GetDiagramSystemByName)
-  // .def("Build", &AutomotiveSimulator<double>::Build)
-  // .def("GetDiagram", &AutomotiveSimulator<double>::GetDiagram)
-  // .def("StepBy", &AutomotiveSimulator<double>::StepBy)
-  // Needs drake::systems::rendering::PoseBundle<T> binding
-  // .def("GetCurrentPoses", &AutomotiveSimulator<double>::GetCurrentPoses)
-  // TODO(mikaelarguedas) Submit this to upstream Drake
-  py::class_<SimpleCarState<double>>(m, "SimpleCarState")
-      .def(py::init<>())
-      .def_property("x", &SimpleCarState<double>::x,
-                    &SimpleCarState<double>::set_x)
-      .def_property("y", &SimpleCarState<double>::y,
-                    &SimpleCarState<double>::set_y)
-      .def_property("heading", &SimpleCarState<double>::heading,
-                    &SimpleCarState<double>::set_heading)
-      .def_property("velocity", &SimpleCarState<double>::velocity,
-                    &SimpleCarState<double>::set_velocity)
-      .def("get_coordinates_names",
-           &SimpleCarState<double>::GetCoordinateNames);
 }
 
 }  // namespace

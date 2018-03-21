@@ -38,7 +38,7 @@ from __future__ import print_function
 import argparse
 import sys
 
-from python_bindings import (
+from delphyne import (
     AutomotiveSimulator,
     RoadBuilder,
     SimulatorRunner

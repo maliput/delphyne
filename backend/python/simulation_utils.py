@@ -14,7 +14,7 @@ import time
 from contextlib import contextmanager
 
 from launcher import Launcher
-from python_bindings import (
+from delphyne import (
     AutomotiveSimulator,
     SimpleCarState,
 )

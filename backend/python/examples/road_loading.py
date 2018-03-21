@@ -2,21 +2,29 @@
 
 """
 This example shows how to run a simulation that includes a road. For the
-time being two road examples are supported: dragway and onramp. To launch this
-demo with the default values do:
+time being three road examples are supported: dragway, onramp and monolane.
+This demo uses the subcommand style, where each road type can handle different
+parameters (to list the available arguments just do
+`$ road_loading_example <road_type> -h`). Below are some examples of usage:
+
+
+A dragway that is 200 meters long and has a side-shoulder of 2.5 meters:
 
 ```
-$ road_loading.py
+$ road_loading_example.py dragway --length=200 --shoulder-width=2.5
 ```
 
-Or explicitly pass the desired road:
+An on-ramp road:
 
 ```
-$ road_loading.py --road='dragway'
+$ road_loading_example.py onramp
 ```
 
+Load an arbitrary monolane file:
+
 ```
-$ road_loading.py --road='onramp'
+$ road_loading_example.py monolane
+--filename='./install/share/delphyne/road_samples/double_ring.yaml'
 ```
 
 """
@@ -28,15 +36,14 @@ $ road_loading.py --road='onramp'
 from __future__ import print_function
 
 import argparse
+import sys
 
 from python_bindings import (
+    AutomotiveSimulator,
     RoadBuilder,
     SimulatorRunner
 )
-from simulation_utils import (
-    build_simple_car_simulator,
-    launch_interactive_simulation
-)
+from simulation_utils import launch_interactive_simulation
 
 SIMULATION_TIME_STEP = 0.001
 
@@ -45,35 +52,69 @@ def main():
     """Simple demo that shows how to add a road to a simulation. Reads the
     road to be added from the command line args"""
 
-    available_roads = ["dragway", "onramp"]
-
     parser = argparse.ArgumentParser(
-        prog="roads",
+        prog="road_loading",
+        description="Simple demo that shows how to load a road network in a \
+        simulation by using the RoadBuilder class.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument("-r", "--road",
-                        default=available_roads[0],
-                        const=available_roads[0],
-                        nargs='?',
-                        choices=available_roads,
-                        help='The road to display')
+    subparsers = parser.add_subparsers(dest="road_type")
+
+    # Dragway subcommand
+    dragway_parser = subparsers.add_parser("dragway")
+    dragway_parser.add_argument("--lanes", default=3,
+                                type=int,
+                                help="the number of lanes the dragway has")
+    dragway_parser.add_argument("--length", default=100.0,
+                                type=float,
+                                help="the length of the dragway, in meters")
+    dragway_parser.add_argument("--lane-width", default=3.7,
+                                type=float,
+                                help="the width of each lane, in meters")
+    dragway_parser.add_argument("--shoulder-width", default=1.0,
+                                type=float,
+                                help="the width of the road shoulder,\
+                                in meters")
+    dragway_parser.add_argument("--max-height", default=5.0,
+                                type=float,
+                                help="the maximum allowed height for the road,\
+                                in meters")
+
+    # Onramp subcommand
+    subparsers.add_parser("onramp")
+
+    # Monolane subcommand
+    monolane_parser = subparsers.add_parser("monolane")
+    monolane_parser.add_argument("--filename",
+                                 help="monolane file path",
+                                 required=True)
 
     args = parser.parse_args()
 
-    road = args.road
+    road_type = args.road_type
 
-    simulator = build_simple_car_simulator()
+    simulator = AutomotiveSimulator()
 
     builder = RoadBuilder(simulator)
 
-    if road == "dragway":
-        # Add a dragway with 3 lanes and 100 meters long. Each lane is 3.7
-        # meters wide and the road shoulder is 1 meter on each side. Finally
-        # the maximum height of the road is 5 meters.
-        builder.AddDragway("Demo dragway", 3, 100.0, 3.7, 1.0, 5.0)
-    elif road == "onramp":
+    if road_type == "dragway":
+        builder.AddDragway("Demo dragway",
+                           args.lanes,
+                           args.length,
+                           args.lane_width,
+                           args.shoulder_width,
+                           args.max_height)
+    elif road_type == "onramp":
         builder.AddOnramp()
+    elif road_type == "monolane":
+        try:
+            builder.AddMonolaneFromFile(args.filename)
+        except RuntimeError, error:
+            print("There was an error trying to load the monolane file:")
+            print(str(error))
+            print("Exiting the simulation")
+            sys.exit()
     else:
-        raise RuntimeError("Option {} not recognized".format(road))
+        raise RuntimeError("Option {} not recognized".format(road_type))
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
 

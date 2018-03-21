@@ -61,3 +61,19 @@ target_include_directories(LoadableMobilControlledSimpleCar PRIVATE
 )
 
 install(TARGETS LoadableMobilControlledSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)
+
+############## LoadableMaliputRailCar #####################
+add_library(LoadableMaliputRailCar SHARED
+  LoadableMaliputRailCar.cc
+)
+
+target_include_directories(LoadableMaliputRailCar PRIVATE
+  ${DRAKE_INCLUDE_DIRS}
+  ${DRAKE_LCMTYPES_INCLUDE_DIRS}
+  ${STX_INCLUDE_DIRS}
+  ${EIGEN_INCLUDE_DIRS}
+  ${DELPHYNE_INCLUDE_DIRS}
+  ${IGNITION-COMMON_INCLUDE_DIRS}
+)
+
+install(TARGETS LoadableMaliputRailCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)

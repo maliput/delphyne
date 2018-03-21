@@ -164,6 +164,24 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  // Add a loadable Maliput Railcar
+  drake::automotive::MaliputRailcarState<double> state5;
+  drake::automotive::LaneDirection lane_direction(lane);
+  drake::automotive::MaliputRailcarParams<double> start_params;
+  start_params.set_r(0);
+  start_params.set_h(0);
+  std::map<std::string, linb::any> maliput_params;
+  maliput_params["road"] = road_geometry;
+  maliput_params["lane_direction"] = &lane_direction;
+  maliput_params["start_params"] = &start_params;
+  state5.set_s(0);
+  state5.set_speed(1);
+  maliput_params["initial_with_s"] = true;
+  if (simulator->AddLoadableCar("LoadableMaliputRailCar",
+                                maliput_params, "Maliput0", &state5) < 0) {
+    return 1;
+  }
+
   // Instantiates the simulator runner and starts it.
   const double kTimeStep = 0.001;
   delphyne::backend::SimulatorRunner prius_sim_runner(std::move(simulator),

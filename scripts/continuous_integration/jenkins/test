@@ -19,6 +19,4 @@ die() {
 #
 export DRAKE_RESOURCE_ROOT=${PWD}/install/share
 
-pushd build/delphyne
-CTEST_OUTPUT_ON_FAILURE=1 make test
-popd
+./tools/run_tests.sh -jenkins

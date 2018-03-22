@@ -163,13 +163,15 @@ class LoadableMobilControlledSimpleCarDouble final
     auto mobil_planner =
         builder->template AddSystem<drake::automotive::MobilPlanner<double>>(
             *road, initial_with_s,
-            drake::automotive::RoadPositionStrategy::kCache, 1.);
+            drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+            0. /* time period (unused) */);
     mobil_planner->set_name(name + "_mobil_planner");
 
     auto idm_controller =
         builder->template AddSystem<drake::automotive::IdmController<double>>(
             *road, drake::automotive::ScanStrategy::kBranches,
-            drake::automotive::RoadPositionStrategy::kCache, 1.);
+            drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+            0. /* time period (unused) */);
     idm_controller->set_name(name + "_idm_controller");
 
     auto pursuit = builder->template AddSystem<

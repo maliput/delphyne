@@ -236,12 +236,14 @@ int AutomotiveSimulator<T>::AddMobilControlledSimpleCar(
   auto mobil_planner =
       builder_->template AddSystem<drake::automotive::MobilPlanner<T>>(
           *road_, initial_with_s,
-          drake::automotive::RoadPositionStrategy::kCache, 1.);
+          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          0. /* time period (unused) */);
   mobil_planner->set_name(name + "_mobil_planner");
   auto idm_controller =
       builder_->template AddSystem<drake::automotive::IdmController<T>>(
           *road_, drake::automotive::ScanStrategy::kBranches,
-          drake::automotive::RoadPositionStrategy::kCache, 1.);
+          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          0. /* time period (unused) */);
   idm_controller->set_name(name + "_idm_controller");
 
   auto simple_car =
@@ -371,10 +373,12 @@ int AutomotiveSimulator<T>::AddIdmControlledPriusMaliputRailcar(
       dynamic_cast<const drake::automotive::MaliputRailcar<T>*>(
           vehicles_.at(id));
   DELPHYNE_DEMAND(railcar != nullptr);
+
   auto controller =
       builder_->template AddSystem<drake::automotive::IdmController<T>>(
           *road_, drake::automotive::ScanStrategy::kBranches,
-          drake::automotive::RoadPositionStrategy::kCache, 1.);
+          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          0. /* time period (unused) */);
   controller->set_name(name + "_IdmController");
 
   builder_->Connect(railcar->pose_output(), controller->ego_pose_input());
@@ -597,8 +601,6 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   InitializeSimpleCars();
   InitializeMaliputRailcars();
   InitializeLoadableCars();
-
-  lcm_->StartReceiveThread();
 
   simulator_->set_target_realtime_rate(realtime_rate);
   const double max_step_size = 0.01;

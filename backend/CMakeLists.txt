@@ -6,7 +6,6 @@ include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 # C++ tests.
 
 set (gtest_sources
-  abstract_value_to_ignition_message_converter_test.cc
   agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   drake_driving_command_to_ign_translator_system_test.cc

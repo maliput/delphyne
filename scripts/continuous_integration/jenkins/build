@@ -27,26 +27,10 @@ popd # pybind11
 for dep in ign_cmake ign_tools ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
     mkdir -p $dep
     pushd $dep
-
-    # Install ign-cmake1 along with ign-cmake0 in order to satisfy the requeriments
-    # of ign-rendering and the custom branch of ign-gui that delphyne targets.
-    if [ $dep == ign_cmake ]
-    then
-        pushd ../../workspace/$dep
-        hg checkout Components
-        popd
-        CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_INSTALL_PREFIX=../../install
-        make -j$JOBS VERBOSE=1 install
-        pushd ../../workspace/$dep
-        hg checkout default
-        popd
-    fi
-
     CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=../../install
     make -j$JOBS VERBOSE=1 install
     popd
 done
-
 
 mkdir -p delphyne
 pushd delphyne

@@ -1,72 +1,47 @@
 // Copyright 2017 Toyota Research Institute
 
 #include "backend/scene_system.h"
-#include "backend/test/helpers.h"
-
-#include "gtest/gtest.h"
 
 #include <chrono>
 #include <thread>
 
-#include <drake/systems/analysis/simulator.h>
-#include <drake/systems/framework/diagram_builder.h>
-#include <ignition/msgs.hh>
+#include "drake/systems/framework/framework_common.h"
+
+#include "gtest/gtest.h"
+
+#include "backend/test/helpers.h"
 
 namespace delphyne {
 namespace backend {
 
-class SceneSystemTest : public ::testing::Test {
- public:
-  // Ignition transport node.
-  ignition::transport::Node node_;
-  // Callback flag.
-  bool handler_called_ = false;
-  // The received message.
-  ignition::msgs::Scene scene_msg_;
-  // Scene System pointer.
-  std::unique_ptr<SceneSystem> scene_publisher_ =
-      std::make_unique<SceneSystem>("/scene");
+GTEST_TEST(SceneSystemTest, CalcSceneTest) {
+  const ignition::msgs::Model_V model_v_msg{test::BuildPreloadedModelVMsg()};
 
-  void SetUp() override {
-    // Register callback.
-    this->node_.Subscribe(scene_publisher_->get_topic_name(),
-                          &SceneSystemTest::SubscriberMockCallback, this);
-
-    handler_called_ = false;
-  }
-
- private:
-  void SubscriberMockCallback(const ignition::msgs::Scene& message) {
-    scene_msg_ = message;
-    handler_called_ = true;
-  }
-};
-
-// Creates a Scene System and publish a
-// message, then checks that it has been correctly received.
-TEST_F(SceneSystemTest, PublishTest) {
+  SceneSystem scene_system;
   std::unique_ptr<drake::systems::Context<double>> context =
-      scene_publisher_->CreateDefaultContext();
+      scene_system.AllocateContext();
+  const int kPortIndex{0};
+  context->FixInputPort(kPortIndex,
+                        drake::systems::AbstractValue::Make(model_v_msg));
 
-  // Fills the lcm message with sample data.
-  const auto lcm_msg = test::BuildPreloadedDrawMsg();
+  std::unique_ptr<drake::systems::SystemOutput<double>> output =
+      scene_system.AllocateOutput(*context);
+  scene_system.CalcOutput(*context, output.get());
 
-  // Configures context's input with the pre-loaded message.
-  context->FixInputPort(
-      0, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
-             lcm_msg));
+  const auto& scene_msg =
+      output->get_data(kPortIndex)->GetValue<ignition::msgs::Scene>();
 
-  // Makes the IgnPublisherSystem to publish the message.
-  scene_publisher_->Publish(*context.get());
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-  // Checks that ignition-transport topic callback has been called.
-  ASSERT_EQ(handler_called_, true);
-
-  // Verifies the equivalence of the original lcm message and
-  // the received ignition-transport message.
-  EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, scene_msg_));
+  for (int i = 0; i < model_v_msg.models_size(); ++i) {
+    int j;
+    for (j = 0; j < scene_msg.model_size(); ++j) {
+      if (scene_msg.model(j).id() == model_v_msg.models(i).id()) {
+        break;
+      }
+    }
+    EXPECT_LT(j, scene_msg.model_size());
+    EXPECT_TRUE(test::CheckProtobufMsgEquality(model_v_msg.models(i),
+                                               scene_msg.model(j)));
+  }
 }
 
 }  // namespace backend

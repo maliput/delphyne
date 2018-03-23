@@ -571,10 +571,12 @@ void AutomotiveSimulator<T>::Build() {
   builder_->Connect(*viewer_draw_translator, *scene_builder);
 
   // Which is then published over a scene topic to update the scene tree widget
-  // of the visualizer.
+  // of the visualizer. Because this information is not needed at the same
+  // frequency the simulation runs at, the publishing frequency is reduced.
+  const double kScenePublishPeriodMs = 250.0;
   auto scene_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
-          "scene");
+          "scene", kScenePublishPeriodMs);
   builder_->Connect(*scene_builder, *scene_publisher);
 
   pose_bundle_output_port_ =

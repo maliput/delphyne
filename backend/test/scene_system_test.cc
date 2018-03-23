@@ -14,6 +14,8 @@
 namespace delphyne {
 namespace backend {
 
+// Checks that a scene system is created, based on the Model_V on the system's
+// input port.
 GTEST_TEST(SceneSystemTest, CalcSceneTest) {
   const ignition::msgs::Model_V model_v_msg{test::BuildPreloadedModelVMsg()};
 
@@ -31,16 +33,24 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
   const auto& scene_msg =
       output->get_data(kPortIndex)->GetValue<ignition::msgs::Scene>();
 
-  for (int i = 0; i < model_v_msg.models_size(); ++i) {
-    int j;
-    for (j = 0; j < scene_msg.model_size(); ++j) {
-      if (scene_msg.model(j).id() == model_v_msg.models(i).id()) {
+  // All of the models in the original Model_V message must be present in the
+  // scene message, and be equal to their counterparts.
+
+  EXPECT_EQ(model_v_msg.models_size(), scene_msg.model_size());
+
+  for (int model_v_idx = 0; model_v_idx < model_v_msg.models_size();
+       ++model_v_idx) {
+    int scene_model_idx;
+    for (scene_model_idx = 0; scene_model_idx < scene_msg.model_size();
+         ++scene_model_idx) {
+      if (scene_msg.model(scene_model_idx).id() ==
+          model_v_msg.models(model_v_idx).id()) {
         break;
       }
     }
-    EXPECT_LT(j, scene_msg.model_size());
-    EXPECT_TRUE(test::CheckProtobufMsgEquality(model_v_msg.models(i),
-                                               scene_msg.model(j)));
+    EXPECT_LT(scene_model_idx, scene_msg.model_size());
+    EXPECT_TRUE(test::CheckProtobufMsgEquality(
+        model_v_msg.models(model_v_idx), scene_msg.model(scene_model_idx)));
   }
 }
 

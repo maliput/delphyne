@@ -100,20 +100,16 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
 
   // Since the Drake simulator is not running, we need to call Publish on our
   // own, simulating the simulator.
-  std::thread publisher_thread([&ign_publisher, &context, kPublishingTime]() {
-    const auto start = std::chrono::steady_clock::now();
+  const auto start = std::chrono::steady_clock::now();
+  auto now = start;
 
-    auto now = start;
-    do {
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
-      ign_publisher.Publish(*context.get());
+  do {
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    ign_publisher.Publish(*context.get());
 
-      now = std::chrono::steady_clock::now();
-    } while (std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
-                 .count() < kPublishingTime);
-  });
-
-  publisher_thread.join();
+    now = std::chrono::steady_clock::now();
+  } while (std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
+               .count() < kPublishingTime);
 
   // Checks the correct amount of messages have been published.
   ASSERT_EQ(kMessagesToPublish, handler_called_count_);

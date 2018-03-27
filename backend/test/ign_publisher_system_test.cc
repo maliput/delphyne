@@ -92,15 +92,16 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
       0, std::make_unique<drake::systems::Value<ignition::msgs::Model_V>>(
              ign_msg));
 
-  const double kMessagesToPublish = 4;
+  const int kMessagesToPublish = 4;
   // The first message is published immediately, so we need to wait a little bit
   // more than the period times the number of messages, minus one.
-  const double kPublishingTime =
-      kPublishPeriodMs * 1.1 * (kMessagesToPublish - 1);
+  const std::chrono::duration<double, std::milli> kPublishingTime{
+      kPublishPeriodMs * 1.1 * (kMessagesToPublish - 1)};
 
   // Since the Drake simulator is not running, we need to call Publish on our
   // own, simulating the simulator.
-  const auto start = std::chrono::steady_clock::now();
+  const std::chrono::time_point<std::chrono::steady_clock> start =
+      std::chrono::steady_clock::now();
   auto now = start;
 
   do {
@@ -108,8 +109,7 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
     ign_publisher.Publish(*context.get());
 
     now = std::chrono::steady_clock::now();
-  } while (std::chrono::duration_cast<std::chrono::milliseconds>(now - start)
-               .count() < kPublishingTime);
+  } while ((now - start) < kPublishingTime);
 
   // Checks the correct amount of messages have been published.
   ASSERT_EQ(kMessagesToPublish, handler_called_count_);

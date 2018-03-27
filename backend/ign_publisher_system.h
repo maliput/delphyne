@@ -32,7 +32,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   /// @param[in] publish_period_ms The publishing period, in milliseconds. 0 to
   /// publish as fast as possible (on every simulation tick).
   explicit IgnPublisherSystem(const std::string& topic_name,
-                              double publish_period_ms = 0)
+                              double publish_period_ms = 0.0)
       : topic_name_(topic_name), publish_period_(publish_period_ms) {
     DeclareAbstractInputPort();
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);

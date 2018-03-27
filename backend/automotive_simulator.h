@@ -322,6 +322,10 @@ class AutomotiveSimulator {
   double get_current_simulation_time() const;
 
  private:
+  // The rate at which the scene is published over ign-transport to update the
+  // scene tree widget tree.
+  const double kScenePublishPeriodMs = 250.0;
+
   int allocate_vehicle_number();
 
   // Verifies that the provided `name` of a car is unique among all cars that

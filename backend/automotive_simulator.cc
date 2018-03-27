@@ -557,8 +557,7 @@ void AutomotiveSimulator<T>::Build() {
           ->template AddSystem<translation_systems::LcmViewerDrawToIgnModelV>();
 
   // The LCM viewer draw message is translated into an ignition Model_V message.
-  builder_->Connect(bundle_to_draw_->get_output_port(0),
-                    viewer_draw_translator->get_input_port(0));
+  builder_->Connect(*bundle_to_draw_, *viewer_draw_translator);
 
   auto model_v_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
@@ -567,13 +566,20 @@ void AutomotiveSimulator<T>::Build() {
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
 
+  // The Model_V messaged is also transformed into a scene message.
+  auto scene_builder = builder_->template AddSystem<SceneSystem>();
+  builder_->Connect(*viewer_draw_translator, *scene_builder);
+
+  // Which is then published over a scene topic to update the scene tree widget
+  // of the visualizer. Because this information is not needed at the same
+  // frequency the simulation runs at, the publishing frequency is reduced.
+  auto scene_publisher =
+      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+          "scene", kScenePublishPeriodMs);
+  builder_->Connect(*scene_builder, *scene_publisher);
+
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
-
-  // System that populates and sends the scene.
-  scene_publisher_ = builder_->template AddSystem<SceneSystem>("scene");
-  builder_->Connect(bundle_to_draw_->get_output_port(0),
-                    scene_publisher_->get_input_port(0));
 
   diagram_ = builder_->Build();
   diagram_->set_name("AutomotiveSimulator");

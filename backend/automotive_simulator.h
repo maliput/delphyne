@@ -322,6 +322,10 @@ class AutomotiveSimulator {
   double get_current_simulation_time() const;
 
  private:
+  // The rate at which the scene is published over ign-transport to update the
+  // scene tree widget tree.
+  const double kScenePublishPeriodMs = 250.0;
+
   int allocate_vehicle_number();
 
   // Verifies that the provided `name` of a car is unique among all cars that
@@ -420,11 +424,6 @@ class AutomotiveSimulator {
   // node for publishing.
   delphyne::backend::IgnPublisherSystem<ignition::msgs::Model_V>*
       ign_publisher_{};
-
-  // Takes the output of bundle_to_draw_ and populates a Scene message that it's
-  // also sent over a scene topic. This message is consumed by the visualizer
-  // for updating the scene tree widget.
-  delphyne::backend::SceneSystem* scene_publisher_{};
 
   int next_vehicle_number_{0};
 

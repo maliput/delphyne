@@ -8,6 +8,7 @@
 #include <utility>
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
+#include <drake/automotive/maliput/monolane/loader.h>
 #include <drake/automotive/monolane_onramp_merge.h>
 
 #include "backend/automotive_simulator.h"
@@ -64,23 +65,30 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   ///
   /// @param[in] maximum_height The maximum height above the road surface
   /// modelled by the RoadGeometry.
-  void AddDragway(const std::string& name, int num_lanes, double length,
-                  double lane_width, double shoulder_width,
-                  double maximum_height) {
+  const drake::maliput::api::RoadGeometry* AddDragway(
+      const std::string& name, int num_lanes, double length, double lane_width,
+      double shoulder_width, double maximum_height) {
     auto id = drake::maliput::api::RoadGeometryId(name);
     std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry =
         std::make_unique<const drake::maliput::dragway::RoadGeometry>(
             id, num_lanes, length, lane_width, shoulder_width, maximum_height,
             linear_tolerance_, angular_tolerance_);
-    simulator_->SetRoadGeometry(std::move(road_geometry));
+    return simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 
   /// @brief Adds a monolane-based on-ramp road network to the underlying
   /// simulator.
-  void AddOnramp() {
+  const drake::maliput::api::RoadGeometry* AddOnramp() {
     auto onramp_generator =
         std::make_unique<drake::automotive::MonolaneOnrampMerge>();
-    simulator_->SetRoadGeometry(onramp_generator->BuildOnramp());
+    return simulator_->SetRoadGeometry(onramp_generator->BuildOnramp());
+  }
+
+  /// @brief Adds a monolane-based road network, loading it from the specified
+  /// file path
+  void AddMonolaneFromFile(const std::string& file_path) {
+    auto road_geometry = drake::maliput::monolane::LoadFile(file_path);
+    simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 
  private:

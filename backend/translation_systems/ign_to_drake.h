@@ -50,16 +50,16 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
 
   // @brief Convert an ignition position message to a vector of floats (LCM's
   // type for positions).
-  std::vector<float> ignPositionToVector(
-      const ignition::msgs::Vector3d& position) const {
+  static std::vector<float> IgnPositionToVector(
+      const ignition::msgs::Vector3d& position) {
     return {static_cast<float>(position.x()), static_cast<float>(position.y()),
             static_cast<float>(position.z())};
   }
 
   // @brief Convert an ignition quaterion message to a vector of floats (LCM's
   // type for orientations).
-  std::vector<float> ignQuaternionToVector(
-      const ignition::msgs::Quaternion& orientation) const {
+  static std::vector<float> IgnQuaternionToVector(
+      const ignition::msgs::Quaternion& orientation) {
     return {static_cast<float>(orientation.w()),
             static_cast<float>(orientation.x()),
             static_cast<float>(orientation.y()),

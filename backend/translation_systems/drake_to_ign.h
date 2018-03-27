@@ -74,16 +74,16 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // Translation helper functions and constants, to be used by derived
   // translators.
 
-  const unsigned int kPositionVectorSize{3};
-  const unsigned int kOrientationVectorSize{4};
+  static const unsigned int kPositionVectorSize{3};
+  static const unsigned int kOrientationVectorSize{4};
 
   // @brief Converts an array of floats (LCM's type for positions) to an
   // ignition position message.
   //
   // @param[in] lcm_position The LCM position array.
   // @param[out] ign_position The ignition position message.
-  void LcmPositionToIgnition(const float lcm_position[3],
-                             ignition::msgs::Vector3d* ign_position) const {
+  static void LcmPositionToIgnition(const float lcm_position[3],
+                                    ignition::msgs::Vector3d* ign_position) {
     DELPHYNE_DEMAND(ign_position != nullptr);
 
     ign_position->set_x(lcm_position[0]);
@@ -96,9 +96,9 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   //
   // @param[in] lcm_quaternion The LCM orientation array.
   // @param[out] ign_quaternion The ign quaternion message.
-  void LcmQuaternionToIgnition(
+  static void LcmQuaternionToIgnition(
       const float lcm_quaternion[4],
-      ignition::msgs::Quaternion* ign_quaternion) const {
+      ignition::msgs::Quaternion* ign_quaternion) {
     DELPHYNE_DEMAND(ign_quaternion != nullptr);
 
     ign_quaternion->set_w(lcm_quaternion[0]);

@@ -37,9 +37,9 @@ void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
       lcm_message->link_name.push_back(link.name());
 
       const ::ignition::msgs::Pose& pose = link.pose();
-      lcm_message->position.push_back(ignPositionToVector(pose.position()));
+      lcm_message->position.push_back(IgnPositionToVector(pose.position()));
       lcm_message->quaternion.push_back(
-          ignQuaternionToVector(pose.orientation()));
+          IgnQuaternionToVector(pose.orientation()));
 
       lcm_message->num_links += 1;
     }

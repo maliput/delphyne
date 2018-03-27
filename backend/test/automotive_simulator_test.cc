@@ -611,11 +611,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
     // This prevents the test to fall into a possible deadlock state.
     status = cv.wait_for(lck, std::chrono::milliseconds(kTimeoutMillis));
     if (status == std::cv_status::timeout) {
-      ::testing::AssertionResult has_timed_out =
-          ::testing::AssertionSuccess()
-          << "Condition variable timed out after waiting for "
-          << kTimeoutMillis << "ms.";
-      ASSERT_FALSE(has_timed_out);
+      FAIL() << "Condition variable timed out after waiting for "
+             << kTimeoutMillis << "ms.";
     }
   }
 

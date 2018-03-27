@@ -23,6 +23,8 @@ using delphyne::backend::RoadBuilder;
 using delphyne::backend::SimulatorRunner;
 using drake::automotive::SimpleCarState;
 using drake::maliput::api::RoadGeometry;
+using drake::systems::BasicVector;
+using drake::systems::VectorBase;
 
 namespace {
 PYBIND11_MODULE(python_bindings, m) {

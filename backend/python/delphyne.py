@@ -1,6 +1,6 @@
 #!/usr/bin/env python2.7
 #
-# Copyright 2017 Toyota Research Institute
+# Copyright 2018 Toyota Research Institute
 #
 
 """
@@ -12,8 +12,6 @@ that shared object symbols are loaded eagerly and become globally accessible.
 # name when defined outside main(), using from ... import * that is not at the
 # top of the file, etc), so shutting it down for good.
 # pylint: skip-file
-
-from __future__ import print_function
 
 import sys
 

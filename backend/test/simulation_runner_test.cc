@@ -41,6 +41,13 @@ class SimulationRunnerTest : public ::testing::Test {
   void AdvertiseRobotModelRequest(std::string service_name) {
     node_.Advertise(service_name,
                     &SimulationRunnerTest::RobotModelRequestCallback, this);
+
+    // Calling node_.Request() immediately after Advertise() sometimes causes
+    // that call to hang: waiting fixes this.
+    // TODO(nventuro): once ign-transport issue #84 is resolved, this should be
+    // changed according to what comes out of that discussion.
+    // https://bitbucket.org/ignitionrobotics/ign-transport/issues/84/hang-when-calling-noderequest
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
   const double kTimeStep{0.01};  // 10 millis

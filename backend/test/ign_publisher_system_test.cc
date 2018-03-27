@@ -1,19 +1,18 @@
-// Copyright 2017 Toyota Research Institute
+// Copyright 2018 Toyota Research Institute
 
 #include "backend/ign_publisher_system.h"
-#include "backend/abstract_value_to_ignition_message_converter.h"
-#include "backend/test/helpers.h"
-
-#include "gtest/gtest.h"
 
 #include <chrono>
 #include <thread>
 
-#include <drake/lcmt_viewer_draw.hpp>
-#include <drake/systems/analysis/simulator.h>
-#include <drake/systems/framework/diagram_builder.h>
+#include "drake/systems/analysis/simulator.h"
+#include "drake/systems/framework/diagram_builder.h"
 
-#include <ignition/msgs.hh>
+#include "gtest/gtest.h"
+
+#include "ignition/msgs.hh"
+
+#include "backend/test/helpers.h"
 
 namespace delphyne {
 namespace backend {
@@ -34,15 +33,10 @@ class IgnPublisherSystemTest : public ::testing::Test {
   // The received message.
   ignition::msgs::Model_V ign_msg_;
 
-  // Converter required by the ignition publisher
-  std::unique_ptr<IgnitionMessageConverter<ignition::msgs::Model_V>> converter_{
-      std::make_unique<AbstractValueToIgnitionMessageConverter<
-          drake::lcmt_viewer_draw, ignition::msgs::Model_V>>()};
-
   // Ignition Publisher System pointer.
   std::unique_ptr<IgnPublisherSystem<ignition::msgs::Model_V>> ign_publisher_{
       std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "DRAKE_VIEWER_DRAW", std::move(converter_))};
+          "DRAKE_VIEWER_DRAW")};
 
   void SetUp() override {
     // Register callback.
@@ -60,13 +54,13 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
   std::unique_ptr<drake::systems::Context<double>> context =
       ign_publisher_->CreateDefaultContext();
 
-  // Fills the lcm message with sample data.
-  const auto lcm_msg = test::BuildPreloadedDrawMsg();
+  // Fills the ign message with sample data.
+  const ignition::msgs::Model_V ign_msg = test::BuildPreloadedModelVMsg();
 
   // Configures context's input with the pre-loaded message.
   context->FixInputPort(
-      0, std::make_unique<drake::systems::Value<drake::lcmt_viewer_draw>>(
-             lcm_msg));
+      0, std::make_unique<drake::systems::Value<ignition::msgs::Model_V>>(
+             ign_msg));
 
   // Makes the IgnPublisherSystem to publish the message.
   ign_publisher_->Publish(*context.get());
@@ -78,7 +72,7 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
 
   // Verifies the equivalence of the original lcm message and
   // the received ignition-transport message.
-  EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg_));
+  EXPECT_TRUE(test::CheckProtobufMsgEquality(ign_msg, ign_msg_));
 }
 
 }  // namespace backend

@@ -29,14 +29,14 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
-#include "backend/abstract_value_to_ignition_message_converter.h"
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
-#include "backend/driving_command_to_ignition_message_converter.h"
-#include "backend/ignition_message_converter.h"
 #include "backend/linb-any"
-#include "backend/simple_car_state_to_ignition_message_converter.h"
+#include "backend/scene_system.h"
 #include "backend/system.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
+#include "backend/translation_systems/ign_driving_command_to_drake.h"
+#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 
 namespace delphyne {
 
@@ -188,20 +188,31 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   const int id = allocate_vehicle_number();
 
   DELPHYNE_DEMAND(!channel_name.empty());
-  auto converter = std::make_unique<DrivingCommandToIgnitionMessageConverter>();
-  auto command_subscriber = builder_->template AddSystem<
+
+  // Subscribes to ignition driving command messages.
+  auto driving_command_subscriber = builder_->template AddSystem<
       IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
-      channel_name, std::move(converter));
+      channel_name);
+
+  auto driving_command_translator =
+      builder_
+          ->template AddSystem<translation_systems::IgnDrivingCommandToDrake>();
+
+  // Those messages are then translated to Drake driving command messages.
+  builder_->Connect(*driving_command_subscriber, *driving_command_translator);
+
   auto simple_car =
       builder_->template AddSystem<drake::automotive::SimpleCar<T>>();
   simple_car->set_name(name);
+
+  // The translated Drake driving command messages are then sent to the car.
+  builder_->Connect(*driving_command_translator, *simple_car);
+
   vehicles_[id] = simple_car;
   simple_car_initial_states_[simple_car].set_value(initial_state.get_value());
 
   ConnectCarOutputsAndPriusVis(id, simple_car->pose_output(),
                                simple_car->velocity_output());
-
-  builder_->Connect(*command_subscriber, *simple_car);
 
   AddPublisher(*simple_car, id);
   return id;
@@ -452,6 +463,8 @@ template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::MaliputRailcar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
+
+  // TODO(nventuro): add a translator to ignition. See #302
   static const drake::automotive::MaliputRailcarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_MALIPUT_RAILCAR_STATE";
@@ -464,22 +477,29 @@ template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
+  auto simple_car_translator =
+      builder_
+          ->template AddSystem<translation_systems::DrakeSimpleCarStateToIgn>();
+
+  // The car state is first translated into an ignition car state.
+  builder_->Connect(system.state_output(),
+                    simple_car_translator->get_input_port(0));
+
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
+  auto simple_car_publisher = builder_->template AddSystem<
+      IgnPublisherSystem<ignition::msgs::SimpleCarState>>(channel);
 
-  auto converter = std::make_unique<SimpleCarStateToIgnitionMessageConverter>();
-
-  auto publisher = builder_->AddSystem(
-      std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-          channel, std::move(converter)));
-
-  builder_->Connect(system.state_output(), publisher->get_input_port(0));
+  // And the translated ignition car state is then published.
+  builder_->Connect(*simple_car_translator, *simple_car_publisher);
 }
 
 template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::TrajectoryCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
+
+  // TODO(nventuro): add a translator to ignition. See #302
   static const drake::automotive::SimpleCarStateTranslator translator;
   const std::string channel =
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
@@ -532,21 +552,26 @@ void AutomotiveSimulator<T>::Build() {
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       scene_builder_->get_input_port(0));
 
-  auto converter = std::make_unique<AbstractValueToIgnitionMessageConverter<
-      drake::lcmt_viewer_draw, ignition::msgs::Model_V>>();
+  auto viewer_draw_translator =
+      builder_
+          ->template AddSystem<translation_systems::LcmViewerDrawToIgnModelV>();
 
-  ign_publisher_ = builder_->AddSystem(
-      std::make_unique<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "DRAKE_VIEWER_DRAW", std::move(converter)));
-
+  // The LCM viewer draw message is translated into an ignition Model_V message.
   builder_->Connect(bundle_to_draw_->get_output_port(0),
-                    ign_publisher_->get_input_port(0));
+                    viewer_draw_translator->get_input_port(0));
+
+  auto model_v_publisher =
+      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
+          "DRAKE_VIEWER_DRAW");
+
+  // The translated ignition message is then published.
+  builder_->Connect(*viewer_draw_translator, *model_v_publisher);
+
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
 
   // System that populates and sends the scene.
-  scene_publisher_ =
-      builder_->AddSystem(std::make_unique<SceneSystem>("scene"));
+  scene_publisher_ = builder_->template AddSystem<SceneSystem>("scene");
   builder_->Connect(bundle_to_draw_->get_output_port(0),
                     scene_publisher_->get_input_port(0));
 

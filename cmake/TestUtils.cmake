@@ -39,7 +39,7 @@ macro (delphyne_build_tests)
       automotive_simulator
       delphyne_lcm_to_ign
       delphyne_protobuf_msgs
-      ign_publisher_system
+      drake_ign_translation_systems
       libgtest_main.a
       libgtest.a
       pthread

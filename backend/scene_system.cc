@@ -46,6 +46,8 @@ void SceneSystem::DoPublish(
   *scene_msg.mutable_header()->mutable_stamp() = SecsToIgnitionTime(t);
 
   // Populate the list of models.
+  // TODO(nventuro): Replace this call with the new translators, and delete the
+  // old lcm_to_ign_translation library. This will be done on issue #218
   ignition::msgs::Model_V models;
   lcmToIgn(viewer_draw, &models);
   for (int i = 0; i < models.models_size(); ++i) {

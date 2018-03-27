@@ -21,7 +21,7 @@ namespace backend {
 class IgnPublisherSystemTest : public ::testing::Test {
   void SubscriberMockCallback(const ignition::msgs::Model_V& message) {
     ign_msg_ = message;
-    handler_called_count_ += 1;
+    handler_called_count_++;
   }
 
  public:
@@ -29,7 +29,7 @@ class IgnPublisherSystemTest : public ::testing::Test {
   ignition::transport::Node node_;
 
   // Callback count.
-  int handler_called_count_;
+  int handler_called_count_ = -1;
 
   // The received message.
   ignition::msgs::Model_V ign_msg_;
@@ -77,7 +77,7 @@ TEST_F(IgnPublisherSystemTest, PublishTest) {
 // low frequency, then checks that it has been received the correct amount of
 // times.
 TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
-  double kPublishPeriodMs = 250.0;
+  const double kPublishPeriodMs = 250.0;
   IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName,
                                                             kPublishPeriodMs);
 

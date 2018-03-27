@@ -33,7 +33,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   /// publish as fast as possible (on every simulation tick).
   explicit IgnPublisherSystem(const std::string& topic_name,
                               double publish_period_ms = 0)
-      : topic_name_(topic_name), kPublishPeriodMs_(publish_period_ms) {
+      : topic_name_(topic_name), publish_period_(publish_period_ms) {
     DeclareAbstractInputPort();
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
@@ -49,16 +49,21 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
       const drake::systems::Context<double>& context,
       const std::vector<const drake::systems::PublishEvent<double>*>&)
       const override {
-    // Check if it's time to publish.
-    const auto now = std::chrono::steady_clock::now();
-    const auto elapsed = now - last_publish_time_;
-    if (std::chrono::duration_cast<std::chrono::milliseconds>(elapsed).count() <
-        kPublishPeriodMs_) {
-      return;
-    }
+    // Conditional publishing checks and timekeeping are only performed if the
+    // publishing period is non-zero (i.e. if this is a throttled publisher).
+    if (publish_period_.count() > 0) {
+      // Checks if it's time to publish.
+      const std::chrono::time_point<std::chrono::steady_clock> now =
+          std::chrono::steady_clock::now();
+      const std::chrono::duration<double, std::milli> elapsed =
+          now - last_publish_time_;
+      if (elapsed < publish_period_) {
+        return;
+      }
 
-    // It's time to publish!
-    last_publish_time_ = now;
+      // It's time to publish!
+      last_publish_time_ = now;
+    }
 
     // Retrieves the ignition message content from input port.
     const int kPortIndex = 0;
@@ -86,7 +91,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   mutable ignition::transport::Node::Publisher publisher_;
 
   // The time between message publications (ms).
-  const double kPublishPeriodMs_;
+  const std::chrono::duration<double, std::milli> publish_period_;
 
   // The last time that a message was published at.
   mutable std::chrono::steady_clock::time_point last_publish_time_;

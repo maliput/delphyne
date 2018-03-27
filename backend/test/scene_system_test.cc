@@ -2,6 +2,7 @@
 
 #include "backend/scene_system.h"
 
+#include <algorithm>
 #include <chrono>
 #include <thread>
 
@@ -38,19 +39,19 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
 
   EXPECT_EQ(model_v_msg.models_size(), scene_msg.model_size());
 
-  for (int model_v_idx = 0; model_v_idx < model_v_msg.models_size();
-       ++model_v_idx) {
-    int scene_model_idx;
-    for (scene_model_idx = 0; scene_model_idx < scene_msg.model_size();
-         ++scene_model_idx) {
-      if (scene_msg.model(scene_model_idx).id() ==
-          model_v_msg.models(model_v_idx).id()) {
-        break;
-      }
-    }
-    EXPECT_LT(scene_model_idx, scene_msg.model_size());
-    EXPECT_TRUE(test::CheckProtobufMsgEquality(
-        model_v_msg.models(model_v_idx), scene_msg.model(scene_model_idx)));
+  for (const ::ignition::msgs::Model& vector_model : model_v_msg.models()) {
+    const google::protobuf::internal::RepeatedPtrIterator<
+        const ignition::msgs::Model>& matching_scene_model =
+        std::find_if(
+            scene_msg.model().begin(), scene_msg.model().end(),
+            [vector_model](const ::ignition::msgs::Model& scene_model) {
+              return scene_model.id() == vector_model.id();
+            });
+
+    ASSERT_FALSE(matching_scene_model == scene_msg.model().end());
+
+    EXPECT_TRUE(
+        test::CheckProtobufMsgEquality(vector_model, *matching_scene_model));
   }
 }
 

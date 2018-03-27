@@ -26,7 +26,7 @@ from simulation_utils import (
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 class SimulationStats(object):
@@ -88,7 +88,7 @@ def main():
     simulator = build_simple_car_simulator()
 
     runner = SimulatorRunner(simulator,
-                             SIMULATION_TIME_STEP,
+                             SIMULATION_TIME_STEP_SECS,
                              args.start_paused)
 
     with launch_interactive_simulation(runner):

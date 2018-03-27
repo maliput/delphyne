@@ -30,7 +30,7 @@ from simulation_utils import (
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 def check_positive_float(value):
@@ -71,6 +71,8 @@ def main():
     # specified.
     parser = argparse.ArgumentParser(
         prog="realtime_rate_changer",
+        description="Simple demo that shows how to use a car agent from a \
+        dynamically loaded C++ library.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-r", "--realtime_rate", default=1.0,
                         type=check_positive_float,
@@ -88,7 +90,7 @@ def main():
     simulator = build_simple_car_simulator()
 
     runner = SimulatorRunner(simulator,
-                             SIMULATION_TIME_STEP,
+                             SIMULATION_TIME_STEP_SECS,
                              initial_realtime_rate)
 
     rate_changer = RealtimeRateChanger(runner, initial_steps)

@@ -40,7 +40,7 @@ from simulation_utils import (
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 def main():
@@ -52,7 +52,9 @@ def main():
     # simulator runner in paused mode
     start_paused = True
 
-    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP, start_paused)
+    runner = SimulatorRunner(simulator,
+                             SIMULATION_TIME_STEP_SECS,
+                             start_paused)
 
     with launch_interactive_simulation(runner):
         runner.Start()

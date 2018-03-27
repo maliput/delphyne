@@ -32,17 +32,17 @@ from __future__ import print_function
 import argparse
 
 from delphyne import (
+    Any,
     AutomotiveSimulator,
-    SimpleCarState,
-    SimulatorRunner,
     RoadBuilder,
-    Any
+    SimpleCarState,
+    SimulatorRunner
 )
 from simulation_utils import (
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 def main():
@@ -70,6 +70,8 @@ def main():
         state.x = 0.0
         state.y = 1.0
 
+        # Instantiate a LoadablePriusSimpleCar with 0 id and originally
+        # placed in (0.0, 1.0)
         simulator.AddLoadableCar("LoadablePriusSimpleCar", {}, "0", state)
 
     elif args.type == "mobil":
@@ -86,6 +88,9 @@ def main():
             "road": Any(dragway)
         }
 
+        # Instantiate a LoadableMobilControlledSimpleCar with "MOBIL0" as its
+        # name and originally placed in (0.0, -3.7). The road for the car to
+        # follow is the previously created dragway.
         simulator.AddLoadableCar("LoadableMobilControlledSimpleCar",
                                  mobil_params,
                                  "MOBIL0",
@@ -93,7 +98,7 @@ def main():
     else:
         raise RuntimeError("Option {} not recognized".format(args.type))
 
-    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
+    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 
     with launch_interactive_simulation(runner):
         runner.Start()

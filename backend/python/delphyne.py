@@ -4,12 +4,13 @@
 #
 
 """
-Thin wrapper around the python_bindigng.so lib generated in C++ that ensures
-proper symbol loading.
+Thin wrapper around the python_binding.so lib generated in C++, that ensures
+that shared object symbols are loaded eagerly and become globally accessible.
 """
 
-# There are a bunch of things we do here that makes pylint complain, so
-# shutting it down for good.
+# There are a bunch of things we do here that makes pylint complain (variable
+# name when defined outside main(), using from ... import * that is not at the
+# top of the file, etc), so shutting it down for good.
 # pylint: skip-file
 
 from __future__ import print_function
@@ -22,6 +23,9 @@ RTLD_GLOBAL = 0x00100
 original_dl_open_flags = sys.getdlopenflags()
 
 try:
+    # Make sure that the symbols loaded from this library (that in turn
+    # references Drake ones) are available to other dl_open'ed libraries (e.g.
+    # the dynamically loaded agents).
     sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL)
     from python_bindings import *
 finally:

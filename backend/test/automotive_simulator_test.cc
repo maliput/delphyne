@@ -602,8 +602,18 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   // Waits until the callback has been executed twice, as that
   // ensures that draw_message will not be further changed.
   std::unique_lock<std::mutex> lck(mtx);
+  std::cv_status status;
+  const uint32_t kTimeoutMillis = 500;
+
   while (num_of_callback_calls < 2) {
-    cv.wait(lck);
+    // The condition variable will wait for the callback function to be
+    // notified or will raise a test assertion if the timeout time is reached.
+    // This prevents the test to fall into a possible deadlock state.
+    status = cv.wait_for(lck, std::chrono::milliseconds(kTimeoutMillis));
+    if (status == std::cv_status::timeout) {
+      FAIL() << "Condition variable timed out after waiting for "
+             << kTimeoutMillis << "ms.";
+    }
   }
 
   // Checks number of links in the viewer_draw message.

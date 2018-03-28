@@ -587,8 +587,8 @@ void AutomotiveSimulator<T>::Build() {
   // fixed ASAP.
   //
   // auto scene_publisher =
-  //     builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
-  //         "scene", kScenePublishPeriodMs);
+  // builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+  //        "scene", kScenePublishPeriodMs);
   // builder_->Connect(*scene_builder, *scene_publisher);
 
   pose_bundle_output_port_ =

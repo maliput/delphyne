@@ -38,14 +38,14 @@ from __future__ import print_function
 import argparse
 import sys
 
-from python_bindings import (
+from delphyne import (
     AutomotiveSimulator,
     RoadBuilder,
     SimulatorRunner
 )
 from simulation_utils import launch_interactive_simulation
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 def main():
@@ -116,7 +116,7 @@ def main():
     else:
         raise RuntimeError("Option {} not recognized".format(road_type))
 
-    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
+    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 
     with launch_interactive_simulation(runner):
         runner.Start()

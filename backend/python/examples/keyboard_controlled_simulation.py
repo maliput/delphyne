@@ -32,13 +32,13 @@ import sys
 import termios
 import time
 
-from python_bindings import SimulatorRunner
+from delphyne import SimulatorRunner
 from simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 class KeyboardHandler(object):
@@ -88,7 +88,7 @@ class KeyboardHandler(object):
 
 def demo_callback(runner, launcher, keyboard_handler):
     """Callback function invoqued by the SimulatorRunner
-    every SIMULATION_TIME_STEP seconds.
+    every SIMULATION_TIME_STEP_SECS seconds.
     """
     if keyboard_handler.key_hit():
         key = keyboard_handler.get_character().lower()
@@ -108,9 +108,9 @@ def demo_callback(runner, launcher, keyboard_handler):
             launcher.terminate()
         elif key == 's':
             if runner.IsPaused():
-                runner.RequestStep(SIMULATION_TIME_STEP)
+                runner.RequestStep(SIMULATION_TIME_STEP_SECS)
                 print("Simulation step of {0}s executed.".
-                      format(SIMULATION_TIME_STEP))
+                      format(SIMULATION_TIME_STEP_SECS))
             else:
                 print("Simulation step only supported in paused mode.")
 
@@ -119,7 +119,7 @@ def main():
     """Runs the demo."""
     simulator = build_simple_car_simulator()
 
-    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP)
+    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 
     keyboard = KeyboardHandler()
 

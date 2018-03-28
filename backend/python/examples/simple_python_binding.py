@@ -20,13 +20,13 @@ import argparse
 import random
 import time
 
-from python_bindings import SimulatorRunner
+from delphyne import SimulatorRunner
 from simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 class SimulationStats(object):
@@ -88,7 +88,7 @@ def main():
     simulator = build_simple_car_simulator()
 
     runner = SimulatorRunner(simulator,
-                             SIMULATION_TIME_STEP,
+                             SIMULATION_TIME_STEP_SECS,
                              args.start_paused)
 
     with launch_interactive_simulation(runner):

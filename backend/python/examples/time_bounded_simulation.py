@@ -21,13 +21,13 @@ from __future__ import print_function
 
 import argparse
 
-from python_bindings import SimulatorRunner
+from delphyne import SimulatorRunner
 from simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
 )
 
-SIMULATION_TIME_STEP = 0.001
+SIMULATION_TIME_STEP_SECS = 0.001
 
 
 def check_positive_float(value):
@@ -63,7 +63,9 @@ def main():
 
     simulator = build_simple_car_simulator()
 
-    runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP, realtime_rate)
+    runner = SimulatorRunner(simulator,
+                             SIMULATION_TIME_STEP_SECS,
+                             realtime_rate)
 
     with launch_interactive_simulation(runner) as launcher:
 

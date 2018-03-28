@@ -167,17 +167,20 @@ add_subdirectory(translation_systems)
 pybind11_add_module(python_bindings python_bindings.cc)
 
 target_link_libraries(python_bindings PRIVATE
-  automotive_simulator
-  simulation_runner
   ${drake_LIBRARIES}
-  pybind11::module
   ${PYTHON_LIBRARIES}
+  automotive_simulator
+  pybind11::module
+  simulation_runner
 )
 
 # ----------------------------------------
 # Installs libraries and binaries.
 
-install(FILES python/simulation_utils.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
+install(FILES 
+    python/delphyne.py 
+    python/simulation_utils.py 
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
 
 install(TARGETS
   automotive_simulator
@@ -191,6 +194,7 @@ install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(PROGRAMS
   python/examples/keyboard_controlled_simulation.py
+  python/examples/loadable_agent_simulation.py
   python/examples/realtime_rate_changer.py
   python/examples/road_loading.py
   python/examples/simple_python_binding.py

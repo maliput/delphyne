@@ -36,11 +36,12 @@ make -j$( getconf _NPROCESSORS_ONLN )
 CTEST_OUTPUT_ON_FAILURE=1 make test || EXIT=$?
 popd
 
-printf "\nRunning Python tests:\n"
-# TODO(apojomovsky): replace this by `python setup.py test` after #290 is set up.
-python -m unittest discover backend/test "*_test.py" || EXIT=$?
+# TODO(basicNew): Bring python tests back
+# printf "\nRunning Python tests:\n"
+# # TODO(apojomovsky): replace this by `python setup.py test` after #290 is set up.
+# python -m unittest discover backend/test "*_test.py" || EXIT=$?
 
-# Since C++ tests can exit with an exit code different than 1 on failure, 
+# Since C++ tests can exit with an exit code different than 1 on failure,
 # we unify them so that we always get 1 on failure and 0 on success.
 if [ "$EXIT" -ne 0 ]; then
   printf "\nSome tests failed.\n"

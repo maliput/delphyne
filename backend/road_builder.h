@@ -9,6 +9,7 @@
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/automotive/maliput/monolane/loader.h>
+#include <drake/automotive/maliput/multilane/loader.h>
 #include <drake/automotive/monolane_onramp_merge.h>
 
 #include "backend/automotive_simulator.h"
@@ -90,6 +91,13 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
       const std::string& file_path) {
     auto road_geometry = drake::maliput::monolane::LoadFile(file_path);
     return simulator_->SetRoadGeometry(std::move(road_geometry));
+  }
+
+  /// @brief Adds a multinale-based road network, loading it from the specified
+  /// file path
+  void AddMultilaneFromFile(const std::string& file_path) {
+    auto road_geometry = drake::maliput::multilane::LoadFile(file_path);
+    simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 
  private:

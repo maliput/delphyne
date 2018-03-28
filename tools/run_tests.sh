@@ -33,7 +33,7 @@ pushd $DELPHYNE_BUILD_DIR
 printf "\nRunning C++ tests:\n"
 cmake $DELPHYNE_SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$DELPHYNE_INSTALL_DIR
 make -j$( getconf _NPROCESSORS_ONLN )
-make test
+CTEST_OUTPUT_ON_FAILURE=1 make test || EXIT=$?
 popd
 
 printf "\nRunning Python tests:\n"

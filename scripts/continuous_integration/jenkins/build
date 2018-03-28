@@ -27,7 +27,7 @@ popd # pybind11
 for dep in ign_cmake ign_tools ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
     mkdir -p $dep
     pushd $dep
-    CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_INSTALL_PREFIX=../../install
+    CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=../../install
     make -j$JOBS VERBOSE=1 install
     popd
 done

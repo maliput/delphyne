@@ -9,12 +9,15 @@ set -euo pipefail
 export DEBIAN_FRONTEND='noninteractive'
 
 # Install the direct delphyne dependencies.
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list'
+sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update -qq
 sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' <<EOF
 awscli
 git
+libignition-cmake-dev
 mercurial
 pkg-config
 python3-vcstool

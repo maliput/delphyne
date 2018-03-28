@@ -137,8 +137,8 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
   DELPHYNE_DEMAND(&pose_output.get_system() == &velocity_output.get_system());
   const std::string name = pose_output.get_system().get_name();
   auto ports = aggregator_->AddSinglePoseAndVelocityInput(name, id);
-  builder_->Connect(pose_output, ports.first);
-  builder_->Connect(velocity_output, ports.second);
+  builder_->Connect(pose_output, ports.pose_descriptor);
+  builder_->Connect(velocity_output, ports.velocity_descriptor);
   car_vis_applicator_->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<T>>(id, name));
 }
@@ -235,10 +235,15 @@ int AutomotiveSimulator<T>::AddMobilControlledSimpleCar(
 
   auto mobil_planner =
       builder_->template AddSystem<drake::automotive::MobilPlanner<T>>(
-          *road_, initial_with_s);
+          *road_, initial_with_s,
+          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          0. /* time period (unused) */);
   mobil_planner->set_name(name + "_mobil_planner");
   auto idm_controller =
-      builder_->template AddSystem<drake::automotive::IdmController<T>>(*road_);
+      builder_->template AddSystem<drake::automotive::IdmController<T>>(
+          *road_, drake::automotive::ScanStrategy::kBranches,
+          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          0. /* time period (unused) */);
   idm_controller->set_name(name + "_idm_controller");
 
   auto simple_car =
@@ -368,8 +373,12 @@ int AutomotiveSimulator<T>::AddIdmControlledPriusMaliputRailcar(
       dynamic_cast<const drake::automotive::MaliputRailcar<T>*>(
           vehicles_.at(id));
   DELPHYNE_DEMAND(railcar != nullptr);
+
   auto controller =
-      builder_->template AddSystem<drake::automotive::IdmController<T>>(*road_);
+      builder_->template AddSystem<drake::automotive::IdmController<T>>(
+          *road_, drake::automotive::ScanStrategy::kBranches,
+          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          0. /* time period (unused) */);
   controller->set_name(name + "_IdmController");
 
   builder_->Connect(railcar->pose_output(), controller->ego_pose_input());
@@ -470,7 +479,7 @@ void AutomotiveSimulator<T>::AddPublisher(
       std::to_string(vehicle_number) + "_MALIPUT_RAILCAR_STATE";
   auto publisher = builder_->template AddSystem<LcmPublisherSystem>(
       channel, translator, lcm_.get());
-  builder_->Connect(system.state_output(), publisher->get_input_port(0));
+  builder_->Connect(system.state_output(), publisher->get_input_port());
 }
 
 template <typename T>
@@ -505,7 +514,7 @@ void AutomotiveSimulator<T>::AddPublisher(
       std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
   auto publisher = builder_->template AddSystem<LcmPublisherSystem>(
       channel, translator, lcm_.get());
-  builder_->Connect(system.raw_pose_output(), publisher->get_input_port(0));
+  builder_->Connect(system.raw_pose_output(), publisher->get_input_port());
 }
 
 template <typename T>
@@ -598,8 +607,6 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   InitializeSimpleCars();
   InitializeMaliputRailcars();
   InitializeLoadableCars();
-
-  lcm_->StartReceiveThread();
 
   simulator_->set_target_realtime_rate(realtime_rate);
   const double max_step_size = 0.01;

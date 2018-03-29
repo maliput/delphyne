@@ -86,7 +86,7 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   }
 
   /// @brief Adds a monolane-based road network, loading it from the specified
-  /// file path
+  /// `file_path`
   const drake::maliput::api::RoadGeometry* AddMonolaneFromFile(
       const std::string& file_path) {
     auto road_geometry = drake::maliput::monolane::LoadFile(file_path);
@@ -94,7 +94,7 @@ class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
   }
 
   /// @brief Adds a multinale-based road network, loading it from the specified
-  /// file path
+  /// `file_path`
   void AddMultilaneFromFile(const std::string& file_path) {
     auto road_geometry = drake::maliput::multilane::LoadFile(file_path);
     simulator_->SetRoadGeometry(std::move(road_geometry));

@@ -97,10 +97,10 @@ def main():
                                  required=True)
 
     # Multilane subcommand
-    monolane_parser = subparsers.add_parser("multilane")
-    monolane_parser.add_argument("--filename",
-                                 help="multilane file path",
-                                 required=True)
+    multilane_parser = subparsers.add_parser("multilane")
+    multilane_parser.add_argument("--filename",
+                                  help="multilane file path",
+                                  required=True)
 
     args = parser.parse_args()
 

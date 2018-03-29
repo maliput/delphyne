@@ -10,7 +10,8 @@ built with CMake, as shown in the instructions
 
 
 This example shows how to run a simulation that includes a road. For the
-time being three road examples are supported: dragway, onramp and monolane.
+time being three road examples are supported: dragway, onramp, monolane and
+multilane.
 This demo uses the subcommand style, where each road type can handle different
 parameters (to list the available arguments just do
 `$ road_loading_example <road_type> -h`). Below are some examples of usage:
@@ -28,11 +29,18 @@ An on-ramp road:
 $ road_loading_example.py onramp
 ```
 
-Load an arbitrary monolane file:
+Load a monolane file:
 
 ```
 $ road_loading_example.py monolane
 --filename='./install/share/delphyne/road_samples/double_ring.yaml'
+```
+
+Load a multilane file:
+
+```
+$ road_loading_example.py monolane
+--filename='./install/share/delphyne/road_samples/multilane_sample.yaml'
 ```
 
 

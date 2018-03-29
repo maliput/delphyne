@@ -93,11 +93,11 @@ def demo_callback(runner, launcher, keyboard_handler):
     if keyboard_handler.key_hit():
         key = keyboard_handler.get_character().lower()
         if key == 'p':
-            if runner.IsPaused():
-                runner.Unpause()
+            if runner.IsSimulationPaused():
+                runner.UnpauseSimulation()
                 print("Simulation is now running.")
             else:
-                runner.Pause()
+                runner.PauseSimulation()
                 print("Simulation is now paused.")
         elif key == 'q':
             runner.Stop()
@@ -107,9 +107,10 @@ def demo_callback(runner, launcher, keyboard_handler):
             time.sleep(0.5)
             launcher.terminate()
         elif key == 's':
-            if runner.IsPaused():
-                runner.RequestMultiStep(1)
-                print("One simulation step executed.")
+            if runner.IsSimulationPaused():
+                runner.RequestSimulationStepExecution(1)
+                print("Simulation step of {0}s executed.".
+                      format(SIMULATION_TIME_STEP_SECS))
             else:
                 print("Simulation step only supported in paused mode.")
 

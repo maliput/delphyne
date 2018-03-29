@@ -275,6 +275,11 @@ class AutomotiveSimulator {
   /// @pre Build() has been called.
   const drake::systems::System<T>& GetDiagram() const { return *diagram_; }
 
+  /// Returns the current poses of all vehicles in the simulation.
+  ///
+  /// @pre Start() has been called.
+  drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
+
   /// Calls Build() on the diagram (if it has not been build already) and
   /// initializes the Simulator.  No further changes to the diagram may occur
   /// after this has been called.
@@ -290,11 +295,6 @@ class AutomotiveSimulator {
 
   /// Advances simulated time by the given @p time_step increment in seconds.
   void StepBy(const T& time_step);
-
-  /// Returns the current poses of all vehicles in the simulation.
-  ///
-  /// @pre Start() has been called.
-  drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
 
   /// @see documentation of Simulator::set_target_realtime_rate.
   ///

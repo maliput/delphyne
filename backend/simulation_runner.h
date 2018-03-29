@@ -180,37 +180,64 @@ class SimulatorRunner {
   /// python world.
   void AddStepCallback(std::function<void()> callable);
 
-  /// @brief Starts the thread that runs the simulation loop.
+  /// @brief Spawns a new thread that runs the interactive simulation loop.
   ///
-  /// @pre The simulation should not be running.
+  /// @pre The simulation loop should not be running.
   void Start();
 
-  /// @brief Stops the thread that runs the simulation loop. If there was a
-  /// previous call to Stop(), this call will be ignored.
-  void Stop();
-
-  /// @brief Spawns a new thread that runs the main simulation loop for the
-  /// provided time period.
+  /// @brief Spawns a new thread that runs the interactive simulation loop for
+  /// the provided time period.
   ///
-  /// @param[in] duration The duration that the simulation loop should run for.
-  /// Note that the time stated here is simulation time, expressed in seconds.
+  /// @param[in] duration The duration that the interactive simulation loop
+  /// should run for. Note that the time stated here is simulation time,
+  /// expressed in seconds.
   ///
   /// @param[in] callback A callback function that will be executed when the
   /// simulation has finished.
   void RunAsyncFor(double duration, std::function<void()> callback);
 
-  /// @brief Runs the main simulation loop for the provided time period.
+  /// @brief Runs the interactive simulation loop for the provided time period.
+  /// Note that this is a synchronous call and the caller will be blocked until
+  /// the interactive simulation loop is done.
   ///
-  /// @param[in] duration The duration that the simulation loop should run for.
-  /// Note that the time stated here is simulation time, expressed in seconds.
+  /// @param[in] duration The duration that the interactive simulation loop
+  /// should run for. Note that the time stated here is simulation time,
+  /// expressed in seconds.
   void RunSyncFor(double duration);
 
-  /// @brief Advances the simulation by a single step. The amount of simulated
-  /// time to advance is provided by the time_step_ field and the ratio between
-  /// real time and simulation time is provided by the configured real-time
-  /// rate.
-  /// Note that this is a blocking call.
-  void RunSimulationStep();
+  /// @brief Stops the thread that is running the interactive simulation loop.
+  ///
+  /// @pre The interactive simulation loop should be running, either because of
+  /// a call to Start() or RunAsyncFor().
+  void Stop();
+
+  /// @brief Performs a single interactive simulation loop step. This means:
+  ///
+  /// - Checking for possible ignition messages coming from the topics that
+  /// connect the simulation backed to the external world.
+  /// - Attempting to run a simulation step. This will happen either if the
+  /// simulation is not paused or there is a queued request to perform a
+  /// simulation step. Note also that the amount time to advance the simulation
+  /// is provided by the `time_step_` field and the ratio between real time and
+  /// simulation time is provided by the configured real-time rate.
+  /// - Sending the required responses (if any) to outgoing ignition topics
+  /// that connect the simulation backed to the external world.
+  ///
+  /// Finally, note that this is a synchronous call and the caller will be
+  /// blocked until the interactive simulation step is done.
+  void RunInteractiveSimulationLoopStep();
+
+  /// @brief Enqueue a requests for a simulation step to be executed. For this
+  /// call to succeed the interactive simulation loop must be running and the
+  /// simulation must be paused.
+  ///
+  /// @pre Start() or RunAsyncFor() has been called.
+  /// @pre Paused() has been called or the simulation runner has started paused.
+  void RequestSimulationStepExecution(double time_step);
+
+  /// @brief Returns if the interactive simulation loop is currently running or
+  /// not.
+  bool IsInteractiveLoopRunning() const { return interactive_loop_running_; }
 
   /// See documentation of AutomotiveSimulator::SetRealtimeRate.
   void SetRealtimeRate(double realtime_rate) {
@@ -221,23 +248,13 @@ class SimulatorRunner {
   double GetRealtimeRate() const { return simulator_->GetRealtimeRate(); }
 
   /// @brief Returns the paused state of the simulation.
-  bool IsPaused() const;
-
-  /// @brief Returns if there is currently running a simulation loop. Note that
-  /// the simulation loop may be running, but the simulation itself be paused.
-  bool IsRunning() const;
-
-  /// @brief Requests the simulation to execute a number of simulation steps.
-  /// The simulation must be paused before calling this method.
-  /// @pre Start() has been called.
-  /// @pre Paused() has been called.
-  void RequestMultiStep(unsigned int num_steps);
+  bool IsSimulationPaused() const { return paused_; }
 
   ///  @brief Pauses the simulation, no-op if called multiple times.
-  void Pause();
+  void PauseSimulation();
 
   ///  @brief Unauses the simulation, no-op if called multiple times.
-  void Unpause();
+  void UnpauseSimulation();
 
   /// Returns the current simulation time in seconds.
   double get_current_simulation_time() const {
@@ -245,15 +262,17 @@ class SimulatorRunner {
   }
 
  private:
-  // @brief Runs the main simulation loop for the provided time period. Note
-  // that this is a blocking call (i.e. it does not spawn a new thread to run)
+  // @brief Runs the interactive simulation loop for the provided time period.
+  // Note that this is a blocking call (i.e. it does not spawn a new thread to
+  // run)
   //
   // @param[in] duration The duration that the simulation loop should run for.
   // Note that the time stated here is simulation time, expressed in seconds.
   //
   // @param[in] callback A callback function that will be executed when the
   // simulation has finished.
-  void RunSimulationLoopFor(double duration, std::function<void()> callback);
+  void RunInteractiveSimulationLoopFor(double duration,
+                                       std::function<void()> callback);
 
   // @brief Process one RobotModelRequest message.
   //
@@ -316,7 +335,7 @@ class SimulatorRunner {
   unsigned int custom_num_steps_{0u};
 
   // @brief Whether the main loop has been started or not.
-  std::atomic<bool> enabled_{false};
+  std::atomic<bool> interactive_loop_running_{false};
 
   // @brief A pointer to the Drake simulator.
   std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_;

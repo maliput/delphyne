@@ -36,7 +36,7 @@ def launch_interactive_simulation(simulator_runner,
     except RuntimeError, error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
-        if simulator_runner.IsRunning():
+        if simulator_runner.IsInteractiveLoopRunning():
             simulator_runner.Stop()
         print("Simulation ended")
         # This is needed to avoid a possible deadlock. See SimulatorRunner

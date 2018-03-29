@@ -56,13 +56,13 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Starts the simulator runner.
         self.runner.Start()
 
-        self.runner.Pause()
+        self.runner.PauseSimulation()
 
         # Waits until the simulator initializes its machinery.
         time.sleep(0.1)
 
         # Ensure simulator is paused.
-        self.assertTrue(self.runner.IsPaused())
+        self.assertTrue(self.runner.IsSimulationPaused())
 
         # Checks that callback has been called.
         self.assertTrue(self.callback_called)
@@ -77,10 +77,10 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Starts the simulator runner.
         self.runner.Start()
 
-        self.runner.Unpause()
+        self.runner.UnpauseSimulation()
 
         # Ensure simulator is not paused.
-        self.assertFalse(self.runner.IsPaused())
+        self.assertFalse(self.runner.IsSimulationPaused())
 
         # Waits until the simulator initializes its machinery.
         time.sleep(0.1)

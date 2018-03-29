@@ -105,38 +105,15 @@ SimulatorRunner::SimulatorRunner(
 SimulatorRunner::~SimulatorRunner() {
   // In case the simulation thread was running and the client code didn't
   // call the Stop() method.
-  enabled_ = false;
+  interactive_loop_running_ = false;
   if (main_thread_.joinable()) {
     main_thread_.join();
   }
 }
 
-void SimulatorRunner::Stop() {
-  DELPHYNE_DEMAND(enabled_);
-  enabled_ = false;
-}
+void SimulatorRunner::PauseSimulation() { paused_ = true; }
 
-bool SimulatorRunner::IsPaused() const { return paused_; }
-
-bool SimulatorRunner::IsRunning() const { return enabled_; }
-
-void SimulatorRunner::RequestMultiStep(unsigned int num_steps) {
-  DELPHYNE_DEMAND(enabled_);
-  DELPHYNE_DEMAND(paused_);
-
-  // Ignore the request if we're already processing a previous multi-step.
-  if (custom_num_steps_ > 0) {
-    igndbg << "Ignoring MultiStep request (a previous multi-step is ongoing)."
-           << std::endl;
-    return;
-  }
-
-  igndbg << "Resetting simulation statistics." << std::endl;
-  simulator_->ResetStatistics();
-  custom_num_steps_ = num_steps;
-}
-
-void SimulatorRunner::Unpause() {
+void SimulatorRunner::UnpauseSimulation() {
   // TODO(apojomovsky): We should revisit this once we get feedback on
   // https://github.com/RobotLocomotion/drake/issues/8090
   if (paused_) {
@@ -147,8 +124,6 @@ void SimulatorRunner::Unpause() {
   }
 }
 
-void SimulatorRunner::Pause() { paused_ = true; }
-
 void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(mutex_);
   step_callbacks_.push_back(callable);
@@ -158,38 +133,44 @@ void SimulatorRunner::Start() {
   this->RunAsyncFor(std::numeric_limits<double>::infinity(), [] {});
 }
 
+void SimulatorRunner::Stop() {
+  DELPHYNE_DEMAND(interactive_loop_running_);
+  interactive_loop_running_ = false;
+}
+
 void SimulatorRunner::RunAsyncFor(double duration,
                                   std::function<void()> callback) {
-  DELPHYNE_DEMAND(!enabled_);
-  enabled_ = true;
+  DELPHYNE_DEMAND(!interactive_loop_running_);
+  interactive_loop_running_ = true;
   main_thread_ = std::thread([this, duration, callback]() {
-    this->RunSimulationLoopFor(duration, callback);
+    this->RunInteractiveSimulationLoopFor(duration, callback);
   });
 }
 
 void SimulatorRunner::RunSyncFor(double duration) {
-  DELPHYNE_DEMAND(!enabled_);
-  enabled_ = true;
-  this->RunSimulationLoopFor(duration, [] {});
+  DELPHYNE_DEMAND(!interactive_loop_running_);
+  interactive_loop_running_ = true;
+  this->RunInteractiveSimulationLoopFor(duration, [] {});
 }
 
-void SimulatorRunner::RunSimulationLoopFor(double duration,
-                                           std::function<void()> callback) {
+void SimulatorRunner::RunInteractiveSimulationLoopFor(
+    double duration, std::function<void()> callback) {
   DELPHYNE_DEMAND(duration >= 0);
   DELPHYNE_DEMAND(callback != nullptr);
 
   const double sim_end = simulator_->get_current_simulation_time() + duration;
 
-  while (enabled_ && (simulator_->get_current_simulation_time() < sim_end)) {
-    RunSimulationStep();
+  while (interactive_loop_running_ &&
+         (simulator_->get_current_simulation_time() < sim_end)) {
+    RunInteractiveSimulationLoopStep();
   }
 
-  enabled_ = false;
+  interactive_loop_running_ = false;
 
   callback();
 }
 
-void SimulatorRunner::RunSimulationStep() {
+void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   // 1. Processes incoming messages (requests).
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -231,6 +212,15 @@ void SimulatorRunner::RunSimulationStep() {
       callback();
     }
   }
+}
+
+void SimulatorRunner::RequestSimulationStepExecution(double time_step) {
+  DELPHYNE_DEMAND(interactive_loop_running_);
+  DELPHYNE_DEMAND(paused_);
+  DELPHYNE_DEMAND(time_step > 0);
+
+  step_requested_ = true;
+  custom_time_step_ = time_step;
 }
 
 void SimulatorRunner::ProcessIncomingMessages() {
@@ -292,14 +282,14 @@ void SimulatorRunner::ProcessWorldControlMessage(
     const ignition::msgs::WorldControl& msg) {
   if (msg.has_pause()) {
     if (msg.pause()) {
-      Pause();
+      PauseSimulation();
     } else {
-      Unpause();
+      UnpauseSimulation();
     }
   } else if (msg.has_step() && msg.step()) {
-    RequestMultiStep(1u);
+    RequestSimulationStepExecution(1);
   } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
-    RequestMultiStep(msg.multi_step());
+    RequestSimulationStepExecution(msg.multi_step());
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }

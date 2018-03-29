@@ -69,13 +69,16 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("Stop", &SimulatorRunner::Stop)
       .def("RunAsyncFor", &SimulatorRunner::RunAsyncFor)
       .def("RunSyncFor", &SimulatorRunner::RunSyncFor)
-      .def("IsRunning", &SimulatorRunner::IsRunning)
+      .def("IsInteractiveLoopRunning",
+           &SimulatorRunner::IsInteractiveLoopRunning)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback)
-      .def("RunSimulationStep", &SimulatorRunner::RunSimulationStep)
-      .def("IsPaused", &SimulatorRunner::IsPaused)
-      .def("Pause", &SimulatorRunner::Pause)
-      .def("RequestMultiStep", &SimulatorRunner::RequestMultiStep)
-      .def("Unpause", &SimulatorRunner::Unpause);
+      .def("RunInteractiveSimulationLoopStep",
+           &SimulatorRunner::RunInteractiveSimulationLoopStep)
+      .def("IsSimulationPaused", &SimulatorRunner::IsSimulationPaused)
+      .def("PauseSimulation", &SimulatorRunner::PauseSimulation)
+      .def("UnpauseSimulation", &SimulatorRunner::UnpauseSimulation)
+      .def("RequestSimulationStepExecution",
+           &SimulatorRunner::RequestSimulationStepExecution);
 
   py::class_<RoadBuilder<double>>(m, "RoadBuilder")
       .def(py::init<AutomotiveSimulator<double>*>())

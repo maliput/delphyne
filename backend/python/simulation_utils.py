@@ -39,10 +39,24 @@ def launch_interactive_simulation(simulator_runner,
         if simulator_runner.IsInteractiveLoopRunning():
             simulator_runner.Stop()
         print("Simulation ended")
+        print_simulation_stats(simulator_runner)
         # This is needed to avoid a possible deadlock. See SimulatorRunner
         # class description.
         time.sleep(0.5)
         launcher.kill()
+
+
+def print_simulation_stats(simulator_runner):
+    """Get the interactive simulation statistics and print them on standard
+    output.
+    """
+    stats = simulator_runner.get_stats()
+    print("= Simulation stats ==========================")
+    print("  Simulation runs: {}".format(stats.TotalRuns()))
+    print("  Simulation steps: {}".format(stats.TotalExecutedSteps()))
+    print("  Elapsed simulation time: {}s".format(stats.TotalElapsedSimtime()))
+    print("  Elapsed real time: {}s".format(stats.TotalElapsedRealtime()))
+    print("=============================================")
 
 
 def build_simple_car_simulator(initial_positions=None):

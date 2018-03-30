@@ -3,8 +3,10 @@
 #include <memory>
 
 #include "backend/automotive_simulator.h"
+#include "backend/interactive_simulation_stats.h"
 #include "backend/linb-any"
 #include "backend/road_builder.h"
+#include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
 #include <drake/common/find_resource.h>
@@ -21,6 +23,8 @@ using std::unique_ptr;
 using delphyne::backend::AutomotiveSimulator;
 using delphyne::backend::RoadBuilder;
 using delphyne::backend::SimulatorRunner;
+using delphyne::backend::InteractiveSimulationStats;
+using delphyne::backend::SimulationRunStats;
 using drake::automotive::SimpleCarState;
 using drake::maliput::api::RoadGeometry;
 using drake::systems::BasicVector;
@@ -57,6 +61,16 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init<bool&&>())
       .def(py::init<const RoadGeometry*&&>());
 
+  py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
+      .def(py::init<>())
+      .def("TotalElapsedSimtime",
+           &InteractiveSimulationStats::TotalElapsedSimtime)
+      .def("TotalElapsedRealtime",
+           &InteractiveSimulationStats::TotalElapsedRealtime)
+      .def("TotalExecutedSteps",
+           &InteractiveSimulationStats::TotalExecutedSteps)
+      .def("TotalRuns", &InteractiveSimulationStats::TotalRuns);
+
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
@@ -72,13 +86,12 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("IsInteractiveLoopRunning",
            &SimulatorRunner::IsInteractiveLoopRunning)
       .def("AddStepCallback", &SimulatorRunner::AddStepCallback)
-      .def("RunInteractiveSimulationLoopStep",
-           &SimulatorRunner::RunInteractiveSimulationLoopStep)
       .def("IsSimulationPaused", &SimulatorRunner::IsSimulationPaused)
       .def("PauseSimulation", &SimulatorRunner::PauseSimulation)
       .def("UnpauseSimulation", &SimulatorRunner::UnpauseSimulation)
       .def("RequestSimulationStepExecution",
-           &SimulatorRunner::RequestSimulationStepExecution);
+           &SimulatorRunner::RequestSimulationStepExecution)
+      .def("get_stats", &SimulatorRunner::get_stats);
 
   py::class_<RoadBuilder<double>>(m, "RoadBuilder")
       .def(py::init<AutomotiveSimulator<double>*>())

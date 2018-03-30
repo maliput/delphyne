@@ -109,6 +109,8 @@ install(TARGETS automotive_simulator
 # call
 add_library(simulation_runner
   STATIC
+  interactive_simulation_stats.cc
+  simulation_run_stats.cc
   simulation_runner.cc
   system.h
 )

@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <chrono>
+
 #include "drake/common/drake_assert.h"
 
 #if defined(__GNUC__)
@@ -24,3 +26,7 @@
 #define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
 #define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)
 #define DELPHYNE_ABORT() DRAKE_ABORT()
+
+using Clock = std::chrono::steady_clock;
+using Duration = std::chrono::duration<double>;
+using TimePoint = std::chrono::time_point<Clock, Duration>;

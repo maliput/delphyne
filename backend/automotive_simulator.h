@@ -296,27 +296,6 @@ class AutomotiveSimulator {
   /// Advances simulated time by the given @p time_step increment in seconds.
   void StepBy(const T& time_step);
 
-  /// @see documentation of Simulator::set_target_realtime_rate.
-  ///
-  /// @pre Start() has been called.
-  ///
-  /// @param realtime_rate
-  ///   Desired rate relative to real time. Set to 1 to track real time, 2 to
-  ///   run twice as fast as real time, 0.5 for half speed, etc. Zero or
-  ///   negative values restore the rate to its default of 0, meaning the
-  ///   simulation will proceed as fast as possible.
-  void SetRealtimeRate(double realtime_rate);
-
-  /// @see documentation of Simulator::get_target_realtime_rate.
-  ///
-  /// @pre Start() has been called.
-  double GetRealtimeRate() const;
-
-  /// @see documentation of Simulator::ResetStatistics.
-  ///
-  /// @pre Start() has been called.
-  void ResetStatistics();
-
   /// Returns the current simulation time in seconds.
   /// @see documentation of Simulator::Context::get_time.
   double get_current_simulation_time() const;

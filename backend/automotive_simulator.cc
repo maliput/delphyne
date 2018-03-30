@@ -715,29 +715,6 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::SetRealtimeRate(double realtime_rate) {
-  DELPHYNE_DEMAND(has_started());
-  // TODO(basicNew): We should revisit this once we get feedback on
-  // https://github.com/RobotLocomotion/drake/issues/8090
-  igndbg << "Changing real-time rate and resetting simulation statistics"
-         << std::endl;
-  simulator_->ResetStatistics();
-  simulator_->set_target_realtime_rate(realtime_rate);
-}
-
-template <typename T>
-double AutomotiveSimulator<T>::GetRealtimeRate() const {
-  DELPHYNE_DEMAND(has_started());
-  return simulator_->get_target_realtime_rate();
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::ResetStatistics() {
-  DELPHYNE_DEMAND(has_started());
-  simulator_->ResetStatistics();
-}
-
-template <typename T>
 double AutomotiveSimulator<T>::get_current_simulation_time() const {
   return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
 }

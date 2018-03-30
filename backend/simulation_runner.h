@@ -17,8 +17,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <protobuf/robot_model_request.pb.h>
-#include <protobuf/simulation_in_message.pb.h>
+#include "protobuf/robot_model_request.pb.h"
+#include "protobuf/simulation_in_message.pb.h"
 
 #include <pybind11/pybind11.h>
 

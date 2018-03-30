@@ -15,7 +15,7 @@ get_target_property(DRAKE_LCMTYPES_INCLUDE_DIRS drake::drake-lcmtypes-cpp INTERF
 get_target_property(DRAKE_INCLUDE_DIRS drake::drake INTERFACE_INCLUDE_DIRECTORIES)
 
 ############## LoadablePriusSimpleCar #####################
-add_library(LoadablePriusSimpleCar SHARED
+add_library(LoadablePriusSimpleCar
   LoadablePriusSimpleCar.cc
 )
 
@@ -28,10 +28,10 @@ target_include_directories(LoadablePriusSimpleCar PRIVATE
   ${IGNITION-COMMON_INCLUDE_DIRS}
 )
 
-install(TARGETS LoadablePriusSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)
+install(TARGETS LoadablePriusSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
 
 ############## LoadablePriusTrajectoryCar #####################
-add_library(LoadablePriusTrajectoryCar SHARED
+add_library(LoadablePriusTrajectoryCar
   LoadablePriusTrajectoryCar.cc
 )
 
@@ -44,10 +44,10 @@ target_include_directories(LoadablePriusTrajectoryCar PRIVATE
   ${IGNITION-COMMON_INCLUDE_DIRS}
 )
 
-install(TARGETS LoadablePriusTrajectoryCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)
+install(TARGETS LoadablePriusTrajectoryCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
 
 ############## LoadableMobilControlledSimpleCar #####################
-add_library(LoadableMobilControlledSimpleCar SHARED
+add_library(LoadableMobilControlledSimpleCar
   LoadableMobilControlledSimpleCar.cc
 )
 
@@ -60,4 +60,4 @@ target_include_directories(LoadableMobilControlledSimpleCar PRIVATE
   ${IGNITION-COMMON_INCLUDE_DIRS}
 )
 
-install(TARGETS LoadableMobilControlledSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents COMPONENT shlib)
+install(TARGETS LoadableMobilControlledSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)

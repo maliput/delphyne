@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/rendering/pose_bundle.h"
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/rendering/pose_bundle.h>
 
 #include <ignition/msgs.hh>
 

@@ -28,20 +28,6 @@ enable_testing()
 # Use GNUInstallDirst to get canonical paths
 include(GNUInstallDirs)
 
-# with -fPIC
-if(UNIX AND NOT WIN32)
-  set (CMAKE_INSTALL_PREFIX "/usr" CACHE STRING "Install Prefix")
-  find_program(CMAKE_UNAME uname /bin /usr/bin /usr/local/bin )
-  if(CMAKE_UNAME)
-    exec_program(uname ARGS -m OUTPUT_VARIABLE CMAKE_SYSTEM_PROCESSOR)
-    set(CMAKE_SYSTEM_PROCESSOR ${CMAKE_SYSTEM_PROCESSOR} CACHE INTERNAL
-      "processor type (i386 and x86_64)")
-    if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-      ADD_DEFINITIONS(-fPIC)
-    endif(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
-  endif(CMAKE_UNAME)
-endif()
-
 set (CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
 
 # developer's option to cache PKG_CONFIG_PATH and
@@ -206,6 +192,7 @@ else (build_errors)
 
   include_directories(
     ${CMAKE_SOURCE_DIR}
+    ${PROJECT_SOURCE_DIR/backend}
     ${PROJECT_BINARY_DIR}
     ${PROJECT_BINARY_DIR}/include
   )
@@ -221,10 +208,11 @@ else (build_errors)
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
   set(TEST_TYPE "UNIT")
+  # order very important so targets get defined in sequence
+  add_subdirectory(test)
+  add_subdirectory(protobuf)
   add_subdirectory(backend)
   add_subdirectory(loadable_agents)
-  add_subdirectory(protobuf)
-  add_subdirectory(test)
 
   ########################################
   # Make the package config files
@@ -239,6 +227,14 @@ else (build_errors)
 
   ########################################
   # Make the cmake config files
+
+  # Export the targets
+  install(
+    EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
+    NAMESPACE ${PROJECT_NAME}::
+    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}
+  )
+
   set(PKG_NAME ${PROJECT_NAME_UPPER})
   set(cmake_conf_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config.cmake")
   set(cmake_conf_version_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config-version.cmake")
@@ -274,3 +270,4 @@ else (build_errors)
   message(STATUS "Configuration successful. Type make to compile
   ${PROJECT_NAME_LOWER}")
 endif(build_errors)
+

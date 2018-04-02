@@ -89,7 +89,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("RunSimulationStep", &SimulatorRunner::RunSimulationStep)
       .def("IsPaused", &SimulatorRunner::IsPaused)
       .def("Pause", &SimulatorRunner::Pause)
-      .def("RequestStep", &SimulatorRunner::RequestStep)
+      .def("RequestMultiStep", &SimulatorRunner::RequestMultiStep)
       .def("Unpause", &SimulatorRunner::Unpause);
 
   py::class_<RoadBuilder<double>>(m, "RoadBuilder")

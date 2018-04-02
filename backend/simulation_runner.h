@@ -227,11 +227,11 @@ class SimulatorRunner {
   /// the simulation loop may be running, but the simulation itself be paused.
   bool IsRunning() const;
 
-  /// @brief Requests the simulation to execute a single simulation step.
+  /// @brief Requests the simulation to execute a number of simulation steps.
   /// The simulation must be paused before calling this method.
   /// @pre Start() has been called.
   /// @pre Paused() has been called.
-  void RequestStep(double time_step);
+  void RequestMultiStep(unsigned int num_steps);
 
   ///  @brief Pauses the simulation, no-op if called multiple times.
   void Pause();
@@ -311,9 +311,9 @@ class SimulatorRunner {
   // @brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;
 
-  // @brief The time (seconds) that we simulate in a custom step requested
-  // externally.
-  double custom_time_step_{0.001};
+  // @brief The number of steps that we simulate in a custom multi-step
+  // requested externally.
+  unsigned int custom_num_steps_{0u};
 
   // @brief Whether the main loop has been started or not.
   std::atomic<bool> enabled_{false};
@@ -323,9 +323,6 @@ class SimulatorRunner {
 
   // @brief Whether the simulation is paused or not.
   bool paused_{false};
-
-  // @brief Whether an external step was requested or not.
-  bool step_requested_{false};
 
   // @brief A mutex to avoid races.
   std::mutex mutex_;

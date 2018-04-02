@@ -126,7 +126,7 @@ void SimulatorRunner::RequestMultiStep(unsigned int num_steps) {
 
   // Ignore the request if we're already processing a previous multi-step.
   if (custom_num_steps_ > 0) {
-    igndbg << "Ignoring MultiStep request (a previous multi-step is ongoing."
+    igndbg << "Ignoring MultiStep request (a previous multi-step is ongoing)."
            << std::endl;
     return;
   }

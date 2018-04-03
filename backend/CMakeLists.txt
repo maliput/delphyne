@@ -39,7 +39,7 @@ target_link_libraries(delphyne_lcm_to_ign
   ${IGNITION-MSGS_LIBRARIES}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
-  delphyne_protobuf_msgs
+  protobuf
   time_conversion
 )
 
@@ -59,7 +59,7 @@ target_link_libraries(simulation_runner
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PYTHON_LIBRARIES}
-  delphyne_protobuf_msgs
+  protobuf
   pybind11::module
 )
 
@@ -82,7 +82,7 @@ target_link_libraries(automotive_simulator
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PYTHON_LIBRARIES}
-  delphyne_protobuf_msgs
+  protobuf
   delphyne_lcm_to_ign
   drake_ign_translation_systems
   scene_system
@@ -122,7 +122,7 @@ target_link_libraries(automotive-demo
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PYTHON_LIBRARIES}
   delphyne_lcm_to_ign
-  delphyne_protobuf_msgs
+  protobuf
   pthread
   pybind11::module
   simulation_runner
@@ -177,9 +177,9 @@ target_link_libraries(python_bindings PRIVATE
 # ----------------------------------------
 # Installs libraries and binaries.
 
-install(FILES 
-    python/delphyne.py 
-    python/simulation_utils.py 
+install(FILES
+    python/delphyne.py
+    python/simulation_utils.py
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
 
 install(TARGETS

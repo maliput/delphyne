@@ -12,7 +12,7 @@ target_link_libraries(drake_ign_translation_systems
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  delphyne_protobuf_msgs
+  protobuf
 )
 
 target_include_directories(drake_ign_translation_systems PUBLIC ${CMAKE_CURRENT_BINARY_DIR})

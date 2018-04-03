@@ -15,6 +15,10 @@ void SceneSystem::CalcSceneMessage(
     ignition::msgs::Scene* scene_message) const {
   DELPHYNE_DEMAND(scene_message != nullptr);
 
+  // Clears old scene state from the previous CalcSceneMessage call.
+  // @see DeclareAbstractOutputPort
+  scene_message->Clear();
+
   const drake::systems::AbstractValue* input = EvalAbstractInput(context, 0);
   const auto& models = input->GetValue<ignition::msgs::Model_V>();
 

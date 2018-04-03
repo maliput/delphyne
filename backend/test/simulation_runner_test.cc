@@ -17,7 +17,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include <protobuf/robot_model_request.pb.h>
+#include "protobuf/robot_model_request.pb.h"
 
 namespace delphyne {
 namespace backend {

@@ -7,12 +7,13 @@
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_geometry_data.hpp>
 #include <drake/lcmt_viewer_load_robot.hpp>
-#include <ignition/msgs.hh>
 #include <robotlocomotion/viewer2_comms_t.hpp>
 
-#include <protobuf/simple_car_state.pb.h>
-#include <protobuf/viewer2_comms.pb.h>
-#include <protobuf/viewer_command.pb.h>
+#include <ignition/msgs.hh>
+
+#include "protobuf/simple_car_state.pb.h"
+#include "protobuf/viewer2_comms.pb.h"
+#include "protobuf/viewer_command.pb.h"
 
 #include "backend/translate_exception.h"
 

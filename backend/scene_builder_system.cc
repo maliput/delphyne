@@ -2,9 +2,8 @@
 
 #include <string>
 
-#include <ignition/common/Console.hh>
-
 #include <drake/lcmt_viewer_draw.hpp>
+#include <ignition/common/Console.hh>
 
 #include "backend/lcm_to_ign_translation.h"
 #include "backend/scene_builder_system.h"

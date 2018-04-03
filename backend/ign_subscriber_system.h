@@ -16,7 +16,7 @@
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/leaf_system.h>
 
-#include <protobuf/automotive_driving_command.pb.h>
+#include "protobuf/automotive_driving_command.pb.h"
 
 #include "backend/system.h"
 

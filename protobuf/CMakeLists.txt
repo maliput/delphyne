@@ -1,6 +1,14 @@
-include (${project_cmake_dir}/Utils.cmake)
+##############################################################################
+# Find Protobuf
+##############################################################################
 
-set (msgs
+find_package(Protobuf REQUIRED)
+
+##############################################################################
+# Generate Messages
+##############################################################################
+
+set(MESSAGES
   automotive_driving_command.proto
   robot_model_request.proto
   simple_car_state.proto
@@ -9,19 +17,43 @@ set (msgs
   viewer2_comms.proto
 )
 
-set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS} ${CMAKE_SOURCE_DIR}/protobuf)
-PROTOBUF_GENERATE_CPP(PROTO_SRC PROTO_HEADER
-  ${msgs}
+set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/protobuf)
+protobuf_generate_cpp(SOURCES PROTO_HEADER ${MESSAGES})
+
+##############################################################################
+# Library
+##############################################################################
+
+add_library(protobuf ${SOURCES})
+set_target_properties(protobuf PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf)
+target_include_directories(
+  protobuf
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
+    ${PROTOBUF_INCLUDE_DIRS}
 )
 
-# The loadable module support needs to have some symbols from the protobuf code
-# visible so that the symbols are in the "dynamic" symbol table, instead of the
-# normal symbol table.  Additionally, these symbols need to be public, but our
-# default is '-fvisibility=hidden'.  The calls to set_source_files_properties
-# make it so that visibility of the symbols from the protobuf files (and only
-# the listed protobuf files) are visible.
-set_source_files_properties(automotive_driving_command.pb.cc PROPERTIES COMPILE_FLAGS -fvisibility=default)
-set_source_files_properties(simple_car_state.pb.cc PROPERTIES COMPILE_FLAGS -fvisibility=default)
-add_library(delphyne_protobuf_msgs STATIC ${PROTO_SRC})
+target_link_libraries(
+  protobuf
+  PUBLIC
+    ${PROTOBUF_LIBRARIES}
+    ${IGNITION-MSGS_LIBRARIES}
+)
 
-target_include_directories(delphyne_protobuf_msgs PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+##############################################################################
+# Install
+##############################################################################
+
+file(GLOB HEADERS ${CMAKE_CURRENT_BINARY_DIR}/*.pb.h)
+
+delphyne_install_includes(
+  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/protobuf
+  ${HEADERS}
+)
+
+install(TARGETS protobuf EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

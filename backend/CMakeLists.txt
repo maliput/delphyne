@@ -2,8 +2,208 @@ include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 
+##############################################################################
+# Common Libraries
+##############################################################################
+
 # ----------------------------------------
+# Time Conversions (includes ignition conversions)
+add_library(time_conversion time_conversion.cc)
+set_target_properties(time_conversion PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-time-conversion)
+target_link_libraries(
+  time_conversion
+  PUBLIC
+    ${IGNITION-MSGS_LIBRARIES}
+)
+install(TARGETS time_conversion
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+# ----------------------------------------
+# Lcm to ign translation library
+#
+add_library(lcm_to_ignition_translation lcm_to_ign_translation.cc)
+set_target_properties(lcm_to_ignition_translation PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-lcm-to-ignition-translation)
+target_link_libraries(
+  lcm_to_ignition_translation
+  PUBLIC
+    protobuf
+    ${IGNITION-MSGS_LIBRARIES}
+    ${drake_LIBRARIES}
+  PRIVATE
+    time_conversion
+)
+install(TARGETS lcm_to_ignition_translation
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+# ----------------------------------------
+# Scene-builder library
+#
+add_library(scene_system
+  scene_builder_system.cc
+  scene_system.cc
+  system.h
+)
+set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-system)
+target_link_libraries(
+  scene_system
+  PUBLIC
+    lcm_to_ignition_translation
+    ${IGNITION-MSGS_LIBRARIES}
+    ${drake_LIBRARIES}
+  PRIVATE
+    ${IGNITION-COMMON_LIBRARIES}
+)
+install(TARGETS scene_system
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+add_subdirectory(translation_systems)
+
+##############################################################################
+# Automotive Simulator
+##############################################################################
+
+# ----------------------------------------
+# Automotive-simulator library
+#
+add_library(automotive_simulator
+  agent_plugin_loader.cc
+  automotive_simulator.cc
+  linb-any
+  road_builder.h
+  system.h
+)
+set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)
+target_link_libraries(
+  automotive_simulator
+  PUBLIC
+    scene_system
+    protobuf
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
+    ${IGNITION-TRANSPORT_LIBRARIES}
+    ${IGNITION-MSGS_LIBRARIES}
+  PRIVATE
+    drake_ign_translation_systems
+)
+
+install(TARGETS automotive_simulator
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+#
+#
+# ----------------------------------------
+# Simulator-runner library
+#
+add_library(simulation_runner
+  simulation_runner.cc
+  system.h
+)
+set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
+target_link_libraries(
+  simulation_runner
+  PUBLIC
+    automotive_simulator
+    protobuf
+    ${IGNITION-MSGS_LIBRARIES}
+    ${IGNITION-TRANSPORT_LIBRARIES}
+    pybind11::module
+    ${PYTHON_LIBRARIES}
+  PRIVATE
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
+)
+
+install(TARGETS simulation_runner
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+# ----------------------------------------
+# Automotive demo
+add_executable(automotive-demo
+  automotive_demo.cc
+  system.h
+)
+
+target_link_libraries(automotive-demo
+  ${drake_LIBRARIES}
+  ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-TRANSPORT_LIBRARIES}
+  ${PYTHON_LIBRARIES}
+  pthread
+  pybind11::module
+  simulation_runner
+  automotive_simulator
+  lcm_to_ignition_translation
+  protobuf
+)
+
+install(TARGETS automotive-demo RUNTIME DESTINATION bin)
+
+delphyne_install_includes(
+  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
+  agent_plugin_base.h
+  linb-any
+  system.h
+)
+
+
+# ----------------------------------------
+# Python bindings.
+#
+pybind11_add_module(python_bindings python_bindings.cc)
+
+target_link_libraries(python_bindings
+  PRIVATE
+    simulation_runner
+    automotive_simulator
+    ${drake_LIBRARIES}
+    pybind11::module
+    ${PYTHON_LIBRARIES}
+)
+
+# ----------------------------------------
+# Installs libraries and binaries.
+#
+install(FILES
+  python/delphyne.py
+  python/simulation_utils.py
+  DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils
+)
+
+install(PROGRAMS
+  python/examples/keyboard_controlled_simulation.py
+  python/examples/loadable_agent_simulation.py
+  python/examples/realtime_rate_changer.py
+  python/examples/road_loading.py
+  python/examples/simple_python_binding.py
+  python/examples/start_simulation_paused.py
+  python/examples/time_bounded_simulation.py
+  DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/bin
+)
+
+# Launcher
+install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
+install(PROGRAMS python/demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+##############################################################################
 # C++ tests.
+##############################################################################
 
 set (gtest_sources
   agent_plugin_loader_test.cc
@@ -23,128 +223,6 @@ set (gtest_sources
   time_conversion_test.cc
 )
 
-add_subdirectory(test/agent_plugin)
-
-delphyne_build_tests(${gtest_sources})
-
-# ----------------------------------------
-# Lcm to ign translation library
-
-add_library(delphyne_lcm_to_ign
-  STATIC
-  lcm_to_ign_translation.cc
-)
-
-target_link_libraries(delphyne_lcm_to_ign
-  ${IGNITION-MSGS_LIBRARIES}
-  ${drake_LIBRARIES}
-  ${lcm_LIBRARIES}
-  delphyne_protobuf_msgs
-  time_conversion
-)
-
-target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-# ----------------------------------------
-# Simulator-runner library
-
-add_library(simulation_runner
-  STATIC
-  simulation_runner.cc
-  system.h
-)
-
-target_link_libraries(simulation_runner
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  delphyne_protobuf_msgs
-  pybind11::module
-)
-
-target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-# ----------------------------------------
-# Automotive-simulator library
-
-add_library(automotive_simulator
-  STATIC
-  agent_plugin_loader.cc
-  automotive_simulator.cc
-  linb-any
-  road_builder.h
-  system.h
-)
-
-target_link_libraries(automotive_simulator
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  delphyne_protobuf_msgs
-  delphyne_lcm_to_ign
-  drake_ign_translation_systems
-  scene_system
-  time_conversion
-)
-
-target_include_directories(automotive_simulator PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-# ----------------------------------------
-# Scene-builder library
-
-add_library(scene_system
-  SHARED
-  scene_builder_system.cc
-  scene_system.cc
-  system.h
-)
-
-target_link_libraries(scene_system
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  delphyne_lcm_to_ign
-)
-
-target_include_directories(scene_system PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-# ----------------------------------------
-# Automotive demo
-add_executable(automotive-demo
-  automotive_demo.cc
-  system.h
-)
-
-target_link_libraries(automotive-demo
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  delphyne_lcm_to_ign
-  delphyne_protobuf_msgs
-  pthread
-  pybind11::module
-  simulation_runner
-  automotive_simulator
-)
-
-delphyne_install_includes(
-  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
-  agent_plugin_base.h
-  linb-any
-  system.h
-)
-
-# ----------------------------------------
-# Test helper library.
-add_library(time_conversion
-  time_conversion.cc
-)
-
-target_link_libraries(time_conversion)
-
-target_include_directories(time_conversion PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Test helper library.
@@ -157,51 +235,7 @@ target_link_libraries(test_helpers
   ${IGNITION-MSGS_LIBRARIES}
 )
 
-target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+add_subdirectory(test/agent_plugin)
 
-add_subdirectory(translation_systems)
+delphyne_build_tests(${gtest_sources})
 
-# ----------------------------------------
-# Python bindings.
-
-pybind11_add_module(python_bindings python_bindings.cc)
-
-target_link_libraries(python_bindings PRIVATE
-  ${drake_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  automotive_simulator
-  pybind11::module
-  simulation_runner
-)
-
-# ----------------------------------------
-# Installs libraries and binaries.
-
-install(FILES 
-    python/delphyne.py 
-    python/simulation_utils.py 
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
-
-install(TARGETS
-  automotive_simulator
-  scene_system
-  simulation_runner
-  python_bindings
-  time_conversion
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
-install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-
-install(PROGRAMS
-  python/examples/keyboard_controlled_simulation.py
-  python/examples/loadable_agent_simulation.py
-  python/examples/realtime_rate_changer.py
-  python/examples/road_loading.py
-  python/examples/simple_python_binding.py
-  python/examples/start_simulation_paused.py
-  python/examples/time_bounded_simulation.py
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-
-# Launcher
-install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
-install(PROGRAMS python/demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

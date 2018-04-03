@@ -33,6 +33,8 @@ template <typename T>
 class DELPHYNE_BACKEND_VISIBLE AgentPluginBase
     : public drake::systems::LeafSystem<T> {
  public:
+  virtual ~AgentPluginBase() {}
+
   /// The `Configure` method is the main way that loadable agents get the
   /// information that they need to insert themselves into an automotive
   /// simulation.  Concrete implementations should set themselves up and insert

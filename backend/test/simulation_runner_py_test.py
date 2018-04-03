@@ -7,7 +7,7 @@
 
 import time
 import unittest
-from delphyne import (
+from utils.delphyne import (
     AutomotiveSimulator,
     SimpleCarState,
     SimulatorRunner

@@ -174,6 +174,11 @@ target_link_libraries(python_bindings PRIVATE
   simulation_runner
 )
 
+# Creates an emtpy __init__.py file in order to enable python
+# to identify `utils` as a module.
+file(WRITE
+  ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils/__init__.py "")
+
 # ----------------------------------------
 # Installs libraries and binaries.
 

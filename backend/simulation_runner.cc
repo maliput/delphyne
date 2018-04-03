@@ -120,13 +120,20 @@ bool SimulatorRunner::IsPaused() const { return paused_; }
 
 bool SimulatorRunner::IsRunning() const { return enabled_; }
 
-void SimulatorRunner::RequestStep(double time_step) {
+void SimulatorRunner::RequestMultiStep(unsigned int num_steps) {
   DELPHYNE_DEMAND(enabled_);
   DELPHYNE_DEMAND(paused_);
-  DELPHYNE_DEMAND(time_step > 0);
 
-  step_requested_ = true;
-  custom_time_step_ = time_step;
+  // Ignore the request if we're already processing a previous multi-step.
+  if (custom_num_steps_ > 0) {
+    igndbg << "Ignoring MultiStep request (a previous multi-step is ongoing)."
+           << std::endl;
+    return;
+  }
+
+  igndbg << "Resetting simulation statistics." << std::endl;
+  simulator_->ResetStatistics();
+  custom_num_steps_ = num_steps;
 }
 
 void SimulatorRunner::Unpause() {
@@ -136,6 +143,7 @@ void SimulatorRunner::Unpause() {
     igndbg << "Resetting simulation statistics." << std::endl;
     simulator_->ResetStatistics();
     paused_ = false;
+    custom_num_steps_ = 0u;
   }
 }
 
@@ -192,12 +200,10 @@ void SimulatorRunner::RunSimulationStep() {
   // here if needed to adjust to the real-time rate.
   if (!paused_) {
     simulator_->StepBy(time_step_);
-  } else if (step_requested_) {
-    simulator_->StepBy(custom_time_step_);
+  } else if (custom_num_steps_ > 0) {
+    simulator_->StepBy(time_step_);
+    custom_num_steps_--;
   }
-
-  // Removes any custom step request.
-  step_requested_ = false;
 
   // A copy of the python callbacks so we can process them in a thread-safe
   // way
@@ -291,9 +297,9 @@ void SimulatorRunner::ProcessWorldControlMessage(
       Unpause();
     }
   } else if (msg.has_step() && msg.step()) {
-    RequestStep(msg.step());
+    RequestMultiStep(1u);
   } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
-    RequestStep(time_step_ * msg.multi_step());
+    RequestMultiStep(msg.multi_step());
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }

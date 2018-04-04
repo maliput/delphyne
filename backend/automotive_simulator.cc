@@ -577,7 +577,8 @@ void AutomotiveSimulator<T>::Build() {
 
   // The Model_V messaged is also transformed into a scene message.
   auto scene_builder = builder_->template AddSystem<SceneSystem>();
-  builder_->Connect(*viewer_draw_translator, *scene_builder);
+  builder_->Connect(viewer_draw_translator->get_output_port(0),
+                    scene_builder->get_updated_pose_models_input_port());
 
   // Which is then published over a scene topic to update the scene tree widget
   // of the visualizer. Because this information is not needed at the same

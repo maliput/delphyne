@@ -23,21 +23,23 @@ install(TARGETS time_conversion
 
 # ----------------------------------------
 # Lcm to ign translation library
-
-add_library(lcm_to_ignition_translation
-  STATIC
-  lcm_to_ign_translation.cc
+#
+add_library(lcm_to_ignition_translation lcm_to_ign_translation.cc)
+set_target_properties(lcm_to_ignition_translation PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-lcm-to-ignition-translation)
+target_link_libraries(
+  lcm_to_ignition_translation
+  PUBLIC
+    protobuf
+    ${IGNITION-MSGS_LIBRARIES}
+    ${drake_LIBRARIES}
+  PRIVATE
+    time_conversion
 )
-
-target_link_libraries(lcm_to_ignition_translation
-  ${IGNITION-MSGS_LIBRARIES}
-  ${drake_LIBRARIES}
-  ${lcm_LIBRARIES}
-  protobuf
-  time_conversion
+install(TARGETS lcm_to_ignition_translation
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )
-
-target_include_directories(lcm_to_ignition_translation PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Simulator-runner library

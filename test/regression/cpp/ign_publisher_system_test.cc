@@ -9,11 +9,11 @@
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/framework/diagram_builder.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "ignition/msgs.hh"
 
-#include "backend/test/helpers.h"
+#include "helpers.h"
 
 namespace delphyne {
 namespace backend {

@@ -1,8 +1,6 @@
-set(TEST_TYPE "REGRESSION")
+##############################################################################
+# Subdirectories
+##############################################################################
 
-set(tests
-)
-
-link_directories(${PROJECT_BINARY_DIR}/test)
-
-delphyne_build_tests(${tests})
+add_subdirectory(cpp)
+#add_subdirectory(python)

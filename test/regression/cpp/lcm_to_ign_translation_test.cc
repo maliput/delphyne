@@ -1,13 +1,11 @@
 // Copyright 2018 Toyota Research Institute
 
+#include <gtest/gtest.h>
+#include <ignition/msgs.hh>
 #include <iostream>
 
 #include "backend/lcm_to_ign_translation.h"
-#include "backend/test/helpers.h"
-
-#include <gtest/gtest.h>
-
-#include <ignition/msgs.hh>
+#include "helpers.h"
 
 namespace delphyne {
 namespace backend {

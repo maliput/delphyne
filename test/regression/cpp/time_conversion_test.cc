@@ -2,8 +2,7 @@
 
 #include "backend/time_conversion.h"
 
-#include "gtest/gtest.h"
-
+#include <gtest/gtest.h>
 #include <ignition/msgs.hh>
 
 namespace delphyne {

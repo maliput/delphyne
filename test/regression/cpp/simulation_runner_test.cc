@@ -9,11 +9,10 @@
 #include <string>
 #include <thread>
 
-#include "gtest/gtest.h"
-
 #include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
 
+#include <gtest/gtest.h>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 

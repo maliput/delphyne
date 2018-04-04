@@ -2,15 +2,10 @@
 
 #pragma once
 
+#include <gtest/gtest.h>
 #include "drake/lcmt_viewer_draw.hpp"
-
-#include "gtest/gtest.h"
-
 #include "google/protobuf/message.h"
-
 #include "ignition/msgs.hh"
-
-#include "backend/system.h"
 
 namespace delphyne {
 namespace test {

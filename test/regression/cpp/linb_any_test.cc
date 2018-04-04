@@ -11,8 +11,7 @@
 
 // Very simplist test, could be better.
 
-#include "gtest/gtest.h"
-
+#include <gtest/gtest.h>
 #include <cstdio>
 #include <memory>
 #include "backend/linb-any"

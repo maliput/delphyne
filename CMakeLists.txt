@@ -19,12 +19,6 @@ set (project_cmake_dir ${PROJECT_SOURCE_DIR}/cmake
 
 include (${project_cmake_dir}/Utils.cmake)
 
-if (NOT DEFINED BUILD_TESTING)
-  set(BUILD_TESTING ON)
-endif ()
-
-enable_testing()
-
 # Use GNUInstallDirst to get canonical paths
 include(GNUInstallDirs)
 
@@ -206,11 +200,16 @@ else (build_errors)
   message (STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
-  set(TEST_TYPE "UNIT")
   add_subdirectory(backend)
   add_subdirectory(loadable_agents)
   add_subdirectory(protobuf)
-  add_subdirectory(test)
+
+  ########################################
+  # Testing
+  if(NOT DEFINED BUILD_TESTING OR BUILD_TESTING)
+    enable_testing()
+    add_subdirectory(test)
+  endif()
 
   ########################################
   # Make the package config files

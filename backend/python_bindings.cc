@@ -28,26 +28,11 @@ using drake::systems::VectorBase;
 
 namespace {
 PYBIND11_MODULE(python_bindings, m) {
-  // TODO(basicNew): Import these from Drake. We are currently defining
-  // VectorBase binding so we can use BasicVector (see below), but all these
-  // bindings are already defined in Drake, so we should import and use them
-  // directly instead of redefining.
-  py::class_<VectorBase<double>>(m, "VectorBase")
-      .def("CopyToVector", &VectorBase<double>::CopyToVector)
-      .def("SetFromVector", &VectorBase<double>::SetFromVector)
-      .def("size", &VectorBase<double>::size);
-
-  // TODO(basicNew): Import these from Drake. We are currently defining
-  // BasicVector binding so we can use SimpleCarState (see below), but all these
-  // bindings are already defined in Drake, so we should import and use them
-  // directly instead of redefining.
-  py::class_<BasicVector<double>, VectorBase<double>>(m, "BasicVector")
-      .def(py::init<int>());
-
-  // TODO(basicNew): Import these from Drake. We are currently defining
-  // SimpleCarState so we can use it as a parameter of the  SimulatorRunner,
-  // but this class is already defined in Drake, so we should import and use
-  // it directly instead of redefining.
+  // TODO(apojomovsky): Import this from Drake. Tracked in delphyne's #339.
+  // Depends on drake's #8096 to be solved before we can actually replace
+  // this binding with it, since it currently lacks of constructors/methods.
+  // We are currently defining SimpleCarState so we can use it as a parameter
+  // of the SimulatorRunner.
   py::class_<SimpleCarState<double>, BasicVector<double>>(m, "SimpleCarState")
       .def(py::init<>())
       .def_property("x", &SimpleCarState<double>::x,

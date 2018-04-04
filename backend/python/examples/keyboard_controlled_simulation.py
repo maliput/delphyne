@@ -32,8 +32,8 @@ import sys
 import termios
 import time
 
-from delphyne import SimulatorRunner
-from simulation_utils import (
+from delphyne.bindings import SimulatorRunner
+from delphyne.simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
 )

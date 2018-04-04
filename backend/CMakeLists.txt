@@ -175,17 +175,17 @@ target_link_libraries(python_bindings PRIVATE
 )
 
 # Creates an emtpy __init__.py file in order to enable python
-# to identify `utils` as a module.
+# to identify `delphyne` as a module.
 file(WRITE
-  ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils/__init__.py "")
+  ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/delphyne/__init__.py "")
 
 # ----------------------------------------
 # Installs libraries and binaries.
-
 install(FILES 
-    python/delphyne.py 
-    python/simulation_utils.py 
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
+  python/bindings.py
+  python/launcher.py
+  python/simulation_utils.py 
+  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/delphyne)
 
 install(TARGETS
   automotive_simulator
@@ -198,6 +198,7 @@ install(TARGETS
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(PROGRAMS
+  python/demo_launcher.py
   python/examples/keyboard_controlled_simulation.py
   python/examples/loadable_agent_simulation.py
   python/examples/realtime_rate_changer.py
@@ -206,7 +207,3 @@ install(PROGRAMS
   python/examples/start_simulation_paused.py
   python/examples/time_bounded_simulation.py
   DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-
-# Launcher
-install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
-install(PROGRAMS python/demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

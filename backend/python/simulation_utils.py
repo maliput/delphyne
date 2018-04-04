@@ -13,11 +13,11 @@ import time
 
 from contextlib import contextmanager
 
-from launcher import Launcher
-from delphyne import (
+from delphyne.bindings import (
     AutomotiveSimulator,
     SimpleCarState,
 )
+from delphyne.launcher import Launcher
 
 
 @contextmanager

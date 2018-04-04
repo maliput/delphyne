@@ -31,14 +31,14 @@ from __future__ import print_function
 
 import argparse
 
-from delphyne import (
+from delphyne.bindings import (
     Any,
     AutomotiveSimulator,
     RoadBuilder,
     SimpleCarState,
     SimulatorRunner
 )
-from simulation_utils import (
+from delphyne.simulation_utils import (
     launch_interactive_simulation
 )
 

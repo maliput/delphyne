@@ -24,10 +24,10 @@ protobuf_generate_cpp(SOURCES PROTO_HEADER ${MESSAGES})
 # Library
 ##############################################################################
 
-add_library(protobuf ${SOURCES})
-set_target_properties(protobuf PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf)
+add_library(protobuf_messages ${SOURCES})
+set_target_properties(protobuf_messages PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf-messages)
 target_include_directories(
-  protobuf
+  protobuf_messages
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
@@ -35,7 +35,7 @@ target_include_directories(
 )
 
 target_link_libraries(
-  protobuf
+  protobuf_messages
   PUBLIC
     ${PROTOBUF_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}
@@ -45,14 +45,15 @@ target_link_libraries(
 # Install
 ##############################################################################
 
-file(GLOB HEADERS ${CMAKE_CURRENT_BINARY_DIR}/*.pb.h)
+string(REPLACE "proto" "pb.h" HEADERS "${MESSAGES}")
+string(REGEX REPLACE "([^;]+)" "${CMAKE_CURRENT_BINARY_DIR}/\\1" HEADERS "${HEADERS}")
 
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/protobuf
   ${HEADERS}
 )
 
-install(TARGETS protobuf EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
+install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

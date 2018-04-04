@@ -29,7 +29,7 @@ set_target_properties(lcm_to_ignition_translation PROPERTIES OUTPUT_NAME ${PROJE
 target_link_libraries(
   lcm_to_ignition_translation
   PUBLIC
-    protobuf
+    protobuf_messages
     ${IGNITION-MSGS_LIBRARIES}
     ${drake_LIBRARIES}
   PRIVATE
@@ -86,7 +86,7 @@ target_link_libraries(
   automotive_simulator
   PUBLIC
     scene_system
-    protobuf
+    protobuf_messages
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
@@ -119,7 +119,7 @@ target_link_libraries(
   simulation_runner
   PUBLIC
     automotive_simulator
-    protobuf
+    protobuf_messages
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}

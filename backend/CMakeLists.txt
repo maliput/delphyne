@@ -103,7 +103,7 @@ install(TARGETS automotive_simulator
 
 # ----------------------------------------
 # Simulator-runner library
-
+#
 add_library(simulation_runner
   STATIC
   simulation_runner.cc
@@ -119,7 +119,11 @@ target_link_libraries(simulation_runner
   pybind11::module
 )
 
-target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+install(TARGETS simulation_runner
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
 
 # ----------------------------------------
 # Automotive demo
@@ -146,29 +150,34 @@ delphyne_install_includes(
 
 # ----------------------------------------
 # Python bindings.
-
+#
 pybind11_add_module(python_bindings python_bindings.cc)
 
-target_link_libraries(python_bindings PRIVATE
-  ${drake_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  automotive_simulator
-  pybind11::module
-  simulation_runner
+target_link_libraries(python_bindings
+  PRIVATE
+    simulation_runner
+    automotive_simulator
+    ${drake_LIBRARIES}
+    pybind11::module
+    ${PYTHON_LIBRARIES}
+)
+
+install(TARGETS python_bindings
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )
 
 # ----------------------------------------
 # Installs libraries and binaries.
-
-install(FILES
+#
+install(
+  FILES
     python/delphyne.py
     python/simulation_utils.py
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
-
-install(TARGETS
-  simulation_runner
-  python_bindings
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+  DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils
+)
 
 install(PROGRAMS
   python/examples/keyboard_controlled_simulation.py
@@ -178,7 +187,9 @@ install(PROGRAMS
   python/examples/simple_python_binding.py
   python/examples/start_simulation_paused.py
   python/examples/time_bounded_simulation.py
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+  DESTINATION
+    ${CMAKE_INSTALL_PREFIX}/bin
+)
 
 # Launcher
 install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)

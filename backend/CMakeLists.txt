@@ -42,6 +42,32 @@ install(TARGETS lcm_to_ignition_translation
 )
 
 # ----------------------------------------
+# Scene-builder library
+#
+add_library(scene_system
+  scene_builder_system.cc
+  scene_system.cc
+  system.h
+)
+set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-system)
+target_link_libraries(
+  scene_system
+  PUBLIC
+    lcm_to_ignition_translation
+    ${IGNITION-MSGS_LIBRARIES}
+    ${drake_LIBRARIES}
+  PRIVATE
+    ${IGNITION-COMMON_LIBRARIES}
+)
+install(TARGETS scene_system
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+add_subdirectory(translation_systems)
+
+# ----------------------------------------
 # Simulator-runner library
 
 add_library(simulation_runner
@@ -88,24 +114,6 @@ target_link_libraries(automotive_simulator
 target_include_directories(automotive_simulator PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
-# Scene-builder library
-
-add_library(scene_system
-  SHARED
-  scene_builder_system.cc
-  scene_system.cc
-  system.h
-)
-
-target_link_libraries(scene_system
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  lcm_to_ignition_translation
-)
-
-target_include_directories(scene_system PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-# ----------------------------------------
 # Automotive demo
 add_executable(automotive-demo
   automotive_demo.cc
@@ -132,8 +140,6 @@ delphyne_install_includes(
   system.h
 )
 
-add_subdirectory(translation_systems)
-
 # ----------------------------------------
 # Python bindings.
 
@@ -157,7 +163,6 @@ install(FILES
 
 install(TARGETS
   automotive_simulator
-  scene_system
   simulation_runner
   python_bindings
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

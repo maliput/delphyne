@@ -40,8 +40,8 @@ macro (delphyne_build_tests)
       delphyne_lcm_to_ign
       protobuf
       drake_ign_translation_systems
-      libgtest_main.a
-      libgtest.a
+      gtest_main
+      gtest
       pthread
       pybind11::module
       scene_system

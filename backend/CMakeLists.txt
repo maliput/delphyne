@@ -2,6 +2,25 @@ include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
 include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 
+##############################################################################
+# Common Libraries
+##############################################################################
+
+# ----------------------------------------
+# Time Conversions (includes ignition conversions)
+add_library(time_conversion time_conversion.cc)
+set_target_properties(time_conversion PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-time-conversion)
+target_link_libraries(
+  time_conversion
+  PUBLIC
+    ${IGNITION-MSGS_LIBRARIES}
+)
+install(TARGETS time_conversion
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
 # ----------------------------------------
 # Lcm to ign translation library
 
@@ -111,16 +130,6 @@ delphyne_install_includes(
   system.h
 )
 
-# ----------------------------------------
-# Test helper library.
-add_library(time_conversion
-  time_conversion.cc
-)
-
-target_link_libraries(time_conversion)
-
-target_include_directories(time_conversion PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
 add_subdirectory(translation_systems)
 
 # ----------------------------------------
@@ -149,7 +158,6 @@ install(TARGETS
   scene_system
   simulation_runner
   python_bindings
-  time_conversion
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

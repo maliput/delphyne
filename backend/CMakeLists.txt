@@ -104,19 +104,26 @@ install(TARGETS automotive_simulator
 # ----------------------------------------
 # Simulator-runner library
 #
+# Right now this can't be made shared - segfaults
+# keyboard_controlled_simulation.py at the gil_scoped_acquire
+# call
 add_library(simulation_runner
   STATIC
   simulation_runner.cc
   system.h
 )
-
-target_link_libraries(simulation_runner
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  protobuf
-  pybind11::module
+set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
+target_link_libraries(
+  simulation_runner
+  PUBLIC
+    automotive_simulator
+    protobuf
+    ${IGNITION-COMMON_LIBRARIES}
+    ${IGNITION-TRANSPORT_LIBRARIES}
+    ${IGNITION-MSGS_LIBRARIES}
+    ${drake_LIBRARIES}
+    pybind11::module
+    ${PYTHON_LIBRARIES}
 )
 
 install(TARGETS simulation_runner

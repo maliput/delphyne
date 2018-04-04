@@ -1,5 +1,8 @@
+##############################################################################
+# Ignition Translation Systems
+##############################################################################
+
 add_library(drake_ign_translation_systems
-  STATIC
   drake_driving_command_to_ign.cc
   drake_simple_car_state_to_ign.cc
   lcm_viewer_draw_to_ign_model_v.cc
@@ -7,12 +10,17 @@ add_library(drake_ign_translation_systems
   ign_model_v_to_lcm_viewer_draw.cc
   ign_simple_car_state_to_drake.cc
 )
-
+set_target_properties(drake_ign_translation_systems PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-drake-ign-translation-systems)
 target_link_libraries(drake_ign_translation_systems
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  protobuf
+  PUBLIC
+    protobuf
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
+    ${IGNITION-TRANSPORT_LIBRARIES}
 )
 
-target_include_directories(drake_ign_translation_systems PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+install(TARGETS drake_ign_translation_systems
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)

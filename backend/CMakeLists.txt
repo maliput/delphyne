@@ -30,12 +30,12 @@ delphyne_build_tests(${gtest_sources})
 # ----------------------------------------
 # Lcm to ign translation library
 
-add_library(delphyne_lcm_to_ign
+add_library(lcm_to_ignition_translation
   STATIC
   lcm_to_ign_translation.cc
 )
 
-target_link_libraries(delphyne_lcm_to_ign
+target_link_libraries(lcm_to_ignition_translation
   ${IGNITION-MSGS_LIBRARIES}
   ${drake_LIBRARIES}
   ${lcm_LIBRARIES}
@@ -43,7 +43,7 @@ target_link_libraries(delphyne_lcm_to_ign
   time_conversion
 )
 
-target_include_directories(delphyne_lcm_to_ign PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(lcm_to_ignition_translation PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Simulator-runner library
@@ -83,7 +83,7 @@ target_link_libraries(automotive_simulator
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PYTHON_LIBRARIES}
   protobuf
-  delphyne_lcm_to_ign
+  lcm_to_ignition_translation
   drake_ign_translation_systems
   scene_system
   time_conversion
@@ -105,7 +105,7 @@ target_link_libraries(scene_system
   ${drake_LIBRARIES}
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
-  delphyne_lcm_to_ign
+  lcm_to_ignition_translation
 )
 
 target_include_directories(scene_system PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
@@ -121,7 +121,7 @@ target_link_libraries(automotive-demo
   ${IGNITION-COMMON_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
   ${PYTHON_LIBRARIES}
-  delphyne_lcm_to_ign
+  lcm_to_ignition_translation
   protobuf
   pthread
   pybind11::module

@@ -37,7 +37,7 @@ macro (delphyne_build_tests)
       ${lcm_LIBRARIES}
       ${PYTHON_LIBRARIES}
       automotive_simulator
-      delphyne_lcm_to_ign
+      lcm_to_ignition_translation
       protobuf
       drake_ign_translation_systems
       gtest_main

@@ -67,6 +67,40 @@ install(TARGETS scene_system
 
 add_subdirectory(translation_systems)
 
+##############################################################################
+# Automotive Simulator
+##############################################################################
+
+# ----------------------------------------
+# Automotive-simulator library
+#
+add_library(automotive_simulator
+  agent_plugin_loader.cc
+  automotive_simulator.cc
+  linb-any
+  road_builder.h
+  system.h
+)
+set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)
+target_link_libraries(
+  automotive_simulator
+  PUBLIC
+    scene_system
+    protobuf
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
+    ${IGNITION-TRANSPORT_LIBRARIES}
+    ${IGNITION-MSGS_LIBRARIES}
+  PRIVATE
+    drake_ign_translation_systems
+)
+
+install(TARGETS automotive_simulator
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
 # ----------------------------------------
 # Simulator-runner library
 
@@ -86,32 +120,6 @@ target_link_libraries(simulation_runner
 )
 
 target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
-# ----------------------------------------
-# Automotive-simulator library
-
-add_library(automotive_simulator
-  STATIC
-  agent_plugin_loader.cc
-  automotive_simulator.cc
-  linb-any
-  road_builder.h
-  system.h
-)
-
-target_link_libraries(automotive_simulator
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  protobuf
-  lcm_to_ignition_translation
-  drake_ign_translation_systems
-  scene_system
-  time_conversion
-)
-
-target_include_directories(automotive_simulator PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Automotive demo
@@ -162,7 +170,6 @@ install(FILES
     DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils)
 
 install(TARGETS
-  automotive_simulator
   simulation_runner
   python_bindings
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

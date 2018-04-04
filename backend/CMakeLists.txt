@@ -55,6 +55,7 @@ install(TARGETS lcm_to_ignition_translation
 # Scene-builder library
 #
 add_library(scene_system
+  load_robot_aggregator.cc
   scene_builder_system.cc
   scene_system.cc
   system.h

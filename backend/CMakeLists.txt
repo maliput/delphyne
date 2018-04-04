@@ -123,23 +123,19 @@ target_include_directories(simulation_runner PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
 # ----------------------------------------
 # Automotive demo
+#
 add_executable(automotive-demo
   automotive_demo.cc
   system.h
 )
 
 target_link_libraries(automotive-demo
-  ${drake_LIBRARIES}
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-  lcm_to_ignition_translation
-  protobuf
-  pthread
-  pybind11::module
   simulation_runner
   automotive_simulator
+  ${drake_LIBRARIES}
 )
+
+install(TARGETS automotive-demo RUNTIME DESTINATION bin)
 
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
@@ -173,8 +169,6 @@ install(TARGETS
   simulation_runner
   python_bindings
   DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
-install(TARGETS automotive-demo DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 install(PROGRAMS
   python/examples/keyboard_controlled_simulation.py

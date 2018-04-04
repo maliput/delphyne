@@ -3,31 +3,6 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 
 # ----------------------------------------
-# C++ tests.
-
-set (gtest_sources
-  agent_plugin_loader_test.cc
-  automotive_simulator_test.cc
-  drake_driving_command_to_ign_translator_system_test.cc
-  drake_simple_car_state_to_ign_translator_system_test.cc
-  ign_driving_command_to_drake_translator_system_test.cc
-  ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
-  ign_publisher_system_test.cc
-  ign_simple_car_state_to_drake_translator_system_test.cc
-  ign_subscriber_system_test.cc
-  lcm_to_ign_translation_test.cc
-  lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
-  linb_any_test.cc
-  scene_system_test.cc
-  simulation_runner_test.cc
-  time_conversion_test.cc
-)
-
-add_subdirectory(test/agent_plugin)
-
-delphyne_build_tests(${gtest_sources})
-
-# ----------------------------------------
 # Lcm to ign translation library
 
 add_library(lcm_to_ignition_translation
@@ -146,19 +121,6 @@ target_link_libraries(time_conversion)
 
 target_include_directories(time_conversion PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-# ----------------------------------------
-# Test helper library.
-add_library(test_helpers test/helpers.cc)
-
-target_link_libraries(test_helpers
-  gtest
-  gtest_main
-  ${drake_LIBRARIES}
-  ${IGNITION-MSGS_LIBRARIES}
-)
-
-target_include_directories(test_helpers PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-
 add_subdirectory(translation_systems)
 
 # ----------------------------------------
@@ -205,3 +167,41 @@ install(PROGRAMS
 # Launcher
 install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
 install(PROGRAMS python/demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
+##############################################################################
+# C++ tests.
+##############################################################################
+
+set (gtest_sources
+  agent_plugin_loader_test.cc
+  automotive_simulator_test.cc
+  drake_driving_command_to_ign_translator_system_test.cc
+  drake_simple_car_state_to_ign_translator_system_test.cc
+  ign_driving_command_to_drake_translator_system_test.cc
+  ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
+  ign_publisher_system_test.cc
+  ign_simple_car_state_to_drake_translator_system_test.cc
+  ign_subscriber_system_test.cc
+  lcm_to_ign_translation_test.cc
+  lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
+  linb_any_test.cc
+  scene_system_test.cc
+  simulation_runner_test.cc
+  time_conversion_test.cc
+)
+
+
+# ----------------------------------------
+# Test helper library.
+add_library(test_helpers test/helpers.cc)
+
+target_link_libraries(test_helpers
+  gtest
+  gtest_main
+  ${drake_LIBRARIES}
+  ${IGNITION-MSGS_LIBRARIES}
+)
+
+add_subdirectory(test/agent_plugin)
+
+delphyne_build_tests(${gtest_sources})

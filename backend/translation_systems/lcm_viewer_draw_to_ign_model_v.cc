@@ -28,7 +28,7 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
       MillisToIgnitionTime(lcm_message.timestamp));
 
   // Clears state from the previous call.
-  // @see LcmToIgn::DoDrakeToIgnTranslation
+  // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
 
   std::map<int32_t, ignition::msgs::Model*> models;

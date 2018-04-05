@@ -108,9 +108,8 @@ def demo_callback(runner, launcher, keyboard_handler):
             launcher.terminate()
         elif key == 's':
             if runner.IsPaused():
-                runner.RequestStep(SIMULATION_TIME_STEP_SECS)
-                print("Simulation step of {0}s executed.".
-                      format(SIMULATION_TIME_STEP_SECS))
+                runner.RequestMultiStep(1)
+                print("One simulation step executed.")
             else:
                 print("Simulation step only supported in paused mode.")
 

@@ -189,7 +189,7 @@ TEST_F(SimulationRunnerTest, TestRequestStepWhenNotStarted) {
   // We need this flag for safe multithreaded death tests
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   EXPECT_DEATH(sim_runner_->RequestMultiStep(1u),
-      "condition 'enabled_' failed.");
+               "condition 'enabled_' failed.");
 }
 
 // @brief Asserts that the execution breaks if a Start() is requested twice
@@ -218,7 +218,7 @@ TEST_F(SimulationRunnerTest, TestRequestStepWhenUnPaused) {
   EXPECT_FALSE(sim_runner_->IsPaused());
 
   EXPECT_DEATH(sim_runner_->RequestMultiStep(10u),
-      "condition 'paused_' failed.");
+               "condition 'paused_' failed.");
 }
 
 // @brief Checks that RunSyncFor executes the simulation for the expected

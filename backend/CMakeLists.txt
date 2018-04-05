@@ -177,18 +177,24 @@ install(TARGETS python_bindings
   ARCHIVE DESTINATION lib
 )
 
+# Creates an emtpy __init__.py file in order to enable python
+# to identify `delphyne` as a module.
+file(WRITE
+  ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/delphyne/__init__.py "")
+
 # ----------------------------------------
 # Installs libraries and binaries.
 #
 install(
-  FILES
-    python/delphyne.py
-    python/simulation_utils.py
+  FILES 
+    python/bindings.py
+    python/launcher.py
+    python/simulation_utils.py 
   DESTINATION
-    ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/utils
-)
+    ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/delphyne)
 
 install(PROGRAMS
+  python/demo_launcher.py
   python/examples/keyboard_controlled_simulation.py
   python/examples/loadable_agent_simulation.py
   python/examples/realtime_rate_changer.py

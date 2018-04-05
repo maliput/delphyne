@@ -46,12 +46,12 @@ from __future__ import print_function
 import argparse
 import sys
 
-from delphyne import (
+from delphyne.bindings import (
     AutomotiveSimulator,
     RoadBuilder,
     SimulatorRunner
 )
-from simulation_utils import launch_interactive_simulation
+from delphyne.simulation_utils import launch_interactive_simulation
 
 SIMULATION_TIME_STEP_SECS = 0.001
 

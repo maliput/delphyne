@@ -4,14 +4,17 @@
 
 #include "gtest/gtest.h"
 
+#include "backend/delphyne_realtime_clock.h"
+#include "backend/delphyne_time_point.h"
+
 namespace delphyne {
 namespace backend {
 
 const double kTimeTolerance{1e-8};
 
 GTEST_TEST(SimulationRunStatsTest, UsualRunTest) {
-  double sim_start = 1.0;
-  TimePoint realtime_start = Clock::now();
+  const double sim_start = 1.0;
+  const TimePoint realtime_start = RealtimeClock::now();
 
   SimulationRunStats stats = SimulationRunStats(1.0, realtime_start);
 
@@ -54,8 +57,8 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   // We need this flag for safe multithreaded death tests
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
 
-  double sim_start = 1.0;
-  TimePoint realtime_start = Clock::now();
+  const double sim_start = 1.0;
+  const TimePoint realtime_start = RealtimeClock::now();
 
   SimulationRunStats stats = SimulationRunStats(1.0, realtime_start);
 

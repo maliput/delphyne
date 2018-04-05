@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include <memory>
 #include <vector>
 
 #include "backend/simulation_run_stats.h"
@@ -39,30 +38,42 @@ namespace backend {
 /// was idle.
 class InteractiveSimulationStats {
  public:
-  /// @brief Creates a new simulation run, starting at start_simtime
+  /// @brief Creates a new simulation run, starting at `start_simtime`
   ///
   /// @param[in] start_simtime. The time the simulation started, given by the
   /// simulator clock.
-  void NewRunStartingAt(double start_simtime,
-                        TimePoint start_realtime = Clock::now());
+  void NewRunStartingAt(double start_simtime);
+
+  /// @brief Creates a new simulation run, starting at `start_simtime`
+  ///
+  /// @param[in] start_simtime. The time the simulation started, given by the
+  /// simulator clock.
+  ///
+  /// @param[in] start_realtime. The time the simulation started, given by the
+  /// real-time clock.
+  void NewRunStartingAt(double start_simtime, const TimePoint& start_realtime);
 
   /// @brief Returns the current running simulation stats @see
   /// SimulationRunStats
-  SimulationRunStats* GetCurrentRunStats();
+  const SimulationRunStats& GetCurrentRunStats() const;
+
+  /// @brief Returns the current running simulation stats @see
+  /// SimulationRunStats
+  SimulationRunStats* GetMutableCurrentRunStats();
 
   /// @brief Returns the sum of the elapsed simulation time of all the
   /// simulation runs.
-  double TotalElapsedSimtime();
+  double TotalElapsedSimtime() const;
 
   /// @brief Returns the sum of the elapsed real time of all the simulation
   /// runs.
-  double TotalElapsedRealtime();
+  double TotalElapsedRealtime() const;
 
   /// @brief Returns the sum of the executed steps of all the simulation runs.
-  int TotalExecutedSteps();
+  int TotalExecutedSteps() const;
 
   /// @brief Returns the number of simulation runs.
-  int TotalRuns();
+  int TotalRuns() const;
 
  private:
   // @brief All the recorded simulation runs

@@ -22,6 +22,17 @@ install(TARGETS time_conversion
 )
 
 # ----------------------------------------
+# Real-time Clock and related aliases
+add_library(realtime_utils delphyne_duration.h delphyne_realtime_clock.h delphyne_time_point.h)
+set_target_properties(realtime_utils PROPERTIES LINKER_LANGUAGE CXX OUTPUT_NAME ${PROJECT_NAME}-realtime-clock)
+
+install(TARGETS realtime_utils
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+# ----------------------------------------
 # Lcm to ign translation library
 #
 add_library(lcm_to_ignition_translation lcm_to_ign_translation.cc)
@@ -93,6 +104,7 @@ target_link_libraries(
     ${IGNITION-MSGS_LIBRARIES}
   PRIVATE
     drake_ign_translation_systems
+    realtime_utils
 )
 
 install(TARGETS automotive_simulator

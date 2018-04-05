@@ -1,20 +1,21 @@
 // Copyright 2018 Toyota Research Institute
 
 #include "backend/simulation_run_stats.h"
+#include "backend/delphyne_realtime_clock.h"
 #include "backend/system.h"
 
 namespace delphyne {
 namespace backend {
 
 SimulationRunStats::SimulationRunStats(double start_simtime)
-    : SimulationRunStats(start_simtime, Clock::now()) {}
+    : SimulationRunStats(start_simtime, RealtimeClock::now()) {}
 
 SimulationRunStats::SimulationRunStats(double start_simtime,
                                        const TimePoint& start_realtime)
     : start_simtime_(start_simtime), start_realtime_(start_realtime) {}
 
 void SimulationRunStats::StepExecuted(double simtime) {
-  StepExecuted(simtime, Clock::now());
+  StepExecuted(simtime, RealtimeClock::now());
 }
 
 void SimulationRunStats::StepExecuted(double simtime,
@@ -25,14 +26,14 @@ void SimulationRunStats::StepExecuted(double simtime,
   last_step_realtime_ = realtime;
 }
 
-double SimulationRunStats::ElapsedSimtime() {
+double SimulationRunStats::ElapsedSimtime() const {
   if (executed_steps_ == 0) {
     return 0.0;
   }
   return last_step_simtime_ - start_simtime_;
 }
 
-double SimulationRunStats::ElapsedRealtime() {
+double SimulationRunStats::ElapsedRealtime() const {
   if (executed_steps_ == 0) {
     return 0.0;
   }

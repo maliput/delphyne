@@ -77,8 +77,6 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Starts the simulator runner.
         self.runner.Start()
 
-        self.runner.UnpauseSimulation()
-
         # Ensure simulator is not paused.
         self.assertFalse(self.runner.IsSimulationPaused())
 

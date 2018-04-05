@@ -65,6 +65,8 @@ SimulatorRunner::SimulatorRunner(
       simulator_(std::move(sim)),
       realtime_rate_(realtime_rate),
       paused_(paused) {
+  DELPHYNE_DEMAND(realtime_rate >= 0.);
+
   // Advertises the service for controlling the simulation.
   node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
 
@@ -196,8 +198,8 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   if (!paused_) {
     StepSimulationBy(time_step_);
   } else if (steps_requested_ > 0) {
-    steps_requested_--;
     StepSimulationBy(time_step_);
+    steps_requested_--;
   }
 
   // A copy of the python callbacks so we can process them in a thread-safe
@@ -228,22 +230,22 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   }
 }
 
-void SimulatorRunner::StepSimulationBy(const double& time_step) {
+void SimulatorRunner::StepSimulationBy(double time_step) {
   simulator_->StepBy(time_step);
 
-  auto current_run_stats = stats_.GetCurrentRunStats();
+  SimulationRunStats* current_run_stats = stats_.GetMutableCurrentRunStats();
 
   current_run_stats->StepExecuted(simulator_->get_current_simulation_time());
 
   // Return if running at full speed
-  if (realtime_rate_ <= 0) {
+  if (realtime_rate_ == 0) {
     return;
   }
 
   const double simtime_passed = current_run_stats->ElapsedSimtime();
   const TimePoint desired_realtime = current_run_stats->get_start_realtime() +
                                      Duration(simtime_passed / realtime_rate_);
-  if (desired_realtime > Clock::now())
+  if (desired_realtime > RealtimeClock::now())
     std::this_thread::sleep_until(desired_realtime);
 }
 
@@ -262,7 +264,8 @@ void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {
 }
 
 void SimulatorRunner::SetRealtimeRate(double realtime_rate) {
-  realtime_rate_ = std::max(realtime_rate, 0.);
+  DELPHYNE_DEMAND(realtime_rate >= 0.);
+  realtime_rate_ = realtime_rate;
   SetupNewRunStats();
 }
 

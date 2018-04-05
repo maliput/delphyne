@@ -4,6 +4,9 @@
 
 #include "gtest/gtest.h"
 
+#include "backend/delphyne_realtime_clock.h"
+#include "backend/delphyne_time_point.h"
+
 namespace delphyne {
 namespace backend {
 
@@ -13,7 +16,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   double current_run_simtime_start;
   TimePoint current_run_realtime_start;
 
-  InteractiveSimulationStats stats = InteractiveSimulationStats();
+  InteractiveSimulationStats stats;
 
   // Nothing has been yet simulated.
   EXPECT_EQ(0, stats.TotalRuns());
@@ -23,7 +26,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
 
   // A new simulation run has started, but no step recorded.
   current_run_simtime_start = 0.0;
-  current_run_realtime_start = Clock::now();
+  current_run_realtime_start = RealtimeClock::now();
 
   stats.NewRunStartingAt(current_run_simtime_start, current_run_realtime_start);
 
@@ -33,7 +36,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   EXPECT_NEAR(0., stats.TotalElapsedRealtime(), kTimeTolerance);
 
   // Execute a step
-  stats.GetCurrentRunStats()->StepExecuted(
+  stats.GetMutableCurrentRunStats()->StepExecuted(
       current_run_simtime_start + 0.1,
       current_run_realtime_start + std::chrono::milliseconds(200));
 
@@ -44,7 +47,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
 
   // Execute another step of the current run and add another run with a single
   // step that started 10 seconds after.
-  stats.GetCurrentRunStats()->StepExecuted(
+  stats.GetMutableCurrentRunStats()->StepExecuted(
       current_run_simtime_start + 0.3,
       current_run_realtime_start + std::chrono::milliseconds(500));
 
@@ -53,7 +56,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
       current_run_realtime_start + std::chrono::seconds(10);
 
   stats.NewRunStartingAt(current_run_simtime_start, current_run_realtime_start);
-  stats.GetCurrentRunStats()->StepExecuted(
+  stats.GetMutableCurrentRunStats()->StepExecuted(
       current_run_simtime_start + 1.1,
       current_run_realtime_start + std::chrono::milliseconds(800));
 

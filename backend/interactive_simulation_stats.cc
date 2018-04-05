@@ -5,10 +5,14 @@
 namespace delphyne {
 namespace backend {
 
-void InteractiveSimulationStats::NewRunStartingAt(double start_simtime,
-                                                  TimePoint start_realtime) {
+void InteractiveSimulationStats::NewRunStartingAt(double start_simtime) {
+  NewRunStartingAt(start_simtime, RealtimeClock::now());
+}
+
+void InteractiveSimulationStats::NewRunStartingAt(
+    double start_simtime, const TimePoint& start_realtime) {
   if (!run_stats_.empty()) {
-    auto current = GetCurrentRunStats();
+    SimulationRunStats* current = GetMutableCurrentRunStats();
     current->RunFinished();
     // Discard an empty run
     if (current->get_executed_steps() == 0) {
@@ -22,33 +26,39 @@ void InteractiveSimulationStats::NewRunStartingAt(double start_simtime,
   run_stats_.push_back(SimulationRunStats(start_simtime, start_realtime));
 }
 
-SimulationRunStats* InteractiveSimulationStats::GetCurrentRunStats() {
+const SimulationRunStats& InteractiveSimulationStats::GetCurrentRunStats()
+    const {
+  DELPHYNE_DEMAND(!run_stats_.empty());
+  return run_stats_.at(run_stats_.size() - 1);
+}
+
+SimulationRunStats* InteractiveSimulationStats::GetMutableCurrentRunStats() {
   DELPHYNE_DEMAND(!run_stats_.empty());
   return &run_stats_.back();
 }
 
-double InteractiveSimulationStats::TotalElapsedSimtime() {
+double InteractiveSimulationStats::TotalElapsedSimtime() const {
   if (run_stats_.empty()) {
     return 0.0;
   }
-  return GetCurrentRunStats()->ElapsedSimtime() + total_elapsed_simtime_;
+  return GetCurrentRunStats().ElapsedSimtime() + total_elapsed_simtime_;
 }
 
-double InteractiveSimulationStats::TotalElapsedRealtime() {
+double InteractiveSimulationStats::TotalElapsedRealtime() const {
   if (run_stats_.empty()) {
     return 0.0;
   }
-  return GetCurrentRunStats()->ElapsedRealtime() + total_elapsed_realtime_;
+  return GetCurrentRunStats().ElapsedRealtime() + total_elapsed_realtime_;
 }
 
-int InteractiveSimulationStats::TotalExecutedSteps() {
+int InteractiveSimulationStats::TotalExecutedSteps() const {
   if (run_stats_.empty()) {
     return 0;
   }
-  return GetCurrentRunStats()->get_executed_steps() + total_executed_steps_;
+  return GetCurrentRunStats().get_executed_steps() + total_executed_steps_;
 }
 
-int InteractiveSimulationStats::TotalRuns() { return run_stats_.size(); }
+int InteractiveSimulationStats::TotalRuns() const { return run_stats_.size(); }
 
 }  // namespace backend
 }  // namespace delphyne

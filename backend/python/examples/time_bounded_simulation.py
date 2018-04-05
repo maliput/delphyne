@@ -30,10 +30,10 @@ from delphyne.simulation_utils import (
 SIMULATION_TIME_STEP_SECS = 0.001
 
 
-def check_positive_float(value):
+def check_positive_float_or_zero(value):
     """Check that the passed argument is a positive float value"""
     float_value = float(value)
-    if float_value <= 0.0:
+    if float_value < 0.0:
         raise argparse.ArgumentTypeError("%s is not a positive float value"
                                          % value)
     return float_value
@@ -48,10 +48,10 @@ def main():
         prog="time_bounded_simulation",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-d", "--duration", default=15.0,
-                        type=check_positive_float,
+                        type=check_positive_float_or_zero,
                         help="The duration the simulation should run for")
     parser.add_argument("-r", "--realtime_rate", default=1.0,
-                        type=check_positive_float,
+                        type=check_positive_float_or_zero,
                         help="The real-time rate at which the simulation \
                              should start running")
 

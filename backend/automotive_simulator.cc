@@ -583,7 +583,6 @@ void AutomotiveSimulator<T>::Build() {
   // of the visualizer. Because this information is not needed at the same
   // frequency the simulation runs at, the publishing frequency is reduced.
 
-
   // TODO(basicNew): Temporary disabling this as it is breaking the UI. To be
   // fixed ASAP. Issue recorded in
   // https://github.com/ToyotaResearchInstitute/delphyne/issues/324

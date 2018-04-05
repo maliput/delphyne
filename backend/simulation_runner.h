@@ -221,7 +221,7 @@ class SimulatorRunner {
   ///
   /// @pre Start() or RunAsyncFor() has been called.
   /// @pre Paused() has been called or the simulation runner has started paused.
-  void RequestSimulationStepExecution(unsigned int steps = 1);
+  void RequestSimulationStepExecution(unsigned int steps);
 
   /// @brief Returns if the interactive simulation loop is currently running or
   /// not.
@@ -263,33 +263,33 @@ class SimulatorRunner {
   void RunInteractiveSimulationLoopFor(double duration,
                                        std::function<void()> callback);
 
-  /// @brief Performs a single interactive simulation loop step. This means:
-  ///
-  /// - Checking for possible ignition messages coming from the topics that
-  /// connect the simulation backed to the external world.
-  /// - Attempting to run a simulation step. This will happen either if the
-  /// simulation is not paused or there is a queued request to perform a
-  /// simulation step. Note also that the amount time to advance the simulation
-  /// is provided by the `time_step_` field and the ratio between real time and
-  /// simulation time is provided by the configured real-time rate.
-  /// - Sending the required responses (if any) to outgoing ignition topics
-  /// that connect the simulation backed to the external world.
-  ///
-  /// Note: this method is low-level functionality of the simulator runner and
-  /// it is the caller responsibility to do the proper invocation to
-  /// SetupNewRunStats() before calling this method.
-  ///
-  /// Finally, note that this is a synchronous call and the caller will be
-  /// blocked until the interactive simulation step is done.
+  // @brief Performs a single interactive simulation loop step. This means:
+  //
+  // - Checking for possible ignition messages coming from the topics that
+  // connect the simulation backend to the external world.
+  // - Attempting to run a simulation step. This will happen either if the
+  // simulation is not paused or there is a queued request to perform a
+  // simulation step. Note also that the amount time to advance the simulation
+  // is provided by the `time_step_` field and the ratio between real time and
+  // simulation time is provided by the configured real-time rate.
+  // - Sending the required responses (if any) to outgoing ignition topics
+  // that connect the simulation backend to the external world.
+  //
+  // Note: this method is low-level functionality of the simulator runner and
+  // it is the caller responsibility to do the proper invocation to
+  // SetupNewRunStats() before calling this method.
+  //
+  // Finally, note that this is a synchronous call and the caller will be
+  // blocked until the interactive simulation step is done.
   void RunInteractiveSimulationLoopStep();
 
-  /// @brief Advances the simulation time by the given @p time_step increment
-  /// in seconds. If necessary, pause the calling thread to be in sync with the
-  /// configured real-time rate. Update also the simulation statistics.
-  ///
+  // @brief Advances the simulation time by the given @p time_step increment
+  // in seconds. If necessary, pause the calling thread to be in sync with the
+  // configured real-time rate. Update also the simulation statistics.
+  //
   // @param[in] time_step The amount of time (in seconds) that the simulation
   // must be advanced.
-  void StepSimulationBy(const double& time_step);
+  void StepSimulationBy(double time_step);
 
   // @brief Process one RobotModelRequest message.
   //

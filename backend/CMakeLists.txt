@@ -206,10 +206,6 @@ install(PROGRAMS
     ${CMAKE_INSTALL_PREFIX}/bin
 )
 
-# Launcher
-install(FILES python/launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/python2.7/site-packages/launcher)
-install(PROGRAMS python/demo_launcher.py DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-
 ##############################################################################
 # C++ tests.
 ##############################################################################

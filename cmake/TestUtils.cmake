@@ -37,11 +37,11 @@ macro (delphyne_build_tests)
       ${lcm_LIBRARIES}
       ${PYTHON_LIBRARIES}
       automotive_simulator
-      delphyne_lcm_to_ign
-      delphyne_protobuf_msgs
+      lcm_to_ignition_translation
+      protobuf_messages
       drake_ign_translation_systems
-      libgtest_main.a
-      libgtest.a
+      gtest_main
+      gtest
       pthread
       pybind11::module
       scene_system

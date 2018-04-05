@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "backend/automotive_simulator.h"
 #include "backend/road_builder.h"
 #include "backend/simulation_runner.h"
 

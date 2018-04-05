@@ -29,7 +29,8 @@ void LoadRobotAggregator::CalcAggregatedLoadRobot(
 
   load_robot_message->link.clear();
   for (const auto& load_robot_generator : load_robot_generators) {
-    for (const drake::lcmt_viewer_link_data& link : load_robot_generator().link) {
+    for (const drake::lcmt_viewer_link_data& link :
+         load_robot_generator().link) {
       load_robot_message->link.push_back(link);
     }
   }

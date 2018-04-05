@@ -23,30 +23,28 @@ else
   DELPHYNE_INSTALL_DIR=$( dirname $( dirname $DELPHYNE_SOURCE_DIR) )/install
 fi
 
-pushd $DELPHYNE_BUILD_DIR
-
-EXIT=0
+CPP_EXIT=0
+PYTHON_EXIT=0
 
 #################################### BUILD ###################################
 
+# Skip running cmake, CI has it's own rules, and we don't wan to override
+# any rules the user specified in building it themselves.
+
+if [ ! -d "${DELPHYNE_BUILD_DIR}" ]; then
+  printf "\nBuild directory does not exist, make sure you have configured the build with cmake.\n"
+  exit 1
+fi
+
 printf "\nBuilding and Installing:\n"
-cmake $DELPHYNE_SOURCE_DIR -DCMAKE_INSTALL_PREFIX=$DELPHYNE_INSTALL_DIR
+pushd $DELPHYNE_BUILD_DIR
 make -j$( getconf _NPROCESSORS_ONLN )
 
 ##################################### CPP ####################################
 
 printf "\nRunning C++ tests:\n"
-CTEST_OUTPUT_ON_FAILURE=1 make test || EXIT=$?
+CTEST_OUTPUT_ON_FAILURE=1 make test || CPP_EXIT=$?
 popd
-
-# Since C++ tests can exit with an exit code different than 1 on failure,
-# we unify them so that we always get 1 on failure and 0 on success.
-if [ "$EXIT" -ne 0 ]; then
-  printf "\nSome c++ tests failed.\n"
-  exit 1
-else
-  printf "\nAll c++ tests passed.\n"
-fi
 
 ################################### PYTHON ###################################
 
@@ -55,16 +53,26 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DELPHYNE_INSTALL_DIR/lib
 
 printf "\nRunning Python tests:\n"
 # TODO(apojomovsky): replace this by `python setup.py test` after #290 is set up.
-python -m unittest discover ${SCRIPT_DIR}/regression/python "*_test.py" || EXIT=$?
+python -m unittest discover ${SCRIPT_DIR}/regression/python "*_test.py" || PYTHON_EXIT=$?
 
-# Since C++ tests can exit with an exit code different than 1 on failure,
-# we unify them so that we always get 1 on failure and 0 on success.
-if [ "$EXIT" -ne 0 ]; then
-  printf "\nSome python tests failed.\n"
-  exit 1
+################################### RESULT ###################################
+# Output results and consolidate exit result to 0, 1.
+
+printf "\n********************** Results **********************\n\n"
+
+if [ "$CPP_EXIT" -ne 0 ]; then
+  printf " - Some c++ tests failed.\n"
 else
-  printf "\nAll python tests passed.\n"
+  printf " - All c++ tests passed.\n"
 fi
 
-exit 0
+if [ "$PYTHON_EXIT" -ne 0 ]; then
+  printf " - Some python tests failed.\n"
+else
+  printf " - All python tests passed.\n"
+fi
+printf "\n"
+EXIT=0
+[ "$CPP_EXIT" -ne 0 ] || [ "$PYTHON_EXIT" -ne 0 ] && EXIT=1
+exit $EXIT
 

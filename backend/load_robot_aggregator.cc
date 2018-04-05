@@ -5,8 +5,6 @@
 #include <functional>
 #include <vector>
 
-#include "backend/system.h"
-
 namespace delphyne {
 namespace backend {
 
@@ -27,7 +25,10 @@ void LoadRobotAggregator::CalcAggregatedLoadRobot(
   const auto& load_robot_generators =
       load_robot_generators_input->GetValue<std::vector<LoadRobotGenerator>>();
 
+  // Clears state from the previous call.
+  // @see DeclareAbstractOutputPort
   load_robot_message->link.clear();
+
   for (const auto& load_robot_generator : load_robot_generators) {
     for (const drake::lcmt_viewer_link_data& link :
          load_robot_generator().link) {

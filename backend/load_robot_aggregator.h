@@ -5,10 +5,21 @@
 #include "drake/lcmt_viewer_load_robot.hpp"
 #include "drake/systems/framework/leaf_system.h"
 
+#include "backend/system.h"
+
 namespace delphyne {
 namespace backend {
 
-class LoadRobotAggregator : public drake::systems::LeafSystem<double> {
+/// @brief A system that aggregates LCM viewer load robot messages, creating a
+/// new viewer load robot message, with all of the links of the input messages.
+///
+/// Because the number of messages to aggregate is unknown, this system has a
+/// single abstract input port, in which a vector of functions that return an
+/// LCM viewer load message is stored. std::function is used instead of plain
+/// function pointers to make the system easier to use with lambda functions
+/// that capture state.
+class DELPHYNE_BACKEND_VISIBLE LoadRobotAggregator
+    : public drake::systems::LeafSystem<double> {
  public:
   LoadRobotAggregator();
 

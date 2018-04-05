@@ -22,7 +22,8 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg();
 // Generates a pre-loaded lcmt_viewer_load_robot message.
 //
 // @return a loaded lcmt_viewer_load_robot message.
-DELPHYNE_BACKEND_VISIBLE drake::lcmt_viewer_load_robot BuildPreloadedLoadRobotMsg();
+DELPHYNE_BACKEND_VISIBLE drake::lcmt_viewer_load_robot
+BuildPreloadedLoadRobotMsg();
 
 // Generates a pre-loaded Model_V message.
 //

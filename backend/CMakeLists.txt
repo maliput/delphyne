@@ -114,6 +114,7 @@ install(TARGETS automotive_simulator
 )
 
 # ----------------------------------------
+<<<<<<< 08bc3840d0777b52abff9dde3784379992931138
 # Simulator-runner library
 #
 # Right now this can't be made shared - segfaults
@@ -124,6 +125,15 @@ add_library(simulation_runner
   interactive_simulation_stats.cc
   simulation_run_stats.cc
   simulation_runner.cc
+=======
+# Scene-builder library
+
+add_library(scene_system
+  SHARED
+  load_robot_aggregator.cc
+  scene_builder_system.cc
+  scene_system.cc
+>>>>>>> Added (incomplete) aggregator tests, improved geometry generation.
   system.h
 )
 # Position independent code can disappear once we are able to drop STATIC

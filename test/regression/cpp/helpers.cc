@@ -1,6 +1,8 @@
 // Copyright 2017 Toyota Research Institute
 
-#include <gtest/gtest.h>
+#include "backend/test/helpers.h"
+
+#include <exception>
 #include <string>
 #include <vector>
 
@@ -57,8 +59,40 @@ drake::lcmt_viewer_load_robot BuildPreloadedLoadRobotMsg() {
       for (int k = 0; k < kPreloadedGeometries; ++k) {
         drake::lcmt_viewer_geometry_data geometry;
 
-        // TODO(nventuro): add geometries (box, sphere, etc.).
-        geometry.num_float_data = 0;
+        // Pre-fill the float_data, only some of them will be used, depending
+        // on the actual geometry.
+        geometry.float_data =
+            std::vector<float>{static_cast<float>(i), static_cast<float>(j),
+                               static_cast<float>(k)};
+
+        // We currently support 4 types of geometries, so only those are
+        // generated.
+        switch ((i + j + k) % 4) {
+          case 0:
+            geometry.type = drake::lcmt_viewer_geometry_data::BOX;
+            geometry.num_float_data = 3;
+            break;
+
+          case 1:
+            geometry.type = drake::lcmt_viewer_geometry_data::SPHERE;
+            geometry.num_float_data = 1;
+            break;
+
+          case 2:
+            geometry.type = drake::lcmt_viewer_geometry_data::CYLINDER;
+            geometry.num_float_data = 2;
+            break;
+
+          case 3:
+            geometry.type = drake::lcmt_viewer_geometry_data::MESH;
+            geometry.string_data = "mesh";
+            geometry.num_float_data = 3;
+            break;
+
+          default:
+            throw std::logic_error("Unhandled geometry type");
+            break;
+        }
 
         geometry.position[0] = i;
         geometry.position[1] = j + 5.0;
@@ -78,6 +112,7 @@ drake::lcmt_viewer_load_robot BuildPreloadedLoadRobotMsg() {
       }
 
       link.num_geom = link.geom.size();
+      lcm_msg.link.push_back(link);
     }
   }
 

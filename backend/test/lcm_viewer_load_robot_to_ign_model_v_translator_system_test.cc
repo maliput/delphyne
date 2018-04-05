@@ -14,7 +14,8 @@ namespace backend {
 // @brief Checks that an LCM viewer load robot message on the input port is
 // correctly translated into an ignition Model_V message.
 GTEST_TEST(LCMViewerLoadRobotToIgnModelVTranslatorSystemTest, TestTranslation) {
-  const drake::lcmt_viewer_load_robot lcm_msg{test::BuildPreloadedLoadRobotMsg()};
+  const drake::lcmt_viewer_load_robot lcm_msg{
+      test::BuildPreloadedLoadRobotMsg()};
 
   const translation_systems::LcmViewerLoadRobotToIgnModelV translator;
   std::unique_ptr<drake::systems::Context<double>> context =

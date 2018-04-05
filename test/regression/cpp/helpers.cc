@@ -13,9 +13,10 @@ namespace delphyne {
 namespace test {
 
 // The preloaded messages have kPreloadedModels models, each with
-// kPreloadedLinks links.
+// kPreloadedLinks links, each with kPreloadedGeometries geometries.
 const int kPreloadedModels{3};
 const int kPreloadedLinks{2};
+const int kPreloadedGeometries{4};
 
 drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   drake::lcmt_viewer_draw lcm_msg;
@@ -39,6 +40,48 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   }
 
   lcm_msg.num_links = kPreloadedModels * kPreloadedLinks;
+
+  return lcm_msg;
+}
+
+drake::lcmt_viewer_load_robot BuildPreloadedLoadRobotMsg() {
+  drake::lcmt_viewer_load_robot lcm_msg;
+
+  for (int i = 0; i < kPreloadedModels; ++i) {
+    for (int j = 0; j < kPreloadedLinks; ++j) {
+      drake::lcmt_viewer_link_data link;
+
+      link.robot_num = i;
+      link.name = std::to_string(i) + std::to_string(j);
+
+      for (int k = 0; k < kPreloadedGeometries; ++k) {
+        drake::lcmt_viewer_geometry_data geometry;
+
+        // TODO(nventuro): add geometries (box, sphere, etc.).
+        geometry.num_float_data = 0;
+
+        geometry.position[0] = i;
+        geometry.position[1] = j + 5.0;
+        geometry.position[2] = k + 10.0;
+
+        geometry.quaternion[0] = j;
+        geometry.quaternion[1] = i + 5.0;
+        geometry.quaternion[2] = j + 10.0;
+        geometry.quaternion[3] = k + 15.0;
+
+        geometry.color[0] = j;
+        geometry.color[1] = i + 5.0;
+        geometry.color[2] = j + 10.0;
+        geometry.color[3] = k + 15.0;
+
+        link.geom.push_back(geometry);
+      }
+
+      link.num_geom = link.geom.size();
+    }
+  }
+
+  lcm_msg.num_links = lcm_msg.link.size();
 
   return lcm_msg;
 }
@@ -247,6 +290,13 @@ namespace {
   if (failure) {
     return ::testing::AssertionFailure() << error_msg;
   }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_load_robot& lcm_msg,
+    const ignition::msgs::Model_V& ign_models) {
+  // TODO(nventuro): compare the links, including their geometries.
   return ::testing::AssertionSuccess();
 }
 

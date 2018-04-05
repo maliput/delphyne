@@ -3,9 +3,8 @@
 #include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
 
 #include <map>
-#include <string>
+#include <vector>
 
-#include "backend/system.h"
 #include "backend/time_conversion.h"
 
 namespace delphyne {
@@ -21,6 +20,9 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
 
+  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
+      MillisToIgnitionTime(time));
+
   // An lcmt_viewer_load_robot is a vector of links, some of which have the same
   // id, and correspond to the same model. To make translation into models
   // easier, a first pass over said vector is done, grouping by link id.
@@ -35,6 +37,8 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
     grouped_links_by_id[id].push_back(&link);
   }
 
+  // A model is created for each id, and all links with that same id are added
+  // to it.
   for (const auto& id_links_pair : grouped_links_by_id) {
     ignition::msgs::Model* new_model = ign_message->add_models();
     new_model->set_id(id_links_pair.first);
@@ -44,6 +48,9 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
       new_link->set_name(link->name);
 
       for (const drake::lcmt_viewer_geometry_data& geometry : link->geom) {
+        // The ignition counterpart for an LCM geometry is an ignition visual,
+        // which has different fields (geometry, pose, material, etc.) in which
+        // the corresponding parts of the LCM geometry are stored.
         ignition::msgs::Visual* new_visual = new_link->add_visual();
 
         LcmGeometryToIgnition(geometry, new_visual->mutable_geometry());
@@ -58,9 +65,6 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
       }
     }
   }
-
-  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
-      MillisToIgnitionTime(time));
 }
 
 }  // namespace translation_systems

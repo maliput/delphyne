@@ -124,9 +124,20 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     ign_color->set_a(lcm_color[3]);
   }
 
+  // @brief Converts an LCM geometry to an ignition geometry. Note that an LCM
+  // geometry has fields (such as color and position) for which the ignition
+  // counterpart is not a geometry: these fields are not converted by this
+  // function.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign geometry.
   static void LcmGeometryToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_geometry,
       ignition::msgs::Geometry* ign_geometry) {
+    // Call the specialized overload for each geometry type. Because the
+    // ignition geometry message itself also needs to be aware of the type of
+    // the inner geometry message (box, sphere, etc.), said type must be added
+    // here.
     switch (lcm_geometry.type) {
       case drake::lcmt_viewer_geometry_data::BOX:
         ign_geometry->set_type(ignition::msgs::Geometry::BOX);
@@ -154,12 +165,17 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     }
   }
 
+  // @brief Converts an LCM geometry to an ignition box geometry. The LCM
+  // goemetry must represent a box geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign box geometry.
   static void LcmGeometryToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_box,
       ignition::msgs::BoxGeom* ign_box) {
     if (lcm_box.num_float_data != 3) {
       throw TranslateException(
-          "Expected 3 float elements for box translation, but only got " +
+          "Expected 3 float elements for box translation, but got " +
           std::to_string(lcm_box.num_float_data));
     }
 
@@ -169,24 +185,34 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     size->set_z(lcm_box.float_data[2]);
   }
 
+  // @brief Converts an LCM geometry to an ignition sphere geometry. The LCM
+  // goemetry must represent a sphere geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign sphere geometry.
   static void LcmGeometryToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_sphere,
       ignition::msgs::SphereGeom* ign_sphere) {
     if (lcm_sphere.num_float_data != 1) {
       throw TranslateException(
-          "Expected 1 float elements for sphere translation, but only got " +
+          "Expected 1 float element for sphere translation, but got " +
           std::to_string(lcm_sphere.num_float_data));
     }
 
     ign_sphere->set_radius(lcm_sphere.float_data[0]);
   }
 
+  // @brief Converts an LCM geometry to an ignition cylinder geometry. The LCM
+  // goemetry must represent a cylinder geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign cylinder geometry.
   static void LcmGeometryToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_cylinder,
       ignition::msgs::CylinderGeom* ign_cylinder) {
     if (lcm_cylinder.num_float_data != 2) {
       throw TranslateException(
-          "Expected 2 float elements for cylinder translation, but only got " +
+          "Expected 2 float elements for cylinder translation, but got " +
           std::to_string(lcm_cylinder.num_float_data));
     }
 
@@ -194,16 +220,21 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     ign_cylinder->set_length(lcm_cylinder.float_data[1]);
   }
 
+  // @brief Converts an LCM geometry to an ignition mesh geometry. The LCM
+  // goemetry must represent a mesh geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign mesh geometry.
   static void LcmGeometryToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_mesh,
       ignition::msgs::MeshGeom* ign_mesh) {
     if (lcm_mesh.string_data.empty()) {
-      throw TranslateException("Expected a mesh filename to translation");
+      throw TranslateException("Expected a mesh filename for translation");
     }
 
     if (lcm_mesh.num_float_data != 3) {
       throw TranslateException(
-          "Expected 3 float elements for mesh translation, but only got " +
+          "Expected 3 float elements for mesh translation, but got " +
           std::to_string(lcm_mesh.num_float_data));
     }
 

@@ -3,7 +3,6 @@
 #include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 
 #include <map>
-#include <string>
 
 #include "backend/time_conversion.h"
 
@@ -23,13 +22,13 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
   DELPHYNE_DEMAND(lcm_message.quaternion.size() ==
                   static_cast<unsigned int>(lcm_message.num_links));
 
-  // LCM timestamps are in milliseconds.
-  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
-      MillisToIgnitionTime(lcm_message.timestamp));
-
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
+
+  // LCM timestamps are in milliseconds.
+  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
+      MillisToIgnitionTime(lcm_message.timestamp));
 
   std::map<int32_t, ignition::msgs::Model*> models;
 

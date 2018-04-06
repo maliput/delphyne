@@ -25,7 +25,7 @@ namespace backend {
 ///
 /// @tparam T must be a valid Eigen ScalarType.
 template <typename T>
-class DELPHYNE_BACKEND_VISIBLE RoadBuilder {
+class RoadBuilder {
  public:
   /// @brief Default constructor.
   ///

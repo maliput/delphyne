@@ -17,7 +17,7 @@ namespace translation_systems {
 
 /// @brief A system that translates Drake driving command messages to ignition
 /// driving command messages.
-class DELPHYNE_BACKEND_VISIBLE DrakeDrivingCommandToIgn
+class DrakeDrivingCommandToIgn
     : public DrakeToIgn<drake::automotive::DrivingCommand<double>,
                         ignition::msgs::AutomotiveDrivingCommand> {
  public:

@@ -20,7 +20,7 @@ namespace backend {
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
 
-DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> MicrosToSecsAndNanos(
+std::pair<int64_t, int64_t> MicrosToSecsAndNanos(
     int64_t micros);
 
 /// @brief Converts from an integer value in milliseconds to a
@@ -30,7 +30,7 @@ DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> MicrosToSecsAndNanos(
 /// milliseconds.
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
-DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> MillisToSecsAndNanos(
+std::pair<int64_t, int64_t> MillisToSecsAndNanos(
     int64_t millis);
 
 /// @brief Converts from a double value in seconds to a pair of
@@ -40,7 +40,7 @@ DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> MillisToSecsAndNanos(
 /// in seconds.
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
-DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> SecsToSecsAndNanos(
+std::pair<int64_t, int64_t> SecsToSecsAndNanos(
     double time);
 
 /// @brief Converts from a pair of integers containing independent
@@ -52,7 +52,7 @@ DELPHYNE_BACKEND_VISIBLE std::pair<int64_t, int64_t> SecsToSecsAndNanos(
 /// in nanoseconds to translate.
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
-DELPHYNE_BACKEND_VISIBLE double SecsAndNanosToMillis(int64_t secs,
+double SecsAndNanosToMillis(int64_t secs,
                                                      int64_t nsecs);
 
 /// @brief Generates and returns an ignition::msgs::Time from a given
@@ -61,7 +61,7 @@ DELPHYNE_BACKEND_VISIBLE double SecsAndNanosToMillis(int64_t secs,
 /// milliseconds.
 /// @param[out] An ignition messages Time value composed by the value
 /// in seconds and nanoseconds translated from the milliseconds' input.
-DELPHYNE_BACKEND_VISIBLE ignition::msgs::Time MillisToIgnitionTime(
+ignition::msgs::Time MillisToIgnitionTime(
     int64_t millis);
 
 /// @brief Generates and returns an ignition::msgs::Time from a given
@@ -70,7 +70,7 @@ DELPHYNE_BACKEND_VISIBLE ignition::msgs::Time MillisToIgnitionTime(
 /// microseconds.
 /// @param[out] An ignition messages Time value composed by the value
 /// in seconds and nanoseconds translated from the microseconds' input.
-DELPHYNE_BACKEND_VISIBLE ignition::msgs::Time MicrosToIgnitionTime(
+ignition::msgs::Time MicrosToIgnitionTime(
     int64_t micros);
 
 /// @brief Generates and returns an ignition::msgs::Time from a given
@@ -79,14 +79,13 @@ DELPHYNE_BACKEND_VISIBLE ignition::msgs::Time MicrosToIgnitionTime(
 /// in seconds.
 /// @param[out] An ignition messages Time value composed by the value
 /// in seconds and nanoseconds translated from the seconds' double input.
-DELPHYNE_BACKEND_VISIBLE ignition::msgs::Time SecsToIgnitionTime(double secs);
+ignition::msgs::Time SecsToIgnitionTime(double secs);
 
 /// @brief Generates and returns an integer value in milliseconds.
 /// @param[in] ign_time an ignition messages Time object.
 /// @param[out] An integer value in milliseconds representing the
 /// total time contained in the ignition message.
-DELPHYNE_BACKEND_VISIBLE int64_t
-IgnitionTimeToMillis(const ignition::msgs::Time ign_time);
+int64_t IgnitionTimeToMillis(const ignition::msgs::Time ign_time);
 
 }  // namespace backend
 }  // namespace delphyne

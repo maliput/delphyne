@@ -18,12 +18,12 @@ namespace test {
 // Generates a pre-loaded lcmt_viewer_draw message.
 //
 // @return a loaded lcmt_viewer_draw message.
-DELPHYNE_BACKEND_VISIBLE drake::lcmt_viewer_draw BuildPreloadedDrawMsg();
+drake::lcmt_viewer_draw BuildPreloadedDrawMsg();
 
 // Generates a pre-loaded Model_V message.
 //
 // @return a loaded Model_V message.
-DELPHYNE_BACKEND_VISIBLE ignition::msgs::Model_V BuildPreloadedModelVMsg();
+ignition::msgs::Model_V BuildPreloadedModelVMsg();
 
 // Asserts that all the array-iterable values from
 // lcm_msg matches the content of the ign_models object.
@@ -31,7 +31,7 @@ DELPHYNE_BACKEND_VISIBLE ignition::msgs::Model_V BuildPreloadedModelVMsg();
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
 // @return a google test's AssertionResult.
-DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
+::testing::AssertionResult CheckMsgTranslation(
     const drake::lcmt_viewer_draw& lcm_msg,
     const ignition::msgs::Model_V& ign_models);
 
@@ -41,7 +41,7 @@ DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Scene with the translated values.
 // @return a google test's AssertionResult.
-DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
+::testing::AssertionResult CheckMsgTranslation(
     const drake::lcmt_viewer_draw& lcm_msg, const ignition::msgs::Scene& scene);
 
 // Asserts that the position values found on the original lcm message are
@@ -64,7 +64,7 @@ DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
     const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
     int lcm_index, double tolerance);
 
-DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckProtobufMsgEquality(
+::testing::AssertionResult CheckProtobufMsgEquality(
     const google::protobuf::MessageLite& lhs,
     const google::protobuf::MessageLite& rhs);
 

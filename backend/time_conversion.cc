@@ -73,8 +73,7 @@ ignition::msgs::Time SecsToIgnitionTime(double secs) {
   return ign_time;
 }
 
-DELPHYNE_BACKEND_VISIBLE int64_t
-IgnitionTimeToMillis(const ignition::msgs::Time ign_time) {
+int64_t IgnitionTimeToMillis(const ignition::msgs::Time ign_time) {
   return SecsAndNanosToMillis(ign_time.sec(), ign_time.nsec());
 }
 

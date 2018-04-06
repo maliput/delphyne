@@ -30,7 +30,7 @@ namespace backend {
 ///           template types are 'double', 'drake::AutoDiffXd', and
 ///           'drake::symbolic::Expression'.
 template <typename T>
-class DELPHYNE_BACKEND_VISIBLE AgentPluginBase
+class AgentPluginBase
     : public drake::systems::LeafSystem<T> {
  public:
   virtual ~AgentPluginBase() {}
@@ -83,7 +83,7 @@ typedef delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>
 ///           template types are 'double', 'drake::AutoDiffXd', and
 ///           'drake::symbolic::Expression'.
 template <typename T>
-class DELPHYNE_BACKEND_VISIBLE AgentPluginFactoryBase {
+class AgentPluginFactoryBase {
  public:
   /// The `Create` method is used to get a std::unique_ptr of the concrete
   /// class that inherited from from AgentPluginBase.

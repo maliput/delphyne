@@ -17,7 +17,7 @@ namespace backend {
 
 /// @brief A system that creates an ignition Scene message from a Model_V
 /// message.
-class DELPHYNE_BACKEND_VISIBLE SceneSystem
+class SceneSystem
     : public drake::systems::LeafSystem<double> {
  public:
   SceneSystem();

@@ -34,7 +34,7 @@ namespace backend {
 ///
 /// They are already available to link against in the containing library.
 template <typename T>
-class DELPHYNE_BACKEND_VISIBLE SceneBuilderSystem
+class SceneBuilderSystem
     : public drake::systems::LeafSystem<T> {
  public:
   SceneBuilderSystem();

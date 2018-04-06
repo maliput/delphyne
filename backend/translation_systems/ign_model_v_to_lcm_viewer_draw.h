@@ -15,7 +15,7 @@ namespace translation_systems {
 
 /// @brief A system that translates ignition Model_V messages to LCM viewer draw
 /// messages.
-class DELPHYNE_BACKEND_VISIBLE IgnModelVToLcmViewerDraw
+class IgnModelVToLcmViewerDraw
     : public IgnToDrake<ignition::msgs::Model_V, drake::lcmt_viewer_draw> {
  protected:
   // @brief @see IgnToDrake::DoIgnToDrakeTranslation.

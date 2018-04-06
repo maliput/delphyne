@@ -189,6 +189,7 @@ install(PROGRAMS
   python/demo_launcher.py
   python/examples/keyboard_controlled_simulation.py
   python/examples/loadable_agent_simulation.py
+  python/examples/railcar_in_multilane.py
   python/examples/realtime_rate_changer.py
   python/examples/road_loading.py
   python/examples/simple_python_binding.py

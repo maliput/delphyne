@@ -25,10 +25,6 @@ try:
     # references Drake ones) are available to other dl_open'ed libraries (e.g.
     # the dynamically loaded agents).
     sys.setdlopenflags(RTLD_NOW | RTLD_GLOBAL)
-    from pydrake.systems.framework import (
-        BasicVector,
-        VectorBase
-    )
     from python_bindings import *
 finally:
     sys.setdlopenflags(original_dl_open_flags)

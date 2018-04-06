@@ -9,6 +9,7 @@
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
+#include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/common/find_resource.h>
 #include <drake/systems/framework/basic_vector.h>
 
@@ -26,18 +27,25 @@ using delphyne::backend::SimulatorRunner;
 using delphyne::backend::InteractiveSimulationStats;
 using delphyne::backend::SimulationRunStats;
 using drake::automotive::SimpleCarState;
+using drake::automotive::MaliputRailcarState;
+using drake::automotive::MaliputRailcarParams;
+using drake::automotive::LaneDirection;
 using drake::maliput::api::RoadGeometry;
 using drake::systems::BasicVector;
 using drake::systems::VectorBase;
 
 namespace {
 PYBIND11_MODULE(python_bindings, m) {
+  py::module::import("pydrake.systems.framework");
+  py::module::import("pydrake.maliput.api");
+
   // TODO(apojomovsky): Import this from Drake. Tracked in delphyne's #339.
   // Depends on drake's #8096 to be solved before we can actually replace
   // this binding with it, since it currently lacks of constructors/methods.
   // We are currently defining SimpleCarState so we can use it as a parameter
   // of the SimulatorRunner.
-  py::class_<SimpleCarState<double>, BasicVector<double>>(m, "SimpleCarState")
+  py::class_<SimpleCarState<double>, BasicVector<double>>(m, "SimpleCarState",
+                                                          py::module_local())
       .def(py::init<>())
       .def_property("x", &SimpleCarState<double>::x,
                     &SimpleCarState<double>::set_x)
@@ -50,16 +58,34 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("get_coordinates_names",
            &SimpleCarState<double>::GetCoordinateNames);
 
-  // TODO(basicNew): Properly fill this binding and submit to Drake. We are
-  // currently defining just the class name so we can use it to pass road
-  // geometry pointers around.
-  py::class_<RoadGeometry>(m, "RoadGeometry");
+  py::class_<MaliputRailcarState<double>, BasicVector<double>>(
+      m, "MaliputRailcarState")
+      .def(py::init<>())
+      .def_property("s", &MaliputRailcarState<double>::s,
+                    &MaliputRailcarState<double>::set_s)
+      .def_property("speed", &MaliputRailcarState<double>::speed,
+                    &MaliputRailcarState<double>::set_speed);
+
+  py::class_<MaliputRailcarParams<double>, BasicVector<double>>(
+      m, "MaliputRailcarParams")
+      .def(py::init<>())
+      .def_property("r", &MaliputRailcarParams<double>::r,
+                    &MaliputRailcarParams<double>::set_r)
+      .def_property("h", &MaliputRailcarParams<double>::h,
+                    &MaliputRailcarParams<double>::set_h)
+      .def_property("max_speed", &MaliputRailcarParams<double>::max_speed,
+                    &MaliputRailcarParams<double>::set_max_speed)
+      .def_property("velocity_limit_kp",
+                    &MaliputRailcarParams<double>::velocity_limit_kp,
+                    &MaliputRailcarParams<double>::set_velocity_limit_kp);
 
   // TODO(basicNew): Properly fill this binding with the remaining methods and
   // overloaded constructors.
   py::class_<linb::any>(m, "Any")
       .def(py::init<bool&&>())
-      .def(py::init<const RoadGeometry*&&>());
+      .def(py::init<const RoadGeometry*&&>())
+      .def(py::init<LaneDirection*&&>())
+      .def(py::init<MaliputRailcarParams<double>*&&>());
 
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
       .def(py::init<>())

@@ -15,7 +15,7 @@ from contextlib import contextmanager
 
 from delphyne.bindings import (
     AutomotiveSimulator,
-    SimpleCarState,
+    SimpleCarState
 )
 from delphyne.launcher import Launcher
 

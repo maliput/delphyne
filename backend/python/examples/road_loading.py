@@ -6,32 +6,32 @@ time being three road examples are supported: dragway, onramp, monolane and
 multilane.
 This demo uses the subcommand style, where each road type can handle different
 parameters (to list the available arguments just do
-`$ road_loading_example <road_type> -h`). Below are some examples of usage:
+`$ road_loading <road_type> -h`). Below are some examples of usage:
 
 
 A dragway that is 200 meters long and has a side-shoulder of 2.5 meters:
 
 ```
-$ road_loading_example.py dragway --length=200 --shoulder-width=2.5
+$ road_loading.py dragway --length=200 --shoulder-width=2.5
 ```
 
 An on-ramp road:
 
 ```
-$ road_loading_example.py onramp
+$ road_loading.py onramp
 ```
 
 Load a monolane file:
 
 ```
-$ road_loading_example.py monolane
+$ road_loading.py monolane
 --filename='./install/share/delphyne/road_samples/double_ring.yaml'
 ```
 
 Load a multilane file:
 
 ```
-$ road_loading_example.py monolane
+$ road_loading.py multilane
 --filename='./install/share/delphyne/road_samples/multilane_sample.yaml'
 ```
 

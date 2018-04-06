@@ -14,32 +14,32 @@ time being three road examples are supported: dragway, onramp, monolane and
 multilane.
 This demo uses the subcommand style, where each road type can handle different
 parameters (to list the available arguments just do
-`$ road_loading_example <road_type> -h`). Below are some examples of usage:
+`$ road_loading <road_type> -h`). Below are some examples of usage:
 
 
 A dragway that is 200 meters long and has a side-shoulder of 2.5 meters:
 
 ```
-$ road_loading_example.py dragway --length=200 --shoulder-width=2.5
+$ road_loading.py dragway --length=200 --shoulder-width=2.5
 ```
 
 An on-ramp road:
 
 ```
-$ road_loading_example.py onramp
+$ road_loading.py onramp
 ```
 
 Load a monolane file:
 
 ```
-$ road_loading_example.py monolane
+$ road_loading.py monolane
 --filename='./install/share/delphyne/road_samples/double_ring.yaml'
 ```
 
 Load a multilane file:
 
 ```
-$ road_loading_example.py monolane
+$ road_loading.py multilane
 --filename='./install/share/delphyne/road_samples/multilane_sample.yaml'
 ```
 
@@ -132,7 +132,9 @@ For the time being two car types are supported:
 
 - simple, which just places a `LoadablePriusSimpleCarDouble` in an empty world.
 - mobil, which places a `LoadableMobilControlledSimpleCarDouble` at the start
-of a 200 meters dragway.
+of a 100 meters dragway.
+- railcar, which places a `LoadableMaliputRailCar` in the center lane of a
+three-lane dragway.
 
 
 These examples can be executed by doing:
@@ -141,12 +143,15 @@ These examples can be executed by doing:
 $ loadable_agent_simulation.py --type="simple"
 ```
 
-and
-
 ```
 $ loadable_agent_simulation.py --type="mobil"
 
 ```
+```
+$ loadable_agent_simulation.py --type="railcar"
+
+```
+
 
 <h1 id="time_bounded_simulation">time_bounded_simulation</h1>
 
@@ -162,4 +167,10 @@ seconds):
 ```
 $ time_bounded_simulation.py --realtime_rate=2.0 --duration=30.0
 ```
+
+<h1 id="railcar_in_multilane">railcar_in_multilane</h1>
+
+
+An example of a couple of railcars running around in a closed-loop maliput
+road.
 

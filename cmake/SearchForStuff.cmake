@@ -95,35 +95,13 @@ if (NOT WIN32)
   endif()
 endif()
 
-########################################
-# Find QT
-find_package (Qt5Widgets)
-if (NOT Qt5Widgets_FOUND)
-  BUILD_ERROR("Missing: Qt5Widgets")
-endif()
-
-find_package (Qt5Core)
-if (NOT Qt5Core_FOUND)
-  BUILD_ERROR("Missing: Qt5Core")
-endif()
-
-find_package (Qt5OpenGL)
-if (NOT Qt5OpenGL_FOUND)
-  BUILD_ERROR("Missing: Qt5OpenGL")
-endif()
-
-find_package (Qt5Test)
-if (NOT Qt5Test_FOUND)
-  BUILD_ERROR("Missing: Qt5Test")
-endif()
-
+##########################################
+# Find pybind and pin down python 2.7
 find_package(PythonLibs 2.7)
 if (NOT PythonLibs_FOUND)
   BUILD_ERROR("Missing: PythonLibs")
 endif()
 
-##########################################
-# Find pybind and pin down python 2.7
 if(NOT PYBIND11_PYTHON_VERSION)
   set(PYBIND11_PYTHON_VERSION "2.7" CACHE STRING "Python version to use for compiling modules")
 endif()

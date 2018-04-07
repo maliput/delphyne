@@ -1,14 +1,13 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "backend/test/helpers.h"
-
+#include <gtest/gtest.h>
 #include <string>
 #include <vector>
 
 #include "backend/system.h"
 #include "drake/lcmt_viewer_draw.hpp"
-#include "gtest/gtest.h"
 #include "ignition/msgs.hh"
+#include "helpers.h"
 
 namespace delphyne {
 namespace test {

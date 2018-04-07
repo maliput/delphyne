@@ -1,5 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
+#include <gtest/gtest.h>
 #include "backend/automotive_simulator.h"
 
 #include <chrono>
@@ -7,8 +8,6 @@
 #include <mutex>
 #include <stdexcept>
 #include <thread>
-
-#include <gtest/gtest.h>
 
 #include "drake/automotive/curve2.h"
 #include "drake/automotive/lane_direction.h"
@@ -791,7 +790,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
                std::runtime_error);
 }
 
-static const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=test/agent_plugin";
+static const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=agent_plugin";
 
 // Tests that AddLoadableCar basically works.
 GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {

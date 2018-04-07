@@ -1,3 +1,6 @@
+##############################################################################
+# Libraries for the agent plugin loader test
+##############################################################################
 # Important note:
 # Loadable modules must *not* link against libdrake.so.
 # If they do, they would have symbols defined twice; once in the loading program,
@@ -7,11 +10,12 @@
 # or calling the constructor for complex types). If the loadable module *also*
 # has that linked in, then when the loadable module gets loaded, its initialization
 # is run again and the previously initialized variables are re-written.
+##############################################################################
 
 get_target_property(STX_INCLUDE_DIRS stx::stx INTERFACE_INCLUDE_DIRECTORIES)
 get_target_property(DRAKE_LCMTYPES_INCLUDE_DIRS drake::drake-lcmtypes-cpp INTERFACE_INCLUDE_DIRECTORIES)
 
-add_library(LoadableExampleDouble SHARED
+add_library(LoadableExampleDouble
   LoadableExampleDouble.cc
 )
 
@@ -22,7 +26,7 @@ target_include_directories(LoadableExampleDouble PRIVATE
   ${STX_INCLUDE_DIRS}
 )
 
-add_library(LoadableExampleAutoDiffXd SHARED
+add_library(LoadableExampleAutoDiffXd
   LoadableExampleAutoDiffXd.cc
 )
 
@@ -33,7 +37,7 @@ target_include_directories(LoadableExampleAutoDiffXd PRIVATE
   ${STX_INCLUDE_DIRS}
 )
 
-add_library(LoadableExampleExpression SHARED
+add_library(LoadableExampleExpression
   LoadableExampleExpression.cc
 )
 

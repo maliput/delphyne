@@ -8,9 +8,9 @@
 
 #include "drake/systems/framework/framework_common.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
-#include "backend/test/helpers.h"
+#include "helpers.h"
 
 namespace delphyne {
 namespace backend {

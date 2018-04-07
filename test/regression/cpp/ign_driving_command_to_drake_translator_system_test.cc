@@ -4,7 +4,7 @@
 
 #include "drake/systems/framework/framework_common.h"
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 namespace delphyne {
 namespace backend {

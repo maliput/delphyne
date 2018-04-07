@@ -96,7 +96,7 @@ if (NOT WIN32)
 endif()
 
 ##########################################
-# Find pybind and pin down python 2.7
+# Pin down python2.7 and find pybind
 find_package(PythonLibs 2.7)
 if (NOT PythonLibs_FOUND)
   BUILD_ERROR("Missing: PythonLibs")

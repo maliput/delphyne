@@ -26,10 +26,11 @@
 
 #include <Python.h>
 
-using delphyne::backend::SimulationRunStats;
-
 namespace delphyne {
 namespace backend {
+
+using delphyne::backend::SimulationRunStats;
+
 /// @brief Blocks the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
 /// function if you want to manage yourself SIGINT/SIGTERM.

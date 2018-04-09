@@ -74,10 +74,12 @@ class SimulationRunStats {
   double get_last_step_simtime() const { return last_step_simtime_; }
 
   /// @brief Returns the start time, based on real time clock.
-  TimePoint get_start_realtime() const { return start_realtime_; }
+  const TimePoint& get_start_realtime() const { return start_realtime_; }
 
   /// @brief Returns the real time of the last recorded step.
-  TimePoint get_last_step_realtime() const { return last_step_realtime_; }
+  const TimePoint& get_last_step_realtime() const {
+    return last_step_realtime_;
+  }
 
  private:
   // @brief Start time, in seconds, based on simulator clock.

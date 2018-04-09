@@ -583,7 +583,6 @@ void AutomotiveSimulator<T>::Build() {
   // of the visualizer. Because this information is not needed at the same
   // frequency the simulation runs at, the publishing frequency is reduced.
 
-
   // TODO(basicNew): Temporary disabling this as it is breaking the UI. To be
   // fixed ASAP. Issue recorded in
   // https://github.com/ToyotaResearchInstitute/delphyne/issues/324
@@ -598,28 +597,6 @@ void AutomotiveSimulator<T>::Build() {
 
   diagram_ = builder_->Build();
   diagram_->set_name("AutomotiveSimulator");
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::Start(double realtime_rate) {
-  DELPHYNE_DEMAND(!has_started());
-  if (diagram_ == nullptr) {
-    Build();
-  }
-
-  simulator_ = std::make_unique<drake::systems::Simulator<T>>(*diagram_);
-
-  InitializeTrajectoryCars();
-  InitializeSimpleCars();
-  InitializeMaliputRailcars();
-  InitializeLoadableCars();
-
-  simulator_->set_target_realtime_rate(realtime_rate);
-  const double max_step_size = 0.01;
-  simulator_->template reset_integrator<RungeKutta2Integrator<T>>(
-      *diagram_, max_step_size, &simulator_->get_mutable_context());
-  simulator_->get_mutable_integrator()->set_fixed_step_mode(true);
-  simulator_->Initialize();
 }
 
 template <typename T>
@@ -708,10 +685,37 @@ void AutomotiveSimulator<T>::InitializeLoadableCars() {
 }
 
 template <typename T>
+void AutomotiveSimulator<T>::Start(double realtime_rate) {
+  DELPHYNE_DEMAND(!has_started());
+  if (diagram_ == nullptr) {
+    Build();
+  }
+
+  simulator_ = std::make_unique<drake::systems::Simulator<T>>(*diagram_);
+
+  InitializeTrajectoryCars();
+  InitializeSimpleCars();
+  InitializeMaliputRailcars();
+  InitializeLoadableCars();
+
+  simulator_->set_target_realtime_rate(realtime_rate);
+  const double max_step_size = 0.01;
+  simulator_->template reset_integrator<RungeKutta2Integrator<T>>(
+      *diagram_, max_step_size, &simulator_->get_mutable_context());
+  simulator_->get_mutable_integrator()->set_fixed_step_mode(true);
+  simulator_->Initialize();
+}
+
+template <typename T>
 void AutomotiveSimulator<T>::StepBy(const T& time_step) {
   const T time = simulator_->get_context().get_time();
   SPDLOG_TRACE(drake::log(), "Time is now {}", time);
   simulator_->StepTo(time + time_step);
+}
+
+template <typename T>
+double AutomotiveSimulator<T>::get_current_simulation_time() const {
+  return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
 }
 
 template <typename T>
@@ -744,34 +748,6 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
   const PoseBundle<T>& pose_bundle =
       abstract_value->GetValueOrThrow<PoseBundle<T>>();
   return pose_bundle;
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::SetRealtimeRate(double realtime_rate) {
-  DELPHYNE_DEMAND(has_started());
-  // TODO(basicNew): We should revisit this once we get feedback on
-  // https://github.com/RobotLocomotion/drake/issues/8090
-  igndbg << "Changing real-time rate and resetting simulation statistics"
-         << std::endl;
-  simulator_->ResetStatistics();
-  simulator_->set_target_realtime_rate(realtime_rate);
-}
-
-template <typename T>
-double AutomotiveSimulator<T>::GetRealtimeRate() const {
-  DELPHYNE_DEMAND(has_started());
-  return simulator_->get_target_realtime_rate();
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::ResetStatistics() {
-  DELPHYNE_DEMAND(has_started());
-  simulator_->ResetStatistics();
-}
-
-template <typename T>
-double AutomotiveSimulator<T>::get_current_simulation_time() const {
-  return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
 }
 
 template class AutomotiveSimulator<double>;

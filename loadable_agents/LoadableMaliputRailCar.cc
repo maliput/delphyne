@@ -48,9 +48,9 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include <experimental/optional>
 #include <string>
 #include <vector>
+#include <experimental/optional>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -94,7 +94,7 @@ namespace {
 // Finds our continuous state in a context.
 template <typename T>
 const drake::automotive::MaliputRailcarState<T>& get_state(
-     const drake::systems::Context<T>& context) {
+    const drake::systems::Context<T>& context) {
   const drake::automotive::MaliputRailcarState<T>* const state =
       dynamic_cast<const drake::automotive::MaliputRailcarState<T>*>(
           &context.get_continuous_state_vector());
@@ -105,15 +105,15 @@ const drake::automotive::MaliputRailcarState<T>& get_state(
 // Finds the lane direction state variable in a context.
 template <typename T>
 const drake::automotive::LaneDirection& get_lane_direction(
-     const drake::systems::Context<T>& context) {
-  return context.template get_abstract_state<
-      drake::automotive::LaneDirection>(0);
+    const drake::systems::Context<T>& context) {
+  return context.template get_abstract_state<drake::automotive::LaneDirection>(
+      0);
 }
 
 }  // namespace
 
 class LoadableMaliputRailcarDouble final
-  : public delphyne::backend::AgentPluginDoubleBase {
+    : public delphyne::backend::AgentPluginDoubleBase {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMaliputRailcarDouble)
 
@@ -129,13 +129,15 @@ class LoadableMaliputRailcarDouble final
 
     state_output_port_index_ =
         this->DeclareVectorOutputPort(
-            &LoadableMaliputRailcarDouble::CalcStateOutput).get_index();
+                &LoadableMaliputRailcarDouble::CalcStateOutput)
+            .get_index();
     pose_output_port_index_ =
-        this->DeclareVectorOutputPort(
-            &LoadableMaliputRailcarDouble::CalcPose).get_index();
+        this->DeclareVectorOutputPort(&LoadableMaliputRailcarDouble::CalcPose)
+            .get_index();
     velocity_output_port_index_ =
         this->DeclareVectorOutputPort(
-            &LoadableMaliputRailcarDouble::CalcVelocity).get_index();
+                &LoadableMaliputRailcarDouble::CalcVelocity)
+            .get_index();
 
     this->DeclareContinuousState(
         drake::automotive::MaliputRailcarState<double>());
@@ -145,8 +147,7 @@ class LoadableMaliputRailcarDouble final
 
   int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
-                drake::lcm::DrakeLcmInterface* lcm,
-                const std::string &name,
+                drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
                 int id,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
@@ -164,25 +165,30 @@ class LoadableMaliputRailcarDouble final
     if (road == nullptr) {
       ignerr << "AutomotiveSimulator::AddPriusMaliputRailcar(): "
                 "RoadGeometry not set. Please call SetRoadGeometry() first "
-                "before calling this method." << std::endl;
+                "before calling this method."
+             << std::endl;
       return -1;
     }
     if (initial_lane_direction_->lane == nullptr) {
       ignerr << "AutomotiveSimulator::AddPriusMaliputRailcar(): "
-                "The provided initial lane is nullptr." << std::endl;
+                "The provided initial lane is nullptr."
+             << std::endl;
       return -1;
     }
     if (initial_lane_direction_->lane->segment()->junction()->road_geometry() !=
         road) {
       ignerr << "AutomotiveSimulator::AddPriusMaliputRailcar(): "
                 "The provided initial lane is not within this simulation's "
-                "RoadGeometry." << std::endl;
+                "RoadGeometry."
+             << std::endl;
       return -1;
     }
 
     lane_state_output_port_index_ =
-        this->DeclareAbstractOutputPort(*initial_lane_direction_,
-            &LoadableMaliputRailcarDouble::CalcLaneOutput).get_index();
+        this->DeclareAbstractOutputPort(
+                *initial_lane_direction_,
+                &LoadableMaliputRailcarDouble::CalcLaneOutput)
+            .get_index();
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(this->pose_output(), ports.pose_descriptor);
@@ -229,7 +235,8 @@ class LoadableMaliputRailcarDouble final
         drake::automotive::MaliputRailcarParams>(context, 0);
   }
 
-  void CalcStateOutput(const drake::systems::Context<double>& context,
+  void CalcStateOutput(
+      const drake::systems::Context<double>& context,
       drake::automotive::MaliputRailcarState<double>* output) const {
     const drake::automotive::MaliputRailcarState<double>& state =
         get_state(context);
@@ -244,12 +251,12 @@ class LoadableMaliputRailcarDouble final
   void CalcLaneOutput(const drake::systems::Context<double>& context,
                       drake::automotive::LaneDirection* output) const {
     const drake::automotive::LaneDirection& lane_direction =
- get_lane_direction(context);
+        get_lane_direction(context);
     *output = lane_direction;
   }
 
   double CalcR(const drake::automotive::MaliputRailcarParams<double>& params,
-      const drake::automotive::LaneDirection& lane_direction) const {
+               const drake::automotive::LaneDirection& lane_direction) const {
     if (lane_direction.with_s == initial_lane_direction_->with_s) {
       return params.r();
     } else {
@@ -259,12 +266,13 @@ class LoadableMaliputRailcarDouble final
 
   const drake::automotive::MaliputRailcarParams<double>& get_parameters(
       const drake::systems::Context<double>& context) const {
-    return this->template GetNumericParameter<
-        drake::automotive::MaliputRailcarParams>(context, 0);
+    return this
+        ->template GetNumericParameter<drake::automotive::MaliputRailcarParams>(
+            context, 0);
   }
 
   void CalcPose(const drake::systems::Context<double>& context,
-      drake::systems::rendering::PoseVector<double>* pose) const {
+                drake::systems::rendering::PoseVector<double>* pose) const {
     // Start with context archeology.
     const drake::automotive::MaliputRailcarParams<double>& params =
         get_parameters(context);
@@ -289,19 +297,21 @@ class LoadableMaliputRailcarDouble final
     // Adjust the rotation based on whether the vehicle is traveling with s or
     // against s.
     const drake::maliput::api::Rotation adjusted_rotation =
-      (lane_direction.with_s ? rotation :
-       drake::maliput::api::Rotation::FromRpy(-rotation.roll(),
-                         -rotation.pitch(),
-                         atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
+        (lane_direction.with_s
+             ? rotation
+             : drake::maliput::api::Rotation::FromRpy(
+                   -rotation.roll(), -rotation.pitch(),
+                   atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
     pose->set_translation(Eigen::Translation<double, 3>(geo_position.xyz()));
-    pose->set_rotation(drake::math::RollPitchYawToQuaternion(
-        drake::Vector3<double>(adjusted_rotation.roll(),
-            adjusted_rotation.pitch(), adjusted_rotation.yaw())));
+    pose->set_rotation(
+        drake::math::RollPitchYawToQuaternion(drake::Vector3<double>(
+            adjusted_rotation.roll(), adjusted_rotation.pitch(),
+            adjusted_rotation.yaw())));
   }
 
-  void CalcVelocity(const drake::systems::Context<double>& context,
-               drake::systems::rendering::FrameVelocity<double>* frame_velocity)
-    const {
+  void CalcVelocity(
+      const drake::systems::Context<double>& context,
+      drake::systems::rendering::FrameVelocity<double>* frame_velocity) const {
     // Start with context archeology.
     const drake::automotive::MaliputRailcarParams<double>& params =
         get_parameters(context);
@@ -317,19 +327,19 @@ class LoadableMaliputRailcarDouble final
     //  - W is the world frame.
     //  - R is a rotation matrix.
 
-    const drake::Vector3<double> v_LC_L(lane_direction.with_s ? state.speed() :
-        -state.speed(), 0 /* r_dot */, 0 /* h_dot */);
+    const drake::Vector3<double> v_LC_L(
+        lane_direction.with_s ? state.speed() : -state.speed(), 0 /* r_dot */,
+        0 /* h_dot */);
     const drake::maliput::api::Rotation rotation =
-        lane_direction.lane->GetOrientation(
-            drake::maliput::api::LanePosition(
-                state.s(), params.r(), params.h()));
+        lane_direction.lane->GetOrientation(drake::maliput::api::LanePosition(
+            state.s(), params.r(), params.h()));
     const Eigen::Matrix<double, 3, 3> R_WL = rotation.matrix();
     const drake::Vector3<double> v_WC_W = R_WL * v_LC_L;
 
     // TODO(liang.fok) Add support for non-zero rotational velocity. See #5751.
     const drake::Vector3<double> w(0, 0, 0);
-    frame_velocity->set_velocity(drake::multibody::SpatialVelocity<double>(
-        w, v_WC_W));
+    frame_velocity->set_velocity(
+        drake::multibody::SpatialVelocity<double>(w, v_WC_W));
   }
 
   void ImplCalcTimeDerivatives(
@@ -344,8 +354,8 @@ class LoadableMaliputRailcarDouble final
         lane_direction.lane->EvalMotionDerivatives(
             drake::maliput::api::LanePosition(
                 state.s(), CalcR(params, lane_direction), params.h()),
-            drake::maliput::api::IsoLaneVelocity(
-                sigma_v, 0 /* rho_v */, 0 /* eta_v */));
+            drake::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
+                                                 0 /* eta_v */));
     // Since the railcar's IsoLaneVelocity's rho_v and eta_v values are both
     // zero, we expect the resulting motion derivative's r and h values to
     // also be zero. The IsoLaneVelocity's sigma_v, which may be non-zero, maps
@@ -376,8 +386,8 @@ class LoadableMaliputRailcarDouble final
 
     // Obtains the input.
     const drake::systems::BasicVector<double>* input =
-        this->template EvalVectorInput<drake::systems::BasicVector>(context,
-            command_input_port_index_);
+        this->template EvalVectorInput<drake::systems::BasicVector>(
+            context, command_input_port_index_);
 
     // Allocates and uses a BasicVector containing a zero acceleration command
     // in case the input contains nullptr.
@@ -398,30 +408,28 @@ class LoadableMaliputRailcarDouble final
     ImplCalcTimeDerivatives(params, state, lane_direction, *input, rates);
   }
 
-  std::unique_ptr<drake::systems::AbstractValues>
-  AllocateAbstractState() const {
+  std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
+      const {
     std::vector<std::unique_ptr<drake::systems::AbstractValue>> abstract_values;
     const drake::automotive::LaneDirection lane_direction;
     abstract_values.push_back(std::unique_ptr<drake::systems::AbstractValue>(
-        std::make_unique<drake::systems::Value<
-            drake::automotive::LaneDirection>>(lane_direction)));
+        std::make_unique<
+            drake::systems::Value<drake::automotive::LaneDirection>>(
+            lane_direction)));
     return std::make_unique<drake::systems::AbstractValues>(
         std::move(abstract_values));
   }
 
-  drake::optional<bool> DoHasDirectFeedthrough(int, int) const {
-    return false;
-  }
+  drake::optional<bool> DoHasDirectFeedthrough(int, int) const { return false; }
 
   void SetDefaultState(
-    drake::automotive::MaliputRailcarState<double>* railcar_state) const {
+      drake::automotive::MaliputRailcarState<double>* railcar_state) const {
     railcar_state->set_s(kDefaultInitialS);
     railcar_state->set_speed(kDefaultInitialSpeed);
   }
 
-  void SetDefaultState(
-    const drake::systems::Context<double>&,
-    drake::systems::State<double>* state) const override {
+  void SetDefaultState(const drake::systems::Context<double>&,
+                       drake::systems::State<double>* state) const override {
     drake::automotive::MaliputRailcarState<double>* railcar_state =
         dynamic_cast<drake::automotive::MaliputRailcarState<double>*>(
             &state->get_mutable_continuous_state().get_mutable_vector());
@@ -429,8 +437,9 @@ class LoadableMaliputRailcarDouble final
     SetDefaultState(railcar_state);
 
     drake::automotive::LaneDirection& lane_direction =
-        state->get_mutable_abstract_state().get_mutable_value(0).
-            template GetMutableValue<drake::automotive::LaneDirection>();
+        state->get_mutable_abstract_state()
+            .get_mutable_value(0)
+            .template GetMutableValue<drake::automotive::LaneDirection>();
     lane_direction = *initial_lane_direction_;
   }
 
@@ -442,7 +451,8 @@ class LoadableMaliputRailcarDouble final
   //
   // Another reason why the estimate will be off is the acceleration of the
   // vehicle is not considered (see #5532).
-  void DoCalcNextUpdateTime(const drake::systems::Context<double>& context,
+  void DoCalcNextUpdateTime(
+      const drake::systems::Context<double>& context,
       drake::systems::CompositeEventCollection<double>* events,
       double* time) const {
     const drake::automotive::MaliputRailcarState<double>& state =
@@ -469,8 +479,8 @@ class LoadableMaliputRailcarDouble final
           lane_direction.lane->EvalMotionDerivatives(
               drake::maliput::api::LanePosition(
                   s, CalcR(params, lane_direction), params.h()),
-              drake::maliput::api::IsoLaneVelocity(
-                  sigma_v, 0 /* rho_v */, 0 /* eta_v */));
+              drake::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
+                                                   0 /* eta_v */));
       const double s_dot = motion_derivatives.s();
 
       const double distance = drake::cond(with_s, lane->length() - s, -s);
@@ -491,8 +501,9 @@ class LoadableMaliputRailcarDouble final
 
   void DoCalcUnrestrictedUpdate(
       const drake::systems::Context<double>& context,
-      const std::vector<const drake::systems::UnrestrictedUpdateEvent<double>*>&
-      , drake::systems::State<double>* next_state) const {
+      const std::vector<
+          const drake::systems::UnrestrictedUpdateEvent<double>*>&,
+      drake::systems::State<double>* next_state) const {
     const drake::automotive::MaliputRailcarState<double>&
         current_railcar_state = get_state(context);
     const drake::automotive::LaneDirection& current_lane_direction =
@@ -523,14 +534,18 @@ class LoadableMaliputRailcarDouble final
     // Sets the speed to be zero if the car is at or is after the end
     // of the road.
     if (current_with_s) {
-      const int num_branches = current_lane_direction.lane->
-          GetOngoingBranches(drake::maliput::api::LaneEnd::kFinish)->size();
+      const int num_branches =
+          current_lane_direction.lane
+              ->GetOngoingBranches(drake::maliput::api::LaneEnd::kFinish)
+              ->size();
       if (num_branches == 0 && current_s >= current_length - kLaneEndEpsilon) {
         next_railcar_state->set_speed(0);
       }
     } else {
-      const int num_branches = current_lane_direction.lane->
-          GetOngoingBranches(drake::maliput::api::LaneEnd::kStart)->size();
+      const int num_branches =
+          current_lane_direction.lane
+              ->GetOngoingBranches(drake::maliput::api::LaneEnd::kStart)
+              ->size();
       if (num_branches == 0 && current_s <= kLaneEndEpsilon) {
         next_railcar_state->set_speed(0);
       }
@@ -572,9 +587,10 @@ class LoadableMaliputRailcarDouble final
       }
 
       if (!next_branch) {
-        DRAKE_ABORT_MSG("MaliputRailcar::DoCalcUnrestrictedUpdate: ERROR: "
-                        "Vehicle should switch lanes but no default or ongoing "
-                        "branch exists.");
+        DRAKE_ABORT_MSG(
+            "MaliputRailcar::DoCalcUnrestrictedUpdate: ERROR: "
+            "Vehicle should switch lanes but no default or ongoing "
+            "branch exists.");
       } else {
         next_lane_direction.lane = next_branch->lane;
         if (next_branch->end == drake::maliput::api::LaneEnd::kStart) {

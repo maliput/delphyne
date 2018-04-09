@@ -33,10 +33,12 @@ set(SOURCES
   ign_publisher_system_test.cc
   ign_simple_car_state_to_drake_translator_system_test.cc
   ign_subscriber_system_test.cc
+  interactive_simulation_stats_test.cc
   lcm_to_ign_translation_test.cc
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
   linb_any_test.cc
   scene_system_test.cc
+  simulation_run_stats_test.cc
   simulation_runner_test.cc
   time_conversion_test.cc
 )

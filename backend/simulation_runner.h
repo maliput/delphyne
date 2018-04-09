@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <memory>
@@ -12,6 +13,7 @@
 #include <vector>
 
 #include "backend/automotive_simulator.h"
+#include "backend/interactive_simulation_stats.h"
 #include "backend/system.h"
 
 #include <ignition/msgs.hh>
@@ -26,6 +28,9 @@
 
 namespace delphyne {
 namespace backend {
+
+using delphyne::backend::SimulationRunStats;
+
 /// @brief Blocks the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
 /// function if you want to manage yourself SIGINT/SIGTERM.
@@ -180,80 +185,112 @@ class SimulatorRunner {
   /// python world.
   void AddStepCallback(std::function<void()> callable);
 
-  /// @brief Starts the thread that runs the simulation loop.
+  /// @brief Spawns a new thread that runs the interactive simulation loop.
   ///
-  /// @pre The simulation should not be running.
+  /// @pre The simulation loop should not be running.
   void Start();
 
-  /// @brief Stops the thread that runs the simulation loop. If there was a
-  /// previous call to Stop(), this call will be ignored.
-  void Stop();
-
-  /// @brief Spawns a new thread that runs the main simulation loop for the
-  /// provided time period.
+  /// @brief Spawns a new thread that runs the interactive simulation loop for
+  /// the provided time period.
   ///
-  /// @param[in] duration The duration that the simulation loop should run for.
-  /// Note that the time stated here is simulation time, expressed in seconds.
+  /// @param[in] duration The duration that the interactive simulation loop
+  /// should run for. Note that the time stated here is simulation time,
+  /// expressed in seconds.
   ///
   /// @param[in] callback A callback function that will be executed when the
   /// simulation has finished.
   void RunAsyncFor(double duration, std::function<void()> callback);
 
-  /// @brief Runs the main simulation loop for the provided time period.
+  /// @brief Runs the interactive simulation loop for the provided time period.
+  /// Note that this is a synchronous call and the caller will be blocked until
+  /// the interactive simulation loop is done.
   ///
-  /// @param[in] duration The duration that the simulation loop should run for.
-  /// Note that the time stated here is simulation time, expressed in seconds.
+  /// @param[in] duration The duration that the interactive simulation loop
+  /// should run for. Note that the time stated here is simulation time,
+  /// expressed in seconds.
   void RunSyncFor(double duration);
 
-  /// @brief Advances the simulation by a single step. The amount of simulated
-  /// time to advance is provided by the time_step_ field and the ratio between
-  /// real time and simulation time is provided by the configured real-time
-  /// rate.
-  /// Note that this is a blocking call.
-  void RunSimulationStep();
+  /// @brief Stops the thread that is running the interactive simulation loop.
+  ///
+  /// @pre The interactive simulation loop should be running, either because of
+  /// a call to Start() or RunAsyncFor().
+  void Stop();
 
-  /// See documentation of AutomotiveSimulator::SetRealtimeRate.
-  void SetRealtimeRate(double realtime_rate) {
-    simulator_->SetRealtimeRate(realtime_rate);
-  }
+  /// @brief Enqueue a requests for a simulation step to be executed. For this
+  /// call to succeed the interactive simulation loop must be running and the
+  /// simulation must be paused.
+  ///
+  /// @pre Start() or RunAsyncFor() has been called.
+  /// @pre Paused() has been called or the simulation runner has started paused.
+  void RequestSimulationStepExecution(unsigned int steps);
 
-  /// See documentation of AutomotiveSimulator::GetRealtimeRate.
-  double GetRealtimeRate() const { return simulator_->GetRealtimeRate(); }
+  /// @brief Returns if the interactive simulation loop is currently running or
+  /// not.
+  bool IsInteractiveLoopRunning() const { return interactive_loop_running_; }
+
+  /// See documentation of Simulator::set_target_realtime_rate()
+  void SetRealtimeRate(double realtime_rate);
+
+  /// See documentation of Simulator::get_target_realtime_rate()
+  double GetRealtimeRate() const { return realtime_rate_; }
 
   /// @brief Returns the paused state of the simulation.
-  bool IsPaused() const;
-
-  /// @brief Returns if there is currently running a simulation loop. Note that
-  /// the simulation loop may be running, but the simulation itself be paused.
-  bool IsRunning() const;
-
-  /// @brief Requests the simulation to execute a number of simulation steps.
-  /// The simulation must be paused before calling this method.
-  /// @pre Start() has been called.
-  /// @pre Paused() has been called.
-  void RequestMultiStep(unsigned int num_steps);
+  bool IsSimulationPaused() const { return paused_; }
 
   ///  @brief Pauses the simulation, no-op if called multiple times.
-  void Pause();
+  void PauseSimulation();
 
   ///  @brief Unauses the simulation, no-op if called multiple times.
-  void Unpause();
+  void UnpauseSimulation();
 
-  /// Returns the current simulation time in seconds.
+  /// @brief Returns the current simulation time in seconds.
   double get_current_simulation_time() const {
     return simulator_->get_current_simulation_time();
   }
 
+  /// @brief Returns the collected interactive simulation statistics
+  const InteractiveSimulationStats& get_stats() const { return stats_; }
+
  private:
-  // @brief Runs the main simulation loop for the provided time period. Note
-  // that this is a blocking call (i.e. it does not spawn a new thread to run)
+  // @brief Runs the interactive simulation loop for the provided time period.
+  // Note that this is a blocking call (i.e. it does not spawn a new thread to
+  // run)
   //
   // @param[in] duration The duration that the simulation loop should run for.
   // Note that the time stated here is simulation time, expressed in seconds.
   //
   // @param[in] callback A callback function that will be executed when the
   // simulation has finished.
-  void RunSimulationLoopFor(double duration, std::function<void()> callback);
+  void RunInteractiveSimulationLoopFor(double duration,
+                                       std::function<void()> callback);
+
+  // @brief Performs a single interactive simulation loop step. This means:
+  //
+  // - Checking for possible ignition messages coming from the topics that
+  // connect the simulation backend to the external world.
+  // - Attempting to run a simulation step. This will happen either if the
+  // simulation is not paused or there is a queued request to perform a
+  // simulation step. Note also that the amount time to advance the simulation
+  // is provided by the `time_step_` field and the ratio between real time and
+  // simulation time is provided by the configured real-time rate.
+  // - Sending the required responses (if any) to outgoing ignition topics
+  // that connect the simulation backend to the external world.
+  //
+  // Note: this method is low-level functionality of the simulator runner and
+  // it is the caller responsibility to do the proper invocation to
+  // SetupNewRunStats() before calling this method.
+  //
+  // Finally, note that this is a synchronous call and the caller will be
+  // blocked until the interactive simulation step is done.
+  void RunInteractiveSimulationLoopStep();
+
+  // @brief Advances the simulation time by the given @p time_step increment
+  // in seconds. If necessary, pause the calling thread to be in sync with the
+  // configured real-time rate. Update also the simulation statistics.
+  //
+  // @param[in] time_step The amount of time (in seconds) that the simulation
+  // must be advanced.
+  void StepSimulationBy(double time_step);
 
   // @brief Process one RobotModelRequest message.
   //
@@ -296,6 +333,9 @@ class SimulatorRunner {
   // @brief Sends all world stats (whether the world is paused for now).
   void SendWorldStats();
 
+  // @brief Stores the old stats and prepares a clean one for a new run.
+  void SetupNewRunStats();
+
   // @brief The service offered to control the simulation.
   const std::string kControlService{"/world_control"};
 
@@ -311,18 +351,14 @@ class SimulatorRunner {
   // @brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;
 
-  // @brief The number of steps that we simulate in a custom multi-step
-  // requested externally.
-  unsigned int custom_num_steps_{0u};
-
   // @brief Whether the main loop has been started or not.
-  std::atomic<bool> enabled_{false};
+  std::atomic<bool> interactive_loop_running_{false};
 
   // @brief A pointer to the Drake simulator.
   std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_;
 
-  // @brief Whether the simulation is paused or not.
-  bool paused_{false};
+  // @brief Whether an external step was requested or not.
+  unsigned int steps_requested_{0u};
 
   // @brief A mutex to avoid races.
   std::mutex mutex_;
@@ -349,11 +385,20 @@ class SimulatorRunner {
   // triggered on each simulation step.
   std::vector<std::function<void()>> step_callbacks_;
 
-  // The period between world statistics updates (ms).
+  // @brief The period between world statistics updates (ms).
   const double kWorldStatsPeriodMs_ = 250.0;
 
-  // The last time that the scene message was updated.
+  // @brief The last time that the scene message was updated.
   std::chrono::steady_clock::time_point last_world_stats_update_;
+
+  // @brief Slow down the simulation to this rate if possible (user settable).
+  double realtime_rate_{1.0};
+
+  // @brief Whether the simulation is paused or not.
+  bool paused_{false};
+
+  // @brief The statistics of the (possibly man) simulation runs.
+  InteractiveSimulationStats stats_;
 };
 
 }  // namespace backend

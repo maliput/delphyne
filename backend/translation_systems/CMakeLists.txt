@@ -18,6 +18,8 @@ target_link_libraries(drake_ign_translation_systems
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
+  PRIVATE
+    time_conversion
 )
 
 install(TARGETS drake_ign_translation_systems

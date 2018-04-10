@@ -5,6 +5,8 @@
 #include <functional>
 #include <vector>
 
+#include "backend/system.h"
+
 namespace delphyne {
 namespace backend {
 

@@ -25,6 +25,8 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/rendering/pose_bundle.h"
 
+#include "protobuf/simple_car_state.pb.h"
+
 using drake::automotive::PriusVis;
 using drake::automotive::Curve2;
 using drake::automotive::SimpleCarState;

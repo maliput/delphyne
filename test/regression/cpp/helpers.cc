@@ -1,6 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "backend/test/helpers.h"
+#include "test/regression/cpp/helpers.h"
 
 #include <exception>
 #include <string>

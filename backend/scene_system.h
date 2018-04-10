@@ -10,8 +10,6 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/system.h"
-
 namespace delphyne {
 namespace backend {
 
@@ -21,8 +19,7 @@ namespace backend {
 /// for some of those models (the non-static ones). The full scene is created
 /// by updating the poses of the geometry models, and it is placed on the system
 /// output port.
-class DELPHYNE_BACKEND_VISIBLE SceneSystem
-    : public drake::systems::LeafSystem<double> {
+class SceneSystem : public drake::systems::LeafSystem<double> {
  public:
   SceneSystem();
 

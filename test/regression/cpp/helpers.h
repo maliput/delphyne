@@ -22,7 +22,7 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg();
 // Generates a pre-loaded lcmt_viewer_load_robot message.
 //
 // @return a loaded lcmt_viewer_load_robot message.
-DELPHYNE_BACKEND_VISIBLE drake::lcmt_viewer_load_robot
+drake::lcmt_viewer_load_robot
 BuildPreloadedLoadRobotMsg();
 
 // Generates a pre-loaded Model_V message.
@@ -46,7 +46,7 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg();
 // @param lcm_msg An lcm viewer load robot message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
 // @return a google test's AssertionResult.
-DELPHYNE_BACKEND_VISIBLE::testing::AssertionResult CheckMsgTranslation(
+::testing::AssertionResult CheckMsgTranslation(
     const drake::lcmt_viewer_load_robot& lcm_msg,
     const ignition::msgs::Model_V& ign_models);
 

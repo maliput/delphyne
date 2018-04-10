@@ -6,6 +6,8 @@
 
 #include <ignition/common/Console.hh>
 
+#include "backend/system.h"
+
 namespace delphyne {
 namespace backend {
 

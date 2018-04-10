@@ -5,8 +5,6 @@
 #include "drake/lcmt_viewer_load_robot.hpp"
 #include "drake/systems/framework/leaf_system.h"
 
-#include "backend/system.h"
-
 namespace delphyne {
 namespace backend {
 
@@ -18,8 +16,7 @@ namespace backend {
 /// LCM viewer load message is stored. std::function is used instead of plain
 /// function pointers to make the system easier to use with lambda functions
 /// that capture state.
-class DELPHYNE_BACKEND_VISIBLE LoadRobotAggregator
-    : public drake::systems::LeafSystem<double> {
+class LoadRobotAggregator : public drake::systems::LeafSystem<double> {
  public:
   LoadRobotAggregator();
 

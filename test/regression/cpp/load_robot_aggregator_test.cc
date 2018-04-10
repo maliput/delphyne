@@ -10,7 +10,7 @@
 
 #include "gtest/gtest.h"
 
-#include "backend/test/helpers.h"
+#include "test/regression/cpp/helpers.h"
 
 namespace delphyne {
 namespace backend {

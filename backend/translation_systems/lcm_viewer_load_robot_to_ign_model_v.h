@@ -6,7 +6,6 @@
 
 #include "ignition/msgs.hh"
 
-#include "backend/system.h"
 #include "backend/translation_systems/drake_to_ign.h"
 
 namespace delphyne {
@@ -15,7 +14,7 @@ namespace translation_systems {
 
 /// @brief A system that translates LCM viewer load robot messages to ignition
 /// Model_V.
-class DELPHYNE_BACKEND_VISIBLE LcmViewerLoadRobotToIgnModelV
+class LcmViewerLoadRobotToIgnModelV
     : public DrakeToIgn<drake::lcmt_viewer_load_robot,
                         ignition::msgs::Model_V> {
  protected:

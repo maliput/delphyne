@@ -34,7 +34,6 @@
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
 #include "backend/linb-any"
-#include "backend/load_robot_aggregator.h"
 #include "backend/system.h"
 #include "backend/translation_systems/drake_simple_car_state_to_ign.h"
 #include "backend/translation_systems/ign_driving_command_to_drake.h"
@@ -584,14 +583,13 @@ void AutomotiveSimulator<T>::Build() {
   // obtained from system output ports, but from method calls, so lambdas that
   // call them are stored in the system input port after the diagram has been
   // built.
-  auto load_robot_aggregator =
-      builder_->template AddSystem<LoadRobotAggregator>();
+  load_robot_aggregator_ = builder_->template AddSystem<LoadRobotAggregator>();
 
   // The aggregated LCM viewer load robot message containing the geometry
   // description is translated into an ignition Model_V message.
   auto viewer_load_robot_translator = builder_->template AddSystem<
       translation_systems::LcmViewerLoadRobotToIgnModelV>();
-  builder_->Connect(*load_robot_aggregator, *viewer_load_robot_translator);
+  builder_->Connect(*load_robot_aggregator_, *viewer_load_robot_translator);
 
   // The Model_V describing the geometry is finally used to build the scene.
   builder_->Connect(viewer_load_robot_translator->get_output_port(0),
@@ -620,21 +618,6 @@ void AutomotiveSimulator<T>::Build() {
 
   diagram_ = builder_->Build();
   diagram_->set_name("AutomotiveSimulator");
-
-  // With a built diagram, the context of the geometry aggregator system can be
-  // retrieved, and the input port fixed.
-  std::vector<std::function<drake::lcmt_viewer_load_robot()>>
-      load_robot_generators{
-          [this]() { return car_vis_applicator_->get_load_robot_message(); },
-          [this]() {
-            return drake::multibody::CreateLoadRobotMessage<T>(*tree_);
-          }};
-
-  // drake::systems::Context<T>& aggregator_context =
-  //  diagram_->GetMutableSubsystemContext(*load_robot_aggregator,
-  //                                       &simulator_->get_mutable_context());
-  // aggregator_context.FixInputPort(
-  //  0, drake::systems::AbstractValue::Make(load_robot_generators));
 }
 
 template <typename T>
@@ -730,6 +713,21 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   }
 
   simulator_ = std::make_unique<drake::systems::Simulator<T>>(*diagram_);
+
+  // With a built diagram and simulator, the context of the geometry aggregator
+  // system can be retrieved, and the input port fixed.
+  std::vector<std::function<drake::lcmt_viewer_load_robot()>>
+      load_robot_generators{
+          [this]() { return car_vis_applicator_->get_load_robot_message(); },
+          [this]() {
+            return drake::multibody::CreateLoadRobotMessage<T>(*tree_);
+          }};
+
+  drake::systems::Context<T>& aggregator_context =
+      diagram_->GetMutableSubsystemContext(*load_robot_aggregator_,
+                                           &simulator_->get_mutable_context());
+  aggregator_context.FixInputPort(
+      0, drake::systems::AbstractValue::Make(load_robot_generators));
 
   InitializeTrajectoryCars();
   InitializeSimpleCars();

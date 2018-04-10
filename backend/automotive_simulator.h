@@ -38,6 +38,7 @@
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/linb-any"
+#include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
@@ -390,6 +391,7 @@ class AutomotiveSimulator {
   drake::automotive::CarVisApplicator<T>* car_vis_applicator_{};
 
   SceneSystem* scene_system_;
+  LoadRobotAggregator* load_robot_aggregator_;
 
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.

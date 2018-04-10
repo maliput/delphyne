@@ -38,7 +38,6 @@
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/linb-any"
-#include "backend/scene_builder_system.h"
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
@@ -390,7 +389,7 @@ class AutomotiveSimulator {
   // architecture diagram, see #5541.
   drake::automotive::CarVisApplicator<T>* car_vis_applicator_{};
 
-  SceneBuilderSystem<T>* scene_builder_{};
+  SceneSystem* scene_system_;
 
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.

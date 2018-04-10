@@ -23,17 +23,23 @@ class SceneSystem
   SceneSystem();
 
   const drake::systems::InputPortDescriptor<double>&
-  get_geometry_models_input_port() const;
+  get_geometry_models_input_port() const {
+    return get_input_port(geometry_models_input_port_index);
+  }
 
   const drake::systems::InputPortDescriptor<double>&
-  get_updated_pose_models_input_port() const;
+  get_updated_pose_models_input_port() const {
+    return get_input_port(updated_pose_models_input_port_index);
+  }
+
+  void GetScene(ignition::msgs::Scene* scene) const;
+
+  int geometry_models_input_port_index;
+  int updated_pose_models_input_port_index;
 
  private:
   void CalcSceneMessage(const drake::systems::Context<double>& context,
                         ignition::msgs::Scene* scene_message) const;
-
-  int geometry_models_input_port_index_;
-  int updated_pose_models_input_port_index_;
 };
 
 }  // namespace backend

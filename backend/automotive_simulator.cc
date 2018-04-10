@@ -1,8 +1,10 @@
 // Copyright 2017 Toyota Research Institute
 
 #include <algorithm>
+#include <functional>
 #include <map>
 #include <utility>
+#include <vector>
 
 #include "drake/automotive/gen/driving_command.h"
 #include "drake/automotive/gen/driving_command_translator.h"
@@ -32,11 +34,12 @@
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
 #include "backend/linb-any"
-#include "backend/scene_system.h"
+#include "backend/load_robot_aggregator.h"
 #include "backend/system.h"
 #include "backend/translation_systems/drake_simple_car_state_to_ign.h"
 #include "backend/translation_systems/ign_driving_command_to_drake.h"
 #include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
+#include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
 
 namespace delphyne {
 
@@ -75,8 +78,8 @@ AutomotiveSimulator<T>::AutomotiveSimulator(
       builder_->template AddSystem<drake::automotive::CarVisApplicator<T>>();
   car_vis_applicator_->set_name("car_vis_applicator");
 
-  scene_builder_ = builder_->template AddSystem<SceneBuilderSystem>();
-  scene_builder_->set_name("scene_builder");
+  scene_system_ = builder_->template AddSystem<SceneSystem>();
+  scene_system_->set_name("scene_system");
 
   bundle_to_draw_ = builder_->template AddSystem<
       drake::systems::rendering::PoseBundleToDrawMessage>();
@@ -104,29 +107,29 @@ drake::systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
 template <typename T>
 std::unique_ptr<ignition::msgs::Model_V>
 AutomotiveSimulator<T>::GetRobotModel() {
-  const drake::lcmt_viewer_load_robot load_car_message =
-      car_vis_applicator_->get_load_robot_message();
-  const drake::lcmt_viewer_load_robot load_terrain_message =
-      drake::multibody::CreateLoadRobotMessage<T>(*tree_);
-  drake::lcmt_viewer_load_robot load_message;
-  load_message.num_links =
-      load_car_message.num_links + load_terrain_message.num_links;
-  for (int i = 0; i < load_car_message.num_links; ++i) {
-    load_message.link.push_back(load_car_message.link.at(i));
-  }
-  for (int i = 0; i < load_terrain_message.num_links; ++i) {
-    load_message.link.push_back(load_terrain_message.link.at(i));
-  }
-
+  //  const drake::lcmt_viewer_load_robot load_car_message =
+  //      car_vis_applicator_->get_load_robot_message();
+  //  const drake::lcmt_viewer_load_robot load_terrain_message =
+  //      drake::multibody::CreateLoadRobotMessage<T>(*tree_);
+  //  drake::lcmt_viewer_load_robot load_message;
+  //  load_message.num_links =
+  //      load_car_message.num_links + load_terrain_message.num_links;
+  //  for (int i = 0; i < load_car_message.num_links; ++i) {
+  //    load_message.link.push_back(load_car_message.link.at(i));
+  //  }
+  //  for (int i = 0; i < load_terrain_message.num_links; ++i) {
+  //    load_message.link.push_back(load_terrain_message.link.at(i));
+  //  }
+  //
   auto ign_message = std::make_unique<ignition::msgs::Model_V>();
-
-  // TODO(basicNew): In the future we should remove this call and merge the
-  // code in `lcmToIgn` with the one in `UpdateModels` (which will most
-  // likely change its name to `CreateModels` or similar).
-  lcmToIgn(load_message, ign_message.get());
-
-  scene_builder_->UpdateModels(ign_message.get());
-
+  //
+  //  // TODO(basicNew): In the future we should remove this call and merge the
+  //  // code in `lcmToIgn` with the one in `UpdateModels` (which will most
+  //  // likely change its name to `CreateModels` or similar).
+  //  lcmToIgn(load_message, ign_message.get());
+  //
+  //  scene_builder_->UpdateModels(ign_message.get());
+  //
   return std::move(ign_message);
 }
 
@@ -553,21 +556,19 @@ void AutomotiveSimulator<T>::Build() {
 
   builder_->Connect(aggregator_->get_output_port(0),
                     car_vis_applicator_->get_car_poses_input_port());
+
+  // The bundle of poses are translated into an LCM viewer draw message.
   builder_->Connect(
       car_vis_applicator_->get_visual_geometry_poses_output_port(),
       bundle_to_draw_->get_input_port(0));
 
-  builder_->Connect(
-      car_vis_applicator_->get_visual_geometry_poses_output_port(),
-      scene_builder_->get_input_port(0));
-
+  // The LCM viewer draw message is translated into an ignition Model_V message.
   auto viewer_draw_translator =
       builder_
           ->template AddSystem<translation_systems::LcmViewerDrawToIgnModelV>();
-
-  // The LCM viewer draw message is translated into an ignition Model_V message.
   builder_->Connect(*bundle_to_draw_, *viewer_draw_translator);
 
+  // The translated Model_V message is then published.
   auto model_v_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
           "visualizer/scene_update");
@@ -575,29 +576,65 @@ void AutomotiveSimulator<T>::Build() {
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
 
-  // The Model_V messaged is also transformed into a scene message.
-  auto scene_builder = builder_->template AddSystem<SceneSystem>();
-  builder_->Connect(viewer_draw_translator->get_output_port(0),
-                    scene_builder->get_updated_pose_models_input_port());
+  // An ignition scene message is built from the geometry description, and the
+  // updated poses.
 
-  // Which is then published over a scene topic to update the scene tree widget
-  // of the visualizer. Because this information is not needed at the same
-  // frequency the simulation runs at, the publishing frequency is reduced.
+  // The geometry description is retrieved from multiple sources as LCM viewer
+  // load robot messages, so those need to be aggregated. These messages are not
+  // obtained from system output ports, but from method calls, so lambdas that
+  // call them are stored in the system input port after the diagram has been
+  // built.
+  auto load_robot_aggregator =
+      builder_->template AddSystem<LoadRobotAggregator>();
+
+  // The aggregated LCM viewer load robot message containing the geometry
+  // description is translated into an ignition Model_V message.
+  auto viewer_load_robot_translator = builder_->template AddSystem<
+      translation_systems::LcmViewerLoadRobotToIgnModelV>();
+  builder_->Connect(*load_robot_aggregator, *viewer_load_robot_translator);
+
+  // The Model_V describing the geometry is finally used to build the scene.
+  builder_->Connect(viewer_load_robot_translator->get_output_port(0),
+                    scene_system_->get_geometry_models_input_port());
+
+  // The updated poses are stored in the Model_V message obtained from
+  // translating an LCM viewer draw.
+  builder_->Connect(viewer_draw_translator->get_output_port(0),
+                    scene_system_->get_updated_pose_models_input_port());
+
+  // The scene is then published over a scene topic to update the scene tree
+  // widget of the visualizer. Because this information is not needed at the
+  // same frequency the simulation runs at, the publishing frequency is reduced.
 
   // TODO(basicNew): Temporary disabling this as it is breaking the UI. To be
   // fixed ASAP. Issue recorded in
   // https://github.com/ToyotaResearchInstitute/delphyne/issues/324
   //
   // auto scene_publisher =
-  //  builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+  //     builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
   //         "scene", kScenePublishPeriodMs);
-  // builder_->Connect(*scene_builder, *scene_publisher);
+  // builder_->Connect(*scene_system_, *scene_publisher);
 
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
 
   diagram_ = builder_->Build();
   diagram_->set_name("AutomotiveSimulator");
+
+  // With a built diagram, the context of the geometry aggregator system can be
+  // retrieved, and the input port fixed.
+  std::vector<std::function<drake::lcmt_viewer_load_robot()>>
+      load_robot_generators{
+          [this]() { return car_vis_applicator_->get_load_robot_message(); },
+          [this]() {
+            return drake::multibody::CreateLoadRobotMessage<T>(*tree_);
+          }};
+
+  // drake::systems::Context<T>& aggregator_context =
+  //  diagram_->GetMutableSubsystemContext(*load_robot_aggregator,
+  //                                       &simulator_->get_mutable_context());
+  // aggregator_context.FixInputPort(
+  //  0, drake::systems::AbstractValue::Make(load_robot_generators));
 }
 
 template <typename T>

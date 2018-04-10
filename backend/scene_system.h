@@ -15,9 +15,13 @@
 namespace delphyne {
 namespace backend {
 
-/// @brief A system that creates an ignition Scene message from a Model_V
-/// message.
-class SceneSystem
+/// @brief A system that creates an ignition Scene message from two Model_V
+/// messages: one describing the geometry of the whole scene (which contains all
+/// the models, including their Visual subfield), and one with the updated poses
+/// for some of those models (the non-static ones). The full scene is created
+/// by updating the poses of the geometry models, and it is placed on the system
+/// output port.
+class DELPHYNE_BACKEND_VISIBLE SceneSystem
     : public drake::systems::LeafSystem<double> {
  public:
   SceneSystem();

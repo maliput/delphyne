@@ -39,56 +39,55 @@ void SceneSystem::CalcSceneMessage(
   scene_message->mutable_header()->mutable_stamp()->CopyFrom(
       updated_pose_models.header().stamp());
 
-  // The scene is then built from the geometry models, which are updated using
-  // the updated poses.
+  // All of the geometry models are added to the scene.
   for (const ignition::msgs::Model& geometry_model : geometry_models.models()) {
-    ignition::msgs::Model* updated_geometry_model = scene_message->add_model();
-    updated_geometry_model->CopyFrom(geometry_model);
+    scene_message->add_model()->CopyFrom(geometry_model);
+  }
 
-    // Finds the updated pose model for the model.
+  // And those models for which a pose update exists are then updated.
+  for (const ignition::msgs::Model& updated_pose_model :
+       updated_pose_models.models()) {
+    // Finds the matching scene model.
     const google::protobuf::internal::RepeatedPtrIterator<
-        const ignition::msgs::Model>& matching_updated_pose_model =
-        std::find_if(updated_pose_models.models().begin(),
-                     updated_pose_models.models().end(),
-                     [updated_geometry_model](
-                         const ::ignition::msgs::Model& updated_pose_model) {
-                       return updated_pose_model.id() ==
-                              updated_geometry_model->id();
-                     });
+        ignition::msgs::Model>& matching_scene_model =
+        std::find_if(
+            scene_message->mutable_model()->begin(),
+            scene_message->mutable_model()->end(),
+            [&updated_pose_model](::ignition::msgs::Model& scene_model) {
+              return scene_model.id() == updated_pose_model.id();
+            });
 
-    if (matching_updated_pose_model == updated_pose_models.models().end()) {
-      ignerr << "No updated pose for model id " << updated_geometry_model->id()
-             << std::endl;
+    if (matching_scene_model == scene_message->mutable_model()->end()) {
+      ignerr << "No geometry model for updated pose with model id "
+             << updated_pose_model.id() << std::endl;
       continue;
     }
 
     // Updates each model link.
-    for (ignition::msgs::Link& updated_geometry_link :
-         *updated_geometry_model->mutable_link()) {
-      // Find the corresponding link inside the updated pose model.
+    for (const ignition::msgs::Link& updated_pose_link :
+         updated_pose_model.link()) {
+      // Finds the corresponding link inside the scene model.
       const google::protobuf::internal::RepeatedPtrIterator<
-          const ignition::msgs::Link>& matching_updated_pose_link =
-          std::find_if(matching_updated_pose_model->link().begin(),
-                       matching_updated_pose_model->link().end(),
-                       [updated_geometry_link](
-                           const ::ignition::msgs::Link& updated_pose_link) {
-                         return updated_pose_link.name() ==
-                                updated_geometry_link.name();
-                       });
+          ignition::msgs::Link>& matching_scene_link =
+          std::find_if(
+              matching_scene_model->mutable_link()->begin(),
+              matching_scene_model->mutable_link()->end(),
+              [&updated_pose_link](::ignition::msgs::Link& scene_link) {
+                return scene_link.name() == updated_pose_link.name();
+              });
 
-      if (matching_updated_pose_link ==
-          matching_updated_pose_model->link().end()) {
-        ignerr << "No updated pose for link name "
-               << updated_geometry_link.name() << std::endl;
+      if (matching_scene_link == matching_scene_model->mutable_link()->end()) {
+        ignerr << "No geometry link for updated pose with model id "
+               << updated_pose_model.id() << " and link name "
+               << updated_pose_link.name() << std::endl;
         continue;
       }
 
-      // Gets the pose and applies it to the link of the geometry model being
-      // updated.
-      updated_geometry_link.mutable_pose()->mutable_position()->CopyFrom(
-          matching_updated_pose_link->pose().position());
-      updated_geometry_link.mutable_pose()->mutable_orientation()->CopyFrom(
-          matching_updated_pose_link->pose().orientation());
+      // Applies the pose to the scene link.
+      matching_scene_link->mutable_pose()->mutable_position()->CopyFrom(
+          updated_pose_link.pose().position());
+      matching_scene_link->mutable_pose()->mutable_orientation()->CopyFrom(
+          updated_pose_link.pose().orientation());
     }
   }
 

@@ -20,8 +20,7 @@ namespace backend {
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
 
-std::pair<int64_t, int64_t> MicrosToSecsAndNanos(
-    int64_t micros);
+std::pair<int64_t, int64_t> MicrosToSecsAndNanos(int64_t micros);
 
 /// @brief Converts from an integer value in milliseconds to a
 /// pair of integers containing the value in seconds and the
@@ -30,8 +29,7 @@ std::pair<int64_t, int64_t> MicrosToSecsAndNanos(
 /// milliseconds.
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
-std::pair<int64_t, int64_t> MillisToSecsAndNanos(
-    int64_t millis);
+std::pair<int64_t, int64_t> MillisToSecsAndNanos(int64_t millis);
 
 /// @brief Converts from a double value in seconds to a pair of
 /// integers containing the value in seconds and the remainder
@@ -40,8 +38,7 @@ std::pair<int64_t, int64_t> MillisToSecsAndNanos(
 /// in seconds.
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
-std::pair<int64_t, int64_t> SecsToSecsAndNanos(
-    double time);
+std::pair<int64_t, int64_t> SecsToSecsAndNanos(double time);
 
 /// @brief Converts from a pair of integers containing independent
 /// time values in seconds and nanoseconds into a single double in
@@ -52,8 +49,7 @@ std::pair<int64_t, int64_t> SecsToSecsAndNanos(
 /// in nanoseconds to translate.
 /// @param[out] A pair of integers containing the translated
 /// time value composed by seconds and nanoseconds.
-double SecsAndNanosToMillis(int64_t secs,
-                                                     int64_t nsecs);
+double SecsAndNanosToMillis(int64_t secs, int64_t nsecs);
 
 /// @brief Generates and returns an ignition::msgs::Time from a given
 /// integer value in milliseconds.
@@ -61,8 +57,7 @@ double SecsAndNanosToMillis(int64_t secs,
 /// milliseconds.
 /// @param[out] An ignition messages Time value composed by the value
 /// in seconds and nanoseconds translated from the milliseconds' input.
-ignition::msgs::Time MillisToIgnitionTime(
-    int64_t millis);
+ignition::msgs::Time MillisToIgnitionTime(int64_t millis);
 
 /// @brief Generates and returns an ignition::msgs::Time from a given
 /// integer value in microseconds.
@@ -70,8 +65,7 @@ ignition::msgs::Time MillisToIgnitionTime(
 /// microseconds.
 /// @param[out] An ignition messages Time value composed by the value
 /// in seconds and nanoseconds translated from the microseconds' input.
-ignition::msgs::Time MicrosToIgnitionTime(
-    int64_t micros);
+ignition::msgs::Time MicrosToIgnitionTime(int64_t micros);
 
 /// @brief Generates and returns an ignition::msgs::Time from a given
 /// double value in seconds.

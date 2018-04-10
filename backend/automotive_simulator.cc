@@ -604,7 +604,8 @@ void AutomotiveSimulator<T>::Build() {
   // https://github.com/ToyotaResearchInstitute/delphyne/issues/324
   //
   // auto scene_publisher =
-  //     builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+  //     builder_->template
+  //     AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
   //         "scene", kScenePublishPeriodMs);
   // builder_->Connect(*scene_system_, *scene_publisher);
 

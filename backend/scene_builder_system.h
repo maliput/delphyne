@@ -34,8 +34,7 @@ namespace backend {
 ///
 /// They are already available to link against in the containing library.
 template <typename T>
-class SceneBuilderSystem
-    : public drake::systems::LeafSystem<T> {
+class SceneBuilderSystem : public drake::systems::LeafSystem<T> {
  public:
   SceneBuilderSystem();
 

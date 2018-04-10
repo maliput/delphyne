@@ -1,6 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
-include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 
 ##############################################################################
 # Common Libraries

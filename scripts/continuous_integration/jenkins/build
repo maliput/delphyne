@@ -18,12 +18,6 @@ mkdir -p build
 
 pushd build
 
-mkdir -p pybind11
-pushd pybind11
-CXX=$COMPILER_PATH cmake ../../workspace/pybind11 -DCMAKE_INSTALL_PREFIX=../../install -DPYBIND11_TEST=False
-make -j$JOBS VERBOSE=1 install
-popd # pybind11
-
 for dep in ign_cmake ign_tools ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
     mkdir -p $dep
     pushd $dep

@@ -10,7 +10,7 @@ option java_outer_classname = "SimulationInMessageProtos";
 
 import "ignition/msgs/header.proto";
 import "ignition/msgs/world_control.proto";
-import "robot_model_request.proto";
+import "scene_request.proto";
 
 message SimulationInMessage
 {
@@ -20,8 +20,8 @@ message SimulationInMessage
     /// \brief a world_control type message
     WORLDCONTROL  = 1;
 
-    /// \brief a world_control type message
-    ROBOTMODELREQUEST  = 2;
+    /// \brief a scene request type message
+    SCENEREQUEST  = 2;
 
   }
 
@@ -34,6 +34,6 @@ message SimulationInMessage
   /// \brief An optional world control message
   optional WorldControl world_control            = 3;
 
-  /// \brief An optional robot model request message
-  optional RobotModelRequest robot_model_request = 4;
+  /// \brief An optional scene request message
+  optional SceneRequest scene_request = 4;
 }

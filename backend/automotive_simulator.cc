@@ -104,17 +104,22 @@ drake::systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
 }
 
 template <typename T>
-std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetRobotModel() {
+std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
   DELPHYNE_DEMAND(simulator_ != nullptr);
 
   auto scene_msg = std::make_unique<ignition::msgs::Scene>();
 
-  const drake::systems::Context<T>& context =
+  // The scene is the output of the scene system. We could use
+  // LeafOutputPort::Eval to directly retrieve the last calculated value, but
+  // that function is as of now unimplemented, so we need to recalculate it.
+  // Since this doesn't happen often (once per scene request), this is not an
+  // issue.
+  const drake::systems::Context<T>& scene_context =
       diagram_->GetSubsystemContext(*scene_system_, simulator_->get_context());
 
   std::unique_ptr<SystemOutput<T>> output =
-      scene_system_->AllocateOutput(context);
-  scene_system_->CalcOutput(context, output.get());
+      scene_system_->AllocateOutput(scene_context);
+  scene_system_->CalcOutput(scene_context, output.get());
 
   scene_msg->CopyFrom(
       output->get_data(0)->template GetValue<ignition::msgs::Scene>());

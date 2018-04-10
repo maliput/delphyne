@@ -19,7 +19,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <protobuf/robot_model_request.pb.h>
+#include <protobuf/scene_request.pb.h>
 #include <protobuf/simulation_in_message.pb.h>
 
 #include <pybind11/pybind11.h>
@@ -292,19 +292,19 @@ class SimulatorRunner {
   // must be advanced.
   void StepSimulationBy(double time_step);
 
-  // @brief Process one RobotModelRequest message.
+  // @brief Process one SceneRequest message.
   //
   // @param[in] msg The message
-  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& msg);
+  void ProcessSceneRequest(const ignition::msgs::SceneRequest& msg);
 
-  // @brief Service used to receive robot model request messages.
+  // @brief Service used to receive scene request messages.
   //
   // @param[in] request The request.
   //
   // @param[out] response The response (unused).
   // @return The result of the service.
-  bool OnRobotModelRequest(
-      const ignition::msgs::RobotModelRequest& request,
+  bool OnSceneRequest(
+      const ignition::msgs::SceneRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& response);
 
@@ -345,8 +345,8 @@ class SimulatorRunner {
   // @brief The topic used to publish world stats.
   const std::string kWorldStatsTopic{"/world_stats"};
 
-  // @brief The service used when receiving a robot request.
-  const std::string kRobotRequestServiceName{"/get_robot_model"};
+  // @brief The service used when receiving a scene request.
+  const std::string kSceneRequestServiceName{"/get_scene"};
 
   // @brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;

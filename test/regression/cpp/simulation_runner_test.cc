@@ -16,7 +16,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include <protobuf/robot_model_request.pb.h>
+#include <protobuf/scene_request.pb.h>
 
 namespace delphyne {
 namespace backend {
@@ -30,16 +30,16 @@ class SimulationRunnerTest : public ::testing::Test {
         std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
   }
 
-  // Callback method for handlig RobotModelRequest service calls
-  void RobotModelRequestCallback(const ignition::msgs::Scene& request) {
+  // Callback method for handlig SceneRequest service calls
+  void SceneRequestCallback(const ignition::msgs::Scene& request) {
     callback_called_ = true;
   }
 
   // Advertises a service for a given service_name, with
-  // the method RobotModelRequestCallback as callback
-  void AdvertiseRobotModelRequest(std::string service_name) {
-    node_.Advertise(service_name,
-                    &SimulationRunnerTest::RobotModelRequestCallback, this);
+  // the method SceneRequestCallback as callback
+  void AdvertiseSceneRequest(std::string service_name) {
+    node_.Advertise(service_name, &SimulationRunnerTest::SceneRequestCallback,
+                    this);
 
     // Calling node_.Request() immediately after Advertise() sometimes causes
     // that call to hang: waiting fixes this.
@@ -102,17 +102,17 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   const std::string service_name{"test_service_name"};
 
-  ignition::msgs::RobotModelRequest robot_model_request_msg;
+  ignition::msgs::SceneRequest scene_request_msg;
 
-  robot_model_request_msg.set_response_topic(service_name);
+  scene_request_msg.set_response_topic(service_name);
 
-  AdvertiseRobotModelRequest(service_name);
+  AdvertiseSceneRequest(service_name);
 
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  const std::string service = "/get_robot_model";
-  node_.Request(service, robot_model_request_msg, timeout, response, result);
+  const std::string service = "/get_scene";
+  node_.Request(service, scene_request_msg, timeout, response, result);
 
   EXPECT_TRUE(result);
   EXPECT_FALSE(callback_called_);
@@ -133,17 +133,17 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
 
   const std::string service_name{"test_service_name"};
 
-  ignition::msgs::RobotModelRequest robot_model_request_msg;
+  ignition::msgs::SceneRequest scene_request_msg;
 
-  robot_model_request_msg.set_response_topic(service_name);
+  scene_request_msg.set_response_topic(service_name);
 
-  AdvertiseRobotModelRequest(service_name);
+  AdvertiseSceneRequest(service_name);
 
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  const std::string service = "/get_robot_model";
-  node_.Request(service, robot_model_request_msg, timeout, response, result);
+  const std::string service = "/get_scene";
+  node_.Request(service, scene_request_msg, timeout, response, result);
   EXPECT_TRUE(result);
 
   // Wait until the currently running step of the loop finishes.

@@ -10,7 +10,7 @@ find_package(Protobuf REQUIRED)
 
 set(MESSAGES
   automotive_driving_command.proto
-  robot_model_request.proto
+  scene_request.proto
   simple_car_state.proto
   simulation_in_message.proto
   viewer_command.proto

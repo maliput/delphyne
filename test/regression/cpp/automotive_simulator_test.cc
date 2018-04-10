@@ -56,8 +56,8 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
   return link_count;
 }
 
-// Tests GetRobotModel to return the initial robot model
-GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
+// Tests GetScene to return the scene
+GTEST_TEST(AutomotiveSimulatorTest, TestGetScene) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   SimpleCarState<double> initial_state;
@@ -65,7 +65,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
   simulator->AddPriusSimpleCar("my_test_model", "Channel1", initial_state);
 
   simulator->Start();
-  auto scene = simulator->GetRobotModel();
+  std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
 
   const std::vector<LinkInfo> expected_load{
       LinkInfo("chassis_floor", 0, 1),
@@ -581,7 +581,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 
   simulator->Start();
 
-  auto scene = simulator->GetRobotModel();
+  std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
 
   int scene_link_count = 0;
   for (const ignition::msgs::Model& model : scene->model()) {

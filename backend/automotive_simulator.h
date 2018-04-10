@@ -71,8 +71,8 @@ class AutomotiveSimulator {
   /// @pre Start() has NOT been called.
   drake::systems::DiagramBuilder<T>* get_builder();
 
-  /// Return the initial robot model
-  std::unique_ptr<ignition::msgs::Scene> GetRobotModel();
+  /// Return the scene.
+  std::unique_ptr<ignition::msgs::Scene> GetScene();
 
   /// Adds a Vehicle to this simulation from a loadable module.
   ///

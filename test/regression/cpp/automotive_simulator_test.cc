@@ -64,7 +64,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
 
   simulator->AddPriusSimpleCar("my_test_model", "Channel1", initial_state);
 
-  auto robot_model = simulator->GetRobotModel();
+  simulator->Start();
+  auto scene = simulator->GetRobotModel();
 
   const std::vector<LinkInfo> expected_load{
       LinkInfo("chassis_floor", 0, 1),
@@ -86,8 +87,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestGetRobotModel) {
       LinkInfo("rear_left_lidar_link", 0, 1),
       LinkInfo("world", 0, 0)};
 
-  for (int i = 0; i < robot_model->models_size(); i++) {
-    auto model = robot_model->models(i);
+  for (int i = 0; i < scene->model_size(); i++) {
+    auto model = scene->model(i);
     for (int k = 0; k < model.link_size(); k++) {
       auto link = model.link(k);
       EXPECT_EQ(i, expected_load.at(k).robot_num);
@@ -580,20 +581,19 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 
   simulator->Start();
 
-  auto robot_model = simulator->GetRobotModel();
+  auto scene = simulator->GetRobotModel();
 
-  int robot_model_link_count = 0;
-
-  for (int i = 0; i < robot_model->models_size(); ++i) {
-    if (robot_model->models(i).name() == "world") {
-      robot_model_link_count += 1;
+  int scene_link_count = 0;
+  for (const ignition::msgs::Model& model : scene->model()) {
+    if (model.name() == "world") {
+      scene_link_count += 1;
     } else {
-      robot_model_link_count += robot_model->models(i).link_size();
+      scene_link_count += model.link_size();
     }
   }
 
   // Checks number of links in the robot message.
-  EXPECT_EQ(robot_model_link_count, expected_num_links);
+  EXPECT_EQ(scene_link_count, expected_num_links);
 
   // Runs a single simulation step.
   simulator->StepBy(1e-3);

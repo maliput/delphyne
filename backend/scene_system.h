@@ -32,8 +32,6 @@ class SceneSystem
     return get_input_port(updated_pose_models_input_port_index);
   }
 
-  void GetScene(ignition::msgs::Scene* scene) const;
-
   int geometry_models_input_port_index;
   int updated_pose_models_input_port_index;
 

@@ -16,8 +16,6 @@ SceneSystem::SceneSystem() {
   DeclareAbstractOutputPort(&SceneSystem::CalcSceneMessage);
 }
 
-void SceneSystem::GetScene(ignition::msgs::Scene* scene) const {}
-
 void SceneSystem::CalcSceneMessage(
     const drake::systems::Context<double>& context,
     ignition::msgs::Scene* scene_message) const {

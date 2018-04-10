@@ -104,32 +104,22 @@ drake::systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
 }
 
 template <typename T>
-std::unique_ptr<ignition::msgs::Model_V>
-AutomotiveSimulator<T>::GetRobotModel() {
-  //  const drake::lcmt_viewer_load_robot load_car_message =
-  //      car_vis_applicator_->get_load_robot_message();
-  //  const drake::lcmt_viewer_load_robot load_terrain_message =
-  //      drake::multibody::CreateLoadRobotMessage<T>(*tree_);
-  //  drake::lcmt_viewer_load_robot load_message;
-  //  load_message.num_links =
-  //      load_car_message.num_links + load_terrain_message.num_links;
-  //  for (int i = 0; i < load_car_message.num_links; ++i) {
-  //    load_message.link.push_back(load_car_message.link.at(i));
-  //  }
-  //  for (int i = 0; i < load_terrain_message.num_links; ++i) {
-  //    load_message.link.push_back(load_terrain_message.link.at(i));
-  //  }
-  //
-  auto ign_message = std::make_unique<ignition::msgs::Model_V>();
-  //
-  //  // TODO(basicNew): In the future we should remove this call and merge the
-  //  // code in `lcmToIgn` with the one in `UpdateModels` (which will most
-  //  // likely change its name to `CreateModels` or similar).
-  //  lcmToIgn(load_message, ign_message.get());
-  //
-  //  scene_builder_->UpdateModels(ign_message.get());
-  //
-  return std::move(ign_message);
+std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetRobotModel() {
+  DELPHYNE_DEMAND(simulator_ != nullptr);
+
+  auto scene_msg = std::make_unique<ignition::msgs::Scene>();
+
+  const drake::systems::Context<T>& context =
+      diagram_->GetSubsystemContext(*scene_system_, simulator_->get_context());
+
+  std::unique_ptr<SystemOutput<T>> output =
+      scene_system_->AllocateOutput(context);
+  scene_system_->CalcOutput(context, output.get());
+
+  scene_msg->CopyFrom(
+      output->get_data(0)->template GetValue<ignition::msgs::Scene>());
+
+  return std::move(scene_msg);
 }
 
 template <typename T>

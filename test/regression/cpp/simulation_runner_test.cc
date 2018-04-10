@@ -31,7 +31,7 @@ class SimulationRunnerTest : public ::testing::Test {
   }
 
   // Callback method for handlig RobotModelRequest service calls
-  void RobotModelRequestCallback(const ignition::msgs::Model_V& request) {
+  void RobotModelRequestCallback(const ignition::msgs::Scene& request) {
     callback_called_ = true;
   }
 

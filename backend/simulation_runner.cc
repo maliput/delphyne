@@ -61,7 +61,12 @@ void WaitForShutdown() {
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
     double time_step, double realtime_rate, bool paused)
-    : time_step_(time_step), simulator_(std::move(sim)), paused_(paused) {
+    : time_step_(time_step),
+      simulator_(std::move(sim)),
+      realtime_rate_(realtime_rate),
+      paused_(paused) {
+  DELPHYNE_DEMAND(realtime_rate >= 0.);
+
   // Advertises the service for controlling the simulation.
   node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
 
@@ -84,7 +89,9 @@ SimulatorRunner::SimulatorRunner(
   Py_Initialize();
   PyEval_InitThreads();
 
-  simulator_->Start(realtime_rate);
+  // Tell the simulator to run steps as fast as possible, as are handling the
+  // sleep (if required) between steps.
+  simulator_->Start(0.);
 }
 
 SimulatorRunner::SimulatorRunner(
@@ -105,49 +112,27 @@ SimulatorRunner::SimulatorRunner(
 SimulatorRunner::~SimulatorRunner() {
   // In case the simulation thread was running and the client code didn't
   // call the Stop() method.
-  enabled_ = false;
+  interactive_loop_running_ = false;
   if (main_thread_.joinable()) {
     main_thread_.join();
   }
 }
 
-void SimulatorRunner::Stop() {
-  DELPHYNE_DEMAND(enabled_);
-  enabled_ = false;
+void SimulatorRunner::PauseSimulation() {
+  DELPHYNE_DEMAND(!paused_);
+  paused_ = true;
 }
 
-bool SimulatorRunner::IsPaused() const { return paused_; }
-
-bool SimulatorRunner::IsRunning() const { return enabled_; }
-
-void SimulatorRunner::RequestMultiStep(unsigned int num_steps) {
-  DELPHYNE_DEMAND(enabled_);
+void SimulatorRunner::UnpauseSimulation() {
   DELPHYNE_DEMAND(paused_);
 
-  // Ignore the request if we're already processing a previous multi-step.
-  if (custom_num_steps_ > 0) {
-    igndbg << "Ignoring MultiStep request (a previous multi-step is ongoing)."
-           << std::endl;
-    return;
-  }
+  // If there are any pending step requests, erase them
+  steps_requested_ = 0;
 
-  igndbg << "Resetting simulation statistics." << std::endl;
-  simulator_->ResetStatistics();
-  custom_num_steps_ = num_steps;
+  SetupNewRunStats();
+
+  paused_ = false;
 }
-
-void SimulatorRunner::Unpause() {
-  // TODO(apojomovsky): We should revisit this once we get feedback on
-  // https://github.com/RobotLocomotion/drake/issues/8090
-  if (paused_) {
-    igndbg << "Resetting simulation statistics." << std::endl;
-    simulator_->ResetStatistics();
-    paused_ = false;
-    custom_num_steps_ = 0u;
-  }
-}
-
-void SimulatorRunner::Pause() { paused_ = true; }
 
 void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -158,38 +143,50 @@ void SimulatorRunner::Start() {
   this->RunAsyncFor(std::numeric_limits<double>::infinity(), [] {});
 }
 
+void SimulatorRunner::Stop() {
+  DELPHYNE_DEMAND(interactive_loop_running_);
+
+  // If there are any pending step requests, erase them
+  steps_requested_ = 0;
+
+  interactive_loop_running_ = false;
+}
+
 void SimulatorRunner::RunAsyncFor(double duration,
                                   std::function<void()> callback) {
-  DELPHYNE_DEMAND(!enabled_);
-  enabled_ = true;
+  DELPHYNE_DEMAND(!interactive_loop_running_);
+  interactive_loop_running_ = true;
   main_thread_ = std::thread([this, duration, callback]() {
-    this->RunSimulationLoopFor(duration, callback);
+    this->RunInteractiveSimulationLoopFor(duration, callback);
   });
 }
 
 void SimulatorRunner::RunSyncFor(double duration) {
-  DELPHYNE_DEMAND(!enabled_);
-  enabled_ = true;
-  this->RunSimulationLoopFor(duration, [] {});
+  DELPHYNE_DEMAND(!interactive_loop_running_);
+  interactive_loop_running_ = true;
+  this->RunInteractiveSimulationLoopFor(duration, [] {});
 }
 
-void SimulatorRunner::RunSimulationLoopFor(double duration,
-                                           std::function<void()> callback) {
+void SimulatorRunner::RunInteractiveSimulationLoopFor(
+    double duration, std::function<void()> callback) {
   DELPHYNE_DEMAND(duration >= 0);
   DELPHYNE_DEMAND(callback != nullptr);
 
+  SetupNewRunStats();
+
   const double sim_end = simulator_->get_current_simulation_time() + duration;
 
-  while (enabled_ && (simulator_->get_current_simulation_time() < sim_end)) {
-    RunSimulationStep();
+  while (interactive_loop_running_ &&
+         (simulator_->get_current_simulation_time() < sim_end)) {
+    RunInteractiveSimulationLoopStep();
   }
 
-  enabled_ = false;
+  interactive_loop_running_ = false;
 
   callback();
 }
 
-void SimulatorRunner::RunSimulationStep() {
+void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   // 1. Processes incoming messages (requests).
   {
     std::lock_guard<std::mutex> lock(mutex_);
@@ -199,10 +196,10 @@ void SimulatorRunner::RunSimulationStep() {
   // 2. Steps the simulator (if needed). Note that the simulator will sleep
   // here if needed to adjust to the real-time rate.
   if (!paused_) {
-    simulator_->StepBy(time_step_);
-  } else if (custom_num_steps_ > 0) {
-    simulator_->StepBy(time_step_);
-    custom_num_steps_--;
+    StepSimulationBy(time_step_);
+  } else if (steps_requested_ > 0) {
+    StepSimulationBy(time_step_);
+    steps_requested_--;
   }
 
   // A copy of the python callbacks so we can process them in a thread-safe
@@ -231,6 +228,45 @@ void SimulatorRunner::RunSimulationStep() {
       callback();
     }
   }
+}
+
+void SimulatorRunner::StepSimulationBy(double time_step) {
+  simulator_->StepBy(time_step);
+
+  SimulationRunStats* current_run_stats = stats_.GetMutableCurrentRunStats();
+
+  current_run_stats->StepExecuted(simulator_->get_current_simulation_time());
+
+  // Return if running at full speed
+  if (realtime_rate_ == 0) {
+    return;
+  }
+
+  const double simtime_passed = current_run_stats->ElapsedSimtime();
+  const TimePoint desired_realtime = current_run_stats->get_start_realtime() +
+                                     Duration(simtime_passed / realtime_rate_);
+  if (desired_realtime > RealtimeClock::now())
+    std::this_thread::sleep_until(desired_realtime);
+}
+
+void SimulatorRunner::SetupNewRunStats() {
+  stats_.NewRunStartingAt(simulator_->get_current_simulation_time());
+}
+
+void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {
+  DELPHYNE_DEMAND(interactive_loop_running_);
+  DELPHYNE_DEMAND(paused_);
+  DELPHYNE_DEMAND(steps > 0);
+
+  SetupNewRunStats();
+
+  steps_requested_ = steps;
+}
+
+void SimulatorRunner::SetRealtimeRate(double realtime_rate) {
+  DELPHYNE_DEMAND(realtime_rate >= 0.);
+  realtime_rate_ = realtime_rate;
+  SetupNewRunStats();
 }
 
 void SimulatorRunner::ProcessIncomingMessages() {
@@ -292,14 +328,14 @@ void SimulatorRunner::ProcessWorldControlMessage(
     const ignition::msgs::WorldControl& msg) {
   if (msg.has_pause()) {
     if (msg.pause()) {
-      Pause();
+      PauseSimulation();
     } else {
-      Unpause();
+      UnpauseSimulation();
     }
   } else if (msg.has_step() && msg.step()) {
-    RequestMultiStep(1u);
+    RequestSimulationStepExecution(1u);
   } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
-    RequestMultiStep(msg.multi_step());
+    RequestSimulationStepExecution(msg.multi_step());
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }

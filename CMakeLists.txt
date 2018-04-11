@@ -224,6 +224,14 @@ else (build_errors)
 
   ########################################
   # Make the cmake config files
+
+  # Export the targets
+  install(
+    EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
+    NAMESPACE ${PROJECT_NAME}::
+    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}
+  )
+
   set(PKG_NAME ${PROJECT_NAME_UPPER})
   set(cmake_conf_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config.cmake")
   set(cmake_conf_version_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config-version.cmake")

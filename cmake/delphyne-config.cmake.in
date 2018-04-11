@@ -1,3 +1,4 @@
+##############################################################################
 # - Config file for the @PKG_NAME@ package.
 #
 # For finding and loading @PKG_NAME@ from your project, type:
@@ -12,6 +13,9 @@
 #  @PKG_NAME@_LIBRARIES    - Libraries to link against.
 #  @PKG_NAME@_CXX_FLAGS    - Compiler flags for compiling C++ sources.
 #  @PKG_NAME@_LDFLAGS      - Linker flags.
+##############################################################################
+# WARNING : Untested and probably not likely to be working
+##############################################################################
 
 include (FindPkgConfig REQUIRED)
 
@@ -46,14 +50,23 @@ endforeach()
 
 list(APPEND @PKG_NAME@_LDFLAGS -L"@CMAKE_INSTALL_PREFIX@/@CMAKE_INSTALL_LIBDIR@")
 
-#################################################
-# Find ign math library
-find_package(ignition-math3 QUIET)
-if (NOT ignition-math3_FOUND)
-  message(STATUS "Looking for ignition-math3-config.cmake - not found")
+##############################################################################
+# Exports
+##############################################################################
+
+get_filename_component(CURRENT_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include(${CURRENT_DIR}/@PROJECT_NAME_LOWER@@PROJECT_MAJOR_VERSION@-targets.cmake)
+
+##############################################################################
+# Dependencies
+##############################################################################
+
+find_package(ignition-msgs1 QUIET)
+if (NOT ignition-msgs1_FOUND)
+  message(STATUS "Looking for ignition-msgs1-config.cmake - not found")
 else()
-  message(STATUS "Looking for ignition-math3 - found")
+  message(STATUS "Looking for ignition-msgs1 - found")
 endif()
-list(APPEND @PKG_NAME@_INCLUDE_DIRS ${IGNITION-MATH_INCLUDE_DIRS})
-list(APPEND @PKG_NAME@_LIBRARY_DIRS ${IGNITION-MATH_LIBRARY_DIRS})
-list(APPEND @PKG_NAME@_LIBRARIES ${IGNITION-MATH_LIBRARIES})
+list(APPEND @PKG_NAME@_INCLUDE_DIRS ${IGNITION-MSGS_INCLUDE_DIRS})
+list(APPEND @PKG_NAME@_LIBRARY_DIRS ${IGNITION-MSGS_LIBRARY_DIRS})
+list(APPEND @PKG_NAME@_LIBRARIES ${IGNITION-MSGS_LIBRARIES})

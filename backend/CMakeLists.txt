@@ -1,6 +1,5 @@
 include (${project_cmake_dir}/Utils.cmake)
 include_directories(${PYTHON_INCLUDE_DIRS})
-include(${CMAKE_INSTALL_PREFIX}/share/cmake/pybind11/pybind11Tools.cmake)
 
 ##############################################################################
 # Common Libraries
@@ -16,6 +15,17 @@ target_link_libraries(
     ${IGNITION-MSGS_LIBRARIES}
 )
 install(TARGETS time_conversion
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
+)
+
+# ----------------------------------------
+# Real-time Clock and related aliases
+add_library(realtime_utils delphyne_duration.h delphyne_realtime_clock.h delphyne_time_point.h)
+set_target_properties(realtime_utils PROPERTIES LINKER_LANGUAGE CXX OUTPUT_NAME ${PROJECT_NAME}-realtime-clock)
+
+install(TARGETS realtime_utils
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -93,6 +103,7 @@ target_link_libraries(
     ${IGNITION-MSGS_LIBRARIES}
   PRIVATE
     drake_ign_translation_systems
+    realtime_utils
 )
 
 install(TARGETS automotive_simulator
@@ -109,6 +120,8 @@ install(TARGETS automotive_simulator
 # call
 add_library(simulation_runner
   STATIC
+  interactive_simulation_stats.cc
+  simulation_run_stats.cc
   simulation_runner.cc
   system.h
 )

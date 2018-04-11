@@ -178,8 +178,8 @@ int main(int argc, char* argv[]) {
   state5.set_s(0);
   state5.set_speed(1);
   maliput_params["initial_with_s"] = true;
-  if (simulator->AddLoadableCar("LoadableMaliputRailCar",
-                                maliput_params, "Maliput0", &state5) < 0) {
+  if (simulator->AddLoadableCar("LoadableMaliputRailCar", maliput_params,
+                                "Maliput0", &state5) < 0) {
     return 1;
   }
 

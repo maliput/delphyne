@@ -57,7 +57,7 @@ def build_simple_car_simulator(initial_positions=None):
         state = SimpleCarState()
         state.y = car_position[0]
         state.x = car_position[1]
-        driving_command = "DRIVING_COMMAND_" + str(car_id)
+        driving_command = "driving_command_" + str(car_id)
         simulator.AddPriusSimpleCar(str(car_id), driving_command, state)
         car_id += 1
     return simulator

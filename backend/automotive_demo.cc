@@ -20,7 +20,7 @@ namespace {
 
 // Generates a channel name based on a given string.
 std::string MakeChannelName(const std::string& name) {
-  const std::string default_prefix{"DRIVING_COMMAND"};
+  const std::string default_prefix{"driving_command"};
   if (name.empty()) {
     return default_prefix;
   }

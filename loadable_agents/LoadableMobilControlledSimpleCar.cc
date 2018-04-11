@@ -217,7 +217,7 @@ class LoadableMobilControlledSimpleCarDouble final
         translation_systems::DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
-        std::to_string(id) + "_SIMPLE_CAR_STATE";
+        std::to_string(id) + "_simple_car_state";
     auto car_state_publisher = builder->template AddSystem<
         IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
 

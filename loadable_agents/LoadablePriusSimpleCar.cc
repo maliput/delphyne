@@ -111,7 +111,7 @@ class LoadablePriusSimpleCarDouble final
       override {
     igndbg << "LoadablePriusSimpleCar configure" << std::endl;
 
-    std::string command_channel = "DRIVING_COMMAND_" + name;
+    std::string command_channel = "driving_command_" + name;
     auto driving_command_subscriber = builder->template AddSystem<
         IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         command_channel);
@@ -136,7 +136,7 @@ class LoadablePriusSimpleCarDouble final
         translation_systems::DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
-        std::to_string(id) + "_SIMPLE_CAR_STATE";
+        std::to_string(id) + "_simple_car_state";
     auto car_state_publisher = builder->template AddSystem<
         IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
 

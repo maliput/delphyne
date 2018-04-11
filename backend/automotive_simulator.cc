@@ -495,7 +495,7 @@ void AutomotiveSimulator<T>::AddPublisher(
                     simple_car_translator->get_input_port(0));
 
   const std::string channel =
-      std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
+      std::to_string(vehicle_number) + "_simple_car_state";
   auto simple_car_publisher = builder_->template AddSystem<
       IgnPublisherSystem<ignition::msgs::SimpleCarState>>(channel);
 
@@ -570,7 +570,7 @@ void AutomotiveSimulator<T>::Build() {
 
   auto model_v_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "DRAKE_VIEWER_DRAW");
+          "drake_viewer_draw");
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);

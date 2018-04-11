@@ -45,16 +45,18 @@ GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
   const LoadRobotAggregator aggregator;
   std::unique_ptr<drake::systems::Context<double>> context =
       aggregator.AllocateContext();
-  const int kPortIndex{0};
+
   context->FixInputPort(
-      kPortIndex, drake::systems::AbstractValue::Make(load_robot_generators));
+      LoadRobotAggregator::kPortIndex,
+      drake::systems::AbstractValue::Make(load_robot_generators));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
       aggregator.AllocateOutput(*context);
   aggregator.CalcOutput(*context, output.get());
 
   const auto& aggregated_load_robot =
-      output->get_data(kPortIndex)->GetValue<lcmt_viewer_load_robot>();
+      output->get_data(LoadRobotAggregator::kPortIndex)
+          ->GetValue<lcmt_viewer_load_robot>();
 
   // The resulting message should have twice the number of links as the original
   // message (since two of those were aggregated).

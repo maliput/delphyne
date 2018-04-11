@@ -345,8 +345,8 @@ void SimulatorRunner::ProcessSceneRequest(
     const ignition::msgs::SceneRequest& msg) {
   // Sets the string from the scene request as
   // the topic name where the scene will be published
-  std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
-  std::string topic_name = msg.response_topic();
+  const std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
+  const std::string topic_name = msg.response_topic();
 
   node_.Request(topic_name, *scene);
 }
@@ -382,6 +382,11 @@ bool SimulatorRunner::OnSceneRequest(
   }
   return true;
 }
+
+const std::string SimulatorRunner::kControlService = "/world_control";
+const std::string SimulatorRunner::kNotificationsTopic = "/notifications";
+const std::string SimulatorRunner::kWorldStatsTopic = "/world_stats";
+const std::string SimulatorRunner::kSceneRequestServiceName = "/get_scene";
 
 }  // namespace backend
 }  // namespace delphyne

@@ -4,6 +4,8 @@
 
 #include "drake/automotive/gen/driving_command.h"
 
+#include <cstdint>
+
 #include "ignition/msgs.hh"
 
 #include "protobuf/automotive_driving_command.pb.h"

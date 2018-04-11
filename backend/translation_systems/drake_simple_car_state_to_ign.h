@@ -4,6 +4,8 @@
 
 #include "drake/automotive/simple_car.h"
 
+#include <cstdint>
+
 #include "ignition/msgs.hh"
 
 #include "protobuf/simple_car_state.pb.h"

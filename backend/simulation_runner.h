@@ -251,6 +251,18 @@ class SimulatorRunner {
   /// @brief Returns the collected interactive simulation statistics
   const InteractiveSimulationStats& get_stats() const { return stats_; }
 
+  // @brief The service offered to control the simulation.
+  static const std::string kControlService;
+
+  // @brief The topic used to publish notifications.
+  static const std::string kNotificationsTopic;
+
+  // @brief The topic used to publish world stats.
+  static const std::string kWorldStatsTopic;
+
+  // @brief The service used when receiving a scene request.
+  static const std::string kSceneRequestServiceName;
+
  private:
   // @brief Runs the interactive simulation loop for the provided time period.
   // Note that this is a blocking call (i.e. it does not spawn a new thread to
@@ -335,18 +347,6 @@ class SimulatorRunner {
 
   // @brief Stores the old stats and prepares a clean one for a new run.
   void SetupNewRunStats();
-
-  // @brief The service offered to control the simulation.
-  const std::string kControlService{"/world_control"};
-
-  // @brief The topic used to publish notifications.
-  const std::string kNotificationsTopic{"/notifications"};
-
-  // @brief The topic used to publish world stats.
-  const std::string kWorldStatsTopic{"/world_stats"};
-
-  // @brief The service used when receiving a scene request.
-  const std::string kSceneRequestServiceName{"/get_scene"};
 
   // @brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;

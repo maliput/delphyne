@@ -12,11 +12,15 @@ namespace delphyne {
 namespace backend {
 
 SceneSystem::SceneSystem() {
-  geometry_models_input_port_index = DeclareAbstractInputPort().get_index();
-  updated_pose_models_input_port_index = DeclareAbstractInputPort().get_index();
+  geometry_models_input_port_index_ = DeclareAbstractInputPort().get_index();
+  updated_pose_models_input_port_index_ =
+      DeclareAbstractInputPort().get_index();
 
   DeclareAbstractOutputPort(&SceneSystem::CalcSceneMessage);
 }
+
+template <class T>
+using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
 
 void SceneSystem::CalcSceneMessage(
     const drake::systems::Context<double>& context,
@@ -28,12 +32,12 @@ void SceneSystem::CalcSceneMessage(
   scene_message->Clear();
 
   const drake::systems::AbstractValue* geometry_input =
-      EvalAbstractInput(context, geometry_models_input_port_index);
+      EvalAbstractInput(context, geometry_models_input_port_index_);
   const auto& geometry_models =
       geometry_input->GetValue<ignition::msgs::Model_V>();
 
   const drake::systems::AbstractValue* updated_pose_input =
-      EvalAbstractInput(context, updated_pose_models_input_port_index);
+      EvalAbstractInput(context, updated_pose_models_input_port_index_);
   const auto& updated_pose_models =
       updated_pose_input->GetValue<ignition::msgs::Model_V>();
 
@@ -50,12 +54,11 @@ void SceneSystem::CalcSceneMessage(
   for (const ignition::msgs::Model& updated_pose_model :
        updated_pose_models.models()) {
     // Finds the matching scene model.
-    const google::protobuf::internal::RepeatedPtrIterator<
-        ignition::msgs::Model>& matching_scene_model =
+    const ProtobufIterator<ignition::msgs::Model>& matching_scene_model =
         std::find_if(
             scene_message->mutable_model()->begin(),
             scene_message->mutable_model()->end(),
-            [&updated_pose_model](::ignition::msgs::Model& scene_model) {
+            [&updated_pose_model](const ::ignition::msgs::Model& scene_model) {
               return scene_model.id() == updated_pose_model.id();
             });
 
@@ -69,12 +72,11 @@ void SceneSystem::CalcSceneMessage(
     for (const ignition::msgs::Link& updated_pose_link :
          updated_pose_model.link()) {
       // Finds the corresponding link inside the scene model.
-      const google::protobuf::internal::RepeatedPtrIterator<
-          ignition::msgs::Link>& matching_scene_link =
+      const ProtobufIterator<ignition::msgs::Link>& matching_scene_link =
           std::find_if(
               matching_scene_model->mutable_link()->begin(),
               matching_scene_model->mutable_link()->end(),
-              [&updated_pose_link](::ignition::msgs::Link& scene_link) {
+              [&updated_pose_link](const ::ignition::msgs::Link& scene_link) {
                 return scene_link.name() == updated_pose_link.name();
               });
 

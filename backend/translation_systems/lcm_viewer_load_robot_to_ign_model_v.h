@@ -4,6 +4,8 @@
 
 #include "drake/lcmt_viewer_load_robot.hpp"
 
+#include <cstdint>
+
 #include "ignition/msgs.hh"
 
 #include "backend/translation_systems/drake_to_ign.h"

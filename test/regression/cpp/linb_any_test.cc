@@ -1,4 +1,5 @@
-// https://raw.githubusercontent.com/thelink2012/any/master/test_any.hpp  -*- C++ -*-  NOLINT
+// https://raw.githubusercontent.com/thelink2012/any/master/test_any.hpp  -*-
+// C++ -*-  NOLINT
 //
 // clalancette: tests based on upstream for the version of linb::any we are
 // using.  I made some modifications below for include paths, and switching to
@@ -11,9 +12,9 @@
 
 // Very simplist test, could be better.
 
-#include <gtest/gtest.h>
 #include <cstdio>
 #include <memory>
+#include <gtest/gtest.h>
 #include "backend/linb-any"
 
 struct big_type {

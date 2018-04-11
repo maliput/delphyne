@@ -12,20 +12,20 @@
 
 #include "helpers.h"
 
-#include <google/protobuf/text_format.h>
-#include <iostream>
 namespace delphyne {
 namespace backend {
 
 // Checks that a scene system is created, based on the Model_V on the system's
 // input port.
 GTEST_TEST(SceneSystemTest, CalcSceneTest) {
-  const ignition::msgs::Model_V updated_pose_models{test::BuildPreloadedModelVMsg()};
+  const ignition::msgs::Model_V updated_pose_models{
+      test::BuildPreloadedModelVMsg()};
 
   // Create a set of geometry models, equal to the updated pose models, but with
   // null pose on each link.
   ignition::msgs::Model_V geometry_models;
-  for (const ignition::msgs::Model& updated_pose_model : updated_pose_models.models()) {
+  for (const ignition::msgs::Model& updated_pose_model :
+       updated_pose_models.models()) {
     ignition::msgs::Model* new_model = geometry_models.add_models();
     new_model->CopyFrom(updated_pose_model);
 
@@ -47,11 +47,12 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
   std::unique_ptr<drake::systems::Context<double>> context =
       scene_system.AllocateContext();
 
-  context->FixInputPort(scene_system.geometry_models_input_port_index,
+  context->FixInputPort(scene_system.get_geometry_models_input_port_index(),
                         drake::systems::AbstractValue::Make(geometry_models));
 
-  context->FixInputPort(scene_system.updated_pose_models_input_port_index,
-                        drake::systems::AbstractValue::Make(updated_pose_models));
+  context->FixInputPort(
+      scene_system.get_updated_pose_models_input_port_index(),
+      drake::systems::AbstractValue::Make(updated_pose_models));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
       scene_system.AllocateOutput(*context);
@@ -65,7 +66,8 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
   // updated pose models.
   EXPECT_EQ(updated_pose_models.models_size(), scene_msg.model_size());
 
-  for (const ::ignition::msgs::Model& updated_pose_model : updated_pose_models.models()) {
+  for (const ::ignition::msgs::Model& updated_pose_model :
+       updated_pose_models.models()) {
     const google::protobuf::internal::RepeatedPtrIterator<
         const ignition::msgs::Model>& matching_scene_model =
         std::find_if(
@@ -75,17 +77,8 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
             });
 
     ASSERT_FALSE(matching_scene_model == scene_msg.model().end());
-
-    std::string updated_str;
-    std::string scene_str;
-
-    google::protobuf::TextFormat::PrintToString(updated_pose_model, &updated_str);
-    google::protobuf::TextFormat::PrintToString(*matching_scene_model, &scene_str);
-
-    std::cout << updated_str << std::endl << std::endl << scene_str;
-
-    EXPECT_TRUE(
-        test::CheckProtobufMsgEquality(updated_pose_model, *matching_scene_model));
+    EXPECT_TRUE(test::CheckProtobufMsgEquality(updated_pose_model,
+                                               *matching_scene_model));
   }
 }
 

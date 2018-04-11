@@ -1,7 +1,7 @@
 // Copyright 2017 Toyota Research Institute
 
-#include <gtest/gtest.h>
 #include "backend/automotive_simulator.h"
+#include <gtest/gtest.h>
 
 #include <chrono>
 #include <condition_variable>

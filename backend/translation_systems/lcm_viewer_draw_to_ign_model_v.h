@@ -4,6 +4,8 @@
 
 #include "drake/lcmt_viewer_draw.hpp"
 
+#include <cstdint>
+
 #include "ignition/msgs.hh"
 
 #include "backend/system.h"

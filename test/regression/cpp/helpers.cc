@@ -8,8 +8,8 @@
 
 #include "backend/system.h"
 #include "drake/lcmt_viewer_draw.hpp"
-#include "ignition/msgs.hh"
 #include "helpers.h"
+#include "ignition/msgs.hh"
 
 namespace delphyne {
 namespace test {
@@ -332,6 +332,7 @@ namespace {
     const drake::lcmt_viewer_load_robot& lcm_msg,
     const ignition::msgs::Model_V& ign_models) {
   // TODO(nventuro): compare the links, including their geometries.
+  // https://github.com/ToyotaResearchInstitute/delphyne/issues/361
   return ::testing::AssertionSuccess();
 }
 

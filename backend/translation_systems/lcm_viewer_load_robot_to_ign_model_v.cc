@@ -31,7 +31,7 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
       grouped_links_by_id;
 
   for (const drake::lcmt_viewer_link_data& link : lcm_message.link) {
-    int32_t id = link.robot_num;
+    const int32_t id = link.robot_num;
     if (grouped_links_by_id.count(id) == 0) {
       grouped_links_by_id[id] = {};
     }

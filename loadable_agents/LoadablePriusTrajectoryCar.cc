@@ -164,7 +164,7 @@ class LoadablePriusTrajectoryCarDouble final
         builder->AddSystem<translation_systems::DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
-        std::to_string(id) + "_simple_car_state";
+        "agents/" + std::to_string(id) + "/state";
     auto car_state_publisher =
         builder->AddSystem<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
             car_state_channel);

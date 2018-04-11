@@ -126,7 +126,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
   ignition::transport::Node node;
 
-  node.Subscribe<ignition::msgs::SimpleCarState>("/0_simple_car_state",
+  node.Subscribe<ignition::msgs::SimpleCarState>("agents/0/state",
                                                  callback);
 
   const std::string kCommandChannelName = "DRIVING_COMMAND";
@@ -202,7 +202,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 
   ignition::transport::Node node;
 
-  node.Subscribe<ignition::msgs::SimpleCarState>("/0_simple_car_state",
+  node.Subscribe<ignition::msgs::SimpleCarState>("agents/0/state",
                                                  callback);
 
   simulator->Start();
@@ -263,7 +263,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   EXPECT_EQ(id_decoy2, 2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /drake_viewer_draw.
+  // that is published to /visualizer/scene_update.
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -274,7 +274,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 
   ignition::transport::Node node;
 
-  node.Subscribe<ignition::msgs::Model_V>("/drake_viewer_draw",
+  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
                                           viewer_draw_callback);
 
   // Finish all initialization, so that we can test the post-init state.
@@ -315,7 +315,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   EXPECT_EQ(id2, 1);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /drake_viewer_draw.
+  // that is published to /visualizer/scene_update.
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -326,7 +326,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
 
   ignition::transport::Node node;
 
-  node.Subscribe<ignition::msgs::Model_V>("/drake_viewer_draw",
+  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
                                           viewer_draw_callback);
 
   // Finish all initialization, so that we can test the post-init state.
@@ -461,7 +461,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
   EXPECT_EQ(id, 0);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /drake_viewer_draw
+  // that is published to /visualizer/scene_update
   ignition::msgs::Model_V draw_message;
 
   std::function<void(const ignition::msgs::Model_V& ign_message)>
@@ -472,7 +472,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
 
   ignition::transport::Node node;
 
-  node.Subscribe<ignition::msgs::Model_V>("/drake_viewer_draw",
+  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
                                           viewer_draw_callback);
 
   simulator->Start();
@@ -546,7 +546,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
                                    0 /* start time */);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /drake_viewer_draw
+  // that is published to /visualizer/scene_update
   ignition::msgs::Model_V draw_message;
 
   // Condition variable for critical section.
@@ -572,7 +572,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 
   ignition::transport::Node node;
 
-  node.Subscribe<ignition::msgs::Model_V>("/drake_viewer_draw",
+  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
                                           viewer_draw_callback);
 
   // Plus one to include the world.

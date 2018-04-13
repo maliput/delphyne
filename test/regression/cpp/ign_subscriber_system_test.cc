@@ -21,7 +21,7 @@ namespace backend {
 // Creates an Ignition Subscriber System and publish a message, then checks that
 // it has been correctly received by the system.
 GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
-  const std::string kTopicName{"DRAKE_VIEWER_DRAW"};
+  const std::string kTopicName{"visualizer/scene_update"};
 
   // Subscriber system.
   IgnSubscriberSystem<ignition::msgs::Model_V> subscriber_system(kTopicName);

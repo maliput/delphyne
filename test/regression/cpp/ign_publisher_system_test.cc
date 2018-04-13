@@ -34,7 +34,7 @@ class IgnPublisherSystemTest : public ::testing::Test {
   // The received message.
   ignition::msgs::Model_V ign_msg_;
 
-  const std::string kTopicName = "DRAKE_VIEWER_DRAW";
+  const std::string kTopicName = "visualizer/scene_update";
 
   void SetUp() override {
     handler_called_count_ = 0;

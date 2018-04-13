@@ -20,11 +20,11 @@ namespace {
 
 // Generates a channel name based on a given string.
 std::string MakeChannelName(const std::string& name) {
-  const std::string default_prefix{"DRIVING_COMMAND"};
+  const std::string default_prefix{"teleop"};
   if (name.empty()) {
     return default_prefix;
   }
-  return default_prefix + "_" + name;
+  return default_prefix + "/" + name;
 }
 
 drake::automotive::Curve2<double> MakeCurve(double radius, double inset) {

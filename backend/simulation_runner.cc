@@ -383,10 +383,5 @@ bool SimulatorRunner::OnSceneRequest(
   return true;
 }
 
-const std::string SimulatorRunner::kControlService = "/world_control";
-const std::string SimulatorRunner::kNotificationsTopic = "/notifications";
-const std::string SimulatorRunner::kWorldStatsTopic = "/world_stats";
-const std::string SimulatorRunner::kSceneRequestServiceName = "/get_scene";
-
 }  // namespace backend
 }  // namespace delphyne

@@ -252,16 +252,16 @@ class SimulatorRunner {
   const InteractiveSimulationStats& get_stats() const { return stats_; }
 
   // @brief The service offered to control the simulation.
-  static const std::string kControlService;
+  static constexpr char const* kControlService = "/world_control";
 
   // @brief The topic used to publish notifications.
-  static const std::string kNotificationsTopic;
+  static constexpr char const* kNotificationsTopic = "/notifications";
 
   // @brief The topic used to publish world stats.
-  static const std::string kWorldStatsTopic;
+  static constexpr char const* kWorldStatsTopic = "/world_stats";
 
   // @brief The service used when receiving a scene request.
-  static const std::string kSceneRequestServiceName;
+  static constexpr char const* kSceneRequestServiceName = "/get_scene";
 
  private:
   // @brief Runs the interactive simulation loop for the provided time period.

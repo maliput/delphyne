@@ -174,6 +174,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   static void LcmBoxToIgnition(const drake::lcmt_viewer_geometry_data& lcm_box,
                                ignition::msgs::BoxGeom* ign_box) {
     DELPHYNE_DEMAND(lcm_box.type == drake::lcmt_viewer_geometry_data::BOX);
+    DELPHYNE_DEMAND(ign_box != nullptr);
     if (lcm_box.num_float_data != 3) {
       throw TranslateException(
           "Expected 3 float elements for box translation, but got " +
@@ -196,6 +197,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
       ignition::msgs::SphereGeom* ign_sphere) {
     DELPHYNE_DEMAND(lcm_sphere.type ==
                     drake::lcmt_viewer_geometry_data::SPHERE);
+    DELPHYNE_DEMAND(ign_sphere != nullptr);
     if (lcm_sphere.num_float_data != 1) {
       throw TranslateException(
           "Expected 1 float element for sphere translation, but got " +
@@ -215,6 +217,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
       ignition::msgs::CylinderGeom* ign_cylinder) {
     DELPHYNE_DEMAND(lcm_cylinder.type ==
                     drake::lcmt_viewer_geometry_data::CYLINDER);
+    DELPHYNE_DEMAND(ign_cylinder != nullptr);
     if (lcm_cylinder.num_float_data != 2) {
       throw TranslateException(
           "Expected 2 float elements for cylinder translation, but got " +
@@ -234,6 +237,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
       const drake::lcmt_viewer_geometry_data& lcm_mesh,
       ignition::msgs::MeshGeom* ign_mesh) {
     DELPHYNE_DEMAND(lcm_mesh.type == drake::lcmt_viewer_geometry_data::MESH);
+    DELPHYNE_DEMAND(ign_mesh != nullptr);
     if (lcm_mesh.string_data.empty()) {
       throw TranslateException("Expected a mesh filename for translation");
     }

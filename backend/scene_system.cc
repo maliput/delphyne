@@ -11,6 +11,9 @@
 namespace delphyne {
 namespace backend {
 
+template <class T>
+using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
+
 SceneSystem::SceneSystem() {
   geometry_models_input_port_index_ = DeclareAbstractInputPort().get_index();
   updated_pose_models_input_port_index_ =
@@ -18,9 +21,6 @@ SceneSystem::SceneSystem() {
 
   DeclareAbstractOutputPort(&SceneSystem::CalcSceneMessage);
 }
-
-template <class T>
-using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
 
 void SceneSystem::CalcSceneMessage(
     const drake::systems::Context<double>& context,

@@ -12,10 +12,11 @@
 
 // Very simplist test, could be better.
 
-#include <cstdio>
 #include <memory>
-#include <gtest/gtest.h>
+
 #include "backend/linb-any"
+
+#include <gtest/gtest.h>
 
 struct big_type {
   char i_wanna_be_big[256];

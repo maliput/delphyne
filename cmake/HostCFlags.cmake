@@ -2,9 +2,7 @@ include (${project_cmake_dir}/FindSSE.cmake)
 
 if (SSE2_FOUND)
   set (CMAKE_C_FLAGS_ALL "-msse -msse2 ${CMAKE_C_FLAGS_ALL}")
-  if (NOT APPLE)
-    set (CMAKE_C_FLAGS_ALL "-mfpmath=sse ${CMAKE_C_FLAGS_ALL}")
-  endif()
+  set (CMAKE_C_FLAGS_ALL "-mfpmath=sse ${CMAKE_C_FLAGS_ALL}")
 endif()
 
 if (SSE3_FOUND)

@@ -9,12 +9,7 @@ set (CMAKE_LINK_FLAGS_DEBUG " -rdynamic" CACHE INTERNAL "Link flags for debug" F
 set (CMAKE_LINK_FLAGS_PROFILE " -rdynamic -pg" CACHE INTERNAL "Link flags for profile" FORCE)
 
 set (CMAKE_C_FLAGS_RELEASE "")
-if (NOT APPLE)
-  # -s doesn't work with default osx compiler clang, alternative:
-  # http://stackoverflow.com/questions/6085491/gcc-vs-clang-symbol-strippingu
-  set (CMAKE_C_FLAGS_RELEASE "-s")
-endif()
-
+set (CMAKE_C_FLAGS_RELEASE "-s")
 
 set (CMAKE_C_FLAGS_RELEASE " ${CMAKE_C_FLAGS_RELEASE} -O3 -DNDEBUG ${CMAKE_C_FLAGS_ALL}" CACHE INTERNAL "C Flags for release" FORCE)
 set (CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
@@ -37,12 +32,10 @@ set (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}} -std=c++14")
 
-if (UNIX)
-    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
-    set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
-    set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
-    set (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
-endif()
+set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
+set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
+set (CMAKE_SHARED_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
+set (CMAKE_MODULE_LINKER_FLAGS "${CMAKE_LINK_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}}")
 
 # Compiler-specific C++14 activation.
 if ("${CMAKE_CXX_COMPILER_ID} " MATCHES "GNU ")
@@ -53,10 +46,6 @@ if ("${CMAKE_CXX_COMPILER_ID} " MATCHES "GNU ")
     endif ()
 elseif ("${CMAKE_CXX_COMPILER_ID} " MATCHES "Clang ")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-elseif ("${CMAKE_CXX_COMPILER_ID} " STREQUAL "MSVC ")
-    if (NOT MSVC14)
-        message(FATAL_ERROR "${PROJECT_NAME} requires VS 2013 os greater.")
-    endif()
 else ()
     message(FATAL_ERROR "Your C++ compiler does not support C++14.")
 endif ()

@@ -7,11 +7,11 @@
 # in order to find all of the files.  It is recommended to run this before
 # opening any pull request.
 
-find . -not \( -path ./bridge/drake -prune \) \
-  -not \( -path ./bridge/protobuf -prune \) \
-  -not \( -path ./test -prune \) \
+find . \
   -not \( -path ./backend/linb-any -prune \) \
-  -not \( -path ./backend/test/linb_any_test.cc \) \
+  -not \( -path ./protobuf -prune \) \
+  -not \( -path ./test/libgtest -prune \) \
+  -not \( -path ./test/regression/cpp/linb_any_test.cc -prune \) \
   -iname '*.cc' -o -iname '*.cpp' -o -iname '*.c' -o -iname '*.hpp' -o -iname '*.hh' -o -iname '*.h' | while read file ; do
     echo "Reformatting $file"
     clang-format-3.9 -i -style=file "$file"

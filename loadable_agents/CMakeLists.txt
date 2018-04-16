@@ -26,6 +26,13 @@ target_include_directories(LoadablePriusSimpleCar PRIVATE
   ${IGNITION-COMMON_INCLUDE_DIRS}
 )
 
+target_link_libraries(
+  LoadablePriusSimpleCar
+  PRIVATE
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
+)
+
 install(TARGETS LoadablePriusSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
 
 ############## LoadablePriusTrajectoryCar #####################
@@ -40,6 +47,13 @@ target_include_directories(LoadablePriusTrajectoryCar PRIVATE
   ${EIGEN_INCLUDE_DIRS}
   ${DELPHYNE_INCLUDE_DIRS}
   ${IGNITION-COMMON_INCLUDE_DIRS}
+)
+
+target_link_libraries(
+  LoadablePriusTrajectoryCar
+  PRIVATE
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
 )
 
 install(TARGETS LoadablePriusTrajectoryCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
@@ -58,6 +72,13 @@ target_include_directories(LoadableMobilControlledSimpleCar PRIVATE
   ${IGNITION-COMMON_INCLUDE_DIRS}
 )
 
+target_link_libraries(
+  LoadableMobilControlledSimpleCar
+  PRIVATE
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
+)
+
 install(TARGETS LoadableMobilControlledSimpleCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
 
 ############## LoadableMaliputRailCar #####################
@@ -72,6 +93,13 @@ target_include_directories(LoadableMaliputRailCar PRIVATE
   ${EIGEN_INCLUDE_DIRS}
   ${DELPHYNE_INCLUDE_DIRS}
   ${IGNITION-COMMON_INCLUDE_DIRS}
+)
+
+target_link_libraries(
+  LoadableMaliputRailCar
+  PRIVATE
+    ${drake_LIBRARIES}
+    ${IGNITION-COMMON_LIBRARIES}
 )
 
 install(TARGETS LoadableMaliputRailCar DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)

@@ -50,8 +50,6 @@
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
-#include <ignition/msgs.hh>
-#include <ignition/transport.hh>
 
 #include "drake/automotive/calc_smooth_acceleration.h"
 #include "drake/automotive/curve2.h"

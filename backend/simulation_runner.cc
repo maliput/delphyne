@@ -78,10 +78,10 @@ SimulatorRunner::SimulatorRunner(
   world_stats_pub_ =
       node_.Advertise<ignition::msgs::WorldStatistics>(kWorldStatsTopic);
 
-  // Advertise the service for receiving robot model requests from the frontend
-  if (!node_.Advertise(kRobotRequestServiceName,
-                       &SimulatorRunner::OnRobotModelRequest, this)) {
-    ignerr << "Error advertising service [" << kRobotRequestServiceName << "]"
+  // Advertise the service for receiving scene requests from the frontend
+  if (!node_.Advertise(kSceneRequestServiceName,
+                       &SimulatorRunner::OnSceneRequest, this)) {
+    ignerr << "Error advertising service [" << kSceneRequestServiceName << "]"
            << std::endl;
   }
   // Initializes the python machinery so we can invoke a python callback
@@ -280,8 +280,8 @@ void SimulatorRunner::ProcessIncomingMessages() {
         ProcessWorldControlMessage(next_msg.world_control());
         break;
 
-      case ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST:
-        this->ProcessRobotModelRequest(next_msg.robot_model_request());
+      case ignition::msgs::SimulationInMessage::SCENEREQUEST:
+        this->ProcessSceneRequest(next_msg.scene_request());
         break;
 
       default:
@@ -341,14 +341,14 @@ void SimulatorRunner::ProcessWorldControlMessage(
   }
 }
 
-void SimulatorRunner::ProcessRobotModelRequest(
-    const ignition::msgs::RobotModelRequest& msg) {
-  // Sets the string from the robot model request as
-  // the topic name where the robot model will be published
-  auto robot_model = simulator_->GetRobotModel();
-  std::string topic_name = msg.response_topic();
+void SimulatorRunner::ProcessSceneRequest(
+    const ignition::msgs::SceneRequest& msg) {
+  // Sets the string from the scene request as
+  // the topic name where the scene will be published
+  const std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
+  const std::string topic_name = msg.response_topic();
 
-  node_.Request(topic_name, *robot_model);
+  node_.Request(topic_name, *scene);
 }
 
 bool SimulatorRunner::OnWorldControl(
@@ -367,14 +367,13 @@ bool SimulatorRunner::OnWorldControl(
   return true;
 }
 
-bool SimulatorRunner::OnRobotModelRequest(
-    const ignition::msgs::RobotModelRequest& request,
+bool SimulatorRunner::OnSceneRequest(
+    const ignition::msgs::SceneRequest& request,
     ignition::msgs::Boolean& response) {
   // Fill the new message.
   ignition::msgs::SimulationInMessage input_message;
-  input_message.set_type(
-      ignition::msgs::SimulationInMessage::ROBOTMODELREQUEST);
-  input_message.mutable_robot_model_request()->CopyFrom(request);
+  input_message.set_type(ignition::msgs::SimulationInMessage::SCENEREQUEST);
+  input_message.mutable_scene_request()->CopyFrom(request);
 
   {
     // Queue the message.

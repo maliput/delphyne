@@ -1,21 +1,24 @@
 // Copyright 2017 Toyota Research Institute
 
-#include <gtest/gtest.h>
+#include "test/regression/cpp/helpers.h"
+
+#include <exception>
 #include <string>
 #include <vector>
 
 #include "backend/system.h"
 #include "drake/lcmt_viewer_draw.hpp"
-#include "ignition/msgs.hh"
 #include "helpers.h"
+#include "ignition/msgs.hh"
 
 namespace delphyne {
 namespace test {
 
 // The preloaded messages have kPreloadedModels models, each with
-// kPreloadedLinks links.
+// kPreloadedLinks links, each with kPreloadedGeometries geometries.
 const int kPreloadedModels{3};
 const int kPreloadedLinks{2};
+const int kPreloadedGeometries{4};
 
 drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   drake::lcmt_viewer_draw lcm_msg;
@@ -39,6 +42,81 @@ drake::lcmt_viewer_draw BuildPreloadedDrawMsg() {
   }
 
   lcm_msg.num_links = kPreloadedModels * kPreloadedLinks;
+
+  return lcm_msg;
+}
+
+drake::lcmt_viewer_load_robot BuildPreloadedLoadRobotMsg() {
+  drake::lcmt_viewer_load_robot lcm_msg;
+
+  for (int i = 0; i < kPreloadedModels; ++i) {
+    for (int j = 0; j < kPreloadedLinks; ++j) {
+      drake::lcmt_viewer_link_data link;
+
+      link.robot_num = i;
+      link.name = std::to_string(i) + std::to_string(j);
+
+      for (int k = 0; k < kPreloadedGeometries; ++k) {
+        drake::lcmt_viewer_geometry_data geometry;
+
+        // Pre-fill the float_data, only some of them will be used, depending
+        // on the actual geometry.
+        geometry.float_data =
+            std::vector<float>{static_cast<float>(i), static_cast<float>(j),
+                               static_cast<float>(k)};
+
+        // We currently support 4 types of geometries, so only those are
+        // generated.
+        switch ((i + j + k) % 4) {
+          case 0:
+            geometry.type = drake::lcmt_viewer_geometry_data::BOX;
+            geometry.num_float_data = 3;
+            break;
+
+          case 1:
+            geometry.type = drake::lcmt_viewer_geometry_data::SPHERE;
+            geometry.num_float_data = 1;
+            break;
+
+          case 2:
+            geometry.type = drake::lcmt_viewer_geometry_data::CYLINDER;
+            geometry.num_float_data = 2;
+            break;
+
+          case 3:
+            geometry.type = drake::lcmt_viewer_geometry_data::MESH;
+            geometry.string_data = "mesh";
+            geometry.num_float_data = 3;
+            break;
+
+          default:
+            throw std::logic_error("Unhandled geometry type");
+            break;
+        }
+
+        geometry.position[0] = i;
+        geometry.position[1] = j + 5.0;
+        geometry.position[2] = k + 10.0;
+
+        geometry.quaternion[0] = j;
+        geometry.quaternion[1] = i + 5.0;
+        geometry.quaternion[2] = j + 10.0;
+        geometry.quaternion[3] = k + 15.0;
+
+        geometry.color[0] = j;
+        geometry.color[1] = i + 5.0;
+        geometry.color[2] = j + 10.0;
+        geometry.color[3] = k + 15.0;
+
+        link.geom.push_back(geometry);
+      }
+
+      link.num_geom = link.geom.size();
+      lcm_msg.link.push_back(link);
+    }
+  }
+
+  lcm_msg.num_links = lcm_msg.link.size();
 
   return lcm_msg;
 }
@@ -247,6 +325,14 @@ namespace {
   if (failure) {
     return ::testing::AssertionFailure() << error_msg;
   }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_load_robot& lcm_msg,
+    const ignition::msgs::Model_V& ign_models) {
+  // TODO(nventuro): compare the links, including their geometries.
+  // https://github.com/ToyotaResearchInstitute/delphyne/issues/361
   return ::testing::AssertionSuccess();
 }
 

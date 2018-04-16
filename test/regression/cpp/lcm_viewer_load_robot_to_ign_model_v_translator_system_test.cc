@@ -1,22 +1,23 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
+#include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
 
 #include "drake/systems/framework/framework_common.h"
 
-#include <gtest/gtest.h>
+#include "gtest/gtest.h"
 
-#include "helpers.h"
+#include "test/regression/cpp/helpers.h"
 
 namespace delphyne {
 namespace backend {
 
-// @brief Checks that an LCM viewer draw message on the input port is correctly
-// translated into an ignition Model_V message.
-GTEST_TEST(LCMViewerDrawToIgnModelVTranslatorSystemTest, TestTranslation) {
-  const drake::lcmt_viewer_draw lcm_msg{test::BuildPreloadedDrawMsg()};
+// @brief Checks that an LCM viewer load robot message on the input port is
+// correctly translated into an ignition Model_V message.
+GTEST_TEST(LCMViewerLoadRobotToIgnModelVTranslatorSystemTest, TestTranslation) {
+  const drake::lcmt_viewer_load_robot lcm_msg{
+      test::BuildPreloadedLoadRobotMsg()};
 
-  const translation_systems::LcmViewerDrawToIgnModelV translator;
+  const translation_systems::LcmViewerLoadRobotToIgnModelV translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

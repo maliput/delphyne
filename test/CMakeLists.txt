@@ -30,7 +30,6 @@ macro(delphyne_build_tests)
         automotive_simulator
         scene_system
         drake_ign_translation_systems
-        lcm_to_ignition_translation
         time_conversion
         protobuf
         ${drake_LIBRARIES}

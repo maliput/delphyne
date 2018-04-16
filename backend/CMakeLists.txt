@@ -32,30 +32,10 @@ install(TARGETS realtime_utils
 )
 
 # ----------------------------------------
-# Lcm to ign translation library
-#
-add_library(lcm_to_ignition_translation lcm_to_ign_translation.cc)
-set_target_properties(lcm_to_ignition_translation PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-lcm-to-ignition-translation)
-target_link_libraries(
-  lcm_to_ignition_translation
-  PUBLIC
-    protobuf_messages
-    ${IGNITION-MSGS_LIBRARIES}
-    ${drake_LIBRARIES}
-  PRIVATE
-    time_conversion
-)
-install(TARGETS lcm_to_ignition_translation
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-)
-
-# ----------------------------------------
 # Scene-builder library
 #
 add_library(scene_system
-  scene_builder_system.cc
+  load_robot_aggregator.cc
   scene_system.cc
   system.h
 )
@@ -63,7 +43,6 @@ set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-
 target_link_libraries(
   scene_system
   PUBLIC
-    lcm_to_ignition_translation
     ${IGNITION-MSGS_LIBRARIES}
     ${drake_LIBRARIES}
   PRIVATE

@@ -30,8 +30,7 @@ namespace backend {
 ///           template types are 'double', 'drake::AutoDiffXd', and
 ///           'drake::symbolic::Expression'.
 template <typename T>
-class AgentPluginBase
-    : public drake::systems::LeafSystem<T> {
+class AgentPluginBase : public drake::systems::LeafSystem<T> {
  public:
   virtual ~AgentPluginBase() {}
 

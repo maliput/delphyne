@@ -2,12 +2,15 @@
 
 #pragma once
 
+#include <cstdint>
 #include <type_traits>
 
+#include <drake/lcmt_viewer_geometry_data.hpp>
 #include "drake/systems/framework/leaf_system.h"
 #include "drake/systems/framework/vector_base.h"
 
 #include "backend/system.h"
+#include "backend/translate_exception.h"
 
 namespace delphyne {
 namespace backend {
@@ -105,6 +108,152 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     ign_quaternion->set_x(lcm_quaternion[1]);
     ign_quaternion->set_y(lcm_quaternion[2]);
     ign_quaternion->set_z(lcm_quaternion[3]);
+  }
+
+  // @brief Converts an array of floats (LCM's type for a color) to an
+  // ignition color message.
+  //
+  // @param[in] lcm_color The LCM color array.
+  // @param[out] ign_color The ign color message.
+  static void LcmColorToIgnition(const float lcm_color[4],
+                                 ignition::msgs::Color* ign_color) {
+    DELPHYNE_DEMAND(ign_color != nullptr);
+
+    ign_color->set_r(lcm_color[0]);
+    ign_color->set_g(lcm_color[1]);
+    ign_color->set_b(lcm_color[2]);
+    ign_color->set_a(lcm_color[3]);
+  }
+
+  // @brief Converts an LCM geometry to an ignition geometry. Note that an LCM
+  // geometry has fields (such as color and position) for which the ignition
+  // counterpart is not a geometry: these fields are not converted by this
+  // function.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign geometry.
+  static void LcmGeometryToIgnition(
+      const drake::lcmt_viewer_geometry_data& lcm_geometry,
+      ignition::msgs::Geometry* ign_geometry) {
+    // Call the specialized overload for each geometry type. Because the
+    // ignition geometry message itself also needs to be aware of the type of
+    // the inner geometry message (box, sphere, etc.), said type must be added
+    // here.
+    switch (lcm_geometry.type) {
+      case drake::lcmt_viewer_geometry_data::BOX:
+        ign_geometry->set_type(ignition::msgs::Geometry::BOX);
+        LcmBoxToIgnition(lcm_geometry, ign_geometry->mutable_box());
+        break;
+
+      case drake::lcmt_viewer_geometry_data::SPHERE:
+        ign_geometry->set_type(ignition::msgs::Geometry::SPHERE);
+        LcmSphereToIgnition(lcm_geometry, ign_geometry->mutable_sphere());
+        break;
+
+      case drake::lcmt_viewer_geometry_data::CYLINDER:
+        ign_geometry->set_type(ignition::msgs::Geometry::CYLINDER);
+        LcmCylinderToIgnition(lcm_geometry, ign_geometry->mutable_cylinder());
+        break;
+
+      case drake::lcmt_viewer_geometry_data::MESH:
+        ign_geometry->set_type(ignition::msgs::Geometry::MESH);
+        LcmMeshToIgnition(lcm_geometry, ign_geometry->mutable_mesh());
+        break;
+
+      default:
+        throw TranslateException("Cannot translate geometry of type: " +
+                                 std::to_string(lcm_geometry.type));
+    }
+  }
+
+  // @brief Converts an LCM geometry to an ignition box geometry. The LCM
+  // goemetry must represent a box geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign box geometry.
+  static void LcmBoxToIgnition(const drake::lcmt_viewer_geometry_data& lcm_box,
+                               ignition::msgs::BoxGeom* ign_box) {
+    DELPHYNE_DEMAND(lcm_box.type == drake::lcmt_viewer_geometry_data::BOX);
+    DELPHYNE_DEMAND(ign_box != nullptr);
+    if (lcm_box.num_float_data != 3) {
+      throw TranslateException(
+          "Expected 3 float elements for box translation, but got " +
+          std::to_string(lcm_box.num_float_data));
+    }
+
+    ignition::msgs::Vector3d* size = ign_box->mutable_size();
+    size->set_x(lcm_box.float_data[0]);
+    size->set_y(lcm_box.float_data[1]);
+    size->set_z(lcm_box.float_data[2]);
+  }
+
+  // @brief Converts an LCM geometry to an ignition sphere geometry. The LCM
+  // goemetry must represent a sphere geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign sphere geometry.
+  static void LcmSphereToIgnition(
+      const drake::lcmt_viewer_geometry_data& lcm_sphere,
+      ignition::msgs::SphereGeom* ign_sphere) {
+    DELPHYNE_DEMAND(lcm_sphere.type ==
+                    drake::lcmt_viewer_geometry_data::SPHERE);
+    DELPHYNE_DEMAND(ign_sphere != nullptr);
+    if (lcm_sphere.num_float_data != 1) {
+      throw TranslateException(
+          "Expected 1 float element for sphere translation, but got " +
+          std::to_string(lcm_sphere.num_float_data));
+    }
+
+    ign_sphere->set_radius(lcm_sphere.float_data[0]);
+  }
+
+  // @brief Converts an LCM geometry to an ignition cylinder geometry. The LCM
+  // goemetry must represent a cylinder geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign cylinder geometry.
+  static void LcmCylinderToIgnition(
+      const drake::lcmt_viewer_geometry_data& lcm_cylinder,
+      ignition::msgs::CylinderGeom* ign_cylinder) {
+    DELPHYNE_DEMAND(lcm_cylinder.type ==
+                    drake::lcmt_viewer_geometry_data::CYLINDER);
+    DELPHYNE_DEMAND(ign_cylinder != nullptr);
+    if (lcm_cylinder.num_float_data != 2) {
+      throw TranslateException(
+          "Expected 2 float elements for cylinder translation, but got " +
+          std::to_string(lcm_cylinder.num_float_data));
+    }
+
+    ign_cylinder->set_radius(lcm_cylinder.float_data[0]);
+    ign_cylinder->set_length(lcm_cylinder.float_data[1]);
+  }
+
+  // @brief Converts an LCM geometry to an ignition mesh geometry. The LCM
+  // goemetry must represent a mesh geometry.
+  //
+  // @param[in] lcm_color The LCM geometry.
+  // @param[out] ign_color The ign mesh geometry.
+  static void LcmMeshToIgnition(
+      const drake::lcmt_viewer_geometry_data& lcm_mesh,
+      ignition::msgs::MeshGeom* ign_mesh) {
+    DELPHYNE_DEMAND(lcm_mesh.type == drake::lcmt_viewer_geometry_data::MESH);
+    DELPHYNE_DEMAND(ign_mesh != nullptr);
+    if (lcm_mesh.string_data.empty()) {
+      throw TranslateException("Expected a mesh filename for translation");
+    }
+
+    if (lcm_mesh.num_float_data != 3) {
+      throw TranslateException(
+          "Expected 3 float elements for mesh translation, but got " +
+          std::to_string(lcm_mesh.num_float_data));
+    }
+
+    ign_mesh->set_filename(lcm_mesh.string_data);
+
+    ignition::msgs::Vector3d* scale = ign_mesh->mutable_scale();
+    scale->set_x(lcm_mesh.float_data[0]);
+    scale->set_y(lcm_mesh.float_data[1]);
+    scale->set_z(lcm_mesh.float_data[2]);
   }
 
  private:

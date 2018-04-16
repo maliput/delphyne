@@ -19,7 +19,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <protobuf/robot_model_request.pb.h>
+#include <protobuf/scene_request.pb.h>
 #include <protobuf/simulation_in_message.pb.h>
 
 #include <pybind11/pybind11.h>
@@ -251,6 +251,18 @@ class SimulatorRunner {
   /// @brief Returns the collected interactive simulation statistics
   const InteractiveSimulationStats& get_stats() const { return stats_; }
 
+  // @brief The service offered to control the simulation.
+  static constexpr char const* kControlService = "/world_control";
+
+  // @brief The topic used to publish notifications.
+  static constexpr char const* kNotificationsTopic = "/notifications";
+
+  // @brief The topic used to publish world stats.
+  static constexpr char const* kWorldStatsTopic = "/world_stats";
+
+  // @brief The service used when receiving a scene request.
+  static constexpr char const* kSceneRequestServiceName = "/get_scene";
+
  private:
   // @brief Runs the interactive simulation loop for the provided time period.
   // Note that this is a blocking call (i.e. it does not spawn a new thread to
@@ -292,19 +304,19 @@ class SimulatorRunner {
   // must be advanced.
   void StepSimulationBy(double time_step);
 
-  // @brief Process one RobotModelRequest message.
+  // @brief Process one SceneRequest message.
   //
   // @param[in] msg The message
-  void ProcessRobotModelRequest(const ignition::msgs::RobotModelRequest& msg);
+  void ProcessSceneRequest(const ignition::msgs::SceneRequest& msg);
 
-  // @brief Service used to receive robot model request messages.
+  // @brief Service used to receive scene request messages.
   //
   // @param[in] request The request.
   //
   // @param[out] response The response (unused).
   // @return The result of the service.
-  bool OnRobotModelRequest(
-      const ignition::msgs::RobotModelRequest& request,
+  bool OnSceneRequest(
+      const ignition::msgs::SceneRequest& request,
       // NOLINTNEXTLINE(runtime/references) due to ign-transport API
       ignition::msgs::Boolean& response);
 
@@ -335,18 +347,6 @@ class SimulatorRunner {
 
   // @brief Stores the old stats and prepares a clean one for a new run.
   void SetupNewRunStats();
-
-  // @brief The service offered to control the simulation.
-  const std::string kControlService{"/world_control"};
-
-  // @brief The topic used to publish notifications.
-  const std::string kNotificationsTopic{"/notifications"};
-
-  // @brief The topic used to publish world stats.
-  const std::string kWorldStatsTopic{"/world_stats"};
-
-  // @brief The service used when receiving a robot request.
-  const std::string kRobotRequestServiceName{"/get_robot_model"};
 
   // @brief The time (seconds) that we simulate in each simulation step.
   const double time_step_;

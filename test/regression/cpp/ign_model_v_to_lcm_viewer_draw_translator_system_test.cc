@@ -12,7 +12,7 @@ namespace delphyne {
 namespace backend {
 
 // @brief Checks that an ignition Model_V message on the input port is correctly
-//        translated into an LCM viewer draw message.
+// translated into an LCM viewer draw message.
 GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
 

@@ -2,9 +2,13 @@
 
 #pragma once
 
-#include <gtest/gtest.h>
 #include "drake/lcmt_viewer_draw.hpp"
+#include "drake/lcmt_viewer_load_robot.hpp"
+
+#include "gtest/gtest.h"
+
 #include "google/protobuf/message.h"
+
 #include "ignition/msgs.hh"
 
 namespace delphyne {
@@ -15,13 +19,19 @@ namespace test {
 // @return a loaded lcmt_viewer_draw message.
 drake::lcmt_viewer_draw BuildPreloadedDrawMsg();
 
+// Generates a pre-loaded lcmt_viewer_load_robot message.
+//
+// @return a loaded lcmt_viewer_load_robot message.
+drake::lcmt_viewer_load_robot
+BuildPreloadedLoadRobotMsg();
+
 // Generates a pre-loaded Model_V message.
 //
 // @return a loaded Model_V message.
 ignition::msgs::Model_V BuildPreloadedModelVMsg();
 
 // Asserts that all the array-iterable values from
-// lcm_msg matches the content of the ign_models object.
+// lcm_msg match the content of the ign_models object.
 //
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
@@ -30,8 +40,18 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg();
     const drake::lcmt_viewer_draw& lcm_msg,
     const ignition::msgs::Model_V& ign_models);
 
+// Asserts that all the array-iterable values from lcm_msg match the content of
+// the ign_models object.
+
+// @param lcm_msg An lcm viewer load robot message with the desired values.
+// @param ign_models An ignition messages Model_V with the translated values.
+// @return a google test's AssertionResult.
+::testing::AssertionResult CheckMsgTranslation(
+    const drake::lcmt_viewer_load_robot& lcm_msg,
+    const ignition::msgs::Model_V& ign_models);
+
 // Asserts that all the array-iterable values from
-// lcm_msg matches the content of the scene object.
+// lcm_msg match the content of the scene object.
 //
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Scene with the translated values.

@@ -2,16 +2,16 @@
 
 package ignition.msgs;
 option java_package = "com.ignition.msgs";
-option java_outer_classname = "RobotModelRequestProtos";
+option java_outer_classname = "SceneRequestProtos";
 
 /// \ingroup ignition.msgs
-/// \interface RobotModelRequest
+/// \interface SceneRequest
 /// \brief A message used by delphyne-gui to
-/// request a robot model to the backend
+/// request a scene to the backend
 
 import "ignition/msgs/header.proto";
 
-message RobotModelRequest
+message SceneRequest
 {
   /// \brief Optional header data
   optional Header header               = 1;

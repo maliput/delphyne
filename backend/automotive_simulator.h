@@ -38,7 +38,7 @@
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/linb-any"
-#include "backend/scene_builder_system.h"
+#include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
@@ -71,8 +71,8 @@ class AutomotiveSimulator {
   /// @pre Start() has NOT been called.
   drake::systems::DiagramBuilder<T>* get_builder();
 
-  /// Return the initial robot model
-  std::unique_ptr<ignition::msgs::Model_V> GetRobotModel();
+  /// Return the scene.
+  std::unique_ptr<ignition::msgs::Scene> GetScene();
 
   /// Adds a Vehicle to this simulation from a loadable module.
   ///
@@ -338,6 +338,11 @@ class AutomotiveSimulator {
   // method.
   void GenerateAndLoadRoadNetworkUrdf();
 
+  // Fixes the scene geometry aggregator input port. This is performed on the
+  // context, not the system itself, so this function requires the simulator to
+  // have been created (since it owns the context).
+  void InitializeSceneGeometryAggregator();
+
   void InitializeTrajectoryCars();
   void InitializeSimpleCars();
   void InitializeMaliputRailcars();
@@ -390,7 +395,13 @@ class AutomotiveSimulator {
   // architecture diagram, see #5541.
   drake::automotive::CarVisApplicator<T>* car_vis_applicator_{};
 
-  SceneBuilderSystem<T>* scene_builder_{};
+  // Aggregates multiple lcmt_viewer_load_robot messages into a single one
+  // containing all models in the scene.
+  LoadRobotAggregator* load_robot_aggregator_{};
+
+  // Creates a scene message from a geometry description and up-to-date poses
+  // for non-static elements.
+  SceneSystem* scene_system_{};
 
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.

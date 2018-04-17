@@ -220,14 +220,6 @@ else (build_errors)
   ########################################
   # Package Preparation
 
-  # This variable is injected into delphyne-config.cmake
-  # merely for quick inspection of what is exported/imported
-  # Only because cmake has no way of listing all the targets
-  # Dubious whether we should actually do this, since it's
-  # likely to bitrot fast. Maybe less fast if it is
-  # aggregated where the install-exports are defined.
-  set(PACKAGE_EXPORTS delphyne::protobuf_messages)
-
   configure_package_config_file(
     ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake

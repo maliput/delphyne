@@ -33,7 +33,6 @@ target_include_directories(
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
     ${PROTOBUF_INCLUDE_DIRS}
 )
-
 target_link_libraries(
   protobuf_messages
   PUBLIC
@@ -53,7 +52,7 @@ delphyne_install_includes(
   ${HEADERS}
 )
 
-install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
+install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

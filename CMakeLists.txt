@@ -33,7 +33,7 @@ if(LD_LIBRARY_PATH)
   set (ENV{LD_LIBRARY_PATH} ${LD_LIBRARY_PATH}:$ENV{LD_LIBRARY_PATH})
 endif()
 
-set (INCLUDE_INSTALL_DIR "${CMAKE_INSTALL_INCLUDEDIR}")
+set (INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR})
 set (LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})
 set (BIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})
 
@@ -212,48 +212,41 @@ else (build_errors)
   endif()
 
   ########################################
-  # Make the package config files
-  set (pkgconfig_files ${PROJECT_NAME_LOWER})
-
-  foreach (pkgconfig ${pkgconfig_files})
-    configure_file(${CMAKE_SOURCE_DIR}/cmake/pkgconfig/${pkgconfig}.in
-      ${CMAKE_CURRENT_BINARY_DIR}/cmake/pkgconfig/${pkgconfig}${PROJECT_MAJOR_VERSION}.pc @ONLY)
-    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/cmake/pkgconfig/${pkgconfig}${PROJECT_MAJOR_VERSION}.pc
-      DESTINATION ${LIB_INSTALL_DIR}/pkgconfig COMPONENT pkgconfig)
-  endforeach()
-
-  ########################################
   # Make the cmake config files
 
-  # Export the targets
-  install(
-    EXPORT ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}-targets
-    NAMESPACE ${PROJECT_NAME}::
-    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}
+  include(CMakePackageConfigHelpers)
+
+
+  ########################################
+  # Package Preparation
+
+  configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+    INSTALL_DESTINATION ${LIB_INSTALL_DIR}/${PROJECT_NAME}/cmake
   )
 
-  set(PKG_NAME ${PROJECT_NAME_UPPER})
-  set(cmake_conf_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config.cmake")
-  set(cmake_conf_version_file "${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}-config-version.cmake")
-
-  configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/delphyne-config.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/${cmake_conf_file}" @ONLY)
-
-  # Use write_basic_package_version_file to generate a ConfigVersion file that
-  # allow users of gazebo to specify the API or version to depend on
-  # TODO: keep this instruction until deprecate Ubuntu/Precise and update with
-  # https://github.com/Kitware/CMake/blob/v2.8.8/Modules/CMakePackageConfigHelpers.cmake
-  include(WriteBasicConfigVersionFile)
+  # Version module
   write_basic_config_version_file(
-    ${CMAKE_CURRENT_BINARY_DIR}/${cmake_conf_version_file}
-    VERSION "${PROJECT_VERSION_FULL}"
-    COMPATIBILITY SameMajorVersion)
+    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+    VERSION ${PROJECT_VERSION_FULL}
+    COMPATIBILITY SameMajorVersion
+  )
 
-  install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/${cmake_conf_file}
-    ${CMAKE_CURRENT_BINARY_DIR}/${cmake_conf_version_file}
-    DESTINATION ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME_LOWER}${PROJECT_MAJOR_VERSION}/ COMPONENT cmake)
+  # Install config, version and target modules
+  install(
+    FILES
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
+      ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
+    DESTINATION
+      ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}-${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}
+  )
+  install(
+    EXPORT ${PROJECT_NAME}-targets
+    NAMESPACE ${PROJECT_NAME}::
+    DESTINATION
+      ${LIB_INSTALL_DIR}/cmake/${PROJECT_NAME}-${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}
+  )
 
   ########################################
   # If present, load platform-specific build hooks.  This system is used,

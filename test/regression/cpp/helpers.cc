@@ -8,6 +8,7 @@
 
 #include "backend/system.h"
 #include "drake/lcmt_viewer_draw.hpp"
+#include "drake/lcmt_viewer_geometry_data.hpp"
 #include "helpers.h"
 #include "ignition/msgs.hh"
 
@@ -331,9 +332,72 @@ namespace {
 ::testing::AssertionResult CheckMsgTranslation(
     const drake::lcmt_viewer_load_robot& lcm_msg,
     const ignition::msgs::Model_V& ign_models) {
-  // TODO(nventuro): compare the links, including their geometries.
-  // https://github.com/ToyotaResearchInstitute/delphyne/issues/361
-  return ::testing::AssertionSuccess();
+  // Map between ignition Geometry and drake lcmt_viewer_geometry_data
+  // types, since both are represented by different integer values.
+  std::map<ignition::msgs::Geometry::Type, int8_t> ign_to_lcm_geometry_map = {
+      {ignition::msgs::Geometry_Type_BOX,
+       drake::lcmt_viewer_geometry_data::BOX},
+      {ignition::msgs::Geometry_Type_SPHERE,
+       drake::lcmt_viewer_geometry_data::SPHERE},
+      {ignition::msgs::Geometry_Type_CYLINDER,
+       drake::lcmt_viewer_geometry_data::CYLINDER},
+      {ignition::msgs::Geometry_Type_MESH,
+       drake::lcmt_viewer_geometry_data::MESH}};
+
+  int32_t num_geometries_matched = 0;
+  int32_t num_geometries_total = 0;
+
+  // Sum up all the geometries existent in the message.
+  for (int n = 0; n < lcm_msg.num_links; ++n) {
+    num_geometries_total += lcm_msg.link[n].num_geom;
+  }
+  for (const auto& ign_model : ign_models.models()) {
+    for (const auto& ign_link : ign_model.link()) {
+      for (int n = 0; n < lcm_msg.num_links; ++n) {
+        drake::lcmt_viewer_link_data lcm_link = lcm_msg.link[n];
+        if (static_cast<uint32_t>(lcm_link.robot_num) == ign_model.id()) {
+          if (lcm_link.name == ign_link.name()) {
+            for (int i = 0; i < lcm_link.num_geom; ++i) {
+              for (const auto& ign_visual : ign_link.visual()) {
+                if ((lcm_link.geom[i].position[0] ==
+                     ign_visual.pose().position().x()) &&
+                    (lcm_link.geom[i].position[1] ==
+                     ign_visual.pose().position().y()) &&
+                    (lcm_link.geom[i].position[2] ==
+                     ign_visual.pose().position().z()) &&
+                    (lcm_link.geom[i].quaternion[0] ==
+                     ign_visual.pose().orientation().w()) &&
+                    (lcm_link.geom[i].quaternion[1] ==
+                     ign_visual.pose().orientation().x()) &&
+                    (lcm_link.geom[i].quaternion[2] ==
+                     ign_visual.pose().orientation().y()) &&
+                    (lcm_link.geom[i].quaternion[3] ==
+                     ign_visual.pose().orientation().z()) &&
+                    (lcm_link.geom[i].color[0] ==
+                     ign_visual.material().diffuse().r()) &&
+                    (lcm_link.geom[i].color[1] ==
+                     ign_visual.material().diffuse().g()) &&
+                    (lcm_link.geom[i].color[2] ==
+                     ign_visual.material().diffuse().b()) &&
+                    (lcm_link.geom[i].color[3] ==
+                     ign_visual.material().diffuse().a()) &&
+                    (lcm_link.geom[i].type ==
+                     ign_to_lcm_geometry_map[ign_visual.geometry().type()])) {
+                  ++num_geometries_matched;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // If a fully matching ignition geometry is found for each lcm visual,
+  // we assume the lcm message is contained within its ignition counterpart.
+  if (num_geometries_matched == num_geometries_total) {
+    return ::testing::AssertionSuccess();
+  }
+  return ::testing::AssertionFailure();
 }
 
 ::testing::AssertionResult CheckMsgTranslation(

@@ -153,6 +153,175 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
   return robot_models;
 }
 
+::testing::AssertionResult CheckLcmArrayToVector3DEquivalence(
+    const float lcm_position[], ignition::msgs::Vector3d ign_position,
+    double tolerance) {
+  DELPHYNE_ASSERT(lcm_position != nullptr);
+  std::string error_message;
+  bool fails(false);
+  double delta = std::abs(ign_position.x() - lcm_position[0]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for Vector3D are different at x coordinate. " +
+        "lcm_position[0]: " + std::to_string(lcm_position[0]) +
+        " vs. ign_position.x(): " + std::to_string(ign_position.x()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_position.y() - lcm_position[1]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for Vector3D are different at y coordinate. " +
+        "lcm_position[1]: " + std::to_string(lcm_position[1]) +
+        " vs. ign_position.y(): " + std::to_string(ign_position.y()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_position.z() - lcm_position[2]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message + "Values for Vector3D are different at z coordinate. " +
+        "lcm_position[2]: " + std::to_string(lcm_position[2]) +
+        " vs. ign_position.z(): " + std::to_string(ign_position.z()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  if (fails) {
+    return ::testing::AssertionFailure() << error_message;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckLcmArrayToQuaternionEquivalence(
+    const float lcm_orientation[], ignition::msgs::Quaternion ign_orientation,
+    double tolerance) {
+  std::string error_message;
+  bool fails(false);
+  double delta = std::abs(ign_orientation.w() - lcm_orientation[0]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message +
+        "Values for Quaternion are different at w coordinate. " +
+        "lcm_orientation[0]: " + std::to_string(lcm_orientation[0]) +
+        " vs. ign_orientation.w(): " + std::to_string(ign_orientation.w()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_orientation.x() - lcm_orientation[1]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message +
+        "Values for Quaternion are different at x coordinate. " +
+        "lcm_orientation[1]: " + std::to_string(lcm_orientation[1]) +
+        " vs. ign_orientation.x(): " + std::to_string(ign_orientation.x()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_orientation.y() - lcm_orientation[2]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message +
+        "Values for Quaternion are different at y coordinate. " +
+        "lcm_orientation[2]: " + std::to_string(lcm_orientation[2]) +
+        " vs. ign_orientation.y(): " + std::to_string(ign_orientation.y()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_orientation.z() - lcm_orientation[3]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message =
+        error_message +
+        "Values for Quaternion are different at z coordinate. " +
+        "lcm_orientation[3]: " + std::to_string(lcm_orientation[3]) +
+        " vs. ign_orientation.z(): " + std::to_string(ign_orientation.z()) +
+        ", diff = " + std::to_string(delta) + ", tolerance = " +
+        std::to_string(tolerance) + "\n";
+  }
+  if (fails) {
+    return ::testing::AssertionFailure() << error_message;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckLcmArrayToColorEquivalence(
+    const float lcm_color[], ignition::msgs::Color ign_color,
+    double tolerance) {
+  std::string error_message;
+  bool fails(false);
+  double delta = std::abs(ign_color.r() - lcm_color[0]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message +
+                    "Values for Color are different at r coordinate. " +
+                    "lcm_color[0]: " + std::to_string(lcm_color[0]) +
+                    " vs. ign_color.r(): " + std::to_string(ign_color.r()) +
+                    ", diff = " + std::to_string(delta) + ", tolerance = " +
+                    std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_color.g() - lcm_color[1]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message +
+                    "Values for Color are different at g coordinate. " +
+                    "lcm_color[1]: " + std::to_string(lcm_color[1]) +
+                    " vs. ign_color.g(): " + std::to_string(ign_color.g()) +
+                    ", diff = " + std::to_string(delta) + ", tolerance = " +
+                    std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_color.b() - lcm_color[2]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message +
+                    "Values for Color are different at b coordinate. " +
+                    "lcm_color[2]: " + std::to_string(lcm_color[2]) +
+                    " vs. ign_color.b(): " + std::to_string(ign_color.b()) +
+                    ", diff = " + std::to_string(delta) + ", tolerance = " +
+                    std::to_string(tolerance) + "\n";
+  }
+  delta = std::abs(ign_color.a() - lcm_color[3]);
+  if (delta > tolerance) {
+    fails = true;
+    error_message = error_message +
+                    "Values for Color are different at a coordinate. " +
+                    "lcm_color[3]: " + std::to_string(lcm_color[3]) +
+                    " vs. ign_color.a(): " + std::to_string(ign_color.a()) +
+                    ", diff = " + std::to_string(delta) + ", tolerance = " +
+                    std::to_string(tolerance) + "\n";
+  }
+  if (fails) {
+    return ::testing::AssertionFailure() << error_message;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckGeometryTypeEquivalence(
+    int8_t lcm_geometry_type,
+    ignition::msgs::Geometry::Type ign_geometry_type) {
+  // Map between ignition Geometry and drake lcmt_viewer_geometry_data
+  // types, since both are represented by different integer values.
+  std::map<ignition::msgs::Geometry::Type, int8_t> ign_to_lcm_geometry_map = {
+      {ignition::msgs::Geometry_Type_BOX,
+       drake::lcmt_viewer_geometry_data::BOX},
+      {ignition::msgs::Geometry_Type_SPHERE,
+       drake::lcmt_viewer_geometry_data::SPHERE},
+      {ignition::msgs::Geometry_Type_CYLINDER,
+       drake::lcmt_viewer_geometry_data::CYLINDER},
+      {ignition::msgs::Geometry_Type_MESH,
+       drake::lcmt_viewer_geometry_data::MESH}};
+  if (ign_to_lcm_geometry_map[ign_geometry_type] == lcm_geometry_type) {
+    return ::testing::AssertionSuccess();
+  }
+  return ::testing::AssertionFailure();
+}
+
+namespace {
 bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
                                  const ignition::msgs::Model_V& ign_models) {
   int ign_links = 0;
@@ -164,78 +333,6 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
   return lcm_msg.num_links == ign_links;
 }
 
-::testing::AssertionResult CheckPositionTranslation(
-    const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
-    int lcm_index, double tolerance) {
-  // Asserts that the tolerance is not negative, aborts otherwise.
-  DELPHYNE_ASSERT(tolerance >= 0);
-  DELPHYNE_ASSERT(lcm_index >= 0);
-
-  std::string error_message;
-  bool fails(false);
-
-  double delta = std::abs(pose.position().x() - lcm_msg.position[lcm_index][0]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message = error_message + "Values for position are different at x.\n";
-  }
-  delta = std::abs(pose.position().y() - lcm_msg.position[lcm_index][1]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message = error_message + "Values for position are different at y.\n";
-  }
-  delta = std::abs(pose.position().z() - lcm_msg.position[lcm_index][2]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message = error_message + "Values for position are different at z.\n";
-  }
-  if (fails) {
-    return ::testing::AssertionFailure() << error_message;
-  }
-  return ::testing::AssertionSuccess();
-}
-
-::testing::AssertionResult CheckOrientationTranslation(
-    const ignition::msgs::Pose& pose, const drake::lcmt_viewer_draw& lcm_msg,
-    int lcm_index, double tolerance) {
-  DELPHYNE_ASSERT(tolerance >= 0);
-  DELPHYNE_ASSERT(lcm_index >= 0);
-
-  std::string error_message;
-  bool fails(false);
-
-  double delta =
-      std::abs(pose.orientation().w() - lcm_msg.quaternion[lcm_index][0]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message =
-        error_message + "Values for orientation are different at w.\n";
-  }
-  delta = std::abs(pose.orientation().x() - lcm_msg.quaternion[lcm_index][1]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message =
-        error_message + "Values for orientation are different at x.\n";
-  }
-  delta = std::abs(pose.orientation().y() - lcm_msg.quaternion[lcm_index][2]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message =
-        error_message + "Values for orientation are different at y.\n";
-  }
-  delta = std::abs(pose.orientation().z() - lcm_msg.quaternion[lcm_index][3]);
-  if (delta > tolerance) {
-    fails = true;
-    error_message =
-        error_message + "Values for orientation are different at z.\n";
-  }
-  if (fails) {
-    return ::testing::AssertionFailure() << error_message;
-  }
-  return ::testing::AssertionSuccess();
-}
-
-namespace {
 ::testing::AssertionResult AssertModelsEquivalence(
     const ignition::msgs::Model& model, const drake::lcmt_viewer_draw& lcm_msg,
     int i) {
@@ -267,10 +364,13 @@ namespace {
   const double kOrientationTolerance(0.0);
 
   ::testing::AssertionResult position_check_result(
-      CheckPositionTranslation(pose, lcm_msg, i, kPositionTolerance));
+      CheckLcmArrayToVector3DEquivalence(lcm_msg.position[i].data(),
+                                         pose.position(), kPositionTolerance));
 
   ::testing::AssertionResult orientation_check_result(
-      CheckOrientationTranslation(pose, lcm_msg, i, kOrientationTolerance));
+      CheckLcmArrayToQuaternionEquivalence(lcm_msg.quaternion[i].data(),
+                                           pose.orientation(),
+                                           kOrientationTolerance));
 
   // If any of the two checks above failed, set failure flag.
   failure |= (!position_check_result || !orientation_check_result);
@@ -332,72 +432,72 @@ namespace {
 ::testing::AssertionResult CheckMsgTranslation(
     const drake::lcmt_viewer_load_robot& lcm_msg,
     const ignition::msgs::Model_V& ign_models) {
-  // Map between ignition Geometry and drake lcmt_viewer_geometry_data
-  // types, since both are represented by different integer values.
-  std::map<ignition::msgs::Geometry::Type, int8_t> ign_to_lcm_geometry_map = {
-      {ignition::msgs::Geometry_Type_BOX,
-       drake::lcmt_viewer_geometry_data::BOX},
-      {ignition::msgs::Geometry_Type_SPHERE,
-       drake::lcmt_viewer_geometry_data::SPHERE},
-      {ignition::msgs::Geometry_Type_CYLINDER,
-       drake::lcmt_viewer_geometry_data::CYLINDER},
-      {ignition::msgs::Geometry_Type_MESH,
-       drake::lcmt_viewer_geometry_data::MESH}};
+  const double kTolerance(0.001);
 
-  int32_t num_geometries_matched = 0;
-  int32_t num_geometries_total = 0;
+  // To check the translation between models easier, a first pass
+  // over the lcm vector is done, grouping the links link id.
+  std::map<int32_t, std::vector<const drake::lcmt_viewer_link_data*>>
+      grouped_links_by_id;
 
-  // Sum up all the geometries existent in the message.
-  for (int n = 0; n < lcm_msg.num_links; ++n) {
-    num_geometries_total += lcm_msg.link[n].num_geom;
+  for (const drake::lcmt_viewer_link_data& link : lcm_msg.link) {
+    const int32_t id = link.robot_num;
+    if (grouped_links_by_id.count(id) == 0) {
+      grouped_links_by_id[id] = {};
+    }
+    grouped_links_by_id[id].push_back(&link);
   }
+
+  // For each of the models in the Model_V
   for (const auto& ign_model : ign_models.models()) {
-    for (const auto& ign_link : ign_model.link()) {
-      for (int n = 0; n < lcm_msg.num_links; ++n) {
-        drake::lcmt_viewer_link_data lcm_link = lcm_msg.link[n];
-        if (static_cast<uint32_t>(lcm_link.robot_num) == ign_model.id()) {
-          if (lcm_link.name == ign_link.name()) {
-            for (int i = 0; i < lcm_link.num_geom; ++i) {
-              for (const auto& ign_visual : ign_link.visual()) {
-                if ((lcm_link.geom[i].position[0] ==
-                     ign_visual.pose().position().x()) &&
-                    (lcm_link.geom[i].position[1] ==
-                     ign_visual.pose().position().y()) &&
-                    (lcm_link.geom[i].position[2] ==
-                     ign_visual.pose().position().z()) &&
-                    (lcm_link.geom[i].quaternion[0] ==
-                     ign_visual.pose().orientation().w()) &&
-                    (lcm_link.geom[i].quaternion[1] ==
-                     ign_visual.pose().orientation().x()) &&
-                    (lcm_link.geom[i].quaternion[2] ==
-                     ign_visual.pose().orientation().y()) &&
-                    (lcm_link.geom[i].quaternion[3] ==
-                     ign_visual.pose().orientation().z()) &&
-                    (lcm_link.geom[i].color[0] ==
-                     ign_visual.material().diffuse().r()) &&
-                    (lcm_link.geom[i].color[1] ==
-                     ign_visual.material().diffuse().g()) &&
-                    (lcm_link.geom[i].color[2] ==
-                     ign_visual.material().diffuse().b()) &&
-                    (lcm_link.geom[i].color[3] ==
-                     ign_visual.material().diffuse().a()) &&
-                    (lcm_link.geom[i].type ==
-                     ign_to_lcm_geometry_map[ign_visual.geometry().type()])) {
-                  ++num_geometries_matched;
-                }
+    // Looks for an ID match in the map of lcm links.
+    if (grouped_links_by_id.find(ign_model.id()) == grouped_links_by_id.end()) {
+      // Fails if none of the groups of lcm links match a given ignition model id.
+      return ::testing::AssertionFailure();
+    }
+    // On each match found
+    else {
+      auto sameIdLcmLinks = grouped_links_by_id[ign_model.id()];
+      // For each link within the group
+      for (const auto& lcm_link : sameIdLcmLinks) {
+        for (const auto& ign_link : ign_model.link()) {
+          // Looks for a link with the same name.
+          // If there is a match in name as well as in ID
+          // then a valid candidate to compare values exists.
+          if (lcm_link->name == ign_link.name()) {
+            // There must be a correspondance of 1 to 1 between
+            // the position of the elements in the vector of ignition
+            // visuals and the vector of lcm geometries.
+            int i = 0;
+            for (const auto& ign_visual : ign_link.visual()) {
+              // If no match is found, raises a failure.
+              if (!CheckLcmArrayToVector3DEquivalence(
+                      lcm_link->geom[i].position, ign_visual.pose().position(),
+                      kTolerance)) {
+                return ::testing::AssertionFailure();
               }
+              if (!CheckLcmArrayToQuaternionEquivalence(
+                      lcm_link->geom[i].quaternion,
+                      ign_visual.pose().orientation(), kTolerance)) {
+                return ::testing::AssertionFailure();
+              }
+              if (!CheckLcmArrayToColorEquivalence(
+                      lcm_link->geom[i].color, ign_visual.material().diffuse(),
+                      kTolerance)) {
+                return ::testing::AssertionFailure();
+              }
+              if (!CheckGeometryTypeEquivalence(lcm_link->geom[i].type,
+                                                ign_visual.geometry().type())) {
+                return ::testing::AssertionFailure();
+              }
+              i++;
             }
           }
         }
       }
     }
   }
-  // If a fully matching ignition geometry is found for each lcm visual,
-  // we assume the lcm message is contained within its ignition counterpart.
-  if (num_geometries_matched == num_geometries_total) {
-    return ::testing::AssertionSuccess();
-  }
-  return ::testing::AssertionFailure();
+  // Otherwise, a fully matching translation is assumed.
+  return ::testing::AssertionSuccess();
 }
 
 ::testing::AssertionResult CheckMsgTranslation(

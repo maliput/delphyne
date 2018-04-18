@@ -80,7 +80,9 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 
   SimpleCarState<double> initial_state;
 
-  simulator->AddPriusSimpleCar("my_test_model", "Channel1", initial_state);
+  std::map<std::string, linb::any> simple_params;
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params,
+                            "my_test_model", &initial_state);
 
   simulator->Start();
   std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
@@ -134,7 +136,7 @@ void GetLastPublishedSimpleCarState(
   translator.Deserialize(message.data(), message.size(), result);
 }
 
-// Covers AddPriusSimpleCar (and thus AddPublisher), Start and StepBy
+// Covers LoadablePriusSimpleCar, Start and StepBy
 TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
@@ -148,16 +150,14 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   node.Subscribe<ignition::msgs::SimpleCarState>("agents/0/state",
                                                  callback);
 
-  const std::string kCommandChannelName = "DRIVING_COMMAND";
-
-  const std::string driving_command_name =
-      drake::systems::lcm::LcmSubscriberSystem::make_name(kCommandChannelName);
-
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
-  const int id = simulator->AddPriusSimpleCar("Foo", kCommandChannelName);
+  drake::automotive::SimpleCarState<double> initial_state;
+  std::map<std::string, linb::any> simple_params;
+  const int id = simulator->AddLoadableCar("LoadablePriusSimpleCar",
+                 simple_params, "Foo", &initial_state);
   EXPECT_EQ(id, 0);
 
   // Finish all initialization, so that we can test the post-init state.
@@ -166,7 +166,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // Simulate an external system sending a driving command to the car at
   // full throttle
   auto publisher = node.Advertise<ignition::msgs::AutomotiveDrivingCommand>(
-      "/" + kCommandChannelName);
+      "teleop/Foo");
 
   ignition::msgs::AutomotiveDrivingCommand ignMsg;
 
@@ -210,7 +210,9 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   initial_state.set_heading(kHeading);
   initial_state.set_velocity(kVelocity);
 
-  simulator->AddPriusSimpleCar("My Test Model", "Channel", initial_state);
+  std::map<std::string, linb::any> simple_params;
+  simulator->AddLoadableCar("LoadablePriusSimpleCar",
+                            simple_params, "My Test Model", &initial_state);
 
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
@@ -275,15 +277,28 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   MaliputRailcarState<double> decoy_state;
   decoy_state.set_s(6);
   decoy_state.set_speed(0);
-  const int id_decoy1 = simulator->AddPriusMaliputRailcar(
-      "decoy1", LaneDirection(road->junction(0)->segment(0)->lane(0)),
-      MaliputRailcarParams<double>(), decoy_state);
+
+  drake::automotive::MaliputRailcarParams<double> start_params;
+  drake::automotive::LaneDirection lane_direction1(
+      road->junction(0)->segment(0)->lane(0));
+  std::map<std::string, linb::any> maliput_params1;
+  maliput_params1["road"] = road;
+  maliput_params1["lane_direction"] = &lane_direction1;
+  maliput_params1["start_params"] = &start_params;
+  const int id_decoy1 = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params1, "decoy1", &decoy_state);
   EXPECT_EQ(1, id_decoy1);
 
   decoy_state.set_s(20);
-  const int id_decoy2 = simulator->AddPriusMaliputRailcar(
-      "decoy2", LaneDirection(road->junction(0)->segment(0)->lane(1)),
-      MaliputRailcarParams<double>(), decoy_state);
+
+  drake::automotive::LaneDirection lane_direction2(
+      road->junction(0)->segment(0)->lane(1));
+  std::map<std::string, linb::any> maliput_params2;
+  maliput_params2["road"] = road;
+  maliput_params2["lane_direction"] = &lane_direction2;
+  maliput_params2["start_params"] = &start_params;
+  const int id_decoy2 = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params2, "decoy2", &decoy_state);
   EXPECT_EQ(2, id_decoy2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
@@ -447,6 +462,60 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
   return link.pose().position().x();
 }
 
+TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
+      std::make_unique<drake::lcm::DrakeMockLcm>());
+
+  const double kR{0.5};
+  MaliputRailcarParams<double> params;
+  params.set_r(kR);
+
+  const drake::maliput::api::RoadGeometry* road{};
+  drake::automotive::LaneDirection lane_direction;
+  drake::automotive::MaliputRailcarParams<double> start_params;
+  std::map<std::string, linb::any> maliput_params;
+  maliput_params["road"] = road;
+  maliput_params["lane_direction"] = &lane_direction;
+  maliput_params["start_params"] = &start_params;
+  MaliputRailcarState<double> state;
+
+  // Road geometry not set.
+  const int id1 = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "foo", &state);
+  EXPECT_LT(id1, 0);
+
+  EXPECT_NO_THROW(
+      road = simulator->SetRoadGeometry(
+          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+              drake::maliput::api::RoadGeometryId("TestDragway"),
+              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
+              1 /* shoulder width */, 5 /* maximum_height */,
+              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+
+  maliput_params["start_params"] = &params;
+  const int id2 = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "bar", &state);
+  EXPECT_LT(id2, 0);
+
+  const auto different_road =
+      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+          drake::maliput::api::RoadGeometryId("DifferentDragway"),
+          2 /* num lanes */, 50 /* length */, 3 /* lane width */,
+          2 /* shoulder width */, 5 /* maximum_height */,
+          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+          std::numeric_limits<double>::epsilon() /* angular_tolerance */);
+
+  drake::automotive::LaneDirection lane_direction3(
+      different_road->junction(0)->segment(0)->lane(0));
+  maliput_params["lane_direction"] = &lane_direction3;
+
+  // The provided initial lane is not within this simulation's RoadGeometry.
+  const int id3 = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "bar2", &state);
+  EXPECT_LT(id3, 0);
+}
+
 // Covers AddMaliputRailcar().
 TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
@@ -459,9 +528,6 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   MaliputRailcarParams<double> params;
   params.set_r(kR);
 
-  EXPECT_THROW(simulator->AddPriusMaliputRailcar("foo", LaneDirection()),
-               std::runtime_error);
-
   const drake::maliput::api::RoadGeometry* road{};
   EXPECT_NO_THROW(
       road = simulator->SetRoadGeometry(
@@ -472,28 +538,17 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
               std::numeric_limits<double>::epsilon() /* linear_tolerance */,
               std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
 
-  EXPECT_THROW(
-      simulator->AddPriusMaliputRailcar("bar", LaneDirection(), params),
-      std::runtime_error);
+  drake::automotive::LaneDirection lane_direction(
+      road->junction(0)->segment(0)->lane(0));
+  std::map<std::string, linb::any> maliput_params;
+  maliput_params["road"] = road;
+  maliput_params["lane_direction"] = &lane_direction;
+  maliput_params["start_params"] = &params;
+  MaliputRailcarState<double> state;
 
-  const auto different_road =
-      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("DifferentDragway"),
-          2 /* num lanes */, 50 /* length */, 3 /* lane width */,
-          2 /* shoulder width */, 5 /* maximum_height */,
-          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-          std::numeric_limits<double>::epsilon() /* angular_tolerance */);
-
-  EXPECT_THROW(simulator->AddPriusMaliputRailcar(
-                   "bar", LaneDirection(
-                              different_road->junction(0)->segment(0)->lane(0)),
-                   params),
-               std::runtime_error);
-
-  const int id = simulator->AddPriusMaliputRailcar(
-      "model_name", LaneDirection(road->junction(0)->segment(0)->lane(0)),
-      params, MaliputRailcarState<double>() /* initial state */);
-  EXPECT_EQ(id, 0);
+  const int id = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "model_name", &state);
+  EXPECT_GE(id, 0);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update
@@ -519,8 +574,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   const double initial_x = PriusVis<double>::kVisOffset;
-  // Verifies the acceleration is zero even if
-  // AutomotiveSimulator::SetMaliputRailcarAccelerationCommand() was not called.
+  // Verifies the acceleration is zero.
 
   CheckModelLinks(draw_message);
 
@@ -528,37 +582,6 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   const double kPoseXTolerance{1e-4};
 
   EXPECT_NEAR(GetXPosition(draw_message, kR), initial_x, kPoseXTolerance);
-
-  // Sets the commanded acceleration to be zero.
-  simulator->SetMaliputRailcarAccelerationCommand(id, 0);
-  simulator->StepBy(0.005);
-  simulator->StepBy(0.005);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-  CheckModelLinks(draw_message);
-
-  // Verifies that the vehicle hasn't moved yet. This is expected since the
-  // commanded acceleration is zero.
-  // The following tolerance was determined empirically.
-  const double step_2_position = GetXPosition(draw_message, kR);
-
-  EXPECT_NEAR(step_2_position, initial_x, kPoseXTolerance);
-
-  // Sets the commanded acceleration to be 10 m/s^2.
-  simulator->SetMaliputRailcarAccelerationCommand(id, 10);
-
-  // Advances the simulation to allow the MaliputRailcar to begin accelerating.
-  simulator->StepBy(0.005);
-  simulator->StepBy(0.005);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-  CheckModelLinks(draw_message);
-
-  // Verifies that the MaliputRailcar has moved forward relative to prior to
-  // the nonzero acceleration command being issued.
-  EXPECT_LT(step_2_position, GetXPosition(draw_message, kR));
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
@@ -568,8 +591,12 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
-  simulator->AddPriusSimpleCar("Model1", "Channel1");
-  simulator->AddPriusSimpleCar("Model2", "Channel2");
+  std::map<std::string, linb::any> simple_params;
+  drake::automotive::SimpleCarState<double> simple_state;
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model1",
+                            &simple_state);
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model2",
+                            &simple_state);
 
   typedef Curve2<double> Curve2d;
   typedef Curve2d::Point2 Point2d;
@@ -665,8 +692,12 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
-  EXPECT_NO_THROW(simulator->AddPriusSimpleCar("Model1", "Channel1"));
-  EXPECT_THROW(simulator->AddPriusSimpleCar("Model1", "foo"),
+  drake::automotive::SimpleCarState<double> simple_state;
+  std::map<std::string, linb::any> simple_params;
+  EXPECT_NO_THROW(simulator->AddLoadableCar("LoadablePriusSimpleCar",
+                      simple_params, "Model1", &simple_state));
+  EXPECT_THROW(simulator->AddLoadableCar("LoadablePriusSimpleCar",
+                      simple_params, "Model1", &simple_state),
                std::runtime_error);
 
   typedef Curve2<double> Curve2d;
@@ -688,7 +719,10 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   EXPECT_THROW(simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
       traj_params, "Model1", &state), std::runtime_error);
 
-  const MaliputRailcarParams<double> params;
+  const double kR{0.5};
+  MaliputRailcarParams<double> params;
+  params.set_r(kR);
+
   const drake::maliput::api::RoadGeometry* road{};
   EXPECT_NO_THROW(
       road = simulator->SetRoadGeometry(
@@ -698,43 +732,26 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
               1 /* shoulder width */, 5 /* maximum_height */,
               std::numeric_limits<double>::epsilon() /* linear_tolerance */,
               std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
-  EXPECT_NO_THROW(simulator->AddPriusMaliputRailcar(
-      "Foo", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
-      MaliputRailcarState<double>() /* initial state */));
+
+  drake::automotive::LaneDirection lane_direction(
+      road->junction(0)->segment(0)->lane(0));
+  std::map<std::string, linb::any> maliput_params;
+  maliput_params["road"] = road;
+  maliput_params["lane_direction"] = &lane_direction;
+  maliput_params["start_params"] = &params;
+
+  EXPECT_NO_THROW(simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "Foo", &state));
+
   EXPECT_THROW(
-      simulator->AddPriusMaliputRailcar(
-          "alice", LaneDirection(road->junction(0)->segment(0)->lane(0)),
-          params, MaliputRailcarState<double>() /* initial state */),
+      simulator->AddLoadableCar(
+          "LoadableMaliputRailCar", maliput_params, "alice", &state),
       std::runtime_error);
+
   EXPECT_THROW(
-      simulator->AddPriusMaliputRailcar(
-          "Model1", LaneDirection(road->junction(0)->segment(0)->lane(0)),
-          params, MaliputRailcarState<double>() /* initial state */),
+      simulator->AddLoadableCar(
+          "LoadableMaliputRailCar", maliput_params, "Model1", &state),
       std::runtime_error);
-}
-
-// Verifies that no exception is thrown when multiple IDM-controlled
-// MaliputRailcar vehicles are simulated. This prevents a regression of #5886.
-TEST_F(AutomotiveSimulatorTest, TestIdmControllerUniqueName) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
-
-  const MaliputRailcarParams<double> params;
-  const drake::maliput::api::RoadGeometry* road = simulator->SetRoadGeometry(
-      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
-          100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-          5 /* maximum_height */,
-          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-          std::numeric_limits<double>::epsilon() /* angular_tolerance */));
-  simulator->AddIdmControlledPriusMaliputRailcar(
-      "Alice", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
-      MaliputRailcarState<double>() /* initial state */);
-  simulator->AddIdmControlledPriusMaliputRailcar(
-      "Bob", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
-      MaliputRailcarState<double>() /* initial state */);
-
-  EXPECT_NO_THROW(simulator->Start());
 }
 
 // Verifies that the velocity outputs of the MaliputRailcars are connected to
@@ -743,7 +760,9 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
-  const MaliputRailcarParams<double> params;
+  const double kR{0.5};
+  MaliputRailcarParams<double> params;
+  params.set_r(kR);
   const drake::maliput::api::RoadGeometry* road = simulator->SetRoadGeometry(
       std::make_unique<const drake::maliput::dragway::RoadGeometry>(
           drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
@@ -754,17 +773,26 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   MaliputRailcarState<double> alice_initial_state;
   alice_initial_state.set_s(5);
   alice_initial_state.set_speed(1);
-  const int alice_id = simulator->AddPriusMaliputRailcar(
-      "Alice", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
-      alice_initial_state);
-  const int bob_id = simulator->AddIdmControlledPriusMaliputRailcar(
-      "Bob", LaneDirection(road->junction(0)->segment(0)->lane(0)), params,
-      MaliputRailcarState<double>() /* initial state */);
+
+  drake::automotive::LaneDirection lane_direction(
+      road->junction(0)->segment(0)->lane(0));
+
+  std::map<std::string, linb::any> maliput_params;
+  maliput_params["road"] = road;
+  maliput_params["lane_direction"] = &lane_direction;
+  maliput_params["start_params"] = &params;
+
+  const int alice_id = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "Alice", &alice_initial_state);
+
+  MaliputRailcarState<double> bob_initial_state;
+  const int bob_id = simulator->AddLoadableCar(
+      "LoadableMaliputRailCar", maliput_params, "Bob", &bob_initial_state);
 
   EXPECT_NO_THROW(simulator->Start());
 
   // Advances the simulation to allow Alice's MaliputRailcar to move at fixed
-  // speed and Bob's MaliputRailcar to move under IDM control.
+  // speed and Bob's MaliputRailcar to not move.
   simulator->StepBy(1);
 
   const int kAliceIndex{0};
@@ -778,15 +806,19 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   ASSERT_EQ(poses.get_model_instance_id(kAliceIndex), alice_id);
   ASSERT_EQ(poses.get_model_instance_id(kBobIndex), bob_id);
   EXPECT_FALSE(poses.get_velocity(kAliceIndex).get_value().isZero());
-  EXPECT_FALSE(poses.get_velocity(kBobIndex).get_value().isZero());
+  EXPECT_TRUE(poses.get_velocity(kBobIndex).get_value().isZero());
 }
 
 // Tests Build/Start logic
 TEST_F(AutomotiveSimulatorTest, TestBuild) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  simulator->AddPriusSimpleCar("Model1", "Channel1");
-  simulator->AddPriusSimpleCar("Model2", "Channel2");
+  drake::automotive::SimpleCarState<double> simple_state;
+  std::map<std::string, linb::any> simple_params;
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model1",
+                            &simple_state);
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model2",
+                            &simple_state);
 
   simulator->Build();
   EXPECT_FALSE(simulator->has_started());
@@ -801,8 +833,12 @@ TEST_F(AutomotiveSimulatorTest, TestBuild) {
 TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  simulator->AddPriusSimpleCar("Model1", "Channel1");
-  simulator->AddPriusSimpleCar("Model2", "Channel2");
+  drake::automotive::SimpleCarState<double> simple_state;
+  std::map<std::string, linb::any> simple_params;
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model1",
+                            &simple_state);
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model2",
+                            &simple_state);
 
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
@@ -814,7 +850,10 @@ TEST_F(AutomotiveSimulatorTest, TestNoLcm) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
-  simulator->AddPriusSimpleCar("Model1", "Channel1");
+  drake::automotive::SimpleCarState<double> simple_state;
+  std::map<std::string, linb::any> simple_params;
+  simulator->AddLoadableCar("LoadablePriusSimpleCar", simple_params, "Model1",
+                            &simple_state);
 
   simulator->Start();
   simulator->StepBy(1e-3);

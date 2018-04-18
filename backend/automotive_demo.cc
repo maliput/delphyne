@@ -18,15 +18,6 @@ namespace delphyne {
 namespace backend {
 namespace {
 
-// Generates a channel name based on a given string.
-std::string MakeChannelName(const std::string& name) {
-  const std::string default_prefix{"teleop"};
-  if (name.empty()) {
-    return default_prefix;
-  }
-  return default_prefix + "/" + name;
-}
-
 drake::automotive::Curve2<double> MakeCurve(double radius, double inset) {
   // TODO(jwnimmer-tri) This function will be rewritten once we have
   // proper splines.  Don't try too hard to understand it.  Run the
@@ -112,11 +103,6 @@ int main(int argc, char* argv[]) {
   // Instantiates a simulator.
   auto simulator =
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
-
-  // Adds a Prius car.
-  drake::automotive::SimpleCarState<double> state;
-  state.set_y(0.0);
-  simulator->AddPriusSimpleCar("0", MakeChannelName("0"), state);
 
   // Adds a Loadable Prius Simple car.
   drake::automotive::SimpleCarState<double> state2;

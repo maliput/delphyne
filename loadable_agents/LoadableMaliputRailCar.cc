@@ -163,21 +163,21 @@ class LoadableMaliputRailcarDouble final
         parameters.at("start_params"));
 
     if (road == nullptr) {
-      ignerr << "AutomotiveSimulator::AddPriusMaliputRailcar(): "
+      ignerr << "LoadableMaliputRailcar::Configure(): "
                 "RoadGeometry not set. Please call SetRoadGeometry() first "
                 "before calling this method."
              << std::endl;
       return -1;
     }
     if (initial_lane_direction_->lane == nullptr) {
-      ignerr << "AutomotiveSimulator::AddPriusMaliputRailcar(): "
+      ignerr << "LoadableMaliputRailcar::Configure(): "
                 "The provided initial lane is nullptr."
              << std::endl;
       return -1;
     }
     if (initial_lane_direction_->lane->segment()->junction()->road_geometry() !=
         road) {
-      ignerr << "AutomotiveSimulator::AddPriusMaliputRailcar(): "
+      ignerr << "LoadableMaliputRailcar::Configure(): "
                 "The provided initial lane is not within this simulation's "
                 "RoadGeometry."
              << std::endl;
@@ -588,7 +588,7 @@ class LoadableMaliputRailcarDouble final
 
       if (!next_branch) {
         DRAKE_ABORT_MSG(
-            "MaliputRailcar::DoCalcUnrestrictedUpdate: ERROR: "
+            "LoadableMaliputRailcar::DoCalcUnrestrictedUpdate: ERROR: "
             "Vehicle should switch lanes but no default or ongoing "
             "branch exists.");
       } else {

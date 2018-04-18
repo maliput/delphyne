@@ -5,8 +5,11 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <functional>
+#include <map>
 #include <mutex>
 #include <stdexcept>
+#include <string>
 #include <thread>
 
 #include "drake/automotive/curve2.h"
@@ -59,7 +62,7 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
   return link_count;
 }
 
-// Fixture class for share congfiguration among all tests.
+// Fixture class for share configuration among all tests.
 class AutomotiveSimulatorTest : public ::testing::Test {
  protected:
   virtual void SetUp() {
@@ -344,7 +347,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
       traj_params, "bob", &stateBob);
 
   EXPECT_EQ(0, id1);
-  EXPECT_EQ(0, id2);
+  EXPECT_EQ(1, id2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update.

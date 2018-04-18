@@ -26,6 +26,7 @@
 #include "drake/systems/rendering/pose_bundle.h"
 
 #include "protobuf/simple_car_state.pb.h"
+#include "test/test_config.h"
 
 using drake::automotive::PriusVis;
 using drake::automotive::Curve2;
@@ -58,8 +59,20 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
   return link_count;
 }
 
+// Fixture class for share congfiguration among all tests.
+class AutomotiveSimulatorTest : public ::testing::Test {
+ protected:
+  virtual void SetUp() {
+    // Set the paths where agents can be found.
+    const char* env = "DELPHYNE_AGENT_PLUGIN_PATH="
+        DELPHYNE_PROJECT_BINARY_DIR "/loadable_agents:"
+        DELPHYNE_PROJECT_BINARY_DIR "/test/regression/cpp/agent_plugin";
+    putenv(const_cast<char*>(env));
+  }
+};
+
 // Tests GetScene to return the scene
-GTEST_TEST(AutomotiveSimulatorTest, TestGetScene) {
+TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   SimpleCarState<double> initial_state;
@@ -101,7 +114,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestGetScene) {
 }
 
 // Simple touches on the getters.
-GTEST_TEST(AutomotiveSimulatorTest, BasicTest) {
+TEST_F(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   EXPECT_NE(nullptr, simulator->get_lcm());
   EXPECT_NE(nullptr, simulator->get_builder());
@@ -119,7 +132,7 @@ void GetLastPublishedSimpleCarState(
 }
 
 // Covers AddPriusSimpleCar (and thus AddPublisher), Start and StepBy
-GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
+TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
       callback =
@@ -180,7 +193,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 }
 
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.
-GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
+TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
   const double kX{10};
@@ -217,7 +230,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   EXPECT_EQ(state_message.velocity(), kVelocity);
 }
 
-GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
+TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
@@ -247,9 +260,14 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   simple_car_state.set_x(2);
   simple_car_state.set_y(-2);
   simple_car_state.set_velocity(10);
-  const int id_mobil = simulator->AddMobilControlledSimpleCar(
-      "mobil", true /* with_s */, simple_car_state);
-  EXPECT_EQ(id_mobil, 0);
+
+  std::map<std::string, linb::any> mobil_params;
+  mobil_params["road"] = road;
+  mobil_params["initial_with_s"] = true;
+  const int id_mobil = simulator->AddLoadableCar(
+      "LoadableMobilControlledSimpleCar", mobil_params, "MOBIL0",
+      &simple_car_state);
+  EXPECT_EQ(0, id_mobil);
 
   MaliputRailcarState<double> decoy_state;
   decoy_state.set_s(6);
@@ -257,13 +275,13 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   const int id_decoy1 = simulator->AddPriusMaliputRailcar(
       "decoy1", LaneDirection(road->junction(0)->segment(0)->lane(0)),
       MaliputRailcarParams<double>(), decoy_state);
-  EXPECT_EQ(id_decoy1, 1);
+  EXPECT_EQ(1, id_decoy1);
 
   decoy_state.set_s(20);
   const int id_decoy2 = simulator->AddPriusMaliputRailcar(
       "decoy2", LaneDirection(road->junction(0)->segment(0)->lane(1)),
       MaliputRailcarParams<double>(), decoy_state);
-  EXPECT_EQ(id_decoy2, 2);
+  EXPECT_EQ(2, id_decoy2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update.
@@ -295,8 +313,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   EXPECT_GE(mobil_y, -2.);
 }
 
-//// Cover AddTrajectoryCar (and thus AddPublisher).
-GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
+// Cover AddTrajectoryCar (and thus AddPublisher).
+TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   typedef Curve2<double> Curve2d;
   typedef Curve2d::Point2 Point2d;
   const std::vector<Point2d> waypoints{
@@ -312,10 +330,21 @@ GTEST_TEST(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
-  const int id1 = simulator->AddPriusTrajectoryCar("alice", curve, 1.0, 0.0);
-  const int id2 = simulator->AddPriusTrajectoryCar("bob", curve, 0.0, 0.0);
-  EXPECT_EQ(id1, 0);
-  EXPECT_EQ(id2, 1);
+  std::map<std::string, linb::any> traj_params;
+  traj_params["curve"] = curve;
+  drake::automotive::TrajectoryCarState<double> stateAlice;
+  stateAlice.set_speed(1.0);
+  stateAlice.set_position(0.0);
+  drake::automotive::TrajectoryCarState<double> stateBob;
+  stateBob.set_speed(0.0);
+  stateBob.set_position(0.0);
+  const int id1 = simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "alice", &stateAlice);
+  const int id2 = simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "bob", &stateBob);
+
+  EXPECT_EQ(0, id1);
+  EXPECT_EQ(0, id2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update.
@@ -416,7 +445,7 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 }
 
 // Covers AddMaliputRailcar().
-GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
+TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -532,7 +561,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestMaliputRailcar) {
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
 // LcmPublisherSystem are instantiated in AutomotiveSimulator's Diagram and
 // collectively result in the correct ignition messages being published.
-GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
+TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -543,10 +572,16 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
   typedef Curve2d::Point2 Point2d;
   const std::vector<Point2d> waypoints{Point2d{0, 0}, Point2d{1, 0}};
   const Curve2d curve{waypoints};
-  simulator->AddPriusTrajectoryCar("alice", curve, 1 /* speed */,
-                                   0 /* start time */);
-  simulator->AddPriusTrajectoryCar("bob", curve, 1 /* speed */,
-                                   0 /* start time */);
+
+  std::map<std::string, linb::any> traj_params;
+  traj_params["curve"] = curve;
+  drake::automotive::TrajectoryCarState<double> state;
+  state.set_speed(1.0);
+  state.set_position(0.0);
+  simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "alice", &state);
+  simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "bob", &state);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update
@@ -623,7 +658,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestLcmOutput) {
 
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
 // added to the simulation.
-GTEST_TEST(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
+TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -636,14 +671,19 @@ GTEST_TEST(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   const std::vector<Point2d> waypoints{Point2d{0, 0}, Point2d{1, 0}};
   const Curve2d curve{waypoints};
 
-  EXPECT_NO_THROW(simulator->AddPriusTrajectoryCar(
-      "alice", curve, 1 /* speed */, 0 /* start time */));
-  EXPECT_THROW(simulator->AddPriusTrajectoryCar("alice", curve, 1 /* speed */,
-                                                0 /* start time */),
-               std::runtime_error);
-  EXPECT_THROW(simulator->AddPriusTrajectoryCar("Model1", curve, 1 /* speed */,
-                                                0 /* start time */),
-               std::runtime_error);
+  std::map<std::string, linb::any> traj_params;
+  traj_params["curve"] = curve;
+  drake::automotive::TrajectoryCarState<double> state;
+  state.set_speed(1.0);
+  state.set_position(0.0);
+  EXPECT_NO_THROW(simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "alice", &state));
+
+  EXPECT_THROW(simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "alice", &state), std::runtime_error);
+
+  EXPECT_THROW(simulator->AddLoadableCar("LoadablePriusTrajectoryCar",
+      traj_params, "Model1", &state), std::runtime_error);
 
   const MaliputRailcarParams<double> params;
   const drake::maliput::api::RoadGeometry* road{};
@@ -672,7 +712,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
 
 // Verifies that no exception is thrown when multiple IDM-controlled
 // MaliputRailcar vehicles are simulated. This prevents a regression of #5886.
-GTEST_TEST(AutomotiveSimulatorTest, TestIdmControllerUniqueName) {
+TEST_F(AutomotiveSimulatorTest, TestIdmControllerUniqueName) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -696,7 +736,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestIdmControllerUniqueName) {
 
 // Verifies that the velocity outputs of the MaliputRailcars are connected to
 // the PoseAggregator, which prevents a regression of #5894.
-GTEST_TEST(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
+TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -739,7 +779,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 }
 
 // Tests Build/Start logic
-GTEST_TEST(AutomotiveSimulatorTest, TestBuild) {
+TEST_F(AutomotiveSimulatorTest, TestBuild) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   simulator->AddPriusSimpleCar("Model1", "Channel1");
@@ -755,7 +795,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild) {
 }
 
 // Tests Build/Start logic (calling Start only)
-GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
+TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   simulator->AddPriusSimpleCar("Model1", "Channel1");
@@ -767,7 +807,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestBuild2) {
 
 // Verifies that messages are no longer being published in LCM
 // DRAKE_VIEWER_LOAD_ROBOT and DRAKE_VIEWER_DRAW channels.
-GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
+TEST_F(AutomotiveSimulatorTest, TestNoLcm) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
       std::make_unique<drake::lcm::DrakeMockLcm>());
 
@@ -792,11 +832,8 @@ GTEST_TEST(AutomotiveSimulatorTest, TestNoLcm) {
                std::runtime_error);
 }
 
-static const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=agent_plugin";
-
 // Tests that AddLoadableCar basically works.
-GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {
-  ASSERT_EQ(0, putenv(const_cast<char*>(env)));
+TEST_F(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   const std::map<std::string, linb::any> params;
 
@@ -805,8 +842,7 @@ GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarBasic) {
 }
 
 // Tests that AddLoadableCar returns -1 when unable to find plugin.
-GTEST_TEST(AutomotiveSimulatorTest, TestAddLoadableCarNonExistent) {
-  ASSERT_EQ(0, putenv(const_cast<char*>(env)));
+TEST_F(AutomotiveSimulatorTest, TestAddLoadableCarNonExistent) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   const std::map<std::string, linb::any> params;
 

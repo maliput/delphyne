@@ -115,48 +115,6 @@ class AutomotiveSimulator {
       const drake::automotive::SimpleCarState<T>& initial_state =
           drake::automotive::SimpleCarState<T>());
 
-  /// Adds a SimpleCar to this simulation controlled by a MOBIL planner coupled
-  /// with a PurePursuitController to perform lateral control of the vehicle,
-  /// along with an IDM longitudinal controller.  The car is visualized as a
-  /// Toyota Prius.
-  ///
-  /// @pre Start() has NOT been called.
-  ///
-  /// @pre SetRoadGeometry() was called. Otherwise, a std::runtime_error will be
-  /// thrown.
-  ///
-  /// @param name The car's name, which must be unique among all cars.
-  /// Otherwise a std::runtime_error will be thrown.
-  ///
-  /// @param initial_with_s Initial travel direction in the lane. (See
-  /// MobilPlanner documentation.)
-  ///
-  /// @param initial_state The SimpleCar's initial state.
-  ///
-  /// @return The ID of the car that was just added to the simulation.
-  int AddMobilControlledSimpleCar(
-      const std::string& name, bool initial_with_s,
-      const drake::automotive::SimpleCarState<T>& initial_state =
-          drake::automotive::SimpleCarState<T>());
-
-  /// Adds a TrajectoryCar to this simulation visualized as a Toyota Prius.
-  ///
-  /// @pre Start() has NOT been called.
-  ///
-  /// @param name The car's name, which must be unique among all cars. Otherwise
-  /// a std::runtime_error will be thrown.
-  ///
-  /// @param curve See documentation of TrajectoryCar::TrajectoryCar.
-  ///
-  /// @param speed See documentation of TrajectoryCar::TrajectoryCar.
-  ///
-  /// @param start_time See documentation of TrajectoryCar::TrajectoryCar.
-  ///
-  /// @return The ID of the car that was just added to the simulation.
-  int AddPriusTrajectoryCar(const std::string& name,
-                            const drake::automotive::Curve2<double>& curve,
-                            double speed, double start_time);
-
   /// Adds a MaliputRailcar to this simulation visualized as a Toyota Prius.
   ///
   /// @pre Start() has NOT been called.

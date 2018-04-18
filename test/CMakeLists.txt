@@ -62,10 +62,11 @@ macro(delphyne_build_tests)
   endforeach()
 endmacro()
 
+configure_file (test_config.h.in ${PROJECT_BINARY_DIR}/test/test_config.h)
+
 ##############################################################################
 # Testing
 ##############################################################################
 
 add_subdirectory(libgtest)
 add_subdirectory(regression)
-

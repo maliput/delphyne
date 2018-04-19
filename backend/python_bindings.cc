@@ -105,6 +105,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
+      .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
       .def("AddLoadableCar", &AutomotiveSimulator<double>::AddLoadableCar);
 }
 

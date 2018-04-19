@@ -1,0 +1,5 @@
+// Copyright 2018 Toyota Research Institute
+
+#pragma once
+
+#define DELPHYNE_PROJECT_BINARY_DIR "${PROJECT_BINARY_DIR}"

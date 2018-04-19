@@ -436,65 +436,78 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
 
   // To check the translation between models easier, a first pass
   // over the lcm vector is done, grouping the links link id.
-  std::map<int32_t, std::vector<const drake::lcmt_viewer_link_data*>>
+  std::map<int32_t, std::map<std::string, const drake::lcmt_viewer_link_data*>>
       grouped_links_by_id;
 
   for (const drake::lcmt_viewer_link_data& link : lcm_msg.link) {
     const int32_t id = link.robot_num;
-    if (grouped_links_by_id.count(id) == 0) {
-      grouped_links_by_id[id] = {};
-    }
-    grouped_links_by_id[id].push_back(&link);
+    const std::string name = link.name;
+    grouped_links_by_id[id][name] = &link;
   }
 
+  std::string error_message{};
   // For each of the models in the Model_V
   for (const auto& ign_model : ign_models.models()) {
-    // Looks for an ID match in the map of lcm links.
-    if (grouped_links_by_id.find(ign_model.id()) == grouped_links_by_id.end()) {
-      // Fails if none of the groups of lcm links match a given ignition model id.
-      return ::testing::AssertionFailure();
-    }
-    // On each match found
-    else {
-      auto sameIdLcmLinks = grouped_links_by_id[ign_model.id()];
-      // For each link within the group
-      for (const auto& lcm_link : sameIdLcmLinks) {
-        for (const auto& ign_link : ign_model.link()) {
-          // Looks for a link with the same name.
-          // If there is a match in name as well as in ID
-          // then a valid candidate to compare values exists.
-          if (lcm_link->name == ign_link.name()) {
-            // There must be a correspondance of 1 to 1 between
-            // the position of the elements in the vector of ignition
-            // visuals and the vector of lcm geometries.
-            int i = 0;
-            for (const auto& ign_visual : ign_link.visual()) {
-              // If no match is found, raises a failure.
-              if (!CheckLcmArrayToVector3DEquivalence(
-                      lcm_link->geom[i].position, ign_visual.pose().position(),
-                      kTolerance)) {
-                return ::testing::AssertionFailure();
-              }
-              if (!CheckLcmArrayToQuaternionEquivalence(
-                      lcm_link->geom[i].quaternion,
-                      ign_visual.pose().orientation(), kTolerance)) {
-                return ::testing::AssertionFailure();
-              }
-              if (!CheckLcmArrayToColorEquivalence(
-                      lcm_link->geom[i].color, ign_visual.material().diffuse(),
-                      kTolerance)) {
-                return ::testing::AssertionFailure();
-              }
-              if (!CheckGeometryTypeEquivalence(lcm_link->geom[i].type,
-                                                ign_visual.geometry().type())) {
-                return ::testing::AssertionFailure();
-              }
-              i++;
-            }
-          }
+    for (const auto& ign_link : ign_model.link()) {
+      if (grouped_links_by_id.find(ign_model.id()) ==
+          grouped_links_by_id.end()) {
+        // Fails if none of the map groups matches a given ignition model ID.
+        return ::testing::AssertionFailure()
+               << "No match found for an ignition model with id:"
+               << ign_model.id()
+               << "within the tested lcm_viewer_load_robot message."
+               << std::endl;
+      }
+      if (grouped_links_by_id[ign_model.id()].find(ign_link.name()) ==
+          grouped_links_by_id[ign_model.id()].end()) {
+        // Fails if none of the groups of lcm links with same model id matches a
+        // given ignition link name.
+        return ::testing::AssertionFailure()
+               << "No match found for an ignition link with name:"
+               << ign_link.name()
+               << "within the tested lcm_viewer_load_robot message."
+               << std::endl;
+      }
+      // Creates a reference to the lcm link matching id
+      // and name for legibility purposes.
+      auto& lcm_link = grouped_links_by_id[ign_model.id()][ign_link.name()];
+      for (int i = 0; i < ign_link.visual_size(); ++i) {
+        auto& ign_visual = ign_link.visual(i);
+        // If a translation error is found, a message will be raised and the
+        // test is granted to fail but the execution will continue to check
+        // the remaining components of the message.
+        const ::testing::AssertionResult resultVector3D =
+            CheckLcmArrayToVector3DEquivalence(lcm_link->geom[i].position,
+                                               ign_visual.pose().position(),
+                                               kTolerance);
+        if (!resultVector3D) {
+          error_message = error_message + resultVector3D.message() + "\n";
+        }
+        const ::testing::AssertionResult resultQuaternion =
+            CheckLcmArrayToQuaternionEquivalence(
+                lcm_link->geom[i].quaternion, ign_visual.pose().orientation(),
+                kTolerance);
+        if (!resultQuaternion) {
+          error_message = error_message + resultQuaternion.message() + "\n";
+        }
+        const ::testing::AssertionResult resultColor =
+            CheckLcmArrayToColorEquivalence(lcm_link->geom[i].color,
+                                            ign_visual.material().diffuse(),
+                                            kTolerance);
+        if (!resultColor) {
+          error_message = error_message + resultColor.message() + "\n";
+        }
+        const ::testing::AssertionResult resultGeometryType =
+            CheckGeometryTypeEquivalence(lcm_link->geom[i].type,
+                                         ign_visual.geometry().type());
+        if (!resultGeometryType) {
+          error_message = error_message + resultGeometryType.message() + "\n";
         }
       }
     }
+  }
+  if (!error_message.empty()) {
+    return ::testing::AssertionFailure() << error_message;
   }
   // Otherwise, a fully matching translation is assumed.
   return ::testing::AssertionSuccess();

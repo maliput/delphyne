@@ -88,62 +88,6 @@ macro (delphyne_install_executable _name)
 endmacro ()
 
 #################################################
-macro (delphyne_setup_unix)
-  # Using dynamic linking in UNIX by default
-  set(BUILD_SHARED_LIBS TRUE)
-endmacro()
-
-#################################################
-macro (delphyne_setup_windows)
-  # Using static linking in Windows by default
-  set(BUILD_SHARED_LIBS FALSE)
-  add_definitions(-DBUILDING_STATIC_LIBS -DWIN32_LEAN_AND_MEAN)
-
-  # Don't pull in the Windows min/max macros
-  add_definitions(-DNOMINMAX)
-
-  # And force linking to MSVC dynamic runtime
-  if ("${CMAKE_BUILD_TYPE_UPPERCASE}" STREQUAL "DEBUG")
-    add_definitions("/MDd")
-  else()
-    add_definitions("/MD")
-  endif()
-
-  # And we want exceptions
-  add_definitions("/EHsc")
-
-  if (MSVC AND CMAKE_SIZEOF_VOID_P EQUAL 8)
-    # Not need if proper cmake gnerator (-G "...Win64") is passed to cmake
-    # Enable as a second measure to workaround over bug
-    # http://www.cmake.org/Bug/print_bug_page.php?bug_id=11240
-    set(CMAKE_SHARED_LINKER_FLAGS "/machine:x64")
-  endif()
-endmacro()
-
-#################################################
-macro (delphyne_setup_apple)
-  # NOTE MacOSX provides different system versions than CMake is parsing.
-  #      The following table lists the most recent OSX versions
-  #     9.x.x = Mac OSX Leopard (10.5)
-  #    10.x.x = Mac OSX Snow Leopard (10.6)
-  #    11.x.x = Mac OSX Lion (10.7)
-  #    12.x.x = Mac OSX Mountain Lion (10.8)
-  if (${CMAKE_SYSTEM_VERSION} LESS 10)
-    add_definitions(-DMAC_OS_X_VERSION=1050)
-  elseif (${CMAKE_SYSTEM_VERSION} GREATER 10 AND ${CMAKE_SYSTEM_VERSION} LESS 11)
-    add_definitions(-DMAC_OS_X_VERSION=1060)
-  elseif (${CMAKE_SYSTEM_VERSION} GREATER 11 AND ${CMAKE_SYSTEM_VERSION} LESS 12)
-    add_definitions(-DMAC_OS_X_VERSION=1070)
-  elseif (${CMAKE_SYSTEM_VERSION} GREATER 12 OR ${CMAKE_SYSTEM_VERSION} EQUAL 12)
-    add_definitions(-DMAC_OS_X_VERSION=1080)
-  else ()
-    add_definitions(-DMAC_OS_X_VERSION=0)
-  endif ()
-
-  set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,-undefined -Wl,dynamic_lookup")
-endmacro()
-
-#################################################
 # Macro to setup supported compiler warnings
 # Based on work of Florent Lamiraux, Thomas Moulard, JRL, CNRS/AIST.
 include(CheckCXXCompilerFlag)

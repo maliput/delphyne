@@ -747,7 +747,6 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
       simulator->AddLoadableCar(
           "LoadableMaliputRailCar", maliput_params, "alice", &state),
       std::runtime_error);
-
   EXPECT_THROW(
       simulator->AddLoadableCar(
           "LoadableMaliputRailCar", maliput_params, "Model1", &state),

@@ -260,7 +260,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // +---->  +s, +x  | MOBIL Car |   | Decoy 1 |
   // ---------------------------------------------------------------
 
-  auto simple_car_state = std::make_unique<drake::automotive::SimpleCarState<double>>();
+  auto simple_car_state =
+      std::make_unique<drake::automotive::SimpleCarState<double>>();
   simple_car_state->set_x(2);
   simple_car_state->set_y(-2);
   simple_car_state->set_velocity(10);
@@ -268,15 +269,9 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   std::map<std::string, linb::any> mobil_params;
   mobil_params["road"] = road;
   mobil_params["initial_with_s"] = true;
-<<<<<<< 49b930bb769a6bce98cd27775b3c21b31f5a674d
-  const int id_mobil =
-      simulator->AddLoadableAgent("LoadableMobilControlledSimpleCar",
-                                  mobil_params, "MOBIL0", &simple_car_state);
-=======
   const int id_mobil = simulator->AddLoadableAgent(
       "LoadableMobilControlledSimpleCar", mobil_params, "MOBIL0",
       std::move(simple_car_state));
->>>>>>> Fix memory handling for python demos
   EXPECT_EQ(0, id_mobil);
 
   MaliputRailcarState<double> decoy_state;
@@ -355,30 +350,19 @@ TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
 
   std::map<std::string, linb::any> traj_params;
   traj_params["curve"] = curve;
-<<<<<<< 49b930bb769a6bce98cd27775b3c21b31f5a674d
-  drake::automotive::TrajectoryCarState<double> stateAlice;
-  stateAlice.set_speed(1.0);
-  stateAlice.set_position(0.0);
-  drake::automotive::TrajectoryCarState<double> stateBob;
-  stateBob.set_speed(0.0);
-  stateBob.set_position(0.0);
-  const int id1 = simulator->AddLoadableAgent(
-      "LoadablePriusTrajectoryCar", traj_params, "alice", &stateAlice);
-  const int id2 = simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
-                                              traj_params, "bob", &stateBob);
-=======
-  auto stateAlice = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  auto stateAlice =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   stateAlice->set_speed(1.0);
   stateAlice->set_position(0.0);
-  auto stateBob = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  auto stateBob =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   stateBob->set_speed(0.0);
   stateBob->set_position(0.0);
-  const int id1 = simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
-      traj_params, "alice", std::move(stateAlice));
-  const int id2 = simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
-      traj_params, "bob", std::move(stateBob));
-
->>>>>>> Fix memory handling for python demos
+  const int id1 =
+      simulator->AddLoadableAgent("LoadablePriusTrajectoryCar", traj_params,
+                                "alice", std::move(stateAlice));
+  const int id2 = simulator->AddLoadableAgent(
+      "LoadablePriusTrajectoryCar", traj_params, "bob", std::move(stateBob));
 
   EXPECT_EQ(0, id1);
   EXPECT_EQ(1, id2);
@@ -624,26 +608,18 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 
   std::map<std::string, linb::any> traj_params;
   traj_params["curve"] = curve;
-<<<<<<< 49b930bb769a6bce98cd27775b3c21b31f5a674d
-  drake::automotive::TrajectoryCarState<double> state;
-  state.set_speed(1.0);
-  state.set_position(0.0);
-  simulator->AddLoadableAgent("LoadablePriusTrajectoryCar", traj_params,
-                              "alice", &state);
-  simulator->AddLoadableAgent("LoadablePriusTrajectoryCar", traj_params, "bob",
-                              &state);
-=======
-  auto state1 = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  auto state1 =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state1->set_speed(1.0);
   state1->set_position(0.0);
-  auto state2 = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  auto state2 =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state2->set_speed(1.0);
   state2->set_position(0.0);
   simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
       traj_params, "alice", std::move(state1));
   simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
       traj_params, "bob", std::move(state2));
->>>>>>> Fix memory handling for python demos
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update
@@ -741,37 +717,28 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   std::map<std::string, linb::any> traj_params;
   traj_params["curve"] = curve;
 
-  auto state1 = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  auto state1 =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state1->set_speed(1.0);
   state1->set_position(0.0);
   EXPECT_NO_THROW(simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
-<<<<<<< 49b930bb769a6bce98cd27775b3c21b31f5a674d
-                                              traj_params, "alice", &state));
-=======
       traj_params, "alice", std::move(state1)));
->>>>>>> Fix memory handling for python demos
 
-  auto state2 = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  auto state2 =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state2->set_speed(1.0);
   state2->set_position(0.0);
-  EXPECT_THROW(simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
-<<<<<<< 49b930bb769a6bce98cd27775b3c21b31f5a674d
-                                           traj_params, "alice", &state),
-               std::runtime_error);
-=======
-      traj_params, "alice", std::move(state2)), std::runtime_error);
->>>>>>> Fix memory handling for python demos
 
-  auto state3 = std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  EXPECT_THROW(simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
+      traj_params, "alice", std::move(state2)), std::runtime_error);
+
+  auto state3 =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state3->set_speed(1.0);
   state3->set_position(0.0);
+
   EXPECT_THROW(simulator->AddLoadableAgent("LoadablePriusTrajectoryCar",
-<<<<<<< 49b930bb769a6bce98cd27775b3c21b31f5a674d
-                                           traj_params, "Model1", &state),
-               std::runtime_error);
-=======
       traj_params, "Model1", std::move(state3)), std::runtime_error);
->>>>>>> Fix memory handling for python demos
 
   const double kR{0.5};
   MaliputRailcarParams<double> params;

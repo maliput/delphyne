@@ -141,9 +141,10 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
-      .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
       .def("AddLoadableAgent", &AutomotiveSimulator<double>::AddLoadableAgent,
-           py::keep_alive<1, 3>());
+           py::keep_alive<1, 3>())
+      .def("AddPriusSimpleCar",
+           &AutomotiveSimulator<double>::AddPriusSimpleCar);
 }
 
 }  // namespace

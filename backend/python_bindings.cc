@@ -81,11 +81,16 @@ PYBIND11_MODULE(python_bindings, m) {
 
   // TODO(basicNew): Properly fill this binding with the remaining methods and
   // overloaded constructors.
+  // Note: Since we are using linb::any in combination with bare pointers to
+  // pass generic parameters to the loadable agents module, we have to make
+  // sure python doesn't garbage collect temp objects while they are being
+  // used on the C++ side, hence the `py::keep_alive`. See
+  // http://pybind11.readthedocs.io/en/stable/advanced/functions.html#keep-alive
   py::class_<linb::any>(m, "Any")
       .def(py::init<bool&&>())
-      .def(py::init<const RoadGeometry*&&>())
-      .def(py::init<LaneDirection*&&>())
-      .def(py::init<MaliputRailcarParams<double>*&&>());
+      .def(py::init<const RoadGeometry*&&>(), py::keep_alive<1, 2>())
+      .def(py::init<LaneDirection*&&>(), py::keep_alive<1, 2>())
+      .def(py::init<MaliputRailcarParams<double>*&&>(), py::keep_alive<1, 2>());
 
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
       .def(py::init<>())
@@ -127,12 +132,18 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("AddMonolaneFromFile", &RoadBuilder<double>::AddMonolaneFromFile)
       .def("AddMultilaneFromFile", &RoadBuilder<double>::AddMultilaneFromFile);
 
+  // Note: Since AddLoadableCar uses a map of (string, linb::any) in
+  // combination with bare pointers to pass generic parameters, we have to make
+  // sure python doesn't garbage collect temp objects while they are being
+  // used on the C++ side, hence the `py::keep_alive`. See
+  // http://pybind11.readthedocs.io/en/stable/advanced/functions.html#keep-alive
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
       .def("AddPriusSimpleCar", &AutomotiveSimulator<double>::AddPriusSimpleCar)
-      .def("AddLoadableAgent", &AutomotiveSimulator<double>::AddLoadableAgent);
+      .def("AddLoadableAgent", &AutomotiveSimulator<double>::AddLoadableAgent,
+           py::keep_alive<1, 3>());
 }
 
 }  // namespace

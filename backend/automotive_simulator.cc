@@ -148,7 +148,7 @@ template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
-    drake::systems::BasicVector<T>* initial_state) {
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
@@ -166,7 +166,7 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   loadable_agent->set_name(name);
   agents_[id] = loadable_agent;
 
-  loadable_agent_initial_states_[loadable_agent] = initial_state;
+  loadable_agent_initial_states_[loadable_agent] = std::move(initial_state);
   if (loadable_agent->Configure(parameters, builder_.get(), lcm_.get(), name,
                                 id, aggregator_, car_vis_applicator_) < 0) {
     return -1;
@@ -457,7 +457,7 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
   for (const auto& pair : loadable_agent_initial_states_) {
     delphyne::backend::AgentPluginBase<T>* const car =
         dynamic_cast<delphyne::backend::AgentPluginBase<T>*>(pair.first);
-    const drake::systems::BasicVector<T>* initial_state = pair.second;
+    const drake::systems::BasicVector<T>* initial_state = pair.second.get();
 
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
         *car, &simulator_->get_mutable_context());

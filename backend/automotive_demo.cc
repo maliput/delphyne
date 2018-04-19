@@ -105,10 +105,11 @@ int main(int argc, char* argv[]) {
       std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
 
   // Adds a Loadable Prius Simple car.
-  drake::automotive::SimpleCarState<double> state2;
-  state2.set_y(4.0);
+  auto state2 = std::make_unique<drake::automotive::SimpleCarState<double>>();
+  state2->set_y(4.0);
   std::map<std::string, linb::any> simple_params;
   if (simulator->AddLoadableAgent("LoadablePriusSimpleCar", simple_params, "1",
+                                  std::move(state2)) < 0) {
                                   &state2) < 0) {
     return 1;
   }
@@ -117,11 +118,12 @@ int main(int argc, char* argv[]) {
   const auto& params = CreateTrajectoryParams(0);
   std::map<std::string, linb::any> traj_params;
   traj_params["curve"] = std::get<0>(params);
-  drake::automotive::TrajectoryCarState<double> state3;
-  state3.set_speed(std::get<1>(params));
-  state3.set_position(std::get<2>(params));
+  auto state3 =
+      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+  state3->set_speed(std::get<1>(params));
+  state3->set_position(std::get<2>(params));
   if (simulator->AddLoadableAgent("LoadablePriusTrajectoryCar", traj_params,
-                                  "TrajectoryCar0", &state3) < 0) {
+                                "TrajectoryCar0", std::move(state3)) < 0) {
     return 1;
   }
 
@@ -130,7 +132,8 @@ int main(int argc, char* argv[]) {
   const drake::maliput::dragway::RoadGeometry* dragway_road_geometry =
       dynamic_cast<const drake::maliput::dragway::RoadGeometry*>(road_geometry);
 
-  drake::automotive::SimpleCarState<double> state4;
+  auto state4 = std::make_unique<drake::automotive::SimpleCarState<double>>();
+
   const int lane_index = 0;
   const int row = 0;
   const double x_offset = kControlledCarRowSpacing * row;
@@ -141,18 +144,20 @@ int main(int argc, char* argv[]) {
         "Ran out of lane length to add new MOBIL-controlled SimpleCars.");
   }
   const double y_offset = lane->ToGeoPosition({0., 0., 0.}).y();
-  state4.set_x(x_offset);
-  state4.set_y(y_offset);
+  state4->set_x(x_offset);
+  state4->set_y(y_offset);
   std::map<std::string, linb::any> mobil_params;
   mobil_params["road"] = road_geometry;
   mobil_params["initial_with_s"] = true;
   if (simulator->AddLoadableAgent("LoadableMobilControlledSimpleCar",
-                                  mobil_params, "MOBIL0", &state4) < 0) {
+                                mobil_params, "MOBIL0",
+                                std::move(state4)) < 0) {
     return 1;
   }
 
   // Add a loadable Maliput Railcar
-  drake::automotive::MaliputRailcarState<double> state5;
+  auto state5 =
+      std::make_unique<drake::automotive::MaliputRailcarState<double>>();
   drake::automotive::LaneDirection lane_direction(lane);
   drake::automotive::MaliputRailcarParams<double> start_params;
   start_params.set_r(0);
@@ -161,11 +166,11 @@ int main(int argc, char* argv[]) {
   maliput_params["road"] = road_geometry;
   maliput_params["lane_direction"] = &lane_direction;
   maliput_params["start_params"] = &start_params;
-  state5.set_s(0);
-  state5.set_speed(1);
+  state5->set_s(0);
+  state5->set_speed(1);
   maliput_params["initial_with_s"] = true;
   if (simulator->AddLoadableAgent("LoadableMaliputRailCar", maliput_params,
-                                  "Maliput0", &state5) < 0) {
+                                "Maliput0", std::move(state5)) < 0) {
     return 1;
   }
 

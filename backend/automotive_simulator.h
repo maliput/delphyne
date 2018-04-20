@@ -226,9 +226,7 @@ class AutomotiveSimulator {
   // have been created (since it owns the context).
   void InitializeSceneGeometryAggregator();
 
-  void InitializeTrajectoryCars();
   void InitializeSimpleCars();
-  void InitializeMaliputRailcars();
   void InitializeLoadableCars();
 
   // For both building and simulation.
@@ -241,24 +239,11 @@ class AutomotiveSimulator {
   std::unique_ptr<drake::systems::DiagramBuilder<T>> builder_{
       std::make_unique<drake::systems::DiagramBuilder<T>>()};
 
-  // Holds the desired initial states of each TrajectoryCar. It is used to
-  // initialize the simulation's diagram's state.
-  std::map<const drake::automotive::TrajectoryCar<T>*,
-           drake::automotive::TrajectoryCarState<T>>
-      trajectory_car_initial_states_;
-
   // Holds the desired initial states of each SimpleCar. It is used to
   // initialize the simulation's diagram's state.
   std::map<const drake::systems::System<T>*,
            drake::automotive::SimpleCarState<T>>
       simple_car_initial_states_;
-
-  // Holds the desired initial states of each MaliputRailcar. It is used to
-  // initialize the simulation's diagram's state.
-  std::map<const drake::automotive::MaliputRailcar<T>*,
-           std::pair<drake::automotive::MaliputRailcarParams<T>,
-                     drake::automotive::MaliputRailcarState<T>>>
-      railcar_configs_;
 
   // Holds the desired initial states of each loadable vehicle. It is used to
   // initialize the simulation's diagram's state.
@@ -289,14 +274,6 @@ class AutomotiveSimulator {
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.
   drake::systems::rendering::PoseBundleToDrawMessage* bundle_to_draw_{};
-
-  // Takes the output of bundle_to_draw_ and passes it to lcm_ for publishing.
-  drake::systems::lcm::LcmPublisherSystem* lcm_publisher_{};
-
-  // Takes the output of bundle_to_draw_ and passes it to an ignition transport
-  // node for publishing.
-  delphyne::backend::IgnPublisherSystem<ignition::msgs::Model_V>*
-      ign_publisher_{};
 
   int next_vehicle_number_{0};
 

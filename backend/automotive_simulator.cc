@@ -145,7 +145,7 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 // into a shared method.
 
 template <typename T>
-int AutomotiveSimulator<T>::AddLoadableCar(
+int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
     drake::systems::BasicVector<T>* initial_state) {
@@ -160,15 +160,15 @@ int AutomotiveSimulator<T>::AddLoadableCar(
     return -1;
   }
 
-  auto car =
+  auto loadable_agent =
       builder_->template AddSystem<delphyne::backend::AgentPluginBase<T>>(
           std::move(agent));
-  car->set_name(name);
-  vehicles_[id] = car;
+  loadable_agent->set_name(name);
+  agents_[id] = loadable_agent;
 
-  loadable_car_initial_states_[car] = initial_state;
-  if (car->Configure(parameters, builder_.get(), lcm_.get(), name, id,
-                     aggregator_, car_vis_applicator_) < 0) {
+  loadable_agent_initial_states_[loadable_agent] = initial_state;
+  if (loadable_agent->Configure(parameters, builder_.get(), lcm_.get(), name,
+          id, aggregator_, car_vis_applicator_) < 0) {
     return -1;
   }
 
@@ -205,7 +205,7 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
   // The translated Drake driving command messages are then sent to the car.
   builder_->Connect(*driving_command_translator, *simple_car);
 
-  vehicles_[id] = simple_car;
+  agents_[id] = simple_car;
   simple_car_initial_states_[simple_car].set_value(initial_state.get_value());
 
   ConnectCarOutputsAndPriusVis(id, simple_car->pose_output(),
@@ -453,8 +453,8 @@ void AutomotiveSimulator<T>::InitializeSimpleCars() {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::InitializeLoadableCars() {
-  for (const auto& pair : loadable_car_initial_states_) {
+void AutomotiveSimulator<T>::InitializeLoadableAgents() {
+  for (const auto& pair : loadable_agent_initial_states_) {
     delphyne::backend::AgentPluginBase<T>* const car =
         dynamic_cast<delphyne::backend::AgentPluginBase<T>*>(pair.first);
     const drake::systems::BasicVector<T>* initial_state = pair.second;
@@ -485,7 +485,7 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   InitializeSceneGeometryAggregator();
 
   InitializeSimpleCars();
-  InitializeLoadableCars();
+  InitializeLoadableAgents();
 
   simulator_->set_target_realtime_rate(realtime_rate);
   const double max_step_size = 0.01;
@@ -515,12 +515,12 @@ int AutomotiveSimulator<T>::allocate_vehicle_number() {
 
 template <typename T>
 void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
-  for (const auto& vehicle : vehicles_) {
-    if (vehicle.second->get_name() == name) {
-      throw std::runtime_error("A vehicle named \"" + name +
+  for (const auto& agent : agents_) {
+    if (agent.second->get_name() == name) {
+      throw std::runtime_error("An agent named \"" + name +
                                "\" already "
                                "exists. It has id " +
-                               std::to_string(vehicle.first) + ".");
+                               std::to_string(agent.first) + ".");
     }
   }
 }

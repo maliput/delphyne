@@ -84,17 +84,17 @@ class AutomotiveSimulator {
   /// @param parameters Parameters to be passed to the loadable module
   /// "configure" method.
   ///
-  /// @param name The car's name, which must be unique among all cars. Otherwise
-  /// a std::runtime_error will be thrown.
+  /// @param name The agent's name, which must be unique among all agents.
+  /// Otherwise a std::runtime_error will be thrown.
   ///
   /// @param initial_state The vehicle's initial state.
   ///
-  /// @return The ID of the car that was just added to the simulation, or -1 on
-  /// error.
-  int AddLoadableCar(const std::string& plugin,
-                     const std::map<std::string, linb::any>& parameters,
-                     const std::string& name,
-                     drake::systems::BasicVector<T>* initial_state);
+  /// @return The ID of the agent that was just added to the simulation, or -1
+  /// on error.
+  int AddLoadableAgent(const std::string& plugin,
+                       const std::map<std::string, linb::any>& parameters,
+                       const std::string& name,
+                       drake::systems::BasicVector<T>* initial_state);
 
   /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
   /// includes its DrivingCommand LCM input.
@@ -190,9 +190,10 @@ class AutomotiveSimulator {
 
   int allocate_vehicle_number();
 
-  // Verifies that the provided `name` of a car is unique among all cars that
-  // have been added to the `AutomotiveSimulator`. Throws a std::runtime_error
-  // if it is not unique meaning a car of the same name was already added.
+  // Verifies that the provided `name` of an agent is unique among all agents
+  // that have been added to the `AutomotiveSimulator`. Throws a
+  // std::runtime_error if it is not unique meaning an agent of the same name
+  // was already added.
   void CheckNameUniqueness(const std::string& name);
 
   // Connects the provided pose and velocity output ports of a vehicle model to
@@ -227,7 +228,7 @@ class AutomotiveSimulator {
   void InitializeSceneGeometryAggregator();
 
   void InitializeSimpleCars();
-  void InitializeLoadableCars();
+  void InitializeLoadableAgents();
 
   // For both building and simulation.
   std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm_{};
@@ -245,10 +246,10 @@ class AutomotiveSimulator {
            drake::automotive::SimpleCarState<T>>
       simple_car_initial_states_;
 
-  // Holds the desired initial states of each loadable vehicle. It is used to
+  // Holds the desired initial states of each loadable agent. It is used to
   // initialize the simulation's diagram's state.
   std::map<drake::systems::System<T>*, drake::systems::BasicVector<T>*>
-      loadable_car_initial_states_;
+      loadable_agent_initial_states_;
 
   // The output port of the Diagram that contains pose bundle information.
   int pose_bundle_output_port_{};
@@ -277,8 +278,8 @@ class AutomotiveSimulator {
 
   int next_vehicle_number_{0};
 
-  // Maps a vehicle id to a pointer to the system that implements the vehicle.
-  std::map<int, drake::systems::System<T>*> vehicles_;
+  // Maps an agent id to a pointer to the system that implements the agent.
+  std::map<int, drake::systems::System<T>*> agents_;
 
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};

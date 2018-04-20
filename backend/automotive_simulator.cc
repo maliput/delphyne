@@ -216,108 +216,6 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
 }
 
 template <typename T>
-int AutomotiveSimulator<T>::AddPriusMaliputRailcar(
-    const std::string& name,
-    const drake::automotive::LaneDirection& initial_lane_direction,
-    const drake::automotive::MaliputRailcarParams<T>& params,
-    const drake::automotive::MaliputRailcarState<T>& initial_state) {
-  DELPHYNE_DEMAND(!has_started());
-  DELPHYNE_DEMAND(aggregator_ != nullptr);
-  CheckNameUniqueness(name);
-  if (road_ == nullptr) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::AddPriusMaliputRailcar(): "
-        "RoadGeometry not set. Please call SetRoadGeometry() first before "
-        "calling this method.");
-  }
-  if (initial_lane_direction.lane == nullptr) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::AddPriusMaliputRailcar(): "
-        "The provided initial lane is nullptr.");
-  }
-  if (initial_lane_direction.lane->segment()->junction()->road_geometry() !=
-      road_.get()) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::AddPriusMaliputRailcar(): "
-        "The provided initial lane is not within this simulation's "
-        "RoadGeometry.");
-  }
-
-  const int id = allocate_vehicle_number();
-
-  auto railcar =
-      builder_->template AddSystem<drake::automotive::MaliputRailcar<T>>(
-          initial_lane_direction);
-  railcar->set_name(name);
-  vehicles_[id] = railcar;
-  railcar_configs_[railcar].first.set_value(params.get_value());
-  railcar_configs_[railcar].second.set_value(initial_state.get_value());
-
-  ConnectCarOutputsAndPriusVis(id, railcar->pose_output(),
-                               railcar->velocity_output());
-  return id;
-}
-
-template <typename T>
-int AutomotiveSimulator<T>::AddIdmControlledPriusMaliputRailcar(
-    const std::string& name,
-    const drake::automotive::LaneDirection& initial_lane_direction,
-    const drake::automotive::MaliputRailcarParams<T>& params,
-    const drake::automotive::MaliputRailcarState<T>& initial_state) {
-  const int id = AddPriusMaliputRailcar(name, initial_lane_direction, params,
-                                        initial_state);
-  const drake::automotive::MaliputRailcar<T>* railcar =
-      dynamic_cast<const drake::automotive::MaliputRailcar<T>*>(
-          vehicles_.at(id));
-  DELPHYNE_DEMAND(railcar != nullptr);
-
-  auto controller =
-      builder_->template AddSystem<drake::automotive::IdmController<T>>(
-          *road_, drake::automotive::ScanStrategy::kBranches,
-          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
-          0. /* time period (unused) */);
-  controller->set_name(name + "_IdmController");
-
-  builder_->Connect(railcar->pose_output(), controller->ego_pose_input());
-  builder_->Connect(railcar->velocity_output(),
-                    controller->ego_velocity_input());
-  builder_->Connect(aggregator_->get_output_port(0),
-                    controller->traffic_input());
-  builder_->Connect(controller->acceleration_output(),
-                    railcar->command_input());
-  return id;
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::SetMaliputRailcarAccelerationCommand(
-    int id, double acceleration) {
-  DELPHYNE_DEMAND(has_started());
-  const auto iterator = vehicles_.find(id);
-  if (iterator == vehicles_.end()) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::"
-        "SetMaliputRailcarAccelerationCommand(): Failed to find vehicle with "
-        "id " +
-        std::to_string(id) + ".");
-  }
-  drake::automotive::MaliputRailcar<T>* railcar =
-      dynamic_cast<drake::automotive::MaliputRailcar<T>*>(iterator->second);
-  if (railcar == nullptr) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::"
-        "SetMaliputRailcarAccelerationCommand(): The vehicle with "
-        "id " +
-        std::to_string(id) + " was not a MaliputRailcar.");
-  }
-  DELPHYNE_ASSERT(diagram_ != nullptr);
-  DELPHYNE_ASSERT(simulator_ != nullptr);
-  drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-      *railcar, &simulator_->get_mutable_context());
-  context.FixInputPort(railcar->command_input().get_index(),
-                       drake::systems::BasicVector<double>::Make(acceleration));
-}
-
-template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road) {
   DELPHYNE_DEMAND(!has_started());
@@ -536,25 +434,6 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::InitializeTrajectoryCars() {
-  for (const auto& pair : trajectory_car_initial_states_) {
-    const drake::automotive::TrajectoryCar<T>* const car = pair.first;
-    const drake::automotive::TrajectoryCarState<T>& initial_state = pair.second;
-
-    drake::systems::VectorBase<T>& context_state =
-        diagram_
-            ->GetMutableSubsystemContext(*car,
-                                         &simulator_->get_mutable_context())
-            .get_mutable_continuous_state()
-            .get_mutable_vector();
-    drake::automotive::TrajectoryCarState<T>* const state =
-        dynamic_cast<drake::automotive::TrajectoryCarState<T>*>(&context_state);
-    DELPHYNE_ASSERT(state);
-    state->set_value(initial_state.get_value());
-  }
-}
-
-template <typename T>
 void AutomotiveSimulator<T>::InitializeSimpleCars() {
   for (const auto& pair : simple_car_initial_states_) {
     const drake::systems::System<T>* const car = pair.first;
@@ -570,32 +449,6 @@ void AutomotiveSimulator<T>::InitializeSimpleCars() {
         dynamic_cast<drake::automotive::SimpleCarState<T>*>(&context_state);
     DELPHYNE_ASSERT(state);
     state->set_value(initial_state.get_value());
-  }
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::InitializeMaliputRailcars() {
-  for (auto& pair : railcar_configs_) {
-    const drake::automotive::MaliputRailcar<T>* const car = pair.first;
-    const drake::automotive::MaliputRailcarParams<T>& params =
-        pair.second.first;
-    const drake::automotive::MaliputRailcarState<T>& initial_state =
-        pair.second.second;
-
-    drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *car, &simulator_->get_mutable_context());
-
-    drake::systems::VectorBase<T>& context_state =
-        context.get_mutable_continuous_state().get_mutable_vector();
-    drake::automotive::MaliputRailcarState<T>* const state =
-        dynamic_cast<drake::automotive::MaliputRailcarState<T>*>(
-            &context_state);
-    DELPHYNE_ASSERT(state);
-    state->set_value(initial_state.get_value());
-
-    drake::automotive::MaliputRailcarParams<T>& railcar_system_params =
-        car->get_mutable_parameters(&context);
-    railcar_system_params.set_value(params.get_value());
   }
 }
 
@@ -631,9 +484,7 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
 
   InitializeSceneGeometryAggregator();
 
-  InitializeTrajectoryCars();
   InitializeSimpleCars();
-  InitializeMaliputRailcars();
   InitializeLoadableCars();
 
   simulator_->set_target_realtime_rate(realtime_rate);

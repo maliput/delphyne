@@ -115,81 +115,6 @@ class AutomotiveSimulator {
       const drake::automotive::SimpleCarState<T>& initial_state =
           drake::automotive::SimpleCarState<T>());
 
-  /// Adds a MaliputRailcar to this simulation visualized as a Toyota Prius.
-  ///
-  /// @pre Start() has NOT been called.
-  ///
-  /// @pre SetRoadGeometry() was called. Otherwise, a std::runtime_error will be
-  /// thrown.
-  ///
-  /// @param name The car's name, which must be unique among all cars. Otherwise
-  /// a std::runtime_error will be thrown.
-  ///
-  /// @param initial_lane_direction The MaliputRailcar's initial lane and
-  /// direction on the lane. The lane in this parameter must be part of the
-  /// drake::maliput::api::RoadGeometry that is added via SetRoadGeometry().
-  /// Otherwise
-  /// a std::runtime_error will be thrown.
-  ///
-  /// @param params The MaliputRailcar's parameters. This is an optional
-  /// parameter. Defaults are used if this parameter is not provided.
-  ///
-  /// @param initial_state The MaliputRailcar's initial state. This is an
-  /// optional parameter. Defaults are used if this parameter is not provided.
-  ///
-  /// @return The ID of the car that was just added to the simulation.
-  int AddPriusMaliputRailcar(
-      const std::string& name,
-      const drake::automotive::LaneDirection& initial_lane_direction,
-      const drake::automotive::MaliputRailcarParams<T>& params =
-          drake::automotive::MaliputRailcarParams<T>(),
-      const drake::automotive::MaliputRailcarState<T>& initial_state =
-          drake::automotive::MaliputRailcarState<T>());
-
-  /// Adds a MaliputRailcar to this simulation visualized as a Toyota Prius that
-  /// is controlled via an IdmController.
-  ///
-  /// @pre Start() has NOT been called.
-  ///
-  /// @pre SetRoadGeometry() was called. Otherwise, a std::runtime_error will be
-  /// thrown.
-  ///
-  /// @param name The car's name, which must be unique among all cars. Otherwise
-  /// a std::runtime_error will be thrown.
-  ///
-  /// @param initial_lane_direction The MaliputRailcar's initial lane and
-  /// direction on the lane. The lane in this parameter must be part of the
-  /// drake::maliput::api::RoadGeometry that is added via SetRoadGeometry().
-  /// Otherwise
-  /// a std::runtime_error will be thrown.
-  ///
-  /// @param params The MaliputRailcar's parameters. This is an optional
-  /// parameter. Defaults are used if this parameter is not provided.
-  ///
-  /// @param initial_state The MaliputRailcar's initial state. This is an
-  /// optional parameter. Defaults are used if this parameter is not provided.
-  ///
-  /// @return The ID of the car that was just added to the simulation.
-  int AddIdmControlledPriusMaliputRailcar(
-      const std::string& name,
-      const drake::automotive::LaneDirection& initial_lane_direction,
-      const drake::automotive::MaliputRailcarParams<T>& params =
-          drake::automotive::MaliputRailcarParams<T>(),
-      const drake::automotive::MaliputRailcarState<T>& initial_state =
-          drake::automotive::MaliputRailcarState<T>());
-
-  /// Sets the acceleration command of a particular MaliputRailcar.
-  ///
-  /// @param id The ID of the MaliputRailcar. This is the ID that was returned
-  /// by the method that added the MaliputRailcar to the simulation. If no
-  /// MaliputRailcar with such an ID exists, a std::runtime_error is thrown.
-  ///
-  /// @param acceleration The acceleration command to issue to the
-  /// MaliputRailcar.
-  ///
-  /// @pre Start() has been called.
-  void SetMaliputRailcarAccelerationCommand(int id, double acceleration);
-
   /// Sets the RoadGeometry for this simulation.
   ///
   /// @pre Start() has NOT been called.
@@ -301,9 +226,7 @@ class AutomotiveSimulator {
   // have been created (since it owns the context).
   void InitializeSceneGeometryAggregator();
 
-  void InitializeTrajectoryCars();
   void InitializeSimpleCars();
-  void InitializeMaliputRailcars();
   void InitializeLoadableCars();
 
   // For both building and simulation.
@@ -316,24 +239,11 @@ class AutomotiveSimulator {
   std::unique_ptr<drake::systems::DiagramBuilder<T>> builder_{
       std::make_unique<drake::systems::DiagramBuilder<T>>()};
 
-  // Holds the desired initial states of each TrajectoryCar. It is used to
-  // initialize the simulation's diagram's state.
-  std::map<const drake::automotive::TrajectoryCar<T>*,
-           drake::automotive::TrajectoryCarState<T>>
-      trajectory_car_initial_states_;
-
   // Holds the desired initial states of each SimpleCar. It is used to
   // initialize the simulation's diagram's state.
   std::map<const drake::systems::System<T>*,
            drake::automotive::SimpleCarState<T>>
       simple_car_initial_states_;
-
-  // Holds the desired initial states of each MaliputRailcar. It is used to
-  // initialize the simulation's diagram's state.
-  std::map<const drake::automotive::MaliputRailcar<T>*,
-           std::pair<drake::automotive::MaliputRailcarParams<T>,
-                     drake::automotive::MaliputRailcarState<T>>>
-      railcar_configs_;
 
   // Holds the desired initial states of each loadable vehicle. It is used to
   // initialize the simulation's diagram's state.
@@ -364,14 +274,6 @@ class AutomotiveSimulator {
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.
   drake::systems::rendering::PoseBundleToDrawMessage* bundle_to_draw_{};
-
-  // Takes the output of bundle_to_draw_ and passes it to lcm_ for publishing.
-  drake::systems::lcm::LcmPublisherSystem* lcm_publisher_{};
-
-  // Takes the output of bundle_to_draw_ and passes it to an ignition transport
-  // node for publishing.
-  delphyne::backend::IgnPublisherSystem<ignition::msgs::Model_V>*
-      ign_publisher_{};
 
   int next_vehicle_number_{0};
 

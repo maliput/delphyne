@@ -41,7 +41,7 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg();
 
 // Asserts that all the array-iterable values from lcm_msg match the content of
 // the ign_models object.
-
+//
 // @param lcm_msg An lcm viewer load robot message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
 // @return a google test's AssertionResult.
@@ -61,35 +61,36 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg();
 // Asserts that the position values found on an array provenient from an
 // lcm message are equivalent to those found on the ignition object.
 //
-// @param lcm_position An array of lenght 3 with the lcm position values.
-// @param ign_position An ignition message of type Vector3D with a position
+// @param lcm_position An array of length 3 with the lcm position values.
+// @param ign_position An ignition message of type Vector3d with a position
 // value.
 // @param tolerance A double containing the translation's tolerance.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckLcmArrayToVector3DEquivalence(
-    const float lcm_position[], ignition::msgs::Vector3d ign_position,
+::testing::AssertionResult CheckLcmArrayToVector3dEquivalence(
+    const float lcm_position[], const ignition::msgs::Vector3d& ign_position,
     double tolerance);
 
 // Asserts that the quaternion values found on an array provenient from an
 // lcm message are equivalent to those found on the ignition object.
 //
-// @param lcm_orientation An array of lenght 4 with the lcm orientation values.
+// @param lcm_orientation An array of length 4 with the lcm orientation values.
 // @param ign_orientation An ignition messages of type Quaternion.
 // @param tolerance A double containing the translation's tolerance.
 // @return a google test's AssertionResult.
 ::testing::AssertionResult CheckLcmArrayToQuaternionEquivalence(
-    const float lcm_orientation[], ignition::msgs::Quaternion ign_orientation,
-    double tolerance);
+    const float lcm_orientation[],
+    const ignition::msgs::Quaternion& ign_orientation, double tolerance);
 
 // Asserts that the color values found on an array provenient from an lcm
 // message are equivalent to those found on the ignition object.
 //
-// @param lcm_color An array of lenght 4 with the lcm color values.
+// @param lcm_color An array of length 4 with the lcm color values.
 // @param ign_color An ignition messages of type Color.
 // @param tolerance A double containing the translation's tolerance.
 // @return a google test's AssertionResult.
 ::testing::AssertionResult CheckLcmArrayToColorEquivalence(
-    const float lcm_color[], ignition::msgs::Color ign_color, double tolerance);
+    const float lcm_color[], const ignition::msgs::Color& ign_color,
+    double tolerance);
 
 // Asserts the equivalence between an lcm geometry type versus an
 // ignition messages geometry type.

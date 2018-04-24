@@ -26,10 +26,10 @@ using delphyne::backend::RoadBuilder;
 using delphyne::backend::SimulatorRunner;
 using delphyne::backend::InteractiveSimulationStats;
 using delphyne::backend::SimulationRunStats;
-using drake::automotive::SimpleCarState;
-using drake::automotive::MaliputRailcarState;
-using drake::automotive::MaliputRailcarParams;
 using drake::automotive::LaneDirection;
+using drake::automotive::MaliputRailcarParams;
+using drake::automotive::MaliputRailcarState;
+using drake::automotive::SimpleCarState;
 using drake::maliput::api::RoadGeometry;
 using drake::systems::BasicVector;
 using drake::systems::VectorBase;
@@ -88,8 +88,11 @@ PYBIND11_MODULE(python_bindings, m) {
   // http://pybind11.readthedocs.io/en/stable/advanced/functions.html#keep-alive
   py::class_<linb::any>(m, "Any")
       .def(py::init<bool&&>())
+      // Keep alive, ownership: `self` keeps `RoadGeometry` alive.
       .def(py::init<const RoadGeometry*&&>(), py::keep_alive<1, 2>())
+      // Keep alive, ownership: `self` keeps `LaneDirection` alive.
       .def(py::init<LaneDirection*&&>(), py::keep_alive<1, 2>())
+      // Keep alive, ownership: `self` keeps `MaliputRailcarParams` alive.
       .def(py::init<MaliputRailcarParams<double>*&&>(), py::keep_alive<1, 2>());
 
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
@@ -132,7 +135,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("AddMonolaneFromFile", &RoadBuilder<double>::AddMonolaneFromFile)
       .def("AddMultilaneFromFile", &RoadBuilder<double>::AddMultilaneFromFile);
 
-  // Note: Since AddLoadableCar uses a map of (string, linb::any) in
+  // Note: Since AddLoadableAgent uses a map of (string, linb::any) in
   // combination with bare pointers to pass generic parameters, we have to make
   // sure python doesn't garbage collect temp objects while they are being
   // used on the C++ side, hence the `py::keep_alive`. See
@@ -141,6 +144,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
+      // Keep alive, ownership: `self` keeps `parameters` alive.
       .def("AddLoadableAgent", &AutomotiveSimulator<double>::AddLoadableAgent,
            py::keep_alive<1, 3>())
       .def("AddPriusSimpleCar",

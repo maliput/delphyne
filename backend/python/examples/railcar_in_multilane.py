@@ -7,8 +7,9 @@
 An example of a couple of railcars running around in a closed-loop maliput
 road.
 """
-
 from __future__ import print_function
+
+import os.path
 
 from pydrake.automotive import LaneDirection
 
@@ -22,7 +23,8 @@ from delphyne.bindings import (
 )
 
 from delphyne.simulation_utils import (
-    launch_interactive_simulation
+    launch_interactive_simulation,
+    get_delphyne_resource_root
 )
 
 SIMULATION_TIME_STEP_SECS = 0.001
@@ -49,10 +51,10 @@ def setup_railcar(simulator, name, road, lane):
         "start_params": Any(start_params)
     }
 
-    simulator.AddLoadableCar("LoadableMaliputRailCar",
-                             params,
-                             name,
-                             railcar_state)
+    simulator.AddLoadableAgent("LoadableMaliputRailCar",
+                               params,
+                               name,
+                               railcar_state)
 
 
 def main():
@@ -65,7 +67,14 @@ def main():
 
     builder = RoadBuilder(simulator)
 
-    filename = "./install/share/delphyne/road_samples/multilane_sample.yaml"
+    filename = "{0}/road_samples/multilane_sample.yaml".format(
+        get_delphyne_resource_root())
+
+    if not os.path.isfile(filename):
+        print("Required file {} not found."
+              " Please, make sure to install the latest delphyne-gui."
+              .format(os.path.abspath(filename)))
+        quit()
 
     road = builder.AddMultilaneFromFile(filename)
 

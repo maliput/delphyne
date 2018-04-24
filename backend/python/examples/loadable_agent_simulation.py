@@ -108,9 +108,9 @@ def main():
         # name and originally placed in (0.0, -3.7). The road for the car to
         # follow is the previously created dragway.
         simulator.AddLoadableAgent("LoadableMobilControlledSimpleCar",
-                                 mobil_params,
-                                 "MOBIL0",
-                                 state)
+                                   mobil_params,
+                                   "MOBIL0",
+                                   state)
     elif args.type == "railcar":
         dragway = build_demo_dragway(simulator, "Railcar dragway")
 
@@ -136,10 +136,10 @@ def main():
         # Instantiate a LoadableMaliputRailCar with "Maliput0" as its name and
         # originally placed at the start of the second lane of the dragway
         # previously created. The car initial speed is 3 meters per sec.
-        simulator.AddLoadableCar("LoadableMaliputRailCar",
-                                 railcar_params,
-                                 "Maliput0",
-                                 state)
+        simulator.AddLoadableAgent("LoadableMaliputRailCar",
+                                   railcar_params,
+                                   "Maliput0",
+                                   state)
     else:
         raise RuntimeError("Option {} not recognized".format(args.type))
 

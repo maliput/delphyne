@@ -110,7 +110,6 @@ int main(int argc, char* argv[]) {
   std::map<std::string, linb::any> simple_params;
   if (simulator->AddLoadableAgent("LoadablePriusSimpleCar", simple_params, "1",
                                   std::move(state2)) < 0) {
-                                  &state2) < 0) {
     return 1;
   }
 
@@ -123,7 +122,7 @@ int main(int argc, char* argv[]) {
   state3->set_speed(std::get<1>(params));
   state3->set_position(std::get<2>(params));
   if (simulator->AddLoadableAgent("LoadablePriusTrajectoryCar", traj_params,
-                                "TrajectoryCar0", std::move(state3)) < 0) {
+                                  "TrajectoryCar0", std::move(state3)) < 0) {
     return 1;
   }
 
@@ -150,8 +149,8 @@ int main(int argc, char* argv[]) {
   mobil_params["road"] = road_geometry;
   mobil_params["initial_with_s"] = true;
   if (simulator->AddLoadableAgent("LoadableMobilControlledSimpleCar",
-                                mobil_params, "MOBIL0",
-                                std::move(state4)) < 0) {
+                                  mobil_params, "MOBIL0",
+                                  std::move(state4)) < 0) {
     return 1;
   }
 
@@ -166,11 +165,11 @@ int main(int argc, char* argv[]) {
   maliput_params["road"] = road_geometry;
   maliput_params["lane_direction"] = &lane_direction;
   maliput_params["start_params"] = &start_params;
-  state5->set_s(0);
-  state5->set_speed(1);
+  state5->set_s(0.0);
+  state5->set_speed(1.0);
   maliput_params["initial_with_s"] = true;
   if (simulator->AddLoadableAgent("LoadableMaliputRailCar", maliput_params,
-                                "Maliput0", std::move(state5)) < 0) {
+                                  "Maliput0", std::move(state5)) < 0) {
     return 1;
   }
 

@@ -2,8 +2,6 @@
 # Check the Delphyne Guide for details about linking with Drake libraries from
 # any loadable agent.
 
-get_target_property(STX_INCLUDE_DIRS stx::stx INTERFACE_INCLUDE_DIRECTORIES)
-
 ############## LoadablePriusSimpleCar #####################
 add_library(LoadablePriusSimpleCar
   LoadablePriusSimpleCar.cc
@@ -12,7 +10,6 @@ add_library(LoadablePriusSimpleCar
 target_include_directories(
   LoadablePriusSimpleCar
   PRIVATE
-    ${STX_INCLUDE_DIRS}
     ${EIGEN_INCLUDE_DIRS}
     ${DELPHYNE_INCLUDE_DIRS}
 )
@@ -22,6 +19,7 @@ target_link_libraries(
   PRIVATE
     drake::drake
     ignition-common1::ignition-common1
+    stx::stx
 )
 
 install(TARGETS LoadablePriusSimpleCar
@@ -35,7 +33,6 @@ add_library(LoadablePriusTrajectoryCar
 target_include_directories(
   LoadablePriusTrajectoryCar
   PRIVATE
-    ${STX_INCLUDE_DIRS}
     ${EIGEN_INCLUDE_DIRS}
     ${DELPHYNE_INCLUDE_DIRS}
 )
@@ -45,6 +42,7 @@ target_link_libraries(
   PRIVATE
     drake::drake
     ignition-common1::ignition-common1
+    stx::stx
 )
 
 install(TARGETS LoadablePriusTrajectoryCar
@@ -58,7 +56,6 @@ add_library(LoadableMobilControlledSimpleCar
 target_include_directories(
   LoadableMobilControlledSimpleCar
   PRIVATE
-    ${STX_INCLUDE_DIRS}
     ${EIGEN_INCLUDE_DIRS}
     ${DELPHYNE_INCLUDE_DIRS}
 )
@@ -68,6 +65,7 @@ target_link_libraries(
   PRIVATE
     drake::drake
     ignition-common1::ignition-common1
+    stx::stx
 )
 
 install(TARGETS LoadableMobilControlledSimpleCar
@@ -81,7 +79,6 @@ add_library(LoadableMaliputRailCar SHARED
 target_include_directories(
   LoadableMaliputRailCar
   PRIVATE
-    ${STX_INCLUDE_DIRS}
     ${EIGEN_INCLUDE_DIRS}
     ${DELPHYNE_INCLUDE_DIRS}
 )
@@ -91,6 +88,7 @@ target_link_libraries(
   PRIVATE
     drake::drake
     ignition-common1::ignition-common1
+    stx::stx
 )
 
 install(TARGETS LoadableMaliputRailCar

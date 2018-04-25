@@ -1,95 +1,31 @@
-# Important note:
-# Check the Delphyne Guide for details about linking with Drake libraries from
-# any loadable agent.
 
-############## LoadablePriusSimpleCar #####################
-add_library(LoadablePriusSimpleCar
-  LoadablePriusSimpleCar.cc
-)
+###################### Macro ##############################
 
-target_include_directories(
-  LoadablePriusSimpleCar
-  PRIVATE
-    ${EIGEN_INCLUDE_DIRS}
-    ${DELPHYNE_INCLUDE_DIRS}
-)
+macro(delphyne_add_agent_library name)
+  add_library(${name} ${name}.cc)
+  string(REPLACE "_" "-" LIBRARY_NAME ${name})
+  set_target_properties(${name} PROPERTIES OUTPUT_NAME ${LIBRARY_NAME})
+  target_include_directories(
+    ${name}
+    PRIVATE
+      ${DELPHYNE_INCLUDE_DIRS}
+  )
+  target_link_libraries(
+    ${name}
+    PRIVATE
+      drake::drake
+      Eigenasdfdf::Eigenasdfd
+      ignition-common1::ignition-common1
+      stx::stx
+  )
+  install(TARGETS ${name}
+          DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
+endmacro()
 
-target_link_libraries(
-  LoadablePriusSimpleCar
-  PRIVATE
-    drake::drake
-    ignition-common1::ignition-common1
-    stx::stx
-)
+###################### Agents #############################
 
-install(TARGETS LoadablePriusSimpleCar
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
+delphyne_add_agent_library(maliput_rail_car)
+delphyne_add_agent_library(mobil_controlled_simple_car)
+delphyne_add_agent_library(prius_simple_car)
+delphyne_add_agent_library(prius_trajectory_car)
 
-############## LoadablePriusTrajectoryCar #####################
-add_library(LoadablePriusTrajectoryCar
-  LoadablePriusTrajectoryCar.cc
-)
-
-target_include_directories(
-  LoadablePriusTrajectoryCar
-  PRIVATE
-    ${EIGEN_INCLUDE_DIRS}
-    ${DELPHYNE_INCLUDE_DIRS}
-)
-
-target_link_libraries(
-  LoadablePriusTrajectoryCar
-  PRIVATE
-    drake::drake
-    ignition-common1::ignition-common1
-    stx::stx
-)
-
-install(TARGETS LoadablePriusTrajectoryCar
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
-
-############## LoadableMobilControlledSimpleCar #####################
-add_library(LoadableMobilControlledSimpleCar
-  LoadableMobilControlledSimpleCar.cc
-)
-
-target_include_directories(
-  LoadableMobilControlledSimpleCar
-  PRIVATE
-    ${EIGEN_INCLUDE_DIRS}
-    ${DELPHYNE_INCLUDE_DIRS}
-)
-
-target_link_libraries(
-  LoadableMobilControlledSimpleCar
-  PRIVATE
-    drake::drake
-    ignition-common1::ignition-common1
-    stx::stx
-)
-
-install(TARGETS LoadableMobilControlledSimpleCar
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
-
-############## LoadableMaliputRailCar #####################
-add_library(LoadableMaliputRailCar SHARED
-  LoadableMaliputRailCar.cc
-)
-
-target_include_directories(
-  LoadableMaliputRailCar
-  PRIVATE
-    ${EIGEN_INCLUDE_DIRS}
-    ${DELPHYNE_INCLUDE_DIRS}
-)
-
-target_link_libraries(
-  LoadableMaliputRailCar
-  PRIVATE
-    drake::drake
-    ignition-common1::ignition-common1
-    stx::stx
-)
-
-install(TARGETS LoadableMaliputRailCar
-        DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)

@@ -318,11 +318,13 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
                                  {ignition::msgs::Geometry_Type_MESH,
                                   drake::lcmt_viewer_geometry_data::MESH}};
   // If cannot find matching geometry in the map, fails prematurelly.
-  if (ign_to_lcm_geometry_map.find(ign_geometry_type) == ign_to_lcm_geometry_map.end()) {
+  if (ign_to_lcm_geometry_map.find(ign_geometry_type) ==
+      ign_to_lcm_geometry_map.end()) {
     return ::testing::AssertionFailure();
   }
   // Otherwise, checks equivalence between geometries.
-  if (ign_to_lcm_geometry_map.find(ign_geometry_type)->second == lcm_geometry_type) {
+  if (ign_to_lcm_geometry_map.find(ign_geometry_type)->second ==
+      lcm_geometry_type) {
     return ::testing::AssertionSuccess();
   }
   return ::testing::AssertionFailure();
@@ -513,20 +515,21 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
                                             ign_visual.material().diffuse(),
                                             kTolerance);
         if (!are_colors_equivalent) {
-          return ::testing::AssertionFailure() << are_colors_equivalent.message() << "\n";
+          return ::testing::AssertionFailure()
+                 << are_colors_equivalent.message() << "\n";
         }
         const ::testing::AssertionResult resultGeometryType =
             CheckGeometryTypeEquivalence(lcm_link->geom[i].type,
                                          ign_visual.geometry().type());
         if (!resultGeometryType) {
-          return ::testing::AssertionFailure()
-                 << resultGeometryType.message() << "\n";
+          return ::testing::AssertionFailure() << resultGeometryType.message()
+                                               << "\n";
         }
       }
     }
   }
-// A fully matching translation is assumed.
-return ::testing::AssertionSuccess();
+  // A fully matching translation is assumed.
+  return ::testing::AssertionSuccess();
 }
 
 ::testing::AssertionResult CheckMsgTranslation(

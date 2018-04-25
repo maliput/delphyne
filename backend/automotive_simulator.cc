@@ -168,7 +168,7 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
 
   loadable_agent_initial_states_[loadable_agent] = initial_state;
   if (loadable_agent->Configure(parameters, builder_.get(), lcm_.get(), name,
-          id, aggregator_, car_vis_applicator_) < 0) {
+                                id, aggregator_, car_vis_applicator_) < 0) {
     return -1;
   }
 

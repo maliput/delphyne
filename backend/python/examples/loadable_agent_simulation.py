@@ -72,7 +72,7 @@ def main():
 
         # Instantiate a LoadablePriusSimpleCar with 0 id and originally
         # placed in (0.0, 1.0)
-        simulator.AddLoadableCar("LoadablePriusSimpleCar", {}, "0", state)
+        simulator.AddLoadableAgent("LoadablePriusSimpleCar", {}, "0", state)
 
     elif args.type == "mobil":
         builder = RoadBuilder(simulator)
@@ -91,7 +91,7 @@ def main():
         # Instantiate a LoadableMobilControlledSimpleCar with "MOBIL0" as its
         # name and originally placed in (0.0, -3.7). The road for the car to
         # follow is the previously created dragway.
-        simulator.AddLoadableCar("LoadableMobilControlledSimpleCar",
+        simulator.AddLoadableAgent("LoadableMobilControlledSimpleCar",
                                  mobil_params,
                                  "MOBIL0",
                                  state)

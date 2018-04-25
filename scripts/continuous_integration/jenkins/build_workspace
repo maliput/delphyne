@@ -22,7 +22,6 @@ set -eo pipefail
 #      src
 #          delphyne
 #              backend
-#              bridge
 #              ...
 #          drake
 #          ign_cmake
@@ -33,7 +32,6 @@ set -eo pipefail
 #
 #  delphyne/
 #      backend
-#      bridge
 #      build
 #          delphyne
 #          drake

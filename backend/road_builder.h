@@ -95,9 +95,10 @@ class RoadBuilder {
 
   /// @brief Adds a multinale-based road network, loading it from the specified
   /// `file_path`
-  void AddMultilaneFromFile(const std::string& file_path) {
+  const drake::maliput::api::RoadGeometry* AddMultilaneFromFile(
+      const std::string& file_path) {
     auto road_geometry = drake::maliput::multilane::LoadFile(file_path);
-    simulator_->SetRoadGeometry(std::move(road_geometry));
+    return simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 
  private:

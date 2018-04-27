@@ -15,7 +15,7 @@ from contextlib import contextmanager
 
 from delphyne.bindings import (
     AutomotiveSimulator,
-    SimpleCarState,
+    SimpleCarState
 )
 from delphyne.launcher import Launcher
 
@@ -89,11 +89,15 @@ def get_from_env_or_fail(var):
     return value.rstrip(':')
 
 
+def get_delphyne_resource_root():
+    """Return the root path where delphyne resources live"""
+    return get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
+
+
 def launch_visualizer(launcher, layout_filename):
     """Launches the project's visualizer with a given layout"""
     ign_visualizer = "visualizer"
-    delphyne_resource_root = get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
     layout_key = "--layout="
-    layout_path = os.path.join(delphyne_resource_root, layout_filename)
+    layout_path = os.path.join(get_delphyne_resource_root(), layout_filename)
     teleop_config = layout_key + layout_path
     launcher.launch([ign_visualizer, teleop_config])

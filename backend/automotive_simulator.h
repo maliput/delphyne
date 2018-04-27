@@ -89,12 +89,13 @@ class AutomotiveSimulator {
   ///
   /// @param initial_state The vehicle's initial state.
   ///
-  /// @return The ID of the agent that was just added to the simulation, or -1
-  /// on error.
-  int AddLoadableAgent(const std::string& plugin,
-                       const std::map<std::string, linb::any>& parameters,
-                       const std::string& name,
-                       drake::systems::BasicVector<T>* initial_state);
+  /// @return The ID of the car that was just added to the simulation, or -1 on
+  /// error.
+  int AddLoadableAgent(
+      const std::string& plugin,
+      const std::map<std::string, linb::any>& parameters,
+      const std::string& name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
 
   /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
   /// includes its DrivingCommand LCM input.
@@ -248,7 +249,8 @@ class AutomotiveSimulator {
 
   // Holds the desired initial states of each loadable agent. It is used to
   // initialize the simulation's diagram's state.
-  std::map<drake::systems::System<T>*, drake::systems::BasicVector<T>*>
+  std::map<drake::systems::System<T>*,
+           std::unique_ptr<drake::systems::BasicVector<T>>>
       loadable_agent_initial_states_;
 
   // The output port of the Diagram that contains pose bundle information.

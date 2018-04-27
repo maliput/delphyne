@@ -265,10 +265,11 @@ class RailCar final : public delphyne::AgentPlugin {
                    -rotation.roll(), -rotation.pitch(),
                    atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
     pose->set_translation(Eigen::Translation<double, 3>(geo_position.xyz()));
-    pose->set_rotation(
-        drake::math::RollPitchYawToQuaternion(drake::Vector3<double>(
-            adjusted_rotation.roll(), adjusted_rotation.pitch(),
-            adjusted_rotation.yaw())));
+    pose->set_rotation(drake::math::RollPitchYaw<double>(
+                           drake::Vector3<double>(adjusted_rotation.roll(),
+                                                  adjusted_rotation.pitch(),
+                                                  adjusted_rotation.yaw()))
+                           .ToQuaternion());
   }
 
   void CalcVelocity(

@@ -11,7 +11,6 @@
 #include <ignition/msgs.hh>
 
 namespace delphyne {
-namespace backend {
 
 /// @brief A system that creates an ignition Scene message from two Model_V
 /// messages: one describing the geometry of the whole scene (which contains all
@@ -56,5 +55,4 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
   int updated_pose_models_input_port_index_{};
 };
 
-}  // namespace backend
 }  // namespace delphyne

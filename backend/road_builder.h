@@ -16,7 +16,6 @@
 #include "backend/road_builder.h"
 
 namespace delphyne {
-namespace backend {
 
 /// This class is used to build and add different types of maliput roads to a
 /// simulator. Linear and angular tolerances can be specified when a builder
@@ -112,5 +111,4 @@ class RoadBuilder {
   double angular_tolerance_{std::numeric_limits<double>::epsilon()};
 };
 
-}  // namespace backend
 }  // namespace delphyne

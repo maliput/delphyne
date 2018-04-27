@@ -3,8 +3,6 @@
 #include "backend/translation_systems/ign_simple_car_state_to_drake.h"
 
 namespace delphyne {
-namespace backend {
-namespace translation_systems {
 
 void IgnSimpleCarStateToDrake::DoIgnToDrakeTranslation(
     const ignition::msgs::SimpleCarState& ign_message,
@@ -17,6 +15,4 @@ void IgnSimpleCarStateToDrake::DoIgnToDrakeTranslation(
   drake_message->set_velocity(ign_message.velocity());
 }
 
-}  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

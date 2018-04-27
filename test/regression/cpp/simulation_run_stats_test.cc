@@ -8,7 +8,6 @@
 #include "backend/delphyne_time_point.h"
 
 namespace delphyne {
-namespace backend {
 
 const double kTimeTolerance{1e-8};
 
@@ -79,5 +78,4 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
                "condition '!run_finished_' failed.");
 }
 
-}  // namespace backend
 }  // namespace delphyne

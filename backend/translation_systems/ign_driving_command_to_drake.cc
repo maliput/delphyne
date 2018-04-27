@@ -3,8 +3,6 @@
 #include "backend/translation_systems/ign_driving_command_to_drake.h"
 
 namespace delphyne {
-namespace backend {
-namespace translation_systems {
 
 void IgnDrivingCommandToDrake::DoIgnToDrakeTranslation(
     const ignition::msgs::AutomotiveDrivingCommand& ign_message,
@@ -15,6 +13,4 @@ void IgnDrivingCommandToDrake::DoIgnToDrakeTranslation(
   drake_message->set_acceleration(ign_message.acceleration());
 }
 
-}  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

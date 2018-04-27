@@ -7,7 +7,6 @@
 #include <gtest/gtest.h>
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an ignition simple car state message on the input port is
 // correctly translated into a Drake simple car state message.
@@ -23,7 +22,7 @@ GTEST_TEST(IgnSimpleCarStateToDrakeTranslatorSystemTest, TestTranslation) {
   ign_msg.set_heading(kExpectedHeading);
   ign_msg.set_velocity(kExpectedVelocity);
 
-  const translation_systems::IgnSimpleCarStateToDrake translator;
+  const IgnSimpleCarStateToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
@@ -45,5 +44,4 @@ GTEST_TEST(IgnSimpleCarStateToDrakeTranslatorSystemTest, TestTranslation) {
   EXPECT_EQ(drake_msg->velocity(), kExpectedVelocity);
 }
 
-}  // namespace backend
 }  // namespace delphyne

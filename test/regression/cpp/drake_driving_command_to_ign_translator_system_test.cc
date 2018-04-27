@@ -11,7 +11,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that a Drake driving command message on the input port is
 // correctly translated into an ignition driving command message.
@@ -23,7 +22,7 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   drake_msg.set_steering_angle(kTheta);
   drake_msg.set_acceleration(kAcceleration);
 
-  const translation_systems::DrakeDrivingCommandToIgn translator;
+  const DrakeDrivingCommandToIgn translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
@@ -45,5 +44,4 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   EXPECT_EQ(ign_msg.acceleration(), kAcceleration);
 }
 
-}  // namespace backend
 }  // namespace delphyne

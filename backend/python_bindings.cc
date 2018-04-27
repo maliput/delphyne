@@ -21,11 +21,11 @@ namespace py = pybind11;
 
 using std::unique_ptr;
 
-using delphyne::backend::AutomotiveSimulator;
-using delphyne::backend::RoadBuilder;
-using delphyne::backend::SimulatorRunner;
-using delphyne::backend::InteractiveSimulationStats;
-using delphyne::backend::SimulationRunStats;
+using delphyne::AutomotiveSimulator;
+using delphyne::RoadBuilder;
+using delphyne::SimulatorRunner;
+using delphyne::InteractiveSimulationStats;
+using delphyne::SimulationRunStats;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;

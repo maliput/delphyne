@@ -5,7 +5,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 SimulationRunStats::SimulationRunStats(double start_simtime)
     : SimulationRunStats(start_simtime, RealtimeClock::now()) {}
@@ -45,5 +44,4 @@ double SimulationRunStats::ElapsedRealtime() const {
 
 void SimulationRunStats::RunFinished() { run_finished_ = true; }
 
-}  // namespace backend
 }  // namespace delphyne

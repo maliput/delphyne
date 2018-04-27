@@ -7,7 +7,6 @@
 #include <gtest/gtest.h>
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an ignition driving command message on the input port is
 // correctly translated into a Drake driving command message.
@@ -19,7 +18,7 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   ign_msg.set_theta(kTheta);
   ign_msg.set_acceleration(kAcceleration);
 
-  const translation_systems::IgnDrivingCommandToDrake translator;
+  const IgnDrivingCommandToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
@@ -37,5 +36,4 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   EXPECT_EQ(drake_msg->acceleration(), kAcceleration);
 }
 
-}  // namespace backend
 }  // namespace delphyne

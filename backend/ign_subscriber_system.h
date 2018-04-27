@@ -21,7 +21,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// This class is the counterpart of Drake's LcmSubscriberSystem. Most of the
 /// code has been taken from that class and adapted to the types of values
@@ -188,5 +187,4 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   static constexpr int kTotalStateValues = 2;
 };
 
-}  // namespace backend
 }  // namespace delphyne

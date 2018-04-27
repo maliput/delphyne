@@ -27,9 +27,8 @@
 #include <Python.h>
 
 namespace delphyne {
-namespace backend {
 
-using delphyne::backend::SimulationRunStats;
+using delphyne::SimulationRunStats;
 
 /// @brief Blocks the current thread until a SIGINT or SIGTERM is received.
 /// Note that this function registers a signal handler. Do not use this
@@ -127,9 +126,8 @@ class SimulatorRunner {
   ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-      double time_step, double realtime_rate, bool paused);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, double realtime_rate, bool paused);
 
   /// @brief Simplified constructor that starts the simulator at a real-time
   /// rate of 1.0.
@@ -142,9 +140,8 @@ class SimulatorRunner {
   ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-      double time_step, bool paused);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, bool paused);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false.
@@ -157,9 +154,8 @@ class SimulatorRunner {
   ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-      double time_step, double realtime_rate);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, double realtime_rate);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false and a real-time rate of 1.0.
@@ -169,9 +165,8 @@ class SimulatorRunner {
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
-      double time_step);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step);
 
   /// @brief Default destructor.
   virtual ~SimulatorRunner();
@@ -355,7 +350,7 @@ class SimulatorRunner {
   std::atomic<bool> interactive_loop_running_{false};
 
   // @brief A pointer to the Drake simulator.
-  std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> simulator_;
+  std::unique_ptr<delphyne::AutomotiveSimulator<double>> simulator_;
 
   // @brief Whether an external step was requested or not.
   unsigned int steps_requested_{0u};
@@ -401,5 +396,4 @@ class SimulatorRunner {
   InteractiveSimulationStats stats_;
 };
 
-}  // namespace backend
 }  // namespace delphyne

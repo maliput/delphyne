@@ -13,7 +13,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // Checks that a scene system is created, based on the Model_V on the system's
 // input port.
@@ -82,5 +81,4 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
   }
 }
 
-}  // namespace backend
 }  // namespace delphyne

@@ -9,14 +9,13 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an ignition Model_V message on the input port is correctly
 // translated into an LCM viewer draw message.
 GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
 
-  const translation_systems::IgnModelVToLcmViewerDraw translator;
+  const IgnModelVToLcmViewerDraw translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
@@ -33,5 +32,4 @@ GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }
 
-}  // namespace backend
 }  // namespace delphyne

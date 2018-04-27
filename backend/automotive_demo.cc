@@ -15,7 +15,6 @@
 #include <drake/common/find_resource.h>
 
 namespace delphyne {
-namespace backend {
 namespace {
 
 drake::automotive::Curve2<double> MakeCurve(double radius, double inset) {
@@ -85,7 +84,7 @@ constexpr double kRailcarRowSpacing{5};
 constexpr double kControlledCarRowSpacing{5};
 
 const drake::maliput::api::RoadGeometry* AddDragway(
-    delphyne::backend::AutomotiveSimulator<double>* simulator) {
+    delphyne::AutomotiveSimulator<double>* simulator) {
   const double kMaximumHeight = 5.0;  // meters
   const int kNumDragwayLanes = 3;
   const double kDragwayLength = 100.0;       // meters
@@ -93,7 +92,7 @@ const drake::maliput::api::RoadGeometry* AddDragway(
   const double kDragwayShoulderWidth = 3.0;  // meters
 
   auto road_builder =
-      std::make_unique<delphyne::backend::RoadBuilder<double>>(simulator);
+      std::make_unique<delphyne::RoadBuilder<double>>(simulator);
   return road_builder->AddDragway("Automotive Demo Dragway", kNumDragwayLanes,
                                   kDragwayLength, kDragwayLaneWidth,
                                   kDragwayShoulderWidth, kMaximumHeight);
@@ -101,8 +100,7 @@ const drake::maliput::api::RoadGeometry* AddDragway(
 
 int main(int argc, char* argv[]) {
   // Instantiates a simulator.
-  auto simulator =
-      std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+  auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
 
   // Adds a Loadable Prius Simple car.
   auto state2 = std::make_unique<drake::automotive::SimpleCarState<double>>();
@@ -175,17 +173,15 @@ int main(int argc, char* argv[]) {
 
   // Instantiates the simulator runner and starts it.
   const double kTimeStep = 0.001;
-  delphyne::backend::SimulatorRunner prius_sim_runner(std::move(simulator),
-                                                      kTimeStep);
+  delphyne::SimulatorRunner prius_sim_runner(std::move(simulator), kTimeStep);
   prius_sim_runner.Start();
 
   // Zzzzzz.
-  delphyne::backend::WaitForShutdown();
+  delphyne::WaitForShutdown();
   return 0;
 }
 
 }  // namespace
-}  // namespace backend
 }  // namespace delphyne
 
-int main(int argc, char* argv[]) { return delphyne::backend::main(argc, argv); }
+int main(int argc, char* argv[]) { return delphyne::main(argc, argv); }

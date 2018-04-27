@@ -16,7 +16,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // Creates an Ignition Subscriber System and publish a message, then checks that
 // it has been correctly received by the system.
@@ -78,5 +77,4 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   EXPECT_TRUE(test::CheckProtobufMsgEquality(ign_message, received_message));
 }
 
-}  // namespace backend
 }  // namespace delphyne

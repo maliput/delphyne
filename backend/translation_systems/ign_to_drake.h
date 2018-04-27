@@ -11,8 +11,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
-namespace translation_systems {
 
 /// @brief A system that translates ignition messages on its single abstract
 /// input port to a Drake message on its single output port (which will be
@@ -120,6 +118,4 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   }
 };
 
-}  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

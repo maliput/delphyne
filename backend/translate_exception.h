@@ -6,7 +6,6 @@
 #include <string>
 
 namespace delphyne {
-namespace backend {
 
 // \brief TranslateException is used to signal an error when
 // performing a translation between ignition and LCM messages
@@ -18,5 +17,4 @@ class TranslateException : public std::runtime_error {
       : std::runtime_error(message) {}
 };
 
-}  // namespace backend
 }  // namespace delphyne

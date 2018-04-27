@@ -9,7 +9,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// @brief A class that keeps statistics of a single simulation run.
 /// An interactive session is usually composed of one or more simulation runs,
@@ -101,5 +100,4 @@ class SimulationRunStats {
   bool run_finished_{false};
 };
 
-}  // namespace backend
 }  // namespace delphyne

@@ -87,7 +87,6 @@
 #include <backend/linb-any>
 
 namespace delphyne {
-namespace backend {
 
 namespace {
 
@@ -113,7 +112,7 @@ const drake::automotive::LaneDirection& get_lane_direction(
 }  // namespace
 
 class LoadableMaliputRailcarDouble final
-    : public delphyne::backend::AgentPluginDoubleBase {
+    : public delphyne::AgentPluginDoubleBase {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMaliputRailcarDouble)
 
@@ -615,16 +614,14 @@ class LoadableMaliputRailcarDouble final
 };
 
 class LoadableMaliputRailcarFactoryDouble final
-    : public delphyne::backend::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactoryDoubleBase {
  public:
-  std::unique_ptr<delphyne::backend::AgentPluginBase<double>> Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadableMaliputRailcarDouble>();
   }
 };
 
-}  // namespace backend
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::backend::LoadableMaliputRailcarFactoryDouble,
-    delphyne::backend::AgentPluginFactoryDoubleBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadableMaliputRailcarFactoryDouble,
+                                  delphyne::AgentPluginFactoryDoubleBase)

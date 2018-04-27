@@ -9,7 +9,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 template <class T>
 using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
@@ -99,5 +98,4 @@ void SceneSystem::CalcSceneMessage(
   // See https://github.com/ToyotaResearchInstitute/delphyne/issues/204
 }
 
-}  // namespace backend
 }  // namespace delphyne

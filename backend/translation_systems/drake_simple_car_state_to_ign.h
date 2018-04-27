@@ -14,8 +14,6 @@
 #include "backend/translation_systems/drake_to_ign.h"
 
 namespace delphyne {
-namespace backend {
-namespace translation_systems {
 
 /// @brief A system that translates Drake simple car state messages to ignition
 /// simple car state messages.
@@ -33,6 +31,4 @@ class DrakeSimpleCarStateToIgn
       int64_t time_ms) const override;
 };
 
-}  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

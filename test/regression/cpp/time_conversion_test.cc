@@ -6,7 +6,6 @@
 #include <ignition/msgs.hh>
 
 namespace delphyne {
-namespace backend {
 
 // @brief Asserts that a given time value in microseconds is
 // correctly translated into a pair of values in seconds and
@@ -82,5 +81,4 @@ GTEST_TEST(TimeConversionTest, IgnitionTimeToMillisTest) {
   EXPECT_EQ(123456789, IgnitionTimeToMillis(ign_time));
 }
 
-}  // namespace backend
 }  // namespace delphyne

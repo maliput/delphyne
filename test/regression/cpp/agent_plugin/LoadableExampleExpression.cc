@@ -19,7 +19,7 @@
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
 class LoadableExampleExpression final
-    : public delphyne::backend::AgentPluginExpressionBase {
+    : public delphyne::AgentPluginExpressionBase {
  public:
   int Configure(
       const std::map<std::string, linb::any>& parameters,
@@ -44,15 +44,13 @@ class LoadableExampleExpression final
 // showcases the way almost all loadable plugins should implement the factory
 // class.
 class LoadableExampleFactoryExpression final
-    : public delphyne::backend::AgentPluginFactoryExpressionBase {
+    : public delphyne::AgentPluginFactoryExpressionBase {
  public:
-  std::unique_ptr<
-      delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>>
+  std::unique_ptr<delphyne::AgentPluginBase<::drake::symbolic::Expression>>
   Create() {
     return std::make_unique<LoadableExampleExpression>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    LoadableExampleFactoryExpression,
-    delphyne::backend::AgentPluginFactoryExpressionBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryExpression,
+                                  delphyne::AgentPluginFactoryExpressionBase)

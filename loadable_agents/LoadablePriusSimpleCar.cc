@@ -45,7 +45,6 @@
 #include "drake/systems/rendering/pose_vector.h"
 
 namespace delphyne {
-namespace backend {
 
 namespace {
 
@@ -75,7 +74,7 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 }  // namespace
 
 class LoadablePriusSimpleCarDouble final
-    : public delphyne::backend::AgentPluginDoubleBase {
+    : public delphyne::AgentPluginDoubleBase {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusSimpleCarDouble)
 
@@ -114,8 +113,8 @@ class LoadablePriusSimpleCarDouble final
         IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         command_channel);
 
-    auto driving_command_translator = builder->template AddSystem<
-        translation_systems::IgnDrivingCommandToDrake>();
+    auto driving_command_translator =
+        builder->template AddSystem<IgnDrivingCommandToDrake>();
 
     // Ignition driving commands received through the subscriber are translated
     // to Drake.
@@ -130,8 +129,8 @@ class LoadablePriusSimpleCarDouble final
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
-    auto car_state_translator = builder->template AddSystem<
-        translation_systems::DrakeSimpleCarStateToIgn>();
+    auto car_state_translator =
+        builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
         "agents/" + std::to_string(id) + "/state";
@@ -327,16 +326,14 @@ class LoadablePriusSimpleCarDouble final
 };
 
 class LoadablePriusSimpleCarFactoryDouble final
-    : public delphyne::backend::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactoryDoubleBase {
  public:
-  std::unique_ptr<delphyne::backend::AgentPluginBase<double>> Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadablePriusSimpleCarDouble>();
   }
 };
 
-}  // namespace backend
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::backend::LoadablePriusSimpleCarFactoryDouble,
-    delphyne::backend::AgentPluginFactoryDoubleBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadablePriusSimpleCarFactoryDouble,
+                                  delphyne::AgentPluginFactoryDoubleBase)

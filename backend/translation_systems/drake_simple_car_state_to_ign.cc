@@ -8,8 +8,6 @@
 #include "backend/time_conversion.h"
 
 namespace delphyne {
-namespace backend {
-namespace translation_systems {
 
 DrakeSimpleCarStateToIgn::DrakeSimpleCarStateToIgn()
     : DrakeToIgn(drake::automotive::SimpleCarStateIndices::kNumCoordinates) {}
@@ -26,6 +24,4 @@ void DrakeSimpleCarStateToIgn::DoDrakeToIgnTranslation(
   ign_message->set_velocity(drake_message.velocity());
 }
 
-}  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

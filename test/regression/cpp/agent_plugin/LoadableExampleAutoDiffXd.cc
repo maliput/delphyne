@@ -19,7 +19,7 @@
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
 class LoadableExampleAutoDiffXd final
-    : public delphyne::backend::AgentPluginAutoDiffXdBase {
+    : public delphyne::AgentPluginAutoDiffXdBase {
  public:
   int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<::drake::AutoDiffXd>* builder,
@@ -44,14 +44,12 @@ class LoadableExampleAutoDiffXd final
 // showcases the way almost all loadable plugins should implement the factory
 // class.
 class LoadableExampleFactoryAutoDiffXd final
-    : public delphyne::backend::AgentPluginFactoryAutoDiffXdBase {
+    : public delphyne::AgentPluginFactoryAutoDiffXdBase {
  public:
-  std::unique_ptr<delphyne::backend::AgentPluginBase<::drake::AutoDiffXd>>
-  Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>> Create() {
     return std::make_unique<LoadableExampleAutoDiffXd>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    LoadableExampleFactoryAutoDiffXd,
-    delphyne::backend::AgentPluginFactoryAutoDiffXdBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryAutoDiffXd,
+                                  delphyne::AgentPluginFactoryAutoDiffXdBase)

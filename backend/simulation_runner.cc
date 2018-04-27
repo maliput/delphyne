@@ -22,7 +22,6 @@
 namespace py = pybind11;
 
 namespace delphyne {
-namespace backend {
 namespace {
 
 // @brief Flag to detect SIGINT or SIGTERM while the code is executing
@@ -59,7 +58,7 @@ void WaitForShutdown() {
 }
 
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step, double realtime_rate, bool paused)
     : time_step_(time_step),
       simulator_(std::move(sim)),
@@ -95,17 +94,17 @@ SimulatorRunner::SimulatorRunner(
 }
 
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step, bool paused)
     : SimulatorRunner(std::move(sim), time_step, 1.0, paused) {}
 
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step, double realtime_rate)
     : SimulatorRunner(std::move(sim), time_step, realtime_rate, false) {}
 
 SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::backend::AutomotiveSimulator<double>> sim,
+    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step)
     : SimulatorRunner(std::move(sim), time_step, 1.0, false) {}
 
@@ -383,5 +382,4 @@ bool SimulatorRunner::OnSceneRequest(
   return true;
 }
 
-}  // namespace backend
 }  // namespace delphyne

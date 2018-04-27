@@ -9,7 +9,6 @@
 #include "test/regression/cpp/helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an LCM viewer load robot message on the input port is
 // correctly translated into an ignition Model_V message.
@@ -17,7 +16,7 @@ GTEST_TEST(LCMViewerLoadRobotToIgnModelVTranslatorSystemTest, TestTranslation) {
   const drake::lcmt_viewer_load_robot lcm_msg{
       test::BuildPreloadedLoadRobotMsg()};
 
-  const translation_systems::LcmViewerLoadRobotToIgnModelV translator;
+  const LcmViewerLoadRobotToIgnModelV translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};
@@ -34,5 +33,4 @@ GTEST_TEST(LCMViewerLoadRobotToIgnModelVTranslatorSystemTest, TestTranslation) {
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }
 
-}  // namespace backend
 }  // namespace delphyne

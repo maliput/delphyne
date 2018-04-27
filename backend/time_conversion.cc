@@ -9,7 +9,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 std::pair<int64_t, int64_t> MicrosToSecsAndNanos(int64_t micros) {
   DELPHYNE_DEMAND(micros >= 0);
@@ -77,5 +76,4 @@ int64_t IgnitionTimeToMillis(const ignition::msgs::Time ign_time) {
   return SecsAndNanosToMillis(ign_time.sec(), ign_time.nsec());
 }
 
-}  // namespace backend
 }  // namespace delphyne

@@ -54,7 +54,7 @@ struct TypeName<::drake::symbolic::Expression> {
 //           be a templated type like 'AgentPluginFactoryBase<double>';
 //           instead, it must be something like 'AgentPluginFactoryDoubleBase'.
 template <typename T, typename U>
-std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPluginInternal(
+std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     const std::string& file_name) {
   igndbg << "Loading plugin [" << file_name << "]" << std::endl;
 
@@ -101,8 +101,7 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPluginInternal(
     }
 
     std::ostringstream type;
-    type << "::delphyne::backend::AgentPluginFactory" << TypeName<T>::Get()
-         << "Base";
+    type << "::delphyne::AgentPluginFactory" << TypeName<T>::Get() << "Base";
 
     // The reason for the factory style here is a bit opaque.  The problem is
     // that something has to hold onto the shared_ptr reference that is
@@ -125,8 +124,7 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPluginInternal(
              << "] : couldn't load library factory." << std::endl;
       return nullptr;
     }
-    std::unique_ptr<delphyne::backend::AgentPluginBase<T>> plugin =
-        factory->Create();
+    std::unique_ptr<delphyne::AgentPluginBase<T>> plugin = factory->Create();
     plugin->SetPlugin(common_plugin);
     return plugin;
   }
@@ -140,34 +138,30 @@ std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPluginInternal(
 }  // namespace
 
 namespace delphyne {
-namespace backend {
 
 // This needs to be in the delphyne::backend namespace explicitly due to a
 // gcc bug.
 
 template <>
-std::unique_ptr<delphyne::backend::AgentPluginBase<double>> LoadPlugin<double>(
+std::unique_ptr<delphyne::AgentPluginBase<double>> LoadPlugin<double>(
     const std::string& file_name) {
-  return LoadPluginInternal<double,
-                            delphyne::backend::AgentPluginFactoryDoubleBase>(
+  return LoadPluginInternal<double, delphyne::AgentPluginFactoryDoubleBase>(
       file_name);
 }
 
 template <>
-std::unique_ptr<delphyne::backend::AgentPluginBase<::drake::AutoDiffXd>>
+std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>>
 LoadPlugin<::drake::AutoDiffXd>(const std::string& file_name) {
-  return LoadPluginInternal<
-      ::drake::AutoDiffXd, delphyne::backend::AgentPluginFactoryAutoDiffXdBase>(
+  return LoadPluginInternal<::drake::AutoDiffXd,
+                            delphyne::AgentPluginFactoryAutoDiffXdBase>(
       file_name);
 }
 
 template <>
-std::unique_ptr<
-    delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>>
+std::unique_ptr<delphyne::AgentPluginBase<::drake::symbolic::Expression>>
 LoadPlugin<::drake::symbolic::Expression>(const std::string& file_name) {
-  return LoadPluginInternal<
-      ::drake::symbolic::Expression,
-      delphyne::backend::AgentPluginFactoryExpressionBase>(file_name);
+  return LoadPluginInternal<::drake::symbolic::Expression,
+                            delphyne::AgentPluginFactoryExpressionBase>(
+      file_name);
 }
-}  // namespace backend
 }  // namespace delphyne

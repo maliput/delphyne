@@ -16,7 +16,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// Publishes an ignition-transport message. The data to populate the message
 /// comes from the system's abstract input port.
@@ -97,5 +96,4 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   mutable std::chrono::steady_clock::time_point last_publish_time_;
 };
 
-}  // namespace backend
 }  // namespace delphyne

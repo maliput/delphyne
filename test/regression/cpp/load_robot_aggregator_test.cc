@@ -13,7 +13,6 @@
 #include "test/regression/cpp/helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 using drake::lcmt_viewer_load_robot;
 using drake::lcmt_viewer_link_data;
@@ -85,5 +84,4 @@ GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
   }
 }
 
-}  // namespace backend
 }  // namespace delphyne

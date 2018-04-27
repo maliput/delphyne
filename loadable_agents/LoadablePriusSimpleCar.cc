@@ -45,7 +45,6 @@
 #include "drake/systems/rendering/pose_vector.h"
 
 namespace delphyne {
-namespace backend {
 
 namespace {
 
@@ -75,7 +74,7 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 }  // namespace
 
 class LoadablePriusSimpleCarDouble final
-    : public delphyne::backend::AgentPluginDoubleBase {
+    : public delphyne::AgentPluginDoubleBase {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusSimpleCarDouble)
 
@@ -327,16 +326,15 @@ class LoadablePriusSimpleCarDouble final
 };
 
 class LoadablePriusSimpleCarFactoryDouble final
-    : public delphyne::backend::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactoryDoubleBase {
  public:
-  std::unique_ptr<delphyne::backend::AgentPluginBase<double>> Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadablePriusSimpleCarDouble>();
   }
 };
 
-}  // namespace backend
 }  // namespace delphyne
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::backend::LoadablePriusSimpleCarFactoryDouble,
-    delphyne::backend::AgentPluginFactoryDoubleBase)
+    delphyne::LoadablePriusSimpleCarFactoryDouble,
+    delphyne::AgentPluginFactoryDoubleBase)

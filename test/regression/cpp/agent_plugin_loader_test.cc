@@ -9,7 +9,7 @@
 #include <gtest/gtest.h>
 
 TEST(AgentPluginLoader, Invalid) {
-  auto agent = delphyne::backend::LoadPlugin<double>("foo");
+  auto agent = delphyne::LoadPlugin<double>("foo");
   ASSERT_EQ(nullptr, agent);
 }
 
@@ -17,7 +17,7 @@ static const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=agent_plugin";
 
 TEST(AgentPluginLoader, ExampleDouble) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::backend::LoadPlugin<double>("LoadableExampleDouble");
+  auto agent = delphyne::LoadPlugin<double>("LoadableExampleDouble");
   ASSERT_NE(nullptr, agent);
 
   // We construct and use a drake DiagramBuilder here just to ensure that we
@@ -36,7 +36,7 @@ TEST(AgentPluginLoader, ExampleDouble) {
 
 TEST(AgentPluginLoader, ExampleAutodiff) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::backend::LoadPlugin<::drake::AutoDiffXd>(
+  auto agent = delphyne::LoadPlugin<::drake::AutoDiffXd>(
       "LoadableExampleAutoDiffXd");
   ASSERT_NE(nullptr, agent);
 
@@ -56,7 +56,7 @@ TEST(AgentPluginLoader, ExampleAutodiff) {
 
 TEST(AgentPluginLoader, ExampleSymbolic) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::backend::LoadPlugin<::drake::symbolic::Expression>(
+  auto agent = delphyne::LoadPlugin<::drake::symbolic::Expression>(
       "LoadableExampleExpression");
   ASSERT_NE(nullptr, agent);
 

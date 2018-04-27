@@ -7,7 +7,6 @@
 #include "backend/time_conversion.h"
 
 namespace delphyne {
-namespace backend {
 namespace translation_systems {
 
 void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
@@ -60,5 +59,4 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
 }
 
 }  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

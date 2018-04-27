@@ -9,7 +9,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// The function that can be used to load in a loadable Agent from a shared
 /// object.  Given a `file_name`, this call will look for a file called
@@ -19,7 +18,6 @@ namespace backend {
 /// initialized.  See `agent_plugin_base.h` for more information about the
 /// methods that a loadable agent need to implement to get loaded in.
 template <typename T>
-std::unique_ptr<delphyne::backend::AgentPluginBase<T>> LoadPlugin(
+std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPlugin(
     const std::string& file_name);
-}  // namespace backend
 }  // namespace delphyne

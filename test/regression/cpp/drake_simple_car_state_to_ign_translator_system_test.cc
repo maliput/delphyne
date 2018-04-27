@@ -11,7 +11,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that a Drake simple car state message on the input port is
 // correctly translated into an ignition simple car state message.
@@ -50,5 +49,4 @@ GTEST_TEST(DrakeSimpleCarStateToIgnTranslatorSystemTest, TestTranslation) {
   EXPECT_EQ(ign_msg.velocity(), kExpectedVelocity);
 }
 
-}  // namespace backend
 }  // namespace delphyne

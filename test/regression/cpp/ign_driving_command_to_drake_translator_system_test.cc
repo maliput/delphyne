@@ -7,7 +7,6 @@
 #include <gtest/gtest.h>
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an ignition driving command message on the input port is
 // correctly translated into a Drake driving command message.
@@ -37,5 +36,4 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   EXPECT_EQ(drake_msg->acceleration(), kAcceleration);
 }
 
-}  // namespace backend
 }  // namespace delphyne

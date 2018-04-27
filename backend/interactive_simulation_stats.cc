@@ -3,7 +3,6 @@
 #include "backend/interactive_simulation_stats.h"
 
 namespace delphyne {
-namespace backend {
 
 void InteractiveSimulationStats::NewRunStartingAt(double start_simtime) {
   NewRunStartingAt(start_simtime, RealtimeClock::now());
@@ -60,5 +59,4 @@ int InteractiveSimulationStats::TotalExecutedSteps() const {
 
 int InteractiveSimulationStats::TotalRuns() const { return run_stats_.size(); }
 
-}  // namespace backend
 }  // namespace delphyne

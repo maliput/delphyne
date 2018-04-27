@@ -8,7 +8,6 @@
 #include "backend/time_conversion.h"
 
 namespace delphyne {
-namespace backend {
 namespace translation_systems {
 
 DrakeDrivingCommandToIgn::DrakeDrivingCommandToIgn()
@@ -26,5 +25,4 @@ void DrakeDrivingCommandToIgn::DoDrakeToIgnTranslation(
 }
 
 }  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

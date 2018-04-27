@@ -58,7 +58,6 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::System;
 using drake::systems::SystemOutput;
 
-namespace backend {
 
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator()
@@ -154,14 +153,14 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   CheckNameUniqueness(name);
   int id = allocate_vehicle_number();
 
-  std::unique_ptr<delphyne::backend::AgentPluginBase<T>> agent =
-      delphyne::backend::LoadPlugin<T>(plugin);
+  std::unique_ptr<delphyne::AgentPluginBase<T>> agent =
+      delphyne::LoadPlugin<T>(plugin);
   if (agent == nullptr) {
     return -1;
   }
 
   auto loadable_agent =
-      builder_->template AddSystem<delphyne::backend::AgentPluginBase<T>>(
+      builder_->template AddSystem<delphyne::AgentPluginBase<T>>(
           std::move(agent));
   loadable_agent->set_name(name);
   agents_[id] = loadable_agent;
@@ -455,8 +454,8 @@ void AutomotiveSimulator<T>::InitializeSimpleCars() {
 template <typename T>
 void AutomotiveSimulator<T>::InitializeLoadableAgents() {
   for (const auto& pair : loadable_agent_initial_states_) {
-    delphyne::backend::AgentPluginBase<T>* const car =
-        dynamic_cast<delphyne::backend::AgentPluginBase<T>*>(pair.first);
+    delphyne::AgentPluginBase<T>* const car =
+        dynamic_cast<delphyne::AgentPluginBase<T>*>(pair.first);
     const drake::systems::BasicVector<T>* initial_state = pair.second.get();
 
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
@@ -541,5 +540,4 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
 
 template class AutomotiveSimulator<double>;
 
-}  // namespace backend
 }  // namespace delphyne

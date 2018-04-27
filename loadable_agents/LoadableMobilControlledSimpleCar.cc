@@ -83,7 +83,6 @@
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
 namespace delphyne {
-namespace backend {
 
 namespace {
 
@@ -112,7 +111,7 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 }  // namespace
 
 class LoadableMobilControlledSimpleCarDouble final
-    : public delphyne::backend::AgentPluginDoubleBase {
+    : public delphyne::AgentPluginDoubleBase {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMobilControlledSimpleCarDouble)
 
@@ -412,16 +411,15 @@ class LoadableMobilControlledSimpleCarDouble final
 };
 
 class LoadableMobilControlledSimpleCarFactoryDouble final
-    : public delphyne::backend::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactoryDoubleBase {
  public:
-  std::unique_ptr<delphyne::backend::AgentPluginBase<double>> Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadableMobilControlledSimpleCarDouble>();
   }
 };
 
-}  // namespace backend
 }  // namespace delphyne
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::backend::LoadableMobilControlledSimpleCarFactoryDouble,
-    delphyne::backend::AgentPluginFactoryDoubleBase)
+    delphyne::LoadableMobilControlledSimpleCarFactoryDouble,
+    delphyne::AgentPluginFactoryDoubleBase)

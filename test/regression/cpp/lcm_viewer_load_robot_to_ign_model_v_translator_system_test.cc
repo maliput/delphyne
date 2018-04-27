@@ -9,7 +9,6 @@
 #include "test/regression/cpp/helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an LCM viewer load robot message on the input port is
 // correctly translated into an ignition Model_V message.
@@ -34,5 +33,4 @@ GTEST_TEST(LCMViewerLoadRobotToIgnModelVTranslatorSystemTest, TestTranslation) {
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }
 
-}  // namespace backend
 }  // namespace delphyne

@@ -12,7 +12,6 @@
 #include "backend/translation_systems/ign_to_drake.h"
 
 namespace delphyne {
-namespace backend {
 namespace translation_systems {
 
 /// @brief A system that translates ignition driving command messages to Drake
@@ -28,5 +27,4 @@ class IgnDrivingCommandToDrake
 };
 
 }  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

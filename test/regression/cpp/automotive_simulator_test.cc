@@ -40,7 +40,6 @@ using drake::automotive::MaliputRailcarParams;
 using drake::automotive::LaneDirection;
 
 namespace delphyne {
-namespace backend {
 
 struct LinkInfo {
   LinkInfo(std::string name_in, int robot_num_in, int num_geom_in)
@@ -942,5 +941,4 @@ int main(int argc, char** argv) {
   return RUN_ALL_TESTS();
 }
 
-}  // namespace backend
 }  // namespace delphyne

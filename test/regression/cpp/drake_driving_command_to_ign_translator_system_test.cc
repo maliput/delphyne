@@ -11,7 +11,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that a Drake driving command message on the input port is
 // correctly translated into an ignition driving command message.
@@ -45,5 +44,4 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   EXPECT_EQ(ign_msg.acceleration(), kAcceleration);
 }
 
-}  // namespace backend
 }  // namespace delphyne

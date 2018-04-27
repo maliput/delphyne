@@ -19,13 +19,12 @@
 #include <protobuf/scene_request.pb.h>
 
 namespace delphyne {
-namespace backend {
 
 class SimulationRunnerTest : public ::testing::Test {
  protected:
   void SetUp() override {
     auto simulator =
-        std::make_unique<delphyne::backend::AutomotiveSimulator<double>>();
+        std::make_unique<delphyne::AutomotiveSimulator<double>>();
     sim_runner_ =
         std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
   }
@@ -365,5 +364,4 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
             kSimulationDuration * (1. + kSimulationRelativeTolerance));
 }
 
-}  // namespace backend
 }  // namespace delphyne

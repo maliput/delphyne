@@ -16,7 +16,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 class IgnPublisherSystemTest : public ::testing::Test {
   void SubscriberMockCallback(const ignition::msgs::Model_V& message) {
@@ -115,5 +114,4 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   ASSERT_EQ(kMessagesToPublish, handler_called_count_);
 }
 
-}  // namespace backend
 }  // namespace delphyne

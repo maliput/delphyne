@@ -11,7 +11,6 @@
 #include "backend/translation_systems/drake_to_ign.h"
 
 namespace delphyne {
-namespace backend {
 namespace translation_systems {
 
 /// @brief A system that translates LCM viewer load robot messages to ignition
@@ -27,5 +26,4 @@ class LcmViewerLoadRobotToIgnModelV
 };
 
 }  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

@@ -10,7 +10,6 @@
 #include "backend/translation_systems/ign_to_drake.h"
 
 namespace delphyne {
-namespace backend {
 namespace translation_systems {
 
 /// @brief A system that translates ignition Model_V messages to LCM viewer draw
@@ -25,5 +24,4 @@ class IgnModelVToLcmViewerDraw
 };
 
 }  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

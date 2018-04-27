@@ -9,7 +9,6 @@
 #include "helpers.h"
 
 namespace delphyne {
-namespace backend {
 
 // @brief Checks that an LCM viewer draw message on the input port is correctly
 // translated into an ignition Model_V message.
@@ -33,5 +32,4 @@ GTEST_TEST(LCMViewerDrawToIgnModelVTranslatorSystemTest, TestTranslation) {
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }
 
-}  // namespace backend
 }  // namespace delphyne

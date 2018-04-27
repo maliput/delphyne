@@ -8,7 +8,6 @@
 #include "backend/delphyne_time_point.h"
 
 namespace delphyne {
-namespace backend {
 
 const double kTimeTolerance{1e-8};
 
@@ -66,5 +65,4 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   EXPECT_NEAR(1.3, stats.TotalElapsedRealtime(), kTimeTolerance);
 }
 
-}  // namespace backend
 }  // namespace delphyne

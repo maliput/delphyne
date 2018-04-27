@@ -43,7 +43,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// AutomotiveSimulator is a helper class for constructing and running
 /// automotive-related simulations.
@@ -288,5 +287,4 @@ class AutomotiveSimulator {
   std::unique_ptr<drake::systems::Simulator<T>> simulator_{};
 };
 
-}  // namespace backend
 }  // namespace delphyne

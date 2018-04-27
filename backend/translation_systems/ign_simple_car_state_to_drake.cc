@@ -3,7 +3,6 @@
 #include "backend/translation_systems/ign_simple_car_state_to_drake.h"
 
 namespace delphyne {
-namespace backend {
 namespace translation_systems {
 
 void IgnSimpleCarStateToDrake::DoIgnToDrakeTranslation(
@@ -18,5 +17,4 @@ void IgnSimpleCarStateToDrake::DoIgnToDrakeTranslation(
 }
 
 }  // namespace translation_systems
-}  // namespace backend
 }  // namespace delphyne

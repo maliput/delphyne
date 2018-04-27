@@ -73,7 +73,6 @@
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
 namespace delphyne {
-namespace backend {
 
 /// TrajectoryCar models a car that follows a pre-established trajectory.  Note
 /// that TrajectoryCar can move forward (up to a given "soft" speed limit) but
@@ -112,7 +111,7 @@ namespace backend {
 ///
 /// @ingroup automotive_plants
 class LoadablePriusTrajectoryCarDouble final
-    : public delphyne::backend::AgentPluginDoubleBase {
+    : public delphyne::AgentPluginDoubleBase {
  public:
   typedef typename drake::automotive::Curve2<double>::Point2T Point2;
 
@@ -378,16 +377,15 @@ class LoadablePriusTrajectoryCarDouble final
 };
 
 class LoadablePriusTrajectoryCarFactoryDouble final
-    : public delphyne::backend::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactoryDoubleBase {
  public:
-  std::unique_ptr<delphyne::backend::AgentPluginBase<double>> Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadablePriusTrajectoryCarDouble>();
   }
 };
 
-}  // namespace backend
 }  // namespace delphyne
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::backend::LoadablePriusTrajectoryCarFactoryDouble,
-    delphyne::backend::AgentPluginFactoryDoubleBase)
+    delphyne::LoadablePriusTrajectoryCarFactoryDouble,
+    delphyne::AgentPluginFactoryDoubleBase)

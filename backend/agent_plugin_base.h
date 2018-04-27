@@ -20,7 +20,6 @@
 #include "drake/systems/rendering/pose_aggregator.h"
 
 namespace delphyne {
-namespace backend {
 /// The abstract class that all plugins must inherit from.  Concrete
 /// implementations must implement both the 'Configure' method and the
 /// 'Initialize' method; see the documentation for those methods for more
@@ -68,10 +67,10 @@ class AgentPluginBase : public drake::systems::LeafSystem<T> {
   ignition::common::PluginPtr plugin_;
 };
 
-typedef delphyne::backend::AgentPluginBase<double> AgentPluginDoubleBase;
-typedef delphyne::backend::AgentPluginBase<::drake::AutoDiffXd>
+typedef delphyne::AgentPluginBase<double> AgentPluginDoubleBase;
+typedef delphyne::AgentPluginBase<::drake::AutoDiffXd>
     AgentPluginAutoDiffXdBase;
-typedef delphyne::backend::AgentPluginBase<::drake::symbolic::Expression>
+typedef delphyne::AgentPluginBase<::drake::symbolic::Expression>
     AgentPluginExpressionBase;
 
 /// The abstract class factory that all plugins must inherit from.  Concrete
@@ -89,12 +88,11 @@ class AgentPluginFactoryBase {
   virtual std::unique_ptr<AgentPluginBase<T>> Create() = 0;
 };
 
-typedef delphyne::backend::AgentPluginFactoryBase<double>
+typedef delphyne::AgentPluginFactoryBase<double>
     AgentPluginFactoryDoubleBase;
-typedef delphyne::backend::AgentPluginFactoryBase<::drake::AutoDiffXd>
+typedef delphyne::AgentPluginFactoryBase<::drake::AutoDiffXd>
     AgentPluginFactoryAutoDiffXdBase;
-typedef delphyne::backend::AgentPluginFactoryBase<::drake::symbolic::Expression>
+typedef delphyne::AgentPluginFactoryBase<::drake::symbolic::Expression>
     AgentPluginFactoryExpressionBase;
 
-}  // namespace backend
 }  // namespace delphyne

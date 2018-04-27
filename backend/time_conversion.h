@@ -10,7 +10,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// @brief Converts from an integer value in microseconds to a
 /// pair of integers containing the value in seconds and the
@@ -81,5 +80,4 @@ ignition::msgs::Time SecsToIgnitionTime(double secs);
 /// total time contained in the ignition message.
 int64_t IgnitionTimeToMillis(const ignition::msgs::Time ign_time);
 
-}  // namespace backend
 }  // namespace delphyne

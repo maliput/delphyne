@@ -6,7 +6,6 @@
 #include "drake/systems/framework/leaf_system.h"
 
 namespace delphyne {
-namespace backend {
 
 /// @brief A system that aggregates LCM viewer load robot messages, creating a
 /// new viewer load robot message, with all of the links of the input messages.
@@ -31,5 +30,4 @@ class LoadRobotAggregator : public drake::systems::LeafSystem<double> {
       drake::lcmt_viewer_load_robot* load_robot_message) const;
 };
 
-}  // namespace backend
 }  // namespace delphyne

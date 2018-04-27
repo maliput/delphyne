@@ -8,7 +8,6 @@
 #include "backend/system.h"
 
 namespace delphyne {
-namespace backend {
 
 LoadRobotAggregator::LoadRobotAggregator() {
   DeclareAbstractInputPort();
@@ -41,5 +40,4 @@ void LoadRobotAggregator::CalcAggregatedLoadRobot(
   load_robot_message->num_links = load_robot_message->link.size();
 }
 
-}  // namespace backend
 }  // namespace delphyne

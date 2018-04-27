@@ -126,9 +126,8 @@ class SimulatorRunner {
   ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-      double time_step, double realtime_rate, bool paused);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, double realtime_rate, bool paused);
 
   /// @brief Simplified constructor that starts the simulator at a real-time
   /// rate of 1.0.
@@ -141,9 +140,8 @@ class SimulatorRunner {
   ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-      double time_step, bool paused);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, bool paused);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false.
@@ -156,9 +154,8 @@ class SimulatorRunner {
   ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-      double time_step, double realtime_rate);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, double realtime_rate);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false and a real-time rate of 1.0.
@@ -168,9 +165,8 @@ class SimulatorRunner {
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
-  SimulatorRunner(
-      std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-      double time_step);
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step);
 
   /// @brief Default destructor.
   virtual ~SimulatorRunner();

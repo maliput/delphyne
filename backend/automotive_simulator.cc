@@ -58,7 +58,6 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::System;
 using drake::systems::SystemOutput;
 
-
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator()
     : AutomotiveSimulator(std::make_unique<drake::lcm::DrakeLcm>()) {}
@@ -191,8 +190,7 @@ int AutomotiveSimulator<T>::AddPriusSimpleCar(
       channel_name);
 
   auto driving_command_translator =
-      builder_
-          ->template AddSystem<IgnDrivingCommandToDrake>();
+      builder_->template AddSystem<IgnDrivingCommandToDrake>();
 
   // Those messages are then translated to Drake driving command messages.
   builder_->Connect(*driving_command_subscriber, *driving_command_translator);
@@ -281,8 +279,7 @@ void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
   auto simple_car_translator =
-      builder_
-          ->template AddSystem<DrakeSimpleCarStateToIgn>();
+      builder_->template AddSystem<DrakeSimpleCarStateToIgn>();
 
   // The car state is first translated into an ignition car state.
   builder_->Connect(system.state_output(),
@@ -355,8 +352,7 @@ void AutomotiveSimulator<T>::Build() {
 
   // The LCM viewer draw message is translated into an ignition Model_V message.
   auto viewer_draw_translator =
-      builder_
-          ->template AddSystem<LcmViewerDrawToIgnModelV>();
+      builder_->template AddSystem<LcmViewerDrawToIgnModelV>();
   builder_->Connect(*bundle_to_draw_, *viewer_draw_translator);
 
   // The translated Model_V message is then published.
@@ -379,8 +375,8 @@ void AutomotiveSimulator<T>::Build() {
 
   // The aggregated LCM viewer load robot message containing the geometry
   // description is translated into an ignition Model_V message.
-  auto viewer_load_robot_translator = builder_->template AddSystem<
-      LcmViewerLoadRobotToIgnModelV>();
+  auto viewer_load_robot_translator =
+      builder_->template AddSystem<LcmViewerLoadRobotToIgnModelV>();
   builder_->Connect(*load_robot_aggregator_, *viewer_load_robot_translator);
 
   // The Model_V describing the geometry is finally used to build the scene.

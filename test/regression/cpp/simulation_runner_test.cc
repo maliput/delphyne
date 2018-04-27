@@ -23,8 +23,7 @@ namespace delphyne {
 class SimulationRunnerTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    auto simulator =
-        std::make_unique<delphyne::AutomotiveSimulator<double>>();
+    auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
     sim_runner_ =
         std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
   }

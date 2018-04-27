@@ -46,13 +46,11 @@ class LoadableExampleExpression final
 class LoadableExampleFactoryExpression final
     : public delphyne::AgentPluginFactoryExpressionBase {
  public:
-  std::unique_ptr<
-      delphyne::AgentPluginBase<::drake::symbolic::Expression>>
+  std::unique_ptr<delphyne::AgentPluginBase<::drake::symbolic::Expression>>
   Create() {
     return std::make_unique<LoadableExampleExpression>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    LoadableExampleFactoryExpression,
-    delphyne::AgentPluginFactoryExpressionBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryExpression,
+                                  delphyne::AgentPluginFactoryExpressionBase)

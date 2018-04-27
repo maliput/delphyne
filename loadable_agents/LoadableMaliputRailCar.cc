@@ -623,6 +623,5 @@ class LoadableMaliputRailcarFactoryDouble final
 
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::LoadableMaliputRailcarFactoryDouble,
-    delphyne::AgentPluginFactoryDoubleBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadableMaliputRailcarFactoryDouble,
+                                  delphyne::AgentPluginFactoryDoubleBase)

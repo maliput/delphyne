@@ -46,12 +46,10 @@ class LoadableExampleAutoDiffXd final
 class LoadableExampleFactoryAutoDiffXd final
     : public delphyne::AgentPluginFactoryAutoDiffXdBase {
  public:
-  std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>>
-  Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>> Create() {
     return std::make_unique<LoadableExampleAutoDiffXd>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    LoadableExampleFactoryAutoDiffXd,
-    delphyne::AgentPluginFactoryAutoDiffXdBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryAutoDiffXd,
+                                  delphyne::AgentPluginFactoryAutoDiffXdBase)

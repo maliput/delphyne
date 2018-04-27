@@ -100,8 +100,7 @@ const drake::maliput::api::RoadGeometry* AddDragway(
 
 int main(int argc, char* argv[]) {
   // Instantiates a simulator.
-  auto simulator =
-      std::make_unique<delphyne::AutomotiveSimulator<double>>();
+  auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
 
   // Adds a Loadable Prius Simple car.
   auto state2 = std::make_unique<drake::automotive::SimpleCarState<double>>();
@@ -174,8 +173,7 @@ int main(int argc, char* argv[]) {
 
   // Instantiates the simulator runner and starts it.
   const double kTimeStep = 0.001;
-  delphyne::SimulatorRunner prius_sim_runner(std::move(simulator),
-                                                      kTimeStep);
+  delphyne::SimulatorRunner prius_sim_runner(std::move(simulator), kTimeStep);
   prius_sim_runner.Start();
 
   // Zzzzzz.

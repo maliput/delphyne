@@ -18,8 +18,7 @@
 // An example class that derives from the AgentPluginDoubleBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
-class LoadableExampleDouble final
-    : public delphyne::AgentPluginDoubleBase {
+class LoadableExampleDouble final : public delphyne::AgentPluginDoubleBase {
  public:
   int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
@@ -48,6 +47,5 @@ class LoadableExampleFactoryDouble final
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    LoadableExampleFactoryDouble,
-    delphyne::AgentPluginFactoryDoubleBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryDouble,
+                                  delphyne::AgentPluginFactoryDoubleBase)

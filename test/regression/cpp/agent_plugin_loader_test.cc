@@ -36,8 +36,8 @@ TEST(AgentPluginLoader, ExampleDouble) {
 
 TEST(AgentPluginLoader, ExampleAutodiff) {
   ASSERT_EQ(0, putenv(const_cast<char*>(env)));
-  auto agent = delphyne::LoadPlugin<::drake::AutoDiffXd>(
-      "LoadableExampleAutoDiffXd");
+  auto agent =
+      delphyne::LoadPlugin<::drake::AutoDiffXd>("LoadableExampleAutoDiffXd");
   ASSERT_NE(nullptr, agent);
 
   // We construct and use a drake DiagramBuilder here just to ensure that we

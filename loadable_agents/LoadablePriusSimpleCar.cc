@@ -113,8 +113,8 @@ class LoadablePriusSimpleCarDouble final
         IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         command_channel);
 
-    auto driving_command_translator = builder->template AddSystem<
-        IgnDrivingCommandToDrake>();
+    auto driving_command_translator =
+        builder->template AddSystem<IgnDrivingCommandToDrake>();
 
     // Ignition driving commands received through the subscriber are translated
     // to Drake.
@@ -129,8 +129,8 @@ class LoadablePriusSimpleCarDouble final
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
-    auto car_state_translator = builder->template AddSystem<
-        DrakeSimpleCarStateToIgn>();
+    auto car_state_translator =
+        builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
         "agents/" + std::to_string(id) + "/state";
@@ -335,6 +335,5 @@ class LoadablePriusSimpleCarFactoryDouble final
 
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::LoadablePriusSimpleCarFactoryDouble,
-    delphyne::AgentPluginFactoryDoubleBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadablePriusSimpleCarFactoryDouble,
+                                  delphyne::AgentPluginFactoryDoubleBase)

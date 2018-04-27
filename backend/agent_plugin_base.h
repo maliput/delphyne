@@ -88,8 +88,7 @@ class AgentPluginFactoryBase {
   virtual std::unique_ptr<AgentPluginBase<T>> Create() = 0;
 };
 
-typedef delphyne::AgentPluginFactoryBase<double>
-    AgentPluginFactoryDoubleBase;
+typedef delphyne::AgentPluginFactoryBase<double> AgentPluginFactoryDoubleBase;
 typedef delphyne::AgentPluginFactoryBase<::drake::AutoDiffXd>
     AgentPluginFactoryAutoDiffXdBase;
 typedef delphyne::AgentPluginFactoryBase<::drake::symbolic::Expression>

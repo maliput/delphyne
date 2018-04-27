@@ -37,9 +37,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   explicit IgnSubscriberSystem(const std::string& topic_name)
       : topic_name_(topic_name) {
     DeclareAbstractOutputPort(
-        [this](const drake::systems::Context<double>&) {
-          return this->AllocateDefaultAbstractValue();
-        },
+        [this]() { return this->AllocateDefaultAbstractValue(); },
         [this](const drake::systems::Context<double>& context,
                drake::systems::AbstractValue* out) {
           this->IgnSubscriberSystem::CalcIgnMessage(context, out);

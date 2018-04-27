@@ -96,7 +96,8 @@ class RoadBuilder {
   /// `file_path`
   const drake::maliput::api::RoadGeometry* AddMultilaneFromFile(
       const std::string& file_path) {
-    auto road_geometry = drake::maliput::multilane::LoadFile(file_path);
+    auto road_geometry = drake::maliput::multilane::LoadFile(
+        drake::maliput::multilane::BuilderFactory(), file_path);
     return simulator_->SetRoadGeometry(std::move(road_geometry));
   }
 

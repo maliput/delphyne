@@ -90,7 +90,13 @@ def main():
 
         # Instantiate a LoadablePriusSimpleCar with 0 id and originally
         # placed in (0.0, 1.0)
-        simulator.AddLoadableAgent("LoadablePriusSimpleCar", {}, "0", state)
+        #simulator.AddLoadableAgent("LoadablePriusSimpleCar", {}, "0", state)
+        simulator.AddLoadableAgent("prius-simple-car",
+                                   "delphyne::backend::LoadablePriusSimpleCarFactoryDouble",
+                                   {},
+                                   args.type,
+                                   state
+                                   )
 
     elif args.type == "mobil":
         dragway = build_demo_dragway(simulator, "Mobil dragway")
@@ -136,7 +142,7 @@ def main():
         # Instantiate a LoadableMaliputRailCar with "Maliput0" as its name and
         # originally placed at the start of the second lane of the dragway
         # previously created. The car initial speed is 3 meters per sec.
-        simulator.AddLoadableAgent("LoadableMaliputRailCar",
+        simulator.AddLoadableAgent("maliput-rail-car",
                                    railcar_params,
                                    args.type,
                                    state)

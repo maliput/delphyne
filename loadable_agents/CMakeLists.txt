@@ -14,7 +14,7 @@ macro(delphyne_add_agent_library name)
     ${name}
     PRIVATE
       drake::drake
-      Eigenasdfdf::Eigenasdfd
+      Eigen3::Eigen
       ignition-common1::ignition-common1
       stx::stx
   )

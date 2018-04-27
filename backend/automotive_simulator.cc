@@ -144,16 +144,31 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin,
-    const std::map<std::string, linb::any>& parameters, const std::string& name,
-    std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
+    const std::string& plugin_library_name,
+    const std::map<std::string, linb::any>& parameters,
+    const std::string& name,
+    drake::systems::BasicVector<T>* initial_state) {
+  return AddLoadableAgent(plugin_library_name, "", parameters, name, initial_state);
+}
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableAgent(
+    const std::string& plugin_library_name,
+    const std::string& plugin_name,
+    const std::map<std::string, linb::any>& parameters,
+    const std::string& name,
+    drake::systems::BasicVector<T>* initial_state) {
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   int id = allocate_vehicle_number();
 
-  std::unique_ptr<delphyne::AgentPluginBase<T>> agent =
-      delphyne::LoadPlugin<T>(plugin);
+  std::unique_ptr<delphyne::backend::AgentPluginBase<T>> agent;
+  if (plugin_name.empty()) {
+    agent = delphyne::backend::LoadPlugin<T>(plugin_library_name);
+  } else {
+    agent = delphyne::backend::LoadPlugin<T>(plugin_library_name, plugin_name);
+  }
   if (agent == nullptr) {
     return -1;
   }

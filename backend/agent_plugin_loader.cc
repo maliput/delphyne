@@ -2,11 +2,14 @@
 
 #include "backend/agent_plugin_loader.h"
 
+#include <algorithm>
 #include <memory>
 #include <string>
 #include <unordered_set>
 
 #include "backend/agent_plugin_base.h"
+
+#include <drake/common/find_loaded_library.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/Plugin.hh>
@@ -55,12 +58,17 @@ struct TypeName<::drake::symbolic::Expression> {
 //           instead, it must be something like 'AgentPluginFactoryDoubleBase'.
 template <typename T, typename U>
 std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
-    const std::string& file_name) {
-  igndbg << "Loading plugin [" << file_name << "]" << std::endl;
+    const std::string& plugin_library_name,
+    const std::string& plugin_name
+  ) {
+  igndbg << "Loading plugin [" << plugin_name << "]" << std::endl;
 
-  // Setup the paths that we'll use to find the shared library.  Note that we
-  // do not use the SetPluginPathEnv() method, since that puts the environment
-  // variable at the back of the list, and we want to use it first.
+  /********************
+   * Setup Search Paths
+   *******************/
+  // Note that we do not use the SetPluginPathEnv() method, since that
+  // puts the environment variable at the back of the list, and we want
+  // to use it first.
   ignition::common::SystemPaths system_paths;
   std::string env;
   if (ignition::common::env("DELPHYNE_AGENT_PLUGIN_PATH", env)) {
@@ -70,11 +78,21 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     system_paths.AddPluginPaths(env + "/.delphyne/plugins");
   }
 
-  // Now find the shared library.
-  const std::string path_to_lib = system_paths.FindSharedLibrary(file_name);
+  // Automagically discover delphyne library paths
+  // Discovers the path IF it was loaded as part of this process
+  drake::optional<std::string> libdelphyne_dir = drake::LoadedLibraryPath("libdelphyne-automotive-simulator.so");
+  if ( libdelphyne_dir ) {
+    system_paths.AddPluginPaths(libdelphyne_dir.value() + "/delphyne/agents");
+    system_paths.AddPluginPaths(libdelphyne_dir.value());
+  }
+
+  /********************
+   * Load Library
+   *******************/
+  const std::string path_to_lib = system_paths.FindSharedLibrary(plugin_library_name);
   if (path_to_lib.empty()) {
-    ignerr << "Failed to load plugin [" << file_name
-           << "] : couldn't find shared library." << std::endl;
+    ignerr << "Failed to find plugin library '" << plugin_library_name
+           << "'" << std::endl;  // could usefully show the search path (system_paths)
     return nullptr;
   }
 
@@ -83,19 +101,40 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
 
   const std::unordered_set<std::string> plugin_names =
       plugin_loader.LoadLibrary(path_to_lib);
+
+  /********************
+   * Checks
+   *******************/
   if (plugin_names.empty()) {
-    ignerr << "Failed to load plugin [" << file_name
-           << "] : couldn't load library on path [" << path_to_lib << "]."
+    ignerr << "Failed to load plugin library '" << plugin_library_name
+           << "' on path [" << path_to_lib << "]"
+           << std::endl;
+    return nullptr;
+  }
+  if (plugin_name == "default" && (plugin_names.size() != 1) ) {
+    ignerr << "The plugin library '" << plugin_library_name
+           << "' on path [" << path_to_lib << "]"
+           << " contains more than one plugin, please specify "
+           << " the plugin to load"
            << std::endl;
     return nullptr;
   }
 
-  for (const std::string& plugin_name : plugin_names) {
-    if (plugin_name.empty()) {
+  /********************
+   * Load Plugin
+   *******************/
+  for (const std::string& name : plugin_names) {
+    if (name.empty()) {
       continue;
     }
+    if ( (plugin_name != "default") &&
+         (plugin_name != name) &&
+         ((std::string("::") + plugin_name) != name)
+       ) {
+        continue;
+    }
     ignition::common::PluginPtr common_plugin =
-        plugin_loader.Instantiate(plugin_name);
+        plugin_loader.Instantiate(name);
     if (!common_plugin) {
       continue;
     }
@@ -120,8 +159,8 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     // loaded agent.
     U* factory = common_plugin->QueryInterface<U>(type.str());
     if (factory == nullptr) {
-      ignerr << "Failed to load plugin [" << file_name
-             << "] : couldn't load library factory." << std::endl;
+      ignerr << "Failed to load plugin '" << name
+             << "' [couldn't load library factory]" << std::endl;
       return nullptr;
     }
     std::unique_ptr<delphyne::AgentPluginBase<T>> plugin = factory->Create();
@@ -129,8 +168,8 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     return plugin;
   }
 
-  ignerr << "Failed to load plugin [" << file_name
-         << "] : couldn't load library on path [" << path_to_lib << "]."
+  ignerr << "Failed to load plugin '" << plugin_name << "' from '"
+         << plugin_library_name << "' on path [" << path_to_lib << "]"
          << std::endl;
   return nullptr;
 }
@@ -139,29 +178,37 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
 
 namespace delphyne {
 
-// This needs to be in the delphyne::backend namespace explicitly due to a
-// gcc bug.
+  // This needs to be in the delphyne::backend namespace explicitly due to a
+  // gcc bug.
 
-template <>
-std::unique_ptr<delphyne::AgentPluginBase<double>> LoadPlugin<double>(
-    const std::string& file_name) {
-  return LoadPluginInternal<double, delphyne::AgentPluginFactoryDoubleBase>(
-      file_name);
-}
+  template <>
+  std::unique_ptr<delphyne::AgentPluginBase<double>> LoadPlugin<double>(
+      const std::string& plugin_library_name,
+      const std::string& plugin_name) {
+    return LoadPluginInternal<double,
+                              delphyne::backend::AgentPluginFactoryDoubleBase>(
+                              plugin_library_name, plugin_name);
+  }
 
-template <>
-std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>>
-LoadPlugin<::drake::AutoDiffXd>(const std::string& file_name) {
-  return LoadPluginInternal<::drake::AutoDiffXd,
-                            delphyne::AgentPluginFactoryAutoDiffXdBase>(
-      file_name);
-}
+  template <>
+  std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>>
+  LoadPlugin<::drake::AutoDiffXd>(
+      const std::string& plugin_library_name,
+      const std::string& plugin_name) {
+    return LoadPluginInternal<::drake::AutoDiffXd,
+                              delphyne::backend::AgentPluginFactoryAutoDiffXdBase>(
+                              plugin_library_name, plugin_name);
+  }
 
-template <>
-std::unique_ptr<delphyne::AgentPluginBase<::drake::symbolic::Expression>>
-LoadPlugin<::drake::symbolic::Expression>(const std::string& file_name) {
-  return LoadPluginInternal<::drake::symbolic::Expression,
-                            delphyne::AgentPluginFactoryExpressionBase>(
-      file_name);
-}
+  template <>
+  std::unique_ptr<
+      delphyne::AgentPluginBase<::drake::symbolic::Expression>>
+  LoadPlugin<::drake::symbolic::Expression>(
+      const std::string& plugin_library_name,
+      const std::string& plugin_name) {
+    return LoadPluginInternal<::drake::symbolic::Expression,
+                              delphyne::backend::AgentPluginFactoryExpressionBase>(
+                                  plugin_library_name, plugin_name);
+  }
+
 }  // namespace delphyne

@@ -13,7 +13,6 @@
 #include "backend/translate_exception.h"
 
 namespace delphyne {
-namespace translation_systems {
 
 /// @brief A system that translates Drake messages on its single input port
 /// (which will be discrete or abstract based on the type of the Drake message)
@@ -319,5 +318,4 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   }
 };
 
-}  // namespace translation_systems
 }  // namespace delphyne

@@ -114,7 +114,7 @@ class LoadablePriusSimpleCarDouble final
         command_channel);
 
     auto driving_command_translator = builder->template AddSystem<
-        translation_systems::IgnDrivingCommandToDrake>();
+        IgnDrivingCommandToDrake>();
 
     // Ignition driving commands received through the subscriber are translated
     // to Drake.
@@ -130,7 +130,7 @@ class LoadablePriusSimpleCarDouble final
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
     auto car_state_translator = builder->template AddSystem<
-        translation_systems::DrakeSimpleCarStateToIgn>();
+        DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
         "agents/" + std::to_string(id) + "/state";

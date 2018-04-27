@@ -26,7 +26,7 @@ GTEST_TEST(DrakeSimpleCarStateToIgnTranslatorSystemTest, TestTranslation) {
   drake_msg.set_heading(kExpectedHeading);
   drake_msg.set_velocity(kExpectedVelocity);
 
-  const translation_systems::DrakeSimpleCarStateToIgn translator;
+  const DrakeSimpleCarStateToIgn translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

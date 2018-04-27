@@ -11,7 +11,6 @@
 #include "backend/translation_systems/drake_to_ign.h"
 
 namespace delphyne {
-namespace translation_systems {
 
 /// @brief A system that translates LCM viewer load robot messages to ignition
 /// Model_V.
@@ -25,5 +24,4 @@ class LcmViewerLoadRobotToIgnModelV
                                int64_t time) const override;
 };
 
-}  // namespace translation_systems
 }  // namespace delphyne

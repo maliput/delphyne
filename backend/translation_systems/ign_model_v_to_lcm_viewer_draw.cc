@@ -5,7 +5,6 @@
 #include "backend/time_conversion.h"
 
 namespace delphyne {
-namespace translation_systems {
 
 void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
     const ignition::msgs::Model_V& ign_message,
@@ -45,5 +44,4 @@ void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
   }
 }
 
-}  // namespace translation_systems
 }  // namespace delphyne

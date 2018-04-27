@@ -22,7 +22,7 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   drake_msg.set_steering_angle(kTheta);
   drake_msg.set_acceleration(kAcceleration);
 
-  const translation_systems::DrakeDrivingCommandToIgn translator;
+  const DrakeDrivingCommandToIgn translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

@@ -211,7 +211,7 @@ class LoadableMobilControlledSimpleCarDouble final
         std::make_unique<drake::automotive::PriusVis<double>>(id, name));
 
     auto car_state_translator = builder->template AddSystem<
-        translation_systems::DrakeSimpleCarStateToIgn>();
+        DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
         "agents/" + std::to_string(id) + "/state";

@@ -9,7 +9,6 @@
 #include "backend/time_conversion.h"
 
 namespace delphyne {
-namespace translation_systems {
 
 void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
     const drake::lcmt_viewer_load_robot& lcm_message,
@@ -67,5 +66,4 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
   }
 }
 
-}  // namespace translation_systems
 }  // namespace delphyne

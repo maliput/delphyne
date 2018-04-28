@@ -191,8 +191,8 @@ else (build_errors)
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
   add_subdirectory(backend)
-  add_subdirectory(loadable_agents)
   add_subdirectory(protobuf)
+  add_subdirectory(src)
 
   ########################################
   # Testing

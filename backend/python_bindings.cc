@@ -149,7 +149,9 @@ PYBIND11_MODULE(python_bindings, m) {
            py::overload_cast<const std::string&,
                              const std::map<std::string, linb::any>&,
                              const std::string&,
-                             drake::systems::BasicVector<double>*>(&AutomotiveSimulator<double>::AddLoadableAgent),
+                             std::unique_ptr<drake::systems::BasicVector<double>>>(
+                                 &AutomotiveSimulator<double>::AddLoadableAgent
+                                 ),
            py::keep_alive<1, 3>() // Keep alive, ownership: `self` keeps `parameters` alive.
        )
       .def("AddLoadableAgent",
@@ -157,8 +159,10 @@ PYBIND11_MODULE(python_bindings, m) {
                              const std::string&,
                              const std::map<std::string, linb::any>&,
                              const std::string&,
-                             drake::systems::BasicVector<double>*>(&AutomotiveSimulator<double>::AddLoadableAgent),
-                             py::keep_alive<1, 3>() // Keep alive, ownership: `self` keeps `parameters` alive.
+                             std::unique_ptr<drake::systems::BasicVector<double>>>(
+                                 &AutomotiveSimulator<double>::AddLoadableAgent
+                                 ),
+           py::keep_alive<1, 3>() // Keep alive, ownership: `self` keeps `parameters` alive.
        );
 }
 

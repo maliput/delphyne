@@ -11,7 +11,7 @@ For the time being two car types are supported:
 - simple, which just places a `LoadablePriusSimpleCarDouble` in an empty world.
 - mobil, which places a `LoadableMobilControlledSimpleCarDouble` at the start
 of a 100 meters dragway.
-- railcar, which places a `LoadableMaliputRailCar` in the center lane of a
+- rail, which places a `LoadableMaliputRailCar` in the center lane of a
 three-lane dragway.
 
 
@@ -26,7 +26,7 @@ $ loadable_agent_simulation.py --type="mobil"
 
 ```
 ```
-$ loadable_agent_simulation.py --type="railcar"
+$ loadable_agent_simulation.py --type="rail"
 
 ```
 
@@ -69,7 +69,7 @@ def main():
     on the provided configuration.
     """
 
-    car_agent_types = ["simple", "mobil", "railcar"]
+    car_agent_types = ["simple", "mobil", "rail"]
 
     parser = argparse.ArgumentParser(
         prog="loadable_agent_simulation",
@@ -92,7 +92,7 @@ def main():
         # placed in (0.0, 1.0)
         #simulator.AddLoadableAgent("LoadablePriusSimpleCar", {}, "0", state)
         simulator.AddLoadableAgent("prius-simple-car",
-                                   "delphyne::backend::LoadablePriusSimpleCarFactoryDouble",
+                                   "delphyne::LoadablePriusSimpleCarFactoryDouble",
                                    {},
                                    args.type,
                                    state
@@ -117,7 +117,7 @@ def main():
                                    mobil_params,
                                    args.type,
                                    state)
-    elif args.type == "railcar":
+    elif args.type == "rail":
         dragway = build_demo_dragway(simulator, "Railcar dragway")
 
         lane = dragway.junction(0).segment(0).lane(1)

@@ -127,11 +127,14 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     if (name.empty()) {
       continue;
     }
+    std::cout << "Plugin Name: " << plugin_name << std::endl;
+    std::cout << "Discovered Plugin Name: " << name << std::endl;
     if ( (plugin_name != "default") &&
          (plugin_name != name) &&
          ((std::string("::") + plugin_name) != name)
        ) {
-        continue;
+      std::cout << "Continuing" << std::endl;
+      continue;
     }
     ignition::common::PluginPtr common_plugin =
         plugin_loader.Instantiate(name);
@@ -186,7 +189,7 @@ namespace delphyne {
       const std::string& plugin_library_name,
       const std::string& plugin_name) {
     return LoadPluginInternal<double,
-                              delphyne::backend::AgentPluginFactoryDoubleBase>(
+                              delphyne::AgentPluginFactoryDoubleBase>(
                               plugin_library_name, plugin_name);
   }
 
@@ -196,7 +199,7 @@ namespace delphyne {
       const std::string& plugin_library_name,
       const std::string& plugin_name) {
     return LoadPluginInternal<::drake::AutoDiffXd,
-                              delphyne::backend::AgentPluginFactoryAutoDiffXdBase>(
+                              delphyne::AgentPluginFactoryAutoDiffXdBase>(
                               plugin_library_name, plugin_name);
   }
 
@@ -207,7 +210,7 @@ namespace delphyne {
       const std::string& plugin_library_name,
       const std::string& plugin_name) {
     return LoadPluginInternal<::drake::symbolic::Expression,
-                              delphyne::backend::AgentPluginFactoryExpressionBase>(
+                              delphyne::AgentPluginFactoryExpressionBase>(
                                   plugin_library_name, plugin_name);
   }
 

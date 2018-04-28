@@ -110,8 +110,8 @@ def main():
             "road": Any(dragway)
         }
 
-        # Instantiate a MobilControlledSimpleCar and
-        # originally placed in (0.0, -3.7). The road for the car to
+        # Instantiate a MobilControlledSimpleCar
+        # and originally placed in (0.0, -3.7). The road for the car to
         # follow is the previously created dragway.
         simulator.AddLoadableAgent("mobil-controlled-simple-car",
                                    mobil_params,

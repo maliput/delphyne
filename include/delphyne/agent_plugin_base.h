@@ -16,8 +16,8 @@
 #include <ignition/common/PluginLoader.hh>
 #include <ignition/common/PluginMacros.hh>
 
-#include "backend/linb-any"
-#include "backend/system.h"
+#include "linb-any"
+#include "types.h"
 
 namespace delphyne {
 /// The abstract class that all plugins must inherit from.  Concrete
@@ -113,12 +113,12 @@ struct AgentPluginFactoryTraits<double> {
 };
 
 template <>
-struct AgentPluginFactoryTraits<drake::AutoDiffXd> {
+struct AgentPluginFactoryTraits<AutoDiff> {
   static const char* name() { return "::delphyne::AutoDiffAgentPluginFactory"; }
 };
 
 template <>
-struct AgentPluginFactoryTraits<drake::symbolic::Expression> {
+struct AgentPluginFactoryTraits<Symbolic> {
   static const char* name() { return "::delphyne::SymbolicAgentPluginFactory"; }
 };
 

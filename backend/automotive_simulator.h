@@ -37,10 +37,11 @@
 
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
-#include "backend/linb-any"
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
 #include "backend/system.h"
+
+#include "../include/delphyne/linb-any"
 
 namespace delphyne {
 

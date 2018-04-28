@@ -66,7 +66,6 @@ add_subdirectory(translation_systems)
 add_library(automotive_simulator
   agent_plugin_loader.cc
   automotive_simulator.cc
-  linb-any
   road_builder.h
   system.h
 )
@@ -144,7 +143,6 @@ install(TARGETS automotive-demo RUNTIME DESTINATION bin)
 
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
-  linb-any
   system.h
 )
 

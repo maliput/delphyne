@@ -38,10 +38,10 @@
 #include "drake/systems/rendering/pose_vector.h"
 
 #include <backend/ign_publisher_system.h>
-#include <backend/linb-any>
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
 #include "../../include/delphyne/agent_plugin_base.h"
+#include "../../include/delphyne/linb-any"
 
 namespace delphyne {
 

@@ -54,7 +54,7 @@
 #include "drake/systems/rendering/pose_vector.h"
 
 #include "../../include/delphyne/agent_plugin_base.h"
-#include <backend/linb-any>
+#include "../../include/delphyne/linb-any"
 
 namespace delphyne {
 

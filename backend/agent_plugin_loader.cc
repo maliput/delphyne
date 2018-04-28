@@ -127,13 +127,10 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     if (name.empty()) {
       continue;
     }
-    std::cout << "Plugin Name: " << plugin_name << std::endl;
-    std::cout << "Discovered Plugin Name: " << name << std::endl;
     if ( (plugin_name != "default") &&
          (plugin_name != name) &&
          ((std::string("::") + plugin_name) != name)
        ) {
-      std::cout << "Continuing" << std::endl;
       continue;
     }
     ignition::common::PluginPtr common_plugin =

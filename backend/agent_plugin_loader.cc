@@ -7,39 +7,21 @@
 #include <string>
 #include <unordered_set>
 
-#include "backend/agent_plugin_base.h"
-
+#include <drake/common/autodiff.h>
 #include <drake/common/find_loaded_library.h>
+#include <drake/common/symbolic.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/Plugin.hh>
 #include <ignition/common/PluginLoader.hh>
 #include <ignition/common/SystemPaths.hh>
 
+
+#include "agent_plugin_base.h"
+#include "types.h"
+
+namespace delphyne {
 namespace {
-
-// default implementation
-template <typename T>
-struct TypeName {
-  static const char* Get() { return typeid(T).name(); }
-};
-
-// a specialization for each type of those you want to support
-// and don't like the string returned by typeid
-template <>
-struct TypeName<double> {
-  static const char* Get() { return "Double"; }
-};
-
-template <>
-struct TypeName<::drake::AutoDiffXd> {
-  static const char* Get() { return "AutoDiffXd"; }
-};
-
-template <>
-struct TypeName<::drake::symbolic::Expression> {
-  static const char* Get() { return "Expression"; }
-};
 
 // The function that loads a plugin given the name of the plugin.  Given a
 // plugin name like "Foo", this function will look for a file named 'libFoo.so'
@@ -55,12 +37,13 @@ struct TypeName<::drake::symbolic::Expression> {
 // @tparam U must be one of the AgentPluginFactory types from
 //           agent_plugin_base.h.  Due to some current limitations, it cannot
 //           be a templated type like 'AgentPluginFactoryBase<double>';
-//           instead, it must be something like 'AgentPluginFactoryDoubleBase'.
-template <typename T, typename U>
-std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
+//           instead, it must be something like 'AgentPluginFactory'.
+template <typename T>
+std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
     const std::string& plugin_library_name,
     const std::string& plugin_name
   ) {
+  typedef AgentPluginFactoryBase<T> Factory;
   igndbg << "Loading plugin [" << plugin_name << "]" << std::endl;
 
   /********************
@@ -139,9 +122,6 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
       continue;
     }
 
-    std::ostringstream type;
-    type << "::delphyne::AgentPluginFactory" << TypeName<T>::Get() << "Base";
-
     // The reason for the factory style here is a bit opaque.  The problem is
     // that something has to hold onto the shared_ptr reference that is
     // common_plugin.  One way to do this is to use
@@ -157,10 +137,11 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
     // ->SetPlugin() method to store a reference to the common_plugin
     // shared_ptr, which makes sure it stays around for the lifetime of the
     // loaded agent.
-    U* factory = common_plugin->QueryInterface<U>(type.str());
+//    U* factory = common_plugin->QueryInterface<U>(type.str());
+    Factory* factory = common_plugin->QueryInterface<Factory>(AgentPluginFactoryTraits<T>::name());
     if (factory == nullptr) {
       ignerr << "Failed to load plugin '" << name
-             << "' [couldn't load library factory]" << std::endl;
+             << "' [couldn't load factory '" << AgentPluginFactoryTraits<T>::name() << "']" << std::endl;
       return nullptr;
     }
     std::unique_ptr<delphyne::AgentPluginBase<T>> plugin = factory->Create();
@@ -176,39 +157,33 @@ std::unique_ptr<delphyne::AgentPluginBase<T>> LoadPluginInternal(
 
 }  // namespace
 
-namespace delphyne {
-
   // This needs to be in the delphyne::backend namespace explicitly due to a
   // gcc bug.
 
   template <>
-  std::unique_ptr<delphyne::AgentPluginBase<double>> LoadPlugin<double>(
+  std::unique_ptr<AgentPluginBase<double>> LoadPlugin<double>(
       const std::string& plugin_library_name,
       const std::string& plugin_name) {
-    return LoadPluginInternal<double,
-                              delphyne::AgentPluginFactoryDoubleBase>(
-                              plugin_library_name, plugin_name);
+    return LoadPluginInternal<double>(plugin_library_name, plugin_name);
   }
 
   template <>
-  std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>>
-  LoadPlugin<::drake::AutoDiffXd>(
+  std::unique_ptr<AgentPluginBase<AutoDiff>>
+  LoadPlugin<AutoDiff>(
       const std::string& plugin_library_name,
       const std::string& plugin_name) {
-    return LoadPluginInternal<::drake::AutoDiffXd,
-                              delphyne::AgentPluginFactoryAutoDiffXdBase>(
-                              plugin_library_name, plugin_name);
+    return LoadPluginInternal<AutoDiff>(plugin_library_name,
+                                                   plugin_name);
   }
 
   template <>
   std::unique_ptr<
-      delphyne::AgentPluginBase<::drake::symbolic::Expression>>
-  LoadPlugin<::drake::symbolic::Expression>(
+      delphyne::AgentPluginBase<Symbolic>>
+  LoadPlugin<Symbolic>(
       const std::string& plugin_library_name,
       const std::string& plugin_name) {
-    return LoadPluginInternal<::drake::symbolic::Expression,
-                              delphyne::AgentPluginFactoryExpressionBase>(
-                                  plugin_library_name, plugin_name);
+    return LoadPluginInternal<Symbolic>(
+        plugin_library_name, plugin_name);
   }
 
 }  // namespace delphyne

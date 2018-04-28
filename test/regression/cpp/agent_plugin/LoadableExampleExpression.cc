@@ -44,7 +44,7 @@ class LoadableExampleExpression final
 // showcases the way almost all loadable plugins should implement the factory
 // class.
 class LoadableExampleFactoryExpression final
-    : public delphyne::AgentPluginFactoryExpressionBase {
+    : public delphyne::SymbolicAgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<::drake::symbolic::Expression>>
   Create() {
@@ -53,4 +53,4 @@ class LoadableExampleFactoryExpression final
 };
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryExpression,
-                                  delphyne::AgentPluginFactoryExpressionBase)
+                                  delphyne::SymbolicAgentPluginFactory)

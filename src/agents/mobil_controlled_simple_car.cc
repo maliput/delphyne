@@ -381,7 +381,7 @@ class LoadableMobilControlledSimpleCarDouble final
 };
 
 class LoadableMobilControlledSimpleCarFactoryDouble final
-    : public delphyne::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadableMobilControlledSimpleCarDouble>();
@@ -392,4 +392,4 @@ class LoadableMobilControlledSimpleCarFactoryDouble final
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
     delphyne::LoadableMobilControlledSimpleCarFactoryDouble,
-    delphyne::AgentPluginFactoryDoubleBase)
+    delphyne::AgentPluginFactory)

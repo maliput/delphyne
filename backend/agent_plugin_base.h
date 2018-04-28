@@ -6,18 +6,18 @@
 #include <memory>
 #include <string>
 
-#include "backend/linb-any"
-#include "backend/system.h"
+#include <drake/automotive/car_vis_applicator.h>
+#include <drake/lcm/drake_lcm_interface.h>
+#include <drake/multibody/rigid_body_tree.h>
+#include <drake/systems/framework/diagram_builder.h>
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/rendering/pose_aggregator.h>
 
 #include <ignition/common/PluginLoader.hh>
 #include <ignition/common/PluginMacros.hh>
 
-#include "drake/automotive/car_vis_applicator.h"
-#include "drake/lcm/drake_lcm_interface.h"
-#include "drake/multibody/rigid_body_tree.h"
-#include "drake/systems/framework/diagram_builder.h"
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/rendering/pose_aggregator.h"
+#include "backend/linb-any"
+#include "backend/system.h"
 
 namespace delphyne {
 /// The abstract class that all plugins must inherit from.  Concrete
@@ -86,12 +86,40 @@ class AgentPluginFactoryBase {
   /// The `Create` method is used to get a std::unique_ptr of the concrete
   /// class that inherited from from AgentPluginBase.
   virtual std::unique_ptr<AgentPluginBase<T>> Create() = 0;
+
+  /// Default destructor
+  virtual ~AgentPluginFactoryBase() = default;
 };
 
-typedef delphyne::AgentPluginFactoryBase<double> AgentPluginFactoryDoubleBase;
+typedef delphyne::AgentPluginFactoryBase<double> AgentPluginFactory;
 typedef delphyne::AgentPluginFactoryBase<::drake::AutoDiffXd>
-    AgentPluginFactoryAutoDiffXdBase;
+    AutoDiffAgentPluginFactory;
 typedef delphyne::AgentPluginFactoryBase<::drake::symbolic::Expression>
-    AgentPluginFactoryExpressionBase;
+    SymbolicAgentPluginFactory;
+
+
+/// Traits lookup for the agent plugin factories.
+template <typename T>
+struct AgentPluginFactoryTraits {
+  static const char* name() { return "unknown"; }
+};
+
+// a specialization for each type of those you want to support
+// and don't like to rely on the implementation-defined string
+// returned by typeid
+template <>
+struct AgentPluginFactoryTraits<double> {
+  static const char* name() { return "::delphyne::AgentPluginFactory"; }
+};
+
+template <>
+struct AgentPluginFactoryTraits<drake::AutoDiffXd> {
+  static const char* name() { return "::delphyne::AutoDiffAgentPluginFactory"; }
+};
+
+template <>
+struct AgentPluginFactoryTraits<drake::symbolic::Expression> {
+  static const char* name() { return "::delphyne::SymbolicAgentPluginFactory"; }
+};
 
 }  // namespace delphyne

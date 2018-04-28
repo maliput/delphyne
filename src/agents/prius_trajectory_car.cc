@@ -346,7 +346,7 @@ class LoadablePriusTrajectoryCarDouble final
 };
 
 class LoadablePriusTrajectoryCarFactoryDouble final
-    : public delphyne::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadablePriusTrajectoryCarDouble>();
@@ -357,4 +357,4 @@ class LoadablePriusTrajectoryCarFactoryDouble final
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
     delphyne::LoadablePriusTrajectoryCarFactoryDouble,
-    delphyne::AgentPluginFactoryDoubleBase)
+    delphyne::AgentPluginFactory)

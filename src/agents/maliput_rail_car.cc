@@ -584,7 +584,7 @@ class LoadableMaliputRailcarDouble final
 };
 
 class LoadableMaliputRailcarFactoryDouble final
-    : public delphyne::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadableMaliputRailcarDouble>();
@@ -594,4 +594,4 @@ class LoadableMaliputRailcarFactoryDouble final
 }  // namespace delphyne
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadableMaliputRailcarFactoryDouble,
-                                  delphyne::AgentPluginFactoryDoubleBase)
+                                  delphyne::AgentPluginFactory)

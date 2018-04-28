@@ -35,12 +35,12 @@ class LoadableExampleDouble final : public delphyne::AgentPluginDoubleBase {
   }
 };
 
-// An example factory class that derives from AgentPluginFactoryDoubleBase
+// An example factory class that derives from AgentPluginFactory
 // (see agent_plugin_base.h for more information).  This factory creates and
 // returns a std::unique_ptr of the LoadableExampleDouble above, and showcases
 // the way almost all loadable plugins should implement the factory class.
 class LoadableExampleFactoryDouble final
-    : public delphyne::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<LoadableExampleDouble>();
@@ -48,4 +48,4 @@ class LoadableExampleFactoryDouble final
 };
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryDouble,
-                                  delphyne::AgentPluginFactoryDoubleBase)
+                                  delphyne::AgentPluginFactory)

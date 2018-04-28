@@ -44,7 +44,7 @@ class LoadableExampleAutoDiffXd final
 // showcases the way almost all loadable plugins should implement the factory
 // class.
 class LoadableExampleFactoryAutoDiffXd final
-    : public delphyne::AgentPluginFactoryAutoDiffXdBase {
+    : public delphyne::AutoDiffAgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>> Create() {
     return std::make_unique<LoadableExampleAutoDiffXd>();
@@ -52,4 +52,4 @@ class LoadableExampleFactoryAutoDiffXd final
 };
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryAutoDiffXd,
-                                  delphyne::AgentPluginFactoryAutoDiffXdBase)
+                                  delphyne::AutoDiffAgentPluginFactory)

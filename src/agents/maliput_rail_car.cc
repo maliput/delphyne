@@ -53,7 +53,7 @@
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
 
-#include <backend/agent_plugin_base.h>
+#include "../../include/delphyne/agent_plugin_base.h"
 #include <backend/linb-any>
 
 namespace delphyne {

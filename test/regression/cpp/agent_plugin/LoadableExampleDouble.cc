@@ -7,13 +7,13 @@
 
 #include "backend/linb-any"
 
-#include "backend/agent_plugin_base.h"
-
 #include "drake/automotive/car_vis_applicator.h"
 #include "drake/lcm/drake_lcm_interface.h"
 #include "drake/systems/framework/context.h"
 #include "drake/systems/framework/diagram_builder.h"
 #include "drake/systems/rendering/pose_aggregator.h"
+
+#include "../../../../include/delphyne/agent_plugin_base.h"
 
 // An example class that derives from the AgentPluginDoubleBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing

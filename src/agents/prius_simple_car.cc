@@ -18,7 +18,6 @@
 #include <memory>
 #include <string>
 
-#include <backend/agent_plugin_base.h>
 #include <backend/ign_publisher_system.h>
 #include <backend/ign_subscriber_system.h>
 #include <backend/linb-any>
@@ -43,6 +42,8 @@
 #include "drake/systems/lcm/lcm_subscriber_system.h"
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
+
+#include "../../include/delphyne/agent_plugin_base.h"
 
 namespace delphyne {
 

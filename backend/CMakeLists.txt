@@ -144,7 +144,6 @@ install(TARGETS automotive-demo RUNTIME DESTINATION bin)
 
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
-  agent_plugin_base.h
   linb-any
   system.h
 )

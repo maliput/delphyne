@@ -14,7 +14,7 @@
 
 #include <memory>
 
-#include "backend/linb-any"
+#include "../../../include/delphyne/linb-any"
 
 #include <gtest/gtest.h>
 

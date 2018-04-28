@@ -2,13 +2,6 @@
 
 #include <memory>
 
-#include "backend/automotive_simulator.h"
-#include "backend/interactive_simulation_stats.h"
-#include "backend/linb-any"
-#include "backend/road_builder.h"
-#include "backend/simulation_run_stats.h"
-#include "backend/simulation_runner.h"
-
 #include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/common/find_resource.h>
 #include <drake/systems/framework/basic_vector.h>
@@ -16,6 +9,14 @@
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
+
+#include "backend/automotive_simulator.h"
+#include "backend/interactive_simulation_stats.h"
+#include "backend/road_builder.h"
+#include "backend/simulation_run_stats.h"
+#include "backend/simulation_runner.h"
+
+#include "../include/delphyne/linb-any"
 
 namespace py = pybind11;
 

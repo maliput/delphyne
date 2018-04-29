@@ -911,7 +911,7 @@ TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentBasic) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   const std::map<std::string, linb::any> params;
 
-  ASSERT_EQ(0, simulator->AddLoadableAgent("LoadableExampleDouble", params,
+  ASSERT_EQ(0, simulator->AddLoadableAgent("simple-car", params,
                                            "my_test_model", nullptr));
 }
 

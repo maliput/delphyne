@@ -126,8 +126,7 @@ class MobilCar final : public delphyne::AgentPlugin {
             std::make_unique<drake::automotive::MobilPlanner<double>>(
                 *road, initial_with_s,
                 drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
-                0. /* time period (unused) */
-                ));
+                0. /* time period (unused) */));
     mobil_planner->set_name(name + "_mobil_planner");
 
     drake::automotive::IdmController<double>* idm_controller =
@@ -135,8 +134,7 @@ class MobilCar final : public delphyne::AgentPlugin {
             std::make_unique<drake::automotive::IdmController<double>>(
                 *road, drake::automotive::ScanStrategy::kBranches,
                 drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
-                0. /* time period (unused) */
-                ));
+                0. /* time period (unused) */));
     idm_controller->set_name(name + "_idm_controller");
 
     drake::automotive::PurePursuitController<double>* pursuit =

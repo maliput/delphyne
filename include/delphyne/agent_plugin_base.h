@@ -17,7 +17,7 @@
 #include <ignition/common/PluginMacros.hh>
 
 #include "linb-any"
-#include "types.h"
+#include "./types.h"
 
 namespace delphyne {
 /// The abstract class that all plugins must inherit from.  Concrete

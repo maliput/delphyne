@@ -7,9 +7,7 @@
 #include <string>
 #include <unordered_set>
 
-#include <drake/common/autodiff.h>
 #include <drake/common/find_loaded_library.h>
-#include <drake/common/symbolic.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/Plugin.hh>

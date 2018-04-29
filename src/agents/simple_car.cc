@@ -74,29 +74,29 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 
 }  // namespace
 
-class LoadablePriusSimpleCarDouble final
+class SimpleCar final
     : public delphyne::AgentPlugin {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusSimpleCarDouble)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar)
 
-  LoadablePriusSimpleCarDouble() {
-    igndbg << "LoadablePriusSimpleCar constructor" << std::endl;
+  SimpleCar() {
+    igndbg << "SimpleCar constructor" << std::endl;
     this->DeclareVectorInputPort(drake::automotive::DrivingCommand<double>());
     this->DeclareVectorOutputPort(
-        &LoadablePriusSimpleCarDouble::CalcStateOutput);
-    this->DeclareVectorOutputPort(&LoadablePriusSimpleCarDouble::CalcPose);
-    this->DeclareVectorOutputPort(&LoadablePriusSimpleCarDouble::CalcVelocity);
+        &SimpleCar::CalcStateOutput);
+    this->DeclareVectorOutputPort(&SimpleCar::CalcPose);
+    this->DeclareVectorOutputPort(&SimpleCar::CalcVelocity);
     this->DeclareContinuousState(drake::automotive::SimpleCarState<double>());
     this->DeclareNumericParameter(drake::automotive::SimpleCarParams<double>());
 
     this->DeclareInequalityConstraint(
-        &LoadablePriusSimpleCarDouble::CalcSteeringAngleConstraint, 2,
+        &SimpleCar::CalcSteeringAngleConstraint, 2,
         "steering angle limit");
     this->DeclareInequalityConstraint(
-        &LoadablePriusSimpleCarDouble::CalcAccelerationConstraint, 2,
+        &SimpleCar::CalcAccelerationConstraint, 2,
         "acceleration limit");
     this->DeclareInequalityConstraint(
-        &LoadablePriusSimpleCarDouble::CalcVelocityConstraint, 2,
+        &SimpleCar::CalcVelocityConstraint, 2,
         "velocity limit");
   }
 
@@ -107,7 +107,7 @@ class LoadablePriusSimpleCarDouble final
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {
-    igndbg << "LoadablePriusSimpleCar configure" << std::endl;
+    igndbg << "SimpleCar configure" << std::endl;
 
     std::string command_channel = "teleop/" + name;
     auto driving_command_subscriber = builder->template AddSystem<
@@ -149,23 +149,23 @@ class LoadablePriusSimpleCarDouble final
   }
 
   int Initialize(drake::systems::Context<double>* context) override {
-    igndbg << "LoadablePriusSimpleCar initialize" << std::endl;
+    igndbg << "SimpleCar initialize" << std::endl;
     return 0;
   }
 
  private:
   const drake::systems::OutputPort<double>& state_output() const {
-    igndbg << "LoadablePriusSimpleCar state_output" << std::endl;
+    igndbg << "SimpleCar state_output" << std::endl;
     return this->get_output_port(0);
   }
 
   const drake::systems::OutputPort<double>& pose_output() const {
-    igndbg << "LoadablePriusSimpleCar pose_output" << std::endl;
+    igndbg << "SimpleCar pose_output" << std::endl;
     return this->get_output_port(1);
   }
 
   const drake::systems::OutputPort<double>& velocity_output() const {
-    igndbg << "LoadablePriusSimpleCar velocity_output" << std::endl;
+    igndbg << "SimpleCar velocity_output" << std::endl;
     return this->get_output_port(2);
   }
 
@@ -326,15 +326,15 @@ class LoadablePriusSimpleCarDouble final
   const drake::automotive::SimpleCarStateTranslator translator_;
 };
 
-class LoadablePriusSimpleCarFactoryDouble final
+class SimpleCarFactory final
     : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadablePriusSimpleCarDouble>();
+    return std::make_unique<SimpleCar>();
   }
 };
 
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadablePriusSimpleCarFactoryDouble,
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::SimpleCarFactory,
                                   delphyne::AgentPluginFactory)

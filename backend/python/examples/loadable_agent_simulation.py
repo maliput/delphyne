@@ -90,7 +90,7 @@ def main():
 
         # Instantiate a LoadablePriusSimpleCar with 0 id and originally
         # placed in (0.0, 1.0)
-        simulator.AddLoadableAgent("prius-simple-car",
+        simulator.AddLoadableAgent("simple-car",
                                    {},
                                    args.type,
                                    state
@@ -111,7 +111,7 @@ def main():
         # Instantiate a MobilControlledSimpleCar
         # and originally placed in (0.0, -3.7). The road for the car to
         # follow is the previously created dragway.
-        simulator.AddLoadableAgent("mobil-controlled-simple-car",
+        simulator.AddLoadableAgent("mobil-car",
                                    mobil_params,
                                    args.type,
                                    state)
@@ -140,7 +140,7 @@ def main():
         # Instantiate a LoadableMaliputRailCar and
         # originally placed at the start of the second lane of the dragway
         # previously created. The car initial speed is 3 meters per sec.
-        simulator.AddLoadableAgent("maliput-rail-car",
+        simulator.AddLoadableAgent("rail-car",
                                    railcar_params,
                                    args.type,
                                    state)

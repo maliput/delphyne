@@ -80,7 +80,7 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   auto initial_state = std::make_unique<SimpleCarState<double>>();
 
   std::map<std::string, linb::any> simple_params;
-  simulator->AddLoadableAgent("prius-simple-car", simple_params,
+  simulator->AddLoadableAgent("simple-car", simple_params,
                               "my_test_model", std::move(initial_state));
 
   simulator->Start();
@@ -135,7 +135,7 @@ void GetLastPublishedSimpleCarState(
   translator.Deserialize(message.data(), message.size(), result);
 }
 
-// Covers prius-simple-car, Start and StepBy
+// Covers simple-car, Start and StepBy
 TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
@@ -155,7 +155,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   auto initial_state = std::make_unique<SimpleCarState<double>>();
   std::map<std::string, linb::any> simple_params;
   const int id = simulator->AddLoadableAgent(
-      "prius-simple-car", simple_params, "Foo", std::move(initial_state));
+      "simple-car", simple_params, "Foo", std::move(initial_state));
   EXPECT_EQ(id, 0);
 
   // Finish all initialization, so that we can test the post-init state.
@@ -209,7 +209,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   initial_state->set_velocity(kVelocity);
 
   std::map<std::string, linb::any> simple_params;
-  simulator->AddLoadableAgent("prius-simple-car", simple_params,
+  simulator->AddLoadableAgent("simple-car", simple_params,
                               "My Test Model", std::move(initial_state));
 
   ignition::msgs::SimpleCarState state_message;
@@ -269,7 +269,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   mobil_params["road"] = road;
   mobil_params["initial_with_s"] = true;
   const int id_mobil = simulator->AddLoadableAgent(
-      "mobil-controlled-simple-car", mobil_params, "MOBIL0",
+      "mobil-car", mobil_params, "MOBIL0",
       std::move(simple_car_state));
   EXPECT_EQ(0, id_mobil);
 
@@ -285,7 +285,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   maliput_params1["lane_direction"] = &lane_direction1;
   maliput_params1["start_params"] = &start_params;
   const int id_decoy1 =
-      simulator->AddLoadableAgent("maliput-rail-car", maliput_params1,
+      simulator->AddLoadableAgent("rail-car", maliput_params1,
                                   "decoy1", std::move(decoy_state1));
   EXPECT_EQ(1, id_decoy1);
 
@@ -300,7 +300,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   maliput_params2["lane_direction"] = &lane_direction2;
   maliput_params2["start_params"] = &start_params;
   const int id_decoy2 =
-      simulator->AddLoadableAgent("maliput-rail-car", maliput_params2,
+      simulator->AddLoadableAgent("rail-car", maliput_params2,
                                   "decoy2", std::move(decoy_state2));
   EXPECT_EQ(2, id_decoy2);
 
@@ -362,10 +362,10 @@ TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   stateBob->set_speed(0.0);
   stateBob->set_position(0.0);
   const int id1 =
-      simulator->AddLoadableAgent("prius-trajectory-car", traj_params,
+      simulator->AddLoadableAgent("trajectory-car", traj_params,
                                   "alice", std::move(stateAlice));
   const int id2 = simulator->AddLoadableAgent(
-      "prius-trajectory-car", traj_params, "bob", std::move(stateBob));
+      "trajectory-car", traj_params, "bob", std::move(stateBob));
 
   EXPECT_EQ(0, id1);
   EXPECT_EQ(1, id2);
@@ -488,7 +488,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   // Road geometry not set.
 
   const int id1 = simulator->AddLoadableAgent(
-      "maliput-rail-car", maliput_params, "foo", std::move(state1));
+      "rail-car", maliput_params, "foo", std::move(state1));
   EXPECT_LT(id1, 0);
 
   EXPECT_NO_THROW(
@@ -503,7 +503,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   maliput_params["start_params"] = &params;
   auto state2 = std::make_unique<MaliputRailcarState<double>>();
   const int id2 = simulator->AddLoadableAgent(
-      "maliput-rail-car", maliput_params, "bar", std::move(state2));
+      "rail-car", maliput_params, "bar", std::move(state2));
   EXPECT_LT(id2, 0);
 
   const auto different_road =
@@ -521,7 +521,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
 
   // The provided initial lane is not within this simulation's RoadGeometry.
   const int id3 = simulator->AddLoadableAgent(
-      "maliput-rail-car", maliput_params, "bar2", std::move(state3));
+      "rail-car", maliput_params, "bar2", std::move(state3));
   EXPECT_LT(id3, 0);
 }
 
@@ -556,7 +556,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   auto state = std::make_unique<MaliputRailcarState<double>>();
 
   const int id = simulator->AddLoadableAgent(
-      "maliput-rail-car", maliput_params, "model_name", std::move(state));
+      "rail-car", maliput_params, "model_name", std::move(state));
   EXPECT_GE(id, 0);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
@@ -603,9 +603,9 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   std::map<std::string, linb::any> simple_params;
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model1",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model1",
                               std::move(state1));
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model2",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model2",
                               std::move(state2));
 
   typedef Curve2<double> Curve2d;
@@ -623,9 +623,9 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
       std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state_bob->set_speed(1.0);
   state_bob->set_position(0.0);
-  simulator->AddLoadableAgent("prius-trajectory-car", traj_params,
+  simulator->AddLoadableAgent("trajectory-car", traj_params,
                               "alice", std::move(state_alice));
-  simulator->AddLoadableAgent("prius-trajectory-car", traj_params, "bob",
+  simulator->AddLoadableAgent("trajectory-car", traj_params, "bob",
                               std::move(state_bob));
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
@@ -711,9 +711,9 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto state2 = std::make_unique<SimpleCarState<double>>();
   std::map<std::string, linb::any> simple_params;
   EXPECT_NO_THROW(simulator->AddLoadableAgent(
-      "prius-simple-car", simple_params, "Model1", std::move(state1)));
+      "simple-car", simple_params, "Model1", std::move(state1)));
   EXPECT_THROW(
-      simulator->AddLoadableAgent("prius-simple-car", simple_params,
+      simulator->AddLoadableAgent("simple-car", simple_params,
                                   "Model1", std::move(state2)),
       std::runtime_error);
 
@@ -729,7 +729,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
       std::make_unique<drake::automotive::TrajectoryCarState<double>>();
   state_alice_no_throw->set_speed(1.0);
   state_alice_no_throw->set_position(0.0);
-  EXPECT_NO_THROW(simulator->AddLoadableAgent("prius-trajectory-car",
+  EXPECT_NO_THROW(simulator->AddLoadableAgent("trajectory-car",
                                               traj_params, "alice",
                                               std::move(state_alice_no_throw)));
 
@@ -739,7 +739,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   state_alice_throw->set_position(0.0);
 
   EXPECT_THROW(
-      simulator->AddLoadableAgent("prius-trajectory-car", traj_params,
+      simulator->AddLoadableAgent("trajectory-car", traj_params,
                                   "alice", std::move(state_alice_throw)),
       std::runtime_error);
 
@@ -749,7 +749,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   state3->set_position(0.0);
 
   EXPECT_THROW(
-      simulator->AddLoadableAgent("prius-trajectory-car", traj_params,
+      simulator->AddLoadableAgent("trajectory-car", traj_params,
                                   "Model1", std::move(state3)),
       std::runtime_error);
 
@@ -776,17 +776,17 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
 
   auto state4 = std::make_unique<MaliputRailcarState<double>>();
   EXPECT_NO_THROW(simulator->AddLoadableAgent(
-      "maliput-rail-car", maliput_params, "Foo", std::move(state4)));
+      "rail-car", maliput_params, "Foo", std::move(state4)));
 
   auto state5 = std::make_unique<MaliputRailcarState<double>>();
   EXPECT_THROW(
-      simulator->AddLoadableAgent("maliput-rail-car", maliput_params,
+      simulator->AddLoadableAgent("rail-car", maliput_params,
                                   "alice", std::move(state5)),
       std::runtime_error);
 
   auto state6 = std::make_unique<MaliputRailcarState<double>>();
   EXPECT_THROW(
-      simulator->AddLoadableAgent("maliput-rail-car", maliput_params,
+      simulator->AddLoadableAgent("rail-car", maliput_params,
                                   "Model1", std::move(state6)),
       std::runtime_error);
 }
@@ -821,12 +821,12 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   maliput_params["start_params"] = &params;
 
   const int alice_id =
-      simulator->AddLoadableAgent("maliput-rail-car", maliput_params,
+      simulator->AddLoadableAgent("rail-car", maliput_params,
                                   "Alice", std::move(alice_initial_state));
 
   auto bob_initial_state = std::make_unique<MaliputRailcarState<double>>();
   const int bob_id =
-      simulator->AddLoadableAgent("maliput-rail-car", maliput_params,
+      simulator->AddLoadableAgent("rail-car", maliput_params,
                                   "Bob", std::move(bob_initial_state));
 
   EXPECT_NO_THROW(simulator->Start());
@@ -856,9 +856,9 @@ TEST_F(AutomotiveSimulatorTest, TestBuild) {
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
   std::map<std::string, linb::any> simple_params;
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model1",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model1",
                               std::move(state1));
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model2",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model2",
                               std::move(state2));
 
   simulator->Build();
@@ -877,9 +877,9 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
   std::map<std::string, linb::any> simple_params;
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model1",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model1",
                               std::move(state1));
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model2",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model2",
                               std::move(state2));
 
   simulator->Start(0.0);
@@ -895,7 +895,7 @@ TEST_F(AutomotiveSimulatorTest, TestNoLcm) {
   auto simple_state = std::make_unique<SimpleCarState<double>>();
 
   std::map<std::string, linb::any> simple_params;
-  simulator->AddLoadableAgent("prius-simple-car", simple_params, "Model1",
+  simulator->AddLoadableAgent("simple-car", simple_params, "Model1",
                               std::move(simple_state));
 
   simulator->Start();

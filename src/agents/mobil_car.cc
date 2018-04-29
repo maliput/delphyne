@@ -398,7 +398,7 @@ class MobilCar final
   const drake::automotive::SimpleCarStateTranslator translator_;
 };
 
-class LoadableMobilControlledSimpleCarFactoryDouble final
+class MobilCarFactory final
     : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
@@ -409,6 +409,6 @@ class LoadableMobilControlledSimpleCarFactoryDouble final
 }  // namespace delphyne
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::LoadableMobilControlledSimpleCarFactoryDouble,
+    delphyne::MobilCarFactory,
     delphyne::AgentPluginFactory
 )

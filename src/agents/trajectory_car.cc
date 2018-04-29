@@ -81,24 +81,23 @@ namespace delphyne {
 /// They are already available to link against in the containing library.
 ///
 /// @ingroup automotive_plants
-class LoadablePriusTrajectoryCarDouble final
-    : public delphyne::AgentPlugin {
+class TrajectoryCar final : public delphyne::AgentPlugin {
  public:
   typedef typename drake::automotive::Curve2<double>::Point2T Point2;
 
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusTrajectoryCarDouble)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryCar)
 
   /// Constructs a TrajectoryCar system that traces a given two-dimensional @p
   /// curve.  Throws an error if the curve is empty (has a zero @p path_length).
-  LoadablePriusTrajectoryCarDouble() : curve_(nullptr) {
+  TrajectoryCar() : curve_(nullptr) {
     this->DeclareInputPort(drake::systems::kVectorValued,
                            1 /* single-valued input */);
     this->DeclareVectorOutputPort(
-        &LoadablePriusTrajectoryCarDouble::CalcStateOutput);
+        &TrajectoryCar::CalcStateOutput);
     this->DeclareVectorOutputPort(
-        &LoadablePriusTrajectoryCarDouble::CalcPoseOutput);
+        &TrajectoryCar::CalcPoseOutput);
     this->DeclareVectorOutputPort(
-        &LoadablePriusTrajectoryCarDouble::CalcVelocityOutput);
+        &TrajectoryCar::CalcVelocityOutput);
     this->DeclareContinuousState(
         drake::automotive::TrajectoryCarState<double>());
     this->DeclareNumericParameter(
@@ -146,7 +145,7 @@ class LoadablePriusTrajectoryCarDouble final
     return 0;
   }
 
-  ~LoadablePriusTrajectoryCarDouble() {
+  ~TrajectoryCar() {
     delete curve_;
     curve_ = nullptr;
   }
@@ -350,7 +349,7 @@ class LoadablePriusTrajectoryCarFactoryDouble final
     : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadablePriusTrajectoryCarDouble>();
+    return std::make_unique<TrajectoryCar>();
   }
 };
 

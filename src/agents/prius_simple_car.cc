@@ -75,7 +75,7 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 }  // namespace
 
 class LoadablePriusSimpleCarDouble final
-    : public delphyne::AgentPluginDoubleBase {
+    : public delphyne::AgentPlugin {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusSimpleCarDouble)
 

@@ -81,32 +81,32 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 
 }  // namespace
 
-class LoadableMobilControlledSimpleCarDouble final
-    : public delphyne::AgentPluginDoubleBase {
+class MobilCar final
+    : public delphyne::AgentPlugin {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMobilControlledSimpleCarDouble)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilCar)
 
-  LoadableMobilControlledSimpleCarDouble() {
-    igndbg << "LoadableMobilControlledSimpleCar constructor" << std::endl;
+  MobilCar() {
+    igndbg << "MobilCar constructor" << std::endl;
 
     this->DeclareVectorInputPort(drake::automotive::DrivingCommand<double>());
     this->DeclareVectorOutputPort(
-        &LoadableMobilControlledSimpleCarDouble::CalcStateOutput);
+        &MobilCar::CalcStateOutput);
     this->DeclareVectorOutputPort(
-        &LoadableMobilControlledSimpleCarDouble::CalcPose);
+        &MobilCar::CalcPose);
     this->DeclareVectorOutputPort(
-        &LoadableMobilControlledSimpleCarDouble::CalcVelocity);
+        &MobilCar::CalcVelocity);
     this->DeclareContinuousState(drake::automotive::SimpleCarState<double>());
     this->DeclareNumericParameter(drake::automotive::SimpleCarParams<double>());
 
     this->DeclareInequalityConstraint(
-        &LoadableMobilControlledSimpleCarDouble::CalcSteeringAngleConstraint, 2,
+        &MobilCar::CalcSteeringAngleConstraint, 2,
         "steering angle limit");
     this->DeclareInequalityConstraint(
-        &LoadableMobilControlledSimpleCarDouble::CalcAccelerationConstraint, 2,
+        &MobilCar::CalcAccelerationConstraint, 2,
         "acceleration limit");
     this->DeclareInequalityConstraint(
-        &LoadableMobilControlledSimpleCarDouble::CalcVelocityConstraint, 2,
+        &MobilCar::CalcVelocityConstraint, 2,
         "velocity limit");
   }
 
@@ -117,7 +117,7 @@ class LoadableMobilControlledSimpleCarDouble final
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {
-    igndbg << "LoadableMobilControlledSimpleCar configure" << std::endl;
+    igndbg << "MobilCar configure" << std::endl;
     auto road = linb::any_cast<const drake::maliput::api::RoadGeometry*>(
         parameters.at("road"));
     if (road == nullptr) {
@@ -128,26 +128,38 @@ class LoadableMobilControlledSimpleCarDouble final
 
     bool initial_with_s = linb::any_cast<bool>(parameters.at("initial_with_s"));
 
-    auto mobil_planner =
+    drake::automotive::MobilPlanner<double> *mobil_planner =
         builder->template AddSystem<drake::automotive::MobilPlanner<double>>(
-            *road, initial_with_s,
-            drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
-            0. /* time period (unused) */);
+            std::make_unique<drake::automotive::MobilPlanner<double>>(
+                *road, initial_with_s,
+                drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+                0. /* time period (unused) */
+                 )
+            );
     mobil_planner->set_name(name + "_mobil_planner");
 
-    auto idm_controller =
+    drake::automotive::IdmController<double> *idm_controller =
         builder->template AddSystem<drake::automotive::IdmController<double>>(
-            *road, drake::automotive::ScanStrategy::kBranches,
-            drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
-            0. /* time period (unused) */);
+            std::make_unique<drake::automotive::IdmController<double>>(
+                *road, drake::automotive::ScanStrategy::kBranches,
+                drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+                0. /* time period (unused) */
+                )
+            );
     idm_controller->set_name(name + "_idm_controller");
 
-    auto pursuit = builder->template AddSystem<
-        drake::automotive::PurePursuitController<double>>();
+    drake::automotive::PurePursuitController<double> *pursuit =
+        builder->template AddSystem<drake::automotive::PurePursuitController<double>>(
+            std::make_unique<drake::automotive::PurePursuitController<double>>()
+            );
     pursuit->set_name(name + "_pure_pursuit_controller");
 
-    auto mux = builder->template AddSystem<drake::systems::Multiplexer<double>>(
-        drake::automotive::DrivingCommand<double>());
+    drake::systems::Multiplexer<double> *mux =
+        builder->template AddSystem<drake::systems::Multiplexer<double>>(
+            std::make_unique<drake::systems::Multiplexer<double>>(
+                drake::automotive::DrivingCommand<double>()
+                )
+            );
     mux->set_name(name + "_mux");
 
     // Wire up MobilPlanner and IdmController.
@@ -186,8 +198,13 @@ class LoadableMobilControlledSimpleCarDouble final
 
     const std::string car_state_channel =
         "agents/" + std::to_string(id) + "/state";
-    auto car_state_publisher = builder->template AddSystem<
-        IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
+
+    IgnPublisherSystem<ignition::msgs::SimpleCarState> *car_state_publisher =
+        builder->template AddSystem<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
+            std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
+                car_state_channel
+                )
+            );
 
     // Drake car states are translated to ignition.
     builder->Connect(this->state_output(),
@@ -385,7 +402,7 @@ class LoadableMobilControlledSimpleCarFactoryDouble final
     : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadableMobilControlledSimpleCarDouble>();
+    return std::make_unique<MobilCar>();
   }
 };
 
@@ -393,4 +410,5 @@ class LoadableMobilControlledSimpleCarFactoryDouble final
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
     delphyne::LoadableMobilControlledSimpleCarFactoryDouble,
-    delphyne::AgentPluginFactory)
+    delphyne::AgentPluginFactory
+)

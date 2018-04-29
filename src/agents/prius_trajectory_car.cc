@@ -82,7 +82,7 @@ namespace delphyne {
 ///
 /// @ingroup automotive_plants
 class LoadablePriusTrajectoryCarDouble final
-    : public delphyne::AgentPluginDoubleBase {
+    : public delphyne::AgentPlugin {
  public:
   typedef typename drake::automotive::Curve2<double>::Point2T Point2;
 

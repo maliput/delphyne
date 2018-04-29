@@ -17,38 +17,42 @@
 // An example class that derives from the AgentPluginAutoDiffXdBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
-class LoadableExampleAutoDiffXd final
-    : public delphyne::AgentPluginAutoDiffXdBase {
+class AutoDiffAgent final
+    : public delphyne::AutoDiffAgentPlugin {
  public:
-  int Configure(const std::map<std::string, linb::any>& parameters,
-                drake::systems::DiagramBuilder<::drake::AutoDiffXd>* builder,
-                drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
-                int id,
-                drake::systems::rendering::PoseAggregator<::drake::AutoDiffXd>*
-                    aggregator,
-                drake::automotive::CarVisApplicator<::drake::AutoDiffXd>*
-                    car_vis_applicator) override {
+  int Configure(
+      const std::map<std::string, linb::any>& parameters,
+      drake::systems::DiagramBuilder<delphyne::AutoDiff>* builder,
+      drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
+      int id,
+      drake::systems::rendering::PoseAggregator<delphyne::AutoDiff>*
+          aggregator,
+      drake::automotive::CarVisApplicator<delphyne::AutoDiff>*
+          car_vis_applicator
+      ) override {
     return 0;
   }
 
   int Initialize(
-      drake::systems::Context<::drake::AutoDiffXd>* context) override {
+      drake::systems::Context<delphyne::AutoDiff>* context) override {
     return 0;
   }
 };
 
 // An example factory class that derives from AgentPluginFactoryAutoDiffXdBase
 // (see agent_plugin_base.h for more information).  This factory creates and
-// returns a std::unique_ptr of the LoadableExampleAutoDiffXd above, and
+// returns a std::unique_ptr of the AutoDiffAgent above, and
 // showcases the way almost all loadable plugins should implement the factory
 // class.
-class LoadableExampleFactoryAutoDiffXd final
+class AutoDiffAgentFactory final
     : public delphyne::AutoDiffAgentPluginFactory {
  public:
-  std::unique_ptr<delphyne::AgentPluginBase<::drake::AutoDiffXd>> Create() {
-    return std::make_unique<LoadableExampleAutoDiffXd>();
+  std::unique_ptr<delphyne::AgentPluginBase<delphyne::AutoDiff>> Create() {
+    return std::make_unique<AutoDiffAgent>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryAutoDiffXd,
-                                  delphyne::AutoDiffAgentPluginFactory)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(
+    AutoDiffAgentFactory,
+    delphyne::AutoDiffAgentPluginFactory
+)

@@ -192,8 +192,8 @@ else (build_errors)
 
   add_subdirectory(backend)
   add_subdirectory(protobuf)
-  add_subdirectory(src)
   add_subdirectory(include)
+  add_subdirectory(src)
 
   ########################################
   # Testing

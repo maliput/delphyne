@@ -82,7 +82,7 @@ const drake::automotive::LaneDirection& get_lane_direction(
 }  // namespace
 
 class LoadableMaliputRailcarDouble final
-    : public delphyne::AgentPluginDoubleBase {
+    : public delphyne::AgentPlugin {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMaliputRailcarDouble)
 

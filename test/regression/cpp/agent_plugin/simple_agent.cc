@@ -17,7 +17,7 @@
 // An example class that derives from the AgentPluginDoubleBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
-class LoadableExampleDouble final : public delphyne::AgentPluginDoubleBase {
+class SimpleAgent final : public delphyne::AgentPlugin {
  public:
   int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
@@ -36,15 +36,16 @@ class LoadableExampleDouble final : public delphyne::AgentPluginDoubleBase {
 
 // An example factory class that derives from AgentPluginFactory
 // (see agent_plugin_base.h for more information).  This factory creates and
-// returns a std::unique_ptr of the LoadableExampleDouble above, and showcases
+// returns a std::unique_ptr of the SimpleAgent above, and showcases
 // the way almost all loadable plugins should implement the factory class.
-class LoadableExampleFactoryDouble final
-    : public delphyne::AgentPluginFactory {
+class SimpleAgentFactory final : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadableExampleDouble>();
+    return std::make_unique<SimpleAgent>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(LoadableExampleFactoryDouble,
-                                  delphyne::AgentPluginFactory)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(
+    SimpleAgentFactory,
+    delphyne::AgentPluginFactory
+)

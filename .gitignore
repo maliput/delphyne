@@ -8,3 +8,5 @@
 .pydevproject
 .settings
 
+# Other
+src/dude

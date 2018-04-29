@@ -67,11 +67,9 @@ class AgentPluginBase : public drake::systems::LeafSystem<T> {
   ignition::common::PluginPtr plugin_;
 };
 
-typedef delphyne::AgentPluginBase<double> AgentPluginDoubleBase;
-typedef delphyne::AgentPluginBase<::drake::AutoDiffXd>
-    AgentPluginAutoDiffXdBase;
-typedef delphyne::AgentPluginBase<::drake::symbolic::Expression>
-    AgentPluginExpressionBase;
+typedef AgentPluginBase<double> AgentPlugin;
+typedef AgentPluginBase<AutoDiff> AutoDiffAgentPlugin;
+typedef AgentPluginBase<Symbolic> SymbolicAgentPlugin;
 
 /// The abstract class factory that all plugins must inherit from.  Concrete
 /// implementations must implement the 'Create' method; see the documentation
@@ -91,12 +89,9 @@ class AgentPluginFactoryBase {
   virtual ~AgentPluginFactoryBase() = default;
 };
 
-typedef delphyne::AgentPluginFactoryBase<double> AgentPluginFactory;
-typedef delphyne::AgentPluginFactoryBase<::drake::AutoDiffXd>
-    AutoDiffAgentPluginFactory;
-typedef delphyne::AgentPluginFactoryBase<::drake::symbolic::Expression>
-    SymbolicAgentPluginFactory;
-
+typedef AgentPluginFactoryBase<double> AgentPluginFactory;
+typedef AgentPluginFactoryBase<AutoDiff> AutoDiffAgentPluginFactory;
+typedef AgentPluginFactoryBase<Symbolic> SymbolicAgentPluginFactory;
 
 /// Traits lookup for the agent plugin factories.
 template <typename T>

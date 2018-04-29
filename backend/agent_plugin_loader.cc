@@ -16,7 +16,6 @@
 #include <ignition/common/PluginLoader.hh>
 #include <ignition/common/SystemPaths.hh>
 
-
 #include "../include/delphyne/agent_plugin_base.h"
 #include "../include/delphyne/types.h"
 
@@ -40,9 +39,7 @@ namespace {
 //           instead, it must be something like 'AgentPluginFactory'.
 template <typename T>
 std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
-    const std::string& plugin_library_name,
-    const std::string& plugin_name
-  ) {
+    const std::string& plugin_library_name, const std::string& plugin_name) {
   typedef AgentPluginFactoryBase<T> Factory;
   igndbg << "Loading plugin [" << plugin_name << "]" << std::endl;
 
@@ -63,8 +60,9 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
 
   // Automagically discover delphyne library paths
   // Discovers the path IF it was loaded as part of this process
-  drake::optional<std::string> libdelphyne_dir = drake::LoadedLibraryPath("libdelphyne-automotive-simulator.so");
-  if ( libdelphyne_dir ) {
+  drake::optional<std::string> libdelphyne_dir =
+      drake::LoadedLibraryPath("libdelphyne-automotive-simulator.so");
+  if (libdelphyne_dir) {
     system_paths.AddPluginPaths(libdelphyne_dir.value() + "/delphyne/agents");
     system_paths.AddPluginPaths(libdelphyne_dir.value());
   }
@@ -72,10 +70,11 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
   /********************
    * Load Library
    *******************/
-  const std::string path_to_lib = system_paths.FindSharedLibrary(plugin_library_name);
+  const std::string path_to_lib =
+      system_paths.FindSharedLibrary(plugin_library_name);
   if (path_to_lib.empty()) {
-    ignerr << "Failed to find plugin library '" << plugin_library_name
-           << "'" << std::endl;  // could usefully show the search path (system_paths)
+    ignerr << "Failed to find plugin library '" << plugin_library_name << "'"
+           << std::endl;  // could usefully show the search path (system_paths)
     return nullptr;
   }
 
@@ -90,16 +89,14 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
    *******************/
   if (plugin_names.empty()) {
     ignerr << "Failed to load plugin library '" << plugin_library_name
-           << "' on path [" << path_to_lib << "]"
-           << std::endl;
+           << "' on path [" << path_to_lib << "]" << std::endl;
     return nullptr;
   }
-  if (plugin_name == "default" && (plugin_names.size() != 1) ) {
-    ignerr << "The plugin library '" << plugin_library_name
-           << "' on path [" << path_to_lib << "]"
+  if (plugin_name == "default" && (plugin_names.size() != 1)) {
+    ignerr << "The plugin library '" << plugin_library_name << "' on path ["
+           << path_to_lib << "]"
            << " contains more than one plugin, please specify "
-           << " the plugin to load"
-           << std::endl;
+           << " the plugin to load" << std::endl;
     return nullptr;
   }
 
@@ -110,14 +107,11 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
     if (name.empty()) {
       continue;
     }
-    if ( (plugin_name != "default") &&
-         (plugin_name != name) &&
-         ((std::string("::") + plugin_name) != name)
-       ) {
+    if ((plugin_name != "default") && (plugin_name != name) &&
+        ((std::string("::") + plugin_name) != name)) {
       continue;
     }
-    ignition::common::PluginPtr common_plugin =
-        plugin_loader.Instantiate(name);
+    ignition::common::PluginPtr common_plugin = plugin_loader.Instantiate(name);
     if (!common_plugin) {
       continue;
     }
@@ -137,11 +131,13 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
     // ->SetPlugin() method to store a reference to the common_plugin
     // shared_ptr, which makes sure it stays around for the lifetime of the
     // loaded agent.
-//    U* factory = common_plugin->QueryInterface<U>(type.str());
-    Factory* factory = common_plugin->QueryInterface<Factory>(AgentPluginFactoryTraits<T>::name());
+    //    U* factory = common_plugin->QueryInterface<U>(type.str());
+    Factory* factory = common_plugin->QueryInterface<Factory>(
+        AgentPluginFactoryTraits<T>::name());
     if (factory == nullptr) {
       ignerr << "Failed to load plugin '" << name
-             << "' [couldn't load factory '" << AgentPluginFactoryTraits<T>::name() << "']" << std::endl;
+             << "' [couldn't load factory '"
+             << AgentPluginFactoryTraits<T>::name() << "']" << std::endl;
       return nullptr;
     }
     std::unique_ptr<delphyne::AgentPluginBase<T>> plugin = factory->Create();
@@ -157,33 +153,25 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
 
 }  // namespace
 
-  // This needs to be in the delphyne::backend namespace explicitly due to a
-  // gcc bug.
+// This needs to be in the delphyne::backend namespace explicitly due to a
+// gcc bug.
 
-  template <>
-  std::unique_ptr<AgentPluginBase<double>> LoadPlugin<double>(
-      const std::string& plugin_library_name,
-      const std::string& plugin_name) {
-    return LoadPluginInternal<double>(plugin_library_name, plugin_name);
-  }
+template <>
+std::unique_ptr<AgentPluginBase<double>> LoadPlugin<double>(
+    const std::string& plugin_library_name, const std::string& plugin_name) {
+  return LoadPluginInternal<double>(plugin_library_name, plugin_name);
+}
 
-  template <>
-  std::unique_ptr<AgentPluginBase<AutoDiff>>
-  LoadPlugin<AutoDiff>(
-      const std::string& plugin_library_name,
-      const std::string& plugin_name) {
-    return LoadPluginInternal<AutoDiff>(plugin_library_name,
-                                                   plugin_name);
-  }
+template <>
+std::unique_ptr<AgentPluginBase<AutoDiff>> LoadPlugin<AutoDiff>(
+    const std::string& plugin_library_name, const std::string& plugin_name) {
+  return LoadPluginInternal<AutoDiff>(plugin_library_name, plugin_name);
+}
 
-  template <>
-  std::unique_ptr<
-      delphyne::AgentPluginBase<Symbolic>>
-  LoadPlugin<Symbolic>(
-      const std::string& plugin_library_name,
-      const std::string& plugin_name) {
-    return LoadPluginInternal<Symbolic>(
-        plugin_library_name, plugin_name);
-  }
+template <>
+std::unique_ptr<delphyne::AgentPluginBase<Symbolic>> LoadPlugin<Symbolic>(
+    const std::string& plugin_library_name, const std::string& plugin_name) {
+  return LoadPluginInternal<Symbolic>(plugin_library_name, plugin_name);
+}
 
 }  // namespace delphyne

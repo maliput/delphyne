@@ -6,8 +6,8 @@
 ** Includes
 *****************************************************************************/
 
-#include <drake/common/eigen_types.h>
 #include <drake/common/autodiff.h>
+#include <drake/common/eigen_types.h>
 #include <drake/common/symbolic.h>
 
 /*****************************************************************************
@@ -27,5 +27,4 @@ typedef ::drake::symbolic::Expression Symbolic;
 ** Trailers
 *****************************************************************************/
 
-} // namespace delphyne
-
+}  // namespace delphyne

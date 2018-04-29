@@ -23,15 +23,14 @@ class SymbolicAgent final : public delphyne::SymbolicAgentPlugin {
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<delphyne::Symbolic>* builder,
       drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
-      drake::systems::rendering::PoseAggregator<delphyne::Symbolic>*
-          aggregator,
+      drake::systems::rendering::PoseAggregator<delphyne::Symbolic>* aggregator,
       drake::automotive::CarVisApplicator<delphyne::Symbolic>*
           car_vis_applicator) override {
     return 0;
   }
 
-  int Initialize(drake::systems::Context<delphyne::Symbolic>*
-                     context) override {
+  int Initialize(
+      drake::systems::Context<delphyne::Symbolic>* context) override {
     return 0;
   }
 };
@@ -44,8 +43,7 @@ class SymbolicAgent final : public delphyne::SymbolicAgentPlugin {
 class LoadableExampleFactoryExpression final
     : public delphyne::SymbolicAgentPluginFactory {
  public:
-  std::unique_ptr<delphyne::AgentPluginBase<delphyne::Symbolic>>
-  Create() {
+  std::unique_ptr<delphyne::AgentPluginBase<delphyne::Symbolic>> Create() {
     return std::make_unique<SymbolicAgent>();
   }
 };

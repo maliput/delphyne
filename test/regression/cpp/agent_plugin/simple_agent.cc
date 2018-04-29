@@ -45,7 +45,5 @@ class SimpleAgentFactory final : public delphyne::AgentPluginFactory {
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    SimpleAgentFactory,
-    delphyne::AgentPluginFactory
-)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(SimpleAgentFactory,
+                                  delphyne::AgentPluginFactory)

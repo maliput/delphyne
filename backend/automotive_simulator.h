@@ -91,18 +91,19 @@ class AutomotiveSimulator {
   ///
   /// @return The ID of the agent that was just added to the simulation, or -1
   /// on error.
-  int AddLoadableAgent(const std::string& plugin_library_name,
-                       const std::map<std::string, linb::any>& parameters,
-                       const std::string& name,
-                       std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
+  int AddLoadableAgent(
+      const std::string& plugin_library_name,
+      const std::map<std::string, linb::any>& parameters,
+      const std::string& name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
 
   /// Specify the exact plugin name if there should be more than one plugin
   /// in the plugin library.
-  int AddLoadableAgent(const std::string& plugin_library_name,
-                       const std::string& plugin_name,
-                       const std::map<std::string, linb::any>& parameters,
-                       const std::string& name,
-                       std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
+  int AddLoadableAgent(
+      const std::string& plugin_library_name, const std::string& plugin_name,
+      const std::map<std::string, linb::any>& parameters,
+      const std::string& name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
 
   /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
   /// includes its DrivingCommand LCM input.

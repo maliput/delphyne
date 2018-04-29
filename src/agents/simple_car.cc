@@ -74,30 +74,25 @@ const drake::automotive::SimpleCarParams<T>& get_params(
 
 }  // namespace
 
-class SimpleCar final
-    : public delphyne::AgentPlugin {
+class SimpleCar final : public delphyne::AgentPlugin {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar)
 
   SimpleCar() {
     igndbg << "SimpleCar constructor" << std::endl;
     this->DeclareVectorInputPort(drake::automotive::DrivingCommand<double>());
-    this->DeclareVectorOutputPort(
-        &SimpleCar::CalcStateOutput);
+    this->DeclareVectorOutputPort(&SimpleCar::CalcStateOutput);
     this->DeclareVectorOutputPort(&SimpleCar::CalcPose);
     this->DeclareVectorOutputPort(&SimpleCar::CalcVelocity);
     this->DeclareContinuousState(drake::automotive::SimpleCarState<double>());
     this->DeclareNumericParameter(drake::automotive::SimpleCarParams<double>());
 
-    this->DeclareInequalityConstraint(
-        &SimpleCar::CalcSteeringAngleConstraint, 2,
-        "steering angle limit");
-    this->DeclareInequalityConstraint(
-        &SimpleCar::CalcAccelerationConstraint, 2,
-        "acceleration limit");
-    this->DeclareInequalityConstraint(
-        &SimpleCar::CalcVelocityConstraint, 2,
-        "velocity limit");
+    this->DeclareInequalityConstraint(&SimpleCar::CalcSteeringAngleConstraint,
+                                      2, "steering angle limit");
+    this->DeclareInequalityConstraint(&SimpleCar::CalcAccelerationConstraint, 2,
+                                      "acceleration limit");
+    this->DeclareInequalityConstraint(&SimpleCar::CalcVelocityConstraint, 2,
+                                      "velocity limit");
   }
 
   int Configure(const std::map<std::string, linb::any>& parameters,
@@ -326,8 +321,7 @@ class SimpleCar final
   const drake::automotive::SimpleCarStateTranslator translator_;
 };
 
-class SimpleCarFactory final
-    : public delphyne::AgentPluginFactory {
+class SimpleCarFactory final : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<SimpleCar>();

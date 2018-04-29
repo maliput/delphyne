@@ -92,12 +92,9 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
   TrajectoryCar() : curve_(nullptr) {
     this->DeclareInputPort(drake::systems::kVectorValued,
                            1 /* single-valued input */);
-    this->DeclareVectorOutputPort(
-        &TrajectoryCar::CalcStateOutput);
-    this->DeclareVectorOutputPort(
-        &TrajectoryCar::CalcPoseOutput);
-    this->DeclareVectorOutputPort(
-        &TrajectoryCar::CalcVelocityOutput);
+    this->DeclareVectorOutputPort(&TrajectoryCar::CalcStateOutput);
+    this->DeclareVectorOutputPort(&TrajectoryCar::CalcPoseOutput);
+    this->DeclareVectorOutputPort(&TrajectoryCar::CalcVelocityOutput);
     this->DeclareContinuousState(
         drake::automotive::TrajectoryCarState<double>());
     this->DeclareNumericParameter(

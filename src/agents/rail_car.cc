@@ -82,9 +82,7 @@ const drake::automotive::LaneDirection& get_lane_direction(
 }  // namespace
 
 class RailCar final : public delphyne::AgentPlugin {
-
-public:
-
+ public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
   static constexpr double kLaneEndEpsilon{1e-12};
@@ -98,16 +96,11 @@ public:
         this->DeclareInputPort(drake::systems::kVectorValued, 1).get_index();
 
     state_output_port_index_ =
-        this->DeclareVectorOutputPort(
-                &RailCar::CalcStateOutput)
-            .get_index();
+        this->DeclareVectorOutputPort(&RailCar::CalcStateOutput).get_index();
     pose_output_port_index_ =
-        this->DeclareVectorOutputPort(&RailCar::CalcPose)
-            .get_index();
+        this->DeclareVectorOutputPort(&RailCar::CalcPose).get_index();
     velocity_output_port_index_ =
-        this->DeclareVectorOutputPort(
-                &RailCar::CalcVelocity)
-            .get_index();
+        this->DeclareVectorOutputPort(&RailCar::CalcVelocity).get_index();
 
     this->DeclareContinuousState(
         drake::automotive::MaliputRailcarState<double>());
@@ -155,9 +148,8 @@ public:
     }
 
     lane_state_output_port_index_ =
-        this->DeclareAbstractOutputPort(
-                *initial_lane_direction_,
-                &RailCar::CalcLaneOutput)
+        this->DeclareAbstractOutputPort(*initial_lane_direction_,
+                                        &RailCar::CalcLaneOutput)
             .get_index();
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
@@ -584,8 +576,7 @@ public:
   drake::automotive::MaliputRailcarParams<double>* params_;
 };
 
-class RailCarFactory final
-    : public delphyne::AgentPluginFactory {
+class RailCarFactory final : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
     return std::make_unique<RailCar>();
@@ -594,7 +585,5 @@ class RailCarFactory final
 
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    delphyne::RailCarFactory,
-    delphyne::AgentPluginFactory
-)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::RailCarFactory,
+                                  delphyne::AgentPluginFactory)

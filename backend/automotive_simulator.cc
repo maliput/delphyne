@@ -146,18 +146,16 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name,
-    const std::map<std::string, linb::any>& parameters,
-    const std::string& name,
+    const std::map<std::string, linb::any>& parameters, const std::string& name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
-  return AddLoadableAgent(plugin_library_name, "", parameters, name, std::move(initial_state));
+  return AddLoadableAgent(plugin_library_name, "", parameters, name,
+                          std::move(initial_state));
 }
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin_library_name,
-    const std::string& plugin_name,
-    const std::map<std::string, linb::any>& parameters,
-    const std::string& name,
+    const std::string& plugin_library_name, const std::string& plugin_name,
+    const std::map<std::string, linb::any>& parameters, const std::string& name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);

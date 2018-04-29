@@ -17,19 +17,15 @@
 // An example class that derives from the AgentPluginAutoDiffXdBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
-class AutoDiffAgent final
-    : public delphyne::AutoDiffAgentPlugin {
+class AutoDiffAgent final : public delphyne::AutoDiffAgentPlugin {
  public:
   int Configure(
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<delphyne::AutoDiff>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
-      int id,
-      drake::systems::rendering::PoseAggregator<delphyne::AutoDiff>*
-          aggregator,
+      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
+      drake::systems::rendering::PoseAggregator<delphyne::AutoDiff>* aggregator,
       drake::automotive::CarVisApplicator<delphyne::AutoDiff>*
-          car_vis_applicator
-      ) override {
+          car_vis_applicator) override {
     return 0;
   }
 
@@ -44,15 +40,12 @@ class AutoDiffAgent final
 // returns a std::unique_ptr of the AutoDiffAgent above, and
 // showcases the way almost all loadable plugins should implement the factory
 // class.
-class AutoDiffAgentFactory final
-    : public delphyne::AutoDiffAgentPluginFactory {
+class AutoDiffAgentFactory final : public delphyne::AutoDiffAgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<delphyne::AutoDiff>> Create() {
     return std::make_unique<AutoDiffAgent>();
   }
 };
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(
-    AutoDiffAgentFactory,
-    delphyne::AutoDiffAgentPluginFactory
-)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(AutoDiffAgentFactory,
+                                  delphyne::AutoDiffAgentPluginFactory)

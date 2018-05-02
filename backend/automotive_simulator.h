@@ -213,17 +213,7 @@ class AutomotiveSimulator {
 
   // Adds an LCM publisher for the given @p system.
   // @pre Start() has NOT been called.
-  void AddPublisher(const drake::automotive::MaliputRailcar<T>& system,
-                    int vehicle_number);
-
-  // Adds an LCM publisher for the given @p system.
-  // @pre Start() has NOT been called.
   void AddPublisher(const drake::automotive::SimpleCar<T>& system,
-                    int vehicle_number);
-
-  // Adds an LCM publisher for the given @p system.
-  // @pre Start() has NOT been called.
-  void AddPublisher(const drake::automotive::TrajectoryCar<T>& system,
                     int vehicle_number);
 
   // Generates the URDF model of the road network and loads it into the

@@ -276,20 +276,6 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
 
 template <typename T>
 void AutomotiveSimulator<T>::AddPublisher(
-    const drake::automotive::MaliputRailcar<T>& system, int vehicle_number) {
-  DELPHYNE_DEMAND(!has_started());
-
-  // TODO(nventuro): add a translator to ignition. See #302
-  static const drake::automotive::MaliputRailcarStateTranslator translator;
-  const std::string channel =
-      std::to_string(vehicle_number) + "_MALIPUT_RAILCAR_STATE";
-  auto publisher = builder_->template AddSystem<LcmPublisherSystem>(
-      channel, translator, lcm_.get());
-  builder_->Connect(system.state_output(), publisher->get_input_port());
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::AddPublisher(
     const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
   DELPHYNE_DEMAND(!has_started());
   auto simple_car_translator =
@@ -306,20 +292,6 @@ void AutomotiveSimulator<T>::AddPublisher(
 
   // And the translated ignition car state is then published.
   builder_->Connect(*simple_car_translator, *simple_car_publisher);
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::AddPublisher(
-    const drake::automotive::TrajectoryCar<T>& system, int vehicle_number) {
-  DELPHYNE_DEMAND(!has_started());
-
-  // TODO(nventuro): add a translator to ignition. See #302
-  static const drake::automotive::SimpleCarStateTranslator translator;
-  const std::string channel =
-      std::to_string(vehicle_number) + "_SIMPLE_CAR_STATE";
-  auto publisher = builder_->template AddSystem<LcmPublisherSystem>(
-      channel, translator, lcm_.get());
-  builder_->Connect(system.raw_pose_output(), publisher->get_input_port());
 }
 
 template <typename T>

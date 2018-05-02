@@ -12,12 +12,13 @@ import sys
 import time
 
 from contextlib import contextmanager
-
 from delphyne.bindings import (
-    AutomotiveSimulator,
-    SimpleCarState
+    AutomotiveSimulator
 )
 from delphyne.launcher import Launcher
+from pydrake.automotive import (
+    SimpleCarState
+)
 
 
 @contextmanager
@@ -69,8 +70,8 @@ def build_simple_car_simulator(initial_positions=None):
     car_id = 0
     for car_position in initial_positions:
         state = SimpleCarState()
-        state.y = car_position[0]
-        state.x = car_position[1]
+        state.set_y(car_position[0])
+        state.set_x(car_position[1])
         driving_command = "teleop/" + str(car_id)
         simulator.AddPriusSimpleCar(str(car_id), driving_command, state)
         car_id += 1

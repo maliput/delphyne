@@ -4,12 +4,14 @@
 
 namespace delphyne {
 
-void InteractiveSimulationStats::NewRunStartingAt(double start_simtime) {
-  NewRunStartingAt(start_simtime, RealtimeClock::now());
+void InteractiveSimulationStats::NewRunStartingAt(
+    double start_simtime, double expected_realtime_rate) {
+  NewRunStartingAt(start_simtime, expected_realtime_rate, RealtimeClock::now());
 }
 
 void InteractiveSimulationStats::NewRunStartingAt(
-    double start_simtime, const TimePoint& start_realtime) {
+    double start_simtime, double expected_realtime_rate,
+    const TimePoint& start_realtime) {
   if (!run_stats_.empty()) {
     SimulationRunStats* current = GetMutableCurrentRunStats();
     current->RunFinished();
@@ -22,7 +24,8 @@ void InteractiveSimulationStats::NewRunStartingAt(
       total_executed_steps_ += current->get_executed_steps();
     }
   }
-  run_stats_.push_back(SimulationRunStats(start_simtime, start_realtime));
+  run_stats_.push_back(SimulationRunStats(start_simtime, expected_realtime_rate,
+                                          start_realtime));
 }
 
 const SimulationRunStats& InteractiveSimulationStats::GetCurrentRunStats()
@@ -34,6 +37,39 @@ const SimulationRunStats& InteractiveSimulationStats::GetCurrentRunStats()
 SimulationRunStats* InteractiveSimulationStats::GetMutableCurrentRunStats() {
   DELPHYNE_DEMAND(!run_stats_.empty());
   return &run_stats_.back();
+}
+
+void InteractiveSimulationStats::StepExecuted(double simtime) {
+  StepExecuted(simtime, RealtimeClock::now());
+}
+
+void InteractiveSimulationStats::StepExecuted(double simtime,
+                                              const TimePoint& realtime) {
+  UpdateRealtimeRate(simtime, realtime);
+  GetMutableCurrentRunStats()->StepExecuted(simtime, realtime);
+}
+
+const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd()
+    const {
+  auto current_run = GetCurrentRunStats();
+  const double current_realtime_rate = current_run.get_expected_realtime_rate();
+  const double current_elapsed_simtime = current_run.ElapsedSimtime();
+  return current_run.get_start_realtime() +
+         Duration(current_elapsed_simtime / current_realtime_rate);
+}
+
+void InteractiveSimulationStats::UpdateRealtimeRate(double simtime,
+                                                    const TimePoint& realtime) {
+  auto current_run = GetCurrentRunStats();
+
+  const double simtime_passed = simtime - current_run.get_last_step_simtime();
+  const Duration realtime_passed =
+      realtime - current_run.get_last_step_realtime();
+
+  weighted_simtime_ = weighted_simtime_ * 0.5 + simtime_passed;
+  weighted_realtime_ = weighted_realtime_ * 0.5 + realtime_passed.count();
+
+  weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }
 
 double InteractiveSimulationStats::TotalElapsedSimtime() const {

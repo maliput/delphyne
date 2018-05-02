@@ -24,24 +24,25 @@ class SimulationRunStats {
   ///
   /// @param[in] start_simtime The time the simulation started, in seconds,
   /// given by the simulator clock.
-  explicit SimulationRunStats(double start_simtime);
+  ///
+  /// @param[in] expected_realtime_rate The desired real time based in the
+  /// simulation runner configuration.
+  explicit SimulationRunStats(double start_simtime,
+                              double expected_realtime_rate);
 
   /// @brief Creates a new simulation run.
   ///
   /// @param[in] start_simtime The time the simulation started, in seconds,
   /// given by the simulator clock.
   ///
+  /// @param[in] expected_realtime_rate The desired real time based in the
+  /// simulation runner configuration.
+  ///
   /// @param[in] start_realtime The time the simulation started, given by the
   /// wall clock.
   explicit SimulationRunStats(double start_simtime,
+                              double expected_realtime_rate,
                               const TimePoint& start_realtime);
-
-  /// @brief Records that a step was executed by the simulator. Assumes that
-  /// the realtime counterpart is the current time.
-  ///
-  /// @param[in] simtime The time the step was executed, in seconds, given by
-  /// the simulator clock.
-  void StepExecuted(double simtime);
 
   /// @brief Records that a step was executed by the simulator.
   ///
@@ -63,6 +64,10 @@ class SimulationRunStats {
   /// @brief Indicates that the run has finished.
   void RunFinished();
 
+  /// @brief Returns the actual real time rate based on elapsed simulation and
+  /// real time.
+  double EffectiveRealtimeRate();
+
   /// @brief Returns the number of executed steps.
   int get_executed_steps() const { return executed_steps_; }
 
@@ -80,12 +85,17 @@ class SimulationRunStats {
     return last_step_realtime_;
   }
 
+  double get_expected_realtime_rate() const { return expected_realtime_rate_; }
+
  private:
   // @brief Start time, in seconds, based on simulator clock.
   double start_simtime_;
 
   /// @brief Last recorded step in simulation time. Measured in seconds.
-  double last_step_simtime_{std::numeric_limits<double>::quiet_NaN()};
+  double last_step_simtime_;
+
+  // @brief The configured real time rate at which the simulation should run.
+  double expected_realtime_rate_;
 
   // @brief Start time, in real-time.
   TimePoint start_realtime_;

@@ -391,16 +391,11 @@ void AutomotiveSimulator<T>::Build() {
   // The scene is then published over a scene topic to update the scene tree
   // widget of the visualizer. Because this information is not needed at the
   // same frequency the simulation runs at, the publishing frequency is reduced.
-
-  // TODO(basicNew): Temporary disabling this as it is breaking the UI. To be
-  // fixed ASAP. Issue recorded in
-  // https://github.com/ToyotaResearchInstitute/delphyne/issues/324
-  //
-  // auto scene_publisher =
-  //     builder_->template
-  //     AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
-  //         "scene", kScenePublishPeriodMs);
-  // builder_->Connect(*scene_system_, *scene_publisher);
+  auto scene_publisher =
+      builder_->template
+      AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+          "scene", kScenePublishPeriodMs);
+  builder_->Connect(*scene_system_, *scene_publisher);
 
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));

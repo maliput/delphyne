@@ -103,6 +103,11 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
     DELPHYNE_DEMAND(events != nullptr);
     DELPHYNE_DEMAND(time != nullptr);
 
+    // An update time calculation is required here to avoid having
+    // a NaN value when callling the StepBy method.
+    drake::systems::LeafSystem<double>::DoCalcNextUpdateTime(context, events,
+                                                             time);
+
     const int last_message_count = GetMessageCount(context);
 
     const int received_message_count = [this]() {

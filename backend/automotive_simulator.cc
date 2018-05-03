@@ -188,45 +188,6 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
 }
 
 template <typename T>
-int AutomotiveSimulator<T>::AddPriusSimpleCar(
-    const std::string& name, const std::string& channel_name,
-    const drake::automotive::SimpleCarState<T>& initial_state) {
-  DELPHYNE_DEMAND(!has_started());
-  DELPHYNE_DEMAND(aggregator_ != nullptr);
-  CheckNameUniqueness(name);
-  const int id = allocate_vehicle_number();
-
-  DELPHYNE_DEMAND(!channel_name.empty());
-
-  // Subscribes to ignition driving command messages.
-  auto driving_command_subscriber = builder_->template AddSystem<
-      IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
-      channel_name);
-
-  auto driving_command_translator =
-      builder_->template AddSystem<IgnDrivingCommandToDrake>();
-
-  // Those messages are then translated to Drake driving command messages.
-  builder_->Connect(*driving_command_subscriber, *driving_command_translator);
-
-  auto simple_car =
-      builder_->template AddSystem<drake::automotive::SimpleCar<T>>();
-  simple_car->set_name(name);
-
-  // The translated Drake driving command messages are then sent to the car.
-  builder_->Connect(*driving_command_translator, *simple_car);
-
-  agents_[id] = simple_car;
-  simple_car_initial_states_[simple_car].set_value(initial_state.get_value());
-
-  ConnectCarOutputsAndPriusVis(id, simple_car->pose_output(),
-                               simple_car->velocity_output());
-
-  AddPublisher(*simple_car, id);
-  return id;
-}
-
-template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road) {
   DELPHYNE_DEMAND(!has_started());
@@ -272,26 +233,6 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::AddPublisher(
-    const drake::automotive::SimpleCar<T>& system, int vehicle_number) {
-  DELPHYNE_DEMAND(!has_started());
-  auto simple_car_translator =
-      builder_->template AddSystem<DrakeSimpleCarStateToIgn>();
-
-  // The car state is first translated into an ignition car state.
-  builder_->Connect(system.state_output(),
-                    simple_car_translator->get_input_port(0));
-
-  const std::string channel =
-      "agents/" + std::to_string(vehicle_number) + "/state";
-  auto simple_car_publisher = builder_->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::SimpleCarState>>(channel);
-
-  // And the translated ignition car state is then published.
-  builder_->Connect(*simple_car_translator, *simple_car_publisher);
 }
 
 template <typename T>
@@ -378,8 +319,7 @@ void AutomotiveSimulator<T>::Build() {
   // widget of the visualizer. Because this information is not needed at the
   // same frequency the simulation runs at, the publishing frequency is reduced.
   auto scene_publisher =
-      builder_->template
-      AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
           "scene", kScenePublishPeriodMs);
   builder_->Connect(*scene_system_, *scene_publisher);
 

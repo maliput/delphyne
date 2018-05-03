@@ -73,7 +73,8 @@ def build_simple_car_simulator(initial_positions=None):
         state.set_y(car_position[0])
         state.set_x(car_position[1])
         driving_command = "teleop/" + str(car_id)
-        simulator.AddPriusSimpleCar(str(car_id), driving_command, state)
+        simulator.AddLoadableAgent("LoadablePriusSimpleCar", {}, str(car_id), state)
+
         car_id += 1
     return simulator
 

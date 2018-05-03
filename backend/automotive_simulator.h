@@ -105,25 +105,6 @@ class AutomotiveSimulator {
       const std::string& name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
 
-  /// Adds a SimpleCar to this simulation visualized as a Toyota Prius. This
-  /// includes its DrivingCommand LCM input.
-  ///
-  /// @pre Start() has NOT been called.
-  ///
-  /// @param name The car's name, which must be unique among all cars. Otherwise
-  /// a std::runtime_error will be thrown.
-  ///
-  /// @param channel_name  The SimpleCar will subscribe to an LCM channel of
-  /// this name to receive commands.  It must be non-empty.
-  ///
-  /// @param initial_state The SimpleCar's initial state.
-  ///
-  /// @return The ID of the car that was just added to the simulation.
-  int AddPriusSimpleCar(
-      const std::string& name, const std::string& channel_name,
-      const drake::automotive::SimpleCarState<T>& initial_state =
-          drake::automotive::SimpleCarState<T>());
-
   /// Sets the RoadGeometry for this simulation.
   ///
   /// @pre Start() has NOT been called.
@@ -210,11 +191,6 @@ class AutomotiveSimulator {
   void ConnectCarOutputsAndPriusVis(
       int id, const drake::systems::OutputPort<T>& pose_output,
       const drake::systems::OutputPort<T>& velocity_output);
-
-  // Adds an LCM publisher for the given @p system.
-  // @pre Start() has NOT been called.
-  void AddPublisher(const drake::automotive::SimpleCar<T>& system,
-                    int vehicle_number);
 
   // Generates the URDF model of the road network and loads it into the
   // `RigidBodyTree`. Member variable `road_` must be set prior to calling this

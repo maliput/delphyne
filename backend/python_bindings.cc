@@ -26,38 +26,16 @@ using delphyne::AutomotiveSimulator;
 using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
-using delphyne::SimulationRunStats;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;
-using drake::automotive::SimpleCarState;
 using drake::maliput::api::RoadGeometry;
 using drake::systems::BasicVector;
-using drake::systems::VectorBase;
 
 namespace {
 PYBIND11_MODULE(python_bindings, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
-
-  // TODO(apojomovsky): Import this from Drake. Tracked in delphyne's #339.
-  // Depends on drake's #8096 to be solved before we can actually replace
-  // this binding with it, since it currently lacks of constructors/methods.
-  // We are currently defining SimpleCarState so we can use it as a parameter
-  // of the SimulatorRunner.
-  py::class_<SimpleCarState<double>, BasicVector<double>>(m, "SimpleCarState",
-                                                          py::module_local())
-      .def(py::init<>())
-      .def_property("x", &SimpleCarState<double>::x,
-                    &SimpleCarState<double>::set_x)
-      .def_property("y", &SimpleCarState<double>::y,
-                    &SimpleCarState<double>::set_y)
-      .def_property("heading", &SimpleCarState<double>::heading,
-                    &SimpleCarState<double>::set_heading)
-      .def_property("velocity", &SimpleCarState<double>::velocity,
-                    &SimpleCarState<double>::set_velocity)
-      .def("get_coordinates_names",
-           &SimpleCarState<double>::GetCoordinateNames);
 
   py::class_<MaliputRailcarState<double>, BasicVector<double>>(
       m, "MaliputRailcarState")

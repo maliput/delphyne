@@ -37,9 +37,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   explicit IgnSubscriberSystem(const std::string& topic_name)
       : topic_name_(topic_name) {
     DeclareAbstractOutputPort(
-        [this](const drake::systems::Context<double>&) {
-          return this->AllocateDefaultAbstractValue();
-        },
+        [this]() { return this->AllocateDefaultAbstractValue(); },
         [this](const drake::systems::Context<double>& context,
                drake::systems::AbstractValue* out) {
           this->IgnSubscriberSystem::CalcIgnMessage(context, out);
@@ -104,6 +102,11 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
       double* time) const override {
     DELPHYNE_DEMAND(events != nullptr);
     DELPHYNE_DEMAND(time != nullptr);
+
+    // An update time calculation is required here to avoid having
+    // a NaN value when callling the StepBy method.
+    drake::systems::LeafSystem<double>::DoCalcNextUpdateTime(context, events,
+                                                             time);
 
     const int last_message_count = GetMessageCount(context);
 

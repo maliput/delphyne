@@ -9,8 +9,10 @@ import time
 import unittest
 from delphyne.bindings import (
     AutomotiveSimulator,
-    SimpleCarState,
     SimulatorRunner
+)
+from pydrake.automotive import (
+    SimpleCarState
 )
 
 

@@ -36,19 +36,20 @@ from __future__ import print_function
 
 import argparse
 
-from pydrake.automotive import LaneDirection
-
 from delphyne.bindings import (
     Any,
     AutomotiveSimulator,
     MaliputRailcarState,
     MaliputRailcarParams,
-    SimpleCarState,
     RoadBuilder,
     SimulatorRunner
 )
 from delphyne.simulation_utils import (
     launch_interactive_simulation
+)
+from pydrake.automotive import (
+    LaneDirection,
+    SimpleCarState
 )
 
 SIMULATION_TIME_STEP_SECS = 0.001
@@ -85,8 +86,8 @@ def main():
 
     if args.type == "simple":
         state = SimpleCarState()
-        state.x = 0.0
-        state.y = 1.0
+        state.set_x(0.0)
+        state.set_y(1.0)
 
         # Instantiate a LoadablePriusSimpleCar with 0 id and originally
         # placed in (0.0, 1.0)
@@ -100,8 +101,8 @@ def main():
         dragway = build_demo_dragway(simulator, "Mobil dragway")
 
         state = SimpleCarState()
-        state.x = 0.0
-        state.y = -3.7
+        state.set_x(0.0)
+        state.set_y(-3.7)
 
         mobil_params = {
             "initial_with_s": Any(True),

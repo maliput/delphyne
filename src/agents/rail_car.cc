@@ -1,34 +1,4 @@
-// All components of Drake are licensed under the BSD 3-Clause License
-// shown below. Where noted in the source code, some portions may
-// be subject to other permissive, non-viral licenses.
-
-// Copyright 2012-2016 Robot Locomotion Group @ CSAIL
-// All rights reserved.
-
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-
-// Redistributions of source code must retain the above copyright notice,
-// this list of conditions and the following disclaimer.  Redistributions
-// in binary form must reproduce the above copyright notice, this list of
-// conditions and the following disclaimer in the documentation and/or
-// other materials provided with the distribution.  Neither the name of
-// the Massachusetts Institute of Technology nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Copyright 2017 Toyota Research Institute
 
 // clalancette, caguero: The vast majority of the code below is copied from
 // https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/simple_car.cc
@@ -83,8 +53,8 @@
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
 
-#include <backend/agent_plugin_base.h>
-#include <backend/linb-any>
+#include "../../include/delphyne/agent_plugin_base.h"
+#include "../../include/delphyne/linb-any"
 
 namespace delphyne {
 
@@ -111,32 +81,26 @@ const drake::automotive::LaneDirection& get_lane_direction(
 
 }  // namespace
 
-class LoadableMaliputRailcarDouble final
-    : public delphyne::AgentPluginDoubleBase {
+class RailCar final : public delphyne::AgentPlugin {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadableMaliputRailcarDouble)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
   static constexpr double kLaneEndEpsilon{1e-12};
   static constexpr double kTimeEpsilon{1e-12};
   static constexpr double kDefaultInitialS{0};
   static constexpr double kDefaultInitialSpeed{1};
 
-  LoadableMaliputRailcarDouble() {
-    igndbg << "LoadableMaliputRailcar constructor" << std::endl;
+  RailCar() {
+    igndbg << "RailCar constructor" << std::endl;
     command_input_port_index_ =
         this->DeclareInputPort(drake::systems::kVectorValued, 1).get_index();
 
     state_output_port_index_ =
-        this->DeclareVectorOutputPort(
-                &LoadableMaliputRailcarDouble::CalcStateOutput)
-            .get_index();
+        this->DeclareVectorOutputPort(&RailCar::CalcStateOutput).get_index();
     pose_output_port_index_ =
-        this->DeclareVectorOutputPort(&LoadableMaliputRailcarDouble::CalcPose)
-            .get_index();
+        this->DeclareVectorOutputPort(&RailCar::CalcPose).get_index();
     velocity_output_port_index_ =
-        this->DeclareVectorOutputPort(
-                &LoadableMaliputRailcarDouble::CalcVelocity)
-            .get_index();
+        this->DeclareVectorOutputPort(&RailCar::CalcVelocity).get_index();
 
     this->DeclareContinuousState(
         drake::automotive::MaliputRailcarState<double>());
@@ -151,7 +115,7 @@ class LoadableMaliputRailcarDouble final
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {
-    igndbg << "LoadableMaliputRailcar configure" << std::endl;
+    igndbg << "RailCar configure" << std::endl;
     initial_lane_direction_ = linb::any_cast<drake::automotive::LaneDirection*>(
         parameters.at("lane_direction"));
 
@@ -162,21 +126,21 @@ class LoadableMaliputRailcarDouble final
         parameters.at("start_params"));
 
     if (road == nullptr) {
-      ignerr << "LoadableMaliputRailcar::Configure(): "
+      ignerr << "RailCar::Configure(): "
                 "RoadGeometry not set. Please call SetRoadGeometry() first "
                 "before calling this method."
              << std::endl;
       return -1;
     }
     if (initial_lane_direction_->lane == nullptr) {
-      ignerr << "LoadableMaliputRailcar::Configure(): "
+      ignerr << "RailCar::Configure(): "
                 "The provided initial lane is nullptr."
              << std::endl;
       return -1;
     }
     if (initial_lane_direction_->lane->segment()->junction()->road_geometry() !=
         road) {
-      ignerr << "LoadableMaliputRailcar::Configure(): "
+      ignerr << "RailCar::Configure(): "
                 "The provided initial lane is not within this simulation's "
                 "RoadGeometry."
              << std::endl;
@@ -184,9 +148,8 @@ class LoadableMaliputRailcarDouble final
     }
 
     lane_state_output_port_index_ =
-        this->DeclareAbstractOutputPort(
-                *initial_lane_direction_,
-                &LoadableMaliputRailcarDouble::CalcLaneOutput)
+        this->DeclareAbstractOutputPort(*initial_lane_direction_,
+                                        &RailCar::CalcLaneOutput)
             .get_index();
 
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
@@ -199,7 +162,7 @@ class LoadableMaliputRailcarDouble final
   }
 
   int Initialize(drake::systems::Context<double>* context) override {
-    igndbg << "LoadableMaliputRailcar initialize" << std::endl;
+    igndbg << "RailCar initialize" << std::endl;
     drake::automotive::MaliputRailcarParams<double>& railcar_system_params =
         this->get_mutable_parameters(context);
     railcar_system_params.set_value(params_->get_value());
@@ -587,7 +550,7 @@ class LoadableMaliputRailcarDouble final
 
       if (!next_branch) {
         DRAKE_ABORT_MSG(
-            "LoadableMaliputRailcar::DoCalcUnrestrictedUpdate: ERROR: "
+            "RailCar::DoCalcUnrestrictedUpdate: ERROR: "
             "Vehicle should switch lanes but no default or ongoing "
             "branch exists.");
       } else {
@@ -613,15 +576,14 @@ class LoadableMaliputRailcarDouble final
   drake::automotive::MaliputRailcarParams<double>* params_;
 };
 
-class LoadableMaliputRailcarFactoryDouble final
-    : public delphyne::AgentPluginFactoryDoubleBase {
+class RailCarFactory final : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadableMaliputRailcarDouble>();
+    return std::make_unique<RailCar>();
   }
 };
 
 }  // namespace delphyne
 
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::LoadableMaliputRailcarFactoryDouble,
-                                  delphyne::AgentPluginFactoryDoubleBase)
+IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::RailCarFactory,
+                                  delphyne::AgentPluginFactory)

@@ -1,34 +1,4 @@
-// All components of Drake are licensed under the BSD 3-Clause License
-// shown below. Where noted in the source code, some portions may
-// be subject to other permissive, non-viral licenses.
-
-// Copyright 2012-2016 Robot Locomotion Group @ CSAIL
-// All rights reserved.
-
-// Redistribution and use in source and binary forms, with or without
-// modification, are permitted provided that the following conditions are
-// met:
-
-// Redistributions of source code must retain the above copyright notice,
-// this list of conditions and the following disclaimer.  Redistributions
-// in binary form must reproduce the above copyright notice, this list of
-// conditions and the following disclaimer in the documentation and/or
-// other materials provided with the distribution.  Neither the name of
-// the Massachusetts Institute of Technology nor the names of its
-// contributors may be used to endorse or promote products derived from
-// this software without specific prior written permission.
-
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
-// "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
-// LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
-// A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
-// HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
-// DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
-// THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-// (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-// OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+// Copyright 2017 Toyota Research Institute
 
 // clalancette: The vast majority of the code below is copied from
 // https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/trajectory_car.cc
@@ -67,10 +37,11 @@
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
 
-#include <backend/agent_plugin_base.h>
 #include <backend/ign_publisher_system.h>
-#include <backend/linb-any>
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
+
+#include "../../include/delphyne/agent_plugin_base.h"
+#include "../../include/delphyne/linb-any"
 
 namespace delphyne {
 
@@ -110,24 +81,20 @@ namespace delphyne {
 /// They are already available to link against in the containing library.
 ///
 /// @ingroup automotive_plants
-class LoadablePriusTrajectoryCarDouble final
-    : public delphyne::AgentPluginDoubleBase {
+class TrajectoryCar final : public delphyne::AgentPlugin {
  public:
   typedef typename drake::automotive::Curve2<double>::Point2T Point2;
 
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(LoadablePriusTrajectoryCarDouble)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryCar)
 
   /// Constructs a TrajectoryCar system that traces a given two-dimensional @p
   /// curve.  Throws an error if the curve is empty (has a zero @p path_length).
-  LoadablePriusTrajectoryCarDouble() : curve_(nullptr) {
+  TrajectoryCar() : curve_(nullptr) {
     this->DeclareInputPort(drake::systems::kVectorValued,
                            1 /* single-valued input */);
-    this->DeclareVectorOutputPort(
-        &LoadablePriusTrajectoryCarDouble::CalcStateOutput);
-    this->DeclareVectorOutputPort(
-        &LoadablePriusTrajectoryCarDouble::CalcPoseOutput);
-    this->DeclareVectorOutputPort(
-        &LoadablePriusTrajectoryCarDouble::CalcVelocityOutput);
+    this->DeclareVectorOutputPort(&TrajectoryCar::CalcStateOutput);
+    this->DeclareVectorOutputPort(&TrajectoryCar::CalcPoseOutput);
+    this->DeclareVectorOutputPort(&TrajectoryCar::CalcVelocityOutput);
     this->DeclareContinuousState(
         drake::automotive::TrajectoryCarState<double>());
     this->DeclareNumericParameter(
@@ -175,7 +142,7 @@ class LoadablePriusTrajectoryCarDouble final
     return 0;
   }
 
-  ~LoadablePriusTrajectoryCarDouble() {
+  ~TrajectoryCar() {
     delete curve_;
     curve_ = nullptr;
   }
@@ -376,10 +343,10 @@ class LoadablePriusTrajectoryCarDouble final
 };
 
 class LoadablePriusTrajectoryCarFactoryDouble final
-    : public delphyne::AgentPluginFactoryDoubleBase {
+    : public delphyne::AgentPluginFactory {
  public:
   std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<LoadablePriusTrajectoryCarDouble>();
+    return std::make_unique<TrajectoryCar>();
   }
 };
 
@@ -387,4 +354,4 @@ class LoadablePriusTrajectoryCarFactoryDouble final
 
 IGN_COMMON_REGISTER_SINGLE_PLUGIN(
     delphyne::LoadablePriusTrajectoryCarFactoryDouble,
-    delphyne::AgentPluginFactoryDoubleBase)
+    delphyne::AgentPluginFactory)

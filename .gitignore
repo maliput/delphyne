@@ -1,2 +1,12 @@
 /bazel-*
 *.pyc
+
+# Eclipse
+.cproject
+.externalToolBuilders/
+.project
+.pydevproject
+.settings
+
+# Other
+src/dude

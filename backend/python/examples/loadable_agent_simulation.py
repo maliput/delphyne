@@ -11,7 +11,7 @@ For the time being two car types are supported:
 - simple, which just places a `LoadablePriusSimpleCarDouble` in an empty world.
 - mobil, which places a `LoadableMobilControlledSimpleCarDouble` at the start
 of a 100 meters dragway.
-- railcar, which places a `LoadableMaliputRailCar` in the center lane of a
+- rail, which places a `LoadableMaliputRailCar` in the center lane of a
 three-lane dragway.
 
 
@@ -26,7 +26,7 @@ $ loadable_agent_simulation.py --type="mobil"
 
 ```
 ```
-$ loadable_agent_simulation.py --type="railcar"
+$ loadable_agent_simulation.py --type="rail"
 
 ```
 
@@ -69,7 +69,7 @@ def main():
     on the provided configuration.
     """
 
-    car_agent_types = ["simple", "mobil", "railcar"]
+    car_agent_types = ["simple", "mobil", "rail"]
 
     parser = argparse.ArgumentParser(
         prog="loadable_agent_simulation",
@@ -90,7 +90,11 @@ def main():
 
         # Instantiate a LoadablePriusSimpleCar with 0 id and originally
         # placed in (0.0, 1.0)
-        simulator.AddLoadableAgent("LoadablePriusSimpleCar", {}, "0", state)
+        simulator.AddLoadableAgent("simple-car",
+                                   {},
+                                   args.type,
+                                   state
+                                   )
 
     elif args.type == "mobil":
         dragway = build_demo_dragway(simulator, "Mobil dragway")
@@ -104,14 +108,14 @@ def main():
             "road": Any(dragway)
         }
 
-        # Instantiate a LoadableMobilControlledSimpleCar with "MOBIL0" as its
-        # name and originally placed in (0.0, -3.7). The road for the car to
+        # Instantiate a MobilControlledSimpleCar
+        # and originally placed in (0.0, -3.7). The road for the car to
         # follow is the previously created dragway.
-        simulator.AddLoadableAgent("LoadableMobilControlledSimpleCar",
+        simulator.AddLoadableAgent("mobil-car",
                                    mobil_params,
-                                   "MOBIL0",
+                                   args.type,
                                    state)
-    elif args.type == "railcar":
+    elif args.type == "rail":
         dragway = build_demo_dragway(simulator, "Railcar dragway")
 
         lane = dragway.junction(0).segment(0).lane(1)
@@ -133,12 +137,12 @@ def main():
             "start_params": Any(start_params)
         }
 
-        # Instantiate a LoadableMaliputRailCar with "Maliput0" as its name and
+        # Instantiate a LoadableMaliputRailCar and
         # originally placed at the start of the second lane of the dragway
         # previously created. The car initial speed is 3 meters per sec.
-        simulator.AddLoadableAgent("LoadableMaliputRailCar",
+        simulator.AddLoadableAgent("rail-car",
                                    railcar_params,
-                                   "Maliput0",
+                                   args.type,
                                    state)
     else:
         raise RuntimeError("Option {} not recognized".format(args.type))

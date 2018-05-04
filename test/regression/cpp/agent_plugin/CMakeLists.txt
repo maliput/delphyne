@@ -1,49 +1,27 @@
 ##############################################################################
 # Libraries for the agent plugin loader test
 ##############################################################################
-# Important note:
-# Loadable modules must *not* link against libdrake.so.
-# If they do, they would have symbols defined twice; once in the loading program,
-# and once in the loadable module. That is not OK for global read/write data,
-# because when the original program starts up, it initializes that global
-# read/write data (by either doing simple zero-initialization for simple types,
-# or calling the constructor for complex types). If the loadable module *also*
-# has that linked in, then when the loadable module gets loaded, its initialization
-# is run again and the previously initialized variables are re-written.
-##############################################################################
 
-get_target_property(STX_INCLUDE_DIRS stx::stx INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(DRAKE_LCMTYPES_INCLUDE_DIRS drake::drake-lcmtypes-cpp INTERFACE_INCLUDE_DIRECTORIES)
+################################## Macro #####################################
 
-add_library(LoadableExampleDouble
-  LoadableExampleDouble.cc
-)
+macro(delphyne_add_agent_test_library name)
+  add_library(${name} ${name}.cc)
+  string(REPLACE "_" "-" LIBRARY_NAME ${name})
+  set_target_properties(${name} PROPERTIES OUTPUT_NAME ${LIBRARY_NAME})
 
-target_include_directories(LoadableExampleDouble PRIVATE
-  ${DRAKE_LCMTYPES_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
-  ${IGNITION-COMMON_INCLUDE_DIRS}
-  ${STX_INCLUDE_DIRS}
-)
+  target_link_libraries(
+    ${name}
+    PRIVATE
+      drake::drake
+      Eigen3::Eigen
+      ignition-common1::ignition-common1
+      stx::stx
+  )
+endmacro()
 
-add_library(LoadableExampleAutoDiffXd
-  LoadableExampleAutoDiffXd.cc
-)
+################################# Agents #####################################
 
-target_include_directories(LoadableExampleAutoDiffXd PRIVATE
-  ${DRAKE_LCMTYPES_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
-  ${IGNITION-COMMON_INCLUDE_DIRS}
-  ${STX_INCLUDE_DIRS}
-)
+delphyne_add_agent_test_library(simple_agent)
+delphyne_add_agent_test_library(auto_diff_agent)
+delphyne_add_agent_test_library(symbolic_agent)
 
-add_library(LoadableExampleExpression
-  LoadableExampleExpression.cc
-)
-
-target_include_directories(LoadableExampleExpression PRIVATE
-  ${DRAKE_LCMTYPES_INCLUDE_DIRS}
-  ${EIGEN_INCLUDE_DIRS}
-  ${IGNITION-COMMON_INCLUDE_DIRS}
-  ${STX_INCLUDE_DIRS}
-)

@@ -37,10 +37,11 @@
 
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
-#include "backend/linb-any"
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
 #include "backend/system.h"
+
+#include "../include/delphyne/linb-any"
 
 namespace delphyne {
 
@@ -77,8 +78,8 @@ class AutomotiveSimulator {
   ///
   /// @pre Start() has NOT been called.
   ///
-  /// @param plugin The name of the plugin, without the "lib" prefix or ".so"
-  /// suffix.
+  /// @param plugin_library_name The name of the plugin library, without the
+  /// "lib" prefix or ".so" suffix.
   ///
   /// @param parameters Parameters to be passed to the loadable module
   /// "configure" method.
@@ -88,10 +89,18 @@ class AutomotiveSimulator {
   ///
   /// @param initial_state The vehicle's initial state.
   ///
-  /// @return The ID of the car that was just added to the simulation, or -1 on
-  /// error.
+  /// @return The ID of the agent that was just added to the simulation, or -1
+  /// on error.
   int AddLoadableAgent(
-      const std::string& plugin,
+      const std::string& plugin_library_name,
+      const std::map<std::string, linb::any>& parameters,
+      const std::string& name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
+
+  /// Specify the exact plugin name if there should be more than one plugin
+  /// in the plugin library.
+  int AddLoadableAgent(
+      const std::string& plugin_library_name, const std::string& plugin_name,
       const std::map<std::string, linb::any>& parameters,
       const std::string& name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state);

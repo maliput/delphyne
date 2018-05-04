@@ -33,12 +33,13 @@
 
 #include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
-#include "backend/linb-any"
 #include "backend/system.h"
 #include "backend/translation_systems/drake_simple_car_state_to_ign.h"
 #include "backend/translation_systems/ign_driving_command_to_drake.h"
 #include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 #include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
+
+#include "../include/delphyne/linb-any"
 
 namespace delphyne {
 
@@ -144,7 +145,16 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin,
+    const std::string& plugin_library_name,
+    const std::map<std::string, linb::any>& parameters, const std::string& name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
+  return AddLoadableAgent(plugin_library_name, "", parameters, name,
+                          std::move(initial_state));
+}
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableAgent(
+    const std::string& plugin_library_name, const std::string& plugin_name,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
   DELPHYNE_DEMAND(!has_started());
@@ -152,8 +162,12 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   CheckNameUniqueness(name);
   int id = allocate_vehicle_number();
 
-  std::unique_ptr<delphyne::AgentPluginBase<T>> agent =
-      delphyne::LoadPlugin<T>(plugin);
+  std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
+  if (plugin_name.empty()) {
+    agent = delphyne::LoadPlugin<T>(plugin_library_name);
+  } else {
+    agent = delphyne::LoadPlugin<T>(plugin_library_name, plugin_name);
+  }
   if (agent == nullptr) {
     return -1;
   }

@@ -15,6 +15,7 @@ set_target_properties(drake_ign_translation_systems PROPERTIES OUTPUT_NAME ${PRO
 target_link_libraries(drake_ign_translation_systems
   PUBLIC
     protobuf
+    protobuf_messages
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}

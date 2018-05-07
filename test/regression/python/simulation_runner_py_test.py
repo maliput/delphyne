@@ -37,7 +37,7 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Initialize callback flag.
         self.callback_called = False
         # Add a prius car to the simulation.
-        self.simulator.AddPriusSimpleCar("0", "DRIVING_TEST", self.state)
+        self.simulator.AddLoadableAgent("simple-car", {}, "0", self.state)
         # Creates a simulator runner.
         self.runner = SimulatorRunner(
             self.simulator, self.SIMULATION_STEP)

@@ -331,7 +331,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   EXPECT_GE(mobil_y, -2.);
 }
 
-// Cover AddTrajectoryCar (and thus AddPublisher).
+// Covers adding a prius trajectory car as with loadable agent.
 TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
   typedef Curve2<double> Curve2d;
   typedef Curve2d::Point2 Point2d;

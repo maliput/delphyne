@@ -51,7 +51,7 @@ def setup_railcar(simulator, name, road, lane):
         "start_params": Any(start_params)
     }
 
-    simulator.AddLoadableAgent("LoadableMaliputRailCar",
+    simulator.AddLoadableAgent("rail-car",
                                params,
                                name,
                                railcar_state)

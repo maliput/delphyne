@@ -17,12 +17,15 @@ set(MESSAGES
   viewer2_comms.proto
 )
 
-set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS}) # ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/protobuf)
+set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS})
 protobuf_generate_cpp(SOURCES HEADERS ${MESSAGES})
 
 ##############################################################################
 # Library
 ##############################################################################
+
+# TODO: switch from PROTOBUF_INCLUDE_DIRS / PROTOBUF_LIBRARIES to
+#       protobuf::libprotobuf (currently creates a pthread_create problem)
 
 add_library(protobuf_messages ${SOURCES})
 set_target_properties(protobuf_messages PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf-messages)
@@ -33,6 +36,7 @@ target_include_directories(
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
     ${PROTOBUF_INCLUDE_DIRS}
 )
+
 target_link_libraries(
   protobuf_messages
   PUBLIC

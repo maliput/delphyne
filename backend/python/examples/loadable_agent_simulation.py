@@ -94,8 +94,7 @@ def main():
         simulator.AddLoadableAgent("simple-car",
                                    {},
                                    args.type,
-                                   state
-                                   )
+                                   state)
 
     elif args.type == "mobil":
         dragway = build_demo_dragway(simulator, "Mobil dragway")

@@ -66,6 +66,8 @@ class SimulationRunStats {
 
   /// @brief Returns the actual real time rate based on elapsed simulation and
   /// real time.
+  ///
+  /// @pre executed_steps_ > 0
   double EffectiveRealtimeRate();
 
   /// @brief Returns the number of executed steps.
@@ -89,13 +91,13 @@ class SimulationRunStats {
 
  private:
   // @brief Start time, in seconds, based on simulator clock.
-  double start_simtime_;
+  double start_simtime_{0.0};
 
   /// @brief Last recorded step in simulation time. Measured in seconds.
-  double last_step_simtime_;
+  double last_step_simtime_{0.0};
 
   // @brief The configured real time rate at which the simulation should run.
-  double expected_realtime_rate_;
+  double expected_realtime_rate_{1.0};
 
   // @brief Start time, in real-time.
   TimePoint start_realtime_;

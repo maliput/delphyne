@@ -134,7 +134,9 @@ class InteractiveSimulationStats {
   // Returns the current running simulation stats @see SimulationRunStats
   SimulationRunStats* GetMutableCurrentRunStats();
 
-  void UpdateRealtimeRate(double simtime, const TimePoint& realtime);
+  // Updates the value of the `weighted_realtime_rate_` field based on the
+  // elapsed simulation and real time of an executed step.
+  void UpdateWeightedRealtimeRate(double simtime, const TimePoint& realtime);
 
   // @brief All the recorded simulation runs
   std::vector<SimulationRunStats> run_stats_;
@@ -148,10 +150,17 @@ class InteractiveSimulationStats {
   // @brief Cache the total executed steps.
   int total_executed_steps_{0};
 
+  // @brief The weighed accumulated simulation time, since the start of the
+  // interactive simulation. Note that the time the simulation is paused is
+  // not considered.
   double weighted_simtime_{0.};
 
+  // @brief The weighed accumulated real time, since the start of the
+  // interactive simulation. Note that the time the simulation is paused is
+  // not considered.
   double weighted_realtime_{0.};
 
+  // @brief The ratio between weighed simulation time and weighed real time.
   double weighted_realtime_rate_{std::numeric_limits<double>::quiet_NaN()};
 };
 

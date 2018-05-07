@@ -45,7 +45,7 @@ void InteractiveSimulationStats::StepExecuted(double simtime) {
 
 void InteractiveSimulationStats::StepExecuted(double simtime,
                                               const TimePoint& realtime) {
-  UpdateRealtimeRate(simtime, realtime);
+  UpdateWeightedRealtimeRate(simtime, realtime);
   GetMutableCurrentRunStats()->StepExecuted(simtime, realtime);
 }
 
@@ -58,8 +58,8 @@ const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd()
          Duration(current_elapsed_simtime / current_realtime_rate);
 }
 
-void InteractiveSimulationStats::UpdateRealtimeRate(double simtime,
-                                                    const TimePoint& realtime) {
+void InteractiveSimulationStats::UpdateWeightedRealtimeRate(
+    double simtime, const TimePoint& realtime) {
   auto current_run = GetCurrentRunStats();
 
   const double simtime_passed = simtime - current_run.get_last_step_simtime();

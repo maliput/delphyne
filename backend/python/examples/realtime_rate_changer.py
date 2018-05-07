@@ -61,8 +61,8 @@ class RealtimeRateChanger(object):
                 rate = 0.6
             self._steps = int(rate * 3000)
             self._runner.SetRealtimeRate(rate)
-            print("""Running at real-time rate {0} for {1} steps.
-                  Last real-time measure was {2}"""
+            print("Running at real-time rate {0} for {1} steps."
+                  " Last real-time measure was {2}"
                   .format(rate, self._steps, last_round_realtime_rate))
         else:
             self._steps -= 1

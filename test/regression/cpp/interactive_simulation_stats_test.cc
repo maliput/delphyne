@@ -15,8 +15,6 @@ const double kTimeTolerance{1e-8};
 
 GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   const double realtime_rate = 1.1;
-  double current_run_simtime_start;
-  TimePoint current_run_realtime_start;
 
   InteractiveSimulationStats stats;
 
@@ -27,8 +25,8 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   EXPECT_NEAR(0., stats.TotalElapsedRealtime(), kTimeTolerance);
 
   // A new simulation run has started, but no step recorded.
-  current_run_simtime_start = 0.0;
-  current_run_realtime_start = RealtimeClock::now();
+  double current_run_simtime_start = 0.0;
+  TimePoint current_run_realtime_start = RealtimeClock::now();
 
   stats.NewRunStartingAt(current_run_simtime_start, realtime_rate,
                          current_run_realtime_start);
@@ -72,16 +70,14 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
 
 GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   const double realtime_rate = 1.0;
-  double current_run_simtime_start;
-  TimePoint current_run_realtime_start;
 
   InteractiveSimulationStats stats;
 
   // Nothing has been yet simulated.
   EXPECT_TRUE(isnan(stats.get_current_realtime_rate()));
 
-  current_run_simtime_start = 0.0;
-  current_run_realtime_start = RealtimeClock::now();
+  double current_run_simtime_start = 0.0;
+  TimePoint current_run_realtime_start = RealtimeClock::now();
 
   // First run at 1.0 real-time rate
   stats.NewRunStartingAt(current_run_simtime_start, realtime_rate,
@@ -98,9 +94,11 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   EXPECT_NEAR(1.0, stats.get_current_realtime_rate(), kTimeTolerance);
 
   // Second run, even if configure at 1.0 real-time rate, it will have an
-  // effective rate of 0.1 (as if the simulator was lagging behind).
+  // effective rate of 0.1 (as if the simulator was lagging behind). Note
+  // also that there is a gap in time between the first and second run, like
+  // if the interactive simulation was paused for some time
   current_run_simtime_start += 0.1;
-  current_run_realtime_start += std::chrono::milliseconds(100);
+  current_run_realtime_start += std::chrono::seconds(50);
 
   stats.NewRunStartingAt(current_run_simtime_start, realtime_rate,
                          current_run_realtime_start);
@@ -111,6 +109,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
     current_run_simtime_start += 0.01;
     current_run_realtime_start += std::chrono::milliseconds(100);
     stats.StepExecuted(current_run_simtime_start, current_run_realtime_start);
+    std::cerr << stats.get_current_realtime_rate() << std::endl;
   }
 
   EXPECT_EQ(realtime_rate,

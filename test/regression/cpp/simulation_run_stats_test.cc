@@ -16,8 +16,7 @@ GTEST_TEST(SimulationRunStatsTest, UsualRunTest) {
   const double realtime_rate = 1.1;
   const TimePoint realtime_start = RealtimeClock::now();
 
-  SimulationRunStats stats =
-      SimulationRunStats(sim_start, realtime_rate, realtime_start);
+  SimulationRunStats stats(sim_start, realtime_rate, realtime_start);
 
   EXPECT_EQ(0, stats.get_executed_steps());
   EXPECT_EQ(sim_start, stats.get_start_simtime());
@@ -65,8 +64,7 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   const double realtime_rate = 1.1;
   const TimePoint realtime_start = RealtimeClock::now();
 
-  SimulationRunStats stats =
-      SimulationRunStats(sim_start, realtime_rate, realtime_start);
+  SimulationRunStats stats(sim_start, realtime_rate, realtime_start);
 
   // Run one step.
   double step_simtime = sim_start + 0.1;

@@ -8,6 +8,7 @@ macro(delphyne_add_agent_library name)
   target_link_libraries(
     ${name}
     PRIVATE
+      ignition_system
       drake::drake
       Eigen3::Eigen
       ignition-common1::ignition-common1

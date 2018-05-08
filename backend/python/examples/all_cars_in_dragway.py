@@ -15,81 +15,22 @@ For the time being, three cars are supported:
 from __future__ import print_function
 
 from delphyne.bindings import (
-    Any,
     AutomotiveSimulator,
-    MaliputRailcarParams,
-    MaliputRailcarState,
     RoadBuilder,
     SimulatorRunner
 )
 from delphyne.simulation_utils import (
+    add_simple_car,
+    add_maliput_railcar,
+    add_mobil_car,
     launch_interactive_simulation
-)
-from pydrake.automotive import (
-    LaneDirection,
-    SimpleCarState
 )
 
 SIMULATION_TIME_STEP_SECS = 0.001
 
-def add_simple_car(simulator):
-    """Instanciates a new Simple Prius Car
-    and adds it to the simulation.
-    """
-    # Creates the initial car state for the simple car.
-    simple_car_state = SimpleCarState()
-    simple_car_state.set_x(0.0)
-    simple_car_state.set_y(3.7)
-    # Instantiates a Loadable Simple Car
-    simulator.AddLoadableAgent("simple-car", {}, "SimpleCar", simple_car_state)
-
-
-def add_mobil_car(simulator, road):
-    """Instanciates a new MOBIL Car and adds
-    it to the simulation.
-    """
-    # Creates the initial car state for the MOBIL car.
-    mobil_car_state = SimpleCarState()
-    mobil_car_state.set_x(0.0)
-    mobil_car_state.set_y(-3.7)
-    mobil_params = {
-        "initial_with_s": Any(True),
-        "road": Any(road)
-    }
-    # Instantiates a Loadable MOBIL Car.
-    simulator.AddLoadableAgent(
-        "mobil-car", mobil_params, "MobilCar", mobil_car_state)
-
-
-def add_maliput_railcar(simulator, road):
-    """Instanciates a new Maliput Railcar and adds
-    it to the simulation.
-    """
-    # Defines the lane that will be used by the dragway car.
-    lane = road.junction(0).segment(0).lane(1)
-    # Creates the initial car state for the Railcar.
-    maliput_car_state = MaliputRailcarState()
-    maliput_car_state.s = 0.0
-    maliput_car_state.speed = 3.0
-    lane_direction = LaneDirection(lane, True)
-    start_params = MaliputRailcarParams()
-    start_params.r = 0
-    start_params.h = 0
-    railcar_params = {
-        "road": Any(road),
-        "initial_with_s": Any(True),
-        "lane_direction": Any(lane_direction),
-        "start_params": Any(start_params)
-    }
-    # Instantiate a Loadable Rail Car.
-    simulator.AddLoadableAgent("rail-car",
-                               railcar_params,
-                               "RailCar",
-                               maliput_car_state)
-
 
 def main():
-    """Excercises a simulator loaded it with multiple different cars."""
+    """Excercises a simulator loaded with multiple different cars."""
 
     simulator = AutomotiveSimulator()
     builder = RoadBuilder(simulator)
@@ -105,9 +46,22 @@ def main():
                                  dragway_shoulder_width, maximum_height)
 
     # Adds the different cars.
-    add_simple_car(simulator)
-    add_mobil_car(simulator, dragway)
-    add_maliput_railcar(simulator, dragway)
+    simple_car_position_x = 0.0
+    simple_car_position_y = 3.7
+    car_id = 0
+    add_simple_car(simulator, car_id, simple_car_position_x,
+                   simple_car_position_y)
+
+    mobil_car_position_x = 0.0
+    mobil_car_position_y = -3.7
+    car_id += 1
+    add_mobil_car(simulator, car_id, dragway,
+                  mobil_car_position_x, mobil_car_position_y)
+
+    railcar_s = 0.0
+    railcar_speed = 3.0
+    car_id += 1
+    add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 

@@ -37,19 +37,15 @@ from __future__ import print_function
 import argparse
 
 from delphyne.bindings import (
-    Any,
     AutomotiveSimulator,
-    MaliputRailcarState,
-    MaliputRailcarParams,
     RoadBuilder,
     SimulatorRunner
 )
 from delphyne.simulation_utils import (
+    add_simple_car,
+    add_maliput_railcar,
+    add_mobil_car,
     launch_interactive_simulation
-)
-from pydrake.automotive import (
-    LaneDirection,
-    SimpleCarState
 )
 
 SIMULATION_TIME_STEP_SECS = 0.001
@@ -84,66 +80,28 @@ def main():
 
     args = parser.parse_args()
 
+    car_id = 0
     if args.type == "simple":
-        state = SimpleCarState()
-        state.set_x(0.0)
-        state.set_y(1.0)
-
-        # Instantiate a LoadablePriusSimpleCar with 0 id and originally
-        # placed in (0.0, 1.0)
-        simulator.AddLoadableAgent("simple-car",
-                                   {},
-                                   args.type,
-                                   state)
+        position_x = 0.0
+        position_y = 1.0
+        add_simple_car(simulator, car_id, position_x, position_y)
 
     elif args.type == "mobil":
         dragway = build_demo_dragway(simulator, "Mobil dragway")
+        position_x = 0.0
+        position_y = -3.7
+        add_mobil_car(simulator, car_id, dragway,
+                      position_x, position_y)
 
-        state = SimpleCarState()
-        state.set_x(0.0)
-        state.set_y(-3.7)
-
-        mobil_params = {
-            "initial_with_s": Any(True),
-            "road": Any(dragway)
-        }
-
-        # Instantiate a MobilControlledSimpleCar
-        # and originally placed in (0.0, -3.7). The road for the car to
-        # follow is the previously created dragway.
-        simulator.AddLoadableAgent("mobil-car",
-                                   mobil_params,
-                                   args.type,
-                                   state)
     elif args.type == "rail":
         dragway = build_demo_dragway(simulator, "Railcar dragway")
-
-        lane = dragway.junction(0).segment(0).lane(1)
-
-        state = MaliputRailcarState()
-        state.s = 0.0
-        state.speed = 3.0
-
-        lane_direction = LaneDirection(lane, True)
-
-        start_params = MaliputRailcarParams()
-        start_params.r = 0
-        start_params.h = 0
-
-        railcar_params = {
-            "road": Any(dragway),
-            "initial_with_s": Any(True),
-            "lane_direction": Any(lane_direction),
-            "start_params": Any(start_params)
-        }
 
         # Instantiate a LoadableMaliputRailCar and
         # originally placed at the start of the second lane of the dragway
         # previously created. The car initial speed is 3 meters per sec.
-        simulator.AddLoadableAgent("rail-car",
-                                   railcar_params,
-                                   args.type,
-                                   state)
+        s_coordinate = 0.0
+        speed = 3.0
+        add_maliput_railcar(simulator, car_id, dragway, s_coordinate, speed)
     else:
         raise RuntimeError("Option {} not recognized".format(args.type))
 

@@ -8,7 +8,7 @@
 
 #include "ignition/msgs.hh"
 
-#include "protobuf/automotive_driving_command.pb.h"
+#include "delphyne/protobuf/automotive_driving_command.pb.h"
 
 #include "backend/system.h"
 #include "backend/translation_systems/drake_to_ign.h"

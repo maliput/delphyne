@@ -6,6 +6,17 @@ include_directories(${PYTHON_INCLUDE_DIRS})
 ##############################################################################
 
 # ----------------------------------------
+# The ignition middleware system
+
+add_library(ignition_system INTERFACE)
+
+target_include_directories(
+  ignition_system
+  INTERFACE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
+
+# ----------------------------------------
 # Time Conversions (includes ignition conversions)
 add_library(time_conversion time_conversion.cc)
 set_target_properties(time_conversion PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-time-conversion)

@@ -17,22 +17,26 @@ set(MESSAGES
   viewer2_comms.proto
 )
 
-set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/protobuf)
-protobuf_generate_cpp(SOURCES PROTO_HEADER ${MESSAGES})
+set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS})
+protobuf_generate_cpp(SOURCES HEADERS ${MESSAGES})
 
 ##############################################################################
 # Library
 ##############################################################################
+
+# TODO: switch from PROTOBUF_INCLUDE_DIRS / PROTOBUF_LIBRARIES to
+#       protobuf::libprotobuf (currently creates a pthread_create problem)
 
 add_library(protobuf_messages ${SOURCES})
 set_target_properties(protobuf_messages PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf-messages)
 target_include_directories(
   protobuf_messages
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include/>
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
     ${PROTOBUF_INCLUDE_DIRS}
 )
+
 target_link_libraries(
   protobuf_messages
   PUBLIC
@@ -44,15 +48,14 @@ target_link_libraries(
 # Install
 ##############################################################################
 
-string(REPLACE "proto" "pb.h" HEADERS "${MESSAGES}")
-string(REGEX REPLACE "([^;]+)" "${CMAKE_CURRENT_BINARY_DIR}/\\1" HEADERS "${HEADERS}")
-
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/protobuf
   ${HEADERS}
 )
 
-install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}-targets
+install(
+  TARGETS protobuf_messages
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

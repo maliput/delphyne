@@ -174,3 +174,11 @@ $ time_bounded_simulation.py --realtime_rate=2.0 --duration=30.0
 An example of a couple of railcars running around in a closed-loop maliput
 road.
 
+<h1 id="all_cars_in_dragway">all_cars_in_dragway</h1>
+
+This demo consists of a suite of dynamically loaded cars,
+running simultaneously on a dragway road.
+For the time being, three cars are supported:
+   - A Prius Simple Car.
+   - A MOBIL Simple Car.
+   - A MaliputRailCar.

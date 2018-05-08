@@ -125,22 +125,6 @@ install(TARGETS simulation_runner
   ARCHIVE DESTINATION lib
 )
 
-# ----------------------------------------
-# Automotive demo
-#
-add_executable(automotive-demo
-  automotive_demo.cc
-  system.h
-)
-
-target_link_libraries(automotive-demo
-  simulation_runner
-  automotive_simulator
-  ${drake_LIBRARIES}
-)
-
-install(TARGETS automotive-demo RUNTIME DESTINATION bin)
-
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
   system.h

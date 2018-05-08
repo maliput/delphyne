@@ -16,6 +16,7 @@ install(
 
 install(
   PROGRAMS
+    examples/all_cars_in_dragway.py
     examples/demo_launcher.py
     examples/keyboard_controlled_simulation.py
     examples/loadable_agent_simulation.py

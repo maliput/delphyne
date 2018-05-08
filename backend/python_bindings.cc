@@ -82,7 +82,9 @@ PYBIND11_MODULE(python_bindings, m) {
            &InteractiveSimulationStats::TotalElapsedRealtime)
       .def("TotalExecutedSteps",
            &InteractiveSimulationStats::TotalExecutedSteps)
-      .def("TotalRuns", &InteractiveSimulationStats::TotalRuns);
+      .def("TotalRuns", &InteractiveSimulationStats::TotalRuns)
+      .def("get_current_realtime_rate",
+           &InteractiveSimulationStats::get_current_realtime_rate);
 
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())

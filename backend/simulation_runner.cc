@@ -232,24 +232,22 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 void SimulatorRunner::StepSimulationBy(double time_step) {
   simulator_->StepBy(time_step);
 
-  SimulationRunStats* current_run_stats = stats_.GetMutableCurrentRunStats();
-
-  current_run_stats->StepExecuted(simulator_->get_current_simulation_time());
+  stats_.StepExecuted(simulator_->get_current_simulation_time());
 
   // Return if running at full speed
   if (realtime_rate_ == 0) {
     return;
   }
 
-  const double simtime_passed = current_run_stats->ElapsedSimtime();
-  const TimePoint desired_realtime = current_run_stats->get_start_realtime() +
-                                     Duration(simtime_passed / realtime_rate_);
-  if (desired_realtime > RealtimeClock::now())
-    std::this_thread::sleep_until(desired_realtime);
+  const TimePoint expected_realtime = stats_.CurrentStepExpectedRealtimeEnd();
+  if (expected_realtime > RealtimeClock::now()) {
+    std::this_thread::sleep_until(expected_realtime);
+  }
 }
 
 void SimulatorRunner::SetupNewRunStats() {
-  stats_.NewRunStartingAt(simulator_->get_current_simulation_time());
+  stats_.NewRunStartingAt(simulator_->get_current_simulation_time(),
+                          realtime_rate_);
 }
 
 void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {

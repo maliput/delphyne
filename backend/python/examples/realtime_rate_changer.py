@@ -43,6 +43,7 @@ def check_positive_float(value):
 
 
 class RealtimeRateChanger(object):
+
     """Simple class that hooks to the simulation callback and dynamically
     changes the real-time rate"""
 
@@ -53,13 +54,16 @@ class RealtimeRateChanger(object):
     def tick(self):
         """Process simulation step"""
         if self._steps == 0:
+            last_round_realtime_rate = self._runner.get_stats(
+            ).get_current_realtime_rate()
             rate = self._runner.GetRealtimeRate() + 0.2
             if rate >= 1.6:
                 rate = 0.6
             self._steps = int(rate * 3000)
             self._runner.SetRealtimeRate(rate)
-            print("Running at real-time rate {0} for {1} steps"
-                  .format(rate, self._steps))
+            print("Running at real-time rate {0} for {1} steps."
+                  " Last real-time measure was {2}"
+                  .format(rate, self._steps, last_round_realtime_rate))
         else:
             self._steps -= 1
 

@@ -18,7 +18,8 @@ set(MESSAGES
 )
 
 set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/protobuf)
-protobuf_generate_cpp(SOURCES PROTO_HEADER ${MESSAGES})
+protobuf_generate_cpp_with_descriptor(
+  SOURCES PROTO_HEADER DESCRIPTORS DESC_PROTO_DESC ${MESSAGES})
 
 ##############################################################################
 # Library
@@ -50,6 +51,7 @@ string(REGEX REPLACE "([^;]+)" "${CMAKE_CURRENT_BINARY_DIR}/\\1" HEADERS "${HEAD
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/protobuf
   ${HEADERS}
+  ${DESC_PROTO_DESC}
 )
 
 install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}-targets

@@ -350,25 +350,6 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::InitializeSimpleCars() {
-  for (const auto& pair : simple_car_initial_states_) {
-    const drake::systems::System<T>* const car = pair.first;
-    const drake::automotive::SimpleCarState<T>& initial_state = pair.second;
-
-    drake::systems::VectorBase<T>& context_state =
-        diagram_
-            ->GetMutableSubsystemContext(*car,
-                                         &simulator_->get_mutable_context())
-            .get_mutable_continuous_state()
-            .get_mutable_vector();
-    drake::automotive::SimpleCarState<T>* const state =
-        dynamic_cast<drake::automotive::SimpleCarState<T>*>(&context_state);
-    DELPHYNE_ASSERT(state);
-    state->set_value(initial_state.get_value());
-  }
-}
-
-template <typename T>
 void AutomotiveSimulator<T>::InitializeLoadableAgents() {
   for (const auto& pair : loadable_agent_initial_states_) {
     delphyne::AgentPluginBase<T>* const car =
@@ -400,7 +381,6 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
 
   InitializeSceneGeometryAggregator();
 
-  InitializeSimpleCars();
   InitializeLoadableAgents();
 
   simulator_->set_target_realtime_rate(realtime_rate);

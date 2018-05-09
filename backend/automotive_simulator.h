@@ -202,7 +202,7 @@ class AutomotiveSimulator {
   // have been created (since it owns the context).
   void InitializeSceneGeometryAggregator();
 
-  void InitializeSimpleCars();
+  // Initializes each of the agents that have been added to the simulation.
   void InitializeLoadableAgents();
 
   // For both building and simulation.

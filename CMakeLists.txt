@@ -194,6 +194,7 @@ else (build_errors)
   add_subdirectory(protobuf)
   add_subdirectory(include)
   add_subdirectory(src)
+  add_subdirectory(python)
 
   ########################################
   # Testing

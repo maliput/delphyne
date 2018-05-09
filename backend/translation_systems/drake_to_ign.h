@@ -271,7 +271,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
     const DRAKE_TYPE& drake_message = ReadInputPort(context);
 
     // And then translates to ignition.
-    auto time_ms = static_cast<int64_t>(context.get_time()) * 1000;
+    auto time_ms = static_cast<int64_t>(context.get_time() * 1000);
     DoDrakeToIgnTranslation(drake_message, ign_message, time_ms);
   }
 

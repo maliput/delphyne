@@ -24,7 +24,7 @@ cat ${DELPHYNE_SOURCE_DIR}/tools/python_examples_md_template.in > $PATH_TO_READM
 cd ${DELPHYNE_SOURCE_DIR}/python/examples
 
 # Converts a python module docstring into markdown and appends it to the README.
-find . -iname '*.py' -printf '%f\n' | while read file ; do
+find . -iname '*.py' -printf '%f\n' | sort -n | while read file ; do
   module_name=$(echo $file | cut -f 1 -d '.')
   echo "Processing $module_name"
   pydocmd simple $module_name >> $PATH_TO_README

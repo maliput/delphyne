@@ -4,8 +4,63 @@ These examples are intended to demonstrate how to use the python bindings of the
 simulation runner.
 
 For all the examples below it's assumed that the Delphyne backend was successfully
-built with CMake, as shown in the instructions
-[here](https://github.com/ToyotaResearchInstitute/delphyne-gui/blob/master/README.md).
+built with CMake, as shown in the [Delphyne Guide](https://docs.google.com/document/d/1tQ9vDp084pMuHjYmtScLB3F1tdr4iP9w7_OTcoSM1zQ).
+<h1 id="all_cars_in_dragway">all_cars_in_dragway</h1>
+
+
+This demo consists of a suite of dynamically loaded cars,
+running simultaneously on a dragway road.
+For the time being, three cars are supported:
+   - A Prius Simple Car.
+   - A MOBIL Simple Car.
+   - A MaliputRailCar.
+
+<h1 id="keyboard_controlled_simulation">keyboard_controlled_simulation</h1>
+
+
+This example shows how to use the keyboard events to control the advance of
+a simulation. The simulation will open the usual simple car in the center of
+the scene, which can be driven using the keyboard on the GUI's teleop widget.
+However, by switching to the console, we can `play`/`pause`/`step`/`quit` the
+simulation.
+
+```
+$ cd <delphyne_ws>/install/bin
+$ ./keyboard_controlled_simulation.py
+```
+
+ The supported keys for the demo:
+
+<`p`> will pause the simulation if running and vice-versa.
+
+<`s`> will step the simulation once if paused.
+
+<`q`> will stop the simulation and quit the demo.
+
+<h1 id="railcar_in_multilane">railcar_in_multilane</h1>
+
+
+An example of a couple of railcars running around in a closed-loop maliput
+road.
+
+<h1 id="realtime_rate_changer">realtime_rate_changer</h1>
+
+
+This example shows how the real-time simulation rate can be set both when the
+simulator runner is created and while the simulation is running.
+
+To pass an initial real-time rate use the `--realtime_rate` flag, like:
+
+```
+$ realtime_rate_changer.py --realtime_rate=2.0
+```
+
+If none is specified the default will be set to `1.0` (i.e. run the simulation
+in real-time).
+
+Once the scripts starts running it will cycle between a real-time rate of `0.6`
+to `1.6` to depict how dynamic real-time rate impacts on the simulation.
+
 <h1 id="road_loading">road_loading</h1>
 
 
@@ -43,46 +98,6 @@ $ road_loading.py multilane
 --filename='./install/share/delphyne/road_samples/multilane_sample.yaml'
 ```
 
-
-<h1 id="realtime_rate_changer">realtime_rate_changer</h1>
-
-
-This example shows how the real-time simulation rate can be set both when the
-simulator runner is created and while the simulation is running.
-
-To pass an initial real-time rate use the `--realtime_rate` flag, like:
-
-```
-$ realtime_rate_changer.py --realtime_rate=2.0
-```
-
-If none is specified the default will be set to `1.0` (i.e. run the simulation
-in real-time).
-
-Once the scripts starts running it will cycle between a real-time rate of `0.6`
-to `1.6` to depict how dynamic real-time rate impacts on the simulation.
-
-<h1 id="keyboard_controlled_simulation">keyboard_controlled_simulation</h1>
-
-
-This example shows how to use the keyboard events to control the advance of
-a simulation. The simulation will open the usual simple car in the center of
-the scene, which can be driven using the keyboard on the GUI's teleop widget.
-However, by switching to the console, we can `play`/`pause`/`step`/`quit` the
-simulation.
-
-```
-$ cd <delphyne_ws>/install/bin
-$ ./keyboard_controlled_simulation.py
-```
-
- The supported keys for the demo:
-
-<`p`> will pause the simulation if running and vice-versa.
-
-<`s`> will step the simulation once if paused.
-
-<`q`> will stop the simulation and quit the demo.
 
 <h1 id="simple_python_binding">simple_python_binding</h1>
 
@@ -123,36 +138,6 @@ $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl --
 ```
 
 
-<h1 id="loadable_agent_simulation">loadable_agent_simulation</h1>
-
-
-This example shows how to run a simulation that dynamically loads a car agent.
-For the time being two car types are supported:
-
-
-- simple, which just places a `LoadablePriusSimpleCarDouble` in an empty world.
-- mobil, which places a `LoadableMobilControlledSimpleCarDouble` at the start
-of a 100 meters dragway.
-- railcar, which places a `LoadableMaliputRailCar` in the center lane of a
-three-lane dragway.
-
-
-These examples can be executed by doing:
-
-```
-$ loadable_agent_simulation.py --type="simple"
-```
-
-```
-$ loadable_agent_simulation.py --type="mobil"
-
-```
-```
-$ loadable_agent_simulation.py --type="railcar"
-
-```
-
-
 <h1 id="time_bounded_simulation">time_bounded_simulation</h1>
 
 
@@ -168,17 +153,3 @@ seconds):
 $ time_bounded_simulation.py --realtime_rate=2.0 --duration=30.0
 ```
 
-<h1 id="railcar_in_multilane">railcar_in_multilane</h1>
-
-
-An example of a couple of railcars running around in a closed-loop maliput
-road.
-
-<h1 id="all_cars_in_dragway">all_cars_in_dragway</h1>
-
-This demo consists of a suite of dynamically loaded cars,
-running simultaneously on a dragway road.
-For the time being, three cars are supported:
-   - A Prius Simple Car.
-   - A MOBIL Simple Car.
-   - A MaliputRailCar.

@@ -12,6 +12,15 @@
 #include "drake/automotive/gen/simple_car_state.h"
 #include "drake/automotive/gen/simple_car_state_translator.h"
 #include "drake/automotive/prius_vis.h"
+#include "drake/common/eigen_types.h"
+#include "drake/math/saturate.h"
+#include "drake/systems/framework/leaf_system.h"
+#include "drake/systems/framework/system_constraint.h"
+#include "drake/systems/rendering/frame_velocity.h"
+#include "drake/systems/rendering/pose_vector.h"
+
+#include "../../include/delphyne/agent_plugin_base.h"
+#include "../../include/delphyne/linb-any"
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>

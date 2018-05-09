@@ -33,7 +33,6 @@
 #include "drake/math/saturate.h"
 #include "drake/systems/framework/leaf_system.h"
 #include "drake/systems/framework/system_constraint.h"
-#include "drake/systems/lcm/lcm_publisher_system.h"
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
 
@@ -103,8 +102,7 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
 
   int Configure(const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
-                drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
-                int id,
+                const std::string& name, int id,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {

@@ -7,7 +7,6 @@
 #include <string>
 
 #include <drake/automotive/car_vis_applicator.h>
-#include <drake/lcm/drake_lcm_interface.h>
 #include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>

@@ -5,14 +5,13 @@ set -euo pipefail
 JOBS=$( getconf _NPROCESSORS_ONLN )
 COMPILER_PATH="/usr/bin/g++-5"
 
-pushd workspace
+mkdir -p install
 
-pushd drake
-bazel run --compiler=gcc-5 //:install `pwd`/../../install
-bazel build --compiler=gcc-5 //automotive:*
-popd # drake
+# Downloads drake binary and untars it into the install directory.
 
-popd # workspace
+# The date of this URL should be updated everytime the drake commit is updated
+# in the delphyne.repos file, found on delphyne_gui.
+wget -qO- https://drake-packages.csail.mit.edu/drake/nightly/drake-20180427-xenial.tar.gz | tar xvz -C `pwd`/install --strip 1
 
 mkdir -p build
 

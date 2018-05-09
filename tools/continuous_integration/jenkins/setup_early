@@ -21,5 +21,6 @@ libignition-cmake-dev
 mercurial
 pkg-config
 python3-vcstool
+wget
 EOF
 )

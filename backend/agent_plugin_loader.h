@@ -5,7 +5,7 @@
 #include <memory>
 #include <string>
 
-#include "../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 
 namespace delphyne {
 

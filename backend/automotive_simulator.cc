@@ -36,8 +36,6 @@
 #include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 #include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
 
-#include "../include/delphyne/linb-any"
-
 namespace delphyne {
 
 using drake::automotive::SimpleCarStateIndices;
@@ -54,7 +52,6 @@ using drake::systems::rendering::PoseBundle;
 using drake::systems::RungeKutta2Integrator;
 using drake::systems::System;
 using drake::systems::SystemOutput;
-
 
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator() {
@@ -124,24 +121,38 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin_library_name,
-    const std::map<std::string, linb::any>& parameters, const std::string& name,
-    std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
-  return AddLoadableAgent(plugin_library_name, "", parameters, name,
-                          std::move(initial_state));
+    const std::string& plugin_library_name, const std::string& agent_name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+    const drake::maliput::api::RoadGeometry* road) {
+  return AddLoadableAgent(plugin_library_name, "", agent_name,
+                          std::move(initial_state), road,
+                          std::make_unique<AgentPluginParams>());
+}
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableAgent(
+    const std::string& plugin_library_name, const std::string& agent_name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+    const drake::maliput::api::RoadGeometry* road,
+    std::unique_ptr<AgentPluginParams> parameters) {
+  return AddLoadableAgent(plugin_library_name, "", agent_name,
+                          std::move(initial_state), road,
+                          std::move(parameters));
 }
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name, const std::string& plugin_name,
-    const std::map<std::string, linb::any>& parameters, const std::string& name,
-    std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
+    const std::string& agent_name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+    const drake::maliput::api::RoadGeometry* road,
+    std::unique_ptr<AgentPluginParams> parameters) {
   /*********************
    * Checks
    *********************/
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
-  CheckNameUniqueness(name);
+  CheckNameUniqueness(agent_name);
 
   /*********************
    * Load Agent Plugin
@@ -161,8 +172,8 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(name, id, parameters, builder_.get(), aggregator_,
-                       car_vis_applicator_) < 0) {
+  if (agent->Configure(agent_name, id, builder_.get(), aggregator_,
+                       car_vis_applicator_, road, std::move(parameters)) < 0) {
     return -1;
   }
   agents_[id] = std::move(agent);

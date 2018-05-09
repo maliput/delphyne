@@ -10,7 +10,7 @@
 #include <drake/lcm/drake_lcm_interface.h>
 #include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/framework/diagram_builder.h>
-#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
 #include <ignition/common/PluginLoader.hh>
@@ -29,7 +29,7 @@ namespace delphyne {
 ///           template types are 'double', 'drake::AutoDiffXd', and
 ///           'drake::symbolic::Expression'.
 template <typename T>
-class AgentPluginBase : public drake::systems::LeafSystem<T> {
+class AgentPluginBase {
  public:
   virtual ~AgentPluginBase() {}
 
@@ -48,9 +48,10 @@ class AgentPluginBase : public drake::systems::LeafSystem<T> {
   /// that the automotive simulator is building.  The `lcm` parameter is used
   /// to attach an LCM subscriber or publisher to the concrete agent.
   virtual int Configure(
+      const std::string& name,
+      const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<T>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
       drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
 
@@ -60,11 +61,14 @@ class AgentPluginBase : public drake::systems::LeafSystem<T> {
 
   void SetPlugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
 
+ virtual drake::systems::System<T>* get_system() const = 0;
+
  protected:
   // Store a pointer (actually a shared_ptr) to the plugin within this class.
   // this is needed so that the plugin pointer doesn't go out of scope and get
   // freed while it is still in use.
   ignition::common::PluginPtr plugin_;
+  int id_;
 };
 
 typedef AgentPluginBase<double> AgentPlugin;

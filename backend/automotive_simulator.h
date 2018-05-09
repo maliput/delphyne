@@ -42,6 +42,7 @@
 #include "backend/system.h"
 
 #include "../include/delphyne/linb-any"
+#include "../include/delphyne/agent_plugin_base.h"
 
 namespace delphyne {
 
@@ -223,8 +224,7 @@ class AutomotiveSimulator {
 
   // Holds the desired initial states of each loadable agent. It is used to
   // initialize the simulation's diagram's state.
-  std::map<drake::systems::System<T>*,
-           std::unique_ptr<drake::systems::BasicVector<T>>>
+  std::map<int, std::unique_ptr<drake::systems::BasicVector<T>>>
       loadable_agent_initial_states_;
 
   // The output port of the Diagram that contains pose bundle information.
@@ -255,7 +255,7 @@ class AutomotiveSimulator {
   int next_vehicle_number_{0};
 
   // Maps an agent id to a pointer to the system that implements the agent.
-  std::map<int, drake::systems::System<T>*> agents_;
+  std::map<int, std::unique_ptr<delphyne::AgentPluginBase<T>>> agents_;
 
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};

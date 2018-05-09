@@ -53,17 +53,25 @@ public:
     igndbg << "RailCar constructor" << std::endl;
   }
 
-  int Configure(const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::string& name,
+                const int& id,
+                const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
-                drake::lcm::DrakeLcmInterface* lcm, const std::string& name,
-                int id,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
                 drake::automotive::CarVisApplicator<double>* car_vis_applicator)
       override {
     igndbg << "RailCar configure" << std::endl;
 
-    drake::automotive::LaneDirection initial_lane_direction =
-        linb::any_cast<drake::automotive::LaneDirection>(parameters.at(
+    /*********************
+     * Basics
+     *********************/
+    id_ = id;  // get this automagically setting via AgentPluginBase? can it skip bad constructions?
+
+    /*********************
+     * Parse Parameters
+     *********************/
+    auto initial_lane_direction =
+        linb::any_cast<drake::automotive::LaneDirection*>(parameters.at(
             "lane_direction"));
 
     auto road = linb::any_cast<const drake::maliput::api::RoadGeometry*>(
@@ -72,6 +80,13 @@ public:
     params_ = linb::any_cast<drake::automotive::MaliputRailcarParams<double>*>(
         parameters.at("start_params"));
 
+    if (initial_lane_direction == nullptr) {
+      ignerr << "RailCar::Configure(): "
+                "initial_lane_direction is not set."
+             << std::endl;
+      return -1;
+    }
+
     if (road == nullptr) {
       ignerr << "RailCar::Configure(): "
                 "RoadGeometry not set. Please call SetRoadGeometry() first "
@@ -79,13 +94,13 @@ public:
              << std::endl;
       return -1;
     }
-    if (initial_lane_direction.lane == nullptr) {
+    if (initial_lane_direction->lane == nullptr) {
       ignerr << "RailCar::Configure(): "
                 "The provided initial lane is nullptr."
              << std::endl;
       return -1;
     }
-    if (initial_lane_direction.lane->segment()->junction()->road_geometry() !=
+    if (initial_lane_direction->lane->segment()->junction()->road_geometry() !=
         road) {
       ignerr << "RailCar::Configure(): "
                 "The provided initial lane is not within this simulation's "
@@ -94,7 +109,15 @@ public:
       return -1;
     }
 
-    rail_car_ = std::make_unique<drake::automotive::MaliputRailcar<double>>(initial_lane_direction);
+    /*********************
+     * Instantiate System
+     *********************/
+    std::unique_ptr<drake::automotive::MaliputRailcar <double>> system =
+        std::make_unique<drake::automotive::MaliputRailcar<double>>(*initial_lane_direction);
+    system->set_name(name);
+    rail_car_ = builder->template AddSystem<drake::automotive::MaliputRailcar<double>>(
+        std::move(system)
+    );
 
     // DJS: Should move!? This is diagram building, not actual agent code
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
@@ -115,15 +138,13 @@ public:
     return 0;
   }
 
- private:
-  drake::automotive::MaliputRailcarParams<double>& get_mutable_parameters(
-      drake::systems::Context<double>* context) const {
-    return this->template GetMutableNumericParameter<
-        drake::automotive::MaliputRailcarParams>(context, 0);
+  drake::systems::System<double>* get_system() const {
+    return rail_car_;
   }
 
+ private:
   drake::automotive::MaliputRailcarParams<double>* params_;
-  std::unique_ptr<drake::automotive::MaliputRailcar <double>> rail_car_;
+  drake::automotive::MaliputRailcar <double>* rail_car_;
 };
 
 class RailCarFactory final : public delphyne::AgentPluginFactory {

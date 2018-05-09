@@ -161,7 +161,6 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
   int id = allocate_vehicle_number();
-
   std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
   if (plugin_name.empty()) {
     agent = delphyne::LoadPlugin<T>(plugin_library_name);
@@ -172,18 +171,19 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     return -1;
   }
 
-  auto loadable_agent =
-      builder_->template AddSystem<delphyne::AgentPluginBase<T>>(
-          std::move(agent));
-  loadable_agent->set_name(name);
-  agents_[id] = loadable_agent;
-
-  loadable_agent_initial_states_[loadable_agent] = std::move(initial_state);
-  if (loadable_agent->Configure(parameters, builder_.get(), lcm_.get(), name,
-                                id, aggregator_, car_vis_applicator_) < 0) {
+  if (agent->Configure(
+      name,
+      id,
+      parameters,
+      builder_.get(),
+      aggregator_,
+      car_vis_applicator_
+      ) < 0) {
     return -1;
   }
+  agents_[id] = std::move(agent);
 
+  loadable_agent_initial_states_[id] = std::move(initial_state);  // store in the agent itself?
   return id;
 }
 
@@ -371,12 +371,11 @@ void AutomotiveSimulator<T>::InitializeSimpleCars() {
 template <typename T>
 void AutomotiveSimulator<T>::InitializeLoadableAgents() {
   for (const auto& pair : loadable_agent_initial_states_) {
-    delphyne::AgentPluginBase<T>* const car =
-        dynamic_cast<delphyne::AgentPluginBase<T>*>(pair.first);
+    int id = pair.first;
     const drake::systems::BasicVector<T>* initial_state = pair.second.get();
 
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *car, &simulator_->get_mutable_context());
+        *(agents_[id]->get_system()), &simulator_->get_mutable_context());
 
     drake::systems::VectorBase<T>& context_state =
         context.get_mutable_continuous_state().get_mutable_vector();
@@ -385,7 +384,7 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
     DELPHYNE_ASSERT(state);
     state->set_value(initial_state->get_value());
 
-    car->Initialize(&context);
+    agents_[id]->Initialize(&context);
   }
 }
 
@@ -432,7 +431,7 @@ int AutomotiveSimulator<T>::allocate_vehicle_number() {
 template <typename T>
 void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
   for (const auto& agent : agents_) {
-    if (agent.second->get_name() == name) {
+    if (agent.second->get_system()->get_name() == name) {
       throw std::runtime_error("An agent named \"" + name +
                                "\" already "
                                "exists. It has id " +

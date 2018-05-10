@@ -215,12 +215,6 @@ class AutomotiveSimulator {
   std::unique_ptr<drake::systems::DiagramBuilder<T>> builder_{
       std::make_unique<drake::systems::DiagramBuilder<T>>()};
 
-  // Holds the desired initial states of each SimpleCar. It is used to
-  // initialize the simulation's diagram's state.
-  std::map<const drake::systems::System<T>*,
-           drake::automotive::SimpleCarState<T>>
-      simple_car_initial_states_;
-
   // Holds the desired initial states of each loadable agent. It is used to
   // initialize the simulation's diagram's state.
   std::map<drake::systems::System<T>*,

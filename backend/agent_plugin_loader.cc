@@ -139,7 +139,7 @@ std::unique_ptr<AgentPluginBase<T>> LoadPluginInternal(
       return nullptr;
     }
     std::unique_ptr<delphyne::AgentPluginBase<T>> plugin = factory->Create();
-    plugin->SetPlugin(common_plugin);
+    plugin->set_plugin(common_plugin);
     return plugin;
   }
 

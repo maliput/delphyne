@@ -160,7 +160,6 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
-  int id = allocate_vehicle_number();
   std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
   if (plugin_name.empty()) {
     agent = delphyne::LoadPlugin<T>(plugin_library_name);
@@ -173,7 +172,7 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
 
   if (agent->Configure(
       name,
-      id,
+      unique_system_id_++,
       parameters,
       builder_.get(),
       aggregator_,
@@ -181,10 +180,10 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
       ) < 0) {
     return -1;
   }
-  agents_[id] = std::move(agent);
+  agents_[agent->get_id()] = std::move(agent);
 
-  loadable_agent_initial_states_[id] = std::move(initial_state);  // store in the agent itself?
-  return id;
+  loadable_agent_initial_states_[agent->get_id()] = std::move(initial_state);  // store in the agent itself?
+  return agent->get_id();
 }
 
 template <typename T>
@@ -420,12 +419,6 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 template <typename T>
 double AutomotiveSimulator<T>::get_current_simulation_time() const {
   return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
-}
-
-template <typename T>
-int AutomotiveSimulator<T>::allocate_vehicle_number() {
-  DELPHYNE_DEMAND(!has_started());
-  return next_vehicle_number_++;
 }
 
 template <typename T>

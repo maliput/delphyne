@@ -179,8 +179,6 @@ class AutomotiveSimulator {
   // scene tree widget tree.
   const double kScenePublishPeriodMs = 250.0;
 
-  int allocate_vehicle_number();
-
   // Verifies that the provided `name` of an agent is unique among all agents
   // that have been added to the `AutomotiveSimulator`. Throws a
   // std::runtime_error if it is not unique meaning an agent of the same name
@@ -252,7 +250,10 @@ class AutomotiveSimulator {
   // message containing the latest poses of the visual elements.
   drake::systems::rendering::PoseBundleToDrawMessage* bundle_to_draw_{};
 
-  int next_vehicle_number_{0};
+  // Every system in the Diagram must have a unique system id, we put the
+  // simulator in charge of the unique id counter (better than global objects
+  // with static id counters since they may run into threading problems)
+  int unique_system_id_{0};
 
   // Maps an agent id to a pointer to the system that implements the agent.
   std::map<int, std::unique_ptr<delphyne::AgentPluginBase<T>>> agents_;

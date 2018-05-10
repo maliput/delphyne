@@ -59,7 +59,9 @@ class AgentPluginBase {
   /// gives plugins a chance to initialize themselves for running.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
-  void SetPlugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
+  const int& get_id() { return id_; }
+  void set_id(const int& id) { id_ = id; }
+  void set_plugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
 
  virtual drake::systems::System<T>* get_system() const = 0;
 
@@ -68,6 +70,9 @@ class AgentPluginBase {
   // this is needed so that the plugin pointer doesn't go out of scope and get
   // freed while it is still in use.
   ignition::common::PluginPtr plugin_;
+  // This id should be set by the simulator who is in charge of ensuring each
+  // agent (system) in the simulation receives a unique id that can be passed
+  // to register inputs on the pose aggregator
   int id_;
 };
 

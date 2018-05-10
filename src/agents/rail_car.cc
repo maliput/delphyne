@@ -66,7 +66,7 @@ public:
     /*********************
      * Basics
      *********************/
-    id_ = id;  // get this automagically setting via AgentPluginBase? can it skip bad constructions?
+    this->set_id(id);
 
     /*********************
      * Parse Parameters
@@ -120,12 +120,12 @@ public:
         std::move(system)
     );
 
-    // DJS: Should move!? This is diagram building, not actual agent code
-    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
+    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle agents, reuse?
+    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id_);
     builder->Connect(rail_car_->pose_output(), ports.pose_descriptor);
     builder->Connect(rail_car_->velocity_output(), ports.velocity_descriptor);
     car_vis_applicator->AddCarVis(
-        std::make_unique<drake::automotive::PriusVis<double>>(id, name));
+        std::make_unique<drake::automotive::PriusVis<double>>(id_, name));
 
     return 0;
   }

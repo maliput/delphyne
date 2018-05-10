@@ -20,9 +20,10 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
+#include "systems/maliput_railcar.h"
+
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
-#include "../systems/maliput_railcar.h"
 
 namespace delphyne {
 

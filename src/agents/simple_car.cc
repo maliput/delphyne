@@ -21,9 +21,10 @@
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 #include <backend/translation_systems/ign_driving_command_to_drake.h>
 
+#include "systems/simple_car.h"
+
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
-#include "../systems/simple_car.h"
 
 namespace delphyne {
 

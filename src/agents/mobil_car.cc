@@ -9,12 +9,6 @@
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
 
-////#include "drake/automotive/calc_smooth_acceleration.h"
-////#include "drake/automotive/gen/driving_command.h"
-////#include "drake/automotive/gen/driving_command_translator.h"
-//#include "drake/automotive/gen/simple_car_params.h"
-//#include "drake/automotive/gen/simple_car_state.h"
-//#include "drake/automotive/gen/simple_car_state_translator.h"
 #include "drake/automotive/idm_controller.h"
 #include "drake/automotive/maliput/api/road_geometry.h"
 #include "drake/automotive/maliput/utility/generate_urdf.h"
@@ -22,23 +16,15 @@
 #include "drake/automotive/pose_selector.h"
 #include "drake/automotive/prius_vis.h"
 #include "drake/automotive/pure_pursuit_controller.h"
-//#include "drake/common/eigen_types.h"
-//#include "drake/math/saturate.h"
-//#include "drake/multibody/parsers/urdf_parser.h"
-//#include "drake/systems/framework/leaf_system.h"
-//#include "drake/systems/framework/system_constraint.h"
-//#include "drake/systems/lcm/lcm_publisher_system.h"
-//#include "drake/systems/lcm/lcm_subscriber_system.h"
 #include "drake/systems/primitives/multiplexer.h"
-//#include "drake/systems/rendering/frame_velocity.h"
-//#include "drake/systems/rendering/pose_vector.h"
 
 #include <backend/ign_publisher_system.h>
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
+#include "systems/simple_car.h"
+
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
-#include "../systems/simple_car.h"
 
 namespace delphyne {
 

@@ -1,6 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "maliput_railcar.h"
+#include "systems/maliput_railcar.h"
 
 #include <algorithm>
 #include <cmath>

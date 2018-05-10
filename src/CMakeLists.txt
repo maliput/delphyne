@@ -3,4 +3,4 @@
 ##############################################################################
 
 add_subdirectory(agents)
-#add_subdirectory(systems)
+add_subdirectory(systems)

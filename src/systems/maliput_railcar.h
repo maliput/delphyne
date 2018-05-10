@@ -60,9 +60,9 @@ namespace automotive {
 ///
 /// @ingroup automotive_plants
 template <typename T>
-class MaliputRailcar final : public systems::LeafSystem<T> {
+class MaliputRailcar2 final : public systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MaliputRailcar)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MaliputRailcar2)
   /// Defines a distance that is "close enough" to the end of a lane for the
   /// vehicle to transition to an ongoing branch. The primary constraint on the
   /// selection of this variable is the application's degree of sensitivity to
@@ -92,7 +92,7 @@ class MaliputRailcar final : public systems::LeafSystem<T> {
   ///
   /// @param initial_lane_direction The initial lane and direction of travel.
   ///
-  explicit MaliputRailcar(const LaneDirection& initial_lane_direction);
+  explicit MaliputRailcar2(const LaneDirection& initial_lane_direction);
 
   /// Returns a mutable reference to the parameters in the given @p context.
   MaliputRailcarParams<T>& get_mutable_parameters(

@@ -1,3 +1,5 @@
+// Copyright 2017 Toyota Research Institute
+
 #include "simple_car.h"
 
 #include <algorithm>

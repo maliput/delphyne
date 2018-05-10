@@ -13,7 +13,6 @@
 
 #include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/automotive/lane_direction.h>
-// #include <drake/automotive/maliput_railcar.h>
 #include <drake/automotive/maliput/api/junction.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/api/segment.h>

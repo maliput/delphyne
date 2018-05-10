@@ -1,3 +1,5 @@
+// Copyright 2017 Toyota Research Institute
+
 #pragma once
 
 #include <memory>

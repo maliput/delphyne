@@ -7,11 +7,15 @@ COMPILER_PATH="/usr/bin/g++-5"
 
 mkdir -p install
 
-# Downloads drake binary and untars it into the install directory.
+# The date that conforms part of the build URL is automatically parsed from the 
+# drake respository's last commit date, avoiding us from doing it by hand.
+pushd workspace/drake
+COMMIT_DATE="$(git log -n 1 --pretty='format:%cd' --date=format:'%Y%m%d')"
+popd
+BUILD_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-$COMMIT_DATE-xenial.tar.gz"
 
-# The date of this URL should be updated everytime the drake commit is updated
-# in the delphyne.repos file, found on delphyne_gui.
-wget -qO- https://drake-packages.csail.mit.edu/drake/nightly/drake-20180427-xenial.tar.gz | tar xvz -C `pwd`/install --strip 1
+# Downloads drake binary and untars it into the install directory.
+wget -qO- $BUILD_URL | tar xvz -C `pwd`/install --strip 1
 
 mkdir -p build
 

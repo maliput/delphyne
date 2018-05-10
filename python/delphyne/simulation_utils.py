@@ -13,10 +13,14 @@ import time
 
 from contextlib import contextmanager
 from delphyne.bindings import (
-    AutomotiveSimulator
+    Any,
+    AutomotiveSimulator,
+    MaliputRailcarParams,
+    MaliputRailcarState
 )
 from delphyne.launcher import Launcher
 from pydrake.automotive import (
+    LaneDirection,
     SimpleCarState
 )
 
@@ -69,11 +73,7 @@ def build_simple_car_simulator(initial_positions=None):
     simulator = AutomotiveSimulator()
     car_id = 0
     for car_position in initial_positions:
-        state = SimpleCarState()
-        state.set_y(car_position[0])
-        state.set_x(car_position[1])
-        simulator.AddLoadableAgent("simple-car", {}, str(car_id), state)
-
+        add_simple_car(simulator, car_id, car_position[1], car_position[0])
         car_id += 1
     return simulator
 
@@ -102,3 +102,60 @@ def launch_visualizer(launcher, layout_filename):
     layout_path = os.path.join(get_delphyne_resource_root(), layout_filename)
     teleop_config = layout_key + layout_path
     launcher.launch([ign_visualizer, teleop_config])
+
+
+def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
+    """Instantiates a new Simple Prius Car
+    and adds it to the simulation.
+    """
+    # Creates the initial car state for the simple car.
+    simple_car_state = SimpleCarState()
+    simple_car_state.set_x(position_x)
+    simple_car_state.set_y(position_y)
+    # Instantiates a Loadable Simple Car
+    simulator.AddLoadableAgent(
+        "simple-car", {}, str(robot_id), simple_car_state)
+
+
+def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
+    """Instantiates a new MOBIL Car and adds
+    it to the simulation.
+    """
+    # Creates the initial car state for the MOBIL car.
+    mobil_car_state = SimpleCarState()
+    mobil_car_state.set_x(position_x)
+    mobil_car_state.set_y(position_y)
+    mobil_params = {
+        "initial_with_s": Any(True),
+        "road": Any(road)
+    }
+    # Instantiates a Loadable MOBIL Car.
+    simulator.AddLoadableAgent(
+        "mobil-car", mobil_params, str(robot_id), mobil_car_state)
+
+
+def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
+    """Instantiates a new Maliput Railcar and adds
+    it to the simulation.
+    """
+    # Defines the lane that will be used by the dragway car.
+    lane = road.junction(0).segment(0).lane(1)
+    # Creates the initial car state for the Railcar.
+    maliput_car_state = MaliputRailcarState()
+    maliput_car_state.s = s_coordinate
+    maliput_car_state.speed = speed
+    lane_direction = LaneDirection(lane, True)
+    start_params = MaliputRailcarParams()
+    start_params.r = 0
+    start_params.h = 0
+    railcar_params = {
+        "road": Any(road),
+        "initial_with_s": Any(True),
+        "lane_direction": Any(lane_direction),
+        "start_params": Any(start_params)
+    }
+    # Instantiates a Loadable Rail Car.
+    simulator.AddLoadableAgent("rail-car",
+                               railcar_params,
+                               str(robot_id),
+                               maliput_car_state)

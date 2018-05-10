@@ -7,15 +7,54 @@ COMPILER_PATH="/usr/bin/g++-5"
 
 mkdir -p install
 
-# The date that conforms part of the build URL is automatically parsed from the 
+# The date that forms part of the build URL is automatically parsed from the
 # drake respository's last commit date, avoiding us from doing it by hand.
+
 pushd workspace/drake
 COMMIT_DATE="$(git log -n 1 --pretty='format:%cd' --date=format:'%Y%m%d')"
 popd
-BUILD_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-$COMMIT_DATE-xenial.tar.gz"
+
+BINARY_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-YYYYMMDD-xenial.tar.gz"
+
+VALID_URL=false
+
+url_exists () {
+    echo Testing URL: $1
+    # Sends an http request against the test URL, will return false if whether the
+    # request specifically fails or if it takes more than 5 seconds to respond.
+    if curl --output /dev/null --silent --head --max-time 5 --fail "$1"; then
+        VALID_URL=true
+    fi
+}
+
+TEST_URL="${BINARY_URL//YYYYMMDD/$COMMIT_DATE}"
+url_exists $TEST_URL
+
+# In case the initial URL for downloading the binary is not valid,
+# the script will attempt to generate new ones based on the dates of up
+# to 5 days after the commit date.
+if ! $VALID_URL; then
+    TEST_DATE=$COMMIT_DATE
+    NUM_ATTEMPTS=1
+    while ! $VALID_URL; do
+      if [ "$NUM_ATTEMPTS" -le "5" ] ; then
+        # Adds one day to the current date to test.
+        TEST_DATE=$(date +%Y%m%d -d "$TEST_DATE + 1 day")
+        # Updates binary's URL with new date.
+        TEST_URL="${BINARY_URL//YYYYMMDD/$TEST_DATE}"
+        # Checks availability.
+        url_exists $TEST_URL
+        NUM_ATTEMPTS=$((NUM_ATTEMPTS+1))
+      # If couldn't find a valid URL between the tested dates, fails.
+      else
+        echo "ERROR: Couldn't find a valid URL to download drake binaries."
+        exit 1
+      fi
+    done
+fi
 
 # Downloads drake binary and untars it into the install directory.
-wget -qO- $BUILD_URL | tar xvz -C `pwd`/install --strip 1
+curl $TEST_URL | tar xvz -C `pwd`/install --strip 1
 
 mkdir -p build
 

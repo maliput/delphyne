@@ -1,19 +1,5 @@
 // Copyright 2017 Toyota Research Institute
 
-// clalancette, caguero: The vast majority of the code below is copied from
-// https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/simple_car.cc
-// and
-// https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/simple_car.h
-// and
-// https://github.com/RobotLocomotion/drake/blob/f6f23c5bc539a6aaf754c27b69ef14a69ab3430f/automotive/automotive_simulator.cc
-//
-// I've modified it slightly to
-// 1) Combine the .cc and .h into one file (given that we build this into a .so
-//    there is no reason to have the separated file),
-// 2) Add in namespaces, and
-// 3) Add in the pieces necessary to make it a loadable agent (registering it
-//    as a shared library and overriding the appropriate methods).
-
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -120,6 +106,9 @@ public:
         std::move(system)
     );
 
+    /*********************
+     * Diagram Wiring
+     *********************/
     // TODO(daniel.stonier): This is a very repeatable pattern for vehicle agents, reuse?
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id_);
     builder->Connect(rail_car_->pose_output(), ports.pose_descriptor);

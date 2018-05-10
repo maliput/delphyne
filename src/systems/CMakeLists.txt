@@ -21,3 +21,7 @@ target_link_libraries(
   PUBLIC
     drake::drake
 )
+install(
+  TARGETS drake_agents
+  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

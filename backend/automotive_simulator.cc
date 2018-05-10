@@ -157,9 +157,17 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name, const std::string& plugin_name,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
+
+  /*********************
+   * Checks
+   *********************/
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
+
+  /*********************
+   * Load Agent Plugin
+   *********************/
   std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
   if (plugin_name.empty()) {
     agent = delphyne::LoadPlugin<T>(plugin_library_name);
@@ -170,9 +178,15 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     return -1;
   }
 
+  /*********************
+   * Configure Agent
+   *********************/
+  int id = unique_system_id_++;
+
+  std::cout << "Configure" << std::endl;
   if (agent->Configure(
       name,
-      unique_system_id_++,
+      id,
       parameters,
       builder_.get(),
       aggregator_,
@@ -180,10 +194,10 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
       ) < 0) {
     return -1;
   }
-  agents_[agent->get_id()] = std::move(agent);
-
-  loadable_agent_initial_states_[agent->get_id()] = std::move(initial_state);  // store in the agent itself?
-  return agent->get_id();
+  agents_[id] = std::move(agent);
+  loadable_agent_initial_states_[id] = std::move(initial_state);  // store in the agent itself?
+  std::cout << "dude" << std::endl;
+  return id;
 }
 
 template <typename T>

@@ -30,7 +30,7 @@ namespace delphyne {
 ///           'drake::symbolic::Expression'.
 template <typename T>
 class AgentPluginBase {
- public:
+public:
   virtual ~AgentPluginBase() {}
 
   /// The `Configure` method is the main way that loadable agents get the
@@ -45,8 +45,7 @@ class AgentPluginBase {
   /// (or at least most) loadable agents to insert themselves into the
   /// simulation.  For instance, the `builder` parameter is typically used by
   /// the loadable agent to connect internal methods into the overall Diagram
-  /// that the automotive simulator is building.  The `lcm` parameter is used
-  /// to attach an LCM subscriber or publisher to the concrete agent.
+  /// that the automotive simulator is building.
   virtual int Configure(
       const std::string& name,
       const int& id,
@@ -59,13 +58,15 @@ class AgentPluginBase {
   /// gives plugins a chance to initialize themselves for running.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
+  const std::string& get_name() { return name_; }
+  void set_name(const std::string& name) { name_ = name; }
   const int& get_id() { return id_; }
   void set_id(const int& id) { id_ = id; }
   void set_plugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
 
- virtual drake::systems::System<T>* get_system() const = 0;
+  virtual drake::systems::System<T>* get_system() const = 0;
 
- protected:
+protected:
   // Store a pointer (actually a shared_ptr) to the plugin within this class.
   // this is needed so that the plugin pointer doesn't go out of scope and get
   // freed while it is still in use.
@@ -74,6 +75,7 @@ class AgentPluginBase {
   // agent (system) in the simulation receives a unique id that can be passed
   // to register inputs on the pose aggregator
   int id_;
+  std::string name_;
 };
 
 typedef AgentPluginBase<double> AgentPlugin;

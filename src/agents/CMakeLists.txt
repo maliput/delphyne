@@ -21,7 +21,7 @@ endmacro()
 ################################## Agents ####################################
 
 delphyne_add_agent_library(rail_car)
-#delphyne_add_agent_library(mobil_car)
+delphyne_add_agent_library(mobil_car)
 delphyne_add_agent_library(simple_car)
 #delphyne_add_agent_library(trajectory_car)
 

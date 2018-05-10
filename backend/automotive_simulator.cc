@@ -183,7 +183,6 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
    *********************/
   int id = unique_system_id_++;
 
-  std::cout << "Configure" << std::endl;
   if (agent->Configure(
       name,
       id,
@@ -196,7 +195,6 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   }
   agents_[id] = std::move(agent);
   loadable_agent_initial_states_[id] = std::move(initial_state);  // store in the agent itself?
-  std::cout << "dude" << std::endl;
   return id;
 }
 
@@ -438,7 +436,7 @@ double AutomotiveSimulator<T>::get_current_simulation_time() const {
 template <typename T>
 void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
   for (const auto& agent : agents_) {
-    if (agent.second->get_system()->get_name() == name) {
+    if (agent.second->get_name() == name) {
       throw std::runtime_error("An agent named \"" + name +
                                "\" already "
                                "exists. It has id " +

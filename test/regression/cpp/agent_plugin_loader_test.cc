@@ -28,7 +28,7 @@ TEST(AgentPluginLoader, SimpleAgent) {
       std::make_unique<drake::systems::DiagramBuilder<double>>()};
 
   const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, builder.get(), nullptr, "testname", 0,
+  ASSERT_EQ(0, agent->Configure("testname", 0, params, builder.get(),
                                 nullptr, nullptr));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));
@@ -47,7 +47,7 @@ TEST(AgentPluginLoader, AutoDiffAgent) {
       std::make_unique<drake::systems::DiagramBuilder<delphyne::AutoDiff>>()};
 
   const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, builder.get(), nullptr, "testname", 0,
+  ASSERT_EQ(0, agent->Configure("testname", 0, params, builder.get(),
                                 nullptr, nullptr));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));
@@ -66,7 +66,7 @@ TEST(AgentPluginLoader, SymbolicAgent) {
       std::make_unique<drake::systems::DiagramBuilder<delphyne::Symbolic>>()};
 
   const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, builder.get(), nullptr, "testname", 0,
+  ASSERT_EQ(0, agent->Configure("testname", 0, params, builder.get(),
                                 nullptr, nullptr));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));

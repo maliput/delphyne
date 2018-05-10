@@ -164,7 +164,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // Simulate an external system sending a driving command to the car at
   // full throttle
   auto publisher =
-      node.Advertise<ignition::msgs::AutomotiveDrivingCommand>("teleop/Foo");
+      node.Advertise<ignition::msgs::AutomotiveDrivingCommand>("teleop/0");
 
   ignition::msgs::AutomotiveDrivingCommand ignMsg;
 
@@ -332,117 +332,118 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 }
 
 // Covers adding a prius trajectory car as with loadable agent.
-TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
-  typedef Curve2<double> Curve2d;
-  typedef Curve2d::Point2 Point2d;
-  const std::vector<Point2d> waypoints{
-      {0.0, 0.0}, {100.0, 0.0},
-  };
-  const Curve2d curve{waypoints};
-  const double kTolerance{1e-8};
-  const double kPoseXTolerance{1e-6};
-
-  // Set up a basic simulation with a couple Prius TrajectoryCars. Both cars
-  // start at position zero; the first has a speed of 1 m/s, while the other is
-  // stationary. They both follow a straight 100 m long line.
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
-
-  std::map<std::string, linb::any> traj_params;
-  traj_params["curve"] = curve;
-  auto stateAlice =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  stateAlice->set_speed(1.0);
-  stateAlice->set_position(0.0);
-  auto stateBob =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  stateBob->set_speed(0.0);
-  stateBob->set_position(0.0);
-  const int id1 = simulator->AddLoadableAgent("trajectory-car", traj_params,
-                                              "alice", std::move(stateAlice));
-  const int id2 = simulator->AddLoadableAgent("trajectory-car", traj_params,
-                                              "bob", std::move(stateBob));
-
-  EXPECT_EQ(0, id1);
-  EXPECT_EQ(1, id2);
-
-  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /visualizer/scene_update.
-  ignition::msgs::Model_V draw_message;
-
-  std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback =
-          [&draw_message](const ignition::msgs::Model_V& ign_message) {
-            draw_message = ign_message;
-          };
-
-  ignition::transport::Node node;
-
-  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
-                                          viewer_draw_callback);
-
-  // Finish all initialization, so that we can test the post-init state.
-  simulator->Start();
-
-  // Simulate for one second.
-  for (int i = 0; i < 100; ++i) {
-    simulator->StepBy(0.01);
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
-
-  // Plus one to include the world.
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 1;
-
-  // Minus one to omit world, which remains still.
-  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
-
-  auto alice_model = draw_message.models(id1);
-  auto bob_model = draw_message.models(id2);
-
-  // Checks the car ids
-  EXPECT_EQ(alice_model.id(), id1);
-  EXPECT_EQ(bob_model.id(), id2);
-
-  auto link = alice_model.link(0);
-
-  // Checks the chassis_floor body of the first car.
-  EXPECT_EQ(link.name(), "chassis_floor");
-
-  EXPECT_NEAR(link.pose().position().x(), PriusVis<double>::kVisOffset + 0.99,
-              kPoseXTolerance);
-  EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
-  EXPECT_NEAR(link.pose().position().z(), 0.378326, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
-
-  // Checks the chassis_floor body of the first car.
-  EXPECT_EQ(alice_model.link_size(), bob_model.link_size());
-
-  // Verifies that the first car is about 1 m ahead of the second car. This is
-  // expected since the first car is traveling at 1 m/s for a second while the
-  // second car is immobile.
-  for (int i = 0; i < alice_model.link_size(); i++) {
-    auto alice_link = alice_model.link(i);
-    auto bob_link = bob_model.link(i);
-    EXPECT_EQ(alice_link.name(), bob_link.name());
-    EXPECT_NEAR(alice_link.pose().position().x(),
-                bob_link.pose().position().x() + 0.99, kPoseXTolerance);
-    EXPECT_NEAR(alice_link.pose().position().y(),
-                bob_link.pose().position().y(), kTolerance);
-    EXPECT_NEAR(alice_link.pose().position().z(),
-                bob_link.pose().position().z(), kTolerance);
-    EXPECT_NEAR(alice_link.pose().orientation().w(),
-                bob_link.pose().orientation().w(), kTolerance);
-    EXPECT_NEAR(alice_link.pose().orientation().x(),
-                bob_link.pose().orientation().x(), kTolerance);
-    EXPECT_NEAR(alice_link.pose().orientation().y(),
-                bob_link.pose().orientation().y(), kTolerance);
-    EXPECT_NEAR(alice_link.pose().orientation().z(),
-                bob_link.pose().orientation().z(), kTolerance);
-  }
-}
+// TODO(daniel.stonier) : re-enable once the agent has-a (new) drake trajectory agent is built
+//TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
+//  typedef Curve2<double> Curve2d;
+//  typedef Curve2d::Point2 Point2d;
+//  const std::vector<Point2d> waypoints{
+//      {0.0, 0.0}, {100.0, 0.0},
+//  };
+//  const Curve2d curve{waypoints};
+//  const double kTolerance{1e-8};
+//  const double kPoseXTolerance{1e-6};
+//
+//  // Set up a basic simulation with a couple Prius TrajectoryCars. Both cars
+//  // start at position zero; the first has a speed of 1 m/s, while the other is
+//  // stationary. They both follow a straight 100 m long line.
+//  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
+//      std::make_unique<drake::lcm::DrakeMockLcm>());
+//
+//  std::map<std::string, linb::any> traj_params;
+//  traj_params["curve"] = curve;
+//  auto stateAlice =
+//      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+//  stateAlice->set_speed(1.0);
+//  stateAlice->set_position(0.0);
+//  auto stateBob =
+//      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
+//  stateBob->set_speed(0.0);
+//  stateBob->set_position(0.0);
+//  const int id1 = simulator->AddLoadableAgent("trajectory-car", traj_params,
+//                                              "alice", std::move(stateAlice));
+//  const int id2 = simulator->AddLoadableAgent("trajectory-car", traj_params,
+//                                              "bob", std::move(stateBob));
+//
+//  EXPECT_EQ(0, id1);
+//  EXPECT_EQ(1, id2);
+//
+//  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+//  // that is published to /visualizer/scene_update.
+//  ignition::msgs::Model_V draw_message;
+//
+//  std::function<void(const ignition::msgs::Model_V& ign_message)>
+//      viewer_draw_callback =
+//          [&draw_message](const ignition::msgs::Model_V& ign_message) {
+//            draw_message = ign_message;
+//          };
+//
+//  ignition::transport::Node node;
+//
+//  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
+//                                          viewer_draw_callback);
+//
+//  // Finish all initialization, so that we can test the post-init state.
+//  simulator->Start();
+//
+//  // Simulate for one second.
+//  for (int i = 0; i < 100; ++i) {
+//    simulator->StepBy(0.01);
+//    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+//  }
+//
+//  // Plus one to include the world.
+//  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 1;
+//
+//  // Minus one to omit world, which remains still.
+//  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
+//
+//  auto alice_model = draw_message.models(id1);
+//  auto bob_model = draw_message.models(id2);
+//
+//  // Checks the car ids
+//  EXPECT_EQ(alice_model.id(), id1);
+//  EXPECT_EQ(bob_model.id(), id2);
+//
+//  auto link = alice_model.link(0);
+//
+//  // Checks the chassis_floor body of the first car.
+//  EXPECT_EQ(link.name(), "chassis_floor");
+//
+//  EXPECT_NEAR(link.pose().position().x(), PriusVis<double>::kVisOffset + 0.99,
+//              kPoseXTolerance);
+//  EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
+//  EXPECT_NEAR(link.pose().position().z(), 0.378326, kTolerance);
+//  EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
+//  EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
+//  EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
+//  EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
+//
+//  // Checks the chassis_floor body of the first car.
+//  EXPECT_EQ(alice_model.link_size(), bob_model.link_size());
+//
+//  // Verifies that the first car is about 1 m ahead of the second car. This is
+//  // expected since the first car is traveling at 1 m/s for a second while the
+//  // second car is immobile.
+//  for (int i = 0; i < alice_model.link_size(); i++) {
+//    auto alice_link = alice_model.link(i);
+//    auto bob_link = bob_model.link(i);
+//    EXPECT_EQ(alice_link.name(), bob_link.name());
+//    EXPECT_NEAR(alice_link.pose().position().x(),
+//                bob_link.pose().position().x() + 0.99, kPoseXTolerance);
+//    EXPECT_NEAR(alice_link.pose().position().y(),
+//                bob_link.pose().position().y(), kTolerance);
+//    EXPECT_NEAR(alice_link.pose().position().z(),
+//                bob_link.pose().position().z(), kTolerance);
+//    EXPECT_NEAR(alice_link.pose().orientation().w(),
+//                bob_link.pose().orientation().w(), kTolerance);
+//    EXPECT_NEAR(alice_link.pose().orientation().x(),
+//                bob_link.pose().orientation().x(), kTolerance);
+//    EXPECT_NEAR(alice_link.pose().orientation().y(),
+//                bob_link.pose().orientation().y(), kTolerance);
+//    EXPECT_NEAR(alice_link.pose().orientation().z(),
+//                bob_link.pose().orientation().z(), kTolerance);
+//  }
+//}
 
 // Checks the message has the expected link count and includes the
 // chassis floor as its first link.
@@ -604,26 +605,6 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   simulator->AddLoadableAgent("simple-car", simple_params, "Model2",
                               std::move(state2));
 
-  typedef Curve2<double> Curve2d;
-  typedef Curve2d::Point2 Point2d;
-  const std::vector<Point2d> waypoints{Point2d{0, 0}, Point2d{1, 0}};
-  const Curve2d curve{waypoints};
-
-  std::map<std::string, linb::any> traj_params;
-  traj_params["curve"] = curve;
-  auto state_alice =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  state_alice->set_speed(1.0);
-  state_alice->set_position(0.0);
-  auto state_bob =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  state_bob->set_speed(1.0);
-  state_bob->set_position(0.0);
-  simulator->AddLoadableAgent("trajectory-car", traj_params, "alice",
-                              std::move(state_alice));
-  simulator->AddLoadableAgent("trajectory-car", traj_params, "bob",
-                              std::move(state_bob));
-
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update
   ignition::msgs::Model_V draw_message;
@@ -655,7 +636,7 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
                                           viewer_draw_callback);
 
   // Plus one to include the world.
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 4 + 1;
+  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 1;
 
   simulator->Start();
 
@@ -712,40 +693,6 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
                                            "Model1", std::move(state2)),
                std::runtime_error);
 
-  typedef Curve2<double> Curve2d;
-  typedef Curve2d::Point2 Point2d;
-  const std::vector<Point2d> waypoints{Point2d{0, 0}, Point2d{1, 0}};
-  const Curve2d curve{waypoints};
-
-  std::map<std::string, linb::any> traj_params;
-  traj_params["curve"] = curve;
-
-  auto state_alice_no_throw =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  state_alice_no_throw->set_speed(1.0);
-  state_alice_no_throw->set_position(0.0);
-  EXPECT_NO_THROW(simulator->AddLoadableAgent(
-      "trajectory-car", traj_params, "alice", std::move(state_alice_no_throw)));
-
-  auto state_alice_throw =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  state_alice_throw->set_speed(1.0);
-  state_alice_throw->set_position(0.0);
-
-  EXPECT_THROW(
-      simulator->AddLoadableAgent("trajectory-car", traj_params, "alice",
-                                  std::move(state_alice_throw)),
-      std::runtime_error);
-
-  auto state3 =
-      std::make_unique<drake::automotive::TrajectoryCarState<double>>();
-  state3->set_speed(1.0);
-  state3->set_position(0.0);
-
-  EXPECT_THROW(simulator->AddLoadableAgent("trajectory-car", traj_params,
-                                           "Model1", std::move(state3)),
-               std::runtime_error);
-
   const double kR{0.5};
   MaliputRailcarParams<double> params;
   params.set_r(kR);
@@ -772,13 +719,8 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
                                               std::move(state4)));
 
   auto state5 = std::make_unique<MaliputRailcarState<double>>();
-  EXPECT_THROW(simulator->AddLoadableAgent("rail-car", maliput_params, "alice",
-                                           std::move(state5)),
-               std::runtime_error);
-
-  auto state6 = std::make_unique<MaliputRailcarState<double>>();
   EXPECT_THROW(simulator->AddLoadableAgent("rail-car", maliput_params, "Model1",
-                                           std::move(state6)),
+                                           std::move(state5)),
                std::runtime_error);
 }
 

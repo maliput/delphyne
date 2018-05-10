@@ -53,6 +53,7 @@ public:
      * Basics
      *********************/
     this->set_id(id);
+    this->set_name(name);
 
     /*********************
      * Parse Parameters

@@ -48,6 +48,7 @@ class SimpleCar final : public delphyne::AgentPlugin {
      * Basics
      *********************/
     this->set_id(id);
+    this->set_name(name);
 
     /*********************
      * Instantiate System
@@ -62,8 +63,7 @@ class SimpleCar final : public delphyne::AgentPlugin {
     /*********************
      * Teleop
      *********************/
-    std::string command_channel = "teleop/" + name;
-    std::cout << "Command Channel: " << command_channel << std::endl;
+    std::string command_channel = "teleop/" + std::to_string(id);
     auto driving_command_subscriber =
         builder->template AddSystem<IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         command_channel);
@@ -118,8 +118,7 @@ class SimpleCar final : public delphyne::AgentPlugin {
     return simple_car_;
   }
 
- private:
-
+private:
   drake::automotive::SimpleCarParams<double>* params_;
   drake::automotive::SimpleCar2 <double>* simple_car_;
 

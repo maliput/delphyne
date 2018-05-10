@@ -20,8 +20,7 @@
 class SymbolicAgent final : public delphyne::SymbolicAgentPlugin {
  public:
   int Configure(
-      const std::string& name,
-      const int& id,
+      const std::string& name, const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<delphyne::Symbolic>* builder,
       drake::systems::rendering::PoseAggregator<delphyne::Symbolic>* aggregator,
@@ -35,7 +34,9 @@ class SymbolicAgent final : public delphyne::SymbolicAgentPlugin {
     return 0;
   }
 
-  drake::systems::System<delphyne::Symbolic>* get_system() const { return nullptr; }
+  drake::systems::System<delphyne::Symbolic>* get_system() const {
+    return nullptr;
+  }
 };
 
 // An example factory class that derives from AgentPluginFactoryExpressionBase

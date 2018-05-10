@@ -36,9 +36,9 @@
 #include <backend/ign_publisher_system.h>
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
-#include "../systems/simple_car.h"
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
+#include "../systems/simple_car.h"
 
 namespace delphyne {
 
@@ -46,12 +46,9 @@ class MobilCar final : public delphyne::AgentPlugin {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilCar)
 
-  MobilCar() : simple_car_() {
-    igndbg << "MobilCar constructor" << std::endl;
-  }
+  MobilCar() : simple_car_() { igndbg << "MobilCar constructor" << std::endl; }
 
-  int Configure(const std::string& name,
-                const int& id,
+  int Configure(const std::string& name, const int& id,
                 const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
@@ -134,7 +131,8 @@ class MobilCar final : public delphyne::AgentPlugin {
      * Diagram Wiring
      *********************/
     // driving
-    builder->Connect(simple_car_->pose_output(), mobil_planner->ego_pose_input());
+    builder->Connect(simple_car_->pose_output(),
+                     mobil_planner->ego_pose_input());
     builder->Connect(simple_car_->velocity_output(),
                      mobil_planner->ego_velocity_input());
     builder->Connect(idm_controller->acceleration_output(),
@@ -142,7 +140,8 @@ class MobilCar final : public delphyne::AgentPlugin {
     builder->Connect(aggregator->get_output_port(0),
                      mobil_planner->traffic_input());
 
-    builder->Connect(simple_car_->pose_output(), idm_controller->ego_pose_input());
+    builder->Connect(simple_car_->pose_output(),
+                     idm_controller->ego_pose_input());
     builder->Connect(simple_car_->velocity_output(),
                      idm_controller->ego_velocity_input());
     builder->Connect(aggregator->get_output_port(0),
@@ -159,7 +158,8 @@ class MobilCar final : public delphyne::AgentPlugin {
     builder->Connect(mux->get_output_port(0), simple_car_->get_input_port(0));
 
     // simulator
-    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle agents, reuse?
+    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
+    // agents, reuse?
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(simple_car_->pose_output(), ports.pose_descriptor);
     builder->Connect(simple_car_->velocity_output(), ports.velocity_descriptor);
@@ -179,16 +179,14 @@ class MobilCar final : public delphyne::AgentPlugin {
     return 0;
   }
 
-  drake::systems::System<double>* get_system() const {
-    return simple_car_;
-  }
+  drake::systems::System<double>* get_system() const { return simple_car_; }
 
-private:
-  drake::automotive::SimpleCar2 <double>* simple_car_;
+ private:
+  drake::automotive::SimpleCar2<double>* simple_car_;
 
-//  drake::optional<bool> DoHasDirectFeedthrough(int, int) const override {
-//    return false;
-//  }
+  //  drake::optional<bool> DoHasDirectFeedthrough(int, int) const override {
+  //    return false;
+  //  }
 };
 
 class MobilCarFactory final : public delphyne::AgentPluginFactory {

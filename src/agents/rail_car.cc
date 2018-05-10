@@ -15,20 +15,20 @@
 #include <drake/automotive/lane_direction.h>
 // #include <drake/automotive/maliput_railcar.h>
 #include <drake/automotive/maliput/api/junction.h>
-#include <drake/automotive/maliput/api/segment.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/api/segment.h>
 #include <drake/automotive/prius_vis.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
-#include "../systems/maliput_railcar.h"
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
+#include "../systems/maliput_railcar.h"
 
 namespace delphyne {
 
 class RailCar final : public delphyne::AgentPlugin {
-public:
+ public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
   static constexpr double kLaneEndEpsilon{1e-12};
@@ -40,8 +40,7 @@ public:
     igndbg << "RailCar constructor" << std::endl;
   }
 
-  int Configure(const std::string& name,
-                const int& id,
+  int Configure(const std::string& name, const int& id,
                 const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
@@ -59,8 +58,8 @@ public:
      * Parse Parameters
      *********************/
     auto initial_lane_direction =
-        linb::any_cast<drake::automotive::LaneDirection*>(parameters.at(
-            "lane_direction"));
+        linb::any_cast<drake::automotive::LaneDirection*>(
+            parameters.at("lane_direction"));
 
     auto road = linb::any_cast<const drake::maliput::api::RoadGeometry*>(
         parameters.at("road"));
@@ -100,17 +99,19 @@ public:
     /*********************
      * Instantiate System
      *********************/
-    std::unique_ptr<drake::automotive::MaliputRailcar2 <double>> system =
-        std::make_unique<drake::automotive::MaliputRailcar2<double>>(*initial_lane_direction);
+    std::unique_ptr<drake::automotive::MaliputRailcar2<double>> system =
+        std::make_unique<drake::automotive::MaliputRailcar2<double>>(
+            *initial_lane_direction);
     system->set_name(name);
-    rail_car_ = builder->template AddSystem<drake::automotive::MaliputRailcar2<double>>(
-        std::move(system)
-    );
+    rail_car_ =
+        builder->template AddSystem<drake::automotive::MaliputRailcar2<double>>(
+            std::move(system));
 
     /*********************
      * Diagram Wiring
      *********************/
-    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle agents, reuse?
+    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
+    // agents, reuse?
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id_);
     builder->Connect(rail_car_->pose_output(), ports.pose_descriptor);
     builder->Connect(rail_car_->velocity_output(), ports.velocity_descriptor);
@@ -129,13 +130,11 @@ public:
     return 0;
   }
 
-  drake::systems::System<double>* get_system() const {
-    return rail_car_;
-  }
+  drake::systems::System<double>* get_system() const { return rail_car_; }
 
  private:
   drake::automotive::MaliputRailcarParams<double>* params_;
-  drake::automotive::MaliputRailcar2 <double>* rail_car_;
+  drake::automotive::MaliputRailcar2<double>* rail_car_;
 };
 
 class RailCarFactory final : public delphyne::AgentPluginFactory {

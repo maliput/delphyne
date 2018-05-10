@@ -65,18 +65,17 @@ SimpleCar2<T>::SimpleCar2()
   this->DeclareContinuousState(SimpleCarState<T>());
   this->DeclareNumericParameter(SimpleCarParams<T>());
 
-  this->DeclareInequalityConstraint(
-      &SimpleCar2::CalcSteeringAngleConstraint, 2, "steering angle limit");
-  this->DeclareInequalityConstraint(
-      &SimpleCar2::CalcAccelerationConstraint, 2, "acceleration limit");
-  this->DeclareInequalityConstraint(
-      &SimpleCar2::CalcVelocityConstraint, 2, "velocity limit");
+  this->DeclareInequalityConstraint(&SimpleCar2::CalcSteeringAngleConstraint, 2,
+                                    "steering angle limit");
+  this->DeclareInequalityConstraint(&SimpleCar2::CalcAccelerationConstraint, 2,
+                                    "acceleration limit");
+  this->DeclareInequalityConstraint(&SimpleCar2::CalcVelocityConstraint, 2,
+                                    "velocity limit");
 }
 
 template <typename T>
 template <typename U>
-SimpleCar2<T>::SimpleCar2(const SimpleCar2<U>&)
-    : SimpleCar2() {}
+SimpleCar2<T>::SimpleCar2(const SimpleCar2<U>&) : SimpleCar2() {}
 
 template <typename T>
 const systems::OutputPort<T>& SimpleCar2<T>::state_output() const {
@@ -95,7 +94,7 @@ const systems::OutputPort<T>& SimpleCar2<T>::velocity_output() const {
 
 template <typename T>
 void SimpleCar2<T>::CalcStateOutput(const systems::Context<T>& context,
-                                   SimpleCarState<T>* output) const {
+                                    SimpleCarState<T>* output) const {
   const SimpleCarState<T>& state = get_state(context);
   output->set_value(state.get_value());
 
@@ -106,7 +105,7 @@ void SimpleCar2<T>::CalcStateOutput(const systems::Context<T>& context,
 
 template <typename T>
 void SimpleCar2<T>::CalcPose(const systems::Context<T>& context,
-                            PoseVector<T>* pose) const {
+                             PoseVector<T>* pose) const {
   const SimpleCarState<T>& state = get_state(context);
   pose->set_translation(Eigen::Translation<T, 3>(state.x(), state.y(), 0));
   const Vector3<T> z_axis{0.0, 0.0, 1.0};
@@ -168,9 +167,9 @@ void SimpleCar2<T>::DoCalcTimeDerivatives(
 
 template <typename T>
 void SimpleCar2<T>::ImplCalcTimeDerivatives(const SimpleCarParams<T>& params,
-                                           const SimpleCarState<T>& state,
-                                           const DrivingCommand<T>& input,
-                                           SimpleCarState<T>* rates) const {
+                                            const SimpleCarState<T>& state,
+                                            const DrivingCommand<T>& input,
+                                            SimpleCarState<T>* rates) const {
   using std::abs;
   using std::cos;
   using std::max;
@@ -227,7 +226,7 @@ void SimpleCar2<T>::CalcAccelerationConstraint(
 // state.velocity ≥ 0.
 template <typename T>
 void SimpleCar2<T>::CalcVelocityConstraint(const systems::Context<T>& context,
-                                          VectorX<T>* value) const {
+                                           VectorX<T>* value) const {
   const SimpleCarState<T>& state = get_state(context);
   const SimpleCarParams<T>& params = get_params(context);
   *value =

@@ -157,7 +157,6 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name, const std::string& plugin_name,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
-
   /*********************
    * Checks
    *********************/
@@ -183,18 +182,13 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(
-      name,
-      id,
-      parameters,
-      builder_.get(),
-      aggregator_,
-      car_vis_applicator_
-      ) < 0) {
+  if (agent->Configure(name, id, parameters, builder_.get(), aggregator_,
+                       car_vis_applicator_) < 0) {
     return -1;
   }
   agents_[id] = std::move(agent);
-  loadable_agent_initial_states_[id] = std::move(initial_state);  // store in the agent itself?
+  loadable_agent_initial_states_[id] =
+      std::move(initial_state);  // store in the agent itself?
   return id;
 }
 

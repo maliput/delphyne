@@ -21,9 +21,9 @@
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 #include <backend/translation_systems/ign_driving_command_to_drake.h>
 
-#include "../systems/simple_car.h"
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
+#include "../systems/simple_car.h"
 
 namespace delphyne {
 
@@ -31,12 +31,11 @@ class SimpleCar final : public delphyne::AgentPlugin {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar)
 
-  SimpleCar() : params_(nullptr), simple_car_(){
+  SimpleCar() : params_(nullptr), simple_car_() {
     igndbg << "SimpleCar constructor" << std::endl;
   }
 
-  int Configure(const std::string& name,
-                const int& id,
+  int Configure(const std::string& name, const int& id,
                 const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
@@ -53,19 +52,19 @@ class SimpleCar final : public delphyne::AgentPlugin {
     /*********************
      * Instantiate System
      *********************/
-    std::unique_ptr<drake::automotive::SimpleCar2 <double>> system =
+    std::unique_ptr<drake::automotive::SimpleCar2<double>> system =
         std::make_unique<drake::automotive::SimpleCar2<double>>();
     system->set_name(name);
-    simple_car_ = builder->template AddSystem<drake::automotive::SimpleCar2<double>>(
-        std::move(system)
-    );
+    simple_car_ =
+        builder->template AddSystem<drake::automotive::SimpleCar2<double>>(
+            std::move(system));
 
     /*********************
      * Teleop
      *********************/
     std::string command_channel = "teleop/" + std::to_string(id);
-    auto driving_command_subscriber =
-        builder->template AddSystem<IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
+    auto driving_command_subscriber = builder->template AddSystem<
+        IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
         command_channel);
 
     auto driving_command_translator =
@@ -81,7 +80,8 @@ class SimpleCar final : public delphyne::AgentPlugin {
     /*********************
      * Diagram Wiring
      *********************/
-    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle agents, reuse?
+    // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
+    // agents, reuse?
     auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(simple_car_->pose_output(), ports.pose_descriptor);
     builder->Connect(simple_car_->velocity_output(), ports.velocity_descriptor);
@@ -114,14 +114,11 @@ class SimpleCar final : public delphyne::AgentPlugin {
     return 0;
   }
 
-  drake::systems::System<double>* get_system() const {
-    return simple_car_;
-  }
+  drake::systems::System<double>* get_system() const { return simple_car_; }
 
-private:
+ private:
   drake::automotive::SimpleCarParams<double>* params_;
-  drake::automotive::SimpleCar2 <double>* simple_car_;
-
+  drake::automotive::SimpleCar2<double>* simple_car_;
 };
 
 class SimpleCarFactory final : public delphyne::AgentPluginFactory {

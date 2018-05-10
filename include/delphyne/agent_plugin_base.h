@@ -30,7 +30,7 @@ namespace delphyne {
 ///           'drake::symbolic::Expression'.
 template <typename T>
 class AgentPluginBase {
-public:
+ public:
   virtual ~AgentPluginBase() {}
 
   /// The `Configure` method is the main way that loadable agents get the
@@ -47,8 +47,7 @@ public:
   /// the loadable agent to connect internal methods into the overall Diagram
   /// that the automotive simulator is building.
   virtual int Configure(
-      const std::string& name,
-      const int& id,
+      const std::string& name, const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<T>* builder,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
@@ -66,7 +65,7 @@ public:
 
   virtual drake::systems::System<T>* get_system() const = 0;
 
-protected:
+ protected:
   // Store a pointer (actually a shared_ptr) to the plugin within this class.
   // this is needed so that the plugin pointer doesn't go out of scope and get
   // freed while it is still in use.

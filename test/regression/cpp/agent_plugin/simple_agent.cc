@@ -19,8 +19,7 @@
 // except for return success for all method calls.
 class SimpleAgent final : public delphyne::AgentPlugin {
  public:
-  int Configure(const std::string& name,
-                const int& id,
+  int Configure(const std::string& name, const int& id,
                 const std::map<std::string, linb::any>& parameters,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,

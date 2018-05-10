@@ -134,33 +134,27 @@ class MaliputRailcar2 final : public systems::LeafSystem<T> {
       const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
       systems::State<T>* state) const override;
 
-  void CalcStateOutput(
-      const systems::Context<T>& context,
-      MaliputRailcarState<T>* output) const;
+  void CalcStateOutput(const systems::Context<T>& context,
+                       MaliputRailcarState<T>* output) const;
 
-  void CalcLaneOutput(
-      const systems::Context<T>& context,
-      LaneDirection* output) const;
+  void CalcLaneOutput(const systems::Context<T>& context,
+                      LaneDirection* output) const;
 
-  void CalcPose(
-      const systems::Context<T>& context,
-      systems::rendering::PoseVector<T>* pose) const;
+  void CalcPose(const systems::Context<T>& context,
+                systems::rendering::PoseVector<T>* pose) const;
 
-  void CalcVelocity(
-      const systems::Context<T>& context,
-      systems::rendering::FrameVelocity<T>* pose) const;
+  void CalcVelocity(const systems::Context<T>& context,
+                    systems::rendering::FrameVelocity<T>* pose) const;
 
-  void ImplCalcTimeDerivatives(
-      const MaliputRailcarParams<T>& params,
-      const MaliputRailcarState<T>& state,
-      const LaneDirection& lane_direction,
-      const systems::BasicVector<T>& input,
-      MaliputRailcarState<T>* rates) const;
+  void ImplCalcTimeDerivatives(const MaliputRailcarParams<T>& params,
+                               const MaliputRailcarState<T>& state,
+                               const LaneDirection& lane_direction,
+                               const systems::BasicVector<T>& input,
+                               MaliputRailcarState<T>* rates) const;
 
-  void ImplCalcTimeDerivativesDouble(
-      const MaliputRailcarParams<double>& params,
-      const MaliputRailcarState<double>& state,
-      MaliputRailcarState<double>* rates) const;
+  void ImplCalcTimeDerivativesDouble(const MaliputRailcarParams<double>& params,
+                                     const MaliputRailcarState<double>& state,
+                                     MaliputRailcarState<double>* rates) const;
 
   // Calculates the vehicle's `r` coordinate based on whether it's traveling
   // with or against `s` in the current lane relative to the initial lane.

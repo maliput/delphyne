@@ -41,8 +41,8 @@
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
-#include "../include/delphyne/linb-any"
 #include "../include/delphyne/agent_plugin_base.h"
+#include "../include/delphyne/linb-any"
 
 namespace delphyne {
 

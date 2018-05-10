@@ -20,8 +20,7 @@
 class AutoDiffAgent final : public delphyne::AutoDiffAgentPlugin {
  public:
   int Configure(
-      const std::string& name,
-      const int& id,
+      const std::string& name, const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<delphyne::AutoDiff>* builder,
       drake::systems::rendering::PoseAggregator<delphyne::AutoDiff>* aggregator,
@@ -35,7 +34,9 @@ class AutoDiffAgent final : public delphyne::AutoDiffAgentPlugin {
     return 0;
   }
 
-  drake::systems::System<delphyne::AutoDiff>* get_system() const { return nullptr; }
+  drake::systems::System<delphyne::AutoDiff>* get_system() const {
+    return nullptr;
+  }
 };
 
 // An example factory class that derives from AgentPluginFactoryAutoDiffXdBase

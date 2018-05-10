@@ -332,8 +332,9 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 }
 
 // Covers adding a prius trajectory car as with loadable agent.
-// TODO(daniel.stonier) : re-enable once the agent has-a (new) drake trajectory agent is built
-//TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
+// TODO(daniel.stonier) : re-enable once the agent has-a (new) drake trajectory
+// agent is built
+// TEST_F(AutomotiveSimulatorTest, TestPriusTrajectoryCar) {
 //  typedef Curve2<double> Curve2d;
 //  typedef Curve2d::Point2 Point2d;
 //  const std::vector<Point2d> waypoints{
@@ -344,7 +345,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //  const double kPoseXTolerance{1e-6};
 //
 //  // Set up a basic simulation with a couple Prius TrajectoryCars. Both cars
-//  // start at position zero; the first has a speed of 1 m/s, while the other is
+//  // start at position zero; the first has a speed of 1 m/s, while the other
+//  is
 //  // stationary. They both follow a straight 100 m long line.
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
 //      std::make_unique<drake::lcm::DrakeMockLcm>());
@@ -367,7 +369,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //  EXPECT_EQ(0, id1);
 //  EXPECT_EQ(1, id2);
 //
-//  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+//  // Setup the an ignition callback to store the latest
+//  ignition::msgs::Model_V
 //  // that is published to /visualizer/scene_update.
 //  ignition::msgs::Model_V draw_message;
 //

@@ -27,7 +27,7 @@
 
 #include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/automotive/lane_direction.h>
-#include <drake/automotive/maliput_railcar.h>
+// #include <drake/automotive/maliput_railcar.h>
 #include <drake/automotive/maliput/api/junction.h>
 #include <drake/automotive/maliput/api/segment.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
@@ -35,6 +35,7 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
+#include "../systems/maliput_railcar.h"
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
 
@@ -112,10 +113,10 @@ public:
     /*********************
      * Instantiate System
      *********************/
-    std::unique_ptr<drake::automotive::MaliputRailcar <double>> system =
-        std::make_unique<drake::automotive::MaliputRailcar<double>>(*initial_lane_direction);
+    std::unique_ptr<drake::automotive::MaliputRailcar2 <double>> system =
+        std::make_unique<drake::automotive::MaliputRailcar2<double>>(*initial_lane_direction);
     system->set_name(name);
-    rail_car_ = builder->template AddSystem<drake::automotive::MaliputRailcar<double>>(
+    rail_car_ = builder->template AddSystem<drake::automotive::MaliputRailcar2<double>>(
         std::move(system)
     );
 
@@ -144,7 +145,7 @@ public:
 
  private:
   drake::automotive::MaliputRailcarParams<double>* params_;
-  drake::automotive::MaliputRailcar <double>* rail_car_;
+  drake::automotive::MaliputRailcar2 <double>* rail_car_;
 };
 
 class RailCarFactory final : public delphyne::AgentPluginFactory {

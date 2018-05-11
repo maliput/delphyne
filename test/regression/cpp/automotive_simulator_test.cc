@@ -18,14 +18,8 @@
 #include "drake/automotive/maliput/dragway/road_geometry.h"
 #include "drake/automotive/prius_vis.h"
 #include "drake/common/find_resource.h"
-#include "drake/lcm/drake_mock_lcm.h"
-#include "drake/lcmt_simple_car_state_t.hpp"
-#include "drake/lcmt_viewer_draw.hpp"
 #include "drake/systems/framework/basic_vector.h"
 #include "drake/systems/framework/diagram_context.h"
-#include "drake/systems/lcm/lcm_publisher_system.h"
-#include "drake/systems/lcm/lcm_subscriber_system.h"
-#include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/rendering/pose_bundle.h"
 
 #include "protobuf/simple_car_state.pb.h"
@@ -120,19 +114,7 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 // Simple touches on the getters.
 TEST_F(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  EXPECT_NE(nullptr, simulator->get_lcm());
   EXPECT_NE(nullptr, simulator->get_builder());
-}
-
-// Obtains the serialized version of the last message transmitted on LCM channel
-// @p channel. Uses @p translator to decode the message into @p result.
-void GetLastPublishedSimpleCarState(
-    const std::string& channel,
-    const drake::systems::lcm::LcmAndVectorBaseTranslator& translator,
-    const drake::lcm::DrakeMockLcm* mock_lcm, SimpleCarState<double>* result) {
-  const std::vector<uint8_t>& message =
-      mock_lcm->get_last_published_message(channel);
-  translator.Deserialize(message.data(), message.size(), result);
 }
 
 // Covers simple-car, Start and StepBy
@@ -149,8 +131,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   node.Subscribe<ignition::msgs::SimpleCarState>("agents/0/state", callback);
 
   // Set up a basic simulation with just a Prius SimpleCar.
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   auto initial_state = std::make_unique<SimpleCarState<double>>();
   std::map<std::string, linb::any> simple_params;
@@ -195,8 +176,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.
 TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   const double kX{10};
   const double kY{5.5};
   const double kHeading{M_PI_2};
@@ -234,12 +214,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 
 TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
-
-  drake::lcm::DrakeMockLcm* lcm =
-      dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
-  ASSERT_NE(lcm, nullptr);
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   const drake::maliput::api::RoadGeometry* road{};
   EXPECT_NO_THROW(
@@ -348,8 +323,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //  // start at position zero; the first has a speed of 1 m/s, while the other
 //  is
 //  // stationary. They both follow a straight 100 m long line.
-//  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-//      std::make_unique<drake::lcm::DrakeMockLcm>());
+//  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //
 //  std::map<std::string, linb::any> traj_params;
 //  traj_params["curve"] = curve;
@@ -469,8 +443,7 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 }
 
 TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   const double kR{0.5};
   MaliputRailcarParams<double> params;
@@ -527,12 +500,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
 
 // Covers AddMaliputRailcar().
 TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
-
-  drake::lcm::DrakeMockLcm* lcm =
-      dynamic_cast<drake::lcm::DrakeMockLcm*>(simulator->get_lcm());
-  ASSERT_NE(lcm, nullptr);
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   const double kR{0.5};
   MaliputRailcarParams<double> params;
   params.set_r(kR);
@@ -597,8 +565,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
 // LcmPublisherSystem are instantiated in AutomotiveSimulator's Diagram and
 // collectively result in the correct ignition messages being published.
 TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   std::map<std::string, linb::any> simple_params;
   auto state1 = std::make_unique<SimpleCarState<double>>();
@@ -684,8 +651,7 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
 // added to the simulation.
 TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
@@ -730,8 +696,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
 // Verifies that the velocity outputs of the MaliputRailcars are connected to
 // the PoseAggregator, which prevents a regression of #5894.
 TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   const double kR{0.5};
   MaliputRailcarParams<double> params;
@@ -818,37 +783,6 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
 
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
-}
-
-// Verifies that messages are no longer being published in LCM
-// DRAKE_VIEWER_LOAD_ROBOT and DRAKE_VIEWER_DRAW channels.
-TEST_F(AutomotiveSimulatorTest, TestNoLcm) {
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>(
-      std::make_unique<drake::lcm::DrakeMockLcm>());
-
-  auto simple_state = std::make_unique<SimpleCarState<double>>();
-
-  std::map<std::string, linb::any> simple_params;
-  simulator->AddLoadableAgent("simple-car", simple_params, "Model1",
-                              std::move(simple_state));
-
-  simulator->Start();
-  simulator->StepBy(1e-3);
-
-  const drake::lcm::DrakeLcmInterface* lcm = simulator->get_lcm();
-  ASSERT_NE(lcm, nullptr);
-
-  const drake::lcm::DrakeMockLcm* mock_lcm =
-      dynamic_cast<const drake::lcm::DrakeMockLcm*>(lcm);
-  ASSERT_NE(mock_lcm, nullptr);
-
-  // There should be no message published in DRAKE_VIEWER_LOAD_ROBOT
-  EXPECT_THROW(mock_lcm->get_last_published_message("DRAKE_VIEWER_LOAD_ROBOT"),
-               std::runtime_error);
-
-  // There should be no message published in DRAKE_VIEWER_DRAW
-  EXPECT_THROW(mock_lcm->get_last_published_message("DRAKE_VIEWER_DRAW"),
-               std::runtime_error);
 }
 
 // Tests that AddLoadableAgent basically works.

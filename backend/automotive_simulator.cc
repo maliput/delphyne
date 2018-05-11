@@ -19,8 +19,6 @@
 #include "drake/automotive/prius_vis.h"
 #include "drake/common/drake_throw.h"
 #include "drake/common/text_logging.h"
-#include "drake/lcm/drake_lcm.h"
-#include "drake/lcmt_viewer_draw.hpp"
 #include "drake/multibody/joints/floating_base_types.h"
 #include "drake/multibody/parsers/urdf_parser.h"
 #include "drake/multibody/rigid_body_plant/create_load_robot_message.h"
@@ -28,7 +26,6 @@
 #include "drake/systems/framework/basic_vector.h"
 #include "drake/systems/framework/context.h"
 #include "drake/systems/framework/system.h"
-#include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/primitives/multiplexer.h"
 
 #include "backend/agent_plugin_loader.h"
@@ -52,7 +49,6 @@ using drake::maliput::api::RoadGeometry;
 using drake::maliput::api::RoadGeometryId;
 using drake::multibody::joints::kRollPitchYaw;
 using drake::systems::AbstractValue;
-using drake::systems::lcm::LcmPublisherSystem;
 using drake::systems::OutputPort;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::RungeKutta2Integrator;
@@ -60,13 +56,8 @@ using drake::systems::System;
 using drake::systems::SystemOutput;
 
 template <typename T>
-AutomotiveSimulator<T>::AutomotiveSimulator()
-    : AutomotiveSimulator(std::make_unique<drake::lcm::DrakeLcm>()) {}
+AutomotiveSimulator<T>::AutomotiveSimulator() {
 
-template <typename T>
-AutomotiveSimulator<T>::AutomotiveSimulator(
-    std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm)
-    : lcm_(std::move(lcm)) {
   aggregator_ =
       builder_
           ->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();
@@ -82,18 +73,6 @@ AutomotiveSimulator<T>::AutomotiveSimulator(
   bundle_to_draw_ = builder_->template AddSystem<
       drake::systems::rendering::PoseBundleToDrawMessage>();
   bundle_to_draw_->set_name("bundle_to_draw");
-}
-
-template <typename T>
-AutomotiveSimulator<T>::~AutomotiveSimulator() {
-  // Forces the LCM instance to be destroyed before any of the subscribers are
-  // destroyed.
-  lcm_.reset();
-}
-
-template <typename T>
-drake::lcm::DrakeLcmInterface* AutomotiveSimulator<T>::get_lcm() {
-  return lcm_.get();
 }
 
 template <typename T>

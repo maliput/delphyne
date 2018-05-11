@@ -9,14 +9,13 @@
 #include <string>
 #include <thread>
 
-#include "backend/automotive_simulator.h"
-#include "backend/simulation_runner.h"
-
 #include <gtest/gtest.h>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include <protobuf/scene_request.pb.h>
+#include "backend/automotive_simulator.h"
+#include "backend/simulation_runner.h"
+#include "delphyne/protobuf/scene_request.pb.h"
 
 namespace delphyne {
 

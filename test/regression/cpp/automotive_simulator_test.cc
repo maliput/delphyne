@@ -28,7 +28,7 @@
 #include "drake/systems/lcm/lcmt_drake_signal_translator.h"
 #include "drake/systems/rendering/pose_bundle.h"
 
-#include "protobuf/simple_car_state.pb.h"
+#include "delphyne/protobuf/simple_car_state.pb.h"
 #include "test/test_config.h"
 
 using drake::automotive::PriusVis;

@@ -191,7 +191,6 @@ else (build_errors)
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
   add_subdirectory(backend)
-  add_subdirectory(protobuf)
   add_subdirectory(include)
   add_subdirectory(src)
   add_subdirectory(python)

@@ -1,14 +1,14 @@
 ##############################################################################
-# Find Protobuf
+# Find Protobuf & Custom Macros
 ##############################################################################
 
-find_package(Protobuf REQUIRED)
+include(${PROJECT_SOURCE_DIR}/cmake/Protobuf.cmake)
 
 ##############################################################################
 # Generate Messages
 ##############################################################################
 
-set(MESSAGES
+set(PROTO_MESSAGES
   automotive_driving_command.proto
   scene_request.proto
   simple_car_state.proto
@@ -17,15 +17,25 @@ set(MESSAGES
   viewer2_comms.proto
 )
 
-set(PROTOBUF_IMPORT_DIRS ${IGNITION-MSGS_INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/include/${PROJECT_NAME}/protobuf)
 protobuf_generate_cpp_with_descriptor(
-  SOURCES PROTO_HEADER DESCRIPTORS PROTO_DESC_FILES ${MESSAGES})
+  PROTO_SOURCES
+  PROTO_HEADERS
+  PROTO_DESCRIPTORS
+  IMPORT_DIRS
+    ${IGNITION-MSGS_INCLUDE_DIRS}
+  DESTINATION
+    ${PROJECT_BINARY_DIR}/include/delphyne/protobuf
+  ${PROTO_MESSAGES}
+)
 
 ##############################################################################
 # Library
 ##############################################################################
 
-add_library(protobuf_messages ${SOURCES})
+# TODO: switch from PROTOBUF_INCLUDE_DIRS / PROTOBUF_LIBRARIES to
+#       protobuf::libprotobuf (currently creates a pthread_create problem)
+
+add_library(protobuf_messages ${PROTO_SOURCES})
 set_target_properties(protobuf_messages PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf-messages)
 target_include_directories(
   protobuf_messages
@@ -45,13 +55,17 @@ target_link_libraries(
 # Install
 ##############################################################################
 
-string(REPLACE "proto" "pb.h" HEADERS "${MESSAGES}")
-string(REGEX REPLACE "([^;]+)" "${CMAKE_CURRENT_BINARY_DIR}/\\1" HEADERS "${HEADERS}")
-
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/protobuf
-  ${HEADERS}
-  ${PROTO_DESC_FILES}
+  ${PROTO_HEADERS}
+  ${PROTO_DESCRIPTORS}
+)
+
+install(
+  FILES
+    ${PROTO_MESSAGES}
+  DESTINATION
+    ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}
 )
 
 install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}-targets

@@ -20,9 +20,9 @@
 class SymbolicAgent final : public delphyne::SymbolicAgentPlugin {
  public:
   int Configure(
+      const std::string& name, const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<delphyne::Symbolic>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
       drake::systems::rendering::PoseAggregator<delphyne::Symbolic>* aggregator,
       drake::automotive::CarVisApplicator<delphyne::Symbolic>*
           car_vis_applicator) override {
@@ -32,6 +32,10 @@ class SymbolicAgent final : public delphyne::SymbolicAgentPlugin {
   int Initialize(
       drake::systems::Context<delphyne::Symbolic>* context) override {
     return 0;
+  }
+
+  drake::systems::System<delphyne::Symbolic>* get_system() const {
+    return nullptr;
   }
 };
 

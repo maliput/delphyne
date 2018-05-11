@@ -157,11 +157,16 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name, const std::string& plugin_name,
     const std::map<std::string, linb::any>& parameters, const std::string& name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state) {
+  /*********************
+   * Checks
+   *********************/
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(name);
-  int id = allocate_vehicle_number();
 
+  /*********************
+   * Load Agent Plugin
+   *********************/
   std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
   if (plugin_name.empty()) {
     agent = delphyne::LoadPlugin<T>(plugin_library_name);
@@ -172,18 +177,18 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     return -1;
   }
 
-  auto loadable_agent =
-      builder_->template AddSystem<delphyne::AgentPluginBase<T>>(
-          std::move(agent));
-  loadable_agent->set_name(name);
-  agents_[id] = loadable_agent;
+  /*********************
+   * Configure Agent
+   *********************/
+  int id = unique_system_id_++;
 
-  loadable_agent_initial_states_[loadable_agent] = std::move(initial_state);
-  if (loadable_agent->Configure(parameters, builder_.get(), lcm_.get(), name,
-                                id, aggregator_, car_vis_applicator_) < 0) {
+  if (agent->Configure(name, id, parameters, builder_.get(), aggregator_,
+                       car_vis_applicator_) < 0) {
     return -1;
   }
-
+  agents_[id] = std::move(agent);
+  loadable_agent_initial_states_[id] =
+      std::move(initial_state);  // store in the agent itself?
   return id;
 }
 
@@ -352,12 +357,11 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 template <typename T>
 void AutomotiveSimulator<T>::InitializeLoadableAgents() {
   for (const auto& pair : loadable_agent_initial_states_) {
-    delphyne::AgentPluginBase<T>* const car =
-        dynamic_cast<delphyne::AgentPluginBase<T>*>(pair.first);
+    int id = pair.first;
     const drake::systems::BasicVector<T>* initial_state = pair.second.get();
 
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *car, &simulator_->get_mutable_context());
+        *(agents_[id]->get_system()), &simulator_->get_mutable_context());
 
     drake::systems::VectorBase<T>& context_state =
         context.get_mutable_continuous_state().get_mutable_vector();
@@ -366,7 +370,7 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
     DELPHYNE_ASSERT(state);
     state->set_value(initial_state->get_value());
 
-    car->Initialize(&context);
+    agents_[id]->Initialize(&context);
   }
 }
 
@@ -401,12 +405,6 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 template <typename T>
 double AutomotiveSimulator<T>::get_current_simulation_time() const {
   return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
-}
-
-template <typename T>
-int AutomotiveSimulator<T>::allocate_vehicle_number() {
-  DELPHYNE_DEMAND(!has_started());
-  return next_vehicle_number_++;
 }
 
 template <typename T>

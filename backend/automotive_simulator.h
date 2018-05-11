@@ -41,6 +41,7 @@
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
+#include "../include/delphyne/agent_plugin_base.h"
 #include "../include/delphyne/linb-any"
 
 namespace delphyne {
@@ -178,8 +179,6 @@ class AutomotiveSimulator {
   // scene tree widget tree.
   const double kScenePublishPeriodMs = 250.0;
 
-  int allocate_vehicle_number();
-
   // Verifies that the provided `name` of an agent is unique among all agents
   // that have been added to the `AutomotiveSimulator`. Throws a
   // std::runtime_error if it is not unique meaning an agent of the same name
@@ -217,8 +216,7 @@ class AutomotiveSimulator {
 
   // Holds the desired initial states of each loadable agent. It is used to
   // initialize the simulation's diagram's state.
-  std::map<drake::systems::System<T>*,
-           std::unique_ptr<drake::systems::BasicVector<T>>>
+  std::map<int, std::unique_ptr<drake::systems::BasicVector<T>>>
       loadable_agent_initial_states_;
 
   // The output port of the Diagram that contains pose bundle information.
@@ -246,10 +244,13 @@ class AutomotiveSimulator {
   // message containing the latest poses of the visual elements.
   drake::systems::rendering::PoseBundleToDrawMessage* bundle_to_draw_{};
 
-  int next_vehicle_number_{0};
+  // Every system in the Diagram must have a unique system id, we put the
+  // simulator in charge of the unique id counter (better than global objects
+  // with static id counters since they may run into threading problems)
+  int unique_system_id_{0};
 
   // Maps an agent id to a pointer to the system that implements the agent.
-  std::map<int, drake::systems::System<T>*> agents_;
+  std::map<int, std::unique_ptr<delphyne::AgentPluginBase<T>>> agents_;
 
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};

@@ -20,9 +20,9 @@
 class AutoDiffAgent final : public delphyne::AutoDiffAgentPlugin {
  public:
   int Configure(
+      const std::string& name, const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<delphyne::AutoDiff>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
       drake::systems::rendering::PoseAggregator<delphyne::AutoDiff>* aggregator,
       drake::automotive::CarVisApplicator<delphyne::AutoDiff>*
           car_vis_applicator) override {
@@ -32,6 +32,10 @@ class AutoDiffAgent final : public delphyne::AutoDiffAgentPlugin {
   int Initialize(
       drake::systems::Context<delphyne::AutoDiff>* context) override {
     return 0;
+  }
+
+  drake::systems::System<delphyne::AutoDiff>* get_system() const {
+    return nullptr;
   }
 };
 

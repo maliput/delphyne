@@ -10,7 +10,7 @@
 #include <drake/lcm/drake_lcm_interface.h>
 #include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/framework/diagram_builder.h>
-#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
 #include <ignition/common/PluginLoader.hh>
@@ -29,7 +29,7 @@ namespace delphyne {
 ///           template types are 'double', 'drake::AutoDiffXd', and
 ///           'drake::symbolic::Expression'.
 template <typename T>
-class AgentPluginBase : public drake::systems::LeafSystem<T> {
+class AgentPluginBase {
  public:
   virtual ~AgentPluginBase() {}
 
@@ -45,12 +45,11 @@ class AgentPluginBase : public drake::systems::LeafSystem<T> {
   /// (or at least most) loadable agents to insert themselves into the
   /// simulation.  For instance, the `builder` parameter is typically used by
   /// the loadable agent to connect internal methods into the overall Diagram
-  /// that the automotive simulator is building.  The `lcm` parameter is used
-  /// to attach an LCM subscriber or publisher to the concrete agent.
+  /// that the automotive simulator is building.
   virtual int Configure(
+      const std::string& name, const int& id,
       const std::map<std::string, linb::any>& parameters,
       drake::systems::DiagramBuilder<T>* builder,
-      drake::lcm::DrakeLcmInterface* lcm, const std::string& name, int id,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
       drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
 
@@ -58,13 +57,22 @@ class AgentPluginBase : public drake::systems::LeafSystem<T> {
   /// gives plugins a chance to initialize themselves for running.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
-  void SetPlugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
+  const std::string& get_name() { return name_; }
+  const int& get_id() { return id_; }
+  void set_plugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
+
+  virtual drake::systems::System<T>* get_system() const = 0;
 
  protected:
   // Store a pointer (actually a shared_ptr) to the plugin within this class.
   // this is needed so that the plugin pointer doesn't go out of scope and get
   // freed while it is still in use.
   ignition::common::PluginPtr plugin_;
+  // This id should be set by the simulator who is in charge of ensuring each
+  // agent (system) in the simulation receives a unique id that can be passed
+  // to register inputs on the pose aggregator
+  int id_;
+  std::string name_;
 };
 
 typedef AgentPluginBase<double> AgentPlugin;

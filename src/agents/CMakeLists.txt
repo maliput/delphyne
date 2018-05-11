@@ -8,6 +8,7 @@ macro(delphyne_add_agent_library name)
   target_link_libraries(
     ${name}
     PRIVATE
+      drake_agents
       drake::drake
       Eigen3::Eigen
       ignition-common1::ignition-common1
@@ -22,5 +23,5 @@ endmacro()
 delphyne_add_agent_library(rail_car)
 delphyne_add_agent_library(mobil_car)
 delphyne_add_agent_library(simple_car)
-delphyne_add_agent_library(trajectory_car)
+#delphyne_add_agent_library(trajectory_car)
 

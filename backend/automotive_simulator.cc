@@ -57,7 +57,6 @@ using drake::systems::SystemOutput;
 
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator() {
-
   aggregator_ =
       builder_
           ->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();

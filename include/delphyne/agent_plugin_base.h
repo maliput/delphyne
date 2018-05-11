@@ -58,9 +58,7 @@ class AgentPluginBase {
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
   const std::string& get_name() { return name_; }
-  void set_name(const std::string& name) { name_ = name; }
   const int& get_id() { return id_; }
-  void set_id(const int& id) { id_ = id; }
   void set_plugin(ignition::common::PluginPtr plugin) { plugin_ = plugin; }
 
   virtual drake::systems::System<T>* get_system() const = 0;

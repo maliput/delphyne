@@ -51,8 +51,8 @@ class RailCar final : public delphyne::AgentPlugin {
     /*********************
      * Basics
      *********************/
-    this->set_id(id);
-    this->set_name(name);
+    id_ = id;
+    name_ = name;
 
     /*********************
      * Parse Parameters

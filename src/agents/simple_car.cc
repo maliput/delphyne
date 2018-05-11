@@ -32,7 +32,7 @@ class SimpleCar final : public delphyne::AgentPlugin {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar)
 
-  SimpleCar() : params_(nullptr), simple_car_() {
+  SimpleCar() : simple_car_() {
     igndbg << "SimpleCar constructor" << std::endl;
   }
 
@@ -47,8 +47,8 @@ class SimpleCar final : public delphyne::AgentPlugin {
     /*********************
      * Basics
      *********************/
-    this->set_id(id);
-    this->set_name(name);
+    id_ = id;
+    name_ = name;
 
     /*********************
      * Instantiate System
@@ -118,7 +118,6 @@ class SimpleCar final : public delphyne::AgentPlugin {
   drake::systems::System<double>* get_system() const { return simple_car_; }
 
  private:
-  drake::automotive::SimpleCarParams<double>* params_;
   drake::automotive::SimpleCar2<double>* simple_car_;
 };
 

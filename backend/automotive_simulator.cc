@@ -55,6 +55,7 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::System;
 using drake::systems::SystemOutput;
 
+
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator() {
   aggregator_ =

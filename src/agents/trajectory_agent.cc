@@ -52,17 +52,17 @@ public:
    /*********************
     * Instantiate System
     *********************/
-   std::vector<double> times{0.0, 0.25, 0.50, 0.75, 1.00};
+   std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
    Eigen::Quaternion<double> zero_heading(
        Eigen::AngleAxis<double>(0.0,
                                 Eigen::Vector3d::UnitZ()));
    std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
    std::vector<Eigen::Vector3d> translations{
-     Eigen::Vector3d(0.00, 0.00, 0.00),
-     Eigen::Vector3d(0.25, 0.00, 0.00),
-     Eigen::Vector3d(0.75, 0.00, 0.00),
-     Eigen::Vector3d(1.50, 0.00, 0.00),
-     Eigen::Vector3d(2.50, 0.00, 0.00)
+     Eigen::Vector3d( 0.0, 0.00, 0.00),
+     Eigen::Vector3d( 10.0, 0.00, 0.00),
+     Eigen::Vector3d( 30.0, 0.00, 0.00),
+     Eigen::Vector3d( 60.0, 0.00, 0.00),
+     Eigen::Vector3d(100.0, 0.00, 0.00)
    };
    drake::automotive::AgentTrajectory trajectory =
        drake::automotive::AgentTrajectory::Make(
@@ -115,6 +115,7 @@ public:
 
  int Initialize(drake::systems::Context<double>* context) override {
    igndbg << "TrajectoryAgent initialize" << std::endl;
+
    return 0;
  }
 

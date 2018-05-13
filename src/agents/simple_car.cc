@@ -97,7 +97,7 @@ class SimpleCar final : public delphyne::AgentPlugin {
     /*********************
      * Other
      *********************/
-    auto car_state_translator =
+    auto agent_state_translator =
         builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
     const std::string car_state_channel =
@@ -107,10 +107,10 @@ class SimpleCar final : public delphyne::AgentPlugin {
 
     // Drake car states are translated to ignition.
     builder->Connect(simple_car_->state_output(),
-                     car_state_translator->get_input_port(0));
+                     agent_state_translator->get_input_port(0));
 
     // And then the translated ignition car state is published.
-    builder->Connect(*car_state_translator, *car_state_publisher);
+    builder->Connect(*agent_state_translator, *car_state_publisher);
 
     return 0;
   }

@@ -23,6 +23,7 @@ from delphyne.simulation_utils import (
     add_simple_car,
     add_maliput_railcar,
     add_mobil_car,
+    add_trajectory_agent,
     launch_interactive_simulation
 )
 
@@ -49,19 +50,22 @@ def main():
     simple_car_position_x = 0.0
     simple_car_position_y = 3.7
     car_id = 0
-    add_simple_car(simulator, car_id, simple_car_position_x,
-                   simple_car_position_y)
+    #add_simple_car(simulator, car_id, simple_car_position_x,
+    #               simple_car_position_y)
 
     mobil_car_position_x = 0.0
     mobil_car_position_y = -3.7
     car_id += 1
-    add_mobil_car(simulator, car_id, dragway,
-                  mobil_car_position_x, mobil_car_position_y)
+    #add_mobil_car(simulator, car_id, dragway,
+    #              mobil_car_position_x, mobil_car_position_y)
 
     railcar_s = 0.0
     railcar_speed = 3.0
     car_id += 1
-    add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
+    #add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
+
+    car_id += 1
+    add_trajectory_agent(simulator, car_id, dragway)
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 

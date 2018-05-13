@@ -177,8 +177,10 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     return -1;
   }
   agents_[id] = std::move(agent);
-  loadable_agent_initial_states_[id] =
-      std::move(initial_state);  // store in the agent itself?
+  if(plugin_library_name != "trajectory-agent") {
+    loadable_agent_initial_states_[id] =
+        std::move(initial_state);  // store in the agent itself?
+  }
   return id;
 }
 
@@ -346,22 +348,31 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 
 template <typename T>
 void AutomotiveSimulator<T>::InitializeLoadableAgents() {
+  std::cout << "DJS: Initialise Agents" << std::endl;
+  std::cout << "DJS: Loading bay size: " << loadable_agent_initial_states_.size() << std::endl;
   for (const auto& pair : loadable_agent_initial_states_) {
     int id = pair.first;
+    std::cout << "DJS: Get Initial State" << std::endl;
     const drake::systems::BasicVector<T>* initial_state = pair.second.get();
-
+    std::cout << "DJS: Get Initial State Size: " << initial_state->size() << std::endl;
+    std::cout << "DJS: Get Context" << std::endl;
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
         *(agents_[id]->get_system()), &simulator_->get_mutable_context());
 
+    std::cout << "DJS: Get Context State" << std::endl;
     drake::systems::VectorBase<T>& context_state =
         context.get_mutable_continuous_state().get_mutable_vector();
+    std::cout << "DJS: Get Context State Vector" << std::endl;
     drake::systems::BasicVector<T>* const state =
         dynamic_cast<drake::systems::BasicVector<T>*>(&context_state);
+    std::cout << "DJS: Assert State" << std::endl;
     DELPHYNE_ASSERT(state);
+    std::cout << "DJS: Set State" << std::endl;
     state->set_value(initial_state->get_value());
-
+    std::cout << "DJS: Agent Initialize" << std::endl;
     agents_[id]->Initialize(&context);
   }
+  std::cout << "Initialise agents Done" << std::endl;
 }
 
 template <typename T>

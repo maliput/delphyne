@@ -126,17 +126,21 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("Start", &AutomotiveSimulator<double>::Start)
       .def("AddLoadableAgent",
            py::overload_cast<
-               const std::string&, std::unique_ptr<AgentPluginParams>,
-               const std::string&,
+               const std::string&, const std::string&,
                std::unique_ptr<drake::systems::BasicVector<double>>,
                const RoadGeometry*>(
                &AutomotiveSimulator<double>::AddLoadableAgent))
       .def("AddLoadableAgent",
            py::overload_cast<
                const std::string&, const std::string&,
-               std::unique_ptr<AgentPluginParams>, const std::string&,
                std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*>(
+               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
+               &AutomotiveSimulator<double>::AddLoadableAgent))
+      .def("AddLoadableAgent",
+           py::overload_cast<
+               const std::string&, const std::string&, const std::string&,
+               std::unique_ptr<drake::systems::BasicVector<double>>,
+               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
                &AutomotiveSimulator<double>::AddLoadableAgent));
 }
 

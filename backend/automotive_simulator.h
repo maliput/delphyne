@@ -83,16 +83,22 @@ class AutomotiveSimulator {
   /// @return The ID of the agent that was just added to the simulation, or -1
   /// on error.
   int AddLoadableAgent(
-      const std::string& plugin_library_name,
-      std::unique_ptr<AgentPluginParams> parameters, const std::string& name,
+      const std::string& plugin_library_name, const std::string& agent_name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-      const drake::maliput::api::RoadGeometry* road);
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<AgentPluginParams> parameters);
 
   /// Specify the exact plugin name if there should be more than one plugin
   /// in the plugin library.
   int AddLoadableAgent(
       const std::string& plugin_library_name, const std::string& plugin_name,
-      std::unique_ptr<AgentPluginParams> parameters, const std::string& name,
+      const std::string& agent_name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<AgentPluginParams> parameters);
+
+  int AddLoadableAgent(
+      const std::string& plugin_library_name, const std::string& agent_name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
       const drake::maliput::api::RoadGeometry* road);
 

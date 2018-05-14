@@ -122,26 +122,35 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin_library_name,
-    std::unique_ptr<AgentPluginParams> parameters, const std::string& name,
+    const std::string& plugin_library_name, const std::string& agent_name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
     const drake::maliput::api::RoadGeometry* road) {
-  return AddLoadableAgent(plugin_library_name, "", std::move(parameters), name,
-                          std::move(initial_state), road);
+  return AddLoadableAgent(plugin_library_name, "", agent_name,
+                          std::move(initial_state), road,
+                          std::move(std::make_unique<AgentPluginParams>()));
+}
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableAgent(
+    const std::string& plugin_library_name, const std::string& agent_name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+    const drake::maliput::api::RoadGeometry* road,
+    std::unique_ptr<AgentPluginParams> parameters) {
+  return AddLoadableAgent(plugin_library_name, "", agent_name,
+                          std::move(initial_state), road,
+                          std::move(parameters));
 }
 
 template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name, const std::string& plugin_name,
-    std::unique_ptr<AgentPluginParams> parameters, const std::string& name,
+    const std::string& agent_name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-    const drake::maliput::api::RoadGeometry* road) {
-  /*********************
-   * Checks
-   *********************/
+    const drake::maliput::api::RoadGeometry* road,
+    std::unique_ptr<AgentPluginParams> parameters) {
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
-  CheckNameUniqueness(name);
+  CheckNameUniqueness(agent_name);
 
   /*********************
    * Load Agent Plugin
@@ -161,8 +170,8 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(name, id, parameters, builder_.get(), aggregator_,
-                       car_vis_applicator_, road,
+  if (agent->Configure(agent_name, id, builder_.get(), aggregator_,
+                                car_vis_applicator_, road,
                                 std::move(parameters)) < 0) {
     return -1;
   }

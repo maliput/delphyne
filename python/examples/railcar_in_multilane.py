@@ -47,10 +47,10 @@ def setup_railcar(simulator, name, road, lane):
     agent_params = RailCarParams(lane_direction, start_params)
 
     simulator.AddLoadableAgent("rail-car",
-                               agent_params,
                                name,
                                railcar_state,
-                               road)
+                               road,
+                               agent_params)
 
 
 def main():

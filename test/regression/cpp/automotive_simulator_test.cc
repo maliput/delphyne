@@ -77,7 +77,7 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 
   auto initial_state = std::make_unique<SimpleCarState<double>>();
 
-  simulator->AddLoadableAgent("simple-car", nullptr, "my_test_model",
+  simulator->AddLoadableAgent("simple-car", "my_test_model",
                               std::move(initial_state), nullptr);
   simulator->Start();
   std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
@@ -137,7 +137,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
   auto initial_state = std::make_unique<SimpleCarState<double>>();
 
-  const int id = simulator->AddLoadableAgent("simple-car", nullptr, "Foo",
+  const int id = simulator->AddLoadableAgent("simple-car", "Foo",
                                              std::move(initial_state), nullptr);
   EXPECT_EQ(id, 0);
 
@@ -190,7 +190,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   initial_state->set_heading(kHeading);
   initial_state->set_velocity(kVelocity);
 
-  simulator->AddLoadableAgent("simple-car", nullptr, "My_Test_Model",
+  simulator->AddLoadableAgent("simple-car", "My_Test_Model",
                               std::move(initial_state), nullptr);
 
   ignition::msgs::SimpleCarState state_message;
@@ -242,9 +242,9 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   simple_car_state->set_velocity(10.0);
 
   auto mobil_params = std::make_unique<MobilCarParams>(true);
-  const int id_mobil =
-      simulator->AddLoadableAgent("mobil-car", std::move(mobil_params),
-                                  "MOBIL0", std::move(simple_car_state), road);
+  const int id_mobil = simulator->AddLoadableAgent(
+      "mobil-car", "MOBIL0", std::move(simple_car_state), road,
+      std::move(mobil_params));
   EXPECT_EQ(0, id_mobil);
   auto decoy_state1 = std::make_unique<MaliputRailcarState<double>>();
   decoy_state1->set_s(6.0);
@@ -260,8 +260,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
       std::move(lane_direction1), std::move(start_params1));
 
   const int id_decoy1 =
-      simulator->AddLoadableAgent("rail-car", std::move(railcar_params1),
-                                  "decoy1", std::move(decoy_state1), road);
+      simulator->AddLoadableAgent("rail-car", "decoy1", std::move(decoy_state1),
+                                  road, std::move(railcar_params1));
   EXPECT_EQ(1, id_decoy1);
 
   auto decoy_state2 = std::make_unique<MaliputRailcarState<double>>();
@@ -278,8 +278,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
       std::move(lane_direction2), std::move(start_params2));
 
   const int id_decoy2 =
-      simulator->AddLoadableAgent("rail-car", std::move(railcar_params2),
-                                  "decoy2", std::move(decoy_state2), road);
+      simulator->AddLoadableAgent("rail-car", "decoy2", std::move(decoy_state2),
+                                  road, std::move(railcar_params2));
   EXPECT_EQ(2, id_decoy2);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
@@ -338,9 +338,9 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //       std::make_unique<drake::automotive::TrajectoryCarState<double>>();
 //   stateAlice->set_speed(1.0);
 //   stateAlice->set_position(0.0);
-//   const int id1 =
-//       simulator->AddLoadableAgent("trajectory-car", std::move(paramsAlice),
-//                                   "alice", std::move(stateAlice), nullptr);
+//   const int id1 = simulator->AddLoadableAgent("trajectory-car", "alice",
+//                                               std::move(stateAlice), nullptr,
+//                                               std::move(paramsAlice));
 
 //   auto curveBob =
 //       std::make_unique<drake::automotive::Curve2<double>>(waypoints);
@@ -350,8 +350,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //   stateBob->set_speed(0.0);
 //   stateBob->set_position(0.0);
 //   const int id2 =
-//       simulator->AddLoadableAgent("trajectory-car", std::move(paramsBob), "bob",
-//                                   std::move(stateBob), nullptr);
+//       simulator->AddLoadableAgent("trajectory-car", "bob", std::move(stateBob),
+//                                   nullptr, std::move(paramsBob));
 
 //   EXPECT_EQ(0, id1);
 //   EXPECT_EQ(1, id2);
@@ -471,7 +471,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
       std::move(lane_direction1), std::move(start_params1));
 
   const int id1 = simulator->AddLoadableAgent(
-      "rail-car", std::move(railcar_params1), "foo", std::move(state1), road);
+      "rail-car", "foo", std::move(state1), road, std::move(railcar_params1));
 
   EXPECT_LT(id1, 0);
 
@@ -491,7 +491,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   auto railcar_params2 = std::make_unique<RailCarParams>(
       std::move(lane_direction2), std::move(start_params2));
   const int id2 = simulator->AddLoadableAgent(
-      "rail-car", std::move(railcar_params2), "bar", std::move(state2), road);
+      "rail-car", "bar", std::move(state2), road, std::move(railcar_params2));
   EXPECT_LT(id2, 0);
 
   const auto different_road =
@@ -510,7 +510,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   auto railcar_params3 = std::make_unique<RailCarParams>(
       std::move(lane_direction3), std::move(start_params3));
   const int id3 = simulator->AddLoadableAgent(
-      "rail-car", std::move(railcar_params3), "baz", std::move(state3), road);
+      "rail-car", "baz", std::move(state3), road, std::move(railcar_params3));
 
   EXPECT_LT(id3, 0);
 }
@@ -539,7 +539,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   auto railcar_params = std::make_unique<RailCarParams>(
       std::move(lane_direction), std::move(start_params));
   const int id = simulator->AddLoadableAgent(
-      "rail-car", std::move(railcar_params), "model", std::move(state), road);
+      "rail-car", "model", std::move(state), road, std::move(railcar_params));
 
   EXPECT_GE(id, 0);
 
@@ -586,11 +586,11 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
 
-  simulator->AddLoadableAgent("simple-car", nullptr, "Model1",
-                              std::move(state1), nullptr);
+  simulator->AddLoadableAgent("simple-car", "Model1", std::move(state1),
+                              nullptr);
 
-  simulator->AddLoadableAgent("simple-car", nullptr, "Model2",
-                              std::move(state2), nullptr);
+  simulator->AddLoadableAgent("simple-car", "Model2", std::move(state2),
+                              nullptr);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update
@@ -672,9 +672,9 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
 
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
-  EXPECT_NO_THROW(simulator->AddLoadableAgent("simple-car", nullptr, "Model1",
+  EXPECT_NO_THROW(simulator->AddLoadableAgent("simple-car", "Model1",
                                               std::move(state1), nullptr));
-  EXPECT_THROW(simulator->AddLoadableAgent("simple-car", nullptr, "Model1",
+  EXPECT_THROW(simulator->AddLoadableAgent("simple-car", "Model1",
                                            std::move(state2), nullptr),
                std::runtime_error);
 
@@ -700,7 +700,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto railcar_params4 = std::make_unique<RailCarParams>(
       std::move(lane_direction4), std::move(start_params4));
   EXPECT_NO_THROW(simulator->AddLoadableAgent(
-      "rail-car", std::move(railcar_params4), "FOO", std::move(state4), road));
+      "rail-car", "FOO", std::move(state4), road, std::move(railcar_params4)));
 
   auto lane_direction5 = std::make_unique<drake::automotive::LaneDirection>(
       road->junction(0)->segment(0)->lane(0));
@@ -711,8 +711,8 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto railcar_params5 = std::make_unique<RailCarParams>(
       std::move(lane_direction5), std::move(start_params5));
   EXPECT_THROW(
-      simulator->AddLoadableAgent("rail-car", std::move(railcar_params5),
-                                  "alice", std::move(state5), road),
+      simulator->AddLoadableAgent("rail-car", "alice", std::move(state5), road,
+                                  std::move(railcar_params5)),
       std::runtime_error);
 
   auto lane_direction6 = std::make_unique<drake::automotive::LaneDirection>(
@@ -724,8 +724,8 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto railcar_params6 = std::make_unique<RailCarParams>(
       std::move(lane_direction6), std::move(start_params6));
   EXPECT_THROW(
-      simulator->AddLoadableAgent("rail-car", std::move(railcar_params6),
-                                  "alice", std::move(state6), road),
+      simulator->AddLoadableAgent("rail-car", "alice", std::move(state6), road,
+                                  std::move(railcar_params6)),
       std::runtime_error);
 }
 
@@ -757,8 +757,8 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
       std::move(alice_lane_direction), std::move(alice_start_params));
 
   const int alice_id = simulator->AddLoadableAgent(
-      "rail-car", std::move(alice_railcar_params), "Alice",
-      std::move(alice_initial_state), road);
+      "rail-car", "Alice", std::move(alice_initial_state), road,
+      std::move(alice_railcar_params));
 
   auto bob_initial_state = std::make_unique<MaliputRailcarState<double>>();
   auto bob_lane_direction = std::make_unique<drake::automotive::LaneDirection>(
@@ -769,9 +769,9 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   auto bob_railcar_params = std::make_unique<RailCarParams>(
       std::move(bob_lane_direction), std::move(bob_start_params));
 
-  const int bob_id =
-      simulator->AddLoadableAgent("rail-car", std::move(bob_railcar_params),
-                                  "Bob", std::move(bob_initial_state), road);
+  const int bob_id = simulator->AddLoadableAgent(
+      "rail-car", "Bob", std::move(bob_initial_state), road,
+      std::move(bob_railcar_params));
 
   EXPECT_NO_THROW(simulator->Start());
 
@@ -799,10 +799,10 @@ TEST_F(AutomotiveSimulatorTest, TestBuild) {
 
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
-  simulator->AddLoadableAgent("simple-car", nullptr, "Model1",
-                              std::move(state1), nullptr);
-  simulator->AddLoadableAgent("simple-car", nullptr, "Model2",
-                              std::move(state2), nullptr);
+  simulator->AddLoadableAgent("simple-car", "Model1", std::move(state1),
+                              nullptr);
+  simulator->AddLoadableAgent("simple-car", "Model2", std::move(state2),
+                              nullptr);
 
   simulator->Build();
   EXPECT_FALSE(simulator->has_started());
@@ -819,10 +819,10 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
 
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
-  simulator->AddLoadableAgent("simple-car", nullptr, "Model1",
-                              std::move(state1), nullptr);
-  simulator->AddLoadableAgent("simple-car", nullptr, "Model2",
-                              std::move(state2), nullptr);
+  simulator->AddLoadableAgent("simple-car", "Model1", std::move(state1),
+                              nullptr);
+  simulator->AddLoadableAgent("simple-car", "Model2", std::move(state2),
+                              nullptr);
 
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
@@ -831,14 +831,14 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
 // Tests that AddLoadableAgent basically works.
 TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentBasic) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  ASSERT_EQ(0, simulator->AddLoadableAgent("simple-car", nullptr,
-                                           "my_test_model", nullptr, nullptr));
+  ASSERT_EQ(0, simulator->AddLoadableAgent("simple-car", "my_test_model",
+                                           nullptr, nullptr));
 }
 
 // Tests that AddLoadableAgent returns -1 when unable to find plugin.
 TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentNonExistent) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  ASSERT_EQ(-1, simulator->AddLoadableAgent("NonExistentPlugin", nullptr,
+  ASSERT_EQ(-1, simulator->AddLoadableAgent("NonExistentPlugin",
                                             "my_test_model", nullptr, nullptr));
 }
 

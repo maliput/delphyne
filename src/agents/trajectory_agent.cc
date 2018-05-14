@@ -50,19 +50,39 @@ public:
    name_ = name;
 
    /*********************
-    * Instantiate System
+    * Parameters
+    *********************/
+   std::vector<double> times2 =
+       linb::any_cast<std::vector<double>>(
+           parameters.at("times"));
+   std::vector<double> headings =
+       linb::any_cast<std::vector<double>>(
+           parameters.at("headings"));
+   std::vector<std::vector<double>> translations_from_parameters =
+       linb::any_cast<std::vector<std::vector<double>>>(
+           parameters.at("translations"));
+
+   // ABORT ABORT ABORT!
+   // The above works, but it will be much cleaner to provide python bindings
+   // to helper functions outside this that create a trajectory and then
+   // pass in AgentTrajectory as one of the parameters. Otherwise trajectory
+   // making will be constrained to whatever this class is capable of
+
+   /*********************
+    * Trajectory
     *********************/
    std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
    Eigen::Quaternion<double> zero_heading(
        Eigen::AngleAxis<double>(0.0,
                                 Eigen::Vector3d::UnitZ()));
    std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
+   double y = -5.55;
    std::vector<Eigen::Vector3d> translations{
-     Eigen::Vector3d( 0.0, 0.00, 0.00),
-     Eigen::Vector3d( 10.0, 0.00, 0.00),
-     Eigen::Vector3d( 30.0, 0.00, 0.00),
-     Eigen::Vector3d( 60.0, 0.00, 0.00),
-     Eigen::Vector3d(100.0, 0.00, 0.00)
+     Eigen::Vector3d(  0.0, y, 0.0),
+     Eigen::Vector3d( 10.0, y, 0.0),
+     Eigen::Vector3d( 30.0, y, 0.0),
+     Eigen::Vector3d( 60.0, y, 0.0),
+     Eigen::Vector3d(100.0, y, 0.0)
    };
    drake::automotive::AgentTrajectory trajectory =
        drake::automotive::AgentTrajectory::Make(
@@ -70,6 +90,10 @@ public:
            orientations,
            translations
            );
+
+   /*********************
+    * Instantiate System
+    *********************/
    double sampling_time = 0.01;
    std::unique_ptr<drake::automotive::TrajectoryFollower<double>> system =
        std::make_unique<drake::automotive::TrajectoryFollower<double>>(

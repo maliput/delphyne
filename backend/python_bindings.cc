@@ -1,6 +1,7 @@
 // Copyright 2017 Toyota Research Institute
 
 #include <memory>
+#include <vector>
 
 #include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/common/find_resource.h>

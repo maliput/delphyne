@@ -26,7 +26,6 @@
 #include "systems/maliput_railcar.h"
 
 #include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
 #include "src/agents/rail_car.h"
 
 namespace delphyne {

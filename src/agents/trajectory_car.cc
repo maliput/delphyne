@@ -41,7 +41,6 @@
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
 #include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
 #include "src/agents/trajectory_car.h"
 
 namespace delphyne {

@@ -114,8 +114,7 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
     simple_car_state.set_y(position_y)
     # Instantiates a Loadable Simple Car
     simulator.AddLoadableAgent(
-        "simple-car", {}, str(robot_id), simple_car_state)
-
+        "simple-car", None, str(robot_id), simple_car_state, None)
 
 def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
     """Instantiates a new MOBIL Car and adds

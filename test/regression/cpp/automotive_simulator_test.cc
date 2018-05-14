@@ -583,7 +583,6 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
 TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  std::map<std::string, linb::any> simple_params;
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
 

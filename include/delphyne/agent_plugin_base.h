@@ -19,7 +19,6 @@
 
 #include "./types.h"
 #include "backend/system.h"
-#include "linb-any"
 
 namespace delphyne {
 
@@ -44,12 +43,8 @@ class AgentPluginBase {
   /// The `Configure` method is the main way that loadable agents get the
   /// information that they need to insert themselves into an automotive
   /// simulation.  Concrete implementations should set themselves up and insert
-  /// themselves into the simulation during the `Configure` call.  The
-  /// `parameters` argument is a map between string names and "linb::any", which
-  /// is a drop-in replacement for std::any for older compilers.  This map is
-  /// meant to hold agent-specific arguments that need to be passed down from
-  /// the application into the loadable agent for it to properly configure
-  /// itself.  The rest of the arguments are parameters that are needed by all
+  /// themselves into the simulation during the `Configure` call.  The rest of
+  /// the arguments are parameters that are needed by all
   /// (or at least most) loadable agents to insert themselves into the
   /// simulation.  For instance, the `builder` parameter is typically used by
   /// the loadable agent to connect internal methods into the overall Diagram

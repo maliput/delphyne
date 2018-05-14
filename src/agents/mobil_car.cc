@@ -27,7 +27,6 @@
 #include "systems/simple_car.h"
 
 #include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
 #include "src/agents/mobil_car.h"
 
 namespace delphyne {

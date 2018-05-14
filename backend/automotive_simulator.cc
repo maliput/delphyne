@@ -36,8 +36,6 @@
 #include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
 #include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
 
-#include "../include/delphyne/linb-any"
-
 namespace delphyne {
 
 using drake::automotive::SimpleCarStateIndices;

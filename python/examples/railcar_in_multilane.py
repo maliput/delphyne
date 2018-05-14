@@ -14,10 +14,10 @@ import os.path
 from pydrake.automotive import LaneDirection
 
 from delphyne.bindings import (
-    Any,
     AutomotiveSimulator,
     MaliputRailcarState,
     MaliputRailcarParams,
+    RailCarParams,
     RoadBuilder,
     SimulatorRunner
 )
@@ -44,17 +44,13 @@ def setup_railcar(simulator, name, road, lane):
     start_params.r = 0
     start_params.h = 0
 
-    params = {
-        "road": Any(road),
-        "initial_with_s": Any(True),
-        "lane_direction": Any(lane_direction),
-        "start_params": Any(start_params)
-    }
+    agent_params = RailCarParams(lane_direction, start_params)
 
     simulator.AddLoadableAgent("rail-car",
-                               params,
+                               agent_params,
                                name,
-                               railcar_state)
+                               railcar_state,
+                               road)
 
 
 def main():

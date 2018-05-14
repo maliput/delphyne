@@ -7,18 +7,27 @@
 #include <string>
 
 #include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
+#include <ignition/common/Console.hh>
 #include <ignition/common/PluginLoader.hh>
 #include <ignition/common/PluginMacros.hh>
 
 #include "./types.h"
+#include "backend/system.h"
 #include "linb-any"
 
 namespace delphyne {
+
+class AgentPluginParams {
+ public:
+  virtual ~AgentPluginParams() {}
+};
+
 /// The abstract class that all plugins must inherit from.  Concrete
 /// implementations must implement both the 'Configure' method and the
 /// 'Initialize' method; see the documentation for those methods for more
@@ -46,11 +55,13 @@ class AgentPluginBase {
   /// the loadable agent to connect internal methods into the overall Diagram
   /// that the automotive simulator is building.
   virtual int Configure(
-      const std::string& name, const int& id,
-      const std::map<std::string, linb::any>& parameters,
+      const std::string& name, int id,
       drake::systems::DiagramBuilder<T>* builder,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
-      drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
+      drake::automotive::CarVisApplicator<T>* car_vis_applicator,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<AgentPluginParams> parameters) = 0;
+
 
   /// The Initialize method is called right before the simualtion starts.  This
   /// gives plugins a chance to initialize themselves for running.
@@ -63,10 +74,30 @@ class AgentPluginBase {
   virtual drake::systems::System<T>* get_system() const = 0;
 
  protected:
+  template <typename ConcreteAgentParams>
+  std::unique_ptr<ConcreteAgentParams> downcast_params(
+      std::unique_ptr<AgentPluginParams> base_params) {
+    DELPHYNE_DEMAND(base_params.get() != nullptr);
+
+    AgentPluginParams* raw_base_params = base_params.release();
+
+    ConcreteAgentParams* concrete_parameters =
+        dynamic_cast<ConcreteAgentParams*>(raw_base_params);
+
+    if (concrete_parameters == nullptr) {
+      ignerr << "Provided parameters can't be downcasted to the expected type"
+             << std::endl;
+      return nullptr;
+    }
+
+    return std::unique_ptr<ConcreteAgentParams>(concrete_parameters);
+  }
+
   // Store a pointer (actually a shared_ptr) to the plugin within this class.
   // this is needed so that the plugin pointer doesn't go out of scope and get
   // freed while it is still in use.
   ignition::common::PluginPtr plugin_;
+
   // This id should be set by the simulator who is in charge of ensuring each
   // agent (system) in the simulation receives a unique id that can be passed
   // to register inputs on the pose aggregator

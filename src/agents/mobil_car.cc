@@ -1,10 +1,13 @@
 // Copyright 2017 Toyota Research Institute
 
+
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -25,6 +28,7 @@
 
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
+#include "src/agents/mobil_car.h"
 
 namespace delphyne {
 
@@ -34,12 +38,12 @@ class MobilCar final : public delphyne::AgentPlugin {
 
   MobilCar() : simple_car_() { igndbg << "MobilCar constructor" << std::endl; }
 
-  int Configure(const std::string& name, const int& id,
-                const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+                drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+                const drake::maliput::api::RoadGeometry* road,
+                std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "MobilCar configure" << std::endl;
 
     /*********************
@@ -51,15 +55,16 @@ class MobilCar final : public delphyne::AgentPlugin {
     /*********************
      * Parse Parameters
      *********************/
-    auto road = linb::any_cast<const drake::maliput::api::RoadGeometry*>(
-        parameters.at("road"));
+    auto mobil_car_parameters =
+        downcast_params<MobilCarParams>(std::move(parameters));
+
+    bool initial_with_s = mobil_car_parameters->get_initial_with_s();
+
     if (road == nullptr) {
       ignerr << "RoadGeometry not valid. Please create a valid road before "
              << "instantiating this module" << std::endl;
       return -1;
     }
-
-    bool initial_with_s = linb::any_cast<bool>(parameters.at("initial_with_s"));
 
     /*********************
      * Systems

@@ -19,12 +19,13 @@
 // except for return success for all method calls.
 class SimpleAgent final : public delphyne::AgentPlugin {
  public:
-  int Configure(const std::string& name, const int& id,
-                const std::map<std::string, linb::any>& parameters,
-                drake::systems::DiagramBuilder<double>* builder,
-                drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+  int Configure(
+      const std::string& name, int id,
+      drake::systems::DiagramBuilder<double>* builder,
+      drake::systems::rendering::PoseAggregator<double>* aggregator,
+      drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<delphyne::AgentPluginParams> parameters) override {
     return 0;
   }
 

@@ -45,12 +45,12 @@ class SimpleCar final : public delphyne::AgentPlugin {
     igndbg << "SimpleCar constructor" << std::endl;
   }
 
-  int Configure(const std::string& name, const int& id,
-                const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+                drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+                const drake::maliput::api::RoadGeometry* road,
+                std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "SimpleCar configure" << std::endl;
 
     /*********************

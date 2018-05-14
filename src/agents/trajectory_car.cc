@@ -12,6 +12,7 @@
 // 3) Add in the pieces necessary to make it a loadable agent (registering it
 //    as a shared library and overriding the appropriate methods).
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <map>
@@ -41,9 +42,9 @@
 
 #include "../../include/delphyne/agent_plugin_base.h"
 #include "../../include/delphyne/linb-any"
+#include "src/agents/trajectory_car.h"
 
 namespace delphyne {
-
 /// TrajectoryCar models a car that follows a pre-established trajectory.  Note
 /// that TrajectoryCar can move forward (up to a given "soft" speed limit) but
 /// cannot travel in reverse.
@@ -88,7 +89,7 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
 
   /// Constructs a TrajectoryCar system that traces a given two-dimensional @p
   /// curve.  Throws an error if the curve is empty (has a zero @p path_length).
-  TrajectoryCar() : curve_(nullptr) {
+  TrajectoryCar() {
     this->DeclareInputPort(drake::systems::kVectorValued,
                            1 /* single-valued input */);
     this->DeclareVectorOutputPort(&TrajectoryCar::CalcStateOutput);
@@ -100,18 +101,18 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
         drake::automotive::TrajectoryCarParams<double>());
   }
 
-  int Configure(const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
-                const std::string& name, int id,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+                drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+                const drake::maliput::api::RoadGeometry* road,
+                std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "LoadablePriusTrajectoryCar configure" << std::endl;
-    curve_ = new drake::automotive::Curve2<double>(
-        linb::any_cast<drake::automotive::Curve2<double>>(
-            parameters.at("curve")));
 
-    if (curve_->path_length() == 0.0) {
+    params_ =
+        std::move(downcast_params<TrajectoryCarParams>(std::move(parameters)));
+
+    if (params_->get_raw_curve()->path_length() == 0.0) {
       ignerr << "Invalid curve passed to TrajectoryCar" << std::endl;
       return -1;
     }
@@ -138,11 +139,6 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
     builder->Connect(*car_state_translator, *car_state_publisher);
 
     return 0;
-  }
-
-  ~TrajectoryCar() {
-    delete curve_;
-    curve_ = nullptr;
   }
 
   int Initialize(drake::systems::Context<double>* context) override {
@@ -326,7 +322,7 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
 
     // Compute the curve at the current longitudinal (along-curve) position.
     const typename drake::automotive::Curve2<double>::PositionResult pose =
-        curve_->GetPosition(state.position());
+        params_->get_raw_curve()->GetPosition(state.position());
     // TODO(jadecastro): Now that the curve is a function of position rather
     // than time, we are not acting on a `trajectory` anymore.  Rename this
     // System to PathFollowingCar or something similar.
@@ -337,7 +333,7 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
     return result;
   }
 
-  const drake::automotive::Curve2<double>* curve_;
+  std::unique_ptr<TrajectoryCarParams> params_;
 };
 
 class LoadablePriusTrajectoryCarFactoryDouble final

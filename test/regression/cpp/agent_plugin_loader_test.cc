@@ -5,6 +5,7 @@
 #include <gtest/gtest.h>
 #include "drake/systems/framework/diagram_builder.h"
 
+#include "../../../include/delphyne/agent_plugin_base.h"
 #include "../../../include/delphyne/types.h"
 #include "backend/agent_plugin_loader.h"
 
@@ -27,9 +28,9 @@ TEST(AgentPluginLoader, SimpleAgent) {
   std::unique_ptr<drake::systems::DiagramBuilder<double>> builder{
       std::make_unique<drake::systems::DiagramBuilder<double>>()};
 
-  const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure("testname", 0, params, builder.get(), nullptr,
-                                nullptr));
+  auto params = std::make_unique<delphyne::AgentPluginParams>();
+  ASSERT_EQ(0, agent->Configure("testname", 0, builder.get(), nullptr, nullptr,
+                                nullptr, std::move(params)));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));
 }
@@ -46,10 +47,9 @@ TEST(AgentPluginLoader, AutoDiffAgent) {
   std::unique_ptr<drake::systems::DiagramBuilder<delphyne::AutoDiff>> builder{
       std::make_unique<drake::systems::DiagramBuilder<delphyne::AutoDiff>>()};
 
-  const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure("testname", 0, params, builder.get(), nullptr,
-                                nullptr));
-
+  auto params = std::make_unique<delphyne::AgentPluginParams>();
+  ASSERT_EQ(0, agent->Configure("testname", 0, builder.get(), nullptr, nullptr,
+                                nullptr, std::move(params)));
   ASSERT_EQ(0, agent->Initialize(nullptr));
 }
 
@@ -65,9 +65,9 @@ TEST(AgentPluginLoader, SymbolicAgent) {
   std::unique_ptr<drake::systems::DiagramBuilder<delphyne::Symbolic>> builder{
       std::make_unique<drake::systems::DiagramBuilder<delphyne::Symbolic>>()};
 
-  const std::map<std::string, linb::any> params;
-  ASSERT_EQ(0, agent->Configure(params, builder.get(), "testname", 0, nullptr,
-                                nullptr));
+  auto params = std::make_unique<delphyne::AgentPluginParams>();
+  ASSERT_EQ(0, agent->Configure("testname", 0, builder.get(), nullptr, nullptr,
+                                nullptr, std::move(params)));
 
   ASSERT_EQ(0, agent->Initialize(nullptr));
 }

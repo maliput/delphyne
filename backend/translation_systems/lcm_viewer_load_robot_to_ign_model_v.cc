@@ -57,7 +57,7 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
         ignition::msgs::Pose* pose = new_visual->mutable_pose();
         PositionArrayToIgnition(geometry.position, pose->mutable_position());
         QuaternionArrayToIgnition(geometry.quaternion,
-                                pose->mutable_orientation());
+                                  pose->mutable_orientation());
 
         ignition::msgs::Material* material = new_visual->mutable_material();
         LcmColorToIgnition(geometry.color, material->mutable_diffuse());

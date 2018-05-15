@@ -9,11 +9,11 @@
 
 namespace delphyne {
 
-class TrajectoryCarParams final : public delphyne::AgentPluginParams {
+class TrajectoryCarAgentParams final : public delphyne::AgentPluginParams {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryCarParams)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryCarAgentParams)
 
-  explicit TrajectoryCarParams(
+  explicit TrajectoryCarAgentParams(
       std::unique_ptr<drake::automotive::Curve2<double>> curve)
       : curve_(std::move(curve)) {}
 

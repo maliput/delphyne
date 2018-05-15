@@ -1,6 +1,5 @@
 // Copyright 2017 Toyota Research Institute
 
-
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -55,7 +54,7 @@ class MobilCar final : public delphyne::AgentPlugin {
      * Parse Parameters
      *********************/
     auto mobil_car_parameters =
-        downcast_params<MobilCarParams>(std::move(parameters));
+        downcast_params<MobilCarAgentParams>(std::move(parameters));
 
     bool initial_with_s = mobil_car_parameters->get_initial_with_s();
 

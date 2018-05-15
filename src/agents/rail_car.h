@@ -10,11 +10,11 @@
 
 namespace delphyne {
 
-class RailCarParams final : public delphyne::AgentPluginParams {
+class RailCarAgentParams final : public delphyne::AgentPluginParams {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarParams)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarAgentParams)
 
-  RailCarParams(
+  RailCarAgentParams(
       std::unique_ptr<drake::automotive::LaneDirection> lane_direction,
       std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>
           start_params)

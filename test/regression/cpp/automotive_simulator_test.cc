@@ -241,7 +241,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   simple_car_state->set_y(-2.0);
   simple_car_state->set_velocity(10.0);
 
-  auto mobil_params = std::make_unique<MobilCarParams>(true);
+  auto mobil_params = std::make_unique<MobilCarAgentParams>(true);
   const int id_mobil = simulator->AddLoadableAgent(
       "mobil-car", "MOBIL0", std::move(simple_car_state), road,
       std::move(mobil_params));
@@ -256,7 +256,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   auto start_params1 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
 
-  auto railcar_params1 = std::make_unique<RailCarParams>(
+  auto railcar_params1 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction1), std::move(start_params1));
 
   const int id_decoy1 =
@@ -274,7 +274,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   auto start_params2 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
 
-  auto railcar_params2 = std::make_unique<RailCarParams>(
+  auto railcar_params2 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction2), std::move(start_params2));
 
   const int id_decoy2 =
@@ -325,7 +325,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //   const double kPoseXTolerance{1e-6};
 
 //   // Set up a basic simulation with a couple Prius TrajectoryCars. Both cars
-//   // start at position zero; the first has a speed of 1 m/s, while the other is
+//   // start at position zero; the first has a speed of 1 m/s, while the other
+//   is
 //   // stationary. They both follow a straight 100 m long line.
 //   auto simulator = std::make_unique<AutomotiveSimulator<double>>(
 //       std::make_unique<drake::lcm::DrakeMockLcm>());
@@ -333,7 +334,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //   auto curveAlice =
 //       std::make_unique<drake::automotive::Curve2<double>>(waypoints);
 //   auto paramsAlice =
-//       std::make_unique<TrajectoryCarParams>(std::move(curveAlice));
+//       std::make_unique<TrajectoryCarAgentParams>(std::move(curveAlice));
 //   auto stateAlice =
 //       std::make_unique<drake::automotive::TrajectoryCarState<double>>();
 //   stateAlice->set_speed(1.0);
@@ -344,19 +345,22 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 
 //   auto curveBob =
 //       std::make_unique<drake::automotive::Curve2<double>>(waypoints);
-//   auto paramsBob = std::make_unique<TrajectoryCarParams>(std::move(curveBob));
+//   auto paramsBob =
+//   std::make_unique<TrajectoryCarAgentParams>(std::move(curveBob));
 //   auto stateBob =
 //       std::make_unique<drake::automotive::TrajectoryCarState<double>>();
 //   stateBob->set_speed(0.0);
 //   stateBob->set_position(0.0);
 //   const int id2 =
-//       simulator->AddLoadableAgent("trajectory-car", "bob", std::move(stateBob),
+//       simulator->AddLoadableAgent("trajectory-car", "bob",
+//       std::move(stateBob),
 //                                   nullptr, std::move(paramsBob));
 
 //   EXPECT_EQ(0, id1);
 //   EXPECT_EQ(1, id2);
 
-//   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+//   // Setup the an ignition callback to store the latest
+//   ignition::msgs::Model_V
 //   // that is published to /visualizer/scene_update.
 //   ignition::msgs::Model_V draw_message;
 
@@ -398,7 +402,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //   // Checks the chassis_floor body of the first car.
 //   EXPECT_EQ(link.name(), "chassis_floor");
 
-//   EXPECT_NEAR(link.pose().position().x(), PriusVis<double>::kVisOffset + 0.99,
+//   EXPECT_NEAR(link.pose().position().x(), PriusVis<double>::kVisOffset +
+//   0.99,
 //               kPoseXTolerance);
 //   EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
 //   EXPECT_NEAR(link.pose().position().z(), 0.378326, kTolerance);
@@ -410,8 +415,10 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //   // Checks the chassis_floor body of the first car.
 //   EXPECT_EQ(alice_model.link_size(), bob_model.link_size());
 
-//   // Verifies that the first car is about 1 m ahead of the second car. This is
-//   // expected since the first car is traveling at 1 m/s for a second while the
+//   // Verifies that the first car is about 1 m ahead of the second car. This
+//   is
+//   // expected since the first car is traveling at 1 m/s for a second while
+//   the
 //   // second car is immobile.
 //   for (int i = 0; i < alice_model.link_size(); i++) {
 //     auto alice_link = alice_model.link(i);
@@ -467,7 +474,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   auto state1 = std::make_unique<MaliputRailcarState<double>>();
   auto start_params1 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  auto railcar_params1 = std::make_unique<RailCarParams>(
+  auto railcar_params1 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction1), std::move(start_params1));
 
   const int id1 = simulator->AddLoadableAgent(
@@ -488,7 +495,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   auto state2 = std::make_unique<MaliputRailcarState<double>>();
   auto start_params2 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  auto railcar_params2 = std::make_unique<RailCarParams>(
+  auto railcar_params2 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction2), std::move(start_params2));
   const int id2 = simulator->AddLoadableAgent(
       "rail-car", "bar", std::move(state2), road, std::move(railcar_params2));
@@ -507,7 +514,7 @@ TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
   auto state3 = std::make_unique<MaliputRailcarState<double>>();
   auto start_params3 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  auto railcar_params3 = std::make_unique<RailCarParams>(
+  auto railcar_params3 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction3), std::move(start_params3));
   const int id3 = simulator->AddLoadableAgent(
       "rail-car", "baz", std::move(state3), road, std::move(railcar_params3));
@@ -536,7 +543,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   auto start_params =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
   start_params->set_r(kR);
-  auto railcar_params = std::make_unique<RailCarParams>(
+  auto railcar_params = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction), std::move(start_params));
   const int id = simulator->AddLoadableAgent(
       "rail-car", "model", std::move(state), road, std::move(railcar_params));
@@ -689,15 +696,13 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
               std::numeric_limits<double>::epsilon() /* linear_tolerance */,
               std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
 
-  const double kR{0.5};
-
   auto lane_direction4 = std::make_unique<drake::automotive::LaneDirection>(
       road->junction(0)->segment(0)->lane(0));
   auto state4 = std::make_unique<MaliputRailcarState<double>>();
   auto start_params4 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
   start_params4->set_r(kR);
-  auto railcar_params4 = std::make_unique<RailCarParams>(
+  auto railcar_params4 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction4), std::move(start_params4));
   EXPECT_NO_THROW(simulator->AddLoadableAgent(
       "rail-car", "FOO", std::move(state4), road, std::move(railcar_params4)));
@@ -708,12 +713,11 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto start_params5 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
   start_params5->set_r(kR);
-  auto railcar_params5 = std::make_unique<RailCarParams>(
+  auto railcar_params5 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction5), std::move(start_params5));
-  EXPECT_THROW(
-      simulator->AddLoadableAgent("rail-car", "alice", std::move(state5), road,
-                                  std::move(railcar_params5)),
-      std::runtime_error);
+  EXPECT_NO_THROW(simulator->AddLoadableAgent("rail-car", "alice",
+                                              std::move(state5), road,
+                                              std::move(railcar_params5)));
 
   auto lane_direction6 = std::make_unique<drake::automotive::LaneDirection>(
       road->junction(0)->segment(0)->lane(0));
@@ -721,7 +725,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto start_params6 =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
   start_params6->set_r(kR);
-  auto railcar_params6 = std::make_unique<RailCarParams>(
+  auto railcar_params6 = std::make_unique<RailCarAgentParams>(
       std::move(lane_direction6), std::move(start_params6));
   EXPECT_THROW(
       simulator->AddLoadableAgent("rail-car", "alice", std::move(state6), road,
@@ -753,7 +757,7 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   auto alice_start_params =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
   alice_start_params->set_r(kR);
-  auto alice_railcar_params = std::make_unique<RailCarParams>(
+  auto alice_railcar_params = std::make_unique<RailCarAgentParams>(
       std::move(alice_lane_direction), std::move(alice_start_params));
 
   const int alice_id = simulator->AddLoadableAgent(
@@ -766,7 +770,7 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   auto bob_start_params =
       std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
   bob_start_params->set_r(kR);
-  auto bob_railcar_params = std::make_unique<RailCarParams>(
+  auto bob_railcar_params = std::make_unique<RailCarAgentParams>(
       std::move(bob_lane_direction), std::move(bob_start_params));
 
   const int bob_id = simulator->AddLoadableAgent(

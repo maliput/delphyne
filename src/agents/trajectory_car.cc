@@ -108,8 +108,7 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
                 std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "LoadablePriusTrajectoryCar configure" << std::endl;
 
-    params_ =
-        std::move(downcast_params<TrajectoryCarParams>(std::move(parameters)));
+    params_ = downcast_params<TrajectoryCarAgentParams>(std::move(parameters));
 
     if (params_->get_raw_curve()->path_length() == 0.0) {
       ignerr << "Invalid curve passed to TrajectoryCar" << std::endl;
@@ -332,7 +331,7 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
     return result;
   }
 
-  std::unique_ptr<TrajectoryCarParams> params_;
+  std::unique_ptr<TrajectoryCarAgentParams> params_;
 };
 
 class LoadablePriusTrajectoryCarFactoryDouble final

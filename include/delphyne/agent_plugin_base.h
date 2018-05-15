@@ -43,8 +43,12 @@ class AgentPluginBase {
   /// The `Configure` method is the main way that loadable agents get the
   /// information that they need to insert themselves into an automotive
   /// simulation.  Concrete implementations should set themselves up and insert
-  /// themselves into the simulation during the `Configure` call.  The rest of
-  /// the arguments are parameters that are needed by all
+  /// themselves into the simulation during the `Configure` call.  The
+  /// `parameters` argument is a class that is meant to hold agent-specific
+  /// arguments that need to be passed down from the application into the
+  /// loadable agent for it to properly configure itself. Each concrete agent
+  /// can create a specific subclass to explicitly state the parameters it
+  /// needs. The rest of the arguments are parameters that are needed by all
   /// (or at least most) loadable agents to insert themselves into the
   /// simulation.  For instance, the `builder` parameter is typically used by
   /// the loadable agent to connect internal methods into the overall Diagram
@@ -57,7 +61,6 @@ class AgentPluginBase {
       const drake::maliput::api::RoadGeometry* road,
       std::unique_ptr<AgentPluginParams> parameters) = 0;
 
-
   /// The Initialize method is called right before the simualtion starts.  This
   /// gives plugins a chance to initialize themselves for running.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
@@ -69,6 +72,9 @@ class AgentPluginBase {
   virtual drake::systems::System<T>* get_system() const = 0;
 
  protected:
+  /// Performs a parameter downcast to the concrete agent params class.
+  /// Throws an exception if the provided parameter is not of the expected
+  /// class
   template <typename ConcreteAgentParams>
   std::unique_ptr<ConcreteAgentParams> downcast_params(
       std::unique_ptr<AgentPluginParams> base_params) {
@@ -80,9 +86,8 @@ class AgentPluginBase {
         dynamic_cast<ConcreteAgentParams*>(raw_base_params);
 
     if (concrete_parameters == nullptr) {
-      ignerr << "Provided parameters can't be downcasted to the expected type"
-             << std::endl;
-      return nullptr;
+      throw std::runtime_error(
+          "Provided parameters can't be downcasted to the expected type");
     }
 
     return std::unique_ptr<ConcreteAgentParams>(concrete_parameters);

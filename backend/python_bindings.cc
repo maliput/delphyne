@@ -30,9 +30,9 @@ using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
 using delphyne::AgentPluginParams;
-using delphyne::RailCarParams;
-using delphyne::TrajectoryCarParams;
-using delphyne::MobilCarParams;
+using delphyne::RailCarAgentParams;
+using delphyne::TrajectoryCarAgentParams;
+using delphyne::MobilCarAgentParams;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;
@@ -46,15 +46,16 @@ PYBIND11_MODULE(python_bindings, m) {
 
   py::class_<AgentPluginParams>(m, "AgentPluginParams");
 
-  py::class_<RailCarParams, AgentPluginParams>(m, "RailCarParams")
+  py::class_<RailCarAgentParams, AgentPluginParams>(m, "RailCarAgentParams")
       .def(py::init<
            std::unique_ptr<drake::automotive::LaneDirection>,
            std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>>());
 
-  py::class_<TrajectoryCarParams, AgentPluginParams>(m, "TrajectoryCarParams")
+  py::class_<TrajectoryCarAgentParams, AgentPluginParams>(
+      m, "TrajectoryCarAgentParams")
       .def(py::init<std::unique_ptr<drake::automotive::Curve2<double>>>());
 
-  py::class_<MobilCarParams, AgentPluginParams>(m, "MobilCarParams")
+  py::class_<MobilCarAgentParams, AgentPluginParams>(m, "MobilCarAgentParams")
       .def(py::init<bool>());
 
   py::class_<MaliputRailcarState<double>, BasicVector<double>>(

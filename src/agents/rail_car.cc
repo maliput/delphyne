@@ -60,7 +60,7 @@ class RailCar final : public delphyne::AgentPlugin {
     /*********************
      * Parse Parameters
      *********************/
-    params_ = std::move(downcast_params<RailCarParams>(std::move(parameters)));
+    params_ = downcast_params<RailCarAgentParams>(std::move(parameters));
 
     if (params_->get_raw_lane_direction()->lane == nullptr) {
       ignerr << "RailCar::Configure(): "
@@ -85,7 +85,7 @@ class RailCar final : public delphyne::AgentPlugin {
      *********************/
     std::unique_ptr<drake::automotive::MaliputRailcar2<double>> system =
         std::make_unique<drake::automotive::MaliputRailcar2<double>>(
-            *initial_lane_direction);
+            *params_->get_raw_lane_direction());
     system->set_name(name);
     rail_car_ =
         builder->template AddSystem<drake::automotive::MaliputRailcar2<double>>(
@@ -96,17 +96,9 @@ class RailCar final : public delphyne::AgentPlugin {
      *********************/
     // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
     // agents, reuse?
-    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id_);
+    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(rail_car_->pose_output(), ports.pose_descriptor);
     builder->Connect(rail_car_->velocity_output(), ports.velocity_descriptor);
-    lane_state_output_port_index_ =
-        this->DeclareAbstractOutputPort(*params_->get_raw_lane_direction(),
-                                        &RailCar::CalcLaneOutput)
-            .get_index();
-
-    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
-    builder->Connect(this->pose_output(), ports.pose_descriptor);
-    builder->Connect(this->velocity_output(), ports.velocity_descriptor);
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id_, name));
 
@@ -117,7 +109,8 @@ class RailCar final : public delphyne::AgentPlugin {
     igndbg << "RailCar initialize" << std::endl;
     drake::automotive::MaliputRailcarParams<double>& railcar_system_params =
         rail_car_->get_mutable_parameters(context);
-    railcar_system_params.set_value(params_->get_value());
+    railcar_system_params.set_value(
+        params_->get_raw_start_params()->get_value());
 
     return 0;
   }
@@ -125,7 +118,7 @@ class RailCar final : public delphyne::AgentPlugin {
   drake::systems::System<double>* get_system() const { return rail_car_; }
 
  private:
-  drake::automotive::MaliputRailcarParams<double>* params_;
+  std::unique_ptr<RailCarAgentParams> params_;
   drake::automotive::MaliputRailcar2<double>* rail_car_;
 };
 

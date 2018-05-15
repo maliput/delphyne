@@ -6,11 +6,11 @@
 
 namespace delphyne {
 
-class MobilCarParams final : public delphyne::AgentPluginParams {
+class MobilCarAgentParams final : public delphyne::AgentPluginParams {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilCarParams)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilCarAgentParams)
 
-  explicit MobilCarParams(bool initial_with_s)
+  explicit MobilCarAgentParams(bool initial_with_s)
       : initial_with_s_(initial_with_s) {}
 
   bool get_initial_with_s() { return initial_with_s_; }

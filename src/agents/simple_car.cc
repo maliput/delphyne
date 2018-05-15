@@ -31,9 +31,6 @@
 
 #include "systems/simple_car.h"
 
-#include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
-
 namespace delphyne {
 
 class SimpleCar final : public delphyne::AgentPlugin {

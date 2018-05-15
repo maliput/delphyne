@@ -53,7 +53,6 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::System;
 using drake::systems::SystemOutput;
 
-
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator() {
   aggregator_ =
@@ -148,6 +147,9 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
     const drake::maliput::api::RoadGeometry* road,
     std::unique_ptr<AgentPluginParams> parameters) {
+  /*********************
+   * Checks
+   *********************/
   DELPHYNE_DEMAND(!has_started());
   DELPHYNE_DEMAND(aggregator_ != nullptr);
   CheckNameUniqueness(agent_name);
@@ -171,8 +173,7 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   int id = unique_system_id_++;
 
   if (agent->Configure(agent_name, id, builder_.get(), aggregator_,
-                                car_vis_applicator_, road,
-                                std::move(parameters)) < 0) {
+                       car_vis_applicator_, road, std::move(parameters)) < 0) {
     return -1;
   }
   agents_[id] = std::move(agent);

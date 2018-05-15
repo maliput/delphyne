@@ -24,6 +24,7 @@
 #include "drake/automotive/simple_car.h"
 #include "drake/automotive/trajectory_car.h"
 #include "drake/common/drake_copyable.h"
+#include "drake/lcm/drake_lcm_interface.h"
 #include "drake/multibody/rigid_body_tree.h"
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/framework/diagram.h"

@@ -1,0 +1,32 @@
+from setuptools import setup, find_packages
+import unittest
+
+scripts_list = ['all_cars_in_dragway',
+                'keyboard_controlled_simulation',
+                'railcar_in_multilane',
+                'realtime_rate_changer',
+                'road_loading',
+                'simple_python_binding',
+                'start_simulation_paused',
+                'time_bounded_simulation']
+
+def delphyne_scripts():
+    scripts = ""
+    for script in scripts_list:
+        scripts = scripts + "{0} = examples.{0}:main\n".format(script)
+    return scripts
+
+def delphyne_test_suite():
+    test_loader = unittest.TestLoader()
+    test_suite = test_loader.discover('${PROJECT_SOURCE_DIR}/test/regression/python', pattern='*_test.py')
+    return test_suite
+
+setup(name='delphyne',
+      version='${PROJECT_VERSION}',
+      author='Toyota Research Institute',
+      author_email='name@tri.global',
+      url='http://drake.mit.edu',
+      packages=find_packages('${CMAKE_CURRENT_SOURCE_DIR}'),
+      package_dir={ '': '${CMAKE_CURRENT_SOURCE_DIR}' },
+      entry_points={ 'console_scripts': [delphyne_scripts()]},
+      test_suite='setup.delphyne_test_suite')

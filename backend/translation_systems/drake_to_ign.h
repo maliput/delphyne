@@ -78,34 +78,34 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   static const unsigned int kPositionVectorSize{3};
   static const unsigned int kOrientationVectorSize{4};
 
-  // @brief Converts an array of floats (LCM's type for positions) to an
+  // @brief Converts an array of floats to an
   // ignition position message.
   //
-  // @param[in] lcm_position The LCM position array.
+  // @param[in] position The position array
   // @param[out] ign_position The ignition position message.
-  static void LcmPositionToIgnition(const float lcm_position[3],
+  static void PositionArrayToIgnition(const float position[3],
                                     ignition::msgs::Vector3d* ign_position) {
     DELPHYNE_DEMAND(ign_position != nullptr);
 
-    ign_position->set_x(lcm_position[0]);
-    ign_position->set_y(lcm_position[1]);
-    ign_position->set_z(lcm_position[2]);
+    ign_position->set_x(position[0]);
+    ign_position->set_y(position[1]);
+    ign_position->set_z(position[2]);
   }
 
-  // @brief Converts an array of floats (LCM's type for quaternions) to an
-  // ignition quaterion message.
+  // @brief Converts an array of floats to an
+  // ignition quaternion message.
   //
-  // @param[in] lcm_quaternion The LCM orientation array.
+  // @param[in] quaternion The orientation array.
   // @param[out] ign_quaternion The ign quaternion message.
-  static void LcmQuaternionToIgnition(
-      const float lcm_quaternion[4],
+  static void QuaternionArrayToIgnition(
+      const float quaternion[4],
       ignition::msgs::Quaternion* ign_quaternion) {
     DELPHYNE_DEMAND(ign_quaternion != nullptr);
 
-    ign_quaternion->set_w(lcm_quaternion[0]);
-    ign_quaternion->set_x(lcm_quaternion[1]);
-    ign_quaternion->set_y(lcm_quaternion[2]);
-    ign_quaternion->set_z(lcm_quaternion[3]);
+    ign_quaternion->set_w(quaternion[0]);
+    ign_quaternion->set_x(quaternion[1]);
+    ign_quaternion->set_y(quaternion[2]);
+    ign_quaternion->set_z(quaternion[3]);
   }
 
   // @brief Converts an array of floats (LCM's type for a color) to an

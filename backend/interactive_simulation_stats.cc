@@ -66,8 +66,8 @@ void InteractiveSimulationStats::UpdateWeightedRealtimeRate(
   const Duration realtime_passed =
       realtime - current_run.get_last_step_realtime();
 
-  weighted_simtime_ = weighted_simtime_ * 0.5 + simtime_passed;
-  weighted_realtime_ = weighted_realtime_ * 0.5 + realtime_passed.count();
+  weighted_simtime_ = weighted_simtime_ * 0.8 + simtime_passed;
+  weighted_realtime_ = weighted_realtime_ * 0.8 + realtime_passed.count();
 
   weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }

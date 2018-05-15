@@ -60,14 +60,22 @@ const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd()
 
 void InteractiveSimulationStats::UpdateWeightedRealtimeRate(
     double simtime, const TimePoint& realtime) {
+  // Control how much weight are we giving to the previous steps. A low value
+  // (i.e. towards 0) will make the real-time rate very sensitive to current
+  // changes but also very unstable. A high value (i.e. towards 1.0) would make
+  // the real-time rate more stable and take longer to catch-up with recent
+  // changes.
+  static const double kWeighFactor{0.95};
+
   auto current_run = GetCurrentRunStats();
 
   const double simtime_passed = simtime - current_run.get_last_step_simtime();
   const Duration realtime_passed =
       realtime - current_run.get_last_step_realtime();
 
-  weighted_simtime_ = weighted_simtime_ * 0.5 + simtime_passed;
-  weighted_realtime_ = weighted_realtime_ * 0.5 + realtime_passed.count();
+  weighted_simtime_ = weighted_simtime_ * kWeighFactor + simtime_passed;
+  weighted_realtime_ =
+      weighted_realtime_ * kWeighFactor + realtime_passed.count();
 
   weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }

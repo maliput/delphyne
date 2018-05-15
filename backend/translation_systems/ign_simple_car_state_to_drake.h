@@ -6,10 +6,10 @@
 
 #include "ignition/msgs.hh"
 
-#include "protobuf/simple_car_state.pb.h"
-
 #include "backend/system.h"
 #include "backend/translation_systems/ign_to_drake.h"
+
+#include "delphyne/protobuf/simple_car_state.pb.h"
 
 namespace delphyne {
 

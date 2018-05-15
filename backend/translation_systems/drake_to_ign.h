@@ -81,7 +81,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @brief Converts an array of floats to an
   // ignition position message.
   //
-  // @param[in] position the position array
+  // @param[in] position The position array
   // @param[out] ign_position The ignition position message.
   static void PositionArrayToIgnition(const float position[3],
                                     ignition::msgs::Vector3d* ign_position) {

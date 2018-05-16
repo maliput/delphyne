@@ -47,12 +47,12 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
 
     // Checks position size and translates.
     DELPHYNE_DEMAND(lcm_message.position[i].size() == kPositionVectorSize);
-    LcmPositionToIgnition(lcm_message.position[i].data(),
+    PositionArrayToIgnition(lcm_message.position[i].data(),
                           pose->mutable_position());
 
     // Checks orientation size and translates.
     DELPHYNE_DEMAND(lcm_message.quaternion[i].size() == kOrientationVectorSize);
-    LcmQuaternionToIgnition(lcm_message.quaternion[i].data(),
+    QuaternionArrayToIgnition(lcm_message.quaternion[i].data(),
                             pose->mutable_orientation());
   }
 }

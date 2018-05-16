@@ -24,13 +24,10 @@
 #include "drake/automotive/simple_car.h"
 #include "drake/automotive/trajectory_car.h"
 #include "drake/common/drake_copyable.h"
-#include "drake/lcm/drake_lcm_interface.h"
-#include "drake/lcmt_viewer_load_robot.hpp"
 #include "drake/multibody/rigid_body_tree.h"
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/framework/diagram.h"
 #include "drake/systems/framework/diagram_builder.h"
-#include "drake/systems/lcm/lcm_publisher_system.h"
 #include "drake/systems/rendering/pose_aggregator.h"
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
@@ -61,12 +58,6 @@ class AutomotiveSimulator {
   /// A constructor that configures this object to use DrakeLcm, which
   /// encapsulates a _real_ LCM instance.
   AutomotiveSimulator();
-  explicit AutomotiveSimulator(
-      std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm);
-  ~AutomotiveSimulator();
-
-  /// Returns the LCM object used by this AutomotiveSimulator.
-  drake::lcm::DrakeLcmInterface* get_lcm();
 
   /// Returns the DiagramBuilder.
   /// @pre Start() has NOT been called.

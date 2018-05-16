@@ -22,6 +22,11 @@
 
 namespace delphyne {
 
+/// The abstract class that models the extra required parameters for a plugin
+/// to be configures. Plugin concrete classes can create a subclass of this
+/// class and downcast to it on the `Configure` method (see the
+/// `downcast_params` protected method). Admittedly, Barbara Liskov wouldn't be
+/// happy about this approach.
 class AgentPluginParams {
  public:
   virtual ~AgentPluginParams() {}
@@ -74,23 +79,26 @@ class AgentPluginBase {
  protected:
   /// Performs a parameter downcast to the concrete agent params class.
   /// Throws an exception if the provided parameter is not of the expected
-  /// class
-  template <typename ConcreteAgentParams>
-  std::unique_ptr<ConcreteAgentParams> downcast_params(
+  /// class.
+  template <typename ConcreteAgentPluginParams,
+            typename std::enable_if<std::is_base_of<
+                AgentPluginParams, ConcreteAgentPluginParams>::value>::type* =
+                nullptr>
+  std::unique_ptr<ConcreteAgentPluginParams> downcast_params(
       std::unique_ptr<AgentPluginParams> base_params) {
     DELPHYNE_DEMAND(base_params.get() != nullptr);
 
-    AgentPluginParams* raw_base_params = base_params.release();
+    AgentPluginParams* const raw_base_params = base_params.release();
 
-    ConcreteAgentParams* concrete_parameters =
-        dynamic_cast<ConcreteAgentParams*>(raw_base_params);
+    ConcreteAgentPluginParams* const concrete_parameters =
+        dynamic_cast<ConcreteAgentPluginParams*>(raw_base_params);
 
     if (concrete_parameters == nullptr) {
       throw std::runtime_error(
           "Provided parameters can't be downcasted to the expected type");
     }
 
-    return std::unique_ptr<ConcreteAgentParams>(concrete_parameters);
+    return std::unique_ptr<ConcreteAgentPluginParams>(concrete_parameters);
   }
 
   // Store a pointer (actually a shared_ptr) to the plugin within this class.

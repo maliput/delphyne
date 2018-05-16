@@ -126,7 +126,7 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     const drake::maliput::api::RoadGeometry* road) {
   return AddLoadableAgent(plugin_library_name, "", agent_name,
                           std::move(initial_state), road,
-                          std::move(std::make_unique<AgentPluginParams>()));
+                          std::make_unique<AgentPluginParams>());
 }
 
 template <typename T>
@@ -161,6 +161,8 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   if (plugin_name.empty()) {
     agent = delphyne::LoadPlugin<T>(plugin_library_name);
   } else {
+    std::cerr << "Plgin with Name!!!!!" << std::endl;
+    throw std::runtime_error("Plgin with Name!!!!!");
     agent = delphyne::LoadPlugin<T>(plugin_library_name, plugin_name);
   }
   if (agent == nullptr) {

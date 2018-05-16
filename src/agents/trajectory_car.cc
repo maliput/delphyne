@@ -40,7 +40,7 @@
 #include <backend/ign_publisher_system.h>
 #include <backend/translation_systems/drake_simple_car_state_to_ign.h>
 
-#include "../../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 #include "src/agents/trajectory_car.h"
 
 namespace delphyne {
@@ -108,7 +108,19 @@ class TrajectoryCar final : public delphyne::AgentPlugin {
                 std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "LoadablePriusTrajectoryCar configure" << std::endl;
 
+    if (parameters.get() == nullptr) {
+      ignerr << "Agent parameters are not valid." << std::endl;
+      return -1;
+    }
+
     params_ = downcast_params<TrajectoryCarAgentParams>(std::move(parameters));
+
+    if (params_->get_raw_curve() == nullptr) {
+      ignerr << "RailCar::Configure(): "
+                "The provided curve is nullptr."
+             << std::endl;
+      return -1;
+    }
 
     if (params_->get_raw_curve()->path_length() == 0.0) {
       ignerr << "Invalid curve passed to TrajectoryCar" << std::endl;

@@ -71,6 +71,8 @@ class AutomotiveSimulatorTest : public ::testing::Test {
   }
 };
 
+static const drake::maliput::api::RoadGeometry* kNullRoad{nullptr};
+
 // Tests GetScene to return the scene
 TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
@@ -78,7 +80,7 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   auto initial_state = std::make_unique<SimpleCarState<double>>();
 
   simulator->AddLoadableAgent("simple-car", "my_test_model",
-                              std::move(initial_state), nullptr);
+                              std::move(initial_state), kNullRoad);
   simulator->Start();
   std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
 
@@ -137,8 +139,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
   auto initial_state = std::make_unique<SimpleCarState<double>>();
 
-  const int id = simulator->AddLoadableAgent("simple-car", "Foo",
-                                             std::move(initial_state), nullptr);
+  const int id = simulator->AddLoadableAgent(
+      "simple-car", "Foo", std::move(initial_state), kNullRoad);
   EXPECT_EQ(id, 0);
 
   // Finish all initialization, so that we can test the post-init state.
@@ -191,7 +193,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   initial_state->set_velocity(kVelocity);
 
   simulator->AddLoadableAgent("simple-car", "My_Test_Model",
-                              std::move(initial_state), nullptr);
+                              std::move(initial_state), kNullRoad);
 
   ignition::msgs::SimpleCarState state_message;
   std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
@@ -594,10 +596,10 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto state2 = std::make_unique<SimpleCarState<double>>();
 
   simulator->AddLoadableAgent("simple-car", "Model1", std::move(state1),
-                              nullptr);
+                              kNullRoad);
 
   simulator->AddLoadableAgent("simple-car", "Model2", std::move(state2),
-                              nullptr);
+                              kNullRoad);
 
   // Setup the an ignition callback to store the latest ignition::msgs::Model_V
   // that is published to /visualizer/scene_update
@@ -680,9 +682,9 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
   EXPECT_NO_THROW(simulator->AddLoadableAgent("simple-car", "Model1",
-                                              std::move(state1), nullptr));
+                                              std::move(state1), kNullRoad));
   EXPECT_THROW(simulator->AddLoadableAgent("simple-car", "Model1",
-                                           std::move(state2), nullptr),
+                                           std::move(state2), kNullRoad),
                std::runtime_error);
 
   const double kR{0.5};
@@ -804,9 +806,9 @@ TEST_F(AutomotiveSimulatorTest, TestBuild) {
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
   simulator->AddLoadableAgent("simple-car", "Model1", std::move(state1),
-                              nullptr);
+                              kNullRoad);
   simulator->AddLoadableAgent("simple-car", "Model2", std::move(state2),
-                              nullptr);
+                              kNullRoad);
 
   simulator->Build();
   EXPECT_FALSE(simulator->has_started());
@@ -824,9 +826,9 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   auto state1 = std::make_unique<SimpleCarState<double>>();
   auto state2 = std::make_unique<SimpleCarState<double>>();
   simulator->AddLoadableAgent("simple-car", "Model1", std::move(state1),
-                              nullptr);
+                              kNullRoad);
   simulator->AddLoadableAgent("simple-car", "Model2", std::move(state2),
-                              nullptr);
+                              kNullRoad);
 
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
@@ -835,15 +837,18 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
 // Tests that AddLoadableAgent basically works.
 TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentBasic) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  auto state = std::make_unique<SimpleCarState<double>>();
   ASSERT_EQ(0, simulator->AddLoadableAgent("simple-car", "my_test_model",
-                                           nullptr, nullptr));
+                                           std::move(state), kNullRoad));
 }
 
 // Tests that AddLoadableAgent returns -1 when unable to find plugin.
 TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentNonExistent) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  ASSERT_EQ(-1, simulator->AddLoadableAgent("NonExistentPlugin",
-                                            "my_test_model", nullptr, nullptr));
+  auto state = std::make_unique<SimpleCarState<double>>();
+  ASSERT_EQ(-1,
+            simulator->AddLoadableAgent("NonExistentPlugin", "my_test_model",
+                                        std::move(state), kNullRoad));
 }
 
 //////////////////////////////////////////////////

@@ -25,7 +25,7 @@
 
 #include "systems/maliput_railcar.h"
 
-#include "../../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 #include "src/agents/rail_car.h"
 
 namespace delphyne {
@@ -51,6 +51,11 @@ class RailCar final : public delphyne::AgentPlugin {
                 std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "RailCar configure" << std::endl;
 
+    if (parameters.get() == nullptr) {
+      ignerr << "Agent parameters are not valid." << std::endl;
+      return -1;
+    }
+
     /*********************
      * Basics
      *********************/
@@ -62,20 +67,27 @@ class RailCar final : public delphyne::AgentPlugin {
      *********************/
     params_ = downcast_params<RailCarAgentParams>(std::move(parameters));
 
-    if (params_->get_raw_lane_direction()->lane == nullptr) {
+    const drake::automotive::LaneDirection* lane_direction =
+        params_->get_raw_lane_direction();
+
+    if (lane_direction == nullptr || lane_direction->lane == nullptr) {
       ignerr << "RailCar::Configure(): "
                 "The provided initial lane is nullptr."
              << std::endl;
       return -1;
     }
 
-    if (params_->get_raw_lane_direction()
-            ->lane->segment()
-            ->junction()
-            ->road_geometry() != road) {
+    if (lane_direction->lane->segment()->junction()->road_geometry() != road) {
       ignerr << "RailCar::Configure(): "
                 "The provided initial lane is not within this simulation's "
                 "RoadGeometry."
+             << std::endl;
+      return -1;
+    }
+
+    if (params_->get_raw_start_params() == nullptr) {
+      ignerr << "RailCar::Configure(): "
+                "The provided start params is nullptr."
              << std::endl;
       return -1;
     }
@@ -85,7 +97,7 @@ class RailCar final : public delphyne::AgentPlugin {
      *********************/
     std::unique_ptr<drake::automotive::MaliputRailcar2<double>> system =
         std::make_unique<drake::automotive::MaliputRailcar2<double>>(
-            *params_->get_raw_lane_direction());
+            *lane_direction);
     system->set_name(name);
     rail_car_ =
         builder->template AddSystem<drake::automotive::MaliputRailcar2<double>>(

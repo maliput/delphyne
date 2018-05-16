@@ -24,7 +24,6 @@
 #include "drake/automotive/simple_car.h"
 #include "drake/automotive/trajectory_car.h"
 #include "drake/common/drake_copyable.h"
-#include "drake/lcm/drake_lcm_interface.h"
 #include "drake/multibody/rigid_body_tree.h"
 #include "drake/systems/analysis/simulator.h"
 #include "drake/systems/framework/diagram.h"
@@ -39,7 +38,7 @@
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
-#include "../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 
 namespace delphyne {
 
@@ -55,8 +54,6 @@ namespace delphyne {
 template <typename T>
 class AutomotiveSimulator {
  public:
-  /// A constructor that configures this object to use DrakeLcm, which
-  /// encapsulates a _real_ LCM instance.
   AutomotiveSimulator();
 
   /// Returns the DiagramBuilder.
@@ -98,6 +95,8 @@ class AutomotiveSimulator {
       const drake::maliput::api::RoadGeometry* road,
       std::unique_ptr<AgentPluginParams> parameters);
 
+  /// An handy overload for the case that the plugin doesn't require any extra
+  /// parameters.
   int AddLoadableAgent(
       const std::string& plugin_library_name, const std::string& agent_name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
@@ -202,7 +201,6 @@ class AutomotiveSimulator {
   void InitializeLoadableAgents();
 
   // For both building and simulation.
-  std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm_{};
   std::unique_ptr<const drake::maliput::api::RoadGeometry> road_{};
 
   // === Start for building. ===

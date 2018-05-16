@@ -11,7 +11,7 @@
 #include "drake/systems/framework/diagram_builder.h"
 #include "drake/systems/rendering/pose_aggregator.h"
 
-#include "../../../../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 
 // An example class that derives from the AgentPluginDoubleBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing

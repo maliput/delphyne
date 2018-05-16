@@ -25,7 +25,7 @@
 
 #include "systems/simple_car.h"
 
-#include "../../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 #include "src/agents/mobil_car.h"
 
 namespace delphyne {
@@ -43,6 +43,11 @@ class MobilCar final : public delphyne::AgentPlugin {
                 const drake::maliput::api::RoadGeometry* road,
                 std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "MobilCar configure" << std::endl;
+
+    if (parameters.get() == nullptr) {
+      ignerr << "Agent parameters are not valid." << std::endl;
+      return -1;
+    }
 
     /*********************
      * Basics

@@ -16,10 +16,10 @@
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
-#include "../include/delphyne/agent_plugin_base.h"
-#include "../src/agents/mobil_car.h"
-#include "../src/agents/rail_car.h"
-#include "../src/agents/trajectory_car.h"
+#include "include/delphyne/agent_plugin_base.h"
+#include "src/agents/mobil_car.h"
+#include "src/agents/rail_car.h"
+#include "src/agents/trajectory_car.h"
 
 namespace py = pybind11;
 

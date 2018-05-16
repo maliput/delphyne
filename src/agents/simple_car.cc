@@ -19,7 +19,7 @@
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
 
-#include "../../include/delphyne/agent_plugin_base.h"
+#include "include/delphyne/agent_plugin_base.h"
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>

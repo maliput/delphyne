@@ -11,7 +11,7 @@ macro(delphyne_add_agent_library name)
       drake_agents
       drake::drake
       Eigen3::Eigen
-      ignition-common1::ignition-common1
+      ignition-common2::ignition-common2
       stx::stx
   )
   install(TARGETS ${name}

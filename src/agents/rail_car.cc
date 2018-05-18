@@ -65,7 +65,7 @@ class RailCar final : public delphyne::AgentPlugin {
     /*********************
      * Parse Parameters
      *********************/
-    params_ = downcast_params<RailCarAgentParams>(std::move(parameters));
+    params_ = downcast_params<RailCarAgentParams2>(std::move(parameters));
 
     const drake::automotive::LaneDirection* lane_direction =
         params_->get_raw_lane_direction();
@@ -121,6 +121,11 @@ class RailCar final : public delphyne::AgentPlugin {
     igndbg << "RailCar initialize" << std::endl;
     drake::automotive::MaliputRailcarParams<double>& railcar_system_params =
         rail_car_->get_mutable_parameters(context);
+
+    std::cerr << "RailCar initialize" << std::endl;
+    std::cerr << params_->get_raw_start_params() << std::endl;
+    std::cerr << params_->get_raw_start_params()->get_value() << std::endl;
+
     railcar_system_params.set_value(
         params_->get_raw_start_params()->get_value());
 
@@ -130,7 +135,7 @@ class RailCar final : public delphyne::AgentPlugin {
   drake::systems::System<double>* get_system() const { return rail_car_; }
 
  private:
-  std::unique_ptr<RailCarAgentParams> params_;
+  std::unique_ptr<RailCarAgentParams2> params_;
   drake::automotive::MaliputRailcar2<double>* rail_car_;
 };
 

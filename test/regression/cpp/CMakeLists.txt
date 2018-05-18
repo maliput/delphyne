@@ -25,7 +25,7 @@ add_subdirectory(agent_plugin)
 
 set(SOURCES
   agent_plugin_loader_test.cc
-  automotive_simulator_test.cc
+#  automotive_simulator_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
   drake_simple_car_state_to_ign_translator_system_test.cc
   ign_driving_command_to_drake_translator_system_test.cc

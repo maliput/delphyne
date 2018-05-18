@@ -26,6 +26,8 @@ from delphyne.simulation_utils import (
     launch_interactive_simulation
 )
 
+import gc
+
 SIMULATION_TIME_STEP_SECS = 0.001
 
 
@@ -45,23 +47,28 @@ def main():
                                  dragway_length, dragway_lane_width,
                                  dragway_shoulder_width, maximum_height)
 
-    # Adds the different cars.
-    simple_car_position_x = 0.0
-    simple_car_position_y = 3.7
-    car_id = 0
-    add_simple_car(simulator, car_id, simple_car_position_x,
-                   simple_car_position_y)
+    # # Adds the different cars.
+    # simple_car_position_x = 0.0
+    # simple_car_position_y = 3.7
+    # car_id = 0
+    # add_simple_car(simulator, car_id, simple_car_position_x,
+    #                simple_car_position_y)
 
-    mobil_car_position_x = 0.0
-    mobil_car_position_y = -3.7
-    car_id += 1
-    add_mobil_car(simulator, car_id, dragway,
-                  mobil_car_position_x, mobil_car_position_y)
+    # mobil_car_position_x = 0.0
+    # mobil_car_position_y = -3.7
+    # car_id += 1
+    # add_mobil_car(simulator, car_id, dragway,
+    #               mobil_car_position_x, mobil_car_position_y)
+
+    car_id = 0
 
     railcar_s = 0.0
     railcar_speed = 3.0
     car_id += 1
     add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
+
+    gc.collect()
+    print("Garbage is gone!")
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 

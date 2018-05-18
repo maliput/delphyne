@@ -31,6 +31,7 @@ using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
 using delphyne::AgentPluginParams;
 using delphyne::RailCarAgentParams;
+using delphyne::RailCarAgentParams2;
 using delphyne::TrajectoryCarAgentParams;
 using delphyne::MobilCarAgentParams;
 using drake::automotive::LaneDirection;
@@ -50,6 +51,11 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init<
            std::unique_ptr<drake::automotive::LaneDirection>,
            std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>>());
+
+  py::class_<RailCarAgentParams2, AgentPluginParams>(m, "RailCarAgentParams2")
+      .def(py::init<
+           std::unique_ptr<drake::automotive::LaneDirection>,
+           drake::automotive::MaliputRailcarParams<double>&>(), py::keep_alive<1, 3>());
 
   py::class_<TrajectoryCarAgentParams, AgentPluginParams>(
       m, "TrajectoryCarAgentParams")

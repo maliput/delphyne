@@ -17,6 +17,7 @@ from delphyne.bindings import (
     MaliputRailcarParams,
     MaliputRailcarState,
     MobilCarAgentParams,
+    RailCarAgentParams2,
     RailCarAgentParams
 )
 from delphyne.launcher import Launcher
@@ -149,7 +150,7 @@ def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
     start_params = MaliputRailcarParams()
     start_params.r = 0
     start_params.h = 0
-    agent_params = RailCarAgentParams(lane_direction, start_params)
+    agent_params = RailCarAgentParams2(lane_direction, start_params)
     simulator.AddLoadableAgent("rail-car",
                                str(robot_id),
                                railcar_state,

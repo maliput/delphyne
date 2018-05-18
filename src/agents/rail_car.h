@@ -42,8 +42,42 @@ class RailCarAgentParams final : public delphyne::AgentPluginParams {
  private:
   std::unique_ptr<drake::automotive::LaneDirection> lane_direction_;
 
-  std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>
-      start_params_;
+  std::unique_ptr<drake::automotive::MaliputRailcarParams<double>> start_params_;
+};
+
+/// This class models the required extra parameters to create a railcar.
+class RailCarAgentParams2 final : public delphyne::AgentPluginParams {
+ public:
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarAgentParams2)
+
+  /// Default constructor.
+  ///
+  /// @param[in] initial_lane_direction The initial lane direction of travel.
+  ///
+  /// @param[in] start_params The parameters that the car will use as a start
+  /// state. See MaliputRailcarParams in Drake.
+  RailCarAgentParams2(
+      std::unique_ptr<drake::automotive::LaneDirection> lane_direction,
+      drake::automotive::MaliputRailcarParams<double>&
+          start_params)
+      : lane_direction_(std::move(lane_direction)),
+        start_params_(start_params) {}
+
+  /// Returns the initial lane travel direction.
+  const drake::automotive::LaneDirection* get_raw_lane_direction() const {
+    return lane_direction_.get();
+  }
+
+  /// Returns the initial car start parameters.
+  const drake::automotive::MaliputRailcarParams<double>* get_raw_start_params()
+      const {
+    return &start_params_;
+  }
+
+ private:
+  std::unique_ptr<drake::automotive::LaneDirection> lane_direction_;
+
+  drake::automotive::MaliputRailcarParams<double>& start_params_;
 };
 
 }  // namespace delphyne

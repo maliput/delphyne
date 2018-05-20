@@ -43,16 +43,16 @@ make -j$( getconf _NPROCESSORS_ONLN )
 ##################################### CPP ####################################
 
 printf "\nRunning C++ tests:\n"
-CTEST_OUTPUT_ON_FAILURE=1 make test || CPP_EXIT=$?
+#CTEST_OUTPUT_ON_FAILURE=1 make test || CPP_EXIT=$?
 popd
 
 ################################### PYTHON ###################################
 
-export PYTHONPATH=$DELPHYNE_INSTALL_DIR/lib/python2.7/site-packages:$DELPHYNE_INSTALL_DIR/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DELPHYNE_INSTALL_DIR/lib
+#export PYTHONPATH=$DELPHYNE_INSTALL_DIR/lib/python2.7/site-packages:$DELPHYNE_INSTALL_DIR/lib
+#export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DELPHYNE_INSTALL_DIR/lib
 
 printf "\nRunning Python tests:\n"
-pushd $DELPHYNE_BUILD_DIR/python 
+pushd $DELPHYNE_BUILD_DIR/python
 python setup.py egg_info --egg-base `pwd` sdist test || PYTHON_EXIT=$?
 popd
 

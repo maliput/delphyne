@@ -24,4 +24,3 @@ endmacro()
 delphyne_add_agent_test_library(simple_agent)
 delphyne_add_agent_test_library(auto_diff_agent)
 delphyne_add_agent_test_library(symbolic_agent)
-

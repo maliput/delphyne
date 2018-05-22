@@ -1,46 +1,45 @@
-// Copyright 2017 Toyota Research Institute
+/**
+ * @file src/agents/trajectory_agent.cc
+ *
+ * Copyright 2017 Toyota Research Institute
+ */
+/*****************************************************************************
+** Includes
+*****************************************************************************/
 
-//#include <cmath>
-//#include <iostream>
-//#include <map>
-//#include <memory>
-//#include <string>
+#include "agents/trajectory_agent.h"
 
-#include <ignition/common/Console.hh>
-#include <ignition/common/PluginMacros.hh>
+#include <string>
 
-#include "drake/automotive/agent_trajectory.h"
-#include "drake/automotive/prius_vis.h"
+#include <drake/automotive/agent_trajectory.h>
+#include <drake/automotive/prius_vis.h>
 
-#include <backend/ign_publisher_system.h>
-#include <backend/translation_systems/drake_simple_car_state_to_ign.h>
-#include <trajectory_follower.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 
-#include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
+#include "backend/ign_publisher_system.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
+#include "systems/trajectory_follower.h"
+
+/*****************************************************************************
+** Namespaces
+*****************************************************************************/
 
 namespace delphyne {
 
-/**
- * @brief Trajectory following agents
- *
- * @TODO(daniel.stonier) add agent type (for visualisation purpose only)
- */
-class TrajectoryAgent : public delphyne::AgentPlugin {
+/*****************************************************************************
+** Implementation
+*****************************************************************************/
 
-public:
- DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryAgent)
-
- TrajectoryAgent() : trajectory_follower_system_() {
+TrajectoryAgent::TrajectoryAgent() : trajectory_follower_system_() {
    igndbg << "TrajectoryAgent constructor" << std::endl;
  }
 
- int Configure(const std::string& name, const int& id,
-               const std::map<std::string, linb::any>& parameters,
+int TrajectoryAgent::Configure(const std::string& name, const int& id,
                drake::systems::DiagramBuilder<double>* builder,
                drake::systems::rendering::PoseAggregator<double>* aggregator,
                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-     override {
+{
    igndbg << "TrajectoryAgent configure" << std::endl;
 
    /*********************
@@ -52,15 +51,15 @@ public:
    /*********************
     * Parameters
     *********************/
-   std::vector<double> times2 =
-       linb::any_cast<std::vector<double>>(
-           parameters.at("times"));
-   std::vector<double> headings =
-       linb::any_cast<std::vector<double>>(
-           parameters.at("headings"));
-   std::vector<std::vector<double>> translations_from_parameters =
-       linb::any_cast<std::vector<std::vector<double>>>(
-           parameters.at("translations"));
+//   std::vector<double> times2 =
+//       linb::any_cast<std::vector<double>>(
+//           parameters.at("times"));
+//   std::vector<double> headings =
+//       linb::any_cast<std::vector<double>>(
+//           parameters.at("headings"));
+//   std::vector<std::vector<double>> translations_from_parameters =
+//       linb::any_cast<std::vector<std::vector<double>>>(
+//           parameters.at("translations"));
 
    // ABORT ABORT ABORT!
    // The above works, but it will be much cleaner to provide python bindings
@@ -137,27 +136,19 @@ public:
    return 0;
  }
 
- int Initialize(drake::systems::Context<double>* context) override {
+int TrajectoryAgent::Initialize(drake::systems::Context<double>* context) {
    igndbg << "TrajectoryAgent initialize" << std::endl;
-
    return 0;
  }
 
- drake::systems::System<double>* get_system() const { return trajectory_follower_system_; }
+drake::systems::System<double>* TrajectoryAgent::get_system() const
+{
+  return trajectory_follower_system_;
+}
 
-private:
- drake::automotive::TrajectoryFollower<double>* trajectory_follower_system_;
-};
-
-class TrajectoryAgentFactory final : public delphyne::AgentPluginFactory {
- public:
-  std::unique_ptr<delphyne::AgentPluginBase<double>> Create() {
-    return std::make_unique<TrajectoryAgent>();
-  }
-};
+/*****************************************************************************
+** Trailers
+*****************************************************************************/
 
 }  // namespace delphyne
-
-IGN_COMMON_REGISTER_SINGLE_PLUGIN(delphyne::TrajectoryAgentFactory,
-                                  delphyne::AgentPluginFactory)
 

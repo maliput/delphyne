@@ -1,5 +1,6 @@
-
-################################## Macro #####################################
+##############################################################################
+# Macros
+##############################################################################
 
 macro(delphyne_add_agent_library name)
   add_library(${name} ${name}.cc)
@@ -8,7 +9,7 @@ macro(delphyne_add_agent_library name)
   target_link_libraries(
     ${name}
     PRIVATE
-      drake_agents
+      drake_systems
       drake::drake
       Eigen3::Eigen
       ignition-common2::ignition-common2
@@ -18,10 +19,55 @@ macro(delphyne_add_agent_library name)
           DESTINATION ${CMAKE_INSTALL_LIBDIR}/delphyne/agents)
 endmacro()
 
-################################## Agents ####################################
+##############################################################################
+# Agents
+##############################################################################
 
 delphyne_add_agent_library(rail_car)
 delphyne_add_agent_library(mobil_car)
 delphyne_add_agent_library(simple_car)
-delphyne_add_agent_library(trajectory_agent)
+#delphyne_add_agent_library(trajectory_agent)
 
+##############################################################################
+# Agents
+##############################################################################
+
+add_library(agents
+  trajectory_agent.cc
+)
+set_target_properties(agents PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-agents)
+
+target_link_libraries(
+  agents
+  PUBLIC
+    public_headers
+    drake_systems
+    drake::drake
+    Eigen3::Eigen
+)
+install(TARGETS agents
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)
+
+##############################################################################
+# Bindings
+##############################################################################
+
+pybind11_add_module(agent_bindings bindings.cc)
+
+#set_target_properties(agent_bindings PROPERTIES OUTPUT_NAME lib${PROJECT_NAME}-agent-bindings)
+
+target_link_libraries(agent_bindings
+  PRIVATE
+    agents
+    pybind11::module
+    ${PYTHON_LIBRARIES}
+)
+
+install(TARGETS agent_bindings
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+)

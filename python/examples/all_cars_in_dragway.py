@@ -19,11 +19,15 @@ from delphyne.bindings import (
     RoadBuilder,
     SimulatorRunner
 )
+
+from delphyne.agents import (
+    add_trajectory_agent
+)
+
 from delphyne.simulation_utils import (
     add_simple_car,
     add_maliput_railcar,
     add_mobil_car,
-    add_trajectory_agent,
     launch_interactive_simulation
 )
 
@@ -74,6 +78,15 @@ def main():
         [ 60.0, 0.0, 0.0],
         [100.0, 0.0, 0.0]
     ]
+    print("DUde")
+    print("DUde")
+    print("DUde")
+    print("DUde")
+    print("DUde")
+    print("DUde")
+    print("DUde")
+    print("DUde")
+    print("DUde")
     add_trajectory_agent(simulator,
                          car_id,
                          dragway,

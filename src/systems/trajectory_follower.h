@@ -12,8 +12,6 @@
 #include "drake/systems/rendering/frame_velocity.h"
 #include "drake/systems/rendering/pose_vector.h"
 
-//#include "systems/agent_trajectory.h"
-
 namespace drake {
 namespace automotive {
 

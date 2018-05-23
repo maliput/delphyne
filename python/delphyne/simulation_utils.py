@@ -191,29 +191,9 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, translation
     An example translations argument:
         translation = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    print("Instantiating a trajectory agent")
-    trajectory_agent = TrajectoryAgent(str(robot_id))
-#    trajectory_agent = TrajectoryAgent(str(robot_id),
-#                                       times,
-#                                       headings,
-#                                       translations
-#                                       )
-    print("Instantiated!")
-    # Initial State
-#     unused_initial_state = SimpleCarState()
-#
-#     # Parameters
-#     parameters = {
-#         "road": Any(road),
-#         "times": Any(times),
-#         "headings": Any(headings),
-#         "translations": Any(translations)
-#     }
-#
-#     # Instantiate
+    trajectory_agent = TrajectoryAgent(str(robot_id),
+                                       times,
+                                       headings,
+                                       translations
+                                       )
     simulator.AddAgent(trajectory_agent)
-#     simulator.AddLoadableAgent("trajectory-agent",
-#                                parameters,
-#                                str(robot_id),
-#                                unused_initial_state
-#                                )

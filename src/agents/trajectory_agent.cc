@@ -34,10 +34,34 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-TrajectoryAgent::TrajectoryAgent(const std::string& name)
-    : delphyne::Agent(name), trajectory_follower_system_() {
-  std::cout << "Trajectory Agent Constructor" << std::endl;
+// TODO(daniel.stonier) convert this to accepting a Trajectory class instead
+TrajectoryAgent::TrajectoryAgent(
+    const std::string& name, const std::vector<double>& times,
+    const std::vector<double>& headings,
+    const std::vector<std::vector<double>>& translations)
+    : delphyne::Agent(name), trajectory_(), trajectory_follower_system_() {
   igndbg << "TrajectoryAgent constructor" << std::endl;
+  Eigen::Quaternion<double> zero_heading(
+      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
+
+  std::vector<Eigen::Quaternion<double>> eigen_orientations;
+  for (const double& heading : headings) {
+    Eigen::Quaternion<double> orientation(
+        Eigen::AngleAxis<double>(heading, Eigen::Vector3d::UnitZ()));
+    eigen_orientations.push_back(orientation);
+  }
+  std::vector<Eigen::Vector3d> eigen_translations;
+  for (const std::vector<double>& translation : translations) {
+    // TODO(daniel.stonier) assert on size 3, but we'll instead be switching to
+    // accepting trajectories here, do it later
+    Eigen::Vector3d eigen_translation;
+    eigen_translation << translation[0], translation[1], translation[2];
+    eigen_translations.push_back(eigen_translation);
+  }
+
+  trajectory_ = std::make_unique<drake::automotive::AgentTrajectory>(
+      drake::automotive::AgentTrajectory::Make(times, eigen_orientations,
+                                               eigen_translations));
 }
 
 int TrajectoryAgent::Configure(
@@ -68,29 +92,16 @@ int TrajectoryAgent::Configure(
   // to helper functions outside this that create a trajectory and then
   // pass in AgentTrajectory as one of the parameters. Otherwise trajectory
   // making will be constrained to whatever this class is capable of
-  /*********************
-   * Trajectory
-   *********************/
-  std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
-  Eigen::Quaternion<double> zero_heading(
-      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
-  std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
-  double y = -5.55;
-  std::vector<Eigen::Vector3d> translations{
-      Eigen::Vector3d(0.0, y, 0.0), Eigen::Vector3d(10.0, y, 0.0),
-      Eigen::Vector3d(30.0, y, 0.0), Eigen::Vector3d(60.0, y, 0.0),
-      Eigen::Vector3d(100.0, y, 0.0)};
-  drake::automotive::AgentTrajectory trajectory =
-      drake::automotive::AgentTrajectory::Make(times, orientations,
-                                               translations);
 
   /*********************
    * Instantiate System
    *********************/
+  // TODO(daniel.stonier) have this sample on update events from the simulation
+  // than arbitrarily choosing it's own update rate.
   double sampling_time = 0.01;
   std::unique_ptr<drake::automotive::TrajectoryFollower<double>> system =
       std::make_unique<drake::automotive::TrajectoryFollower<double>>(
-          trajectory, sampling_time);
+          *trajectory_, sampling_time);
   system->set_name(name_);
   trajectory_follower_system_ =
       builder

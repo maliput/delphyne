@@ -36,7 +36,9 @@ PYBIND11_MODULE(agents, m) {
 
   //  py::class_<delphyne::TrajectoryAgent, delphyne::AgentBase<double>>(
   py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(m, "TrajectoryAgent")
-      .def(py::init<const std::string&>());
+      .def(py::init<const std::string&, const std::vector<double>&,
+                    const std::vector<double>&,
+                    const std::vector<std::vector<double>>&>());
 }
 
 /*****************************************************************************

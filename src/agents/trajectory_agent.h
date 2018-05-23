@@ -14,6 +14,7 @@
  ** Includes
  *****************************************************************************/
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,8 +44,6 @@ namespace delphyne {
  */
 class TrajectoryAgent : public delphyne::Agent {
  public:
-  explicit TrajectoryAgent(const std::string& name);
-
   // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
   TrajectoryAgent(const std::string& name, const std::vector<double>& times,
                   const std::vector<double>& headings,
@@ -60,6 +59,7 @@ class TrajectoryAgent : public delphyne::Agent {
   drake::systems::System<double>* get_system() const;
 
  private:
+  std::unique_ptr<drake::automotive::AgentTrajectory> trajectory_;
   drake::automotive::TrajectoryFollower<double>* trajectory_follower_system_;
 };
 

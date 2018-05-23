@@ -17,7 +17,7 @@ from delphyne.bindings import (
     AutomotiveSimulator,
     MaliputRailcarState,
     MaliputRailcarParams,
-    RailCarAgentParams,
+    PythonAgentPluginParams,
     RoadBuilder,
     SimulatorRunner
 )
@@ -44,7 +44,9 @@ def setup_railcar(simulator, name, road, lane):
     start_params.r = 0
     start_params.h = 0
 
-    agent_params = RailCarAgentParams(lane_direction, start_params)
+    agent_params = PythonAgentPluginParams()
+    agent_params.put("lane_direction", lane_direction)
+    agent_params.put("start_params", start_params)
 
     simulator.AddLoadableAgent("rail-car",
                                name,

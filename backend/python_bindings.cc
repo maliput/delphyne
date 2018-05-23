@@ -30,9 +30,7 @@ using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
 using delphyne::AgentPluginParams;
-using delphyne::RailCarAgentParams;
-using delphyne::TrajectoryCarAgentParams;
-using delphyne::MobilCarAgentParams;
+using delphyne::PythonAgentPluginParams;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;
@@ -46,17 +44,20 @@ PYBIND11_MODULE(python_bindings, m) {
 
   py::class_<AgentPluginParams>(m, "AgentPluginParams");
 
-  py::class_<RailCarAgentParams, AgentPluginParams>(m, "RailCarAgentParams")
-      .def(py::init<
-           std::unique_ptr<drake::automotive::LaneDirection>,
-           std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>>());
-
-  py::class_<TrajectoryCarAgentParams, AgentPluginParams>(
-      m, "TrajectoryCarAgentParams")
-      .def(py::init<std::unique_ptr<drake::automotive::Curve2<double>>>());
-
-  py::class_<MobilCarAgentParams, AgentPluginParams>(m, "MobilCarAgentParams")
-      .def(py::init<bool>());
+  // Create the required overloads on PythonAgentPluginParams so it is properly
+  // exposed to python. To be as generic as possible (and avoid creating a new
+  // overload for each new class we need to support), we define a generic void*
+  // overload, where most python objects will fall into. We then create
+  // overloaded versions for some primitive types (bool, int, etc).
+  py::class_<PythonAgentPluginParams>(m, "PythonAgentPluginParams")
+      .def(py::init<>())
+      .def("put", py::overload_cast<const std::string&, void*>(
+                      &PythonAgentPluginParams::put<void*>),
+           py::keep_alive<1, 3>())
+      .def("put", py::overload_cast<const std::string&, bool>(
+                      &PythonAgentPluginParams::put<bool>))
+      .def("put", py::overload_cast<const std::string&, int>(
+                      &PythonAgentPluginParams::put<int>));
 
   py::class_<MaliputRailcarState<double>, BasicVector<double>>(
       m, "MaliputRailcarState")
@@ -135,14 +136,23 @@ PYBIND11_MODULE(python_bindings, m) {
            py::overload_cast<
                const std::string&, const std::string&,
                std::unique_ptr<drake::systems::BasicVector<double>>,
+               const RoadGeometry*, const PythonAgentPluginParams*>(
+               &AutomotiveSimulator<double>::AddLoadableAgent),
+           py::keep_alive<1, 6>())
+      .def("AddLoadableAgent",
+           py::overload_cast<
+               const std::string&, const std::string&,
+               std::unique_ptr<drake::systems::BasicVector<double>>,
                const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent))
+               &AutomotiveSimulator<double>::AddLoadableAgent),
+           py::keep_alive<1, 6>())
       .def("AddLoadableAgent",
            py::overload_cast<
                const std::string&, const std::string&, const std::string&,
                std::unique_ptr<drake::systems::BasicVector<double>>,
                const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent));
+               &AutomotiveSimulator<double>::AddLoadableAgent),
+           py::keep_alive<1, 7>());
 }
 
 }  // namespace

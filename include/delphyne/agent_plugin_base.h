@@ -19,6 +19,7 @@
 
 #include "./types.h"
 #include "backend/system.h"
+#include "include/delphyne/linb-any"
 
 namespace delphyne {
 
@@ -30,6 +31,51 @@ namespace delphyne {
 class AgentPluginParams {
  public:
   virtual ~AgentPluginParams() {}
+};
+
+/// This class provides a way to pass agent parameters in a generic way. However
+/// this class is only meant to be used *to pass parameters from python to C++*.
+/// On the C++ side of things, programmers should define a specific
+/// AgentPluginParams subclass and use that class to create agents.
+class PythonAgentPluginParams {
+ public:
+  /// Store a new object as a key-value pair. We assume that T will be
+  /// instantiated to either a pass-by-copy object (int, bool, etc) or as a
+  /// void pointer.
+  /// TODO(basicNew): Actually enforce this restriction.
+  ///
+  /// @param[in] key The name to give to that object
+  ///
+  /// @param[in] value The object to store
+  template <typename T>
+  void put(const std::string& key, T value) {
+    values_[key] = linb::any(value);
+  }
+
+  /// Returns an object at a given key. This function is defined only if T is
+  /// a pointer type. If so, we cast it to void* first an then do a static_cast
+  /// to the actual type.
+  ///
+  /// @param[in] key The name to give to that object
+  template <typename T>
+  typename std::enable_if<std::is_pointer<T>::value, T>::type at(
+      const std::string& key) const {
+    return static_cast<T>(linb::any_cast<void*>(values_.at(key)));
+  }
+
+  /// Returns an object at a given key. This function is defined only if T is
+  /// not a pointer type. If so, we just ask the any lib to cast it to the
+  /// expected type.
+  ///
+  /// @param[in] key The name to give to that object
+  template <typename T>
+  typename std::enable_if<!std::is_pointer<T>::value, T>::type at(
+      const std::string& key) const {
+    return linb::any_cast<T>(values_.at(key));
+  }
+
+ private:
+  std::map<std::string, linb::any> values_;
 };
 
 /// The abstract class that all plugins must inherit from.  Concrete
@@ -44,6 +90,15 @@ template <typename T>
 class AgentPluginBase {
  public:
   virtual ~AgentPluginBase() {}
+
+  /// Converts from a generic python parameter to the parameter class defined
+  /// for this plugin. By default it returns an empty `AgentPluginParams`, but
+  /// any subclass that defines its custom AgentPluginParams subclass should
+  /// define this method too.
+  virtual std::unique_ptr<AgentPluginParams> ParamsFromPython(
+      const PythonAgentPluginParams* python_parameters) {
+    return std::make_unique<AgentPluginParams>();
+  }
 
   /// The `Configure` method is the main way that loadable agents get the
   /// information that they need to insert themselves into an automotive
@@ -77,14 +132,14 @@ class AgentPluginBase {
   virtual drake::systems::System<T>* get_system() const = 0;
 
  protected:
-  /// Performs a parameter downcast to the concrete agent params class.
-  /// Throws an exception if the provided parameter is not of the expected
-  /// class.
+  // Performs a parameter downcast to the concrete agent params class.
+  // Throws an exception if the provided parameter is not of the expected
+  // class.
   template <typename ConcreteAgentPluginParams,
             typename std::enable_if<std::is_base_of<
                 AgentPluginParams, ConcreteAgentPluginParams>::value>::type* =
                 nullptr>
-  static std::unique_ptr<ConcreteAgentPluginParams> downcast_params(
+  std::unique_ptr<ConcreteAgentPluginParams> downcast_params(
       std::unique_ptr<AgentPluginParams> base_params) {
     DELPHYNE_DEMAND(base_params.get() != nullptr);
 

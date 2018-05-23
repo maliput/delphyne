@@ -9,6 +9,9 @@ find_package(PythonInterp QUIET)
 # Macros
 ##############################################################################
 
+# TODO(daniel.stonier) do we need python/pybind11 here?
+include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
+
 macro(delphyne_build_tests)
   # Build all the tests
   foreach(GTEST_SOURCE_file ${ARGN})

@@ -50,24 +50,3 @@ install(TARGETS agents
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
-
-##############################################################################
-# Bindings
-##############################################################################
-
-pybind11_add_module(agent_bindings bindings.cc)
-
-#set_target_properties(agent_bindings PROPERTIES OUTPUT_NAME lib${PROJECT_NAME}-agent-bindings)
-
-target_link_libraries(agent_bindings
-  PRIVATE
-    agents
-    pybind11::module
-    ${PYTHON_LIBRARIES}
-)
-
-install(TARGETS agent_bindings
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)

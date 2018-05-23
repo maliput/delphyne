@@ -1,5 +1,5 @@
 /**
- * @file /delphyne/src/agents/bindings.cc
+ * @file /delphyne/python/bindings/agents.cc
  *
  * Copyright 2017 Toyota Research Institute
  */
@@ -25,13 +25,13 @@ namespace {
 ** Implementation
 *****************************************************************************/
 
-PYBIND11_MODULE(agent_bindings, m) {
+PYBIND11_MODULE(agents, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
 
   py::class_<delphyne::TrajectoryAgent>(
       m, "TrajectoryAgent")
-      .def(py::init<>());
+      .def(py::init<const std::string&>());
 }
 
 /*****************************************************************************

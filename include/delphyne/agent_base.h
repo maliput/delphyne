@@ -25,6 +25,7 @@ namespace delphyne {
 template <typename T>
 class AgentBase {
  public:
+  AgentBase(const std::string& name) : id_(0), name_(name) {}
   virtual ~AgentBase() {}
 
   /// The `Configure` method is the main way that loadable agents get the
@@ -41,7 +42,7 @@ class AgentBase {
   /// the loadable agent to connect internal methods into the overall Diagram
   /// that the automotive simulator is building.
   virtual int Configure(
-      const std::string& name, const int& id,
+      const int& id,
       drake::systems::DiagramBuilder<T>* builder,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
       drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
@@ -49,8 +50,8 @@ class AgentBase {
   /// The Initialize method is called right before the simualtion starts.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
-  const std::string& get_name() { return name_; }
-  const int& get_id() { return id_; }
+  const std::string& name() { return name_; }
+  const int& id() { return id_; }
 
   virtual drake::systems::System<T>* get_system() const = 0;
 

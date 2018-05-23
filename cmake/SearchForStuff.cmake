@@ -74,22 +74,3 @@ else()
   link_directories(${LCM_LIBRARY_DIRS})
 endif()
 
-##########################################
-# Pin down python2.7 and find pybind
-find_package(PythonLibs 2.7)
-if (NOT PythonLibs_FOUND)
-  BUILD_ERROR("Missing: PythonLibs")
-endif()
-
-if(NOT PYBIND11_PYTHON_VERSION)
-  set(PYBIND11_PYTHON_VERSION "2.7" CACHE STRING "Python version to use for compiling modules")
-endif()
-find_package(pybind11)
-if (NOT pybind11_FOUND)
-  BUILD_ERROR("Missing: pybind11")
-endif()
-
-# TODO(mikaelarguedas) uncomment this once we switch to python3
-# if (NOT PYTHON_MODULE_EXTENSION MATCHES "cpython")
-#   BUILD_ERROR("pybind didn't find a cpython interpreter: ${PYTHON_MODULE_EXTENSION}")
-# endif()

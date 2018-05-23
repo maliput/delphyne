@@ -133,6 +133,7 @@ delphyne_install_includes(
 # ----------------------------------------
 # Python bindings.
 #
+include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 pybind11_add_module(python_bindings python_bindings.cc)
 
 target_link_libraries(python_bindings

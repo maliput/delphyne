@@ -48,12 +48,15 @@ popd
 
 ################################### PYTHON ###################################
 
-export PYTHONPATH=$DELPHYNE_INSTALL_DIR/lib/python2.7/site-packages:$DELPHYNE_INSTALL_DIR/lib
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DELPHYNE_INSTALL_DIR/lib
+export PYTHONPATH=$DELPHYNE_INSTALL_DIR/lib/python2.7/site-packages
+export PYTHONPATH=$PYTHONPATH:$DELPHYNE_SOURCE_DIR/python:$DELPHYNE_BUILD_DIR/backend
+export DELPHYNE_AGENT_PLUGIN_PATH=$DELPHYNE_BUILD_DIR/src/agents
 
 printf "\nRunning Python tests:\n"
-# TODO(apojomovsky): replace this by `python setup.py test` after #290 is set up.
-python -m unittest discover ${SCRIPT_DIR}/regression/python "*_test.py" || PYTHON_EXIT=$?
+
+pushd $DELPHYNE_BUILD_DIR/python
+python setup.py egg_info --egg-base `pwd` sdist test || PYTHON_EXIT=$?
+popd
 
 ################################### RESULT ###################################
 # Output results and consolidate exit result to 0, 1.

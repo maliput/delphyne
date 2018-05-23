@@ -31,12 +31,12 @@ PYBIND11_MODULE(agents, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
 
-  //  py::class_<delphyne::AgentBase<double>>(
-      //      m, "Agent");
+  py::class_<delphyne::Agent>(
+      m, "AgentBase");
       //.def(py::init<const std::string&>());
 
 //  py::class_<delphyne::TrajectoryAgent, delphyne::AgentBase<double>>(
-  py::class_<delphyne::TrajectoryAgent>(
+  py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(
       m, "TrajectoryAgent")
       .def(py::init<const std::string&>());
 }

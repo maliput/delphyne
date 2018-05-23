@@ -51,8 +51,8 @@ def main():
     simple_car_position_x = 0.0
     simple_car_position_y = 1.5*3.7
     car_id = 0
-    add_simple_car(simulator, car_id, simple_car_position_x,
-                   simple_car_position_y)
+    #add_simple_car(simulator, car_id, simple_car_position_x,
+    #               simple_car_position_y)
 
     mobil_car_position_x = 0.0
     mobil_car_position_y = -0.5*3.7
@@ -63,7 +63,7 @@ def main():
     railcar_s = 0.0
     railcar_speed = 3.0
     car_id += 1
-    add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
+    #add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
 
     car_id += 1
     times =    [ 0.0, 5.0, 10.0, 15.0, 20.0 ]

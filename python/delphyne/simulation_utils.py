@@ -193,6 +193,11 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, translation
     """
     print("Instantiating a trajectory agent")
     trajectory_agent = TrajectoryAgent(str(robot_id))
+#    trajectory_agent = TrajectoryAgent(str(robot_id),
+#                                       times,
+#                                       headings,
+#                                       translations
+#                                       )
     print("Instantiated!")
     # Initial State
 #     unused_initial_state = SimpleCarState()
@@ -206,6 +211,7 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, translation
 #     }
 #
 #     # Instantiate
+    simulator.AddAgent(trajectory_agent)
 #     simulator.AddLoadableAgent("trajectory-agent",
 #                                parameters,
 #                                str(robot_id),

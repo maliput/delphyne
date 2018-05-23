@@ -36,6 +36,7 @@ TrajectoryAgent::TrajectoryAgent(const std::string& name) :
     delphyne::Agent(name),
     trajectory_follower_system_()
 {
+  std::cout << "Trajectory Agent Constructor" << std::endl;
   igndbg << "TrajectoryAgent constructor" << std::endl;
 }
 
@@ -116,7 +117,7 @@ int TrajectoryAgent::Configure(
 
   // And then the translated ignition car state is published.
   builder->Connect(*agent_state_translator, *agent_state_publisher);
-
+  std::cout << "Finished" << std::endl;
   return 0;
 }
 

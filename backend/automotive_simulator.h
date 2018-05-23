@@ -32,13 +32,16 @@
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
+// public headers
+#include "delphyne/agent_base.h"
+#include "delphyne/agent_plugin_base.h"
+
+// private headers
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
 #include "backend/system.h"
-
-#include "include/delphyne/agent_plugin_base.h"
 
 namespace delphyne {
 
@@ -100,6 +103,8 @@ class AutomotiveSimulator {
       const std::string& plugin_library_name, const std::string& agent_name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
       const drake::maliput::api::RoadGeometry* road);
+
+  int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -244,7 +249,8 @@ class AutomotiveSimulator {
   int unique_system_id_{0};
 
   // Maps an agent id to a pointer to the system that implements the agent.
-  std::map<int, std::unique_ptr<delphyne::AgentPluginBase<T>>> agents_;
+  std::map<int, std::unique_ptr<delphyne::AgentPluginBase<T>>> loadable_agents_;
+  std::map<int, std::unique_ptr<delphyne::AgentBase<T>>> agents_;
 
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};

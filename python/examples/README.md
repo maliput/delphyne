@@ -37,11 +37,18 @@ $ ./keyboard_controlled_simulation.py
 
 <`q`> will stop the simulation and quit the demo.
 
-<h1 id="railcar_in_multilane">railcar_in_multilane</h1>
+<h1 id="maliput_racing_circuit">maliput_racing_circuit</h1>
 
 
-An example of a couple of railcars running around in a closed-loop maliput
-road.
+An example of three railcars and a variable number of MOBIL controlled car
+running in a closed-loop maliput road.
+
+In order to run the demo with a number of MOBIL cars different to three, a number
+between 0 and 6 can be passed as an argument. For example:
+
+```
+maliput_racing_circuit.py --num-cars=2
+```
 
 <h1 id="realtime_rate_changer">realtime_rate_changer</h1>
 
@@ -88,14 +95,14 @@ Load a monolane file:
 
 ```
 $ road_loading.py monolane
---filename='./install/share/delphyne/road_samples/double_ring.yaml'
+--filename='./install/share/delphyne/roads/double_ring.yaml'
 ```
 
 Load a multilane file:
 
 ```
 $ road_loading.py multilane
---filename='./install/share/delphyne/road_samples/multilane_sample.yaml'
+--filename='./install/share/delphyne/roads/circuit.yaml'
 ```
 
 

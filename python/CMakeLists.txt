@@ -30,7 +30,7 @@ install(
   PROGRAMS
     examples/all_cars_in_dragway.py
     examples/keyboard_controlled_simulation.py
-    examples/railcar_in_multilane.py
+    examples/maliput_racing_circuit.py
     examples/realtime_rate_changer.py
     examples/road_loading.py
     examples/simple_python_binding.py

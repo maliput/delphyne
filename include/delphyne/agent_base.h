@@ -25,7 +25,7 @@ namespace delphyne {
 template <typename T>
 class AgentBase {
  public:
-  AgentBase(const std::string& name) : id_(0), name_(name) {}
+  explicit AgentBase(const std::string& name) : id_(0), name_(name) {}
   virtual ~AgentBase() = default;
 
   /// The `Configure` method is the main way that loadable agents get the

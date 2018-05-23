@@ -9,7 +9,10 @@
 
 #include "agents/trajectory_agent.h"
 
+#include <memory>
 #include <string>
+#include <utility>
+#include <vector>
 
 #include <drake/automotive/agent_trajectory.h>
 #include <drake/automotive/prius_vis.h>

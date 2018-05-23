@@ -15,6 +15,7 @@
  *****************************************************************************/
 
 #include <string>
+#include <vector>
 
 #include <drake/automotive/car_vis_applicator.h>
 #include <drake/systems/framework/diagram_builder.h>
@@ -42,7 +43,7 @@ namespace delphyne {
  */
 class TrajectoryAgent : public delphyne::Agent {
  public:
-  TrajectoryAgent(const std::string& name);
+  explicit TrajectoryAgent(const std::string& name);
 
   // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
   TrajectoryAgent(const std::string& name, const std::vector<double>& times,

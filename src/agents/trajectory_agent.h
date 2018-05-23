@@ -29,8 +29,7 @@
  ** Namespaces
  *****************************************************************************/
 
-namespace delphyne
-{
+namespace delphyne {
 
 /*****************************************************************************
  ** Interfaces
@@ -41,30 +40,25 @@ namespace delphyne
  *
  * @TODO(daniel.stonier) add agent type (for visualisation purpose only)
  */
-class TrajectoryAgent : public delphyne::Agent
-{
-
-public:
+class TrajectoryAgent : public delphyne::Agent {
+ public:
   TrajectoryAgent(const std::string& name);
 
   // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
-  TrajectoryAgent(const std::string& name,
-                  const std::vector<double>& times,
+  TrajectoryAgent(const std::string& name, const std::vector<double>& times,
                   const std::vector<double>& headings,
-                  const std::vector<std::vector<double>>& translations
-                  );
+                  const std::vector<std::vector<double>>& translations);
 
-  int Configure(const int& id,
-                drake::systems::DiagramBuilder<double>* builder,
-                drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator
-                ) override;
+  int Configure(
+      const int& id, drake::systems::DiagramBuilder<double>* builder,
+      drake::systems::rendering::PoseAggregator<double>* aggregator,
+      drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
   int Initialize(drake::systems::Context<double>* context) override;
 
   drake::systems::System<double>* get_system() const;
 
-private:
+ private:
   drake::automotive::TrajectoryFollower<double>* trajectory_follower_system_;
 };
 
@@ -72,6 +66,6 @@ private:
  ** Trailers
  *****************************************************************************/
 
-} // namespace delphyne
+}  // namespace delphyne
 
 #endif /* delphyne_AGENTS_TRAJECTORY_AGENT_H_ */

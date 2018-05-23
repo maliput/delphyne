@@ -42,8 +42,7 @@ class AgentBase {
   /// the loadable agent to connect internal methods into the overall Diagram
   /// that the automotive simulator is building.
   virtual int Configure(
-      const int& id,
-      drake::systems::DiagramBuilder<T>* builder,
+      const int& id, drake::systems::DiagramBuilder<T>* builder,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
       drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
 

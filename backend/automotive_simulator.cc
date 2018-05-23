@@ -120,8 +120,8 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 // into a shared method.
 
 template <typename T>
-int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent)
-{
+int AutomotiveSimulator<T>::AddAgent(
+    std::unique_ptr<delphyne::AgentBase<T>> agent) {
   /*********************
    * Checks
    *********************/
@@ -134,18 +134,16 @@ int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<delphyne::AgentBase<T>> age
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id,
-                       builder_.get(),
-                       aggregator_,
-                       car_vis_applicator_) < 0) {
+  if (agent->Configure(id, builder_.get(), aggregator_, car_vis_applicator_) <
+      0) {
     std::cout << "Oops" << std::endl;
     return -1;
   }
   agents_[id] = std::move(agent);
-//  if(plugin_library_name != "trajectory-agent") {
-//    loadable_agent_initial_states_[id] =
-//        std::move(initial_state);  // store in the agent itself?
-//  }
+  //  if(plugin_library_name != "trajectory-agent") {
+  //    loadable_agent_initial_states_[id] =
+  //        std::move(initial_state);  // store in the agent itself?
+  //  }
   return id;
 }
 
@@ -207,7 +205,7 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
     return -1;
   }
   loadable_agents_[id] = std::move(agent);
-  if(plugin_library_name != "trajectory-agent") {
+  if (plugin_library_name != "trajectory-agent") {
     loadable_agent_initial_states_[id] =
         std::move(initial_state);  // store in the agent itself?
   }
@@ -382,7 +380,8 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
     int id = pair.first;
     const drake::systems::BasicVector<T>* initial_state = pair.second.get();
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *(loadable_agents_[id]->get_system()), &simulator_->get_mutable_context());
+        *(loadable_agents_[id]->get_system()),
+        &simulator_->get_mutable_context());
 
     drake::systems::VectorBase<T>& context_state =
         context.get_mutable_continuous_state().get_mutable_vector();

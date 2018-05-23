@@ -55,7 +55,7 @@ class TrajectoryFollower final : public systems::LeafSystem<T> {
   /// @param sampling_time_sec the requested sampling time (in sec) for this
   /// system.  @default 0.01.
   TrajectoryFollower(const AgentTrajectory& trajectory,
-                   double sampling_time_sec = 0.01);
+                     double sampling_time_sec = 0.01);
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>

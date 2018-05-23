@@ -11,9 +11,8 @@ using systems::rendering::FrameVelocity;
 using systems::rendering::PoseVector;
 
 template <typename T>
-TrajectoryFollower<T>::TrajectoryFollower(
-    const AgentTrajectory& trajectory,
-    double sampling_time_sec)
+TrajectoryFollower<T>::TrajectoryFollower(const AgentTrajectory& trajectory,
+                                          double sampling_time_sec)
     : systems::LeafSystem<T>(
           systems::SystemTypeTag<automotive::TrajectoryFollower>{}),
       trajectory_(trajectory) {
@@ -36,7 +35,7 @@ void TrajectoryFollower<T>::CalcStateOutput(
 
 template <typename T>
 void TrajectoryFollower<T>::CalcPoseOutput(const systems::Context<T>& context,
-                                        PoseVector<T>* pose) const {
+                                           PoseVector<T>* pose) const {
   const PoseVelocity values = GetValues(context);
   pose->set_translation(Eigen::Translation<T, 3>{values.translation()});
   const Eigen::Quaternion<double>& q =
@@ -45,8 +44,8 @@ void TrajectoryFollower<T>::CalcPoseOutput(const systems::Context<T>& context,
 }
 
 template <typename T>
-void TrajectoryFollower<T>::CalcVelocityOutput(const systems::Context<T>& context,
-                                            FrameVelocity<T>* velocity) const {
+void TrajectoryFollower<T>::CalcVelocityOutput(
+    const systems::Context<T>& context, FrameVelocity<T>* velocity) const {
   const PoseVelocity values = GetValues(context);
   const Eigen::Vector3d& v = values.velocity().translational();
   const Eigen::Vector3d& w = values.velocity().rotational();

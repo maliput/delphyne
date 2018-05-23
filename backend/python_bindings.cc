@@ -127,10 +127,10 @@ PYBIND11_MODULE(python_bindings, m) {
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
       .def("AddAgent", &AutomotiveSimulator<double>::AddAgent)
-//      .def("AddAgent",
-//           py::overload_cast<
-//               std::unique_ptr<delphyne::AgentBase<double>>>(
-//               &AutomotiveSimulator<double>::AddAgent))
+      //      .def("AddAgent",
+      //           py::overload_cast<
+      //               std::unique_ptr<delphyne::AgentBase<double>>>(
+      //               &AutomotiveSimulator<double>::AddAgent))
       .def("AddLoadableAgent",
            py::overload_cast<
                const std::string&, const std::string&,

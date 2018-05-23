@@ -95,11 +95,37 @@ class AutomotiveSimulator {
       const drake::maliput::api::RoadGeometry* road,
       std::unique_ptr<AgentPluginParams> parameters);
 
-  /// A handy overload in case the plugin doesn't require any extra parameters.
+  /// An handy overload for the case that the plugin doesn't require any extra
+  /// parameters.
   int AddLoadableAgent(
       const std::string& plugin_library_name, const std::string& agent_name,
       std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
       const drake::maliput::api::RoadGeometry* road);
+
+  /// Adds a Vehicle to this simulation from a loadable module.
+  ///
+  /// *Important*: This overloaded version of the method is intended to be used
+  /// by the python-binding machinery. Developers should use the
+  /// AddLoadableAgent methods as defined above, as those provide safe memory
+  /// management to the agent parameters.
+  int AddLoadableAgent(
+      const std::string& plugin_library_name, const std::string& plugin_name,
+      const std::string& agent_name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+      const drake::maliput::api::RoadGeometry* road,
+      const PythonAgentPluginParams* python_parameters);
+
+  /// Adds a Vehicle to this simulation from a loadable module.
+  ///
+  /// *Important*: This overloaded version of the method is intended to be used
+  /// by the python-binding machinery. Developers should use the
+  /// AddLoadableAgent methods as defined above, as those provide safe memory
+  /// management to the agent parameters.
+  int AddLoadableAgent(
+      const std::string& plugin_library_name, const std::string& agent_name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+      const drake::maliput::api::RoadGeometry* road,
+      const PythonAgentPluginParams* python_parameters);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -173,6 +199,11 @@ class AutomotiveSimulator {
   // The rate at which the scene is published over ign-transport to update the
   // scene tree widget tree.
   const double kScenePublishPeriodMs = 250.0;
+
+  // Loads an agent given a library name. If there are more than one agent in
+  // the library, the plugin name has to be specified.
+  std::unique_ptr<delphyne::AgentPluginBase<T>> LoadAgentPlugin(
+      const std::string& plugin_library_name, const std::string& plugin_name);
 
   // Verifies that the provided `name` of an agent is unique among all agents
   // that have been added to the `AutomotiveSimulator`. Throws a

@@ -43,6 +43,23 @@ class RailCar final : public delphyne::AgentPlugin {
     igndbg << "RailCar constructor" << std::endl;
   }
 
+  std::unique_ptr<AgentPluginParams> ParamsFromPython(
+      const PythonAgentPluginParams* python_parameters) override {
+    auto lane_direction =
+        python_parameters->at<drake::automotive::LaneDirection*>(
+            "lane_direction");
+    auto lane_direction_ptr =
+        std::unique_ptr<drake::automotive::LaneDirection>(lane_direction);
+    auto start_params =
+        python_parameters->at<drake::automotive::MaliputRailcarParams<double>*>(
+            "start_params");
+    auto start_params_ptr =
+        std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>(
+            start_params);
+    return std::make_unique<RailCarAgentParams>(std::move(lane_direction_ptr),
+                                                std::move(start_params_ptr));
+  }
+
   int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,

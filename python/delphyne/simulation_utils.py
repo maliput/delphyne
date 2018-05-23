@@ -16,8 +16,7 @@ from delphyne.bindings import (
     AutomotiveSimulator,
     MaliputRailcarParams,
     MaliputRailcarState,
-    MobilCarAgentParams,
-    RailCarAgentParams
+    PythonAgentPluginParams,
 )
 from delphyne.launcher import Launcher
 from pydrake.automotive import (
@@ -126,7 +125,8 @@ def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
     mobil_car_state = SimpleCarState()
     mobil_car_state.set_x(position_x)
     mobil_car_state.set_y(position_y)
-    agent_params = MobilCarAgentParams(True)
+    agent_params = PythonAgentPluginParams()
+    agent_params.put("initial_with_s_", True)
     # Instantiates a Loadable MOBIL Car.
     simulator.AddLoadableAgent("mobil-car",
                                str(robot_id),
@@ -149,7 +149,9 @@ def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
     start_params = MaliputRailcarParams()
     start_params.r = 0
     start_params.h = 0
-    agent_params = RailCarAgentParams(lane_direction, start_params)
+    agent_params = PythonAgentPluginParams()
+    agent_params.put("lane_direction", lane_direction)
+    agent_params.put("start_params", start_params)
     simulator.AddLoadableAgent("rail-car",
                                str(robot_id),
                                railcar_state,

@@ -157,12 +157,9 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   /*********************
    * Load Agent Plugin
    *********************/
-  std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
-  if (plugin_name.empty()) {
-    agent = delphyne::LoadPlugin<T>(plugin_library_name);
-  } else {
-    agent = delphyne::LoadPlugin<T>(plugin_library_name, plugin_name);
-  }
+  std::unique_ptr<delphyne::AgentPluginBase<T>> agent =
+      LoadAgentPlugin(plugin_library_name, plugin_name);
+
   if (agent == nullptr) {
     return -1;
   }
@@ -180,6 +177,80 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
   loadable_agent_initial_states_[id] =
       std::move(initial_state);  // store in the agent itself?
   return id;
+}
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableAgent(
+    const std::string& plugin_library_name, const std::string& agent_name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+    const drake::maliput::api::RoadGeometry* road,
+    const PythonAgentPluginParams* python_parameters) {
+  return AddLoadableAgent(plugin_library_name, "", agent_name,
+                          std::move(initial_state), road, python_parameters);
+}
+
+template <typename T>
+int AutomotiveSimulator<T>::AddLoadableAgent(
+    const std::string& plugin_library_name, const std::string& plugin_name,
+    const std::string& agent_name,
+    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+    const drake::maliput::api::RoadGeometry* road,
+    const PythonAgentPluginParams* python_parameters) {
+  /*********************
+   * Checks
+   *********************/
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
+  CheckNameUniqueness(agent_name);
+
+  /*********************
+   * Load Agent Plugin
+   *********************/
+  std::unique_ptr<delphyne::AgentPluginBase<T>> agent =
+      LoadAgentPlugin(plugin_library_name, plugin_name);
+
+  if (agent == nullptr) {
+    return -1;
+  }
+
+  std::unique_ptr<AgentPluginParams> parameters =
+      agent->ParamsFromPython(python_parameters);
+
+  /*********************
+   * Configure Agent
+   *********************/
+  int id = unique_system_id_++;
+
+  if (agent->Configure(agent_name, id, builder_.get(), aggregator_,
+                       car_vis_applicator_, road, std::move(parameters)) < 0) {
+    return -1;
+  }
+  agents_[id] = std::move(agent);
+  loadable_agent_initial_states_[id] =
+      std::move(initial_state);  // store in the agent itself?
+  return id;
+}
+
+template <typename T>
+std::unique_ptr<delphyne::AgentPluginBase<T>>
+AutomotiveSimulator<T>::LoadAgentPlugin(const std::string& plugin_library_name,
+                                        const std::string& plugin_name) {
+  /*********************
+   * Checks
+   *********************/
+  DELPHYNE_DEMAND(!has_started());
+
+  /*********************
+   * Load Agent Plugin
+   *********************/
+  std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
+  if (plugin_name.empty()) {
+    agent = delphyne::LoadPlugin<T>(plugin_library_name);
+  } else {
+    agent = delphyne::LoadPlugin<T>(plugin_library_name, plugin_name);
+  }
+
+  return std::move(agent);
 }
 
 template <typename T>

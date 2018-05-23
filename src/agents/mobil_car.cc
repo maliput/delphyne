@@ -36,6 +36,12 @@ class MobilCar final : public delphyne::AgentPlugin {
 
   MobilCar() : simple_car_() { igndbg << "MobilCar constructor" << std::endl; }
 
+  std::unique_ptr<AgentPluginParams> ParamsFromPython(
+      const PythonAgentPluginParams* python_parameters) override {
+    bool initial_with_s_ = python_parameters->at<bool>("initial_with_s_");
+    return std::make_unique<MobilCarAgentParams>(initial_with_s_);
+  }
+
   int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,

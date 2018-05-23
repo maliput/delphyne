@@ -13,10 +13,11 @@ import time
 
 from contextlib import contextmanager
 from delphyne.bindings import (
-    Any,
     AutomotiveSimulator,
     MaliputRailcarParams,
-    MaliputRailcarState
+    MaliputRailcarState,
+    MobilCarAgentParams,
+    RailCarAgentParams
 )
 from delphyne.launcher import Launcher
 from pydrake.automotive import (
@@ -114,7 +115,7 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
     simple_car_state.set_y(position_y)
     # Instantiates a Loadable Simple Car
     simulator.AddLoadableAgent(
-        "simple-car", {}, str(robot_id), simple_car_state)
+        "simple-car", str(robot_id), simple_car_state, None)
 
 
 def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
@@ -125,13 +126,13 @@ def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
     mobil_car_state = SimpleCarState()
     mobil_car_state.set_x(position_x)
     mobil_car_state.set_y(position_y)
-    mobil_params = {
-        "initial_with_s": Any(True),
-        "road": Any(road)
-    }
+    agent_params = MobilCarAgentParams(True)
     # Instantiates a Loadable MOBIL Car.
-    simulator.AddLoadableAgent(
-        "mobil-car", mobil_params, str(robot_id), mobil_car_state)
+    simulator.AddLoadableAgent("mobil-car",
+                               str(robot_id),
+                               mobil_car_state,
+                               road,
+                               agent_params)
 
 
 def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
@@ -141,21 +142,16 @@ def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
     # Defines the lane that will be used by the dragway car.
     lane = road.junction(0).segment(0).lane(1)
     # Creates the initial car state for the Railcar.
-    maliput_car_state = MaliputRailcarState()
-    maliput_car_state.s = s_coordinate
-    maliput_car_state.speed = speed
+    railcar_state = MaliputRailcarState()
+    railcar_state.s = s_coordinate
+    railcar_state.speed = speed
     lane_direction = LaneDirection(lane, True)
     start_params = MaliputRailcarParams()
     start_params.r = 0
     start_params.h = 0
-    railcar_params = {
-        "road": Any(road),
-        "initial_with_s": Any(True),
-        "lane_direction": Any(lane_direction),
-        "start_params": Any(start_params)
-    }
-    # Instantiates a Loadable Rail Car.
+    agent_params = RailCarAgentParams(lane_direction, start_params)
     simulator.AddLoadableAgent("rail-car",
-                               railcar_params,
                                str(robot_id),
-                               maliput_car_state)
+                               railcar_state,
+                               road,
+                               agent_params)

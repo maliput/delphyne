@@ -16,7 +16,10 @@
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
-#include "../include/delphyne/linb-any"
+#include "include/delphyne/agent_plugin_base.h"
+#include "src/agents/mobil_car.h"
+#include "src/agents/rail_car.h"
+#include "src/agents/trajectory_car.h"
 
 namespace py = pybind11;
 
@@ -26,6 +29,10 @@ using delphyne::AutomotiveSimulator;
 using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
+using delphyne::AgentPluginParams;
+using delphyne::RailCarAgentParams;
+using delphyne::TrajectoryCarAgentParams;
+using delphyne::MobilCarAgentParams;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;
@@ -36,6 +43,20 @@ namespace {
 PYBIND11_MODULE(python_bindings, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
+
+  py::class_<AgentPluginParams>(m, "AgentPluginParams");
+
+  py::class_<RailCarAgentParams, AgentPluginParams>(m, "RailCarAgentParams")
+      .def(py::init<
+           std::unique_ptr<drake::automotive::LaneDirection>,
+           std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>>());
+
+  py::class_<TrajectoryCarAgentParams, AgentPluginParams>(
+      m, "TrajectoryCarAgentParams")
+      .def(py::init<std::unique_ptr<drake::automotive::Curve2<double>>>());
+
+  py::class_<MobilCarAgentParams, AgentPluginParams>(m, "MobilCarAgentParams")
+      .def(py::init<bool>());
 
   py::class_<MaliputRailcarState<double>, BasicVector<double>>(
       m, "MaliputRailcarState")
@@ -57,22 +78,6 @@ PYBIND11_MODULE(python_bindings, m) {
       .def_property("velocity_limit_kp",
                     &MaliputRailcarParams<double>::velocity_limit_kp,
                     &MaliputRailcarParams<double>::set_velocity_limit_kp);
-
-  // TODO(basicNew): Properly fill this binding with the remaining methods and
-  // overloaded constructors.
-  // Note: Since we are using linb::any in combination with bare pointers to
-  // pass generic parameters to the loadable agents module, we have to make
-  // sure python doesn't garbage collect temp objects while they are being
-  // used on the C++ side, hence the `py::keep_alive`. See
-  // http://pybind11.readthedocs.io/en/stable/advanced/functions.html#keep-alive
-  py::class_<linb::any>(m, "Any")
-      .def(py::init<bool&&>())
-      // Keep alive, ownership: `self` keeps `RoadGeometry` alive.
-      .def(py::init<const RoadGeometry*&&>(), py::keep_alive<1, 2>())
-      // Keep alive, ownership: `self` keeps `LaneDirection` alive.
-      .def(py::init<LaneDirection*&&>(), py::keep_alive<1, 2>())
-      // Keep alive, ownership: `self` keeps `MaliputRailcarParams` alive.
-      .def(py::init<MaliputRailcarParams<double>*&&>(), py::keep_alive<1, 2>());
 
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
       .def(py::init<>())
@@ -116,31 +121,28 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("AddMonolaneFromFile", &RoadBuilder<double>::AddMonolaneFromFile)
       .def("AddMultilaneFromFile", &RoadBuilder<double>::AddMultilaneFromFile);
 
-  // Note: Since AddLoadableAgent uses a map of (string, linb::any) in
-  // combination with bare pointers to pass generic parameters, we have to make
-  // sure python doesn't garbage collect temp objects while they are being
-  // used on the C++ side, hence the `py::keep_alive`. See
-  // http://pybind11.readthedocs.io/en/stable/advanced/functions.html#keep-alive
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
       .def("AddLoadableAgent",
            py::overload_cast<
-               const std::string&, const std::map<std::string, linb::any>&,
-               const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent),
-           py::keep_alive<1, 3>())  // Keep alive, ownership: `self` keeps
-                                    // `parameters` alive.
+               const std::string&, const std::string&,
+               std::unique_ptr<drake::systems::BasicVector<double>>,
+               const RoadGeometry*>(
+               &AutomotiveSimulator<double>::AddLoadableAgent))
       .def("AddLoadableAgent",
            py::overload_cast<
                const std::string&, const std::string&,
-               const std::map<std::string, linb::any>&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent),
-           py::keep_alive<1, 3>());  // Keep alive, ownership: `self` keeps
-                                     // `parameters` alive.
+               std::unique_ptr<drake::systems::BasicVector<double>>,
+               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
+               &AutomotiveSimulator<double>::AddLoadableAgent))
+      .def("AddLoadableAgent",
+           py::overload_cast<
+               const std::string&, const std::string&, const std::string&,
+               std::unique_ptr<drake::systems::BasicVector<double>>,
+               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
+               &AutomotiveSimulator<double>::AddLoadableAgent));
 }
 
 }  // namespace

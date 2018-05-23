@@ -11,20 +11,20 @@
 #include "drake/systems/framework/diagram_builder.h"
 #include "drake/systems/rendering/pose_aggregator.h"
 
-#include "../../../../include/delphyne/agent_plugin_base.h"
-#include "../../../../include/delphyne/linb-any"
+#include "include/delphyne/agent_plugin_base.h"
 
 // An example class that derives from the AgentPluginDoubleBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing
 // except for return success for all method calls.
 class SimpleAgent final : public delphyne::AgentPlugin {
  public:
-  int Configure(const std::string& name, const int& id,
-                const std::map<std::string, linb::any>& parameters,
-                drake::systems::DiagramBuilder<double>* builder,
-                drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+  int Configure(
+      const std::string& name, int id,
+      drake::systems::DiagramBuilder<double>* builder,
+      drake::systems::rendering::PoseAggregator<double>* aggregator,
+      drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<delphyne::AgentPluginParams> parameters) override {
     return 0;
   }
 

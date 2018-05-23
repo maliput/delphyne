@@ -12,6 +12,14 @@
 #include "drake/automotive/gen/simple_car_state.h"
 #include "drake/automotive/gen/simple_car_state_translator.h"
 #include "drake/automotive/prius_vis.h"
+#include "drake/common/eigen_types.h"
+#include "drake/math/saturate.h"
+#include "drake/systems/framework/leaf_system.h"
+#include "drake/systems/framework/system_constraint.h"
+#include "drake/systems/rendering/frame_velocity.h"
+#include "drake/systems/rendering/pose_vector.h"
+
+#include "include/delphyne/agent_plugin_base.h"
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -23,9 +31,6 @@
 
 #include "systems/simple_car.h"
 
-#include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
-
 namespace delphyne {
 
 class SimpleCar final : public delphyne::AgentPlugin {
@@ -36,12 +41,12 @@ class SimpleCar final : public delphyne::AgentPlugin {
     igndbg << "SimpleCar constructor" << std::endl;
   }
 
-  int Configure(const std::string& name, const int& id,
-                const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+                drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+                const drake::maliput::api::RoadGeometry* road,
+                std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "SimpleCar configure" << std::endl;
 
     /*********************

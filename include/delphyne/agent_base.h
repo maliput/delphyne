@@ -26,7 +26,7 @@ template <typename T>
 class AgentBase {
  public:
   AgentBase(const std::string& name) : id_(0), name_(name) {}
-  virtual ~AgentBase() {}
+  virtual ~AgentBase() = default;
 
   /// The `Configure` method is the main way that loadable agents get the
   /// information that they need to insert themselves into an automotive

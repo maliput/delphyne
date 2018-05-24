@@ -12,6 +12,9 @@ mkdir -p install
 
 pushd workspace/drake
 COMMIT_DATE="$(git log -n 1 --pretty='format:%cd' --date=format:'%Y%m%d')"
+# Since the binary build starts at 2am, we need to add one day to
+# the commit day in order to get a binary that actually includes it.
+COMMIT_DATE=$(date +%Y%m%d -d "$COMMIT_DATE + 1 day")
 popd
 
 BINARY_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-YYYYMMDD-xenial.tar.gz"

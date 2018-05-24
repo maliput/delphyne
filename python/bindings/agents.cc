@@ -35,18 +35,13 @@ PYBIND11_MODULE(agents, m) {
   py::class_<delphyne::Agent>(m, "AgentBase");
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
-      .def(py::init<
-           const std::string&,
-           const double&,
-           const double&,
-           const double&,
-           const double&>());
+      .def(py::init<const std::string&, const double&, const double&,
+                    const double&, const double&>());
 
   py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(m, "TrajectoryAgent")
-      .def(py::init<
-           const std::string&, const std::vector<double>&,
-           const std::vector<double>&,
-           const std::vector<std::vector<double>>&>());
+      .def(py::init<const std::string&, const std::vector<double>&,
+                    const std::vector<double>&,
+                    const std::vector<std::vector<double>>&>());
 }
 
 /*****************************************************************************

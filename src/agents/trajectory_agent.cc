@@ -61,7 +61,7 @@ TrajectoryAgent::TrajectoryAgent(
 
   trajectory_ = std::make_unique<drake::automotive::Trajectory>(
       drake::automotive::Trajectory::Make(times, eigen_orientations,
-                                               eigen_translations));
+                                          eigen_translations));
 }
 
 int TrajectoryAgent::Configure(

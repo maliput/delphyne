@@ -395,12 +395,12 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
 
 template <typename T>
 void AutomotiveSimulator<T>::InitializeAgents() {
-  // TODO(daniel.stonier) this is a bad smell, agents may be composed of more than
+  // TODO(daniel.stonier) this is a bad smell, agents may be composed of more
+  // than
   // one system. More likely what we need to do is pass it diagram_.
   for (const auto& pair : agents_) {
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *(pair.second->get_system()),
-        &simulator_->get_mutable_context());
+        *(pair.second->get_system()), &simulator_->get_mutable_context());
     pair.second->Initialize(&context);
   }
 }

@@ -182,10 +182,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   const double kHeading{M_PI_2};
   const double kVelocity{4.5};
 
-  auto agent = std::make_unique<delphyne::SimpleCar>("bob",
-                                                     kX, kY,
-                                                     kHeading,
-                                                     kVelocity);
+  auto agent =
+      std::make_unique<delphyne::SimpleCar>("bob", kX, kY, kHeading, kVelocity);
   const int id = simulator->AddAgent(std::move(agent));
   EXPECT_EQ(id, 0);
 
@@ -310,34 +308,28 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 
 // Simulate a trajectory agent
 TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
-
   //  std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
-//  Eigen::Quaternion<double> zero_heading(
-//      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
-//  std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
-//  std::vector<Eigen::Vector3d> translations{
-//      Eigen::Vector3d(0.0, 0.00, 0.00), Eigen::Vector3d(10.0, 0.00, 0.00),
-//      Eigen::Vector3d(30.0, 0.00, 0.00), Eigen::Vector3d(60.0, 0.00, 0.00),
-//      Eigen::Vector3d(100.0, 0.00, 0.00)};
-//  drake::automotive::AgentTrajectory trajectory =
-//      drake::automotive::AgentTrajectory::Make(times, orientations,
-//                                               translations);
+  //  Eigen::Quaternion<double> zero_heading(
+  //      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
+  //  std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
+  //  std::vector<Eigen::Vector3d> translations{
+  //      Eigen::Vector3d(0.0, 0.00, 0.00), Eigen::Vector3d(10.0, 0.00, 0.00),
+  //      Eigen::Vector3d(30.0, 0.00, 0.00), Eigen::Vector3d(60.0, 0.00, 0.00),
+  //      Eigen::Vector3d(100.0, 0.00, 0.00)};
+  //  drake::automotive::AgentTrajectory trajectory =
+  //      drake::automotive::AgentTrajectory::Make(times, orientations,
+  //                                               translations);
   const double kPoseXTolerance{1e-6};
   const double kTolerance{1e-8};
 
   std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
   std::vector<double> headings(5, 0.0);
   std::vector<std::vector<double>> translations{
-    {  0.0, 0.0, 0.0},
-    { 10.0, 0.0, 0.0},
-    { 30.0, 0.0, 0.0},
-    { 60.0, 0.0, 0.0},
-    {100.0, 0.0, 0.0},
+      {0.0, 0.0, 0.0},  {10.0, 0.0, 0.0},  {30.0, 0.0, 0.0},
+      {60.0, 0.0, 0.0}, {100.0, 0.0, 0.0},
   };
   std::unique_ptr<delphyne::TrajectoryAgent> alice =
-      std::make_unique<delphyne::TrajectoryAgent>("alice",
-                                                  times,
-                                                  headings,
+      std::make_unique<delphyne::TrajectoryAgent>("alice", times, headings,
                                                   translations);
 
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
@@ -367,12 +359,11 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   // Simulate for 10 seconds...as fast as possible
   for (int i = 0; i < 1000; ++i) {
     simulator->StepBy(0.01);
-    //std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
   // Plus one to include the world.
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 1 +
-  1;
+  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 1 + 1;
 
   // Minus one to omit world, which remains still.
   EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
@@ -389,16 +380,15 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
 
   EXPECT_NEAR(link.pose().position().x(),
               // PriusVis<double>::kVisOffset + 30.00,
-              // ... doesn't exactly work because the trajectory agent is splining it's way along?
-              31.369480133056641,
-              kPoseXTolerance);
+              // ... doesn't exactly work because the trajectory agent is
+              // splining it's way along?
+              31.369480133056641, kPoseXTolerance);
   EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
   EXPECT_NEAR(link.pose().position().z(), 0.37832599878311157, kTolerance);
   EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
   EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
   EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
   EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
-
 }
 
 // Checks the message has the expected link count and includes the
@@ -550,8 +540,10 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
 TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  auto agent1 = std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
-  auto agent2 = std::make_unique<delphyne::SimpleCar>("Model2", 0.0, 0.0, 0.0, 0.0);
+  auto agent1 =
+      std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
+  auto agent2 =
+      std::make_unique<delphyne::SimpleCar>("Model2", 0.0, 0.0, 0.0, 0.0);
   simulator->AddAgent(std::move(agent1));
   simulator->AddAgent(std::move(agent2));
 
@@ -633,8 +625,10 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  auto agent1 = std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
-  auto agent2 = std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
+  auto agent1 =
+      std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
+  auto agent2 =
+      std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
   EXPECT_NO_THROW(simulator->AddAgent(std::move(agent1)));
   EXPECT_THROW(simulator->AddAgent(std::move(agent2)), std::runtime_error);
 
@@ -754,8 +748,10 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 TEST_F(AutomotiveSimulatorTest, TestBuild) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  auto agent1 = std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
-  auto agent2 = std::make_unique<delphyne::SimpleCar>("Model2", 0.0, 0.0, 0.0, 0.0);
+  auto agent1 =
+      std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
+  auto agent2 =
+      std::make_unique<delphyne::SimpleCar>("Model2", 0.0, 0.0, 0.0, 0.0);
   simulator->AddAgent(std::move(agent1));
   simulator->AddAgent(std::move(agent2));
 
@@ -772,8 +768,10 @@ TEST_F(AutomotiveSimulatorTest, TestBuild) {
 TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
-  auto agent1 = std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
-  auto agent2 = std::make_unique<delphyne::SimpleCar>("Model2", 0.0, 0.0, 0.0, 0.0);
+  auto agent1 =
+      std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
+  auto agent2 =
+      std::make_unique<delphyne::SimpleCar>("Model2", 0.0, 0.0, 0.0, 0.0);
   simulator->AddAgent(std::move(agent1));
   simulator->AddAgent(std::move(agent2));
 
@@ -782,7 +780,7 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
 }
 
 //// Tests that AddLoadableAgent basically works.
-//TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentBasic) {
+// TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentBasic) {
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //  auto state = std::make_unique<SimpleCarState<double>>();
 //  ASSERT_EQ(0, simulator->AddLoadableAgent("simple-car", "my_test_model",
@@ -790,7 +788,7 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
 //}
 //
 //// Tests that AddLoadableAgent returns -1 when unable to find plugin.
-//TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentNonExistent) {
+// TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentNonExistent) {
 //  const int kErrorReturnCode{-1};
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //  auto state = std::make_unique<SimpleCarState<double>>();

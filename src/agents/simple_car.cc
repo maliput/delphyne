@@ -10,11 +10,11 @@
 #include "agents/simple_car.h"
 
 #include <string>
+#include <utility>
 
-//#include "drake/automotive/gen/simple_car_params.h"
+#include <drake/automotive/prius_vis.h>
 #include "drake/automotive/gen/simple_car_state.h"
 #include "drake/automotive/gen/simple_car_state_translator.h"
-#include <drake/automotive/prius_vis.h>
 
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
@@ -31,13 +31,9 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-SimpleCar::SimpleCar(const std::string& name,
-                    const double& x,
-                    const double& y,
-                    const double& heading,
-                    const double& velocity
-                    )
-  : delphyne::Agent(name), simple_car_state_(), simple_car_system_() {
+SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
+                     const double& heading, const double& velocity)
+    : delphyne::Agent(name), simple_car_state_(), simple_car_system_() {
   igndbg << "SimpleCar constructor" << std::endl;
   simple_car_state_ = std::make_unique<SimpleCarState>();
   simple_car_state_->set_x(x);
@@ -93,7 +89,8 @@ int SimpleCar::Configure(
   // agents, reuse?
   auto ports = aggregator->AddSinglePoseAndVelocityInput(name_, id);
   builder->Connect(simple_car_system_->pose_output(), ports.pose_descriptor);
-  builder->Connect(simple_car_system_->velocity_output(), ports.velocity_descriptor);
+  builder->Connect(simple_car_system_->velocity_output(),
+                   ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
 
@@ -140,4 +137,3 @@ drake::systems::System<double>* SimpleCar::get_system() const {
  *****************************************************************************/
 
 }  // namespace delphyne
-

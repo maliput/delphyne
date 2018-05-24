@@ -1,5 +1,7 @@
 /**
  * @file /delphyne/src/agents/simple_car.h
+ *
+ * Copyright 2017 Toyota Research Institute
  */
 /*****************************************************************************
 ** Ifdefs
@@ -41,12 +43,8 @@ namespace delphyne {
  */
 class SimpleCar : public delphyne::Agent {
  public:
-  SimpleCar(const std::string& name,
-            const double& x,
-            const double& y,
-            const double& heading,
-            const double& velocity
-            );
+  SimpleCar(const std::string& name, const double& x, const double& y,
+            const double& heading, const double& velocity);
   int Configure(
       const int& id, drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
@@ -67,6 +65,6 @@ class SimpleCar : public delphyne::Agent {
 ** Trailers
 *****************************************************************************/
 
-} // namespace delphyne
+}  // namespace delphyne
 
 #endif /* delphyne_AGENTS_SIMPLE_CAR_H_ */

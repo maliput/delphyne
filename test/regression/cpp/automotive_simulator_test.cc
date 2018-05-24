@@ -22,11 +22,10 @@
 #include "drake/systems/framework/diagram_context.h"
 #include "drake/systems/rendering/pose_bundle.h"
 
+#include "src/agents/mobil_car.h"
+#include "src/agents/rail_car.h"
 #include "delphyne/protobuf/simple_car_state.pb.h"
 #include "test/test_config.h"
-
-#include "agents/mobil_car.h"
-#include "agents/rail_car.h"
 
 using drake::automotive::PriusVis;
 using drake::automotive::Curve2;

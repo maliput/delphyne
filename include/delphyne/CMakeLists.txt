@@ -25,7 +25,6 @@ install(
   FILES
     agent_base.h
     agent_plugin_base.h
-    linb-any
     types.h
   DESTINATION
     ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}

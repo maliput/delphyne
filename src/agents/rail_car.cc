@@ -1,10 +1,13 @@
 // Copyright 2017 Toyota Research Institute
 
+#include <algorithm>
 #include <cmath>
 #include <iostream>
+#include <limits>
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include <experimental/optional>
 
@@ -22,8 +25,8 @@
 
 #include "systems/maliput_railcar.h"
 
-#include "../../include/delphyne/agent_plugin_base.h"
-#include "../../include/delphyne/linb-any"
+#include "include/delphyne/agent_plugin_base.h"
+#include "src/agents/rail_car.h"
 
 namespace delphyne {
 
@@ -40,13 +43,18 @@ class RailCar final : public delphyne::AgentPlugin {
     igndbg << "RailCar constructor" << std::endl;
   }
 
-  int Configure(const std::string& name, const int& id,
-                const std::map<std::string, linb::any>& parameters,
+  int Configure(const std::string& name, int id,
                 drake::systems::DiagramBuilder<double>* builder,
                 drake::systems::rendering::PoseAggregator<double>* aggregator,
-                drake::automotive::CarVisApplicator<double>* car_vis_applicator)
-      override {
+                drake::automotive::CarVisApplicator<double>* car_vis_applicator,
+                const drake::maliput::api::RoadGeometry* road,
+                std::unique_ptr<AgentPluginParams> parameters) override {
     igndbg << "RailCar configure" << std::endl;
+
+    if (parameters.get() == nullptr) {
+      ignerr << "Agent parameters are not valid." << std::endl;
+      return -1;
+    }
 
     /*********************
      * Basics
@@ -57,41 +65,29 @@ class RailCar final : public delphyne::AgentPlugin {
     /*********************
      * Parse Parameters
      *********************/
-    auto initial_lane_direction =
-        linb::any_cast<drake::automotive::LaneDirection*>(
-            parameters.at("lane_direction"));
+    params_ = downcast_params<RailCarAgentParams>(std::move(parameters));
 
-    auto road = linb::any_cast<const drake::maliput::api::RoadGeometry*>(
-        parameters.at("road"));
+    const drake::automotive::LaneDirection* lane_direction =
+        params_->get_raw_lane_direction();
 
-    params_ = linb::any_cast<drake::automotive::MaliputRailcarParams<double>*>(
-        parameters.at("start_params"));
-
-    if (initial_lane_direction == nullptr) {
-      ignerr << "RailCar::Configure(): "
-                "initial_lane_direction is not set."
-             << std::endl;
-      return -1;
-    }
-
-    if (road == nullptr) {
-      ignerr << "RailCar::Configure(): "
-                "RoadGeometry not set. Please call SetRoadGeometry() first "
-                "before calling this method."
-             << std::endl;
-      return -1;
-    }
-    if (initial_lane_direction->lane == nullptr) {
+    if (lane_direction == nullptr || lane_direction->lane == nullptr) {
       ignerr << "RailCar::Configure(): "
                 "The provided initial lane is nullptr."
              << std::endl;
       return -1;
     }
-    if (initial_lane_direction->lane->segment()->junction()->road_geometry() !=
-        road) {
+
+    if (lane_direction->lane->segment()->junction()->road_geometry() != road) {
       ignerr << "RailCar::Configure(): "
                 "The provided initial lane is not within this simulation's "
                 "RoadGeometry."
+             << std::endl;
+      return -1;
+    }
+
+    if (params_->get_raw_start_params() == nullptr) {
+      ignerr << "RailCar::Configure(): "
+                "The provided start params is nullptr."
              << std::endl;
       return -1;
     }
@@ -101,7 +97,7 @@ class RailCar final : public delphyne::AgentPlugin {
      *********************/
     std::unique_ptr<drake::automotive::MaliputRailcar2<double>> system =
         std::make_unique<drake::automotive::MaliputRailcar2<double>>(
-            *initial_lane_direction);
+            *lane_direction);
     system->set_name(name);
     rail_car_ =
         builder->template AddSystem<drake::automotive::MaliputRailcar2<double>>(
@@ -112,7 +108,7 @@ class RailCar final : public delphyne::AgentPlugin {
      *********************/
     // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
     // agents, reuse?
-    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id_);
+    auto ports = aggregator->AddSinglePoseAndVelocityInput(name, id);
     builder->Connect(rail_car_->pose_output(), ports.pose_descriptor);
     builder->Connect(rail_car_->velocity_output(), ports.velocity_descriptor);
     car_vis_applicator->AddCarVis(
@@ -125,7 +121,8 @@ class RailCar final : public delphyne::AgentPlugin {
     igndbg << "RailCar initialize" << std::endl;
     drake::automotive::MaliputRailcarParams<double>& railcar_system_params =
         rail_car_->get_mutable_parameters(context);
-    railcar_system_params.set_value(params_->get_value());
+    railcar_system_params.set_value(
+        params_->get_raw_start_params()->get_value());
 
     return 0;
   }
@@ -133,7 +130,7 @@ class RailCar final : public delphyne::AgentPlugin {
   drake::systems::System<double>* get_system() const { return rail_car_; }
 
  private:
-  drake::automotive::MaliputRailcarParams<double>* params_;
+  std::unique_ptr<RailCarAgentParams> params_;
   drake::automotive::MaliputRailcar2<double>* rail_car_;
 };
 

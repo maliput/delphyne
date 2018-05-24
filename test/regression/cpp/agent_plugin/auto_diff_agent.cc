@@ -11,8 +11,7 @@
 #include "drake/systems/framework/diagram_builder.h"
 #include "drake/systems/rendering/pose_aggregator.h"
 
-#include "../../../../include/delphyne/agent_plugin_base.h"
-#include "../../../../include/delphyne/linb-any"
+#include "include/delphyne/agent_plugin_base.h"
 
 // An example class that derives from the AgentPluginAutoDiffXdBase (see
 // agent_plugin_base.h for more information).  This simple class does nothing
@@ -20,12 +19,13 @@
 class AutoDiffAgent final : public delphyne::AutoDiffAgentPlugin {
  public:
   int Configure(
-      const std::string& name, const int& id,
-      const std::map<std::string, linb::any>& parameters,
+      const std::string& name, int id,
       drake::systems::DiagramBuilder<delphyne::AutoDiff>* builder,
       drake::systems::rendering::PoseAggregator<delphyne::AutoDiff>* aggregator,
       drake::automotive::CarVisApplicator<delphyne::AutoDiff>*
-          car_vis_applicator) override {
+          car_vis_applicator,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<delphyne::AgentPluginParams> parameters) override {
     return 0;
   }
 

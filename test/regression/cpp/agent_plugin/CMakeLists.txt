@@ -14,7 +14,7 @@ macro(delphyne_add_agent_test_library name)
     PRIVATE
       drake::drake
       Eigen3::Eigen
-      ignition-common1::ignition-common1
+      ignition-common2::ignition-common2
       stx::stx
   )
 endmacro()
@@ -24,4 +24,3 @@ endmacro()
 delphyne_add_agent_test_library(simple_agent)
 delphyne_add_agent_test_library(auto_diff_agent)
 delphyne_add_agent_test_library(symbolic_agent)
-

@@ -1,7 +1,6 @@
 # Delphyne
 
-This is the repository for Delphyne. As of right now, the only supported
-platform is Ubuntu 16.04 amd64.
+This is the repository for Delphyne - a traffic level simulator for autonomous driving.
 
 # Documentation
 

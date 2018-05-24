@@ -38,8 +38,7 @@
 #include "backend/scene_system.h"
 #include "backend/system.h"
 
-#include "../include/delphyne/agent_plugin_base.h"
-#include "../include/delphyne/linb-any"
+#include "include/delphyne/agent_plugin_base.h"
 
 namespace delphyne {
 
@@ -55,8 +54,6 @@ namespace delphyne {
 template <typename T>
 class AutomotiveSimulator {
  public:
-  /// A constructor that configures this object to use DrakeLcm, which
-  /// encapsulates a _real_ LCM instance.
   AutomotiveSimulator();
 
   /// Returns the DiagramBuilder.
@@ -84,18 +81,25 @@ class AutomotiveSimulator {
   /// @return The ID of the agent that was just added to the simulation, or -1
   /// on error.
   int AddLoadableAgent(
-      const std::string& plugin_library_name,
-      const std::map<std::string, linb::any>& parameters,
-      const std::string& name,
-      std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
+      const std::string& plugin_library_name, const std::string& agent_name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<AgentPluginParams> parameters);
 
   /// Specify the exact plugin name if there should be more than one plugin
   /// in the plugin library.
   int AddLoadableAgent(
       const std::string& plugin_library_name, const std::string& plugin_name,
-      const std::map<std::string, linb::any>& parameters,
-      const std::string& name,
-      std::unique_ptr<drake::systems::BasicVector<T>> initial_state);
+      const std::string& agent_name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+      const drake::maliput::api::RoadGeometry* road,
+      std::unique_ptr<AgentPluginParams> parameters);
+
+  /// A handy overload in case the plugin doesn't require any extra parameters.
+  int AddLoadableAgent(
+      const std::string& plugin_library_name, const std::string& agent_name,
+      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
+      const drake::maliput::api::RoadGeometry* road);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -196,7 +200,6 @@ class AutomotiveSimulator {
   void InitializeLoadableAgents();
 
   // For both building and simulation.
-  std::unique_ptr<drake::lcm::DrakeLcmInterface> lcm_{};
   std::unique_ptr<const drake::maliput::api::RoadGeometry> road_{};
 
   // === Start for building. ===

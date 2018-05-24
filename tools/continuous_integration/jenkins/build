@@ -12,6 +12,9 @@ mkdir -p install
 
 pushd workspace/drake
 COMMIT_DATE="$(git log -n 1 --pretty='format:%cd' --date=format:'%Y%m%d')"
+# Since the binary build starts at 2am, we need to add one day to
+# the commit day in order to get a binary that actually includes it.
+COMMIT_DATE=$(date +%Y%m%d -d "$COMMIT_DATE + 1 day")
 popd
 
 BINARY_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-YYYYMMDD-xenial.tar.gz"
@@ -60,7 +63,7 @@ mkdir -p build
 
 pushd build
 
-for dep in ign_cmake ign_tools ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
+for dep in ign_cmake ign_tools ign_math ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
     mkdir -p $dep
     pushd $dep
     CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=../../install

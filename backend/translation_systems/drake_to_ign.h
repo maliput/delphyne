@@ -84,7 +84,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[in] position The position array
   // @param[out] ign_position The ignition position message.
   static void PositionArrayToIgnition(const float position[3],
-                                    ignition::msgs::Vector3d* ign_position) {
+                                      ignition::msgs::Vector3d* ign_position) {
     DELPHYNE_DEMAND(ign_position != nullptr);
 
     ign_position->set_x(position[0]);
@@ -98,8 +98,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[in] quaternion The orientation array.
   // @param[out] ign_quaternion The ign quaternion message.
   static void QuaternionArrayToIgnition(
-      const float quaternion[4],
-      ignition::msgs::Quaternion* ign_quaternion) {
+      const float quaternion[4], ignition::msgs::Quaternion* ign_quaternion) {
     DELPHYNE_DEMAND(ign_quaternion != nullptr);
 
     ign_quaternion->set_w(quaternion[0]);

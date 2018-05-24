@@ -203,6 +203,7 @@ class AutomotiveSimulator {
 
   // Initializes each of the agents that have been added to the simulation.
   void InitializeLoadableAgents();
+  void InitializeAgents();
 
   // For both building and simulation.
   std::unique_ptr<const drake::maliput::api::RoadGeometry> road_{};

@@ -27,6 +27,7 @@ from delphyne.bindings import (
     RailCarAgentParams
 )
 from delphyne.agents import (
+    SimpleCar,
     TrajectoryAgent
 )
 from delphyne.launcher import Launcher
@@ -122,15 +123,13 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
     """Instantiates a new Simple Prius Car
     and adds it to the simulation.
     """
-    # Initial State
-    simple_car_state = SimpleCarState()
-    simple_car_state.set_x(position_x)
-    simple_car_state.set_y(position_y)
-
-    # Instantiate
-    simulator.AddLoadableAgent(
-        "simple-car", str(robot_id), simple_car_state, None)
-
+    agent = SimpleCar(str(robot_id),
+                      position_x,
+                      position_y,
+                      0.0,
+                      0.0
+                      )
+    simulator.AddAgent(agent)
 
 def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
     """Instantiates a new MOBIL Car and adds
@@ -191,9 +190,9 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, translation
     An example translations argument:
         translation = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    trajectory_agent = TrajectoryAgent(str(robot_id),
-                                       times,
-                                       headings,
-                                       translations
-                                       )
-    simulator.AddAgent(trajectory_agent)
+    agent = TrajectoryAgent(str(robot_id),
+                            times,
+                            headings,
+                            translations
+                            )
+    simulator.AddAgent(agent)

@@ -25,14 +25,13 @@ endmacro()
 
 delphyne_add_agent_library(rail_car)
 delphyne_add_agent_library(mobil_car)
-delphyne_add_agent_library(simple_car)
-#delphyne_add_agent_library(trajectory_agent)
 
 ##############################################################################
 # Agents
 ##############################################################################
 
 add_library(agents
+  simple_car.cc
   trajectory_agent.cc
 )
 set_target_properties(agents PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-agents)

@@ -1,7 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
 #include "backend/simulation_runner.h"
-#include "delphyne/protobuf/world_stats.pb.h"
 
 #include <chrono>
 #include <condition_variable>
@@ -76,7 +75,7 @@ SimulatorRunner::SimulatorRunner(
 
   // Advertise the topic for publishing world stats.
   world_stats_pub_ =
-      node_.Advertise<ignition::msgs::WorldStatisticsD>(kWorldStatsTopic);
+      node_.Advertise<ignition::msgs::WorldStatistics>(kWorldStatsTopic);
 
   // Advertise the service for receiving scene requests from the frontend
   if (!node_.Advertise(kSceneRequestServiceName,
@@ -313,7 +312,7 @@ void SimulatorRunner::SendWorldStats() {
   // It's time to update the world stats!
   last_world_stats_update_ = now;
 
-  ignition::msgs::WorldStatisticsD msg;
+  ignition::msgs::WorldStatistics msg;
   msg.set_paused(paused_);
   msg.set_real_time_factor(stats_.get_current_realtime_rate());
 

@@ -15,7 +15,6 @@ set(PROTO_MESSAGES
   simulation_in_message.proto
   viewer_command.proto
   viewer2_comms.proto
-  world_stats.proto
 )
 
 protobuf_generate_cpp_with_descriptor(

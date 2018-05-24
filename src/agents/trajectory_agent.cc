@@ -14,15 +14,15 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/agent_trajectory.h>
 #include <drake/automotive/prius_vis.h>
+#include <drake/automotive/trajectory.h>
+#include <drake/automotive/trajectory_follower.h>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
 #include "backend/ign_publisher_system.h"
 #include "backend/translation_systems/drake_simple_car_state_to_ign.h"
-#include "systems/trajectory_follower.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -59,8 +59,8 @@ TrajectoryAgent::TrajectoryAgent(
     eigen_translations.push_back(eigen_translation);
   }
 
-  trajectory_ = std::make_unique<drake::automotive::AgentTrajectory>(
-      drake::automotive::AgentTrajectory::Make(times, eigen_orientations,
+  trajectory_ = std::make_unique<drake::automotive::Trajectory>(
+      drake::automotive::Trajectory::Make(times, eigen_orientations,
                                                eigen_translations));
 }
 
@@ -74,24 +74,6 @@ int TrajectoryAgent::Configure(
    * Basics
    *********************/
   id_ = id;
-
-  /*********************
-   * Parameters
-   *********************/
-  //   std::vector<double> times2 =
-  //       linb::any_cast<std::vector<double>>(
-  //           parameters.at("times"));
-  //   std::vector<double> headings =
-  //       linb::any_cast<std::vector<double>>(
-  //           parameters.at("headings"));
-  //   std::vector<std::vector<double>> translations_from_parameters =
-  //       linb::any_cast<std::vector<std::vector<double>>>(
-  //           parameters.at("translations"));
-  // ABORT ABORT ABORT!
-  // The above works, but it will be much cleaner to provide python bindings
-  // to helper functions outside this that create a trajectory and then
-  // pass in AgentTrajectory as one of the parameters. Otherwise trajectory
-  // making will be constrained to whatever this class is capable of
 
   /*********************
    * Instantiate System
@@ -139,7 +121,6 @@ int TrajectoryAgent::Configure(
 
   // And then the translated ignition car state is published.
   builder->Connect(*agent_state_translator, *agent_state_publisher);
-  std::cout << "Finished" << std::endl;
   return 0;
 }
 

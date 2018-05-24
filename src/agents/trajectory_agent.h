@@ -19,13 +19,14 @@
 #include <vector>
 
 #include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/trajectory.h>
+#include <drake/automotive/trajectory_follower.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
 #include "delphyne/agent_base.h"
 
-#include "systems/trajectory_follower.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -59,7 +60,7 @@ class TrajectoryAgent : public delphyne::Agent {
   drake::systems::System<double>* get_system() const;
 
  private:
-  std::unique_ptr<drake::automotive::AgentTrajectory> trajectory_;
+  std::unique_ptr<drake::automotive::Trajectory> trajectory_;
   drake::automotive::TrajectoryFollower<double>* trajectory_follower_system_;
 };
 

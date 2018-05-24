@@ -22,6 +22,8 @@ macro(delphyne_build_tests)
 
     target_include_directories(${BINARY_NAME}
       PRIVATE
+        ${PROJECT_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/include
         ${PYTHON_INCLUDE_DIRS}
     )
 
@@ -29,6 +31,7 @@ macro(delphyne_build_tests)
     target_link_libraries(
       ${BINARY_NAME}
       PRIVATE
+        agents
         simulation_runner
         automotive_simulator
         scene_system

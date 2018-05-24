@@ -4,7 +4,7 @@
 
 #include <Eigen/Geometry>
 
-#include "drake/automotive/agent_trajectory.h"
+#include "drake/automotive/trajectory.h"
 #include "drake/automotive/gen/simple_car_state.h"
 #include "drake/common/drake_copyable.h"
 #include "drake/common/extract_double.h"

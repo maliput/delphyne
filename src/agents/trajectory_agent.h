@@ -4,15 +4,10 @@
  * Copyright 2017 Toyota Research Institute
  */
 /*****************************************************************************
- ** Ifdefs
- *****************************************************************************/
-
-#ifndef delphyne_AGENTS_TRAJECTORY_AGENT_H_
-#define delphyne_AGENTS_TRAJECTORY_AGENT_H_
-
-/*****************************************************************************
  ** Includes
  *****************************************************************************/
+
+#pragma once
 
 #include <memory>
 #include <string>
@@ -68,5 +63,3 @@ class TrajectoryAgent : public delphyne::Agent {
  *****************************************************************************/
 
 }  // namespace delphyne
-
-#endif /* delphyne_AGENTS_TRAJECTORY_AGENT_H_ */

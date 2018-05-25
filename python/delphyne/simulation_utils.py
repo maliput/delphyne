@@ -2,8 +2,15 @@
 #
 # Copyright 2017 Toyota Research Institute
 #
+#############################################################################
+# Documentation
+#############################################################################
 
 """A group of common functions useful for python-scripted simulations"""
+
+#############################################################################
+# Imports
+#############################################################################
 
 from __future__ import print_function
 
@@ -19,12 +26,19 @@ from delphyne.bindings import (
     MobilCarAgentParams,
     RailCarAgentParams
 )
+from delphyne.agents import (
+    SimpleCar,
+    TrajectoryAgent
+)
 from delphyne.launcher import Launcher
 from pydrake.automotive import (
     LaneDirection,
     SimpleCarState
 )
 
+#############################################################################
+# Methods
+#############################################################################
 
 @contextmanager
 def launch_interactive_simulation(simulator_runner,
@@ -109,49 +123,76 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
     """Instantiates a new Simple Prius Car
     and adds it to the simulation.
     """
-    # Creates the initial car state for the simple car.
-    simple_car_state = SimpleCarState()
-    simple_car_state.set_x(position_x)
-    simple_car_state.set_y(position_y)
-    # Instantiates a Loadable Simple Car
-    simulator.AddLoadableAgent(
-        "simple-car", str(robot_id), simple_car_state, None)
-
+    agent = SimpleCar(str(robot_id),
+                      position_x,
+                      position_y,
+                      0.0,
+                      0.0
+                      )
+    simulator.AddAgent(agent)
 
 def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
-    # Creates the initial car state for the MOBIL car.
+    # Initial State
     mobil_car_state = SimpleCarState()
     mobil_car_state.set_x(position_x)
     mobil_car_state.set_y(position_y)
+
+    # Parameters
     agent_params = MobilCarAgentParams(True)
-    # Instantiates a Loadable MOBIL Car.
+
+    # Instantiate
     simulator.AddLoadableAgent("mobil-car",
                                str(robot_id),
                                mobil_car_state,
                                road,
                                agent_params)
 
-
 def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
     """Instantiates a new Maliput Railcar and adds
     it to the simulation.
     """
-    # Defines the lane that will be used by the dragway car.
+    # Maliput
     lane = road.junction(0).segment(0).lane(1)
-    # Creates the initial car state for the Railcar.
+
+    # Initial State
     railcar_state = MaliputRailcarState()
     railcar_state.s = s_coordinate
     railcar_state.speed = speed
     lane_direction = LaneDirection(lane, True)
+
+    # Parameters
     start_params = MaliputRailcarParams()
     start_params.r = 0
     start_params.h = 0
     agent_params = RailCarAgentParams(lane_direction, start_params)
+
+    # Instantiate
     simulator.AddLoadableAgent("rail-car",
                                str(robot_id),
                                railcar_state,
                                road,
                                agent_params)
+
+def add_trajectory_agent(simulator, robot_id, road, times, headings, translations):
+    """
+    Instantiates a trajectory agent with a trajectory defined by times, headings
+    and translations.
+    Args:
+        simulator: the automotive simulator object
+        robot_id: name of the agent
+        road: maliput road geometry
+        times: list of times defining the trajectory (floats)
+        headings: list of yaw headings defining the trajectory (floats)
+        translations: list of translations defining the trajectory (x, y, z)
+    An example translations argument:
+        translation = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
+    """
+    agent = TrajectoryAgent(str(robot_id),
+                            times,
+                            headings,
+                            translations
+                            )
+    simulator.AddAgent(agent)

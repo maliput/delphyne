@@ -9,6 +9,9 @@ find_package(PythonInterp QUIET)
 # Macros
 ##############################################################################
 
+# TODO(daniel.stonier) do we need python/pybind11 here?
+include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
+
 macro(delphyne_build_tests)
   # Build all the tests
   foreach(GTEST_SOURCE_file ${ARGN})
@@ -19,6 +22,8 @@ macro(delphyne_build_tests)
 
     target_include_directories(${BINARY_NAME}
       PRIVATE
+        ${PROJECT_SOURCE_DIR}/src
+        ${PROJECT_SOURCE_DIR}/include
         ${PYTHON_INCLUDE_DIRS}
     )
 
@@ -26,6 +31,7 @@ macro(delphyne_build_tests)
     target_link_libraries(
       ${BINARY_NAME}
       PRIVATE
+        agents
         simulation_runner
         automotive_simulator
         scene_system

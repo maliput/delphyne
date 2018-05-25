@@ -120,6 +120,31 @@ void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
 // into a shared method.
 
 template <typename T>
+int AutomotiveSimulator<T>::AddAgent(
+    std::unique_ptr<delphyne::AgentBase<T>> agent) {
+  /*********************
+   * Checks
+   *********************/
+  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_DEMAND(aggregator_ != nullptr);
+  CheckNameUniqueness(agent->name());
+
+  /*********************
+   * Configure Agent
+   *********************/
+  int id = unique_system_id_++;
+
+  if (agent->Configure(id, builder_.get(), aggregator_, car_vis_applicator_) <
+      0) {
+    ignerr << "Failed to configure agent '" <<
+        agent->name() << "'" << std::endl;
+    return -1;
+  }
+  agents_[id] = std::move(agent);
+  return id;
+}
+
+template <typename T>
 int AutomotiveSimulator<T>::AddLoadableAgent(
     const std::string& plugin_library_name, const std::string& agent_name,
     std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
@@ -176,9 +201,11 @@ int AutomotiveSimulator<T>::AddLoadableAgent(
                        car_vis_applicator_, road, std::move(parameters)) < 0) {
     return -1;
   }
-  agents_[id] = std::move(agent);
-  loadable_agent_initial_states_[id] =
-      std::move(initial_state);  // store in the agent itself?
+  loadable_agents_[id] = std::move(agent);
+  if (plugin_library_name != "trajectory-agent") {
+    loadable_agent_initial_states_[id] =
+        std::move(initial_state);  // store in the agent itself?
+  }
   return id;
 }
 
@@ -349,9 +376,9 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
   for (const auto& pair : loadable_agent_initial_states_) {
     int id = pair.first;
     const drake::systems::BasicVector<T>* initial_state = pair.second.get();
-
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *(agents_[id]->get_system()), &simulator_->get_mutable_context());
+        *(loadable_agents_[id]->get_system()),
+        &simulator_->get_mutable_context());
 
     drake::systems::VectorBase<T>& context_state =
         context.get_mutable_continuous_state().get_mutable_vector();
@@ -359,8 +386,18 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
         dynamic_cast<drake::systems::BasicVector<T>*>(&context_state);
     DELPHYNE_ASSERT(state);
     state->set_value(initial_state->get_value());
+    loadable_agents_[id]->Initialize(&context);
+  }
+}
 
-    agents_[id]->Initialize(&context);
+template <typename T>
+void AutomotiveSimulator<T>::InitializeAgents() {
+  // TODO(daniel.stonier) This is a bad smell, agents may be composed of more
+  // than one system. More likely what we need to do is pass it diagram_.
+  for (const auto& pair : agents_) {
+    drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
+        *(pair.second->get_system()), &simulator_->get_mutable_context());
+    pair.second->Initialize(&context);
   }
 }
 
@@ -376,6 +413,7 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   InitializeSceneGeometryAggregator();
 
   InitializeLoadableAgents();
+  InitializeAgents();
 
   simulator_->set_target_realtime_rate(realtime_rate);
   const double max_step_size = 0.01;
@@ -399,8 +437,17 @@ double AutomotiveSimulator<T>::get_current_simulation_time() const {
 
 template <typename T>
 void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
-  for (const auto& agent : agents_) {
+  // TODO(daniel.stonier) deprecate in favour of agents_
+  for (const auto& agent : loadable_agents_) {
     if (agent.second->get_name() == name) {
+      throw std::runtime_error("An agent named \"" + name +
+                               "\" already "
+                               "exists. It has id " +
+                               std::to_string(agent.first) + ".");
+    }
+  }
+  for (const auto& agent : agents_) {
+    if (agent.second->name() == name) {
       throw std::runtime_error("An agent named \"" + name +
                                "\" already "
                                "exists. It has id " +

@@ -63,7 +63,7 @@ class RailCar final : public delphyne::AgentPlugin {
     name_ = name;
 
     /*********************
-     * Parse Parameters
+     * Parameters
      *********************/
     params_ = downcast_params<RailCarAgentParams>(std::move(parameters));
 

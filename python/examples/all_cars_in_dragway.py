@@ -19,10 +19,12 @@ from delphyne.bindings import (
     RoadBuilder,
     SimulatorRunner
 )
+
 from delphyne.simulation_utils import (
     add_simple_car,
     add_maliput_railcar,
     add_mobil_car,
+    add_trajectory_agent,
     launch_interactive_simulation
 )
 
@@ -35,8 +37,8 @@ def main():
     simulator = AutomotiveSimulator()
     builder = RoadBuilder(simulator)
 
-    # Generates a dragway road.
-    num_dragway_lanes = 3
+    # A Dragway!
+    num_dragway_lanes = 4
     dragway_length = 100.0  # meters
     dragway_lane_width = 3.7  # meters
     dragway_shoulder_width = 3.0  # meters
@@ -47,13 +49,13 @@ def main():
 
     # Adds the different cars.
     simple_car_position_x = 0.0
-    simple_car_position_y = 3.7
+    simple_car_position_y = 1.5*3.7
     car_id = 0
     add_simple_car(simulator, car_id, simple_car_position_x,
                    simple_car_position_y)
 
     mobil_car_position_x = 0.0
-    mobil_car_position_y = -3.7
+    mobil_car_position_y = -0.5*3.7
     car_id += 1
     add_mobil_car(simulator, car_id, dragway,
                   mobil_car_position_x, mobil_car_position_y)
@@ -62,6 +64,24 @@ def main():
     railcar_speed = 3.0
     car_id += 1
     add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
+
+    car_id += 1
+    times =    [ 0.0, 5.0, 10.0, 15.0, 20.0 ]
+    headings = [ 0.0, 0.0,  0.0,  0.0,  0.0 ]
+    translations = [
+        [  0.0, -5.55, 0.0],
+        [ 10.0, -5.55, 0.0],
+        [ 30.0, -5.55, 0.0],
+        [ 60.0, -5.55, 0.0],
+        [100.0, -5.55, 0.0]
+    ]
+
+    add_trajectory_agent(simulator,
+                         car_id,
+                         dragway,
+                         times,
+                         headings,
+                         translations)
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 

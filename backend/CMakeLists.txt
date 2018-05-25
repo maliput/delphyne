@@ -73,6 +73,7 @@ set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME
 target_link_libraries(
   automotive_simulator
   PUBLIC
+    public_headers
     scene_system
     protobuf_messages
     ${drake_LIBRARIES}
@@ -133,6 +134,7 @@ delphyne_install_includes(
 # ----------------------------------------
 # Python bindings.
 #
+include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 pybind11_add_module(python_bindings python_bindings.cc)
 
 target_link_libraries(python_bindings

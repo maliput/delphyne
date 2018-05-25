@@ -103,13 +103,12 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   stats.NewRunStartingAt(current_run_simtime_start, realtime_rate,
                          current_run_realtime_start);
 
-  // In 30 simulation  steps we should have got asymptotically near to the
+  // In 350 simulation steps we should have got asymptotically near to the
   // effective real-time rate (0.1).
-  for (int i = 1; i < 30; i++) {
+  for (int i = 1; i < 350; i++) {
     current_run_simtime_start += 0.01;
     current_run_realtime_start += std::chrono::milliseconds(100);
     stats.StepExecuted(current_run_simtime_start, current_run_realtime_start);
-    std::cerr << stats.get_current_realtime_rate() << std::endl;
   }
 
   EXPECT_EQ(realtime_rate,

@@ -314,6 +314,7 @@ void SimulatorRunner::SendWorldStats() {
 
   ignition::msgs::WorldStatistics msg;
   msg.set_paused(paused_);
+  msg.set_real_time_factor(stats_.get_current_realtime_rate());
 
   // TODO(caguero): Fill other fields when relevant.
 

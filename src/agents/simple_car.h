@@ -61,5 +61,3 @@ class SimpleCar : public delphyne::Agent {
 *****************************************************************************/
 
 }  // namespace delphyne
-
-#endif /* delphyne_AGENTS_SIMPLE_CAR_H_ */

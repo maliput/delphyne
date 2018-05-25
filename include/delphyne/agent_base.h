@@ -30,7 +30,7 @@ class AgentBase {
   ///
   /// @param name: name string for the agent (must be unique in any given
   /// simulation.
-  explicit AgentBase(const std::string& name) : id_(0), name_(name) {}
+  explicit AgentBase(const std::string& name) : name_(name) {}
   virtual ~AgentBase() = default;
 
   /// The `Configure` method is used by
@@ -82,7 +82,7 @@ class AgentBase {
   // This id should be set by the simulator who is in charge of ensuring each
   // agent (system) in the simulation receives a unique id that can be passed
   // to register inputs on the pose aggregator
-  int id_;
+  int id_{0};
   std::string name_;
 };
 

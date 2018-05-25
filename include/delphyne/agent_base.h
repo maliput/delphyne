@@ -56,9 +56,9 @@ class AgentBase {
   /// This method is called by the
   /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator".
   ///
-  /// @todo(daniel.stonier): pre-declare state to be dropped on the context via the
-  /// diagram builder in the Configure step, thereby making this method
-  /// redundant.
+  /// @todo(daniel.stonier): pre-declare state to be dropped on the
+  /// context via the diagram builder in the Configure step, thereby
+  /// making this method redundant.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
   /// @brief Name accessor

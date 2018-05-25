@@ -136,14 +136,10 @@ int AutomotiveSimulator<T>::AddAgent(
 
   if (agent->Configure(id, builder_.get(), aggregator_, car_vis_applicator_) <
       0) {
-    std::cout << "Oops" << std::endl;
+    ignerr << "Failed to configure agent '" << agent->name() << "'" << std::endl;
     return -1;
   }
   agents_[id] = std::move(agent);
-  //  if(plugin_library_name != "trajectory-agent") {
-  //    loadable_agent_initial_states_[id] =
-  //        std::move(initial_state);  // store in the agent itself?
-  //  }
   return id;
 }
 
@@ -395,9 +391,8 @@ void AutomotiveSimulator<T>::InitializeLoadableAgents() {
 
 template <typename T>
 void AutomotiveSimulator<T>::InitializeAgents() {
-  // TODO(daniel.stonier) this is a bad smell, agents may be composed of more
-  // than
-  // one system. More likely what we need to do is pass it diagram_.
+  // TODO(daniel.stonier) This is a bad smell, agents may be composed of more
+  // than one system. More likely what we need to do is pass it diagram_.
   for (const auto& pair : agents_) {
     drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
         *(pair.second->get_system()), &simulator_->get_mutable_context());

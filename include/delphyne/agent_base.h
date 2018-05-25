@@ -25,33 +25,57 @@ namespace delphyne {
 template <typename T>
 class AgentBase {
  public:
+  /// Constructor with user-customisable parameters common to
+  /// all agents.
+  ///
+  /// @param name: name string for the agent (must be unique in any given
+  /// simulation.
   explicit AgentBase(const std::string& name) : id_(0), name_(name) {}
   virtual ~AgentBase() = default;
 
-  /// The `Configure` method is the main way that loadable agents get the
-  /// information that they need to insert themselves into an automotive
-  /// simulation.  Concrete implementations should set themselves up and insert
-  /// themselves into the simulation during the `Configure` call.  The
-  /// `parameters` argument is a map between string names and "linb::any", which
-  /// is a drop-in replacement for std::any for older compilers.  This map is
-  /// meant to hold agent-specific arguments that need to be passed down from
-  /// the application into the loadable agent for it to properly configure
-  /// itself.  The rest of the arguments are parameters that are needed by all
-  /// (or at least most) loadable agents to insert themselves into the
-  /// simulation.  For instance, the `builder` parameter is typically used by
-  /// the loadable agent to connect internal methods into the overall Diagram
-  /// that the automotive simulator is building.
+  /// The `Configure` method is used by
+  /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" to perform
+  /// any simulator-specific configuration necessary for the agent. This
+  /// includes generating an id, diagram wiring and setting up the visuals.
+  ///
+  /// Creators of scenarios need never to call this method.
+  ///
+  /// @param builder: the diagram builder, use to wire systems ready for
+  /// converting into the simulator's diagram.
+  /// @param aggregator: every agent should connect to this and publish
+  /// it's state for access by all
+  /// @param car_vis_applicator:
   virtual int Configure(
       const int& id, drake::systems::DiagramBuilder<T>* builder,
       drake::systems::rendering::PoseAggregator<T>* aggregator,
       drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
 
-  /// The Initialize method is called right before the simualtion starts.
+  /// Derived classes will typically use this to drop variable state on
+  /// the context before simulation starts.
+  ///
+  /// This method is called by the
+  /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator".
+  ///
+  /// @todo(daniel.stonier): pre-declare state to be dropped on the context via the
+  /// diagram builder in the Configure step, thereby making this method
+  /// redundant.
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
+  /// @brief Name accessor
   const std::string& name() { return name_; }
+  /// @brief ID accessor
   const int& id() { return id_; }
 
+  /// Access the system, currently used internally by
+  /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" to feed
+  /// the Initialize method with the required sub-context.
+  ///
+  /// @warning: This method is misleading - note that agents will often
+  /// be composed of multiple systems. The system extracted here should
+  /// always be the one responsible for publishing the SimpleCarState.
+  ///
+  /// @todo(daniel.stonier): Drop this as soon as we manage to pre-declare
+  /// state in the diagram building phase.
   virtual drake::systems::System<T>* get_system() const = 0;
 
  protected:

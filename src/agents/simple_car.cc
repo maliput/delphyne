@@ -56,7 +56,6 @@ int SimpleCar::Configure(
   /*********************
    * Instantiate System
    *********************/
-  std::cout << "Name: " << name_ << std::endl;
   std::unique_ptr<drake::automotive::SimpleCar2<double>> system =
       std::make_unique<drake::automotive::SimpleCar2<double>>();
   system->set_name(name_);

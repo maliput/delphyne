@@ -21,7 +21,6 @@
 namespace delphyne {
 namespace maliput {
 
-
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
@@ -32,7 +31,6 @@ namespace maliput {
 const drake::maliput::api::Lane* FindLane(
     const drake::maliput::api::LaneId& lane_id,
     const drake::maliput::api::RoadGeometry& road_geometry) {
-
   for (int i = 0; i < road_geometry.num_junctions(); ++i) {
     const drake::maliput::api::Junction* junction = road_geometry.junction(i);
     for (int j = 0; j < junction->num_segments(); ++j) {
@@ -52,5 +50,5 @@ const drake::maliput::api::Lane* FindLane(
  ** Trailers
  *****************************************************************************/
 
-} // namespace maliput
-} // namespace delphyne
+}  // namespace maliput
+}  // namespace delphyne

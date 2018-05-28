@@ -13,8 +13,8 @@
 #include <string>
 
 #include <drake/automotive/car_vis_applicator.h>
-#include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/gen/maliput_railcar_state.h>
+#include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
@@ -62,12 +62,10 @@ class RailCar : public delphyne::Agent {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
-  RailCar(const std::string& name,
-          const drake::maliput::api::Lane& lane,
+  RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
           const bool& direction_of_travel,
-          const double& position,   // s
-          const double& speed,
-          const double& nominal_speed);
+          const double& position,  // s
+          const double& speed, const double& nominal_speed);
 
   int Configure(
       const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
@@ -86,22 +84,21 @@ class RailCar : public delphyne::Agent {
     double position{0.0};
     double speed{0.0};
     double nominal_speed{0.0};
-    Parameters(
-        const drake::maliput::api::Lane& lane,
-        const bool& direction_of_travel,
-        const double& position,   // s
-        const double& speed,
-        const double& nominal_speed
-        ) : lane(lane),
-            direction_of_travel(direction_of_travel),
-            position(position),
-            speed(speed),
-            nominal_speed(nominal_speed) {}
+    Parameters(const drake::maliput::api::Lane& lane,
+               const bool& direction_of_travel,
+               const double& position,  // s
+               const double& speed, const double& nominal_speed)
+        : lane(lane),
+          direction_of_travel(direction_of_travel),
+          position(position),
+          speed(speed),
+          nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
   typedef drake::automotive::MaliputRailcarState<double> RailCarContextState;
   typedef std::unique_ptr<RailCarContextState> RailCarContextStatePtr;
-  typedef drake::automotive::MaliputRailcarParams<double> RailCarContextParameters;
+  typedef drake::automotive::MaliputRailcarParams<double>
+      RailCarContextParameters;
   typedef std::unique_ptr<RailCarContextParameters> RailCarContextParametersPtr;
   typedef drake::automotive::MaliputRailcar2<double> RailCarSystem;
 
@@ -116,18 +113,14 @@ class RailCar : public delphyne::Agent {
 
 }  // namespace delphyne
 
-
-
-
-
 /*****************************************************************************
  * Graveyard
  ****************************************************************************/
 
-//namespace delphyne {
+// namespace delphyne {
 //
 ///// This class models the required extra parameters to create a railcar.
-//class RailCarAgentParams final : public delphyne::AgentPluginParams {
+// class RailCarAgentParams final : public delphyne::AgentPluginParams {
 // public:
 //  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarAgentParams)
 //
@@ -150,7 +143,8 @@ class RailCar : public delphyne::Agent {
 //  }
 //
 //  /// Returns the initial car start parameters.
-//  const drake::automotive::MaliputRailcarParams<double>* get_raw_start_params()
+//  const drake::automotive::MaliputRailcarParams<double>*
+//  get_raw_start_params()
 //      const {
 //    return start_params_.get();
 //  }

@@ -19,8 +19,6 @@
 namespace delphyne {
 namespace maliput {
 
-
-
 /*****************************************************************************
 ** Methods
 *****************************************************************************/
@@ -42,5 +40,5 @@ const drake::maliput::api::Lane* FindLane(
 ** Trailers
 *****************************************************************************/
 
-} // namespace maliput
-} // namespace delphyne
+}  // namespace maliput
+}  // namespace delphyne

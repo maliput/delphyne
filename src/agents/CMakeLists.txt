@@ -35,7 +35,6 @@ add_library(agents
   trajectory_agent.cc
 )
 set_target_properties(agents PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-agents)
-
 target_link_libraries(
   agents
   PUBLIC

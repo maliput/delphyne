@@ -46,19 +46,16 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-RailCar::RailCar(
-    const std::string& name,
-    const drake::maliput::api::Lane& lane,
-    const bool& direction_of_travel,
-    const double& position,   // s
-    const double& speed,
-    const double& nominal_speed)
+RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
+                 const bool& direction_of_travel,
+                 const double& position,  // s
+                 const double& speed, const double& nominal_speed)
     : delphyne::Agent(name),
-      initial_parameters_(lane, direction_of_travel, position, speed, nominal_speed),
+      initial_parameters_(lane, direction_of_travel, position, speed,
+                          nominal_speed),
       rail_car_context_state_(),
       rail_car_context_parameters_(),
-      rail_car_system_(nullptr)
-{
+      rail_car_system_(nullptr) {
   igndbg << "RailCar constructor" << std::endl;
 }
 
@@ -77,7 +74,7 @@ int RailCar::Configure(
   /*********************
    * Checks
    *********************/
-  if (!maliput::FindLane(initial_parameters_.lane.id(), road_geometry) ) {
+  if (!maliput::FindLane(initial_parameters_.lane.id(), road_geometry)) {
     ignerr << "RailCar::Configure(): "
               "The provided initial lane is not within this simulation's "
               "RoadGeometry."
@@ -96,10 +93,9 @@ int RailCar::Configure(
   // Probably preferable to not use this at all and specify things separately.
   //   Refactor back in drake to not use at all
   std::unique_ptr<RailCarSystem> system =
-      std::make_unique<RailCarSystem>(
-          drake::automotive::LaneDirection(
-              &(initial_parameters_.lane),
-              initial_parameters_.direction_of_travel));
+      std::make_unique<RailCarSystem>(drake::automotive::LaneDirection(
+          &(initial_parameters_.lane),
+          initial_parameters_.direction_of_travel));
   system->set_name(name_);
   rail_car_system_ =
       builder->template AddSystem<RailCarSystem>(std::move(system));
@@ -111,7 +107,8 @@ int RailCar::Configure(
   // agents, reuse?
   auto ports = aggregator->AddSinglePoseAndVelocityInput(name_, id);
   builder->Connect(rail_car_system_->pose_output(), ports.pose_descriptor);
-  builder->Connect(rail_car_system_->velocity_output(), ports.velocity_descriptor);
+  builder->Connect(rail_car_system_->velocity_output(),
+                   ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id_, name_));
 
@@ -144,15 +141,20 @@ int RailCar::Initialize(drake::systems::Context<double>* system_context) {
    *******************/
   // TODO(daniel.stonier) shift this to the initialize section?
   rail_car_context_state_ = std::make_unique<RailCarContextState>();
-  rail_car_context_state_->set_s(initial_parameters_.position);  // TODO(daniel.stonier) check for 'in-lane' bounds?
+  // TODO(daniel.stonier) check for 'in-lane' bounds?
+  rail_car_context_state_->set_s(initial_parameters_.position);
   rail_car_context_state_->set_speed(initial_parameters_.speed);
   rail_car_context_parameters_ = std::make_unique<RailCarContextParameters>();
   rail_car_context_parameters_->set_r(0.0);
-  rail_car_context_parameters_->set_h(0.0);  //  TODO(daniel.stonier) check or clamp to lane height?
-  rail_car_context_parameters_->set_max_speed(initial_parameters_.nominal_speed);
-  // rail_car_context_parameters->set_velocity_limit_kp() // just use the default for now
+  // TODO(daniel.stonier) check or clamp to lane height?
+  rail_car_context_parameters_->set_h(0.0);
+  rail_car_context_parameters_->set_max_speed(
+      initial_parameters_.nominal_speed);
+  // rail_car_context_parameters->set_velocity_limit_kp() // just use the
+  // default for now
 
-  // initialize both the RailCarState (see addLoadableAgent) and the MaliputRailCarParams?
+  // initialize both the RailCarState (see addLoadableAgent) and the
+  // MaliputRailCarParams?
 
   // RailCarState part
   drake::systems::VectorBase<double>& context_state =
@@ -165,12 +167,13 @@ int RailCar::Initialize(drake::systems::Context<double>* system_context) {
   // MaliputRailCarParams part
   RailCarContextParameters& context_parameters =
       rail_car_system_->get_mutable_parameters(system_context);
-  context_parameters.set_value(
-      rail_car_context_parameters_->get_value());
+  context_parameters.set_value(rail_car_context_parameters_->get_value());
 
   return 0;
 }
 
-drake::systems::System<double>* RailCar::get_system() const { return rail_car_system_; }
+drake::systems::System<double>* RailCar::get_system() const {
+  return rail_car_system_;
+}
 
 }  // namespace delphyne

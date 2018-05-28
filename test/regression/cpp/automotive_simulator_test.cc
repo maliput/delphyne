@@ -207,7 +207,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   EXPECT_EQ(state_message.velocity(), kVelocity);
 }
 // DJS
-//TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
+// TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 //  // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //
@@ -219,7 +219,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 //              2 /* num lanes */, 100 /* length */, 4 /* lane width */,
 //              1 /* shoulder width */, 5 /* maximum_height */,
 //              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-//              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+//              std::numeric_limits<double>::epsilon() /* angular_tolerance
+//              */)));
 //
 //  // Create one MOBIL car and two stopped cars arranged as follows:
 //  //
@@ -254,7 +255,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 //      std::move(lane_direction1), std::move(start_params1));
 //
 //  const int id_decoy1 =
-//      simulator->AddLoadableAgent("rail-car", "decoy1", std::move(decoy_state1),
+//      simulator->AddLoadableAgent("rail-car", "decoy1",
+//      std::move(decoy_state1),
 //                                  road, std::move(railcar_params1));
 //  EXPECT_EQ(1, id_decoy1);
 //
@@ -272,11 +274,13 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 //      std::move(lane_direction2), std::move(start_params2));
 //
 //  const int id_decoy2 =
-//      simulator->AddLoadableAgent("rail-car", "decoy2", std::move(decoy_state2),
+//      simulator->AddLoadableAgent("rail-car", "decoy2",
+//      std::move(decoy_state2),
 //                                  road, std::move(railcar_params2));
 //  EXPECT_EQ(2, id_decoy2);
 //
-//  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+//  // Setup the an ignition callback to store the latest
+//  ignition::msgs::Model_V
 //  // that is published to /visualizer/scene_update.
 //  ignition::msgs::Model_V draw_message;
 //
@@ -294,7 +298,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 //  // Finish all initialization, so that we can test the post-init state.
 //  simulator->Start();
 //
-//  // Advances the simulation to allow the MaliputRailcar to begin accelerating.
+//  // Advances the simulation to allow the MaliputRailcar to begin
+//  accelerating.
 //  simulator->StepBy(0.5);
 //
 //  EXPECT_EQ(GetLinkCount(draw_message),
@@ -411,7 +416,7 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
   return link.pose().position().x();
 }
 // DJS
-//TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
+// TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //
 //  const double kR{0.5};
@@ -439,7 +444,8 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 //              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
 //              1 /* shoulder width */, 5 /* maximum_height */,
 //              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-//              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+//              std::numeric_limits<double>::epsilon() /* angular_tolerance
+//              */)));
 //
 //  auto lane_direction2 = std::make_unique<drake::automotive::LaneDirection>();
 //  auto state2 = std::make_unique<MaliputRailcarState<double>>();
@@ -473,7 +479,7 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 //}
 //
 //// Covers railcar behavior.
-//TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
+// TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //  const double kR{0.5};
 //
@@ -485,7 +491,8 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 //              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
 //              1 /* shoulder width */, 5 /* maximum_height */,
 //              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-//              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+//              std::numeric_limits<double>::epsilon() /* angular_tolerance
+//              */)));
 //
 //  auto lane_direction = std::make_unique<drake::automotive::LaneDirection>(
 //      road->junction(0)->segment(0)->lane(0));
@@ -623,7 +630,7 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 // DJS
 //// Verifies that exceptions are thrown if a vehicle with a non-unique name is
 //// added to the simulation.
-//TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
+// TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //
 //  auto agent1 =
@@ -642,7 +649,8 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 //              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
 //              1 /* shoulder width */, 5 /* maximum_height */,
 //              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-//              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+//              std::numeric_limits<double>::epsilon() /* angular_tolerance
+//              */)));
 //
 //  auto lane_direction4 = std::make_unique<drake::automotive::LaneDirection>(
 //      road->junction(0)->segment(0)->lane(0));
@@ -653,7 +661,8 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 //  auto railcar_params4 = std::make_unique<RailCarAgentParams>(
 //      std::move(lane_direction4), std::move(start_params4));
 //  EXPECT_NO_THROW(simulator->AddLoadableAgent(
-//      "rail-car", "FOO", std::move(state4), road, std::move(railcar_params4)));
+//      "rail-car", "FOO", std::move(state4), road,
+//      std::move(railcar_params4)));
 //
 //  auto lane_direction5 = std::make_unique<drake::automotive::LaneDirection>(
 //      road->junction(0)->segment(0)->lane(0));
@@ -676,19 +685,21 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 //  auto railcar_params6 = std::make_unique<RailCarAgentParams>(
 //      std::move(lane_direction6), std::move(start_params6));
 //  EXPECT_THROW(
-//      simulator->AddLoadableAgent("rail-car", "alice", std::move(state6), road,
+//      simulator->AddLoadableAgent("rail-car", "alice", std::move(state6),
+//      road,
 //                                  std::move(railcar_params6)),
 //      std::runtime_error);
 //}
 //
 //// Verifies that the velocity outputs of the MaliputRailcars are connected to
 //// the PoseAggregator, which prevents a regression of #5894.
-//TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
+// TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 //  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 //
 //  const drake::maliput::api::RoadGeometry* road = simulator->SetRoadGeometry(
 //      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-//          drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
+//          drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes
+//          */,
 //          100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
 //          5 /* maximum_height */,
 //          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
@@ -713,7 +724,8 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 //      std::move(alice_railcar_params));
 //
 //  auto bob_initial_state = std::make_unique<MaliputRailcarState<double>>();
-//  auto bob_lane_direction = std::make_unique<drake::automotive::LaneDirection>(
+//  auto bob_lane_direction =
+//  std::make_unique<drake::automotive::LaneDirection>(
 //      road->junction(0)->segment(0)->lane(0));
 //  auto bob_start_params =
 //      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
@@ -734,7 +746,8 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
 //  const int kAliceIndex{0};
 //  const int kBobIndex{1};
 //
-//  // Verifies that the velocity within the PoseAggregator's PoseBundle output is
+//  // Verifies that the velocity within the PoseAggregator's PoseBundle output
+//  is
 //  // non-zero.
 //  const drake::systems::rendering::PoseBundle<double> poses =
 //      simulator->GetCurrentPoses();

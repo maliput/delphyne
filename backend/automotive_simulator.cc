@@ -134,10 +134,7 @@ int AutomotiveSimulator<T>::AddAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id,
-                       *road_geometry_,
-                       builder_.get(),
-                       aggregator_,
+  if (agent->Configure(id, *road_geometry_, builder_.get(), aggregator_,
                        car_vis_applicator_) < 0) {
     ignerr << "Failed to configure agent '" << agent->name() << "'"
          << std::endl;
@@ -227,7 +224,8 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
   std::transform(filename.begin(), filename.end(), filename.begin(),
                  [](char ch) { return ch == ' ' ? '_' : ch; });
   drake::maliput::utility::GenerateUrdfFile(
-      road_geometry_.get(), "/tmp", filename, drake::maliput::utility::ObjFeatures());
+      road_geometry_.get(), "/tmp", filename,
+      drake::maliput::utility::ObjFeatures());
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());

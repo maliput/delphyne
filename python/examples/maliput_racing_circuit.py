@@ -26,7 +26,7 @@ from delphyne.bindings import (
 )
 
 from delphyne.simulation_utils import (
-    add_maliput_railcar,
+    add_rail_car,
     add_mobil_car,
     get_delphyne_resource_root,
     launch_interactive_simulation
@@ -74,24 +74,24 @@ def main():
     railcar_s = 0.0  # Units in m.
     robot_id = 1
     lane_1 = road.junction(2).segment(0).lane(0)
-    add_maliput_railcar(simulator, robot_id, road,
-                        lane_1, railcar_s, railcar_speed)
+    add_rail_car(simulator, str(robot_id),
+                lane_1, railcar_s, railcar_speed)
 
     # Setup railcar 2
     railcar_speed = 8.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id += 1
     lane_2 = road.junction(2).segment(0).lane(1)
-    add_maliput_railcar(simulator, robot_id, road,
-                        lane_2, railcar_s, railcar_speed)
+    add_rail_car(simulator, str(robot_id),
+                 lane_2, railcar_s, railcar_speed)
 
     # Setup railcar 3
     railcar_speed = 7.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id += 1
     lane_3 = road.junction(2).segment(0).lane(2)
-    add_maliput_railcar(simulator, robot_id, road,
-                        lane_3, railcar_s, railcar_speed)
+    add_rail_car(simulator, str(robot_id),
+                 lane_3, railcar_s, railcar_speed)
 
     # Setup MOBIL cars.
     for i in range(mobil_cars_num):

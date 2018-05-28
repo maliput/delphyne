@@ -156,12 +156,14 @@ def add_mobil_car(simulator, robot_id, road,
 def add_rail_car(simulator, name, lane, position=0, speed=0):
     """Instantiates a Railcar and adds it to the simulation.
     """
-    agent = RailCar(name,                                 # unique name
-                    lane,                                 # lane
-                    True,                                 # direction_of_travel
-                    position,                             # lane s-coordinate
-                    speed,                                # speed in the s-direction
-                    5.0)                                  # nominal_speed
+    # Note: keyword arguments not permitted with the bindings
+    # TODO(daniel.stonier) true?
+    agent = RailCar(name,      # unique name
+                    lane,      # lane
+                    True,      # direction_of_travel
+                    position,  # lane s-coordinate
+                    speed,     # speed in the s-direction
+                    5.0)       # nominal_speed
     simulator.AddAgent(agent)
 
 def add_trajectory_agent(simulator, robot_id, road, times, headings, waypoints):

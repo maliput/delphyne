@@ -25,14 +25,14 @@ Load a monolane file:
 
 ```
 $ road_loading.py monolane
---filename='./install/share/delphyne/road_samples/double_ring.yaml'
+--filename='./install/share/delphyne/roads/double_ring.yaml'
 ```
 
 Load a multilane file:
 
 ```
 $ road_loading.py multilane
---filename='./install/share/delphyne/road_samples/multilane_sample.yaml'
+--filename='./install/share/delphyne/roads/circuit.yaml'
 ```
 
 """

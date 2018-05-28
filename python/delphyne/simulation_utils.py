@@ -131,7 +131,7 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
                       )
     simulator.AddAgent(agent)
 
-def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
+def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0, velocity=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
@@ -139,6 +139,7 @@ def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
     mobil_car_state = SimpleCarState()
     mobil_car_state.set_x(position_x)
     mobil_car_state.set_y(position_y)
+    mobil_car_state.set_velocity(velocity)
 
     # Parameters
     agent_params = MobilCarAgentParams(True)
@@ -150,13 +151,10 @@ def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0):
                                road,
                                agent_params)
 
-def add_maliput_railcar(simulator, robot_id, road, s_coordinate=0, speed=0):
+def add_maliput_railcar(simulator, robot_id, road, lane, s_coordinate=0, speed=0):
     """Instantiates a new Maliput Railcar and adds
     it to the simulation.
     """
-    # Maliput
-    lane = road.junction(0).segment(0).lane(1)
-
     # Initial State
     railcar_state = MaliputRailcarState()
     railcar_state.s = s_coordinate

@@ -112,13 +112,6 @@ class AutomotiveSimulator {
   const drake::maliput::api::RoadGeometry* SetRoadGeometry(
       std::unique_ptr<const drake::maliput::api::RoadGeometry> road);
 
-  /// Finds and returns a pointer to a lane with the specified name. This method
-  /// throws a std::runtime_error if no such lane exists.
-  ///
-  /// @pre SetRoadGeometry() was called.
-  ///
-  const drake::maliput::api::Lane* FindLane(const std::string& name) const;
-
   /// Returns the System whose name matches @p name.  Throws an exception if no
   /// such system has been added, or multiple such systems have been added.
   //
@@ -206,7 +199,7 @@ class AutomotiveSimulator {
   void InitializeAgents();
 
   // For both building and simulation.
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_{};
+  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_{};
 
   // === Start for building. ===
   std::unique_ptr<RigidBodyTree<T>> tree_{std::make_unique<RigidBodyTree<T>>()};

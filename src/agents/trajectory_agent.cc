@@ -65,7 +65,8 @@ TrajectoryAgent::TrajectoryAgent(
 }
 
 int TrajectoryAgent::Configure(
-    const int& id, drake::systems::DiagramBuilder<double>* builder,
+    const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+    drake::systems::DiagramBuilder<double>* builder,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
   igndbg << "TrajectoryAgent configure" << std::endl;

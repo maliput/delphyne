@@ -7,6 +7,7 @@
 #include <string>
 
 #include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
@@ -36,19 +37,23 @@ class AgentBase {
   /// The `Configure` method is used by
   /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" to perform
   /// any simulator-specific configuration necessary for the agent. This
-  /// includes generating an id, diagram wiring and setting up the visuals.
+  /// includes generating an id, passing in the ground truth world
+  /// information, diagram wiring and setting up the visuals.
   ///
   /// Creators of scenarios need never to call this method.
   ///
+  /// @param id: a unique id
+  /// @param road_geometry: the ground truth road information
   /// @param builder: the diagram builder, use to wire systems ready for
   /// converting into the simulator's diagram.
   /// @param aggregator: every agent should connect to this and publish
   /// it's state for access by all
   /// @param car_vis_applicator:
   virtual int Configure(
-      const int& id, drake::systems::DiagramBuilder<T>* builder,
-      drake::systems::rendering::PoseAggregator<T>* aggregator,
-      drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
+      const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+      drake::systems::DiagramBuilder<double>* builder,
+      drake::systems::rendering::PoseAggregator<double>* aggregator,
+      drake::automotive::CarVisApplicator<double>* car_vis_applicator) = 0;
 
   /// Derived classes will typically use this to drop variable state on
   /// the context before simulation starts.

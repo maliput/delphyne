@@ -1,5 +1,5 @@
 /**
- * @file /delphyne/src/agents/simple_car.h
+ * @file src/agents/simple_car.h
  *
  * Copyright 2017 Toyota Research Institute
  */
@@ -32,16 +32,15 @@ namespace delphyne {
 *****************************************************************************/
 
 /**
- * @brief Trajectory following agents
- *
- * @TODO(daniel.stonier) add agent type (for visualisation purpose only)
+ * @brief A very simple vehicle agent that can be teleoperated.
  */
 class SimpleCar : public delphyne::Agent {
  public:
   SimpleCar(const std::string& name, const double& x, const double& y,
             const double& heading, const double& velocity);
   int Configure(
-      const int& id, drake::systems::DiagramBuilder<double>* builder,
+      const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+      drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 

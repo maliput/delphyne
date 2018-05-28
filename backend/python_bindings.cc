@@ -18,8 +18,6 @@
 
 #include "include/delphyne/agent_plugin_base.h"
 #include "src/agents/mobil_car.h"
-#include "src/agents/rail_car.h"
-#include "src/agents/trajectory_car.h"
 
 namespace py = pybind11;
 
@@ -30,8 +28,6 @@ using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
 using delphyne::AgentPluginParams;
-using delphyne::RailCarAgentParams;
-using delphyne::TrajectoryCarAgentParams;
 using delphyne::MobilCarAgentParams;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
@@ -45,15 +41,6 @@ PYBIND11_MODULE(python_bindings, m) {
   py::module::import("pydrake.maliput.api");
 
   py::class_<AgentPluginParams>(m, "AgentPluginParams");
-
-  py::class_<RailCarAgentParams, AgentPluginParams>(m, "RailCarAgentParams")
-      .def(py::init<
-           std::unique_ptr<drake::automotive::LaneDirection>,
-           std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>>());
-
-  py::class_<TrajectoryCarAgentParams, AgentPluginParams>(
-      m, "TrajectoryCarAgentParams")
-      .def(py::init<std::unique_ptr<drake::automotive::Curve2<double>>>());
 
   py::class_<MobilCarAgentParams, AgentPluginParams>(m, "MobilCarAgentParams")
       .def(py::init<bool>());

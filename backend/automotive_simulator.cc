@@ -134,10 +134,13 @@ int AutomotiveSimulator<T>::AddAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id, builder_.get(), aggregator_, car_vis_applicator_) <
-      0) {
+  if (agent->Configure(id,
+                       *road_geometry_,
+                       builder_.get(),
+                       aggregator_,
+                       car_vis_applicator_) < 0) {
     ignerr << "Failed to configure agent '" << agent->name() << "'"
-           << std::endl;
+         << std::endl;
     return -1;
   }
   agents_[id] = std::move(agent);
@@ -213,45 +216,18 @@ template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road) {
   DELPHYNE_DEMAND(!has_started());
-  road_ = std::move(road);
+  road_geometry_ = std::move(road);
   GenerateAndLoadRoadNetworkUrdf();
-  return road_.get();
-}
-
-template <typename T>
-const drake::maliput::api::Lane* AutomotiveSimulator<T>::FindLane(
-    const std::string& name) const {
-  if (road_ == nullptr) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::FindLane(): RoadGeometry "
-        "not set. Please call SetRoadGeometry() first before calling this "
-        "method.");
-  }
-  for (int i = 0; i < road_->num_junctions(); ++i) {
-    const drake::maliput::api::Junction* junction = road_->junction(i);
-    for (int j = 0; j < junction->num_segments(); ++j) {
-      const drake::maliput::api::Segment* segment = junction->segment(j);
-      for (int k = 0; k < segment->num_lanes(); ++k) {
-        const drake::maliput::api::Lane* lane = segment->lane(k);
-        if (lane->id() == LaneId(name)) {
-          return lane;
-        }
-      }
-    }
-  }
-  throw std::runtime_error(
-      "AutomotiveSimulator::FindLane(): Failed to find "
-      "lane named \"" +
-      name + "\".");
+  return road_geometry_.get();
 }
 
 template <typename T>
 void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
-  std::string filename = road_->id().string();
+  std::string filename = road_geometry_->id().string();
   std::transform(filename.begin(), filename.end(), filename.begin(),
                  [](char ch) { return ch == ' ' ? '_' : ch; });
   drake::maliput::utility::GenerateUrdfFile(
-      road_.get(), "/tmp", filename, drake::maliput::utility::ObjFeatures());
+      road_geometry_.get(), "/tmp", filename, drake::maliput::utility::ObjFeatures());
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());

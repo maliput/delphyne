@@ -23,7 +23,6 @@ endmacro()
 # Agents
 ##############################################################################
 
-delphyne_add_agent_library(rail_car)
 delphyne_add_agent_library(mobil_car)
 
 ##############################################################################
@@ -31,6 +30,7 @@ delphyne_add_agent_library(mobil_car)
 ##############################################################################
 
 add_library(agents
+  rail_car.cc
   simple_car.cc
   trajectory_agent.cc
 )
@@ -39,6 +39,7 @@ set_target_properties(agents PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-agents)
 target_link_libraries(
   agents
   PUBLIC
+    maliput_utilities
     public_headers
     drake_systems
     drake::drake

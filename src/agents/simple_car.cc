@@ -33,9 +33,10 @@ namespace delphyne {
 
 SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
                      const double& heading, const double& velocity)
-    : delphyne::Agent(name), simple_car_state_(), simple_car_system_() {
+    : delphyne::Agent(name),
+      simple_car_state_(std::make_unique<SimpleCarState>()),
+      simple_car_system_() {
   igndbg << "SimpleCar constructor" << std::endl;
-  simple_car_state_ = std::make_unique<SimpleCarState>();
   simple_car_state_->set_x(x);
   simple_car_state_->set_y(y);
   simple_car_state_->set_heading(heading);
@@ -43,7 +44,8 @@ SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
 }
 
 int SimpleCar::Configure(
-    const int& id, drake::systems::DiagramBuilder<double>* builder,
+    const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+    drake::systems::DiagramBuilder<double>* builder,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
   igndbg << "SimpleCar configure" << std::endl;

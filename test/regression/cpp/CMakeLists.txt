@@ -16,15 +16,11 @@ target_link_libraries(test_helpers
   ${IGNITION-MSGS_LIBRARIES}
 )
 
-# Libraries for agent_plugin_loader_test
-add_subdirectory(agent_plugin)
-
 ##############################################################################
 # Tests
 ##############################################################################
 
 set(SOURCES
-  agent_plugin_loader_test.cc
   automotive_simulator_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
   drake_simple_car_state_to_ign_translator_system_test.cc

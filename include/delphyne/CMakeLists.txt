@@ -24,7 +24,6 @@ target_link_libraries(public_headers
 install(
   FILES
     agent_base.h
-    agent_plugin_base.h
     names.h
   DESTINATION
     ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}

@@ -16,8 +16,6 @@
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
-#include "include/delphyne/agent_plugin_base.h"
-
 namespace py = pybind11;
 
 using std::unique_ptr;
@@ -26,7 +24,6 @@ using delphyne::AutomotiveSimulator;
 using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
-using delphyne::AgentPluginParams;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;
@@ -96,25 +93,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
-      .def("AddAgent", &AutomotiveSimulator<double>::AddAgent)
-      .def("AddLoadableAgent",
-           py::overload_cast<
-               const std::string&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*>(
-               &AutomotiveSimulator<double>::AddLoadableAgent))
-      .def("AddLoadableAgent",
-           py::overload_cast<
-               const std::string&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent))
-      .def("AddLoadableAgent",
-           py::overload_cast<
-               const std::string&, const std::string&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent));
+      .def("AddAgent", &AutomotiveSimulator<double>::AddAgent);
 }
 
 }  // namespace

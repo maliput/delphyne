@@ -94,20 +94,12 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
 }
 
 /*****************************************************************************
- * ???
+ * Tests
  ****************************************************************************/
 
 // Fixture class for share configuration among all tests.
-class AutomotiveSimulatorTest : public ::testing::Test {
- protected:
-  void SetUp() {
-    // Set the paths where agents can be found.
-    const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=" DELPHYNE_PROJECT_BINARY_DIR
-                      "/src/agents:" DELPHYNE_PROJECT_BINARY_DIR
-                      "/test/regression/cpp/agent_plugin";
-    putenv(const_cast<char*>(env));
-  }
-};
+// Define Setup() if you need to set env variables and the like
+class AutomotiveSimulatorTest : public ::testing::Test {};
 
 // Tests GetScene to return the scene
 TEST_F(AutomotiveSimulatorTest, TestGetScene) {

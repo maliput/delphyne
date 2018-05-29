@@ -111,12 +111,14 @@ def main():
         x_offset = 5.0  # Units in m.
         y_offset = 5.0  # Units in m.
         velocity_base = 2.0  # Units in m/s.
-        mobil_position_x = -10.0 + x_offset * (1 + i / 3)
-        mobil_position_y = .0 + y_offset * (i % 3)
-        mobil_velocity = velocity_base * i
         robot_id += 1
-        add_mobil_car(simulator, robot_id, road, mobil_position_x,
-                      mobil_position_y, mobil_velocity)
+        add_mobil_car(simulator,
+                      name=str(robot_id),
+                      x=-10.0 + x_offset * (1 + i / 3),
+                      y=0.0 + y_offset * (i % 3),
+                      heading=0.0,
+                      speed=velocity_base * i
+                      )
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 

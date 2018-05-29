@@ -45,7 +45,9 @@ class TrajectoryAgent : public delphyne::Agent {
                   const std::vector<std::vector<double>>& translations);
 
   int Configure(
-      const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+      const int& id,
+      const std::unique_ptr<const drake::maliput::api::RoadGeometry>&
+          road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;

@@ -134,7 +134,7 @@ int AutomotiveSimulator<T>::AddAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id, *road_geometry_, builder_.get(), aggregator_,
+  if (agent->Configure(id, road_geometry_, builder_.get(), aggregator_,
                        car_vis_applicator_) < 0) {
     ignerr << "Failed to configure agent '" << agent->name() << "'"
          << std::endl;

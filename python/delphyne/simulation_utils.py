@@ -153,7 +153,7 @@ def add_mobil_car(simulator, robot_id, road,
                                agent_params)
 
 # pylint: disable=too-many-arguments
-def add_rail_car(simulator, name, lane, position=0, speed=0):
+def add_rail_car(simulator, name, lane, position, offset, speed):
     """Instantiates a Railcar and adds it to the simulation.
     """
     # Note: keyword arguments not permitted with the bindings
@@ -162,6 +162,7 @@ def add_rail_car(simulator, name, lane, position=0, speed=0):
                     lane,      # lane
                     True,      # direction_of_travel
                     position,  # lane s-coordinate
+                    offset,    # lane r-coordinate
                     speed,     # speed in the s-direction
                     5.0)       # nominal_speed
     simulator.AddAgent(agent)

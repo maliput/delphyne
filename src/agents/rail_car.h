@@ -64,11 +64,14 @@ class RailCar : public delphyne::Agent {
 
   RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
           const bool& direction_of_travel,
-          const double& position,  // s
+          const double& longitudinal_position,  // s
+          const double& lateral_offset,         // r
           const double& speed, const double& nominal_speed);
 
   int Configure(
-      const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+      const int& id,
+      const std::unique_ptr<const drake::maliput::api::RoadGeometry>&
+          road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
@@ -82,15 +85,18 @@ class RailCar : public delphyne::Agent {
     const drake::maliput::api::Lane& lane;
     bool direction_of_travel{true};
     double position{0.0};
+    double offset{0.0};
     double speed{0.0};
     double nominal_speed{0.0};
     Parameters(const drake::maliput::api::Lane& lane,
                const bool& direction_of_travel,
                const double& position,  // s
+               const double& offset,    // r
                const double& speed, const double& nominal_speed)
         : lane(lane),
           direction_of_travel(direction_of_travel),
           position(position),
+          offset(offset),
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;

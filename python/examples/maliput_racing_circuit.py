@@ -74,24 +74,37 @@ def main():
     railcar_s = 0.0  # Units in m.
     robot_id = 1
     lane_1 = road.junction(2).segment(0).lane(0)
-    add_rail_car(simulator, str(robot_id),
-                lane_1, railcar_s, railcar_speed)
+    add_rail_car(simulator,
+                 name=str(robot_id),
+                 lane=lane_1,
+                 position=railcar_s,
+                 offset=0.0,
+                 speed=railcar_speed
+                )
 
     # Setup railcar 2
     railcar_speed = 8.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id += 1
     lane_2 = road.junction(2).segment(0).lane(1)
-    add_rail_car(simulator, str(robot_id),
-                 lane_2, railcar_s, railcar_speed)
+    add_rail_car(simulator,
+                 name=str(robot_id),
+                 lane=lane_2,
+                 position=railcar_s,
+                 offset=0.0,
+                 speed=railcar_speed)
 
     # Setup railcar 3
     railcar_speed = 7.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id += 1
     lane_3 = road.junction(2).segment(0).lane(2)
-    add_rail_car(simulator, str(robot_id),
-                 lane_3, railcar_s, railcar_speed)
+    add_rail_car(simulator,
+                 name=str(robot_id),
+                 lane=lane_3,
+                 position=railcar_s,
+                 offset=0.0,
+                 speed=railcar_speed)
 
     # Setup MOBIL cars.
     for i in range(mobil_cars_num):

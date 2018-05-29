@@ -48,11 +48,12 @@ namespace delphyne {
 
 RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
                  const bool& direction_of_travel,
-                 const double& position,  // s
+                 const double& longitudinal_position,  // s
+                 const double& lateral_offset,         // r
                  const double& speed, const double& nominal_speed)
     : delphyne::Agent(name),
-      initial_parameters_(lane, direction_of_travel, position, speed,
-                          nominal_speed),
+      initial_parameters_(lane, direction_of_travel, longitudinal_position,
+                          lateral_offset, speed, nominal_speed),
       rail_car_context_state_(),
       rail_car_context_parameters_(),
       rail_car_system_(nullptr) {
@@ -60,7 +61,9 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
 }
 
 int RailCar::Configure(
-    const int& id, const drake::maliput::api::RoadGeometry& road_geometry,
+    const int& id,
+    const std::unique_ptr<const drake::maliput::api::RoadGeometry>&
+        road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
@@ -74,7 +77,21 @@ int RailCar::Configure(
   /*********************
    * Checks
    *********************/
-  if (!maliput::FindLane(initial_parameters_.lane.id(), road_geometry)) {
+  if (!road_geometry) {
+    ignerr << "Rail cars need a road geometry to drive on, make sure "
+           << "the simulation is configured with one." << std::endl;
+    return -1;
+  }
+
+  if (initial_parameters_.lane.segment()->junction()->road_geometry()->id() !=
+      road_geometry->id()) {
+    ignerr << "RailCar::Configure(): "
+              "The provided initial lane is not on the same road geometry "
+              "as that used by the simulation"
+           << std::endl;
+    return -1;
+  }
+  if (!maliput::FindLane(initial_parameters_.lane.id(), *road_geometry)) {
     ignerr << "RailCar::Configure(): "
               "The provided initial lane is not within this simulation's "
               "RoadGeometry."
@@ -137,26 +154,13 @@ int RailCar::Initialize(drake::systems::Context<double>* system_context) {
   // state that will be updated by the simulation
 
   /********************
-   * State
+   * Context State
    *******************/
-  // TODO(daniel.stonier) shift this to the initialize section?
   rail_car_context_state_ = std::make_unique<RailCarContextState>();
   // TODO(daniel.stonier) check for 'in-lane' bounds?
   rail_car_context_state_->set_s(initial_parameters_.position);
   rail_car_context_state_->set_speed(initial_parameters_.speed);
-  rail_car_context_parameters_ = std::make_unique<RailCarContextParameters>();
-  rail_car_context_parameters_->set_r(0.0);
-  // TODO(daniel.stonier) check or clamp to lane height?
-  rail_car_context_parameters_->set_h(0.0);
-  rail_car_context_parameters_->set_max_speed(
-      initial_parameters_.nominal_speed);
-  // rail_car_context_parameters->set_velocity_limit_kp() // just use the
-  // default for now
 
-  // initialize both the RailCarState (see addLoadableAgent) and the
-  // MaliputRailCarParams?
-
-  // RailCarState part
   drake::systems::VectorBase<double>& context_state =
       system_context->get_mutable_continuous_state().get_mutable_vector();
   drake::systems::BasicVector<double>* const state =
@@ -164,7 +168,18 @@ int RailCar::Initialize(drake::systems::Context<double>* system_context) {
   DELPHYNE_ASSERT(state);
   state->set_value(rail_car_context_state_->get_value());
 
-  // MaliputRailCarParams part
+  /********************
+   * Context Parameters
+   *******************/
+  rail_car_context_parameters_ = std::make_unique<RailCarContextParameters>();
+  rail_car_context_parameters_->set_r(initial_parameters_.offset);
+  // TODO(daniel.stonier) check or clamp to lane height?
+  rail_car_context_parameters_->set_h(0.0);
+  rail_car_context_parameters_->set_max_speed(
+      initial_parameters_.nominal_speed);
+  // TODO(daniel.stonier) just use the default kp for now
+  // rail_car_context_parameters->set_velocity_limit_kp()
+
   RailCarContextParameters& context_parameters =
       rail_car_system_->get_mutable_parameters(system_context);
   context_parameters.set_value(rail_car_context_parameters_->get_value());

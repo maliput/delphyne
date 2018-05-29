@@ -1,5 +1,5 @@
 /**
- * @file include/delphyne/maliput/find_lane.h
+ * @file include/delphyne/maliput/types.hpp
  *
  * Copyright 2017 Toyota Research Institute
  */
@@ -9,10 +9,11 @@
 
 #pragma once
 
+#include <memory>
+
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
-
-#include "delphyne/maliput/types.h"
+#include <drake/automotive/maliput/dragway/road_geometry.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -22,19 +23,16 @@ namespace delphyne {
 namespace maliput {
 
 /*****************************************************************************
-** Methods
+** Interfaces
 *****************************************************************************/
 
-/**
- * @brief Find the lane corresponding to the unique name identifier
- *
- * @param lane_id: unique lane identifier (based on a string)
- * @param road_geometry: road geometry to search in
- * @return a pointer to the lane, null if not found
- *
- * TODO(daniel.stonier): use optional once we have c++17
- */
-const Lane* FindLane(const LaneId& lane_id, const RoadGeometry& road_geometry);
+typedef drake::maliput::dragway::RoadGeometry Dragway;
+typedef drake::maliput::api::Lane Lane;
+typedef drake::maliput::api::LaneId LaneId;
+typedef drake::maliput::api::RoadGeometry RoadGeometry;
+
+typedef std::unique_ptr<Dragway> DragwayPtr;
+typedef std::unique_ptr<RoadGeometry> RoadGeometryPtr;
 
 /*****************************************************************************
 ** Trailers

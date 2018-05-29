@@ -38,9 +38,9 @@ PYBIND11_MODULE(agents, m) {
   py::class_<delphyne::Agent>(m, "AgentBase");
 
   py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
-      .def(
-          py::init<const std::string&, const drake::maliput::api::Lane&,
-                   const bool&, const double&, const double&, const double&>());
+      .def(py::init<const std::string&, const drake::maliput::api::Lane&,
+                    const bool&, const double&, const double&, const double&,
+                    const double&>());
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
       .def(py::init<const std::string&, const double&, const double&,

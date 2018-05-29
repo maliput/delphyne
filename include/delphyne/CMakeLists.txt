@@ -36,3 +36,9 @@ install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+##############################################################################
+# Subdirectories
+##############################################################################
+
+add_subdirectory(maliput)

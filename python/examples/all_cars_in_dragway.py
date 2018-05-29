@@ -65,6 +65,7 @@ def main():
                  name=str(car_id),
                  lane = dragway.junction(0).segment(0).lane(1),
                  position=0.0,
+                 offset=0.0,
                  speed=3.0)
 
     car_id += 1

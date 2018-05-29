@@ -154,16 +154,16 @@ void MaliputRailcar2<T>::CalcStateOutput(const Context<T>& context,
 template <typename T>
 void MaliputRailcar2<T>::CalcSimpleCarStateOutput(
     const Context<T>& context, SimpleCarState<T>* output) const {
-  // Get pose
+  // Obtains car pose.
   auto pose = std::make_unique<drake::systems::rendering::PoseVector<T>>();
   CalcPose(context, pose.get());
   const Eigen::Translation<T, 3> pose_translation = pose->get_translation();
   const Eigen::Quaternion<T> pose_rotation = pose->get_rotation();
-  // Translate pose from quaternion to euler.
+  // Translates pose from quaternion to euler.
   const Eigen::Vector3d euler_rotation =
       pose_rotation.toRotationMatrix().eulerAngles(0, 1, 2);
 
-  // Get velocity
+  // Obtains car velocity.
   auto velocity =
       std::make_unique<drake::systems::rendering::FrameVelocity<T>>();
   CalcVelocity(context, velocity.get());
@@ -172,7 +172,7 @@ void MaliputRailcar2<T>::CalcSimpleCarStateOutput(
   const double velocity_norm =
       static_cast<double>(spatial_velocity.translational().norm());
 
-  // Fill the SimpleCarState message
+  // Fills the SimpleCarState message.
   SimpleCarState<T> state{};
   state.set_x(pose_translation.x());
   state.set_y(pose_translation.y());
@@ -181,9 +181,8 @@ void MaliputRailcar2<T>::CalcSimpleCarStateOutput(
 
   output->set_value(state.get_value());
 
-  // Don't allow small negative velocities to escape our state.
-  using std::max;
-  output->set_velocity(max(T(0), state.velocity()));
+  // Don't allow small negative velocities to escape the state.
+  output->set_velocity(std::max(T(0), state.velocity()));
 }
 
 template <typename T>

@@ -12,8 +12,6 @@
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 
-#include "delphyne/maliput/types.h"
-
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -34,7 +32,9 @@ namespace maliput {
  *
  * TODO(daniel.stonier): use optional once we have c++17
  */
-const Lane* FindLane(const LaneId& lane_id, const RoadGeometry& road_geometry);
+const drake::maliput::api::Lane* FindLane(
+    const drake::maliput::api::LaneId& lane_id,
+    const drake::maliput::api::RoadGeometry& road_geometry);
 
 /*****************************************************************************
 ** Trailers

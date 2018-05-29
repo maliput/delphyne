@@ -7,7 +7,7 @@
 
 #include "backend/agent_plugin_loader.h"
 #include "include/delphyne/agent_plugin_base.h"
-#include "include/delphyne/types.h"
+#include "include/delphyne/names.h"
 
 namespace delphyne {
 namespace {

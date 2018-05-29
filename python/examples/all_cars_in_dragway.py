@@ -54,11 +54,14 @@ def main():
     add_simple_car(simulator, car_id, simple_car_position_x,
                    simple_car_position_y)
 
-    mobil_car_position_x = 0.0
-    mobil_car_position_y = -0.5 * 3.7
     car_id += 1
-    add_mobil_car(simulator, car_id, dragway,
-                  mobil_car_position_x, mobil_car_position_y)
+    add_mobil_car(simulator,
+                  name=str(car_id),
+                  x=0.0,
+                  y=-0.5*3.7,
+                  heading=0.0,
+                  speed=1.0
+                  )
 
     car_id += 1
     add_rail_car(simulator,

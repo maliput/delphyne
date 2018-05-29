@@ -12,7 +12,7 @@
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
-#include "./types.h"
+#include "./names.h"
 
 namespace delphyne {
 /// The abstract class that all delphyne agents must inherit from. Concrete

@@ -15,6 +15,7 @@
 
 #include "delphyne/agent_base.h"
 
+#include "agents/mobil_car.h"
 #include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
@@ -36,6 +37,10 @@ PYBIND11_MODULE(agents, m) {
   py::module::import("pydrake.maliput.api");
 
   py::class_<delphyne::Agent>(m, "AgentBase");
+
+  py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
+      .def(py::init<const std::string&, const bool&, const double&,
+                    const double&, const double&, const double&>());
 
   py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
       .def(py::init<const std::string&, const drake::maliput::api::Lane&,

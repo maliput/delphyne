@@ -21,6 +21,8 @@
 namespace delphyne {
 namespace maliput {
 
+namespace api = drake::maliput::api;
+
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
@@ -28,15 +30,14 @@ namespace maliput {
 // TODO(daniel.stonier) if frequently used, cache a map of lane id's -> lane
 // lane pointers.
 
-const drake::maliput::api::Lane* FindLane(
-    const drake::maliput::api::LaneId& lane_id,
-    const drake::maliput::api::RoadGeometry& road_geometry) {
+const api::Lane* FindLane(const api::LaneId& lane_id,
+                          const api::RoadGeometry& road_geometry) {
   for (int i = 0; i < road_geometry.num_junctions(); ++i) {
-    const drake::maliput::api::Junction* junction = road_geometry.junction(i);
+    const api::Junction* junction = road_geometry.junction(i);
     for (int j = 0; j < junction->num_segments(); ++j) {
-      const drake::maliput::api::Segment* segment = junction->segment(j);
+      const api::Segment* segment = junction->segment(j);
       for (int k = 0; k < segment->num_lanes(); ++k) {
-        const drake::maliput::api::Lane* lane = segment->lane(k);
+        const api::Lane* lane = segment->lane(k);
         if (lane->id() == lane_id) {
           return lane;
         }

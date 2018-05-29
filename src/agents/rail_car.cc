@@ -1,5 +1,5 @@
 /**
- * @file src/agents/rail_car
+ * @file src/agents/rail_car.cc
  *
  * Copyright 2017 Toyota Research Institute
  */

@@ -109,8 +109,6 @@ class AutomotiveSimulatorTest : public ::testing::Test {
   }
 };
 
-static const drake::maliput::api::RoadGeometry* kNullRoad{nullptr};
-
 // Tests GetScene to return the scene
 TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
@@ -266,25 +264,20 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // +---->  +s, +x  | MOBIL Car |   | Decoy 1 |
   // ---------------------------------------------------------------
 
-  auto simple_car_state =
-      std::make_unique<drake::automotive::SimpleCarState<double>>();
-  simple_car_state->set_x(2.0);
-  simple_car_state->set_y(-2.0);
-  simple_car_state->set_velocity(10.0);
-
-  auto mobil_params = std::make_unique<MobilCarAgentParams>(true);
-  const int id_mobil = simulator->AddLoadableAgent(
-      "mobil-car", "MOBIL0", std::move(simple_car_state), road_geometry,
-      std::move(mobil_params));
+  auto mobil = std::make_unique<delphyne::MobilCar>("MOBIL0",
+                                                    true,  // lane_direction,
+                                                    2.0,   // x
+                                                    -2.0,  // y
+                                                    0.0,   // heading
+                                                    10.0   // velocity
+                                                    );
+  const int id_mobil = simulator->AddAgent(std::move(mobil));
   EXPECT_EQ(0, id_mobil);
-  auto decoy_state1 = std::make_unique<MaliputRailcarState<double>>();
-  decoy_state1->set_s(6.0);
-  decoy_state1->set_speed(0.0);
 
   auto decoy_1 = std::make_unique<delphyne::RailCar>(
       "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
       true,  // lane_direction,
-      0.0,   // position
+      6.0,   // position
       0.0,   // offset
       0.0,   // speed
       0.0    // nominal_speed

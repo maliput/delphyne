@@ -17,7 +17,7 @@
 #include <ignition/common/PluginLoader.hh>
 #include <ignition/common/PluginMacros.hh>
 
-#include "./types.h"
+#include "./names.h"
 #include "backend/system.h"
 
 namespace delphyne {

@@ -15,7 +15,7 @@
 #include <ignition/common/SystemPaths.hh>
 
 #include "include/delphyne/agent_plugin_base.h"
-#include "include/delphyne/types.h"
+#include "include/delphyne/names.h"
 
 namespace delphyne {
 namespace {

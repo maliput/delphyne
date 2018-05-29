@@ -21,18 +21,14 @@ import time
 from contextlib import contextmanager
 from delphyne.bindings import (
     AutomotiveSimulator,
-    MobilCarAgentParams,
 )
 from delphyne.agents import (
+    MobilCar,
     RailCar,
     SimpleCar,
     TrajectoryAgent
 )
 from delphyne.launcher import Launcher
-from pydrake.automotive import (
-    LaneDirection,
-    SimpleCarState
-)
 
 #
 # Methods
@@ -129,28 +125,19 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
                       0.0)
     simulator.AddAgent(agent)
 
-
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, robot_id, road,
-                  position_x=0, position_y=0, velocity=1.0):
+def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
-    # Initial State
-    mobil_car_state = SimpleCarState()
-    mobil_car_state.set_x(position_x)
-    mobil_car_state.set_y(position_y)
-    mobil_car_state.set_velocity(velocity)
-
-    # Parameters
-    agent_params = MobilCarAgentParams(True)
-
-    # Instantiate
-    simulator.AddLoadableAgent("mobil-car",
-                               str(robot_id),
-                               mobil_car_state,
-                               road,
-                               agent_params)
+    agent = MobilCar(name,      # unique name
+                     True,      # direction_of_travel
+                     x,         # scene x-coordinate
+                     y,         # scene y-coordinate
+                     heading,   # heading
+                     speed,     # speed in the s-direction
+                     )
+    simulator.AddAgent(agent)
 
 # pylint: disable=too-many-arguments
 def add_rail_car(simulator, name, lane, position, offset, speed):

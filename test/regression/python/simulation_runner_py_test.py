@@ -11,9 +11,7 @@ from delphyne.bindings import (
     AutomotiveSimulator,
     SimulatorRunner
 )
-from pydrake.automotive import (
-    SimpleCarState
-)
+from delphyne.agents import SimpleCar
 
 
 class TestSimulationRunnerPy(unittest.TestCase):
@@ -29,7 +27,6 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Initialize class variables.
         self.simulator = AutomotiveSimulator()
         self.runner = None
-        self.state = SimpleCarState()
         self.callback_called = False
 
     def setUp(self):
@@ -37,7 +34,8 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Initialize callback flag.
         self.callback_called = False
         # Add a prius car to the simulation.
-        self.simulator.AddLoadableAgent("simple-car", "0", self.state, None)
+        agent = SimpleCar("simple-car", 0.0, 0.0, 0.0, 0.0)
+        self.simulator.AddAgent(agent)
         # Creates a simulator runner.
         self.runner = SimulatorRunner(
             self.simulator, self.SIMULATION_STEP)

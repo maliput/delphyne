@@ -55,8 +55,7 @@ class AgentBase {
   /// it's state for access by all.
   /// @param car_vis_applicator:
   virtual int Configure(
-      int id,
-      const drake::maliput::api::RoadGeometry* road_geometry,
+      int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) = 0;

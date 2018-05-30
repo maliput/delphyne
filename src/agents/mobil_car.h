@@ -62,8 +62,7 @@ class MobilCar : public delphyne::Agent {
            const double& speed);
 
   int Configure(
-      int id,
-      const drake::maliput::api::RoadGeometry* road_geometry,
+      int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
@@ -98,4 +97,3 @@ class MobilCar : public delphyne::Agent {
 *****************************************************************************/
 
 }  // namespace delphyne
-

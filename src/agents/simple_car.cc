@@ -44,8 +44,7 @@ SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
 }
 
 int SimpleCar::Configure(
-    int id,
-    const drake::maliput::api::RoadGeometry* road_geometry,
+    int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {

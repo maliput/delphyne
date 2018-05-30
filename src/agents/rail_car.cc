@@ -61,8 +61,7 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
 }
 
 int RailCar::Configure(
-    int id,
-    const drake::maliput::api::RoadGeometry* road_geometry,
+    int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
@@ -81,17 +80,17 @@ int RailCar::Configure(
            << "the simulation is configured with one." << std::endl;
     return -1;
   }
-  if (! initial_parameters_.lane.segment() ) {
+  if (!initial_parameters_.lane.segment()) {
     ignerr << "The lane to be initialised on is not part of a road segment "
            << "(subsequently road geometry)." << std::endl;
     return -1;
   }
-  if (! initial_parameters_.lane.segment() ) {
+  if (!initial_parameters_.lane.segment()->junction()) {
     ignerr << "The lane to be initialised on is not connected to a junction "
            << "(subsequently road geometry)." << std::endl;
     return -1;
   }
-  if (! initial_parameters_.lane.segment() ) {
+  if (!initial_parameters_.lane.segment()->junction()->road_geometry()) {
     ignerr << "The lane to be initialised on is not part of a road geometry."
            << std::endl;
     return -1;

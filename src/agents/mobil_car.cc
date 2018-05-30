@@ -165,6 +165,8 @@ int MobilCar::Configure(
 }
 
 int MobilCar::Initialize(drake::systems::Context<double>* system_context) {
+  // TODO(daniel.stonier) unwind this and pre-declare instead
+
   igndbg << "MobilCar initialize" << std::endl;
 
   typedef drake::automotive::SimpleCarState<double> SimpleCarContextState;

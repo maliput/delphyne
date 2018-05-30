@@ -96,7 +96,8 @@ int TrajectoryAgent::Configure(
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
-  auto ports = aggregator->AddSinglePoseAndVelocityInput(name_, id);
+  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
+      aggregator->AddSinglePoseAndVelocityInput(name_, id);
   builder->Connect(trajectory_follower_system_->pose_output(),
                    ports.pose_descriptor);
   builder->Connect(trajectory_follower_system_->velocity_output(),
@@ -126,6 +127,7 @@ int TrajectoryAgent::Configure(
 }
 
 int TrajectoryAgent::Initialize(drake::systems::Context<double>* context) {
+  // TODO(daniel.stonier) unwind this and pre-declare instead
   igndbg << "TrajectoryAgent initialize" << std::endl;
   return 0;
 }

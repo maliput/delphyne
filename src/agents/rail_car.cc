@@ -134,7 +134,8 @@ int RailCar::Configure(
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
-  auto ports = aggregator->AddSinglePoseAndVelocityInput(name_, id);
+  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
+      aggregator->AddSinglePoseAndVelocityInput(name_, id);
   builder->Connect(rail_car_system_->pose_output(), ports.pose_descriptor);
   builder->Connect(rail_car_system_->velocity_output(),
                    ports.velocity_descriptor);
@@ -163,7 +164,7 @@ int RailCar::Configure(
 }
 
 int RailCar::Initialize(drake::systems::Context<double>* system_context) {
-  // state that will be updated by the simulation
+  // TODO(daniel.stonier) unwind this and pre-declare instead
 
   /********************
    * Context State

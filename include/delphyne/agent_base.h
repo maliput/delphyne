@@ -60,7 +60,7 @@ class AgentBase {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) = 0;
 
-  /// @brief Prepare the backgroudn context(s) for the agent in this method.
+  /// @brief Prepare the background context(s) for the agent in this method.
   ///
   /// Derived classes will typically use this to drop variable state on
   /// the context before simulation starts.
@@ -82,7 +82,6 @@ class AgentBase {
   ///
   /// Access the system, currently used internally by
   /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" to feed
-  ///
   /// the Initialize method with the required sub-context.
   ///
   /// @warning: This method is misleading - note that agents will often

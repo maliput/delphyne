@@ -88,7 +88,8 @@ int SimpleCar::Configure(
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
-  auto ports = aggregator->AddSinglePoseAndVelocityInput(name_, id);
+  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
+      aggregator->AddSinglePoseAndVelocityInput(name_, id);
   builder->Connect(simple_car_system_->pose_output(), ports.pose_descriptor);
   builder->Connect(simple_car_system_->velocity_output(),
                    ports.velocity_descriptor);
@@ -117,6 +118,7 @@ int SimpleCar::Configure(
 }
 
 int SimpleCar::Initialize(drake::systems::Context<double>* context) {
+  // TODO(daniel.stonier) unwind this and pre-declare instead
   igndbg << "SimpleCar initialize" << std::endl;
 
   drake::systems::VectorBase<double>& context_state =

@@ -63,7 +63,9 @@ def main():
     railcar_s = 0.0
     railcar_speed = 3.0
     car_id += 1
-    add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
+    lane = dragway.junction(0).segment(0).lane(1)
+
+    add_maliput_railcar(simulator, car_id, dragway, lane, railcar_s, railcar_speed)
 
     car_id += 1
     times = [0.0, 5.0, 10.0, 15.0, 20.0]

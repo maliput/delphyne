@@ -15,6 +15,7 @@
 #include <ignition/common/PluginMacros.hh>
 
 #include <drake/automotive/gen/maliput_railcar_params.h>
+#include <drake/automotive/gen/simple_car_state_translator.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/junction.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
@@ -23,10 +24,14 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
-#include "systems/maliput_railcar.h"
+#include "backend/ign_publisher_system.h"
+#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
 
 #include "include/delphyne/agent_plugin_base.h"
+
 #include "src/agents/rail_car.h"
+
+#include "systems/maliput_railcar.h"
 
 namespace delphyne {
 
@@ -113,6 +118,24 @@ class RailCar final : public delphyne::AgentPlugin {
     builder->Connect(rail_car_->velocity_output(), ports.velocity_descriptor);
     car_vis_applicator->AddCarVis(
         std::make_unique<drake::automotive::PriusVis<double>>(id_, name));
+
+    /*********************
+     * Other
+     *********************/
+    auto agent_state_translator =
+        builder->template AddSystem<DrakeSimpleCarStateToIgn>();
+
+    const std::string car_state_channel =
+        "agents/" + std::to_string(id) + "/state";
+    auto car_state_publisher = builder->template AddSystem<
+        IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
+
+    // Drake car states are translated to ignition.
+    builder->Connect(rail_car_->simple_car_state_output(),
+                     agent_state_translator->get_input_port(0));
+
+    // And then the translated ignition car state is published.
+    builder->Connect(*agent_state_translator, *car_state_publisher);
 
     return 0;
   }

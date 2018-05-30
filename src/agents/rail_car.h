@@ -84,8 +84,7 @@ class RailCar : public delphyne::Agent {
     double offset{0.0};
     double speed{0.0};
     double nominal_speed{0.0};
-    Parameters(const drake::maliput::api::Lane& lane,
-               bool direction_of_travel,
+    Parameters(const drake::maliput::api::Lane& lane, bool direction_of_travel,
                double position,  // s
                double offset,    // r
                double speed, double nominal_speed)

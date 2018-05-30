@@ -34,9 +34,8 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-MobilCar::MobilCar(const std::string& name, bool direction_of_travel,
-                   double x, double y, double heading,
-                   double speed)
+MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
+                   double y, double heading, double speed)
     : delphyne::Agent(name),
       initial_parameters_(direction_of_travel, x, y, heading, speed),
       simple_car_system_(nullptr) {

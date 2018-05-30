@@ -36,6 +36,8 @@
 #include "backend/translation_systems/drake_simple_car_state_to_ign.h"
 #include "backend/translation_systems/ign_driving_command_to_drake.h"
 
+#include "delphyne/maliput/find_lane.h"
+
 /*****************************************************************************
  ** Namespaces
  *****************************************************************************/
@@ -154,7 +156,7 @@ int RailCar::Configure(
       IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
 
   // Drake car states are translated to ignition.
-  builder->Connect(rail_car_->simple_car_state_output(),
+  builder->Connect(rail_car_system_->simple_car_state_output(),
                    agent_state_translator->get_input_port(0));
 
   // And then the translated ignition car state is published.

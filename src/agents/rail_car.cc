@@ -82,7 +82,21 @@ int RailCar::Configure(
            << "the simulation is configured with one." << std::endl;
     return -1;
   }
-
+  if (! initial_parameters_.lane.segment() ) {
+    ignerr << "The lane to be initialised on is not part of a road segment "
+           << "(subsequently road geometry)." << std::endl;
+    return -1;
+  }
+  if (! initial_parameters_.lane.segment() ) {
+    ignerr << "The lane to be initialised on is not connected to a junction "
+           << "(subsequently road geometry)." << std::endl;
+    return -1;
+  }
+  if (! initial_parameters_.lane.segment() ) {
+    ignerr << "The lane to be initialised on is not part of a road geometry."
+           << std::endl;
+    return -1;
+  }
   if (initial_parameters_.lane.segment()->junction()->road_geometry()->id() !=
       road_geometry->id()) {
     ignerr << "RailCar::Configure(): "
@@ -165,6 +179,7 @@ int RailCar::Initialize(drake::systems::Context<double>* system_context) {
       system_context->get_mutable_continuous_state().get_mutable_vector();
   drake::systems::BasicVector<double>* const state =
       dynamic_cast<drake::systems::BasicVector<double>*>(&context_state);
+  // TODO(daniel.stonier) prefer an error message and returning -1
   DELPHYNE_ASSERT(state);
   state->set_value(rail_car_context_state_->get_value());
 
@@ -177,8 +192,8 @@ int RailCar::Initialize(drake::systems::Context<double>* system_context) {
   rail_car_context_parameters_->set_h(0.0);
   rail_car_context_parameters_->set_max_speed(
       initial_parameters_.nominal_speed);
-  // TODO(daniel.stonier) just use the default kp for now
-  // rail_car_context_parameters->set_velocity_limit_kp()
+  // TODO(daniel.stonier) Just trust the default kp for now
+  // rail_car_context_parameters->set_velocity_limit_kp().
 
   RailCarContextParameters& context_parameters =
       rail_car_system_->get_mutable_parameters(system_context);

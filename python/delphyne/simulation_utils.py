@@ -119,10 +119,11 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
     and adds it to the simulation.
     """
     agent = SimpleCar(str(robot_id),
-                      position_x,
-                      position_y,
-                      0.0,
-                      0.0)
+                      position_x,  # scene x-coordinate (m)
+                      position_y,  # scene y-coordinate (m)
+                      0.0,         # heading (radians)
+                      0.0          # speed in the direction of travel (m/s)
+                      )
     simulator.AddAgent(agent)
 
 # pylint: disable=too-many-arguments
@@ -132,10 +133,10 @@ def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
     """
     agent = MobilCar(name,      # unique name
                      True,      # direction_of_travel
-                     x,         # scene x-coordinate
-                     y,         # scene y-coordinate
-                     heading,   # heading
-                     speed,     # speed in the s-direction
+                     x,         # scene x-coordinate (m)
+                     y,         # scene y-coordinate (m)
+                     heading,   # heading (radians)
+                     speed,     # speed in the s-direction (m/s)
                      )
     simulator.AddAgent(agent)
 
@@ -148,10 +149,10 @@ def add_rail_car(simulator, name, lane, position, offset, speed):
     agent = RailCar(name,      # unique name
                     lane,      # lane
                     True,      # direction_of_travel
-                    position,  # lane s-coordinate
-                    offset,    # lane r-coordinate
-                    speed,     # speed in the s-direction
-                    5.0)       # nominal_speed
+                    position,  # lane s-coordinate (m)
+                    offset,    # lane r-coordinate (m)
+                    speed,     # speed in the s-direction (m/s)
+                    5.0)       # nominal_speed (m/s)
     simulator.AddAgent(agent)
 
 def add_trajectory_agent(simulator, robot_id, road, times, headings, waypoints):
@@ -168,8 +169,8 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, waypoints):
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
     agent = TrajectoryAgent(str(robot_id),
-                            times,
-                            headings,
-                            waypoints
+                            times,     # timings (sec)
+                            headings,  # list of headings (radians)
+                            waypoints  # list of x-y-z-tuples (m, m, m)
                             )
     simulator.AddAgent(agent)

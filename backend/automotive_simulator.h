@@ -74,8 +74,8 @@ class AutomotiveSimulator {
    * to perform the necessary system configuration and wiring to
    * ready this agent for use in the simulation.
    *
-   * @param agent
-   * @return
+   * @param agent: user provided agent to add to the simulation
+   * @return simulator generated unqiue id for the agent
    */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
 
@@ -214,7 +214,7 @@ class AutomotiveSimulator {
   // with static id counters since they may run into threading problems)
   int unique_system_id_{0};
 
-  // Maps an agent id to a the agents
+  // Maps from simulator generated unique id's to the agents.
   std::map<int, std::unique_ptr<delphyne::AgentBase<T>>> agents_;
 
   // For simulation.

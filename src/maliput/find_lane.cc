@@ -27,9 +27,8 @@ namespace api = drake::maliput::api;
 ** Implementation
 *****************************************************************************/
 
-// TODO(daniel.stonier) if frequently used, cache a map of lane id's -> lane
-// lane pointers.
-
+// TODO(daniel.stonier) cache a map of lane id's -> lane pointers?
+// TODO(daniel.stonier) return optional once we have c++17
 const api::Lane* FindLane(const api::LaneId& lane_id,
                           const api::RoadGeometry& road_geometry) {
   for (int i = 0; i < road_geometry.num_junctions(); ++i) {

@@ -106,14 +106,12 @@ class RailCar : public delphyne::Agent {
   } initial_parameters_;
 
   typedef drake::automotive::MaliputRailcarState<double> RailCarContextState;
-  typedef std::unique_ptr<RailCarContextState> RailCarContextStatePtr;
   typedef drake::automotive::MaliputRailcarParams<double>
       RailCarContextParameters;
-  typedef std::unique_ptr<RailCarContextParameters> RailCarContextParametersPtr;
   typedef drake::automotive::MaliputRailcar2<double> RailCarSystem;
 
-  RailCarContextStatePtr rail_car_context_state_;
-  RailCarContextParametersPtr rail_car_context_parameters_;
+  std::unique_ptr<RailCarContextState> rail_car_context_state_;
+  std::unique_ptr<RailCarContextParameters> rail_car_context_parameters_;
   RailCarSystem* rail_car_system_;
 };
 

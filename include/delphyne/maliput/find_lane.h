@@ -23,15 +23,14 @@ namespace maliput {
 ** Methods
 *****************************************************************************/
 
-/**
- * @brief Find the lane corresponding to the unique name identifier
- *
- * @param lane_id: unique lane identifier (based on a string)
- * @param road_geometry: road geometry to search in
- * @return a pointer to the lane, null if not found
- *
- * TODO(daniel.stonier): use optional once we have c++17
- */
+/// @brief Find the lane inside the specified road geometry by id.
+///
+/// @param lane_id: a maliput-style identifier based on
+/// @ref drake::automotive::api::TypeSpecificIdentifier<class Lane>
+/// "TypeSpecificIdentifier"
+///
+/// @param road_geometry[in] Search over this road geometry.
+/// @return A pointer to the lane, null if not found.
 const drake::maliput::api::Lane* FindLane(
     const drake::maliput::api::LaneId& lane_id,
     const drake::maliput::api::RoadGeometry& road_geometry);

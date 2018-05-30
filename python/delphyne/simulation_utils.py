@@ -2,15 +2,15 @@
 #
 # Copyright 2017 Toyota Research Institute
 #
-#############################################################################
+#
 # Documentation
-#############################################################################
+#
 
 """A group of common functions useful for python-scripted simulations"""
 
-#############################################################################
+#
 # Imports
-#############################################################################
+#
 
 from __future__ import print_function
 
@@ -36,9 +36,10 @@ from pydrake.automotive import (
     SimpleCarState
 )
 
-#############################################################################
+#
 # Methods
-#############################################################################
+#
+
 
 @contextmanager
 def launch_interactive_simulation(simulator_runner,
@@ -53,7 +54,7 @@ def launch_interactive_simulation(simulator_runner,
         launch_visualizer(launcher, layout)
         yield launcher
         launcher.wait(float("Inf"))
-    except RuntimeError, error_msg:
+    except RuntimeError as error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
         if simulator_runner.IsInteractiveLoopRunning():
@@ -127,11 +128,13 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
                       position_x,
                       position_y,
                       0.0,
-                      0.0
-                      )
+                      0.0)
     simulator.AddAgent(agent)
 
-def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0, velocity=1.0):
+
+# pylint: disable=too-many-arguments
+def add_mobil_car(simulator, robot_id, road,
+                  position_x=0, position_y=0, velocity=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
@@ -151,7 +154,10 @@ def add_mobil_car(simulator, robot_id, road, position_x=0, position_y=0, velocit
                                road,
                                agent_params)
 
-def add_maliput_railcar(simulator, robot_id, road, lane, s_coordinate=0, speed=0):
+
+# pylint: disable=too-many-arguments
+def add_maliput_railcar(
+        simulator, robot_id, road, lane, s_coordinate=0, speed=0):
     """Instantiates a new Maliput Railcar and adds
     it to the simulation.
     """
@@ -174,14 +180,15 @@ def add_maliput_railcar(simulator, robot_id, road, lane, s_coordinate=0, speed=0
                                road,
                                agent_params)
 
-def add_trajectory_agent(simulator, robot_id, road, times, headings, translations):
+
+def add_trajectory_agent(
+        simulator, robot_id, times, headings, translations):
     """
-    Instantiates a trajectory agent with a trajectory defined by times, headings
-    and translations.
+    Instantiates a trajectory agent with a trajectory defined by times,
+    headings and translations.
     Args:
         simulator: the automotive simulator object
         robot_id: name of the agent
-        road: maliput road geometry
         times: list of times defining the trajectory (floats)
         headings: list of yaw headings defining the trajectory (floats)
         translations: list of translations defining the trajectory (x, y, z)
@@ -191,6 +198,5 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, translation
     agent = TrajectoryAgent(str(robot_id),
                             times,
                             headings,
-                            translations
-                            )
+                            translations)
     simulator.AddAgent(agent)

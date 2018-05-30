@@ -49,13 +49,13 @@ def main():
 
     # Adds the different cars.
     simple_car_position_x = 0.0
-    simple_car_position_y = 1.5*3.7
+    simple_car_position_y = 1.5 * 3.7
     car_id = 0
     add_simple_car(simulator, car_id, simple_car_position_x,
                    simple_car_position_y)
 
     mobil_car_position_x = 0.0
-    mobil_car_position_y = -0.5*3.7
+    mobil_car_position_y = -0.5 * 3.7
     car_id += 1
     add_mobil_car(simulator, car_id, dragway,
                   mobil_car_position_x, mobil_car_position_y)
@@ -66,19 +66,18 @@ def main():
     add_maliput_railcar(simulator, car_id, dragway, railcar_s, railcar_speed)
 
     car_id += 1
-    times =    [ 0.0, 5.0, 10.0, 15.0, 20.0 ]
-    headings = [ 0.0, 0.0,  0.0,  0.0,  0.0 ]
+    times = [0.0, 5.0, 10.0, 15.0, 20.0]
+    headings = [0.0, 0.0, 0.0, 0.0, 0.0]
     translations = [
-        [  0.0, -5.55, 0.0],
-        [ 10.0, -5.55, 0.0],
-        [ 30.0, -5.55, 0.0],
-        [ 60.0, -5.55, 0.0],
+        [0.0, -5.55, 0.0],
+        [10.0, -5.55, 0.0],
+        [30.0, -5.55, 0.0],
+        [60.0, -5.55, 0.0],
         [100.0, -5.55, 0.0]
     ]
 
     add_trajectory_agent(simulator,
                          car_id,
-                         dragway,
                          times,
                          headings,
                          translations)

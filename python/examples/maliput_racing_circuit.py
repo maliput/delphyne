@@ -7,8 +7,8 @@
 An example of three railcars and a variable number of MOBIL controlled car
 running in a closed-loop maliput road.
 
-In order to run the demo with a number of MOBIL cars different to three, a number
-between 0 and 6 can be passed as an argument. For example:
+In order to run the demo with a number of MOBIL cars different to three, a
+number between 0 and 6 can be passed as an argument. For example:
 
 ```
 maliput_racing_circuit.py --num-cars=2
@@ -48,7 +48,7 @@ def main():
 
     args = parser.parse_args()
 
-    if (args.num_cars > 6 or args.num_cars < 0):
+    if args.num_cars > 6 or args.num_cars < 0:
         print("The number of cars must be in the range of 0 to 6.")
         quit()
 

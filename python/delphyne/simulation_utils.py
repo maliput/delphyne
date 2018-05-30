@@ -153,20 +153,21 @@ def add_rail_car(simulator, name, lane, position, offset, speed):
                     5.0)       # nominal_speed (m/s)
     simulator.AddAgent(agent)
 
-def add_trajectory_agent(simulator, robot_id, road, times, headings, waypoints):
+# pylint: disable=too-many-arguments
+def add_trajectory_agent(simulator, name, times, headings, waypoints):
     """
     Instantiates a trajectory agent with a trajectory defined by times,
     headings and translations.
     Args:
         simulator: the automotive simulator object
-        robot_id: name of the agent
+        name: name of the agent
         times: list of times defining the trajectory (floats)
         headings: list of yaw headings defining the trajectory (floats)
         waypoints: list of points (x,y,z) defining the trajectory (x, y, z)
     An example translations argument:
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    agent = TrajectoryAgent(str(robot_id),
+    agent = TrajectoryAgent(name,
                             times,       # timings (sec)
                             headings,    # list of headings (radians)
                             waypoints)   # list of x-y-z-tuples (m, m, m)

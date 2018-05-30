@@ -82,7 +82,7 @@ def main():
         [100.0, -5.55, 0.0]
     ]
     add_trajectory_agent(simulator,
-                         car_id,
+                         str(car_id),
                          times,
                          headings,
                          waypoints)

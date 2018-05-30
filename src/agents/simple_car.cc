@@ -31,8 +31,8 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
-                     const double& heading, const double& velocity)
+SimpleCar::SimpleCar(const std::string& name, double x, double y,
+                     double heading, double velocity)
     : delphyne::Agent(name),
       simple_car_state_(std::make_unique<SimpleCarState>()),
       simple_car_system_() {

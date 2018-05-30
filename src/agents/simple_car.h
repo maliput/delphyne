@@ -36,8 +36,8 @@ namespace delphyne {
  */
 class SimpleCar : public delphyne::Agent {
  public:
-  SimpleCar(const std::string& name, const double& x, const double& y,
-            const double& heading, const double& velocity);
+  SimpleCar(const std::string& name, double x, double y,
+            double heading, double velocity);
   int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,

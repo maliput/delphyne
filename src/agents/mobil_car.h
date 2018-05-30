@@ -57,9 +57,9 @@ class MobilCar : public delphyne::Agent {
     * @param heading: orientation of the car in the x-y frame
     * @param speed: actual initial speed
    */
-  MobilCar(const std::string& name, const bool& direction_of_travel,
-           const double& x, const double& y, const double& heading,
-           const double& speed);
+  MobilCar(const std::string& name, bool direction_of_travel,
+           double x, double y, double heading,
+           double speed);
 
   int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
@@ -79,8 +79,8 @@ class MobilCar : public delphyne::Agent {
     double heading{0.0};
     double offset{0.0};
     double speed{0.0};
-    Parameters(const bool& direction_of_travel, const double& x,
-               const double& y, const double& heading, const double& speed)
+    Parameters(bool direction_of_travel, double x,
+               double y, double heading, double speed)
         : direction_of_travel(direction_of_travel),
           x(x),
           y(y),

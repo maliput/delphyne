@@ -79,8 +79,7 @@ def main():
                  lane=lane_1,
                  position=railcar_s,
                  offset=0.0,
-                 speed=railcar_speed
-                )
+                 speed=railcar_speed)
 
     # Setup railcar 2
     railcar_speed = 8.0  # Units in m/s.
@@ -117,8 +116,7 @@ def main():
                       x=-10.0 + x_offset * (1 + i / 3),
                       y=0.0 + y_offset * (i % 3),
                       heading=0.0,
-                      speed=velocity_base * i
-                      )
+                      speed=velocity_base * i)
 
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 

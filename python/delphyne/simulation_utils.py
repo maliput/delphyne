@@ -122,8 +122,7 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
                       position_x,  # scene x-coordinate (m)
                       position_y,  # scene y-coordinate (m)
                       0.0,         # heading (radians)
-                      0.0          # speed in the direction of travel (m/s)
-                      )
+                      0.0)         # speed in the direction of travel (m/s)
     simulator.AddAgent(agent)
 
 # pylint: disable=too-many-arguments
@@ -136,8 +135,7 @@ def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
                      x,         # scene x-coordinate (m)
                      y,         # scene y-coordinate (m)
                      heading,   # heading (radians)
-                     speed,     # speed in the s-direction (m/s)
-                     )
+                     speed)     # speed in the s-direction (m/s)
     simulator.AddAgent(agent)
 
 # pylint: disable=too-many-arguments
@@ -169,8 +167,7 @@ def add_trajectory_agent(simulator, robot_id, road, times, headings, waypoints):
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
     agent = TrajectoryAgent(str(robot_id),
-                            times,     # timings (sec)
-                            headings,  # list of headings (radians)
-                            waypoints  # list of x-y-z-tuples (m, m, m)
-                            )
+                            times,       # timings (sec)
+                            headings,    # list of headings (radians)
+                            waypoints)   # list of x-y-z-tuples (m, m, m)
     simulator.AddAgent(agent)

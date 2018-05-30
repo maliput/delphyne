@@ -47,10 +47,10 @@ namespace delphyne {
  *****************************************************************************/
 
 RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
-                 const bool& direction_of_travel,
-                 const double& longitudinal_position,  // s
-                 const double& lateral_offset,         // r
-                 const double& speed, const double& nominal_speed)
+                 bool direction_of_travel,
+                 double longitudinal_position,  // s
+                 double lateral_offset,         // r
+                 double speed, double nominal_speed)
     : delphyne::Agent(name),
       initial_parameters_(lane, direction_of_travel, longitudinal_position,
                           lateral_offset, speed, nominal_speed),

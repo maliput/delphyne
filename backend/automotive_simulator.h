@@ -74,8 +74,8 @@ class AutomotiveSimulator {
    * to perform the necessary system configuration and wiring to
    * ready this agent for use in the simulation.
    *
-   * @param agent: user provided agent to add to the simulation
-   * @return simulator generated unqiue id for the agent
+   * @param agent[in] The user provided agent to add to the simulation.
+   * @return A simulator generated unqiue id for the agent.
    */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
 

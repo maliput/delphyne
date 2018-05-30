@@ -67,10 +67,10 @@ class RailCar : public delphyne::Agent {
    * @param nominal_speed: desired cruising speed
    */
   RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
-          const bool& direction_of_travel,
-          const double& longitudinal_position,  // s
-          const double& lateral_offset,         // r
-          const double& speed, const double& nominal_speed);
+          bool direction_of_travel,
+          double longitudinal_position,  // s
+          double lateral_offset,         // r
+          double speed, double nominal_speed);
 
   int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
@@ -91,10 +91,10 @@ class RailCar : public delphyne::Agent {
     double speed{0.0};
     double nominal_speed{0.0};
     Parameters(const drake::maliput::api::Lane& lane,
-               const bool& direction_of_travel,
-               const double& position,  // s
-               const double& offset,    // r
-               const double& speed, const double& nominal_speed)
+               bool direction_of_travel,
+               double position,  // s
+               double offset,    // r
+               double speed, double nominal_speed)
         : lane(lane),
           direction_of_travel(direction_of_travel),
           position(position),

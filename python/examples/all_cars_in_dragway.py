@@ -66,7 +66,7 @@ def main():
     car_id += 1
     add_rail_car(simulator,
                  name=str(car_id),
-                 lane = dragway.junction(0).segment(0).lane(1),
+                 lane=dragway.junction(0).segment(0).lane(1),
                  position=0.0,
                  offset=0.0,
                  speed=3.0)

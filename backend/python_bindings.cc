@@ -113,13 +113,25 @@ PYBIND11_MODULE(python_bindings, m) {
            &SimulatorRunner::RequestSimulationStepExecution)
       .def("get_stats", &SimulatorRunner::get_stats);
 
+  // The road builder is in charge of loading or creating a road and adding it
+  // to the simulation. The Add* methods return a reference to the added road,
+  // so it can be used to further configure the simulation (e.g. a railcar).
+  // We must however instruct python not to manage the lifetime of the returned
+  // object, as that is already done on the C++ side. To that end, all Add*
+  // methods use `py::return_value_policy::reference` (see
+  // http://pybind11.readthedocs.io/en/stable/advanced/functions.html#return-value-policies
+  // for more information)
   py::class_<RoadBuilder<double>>(m, "RoadBuilder")
       .def(py::init<AutomotiveSimulator<double>*>())
       .def(py::init<AutomotiveSimulator<double>*, double, double>())
-      .def("AddDragway", &RoadBuilder<double>::AddDragway)
-      .def("AddOnramp", &RoadBuilder<double>::AddOnramp)
-      .def("AddMonolaneFromFile", &RoadBuilder<double>::AddMonolaneFromFile)
-      .def("AddMultilaneFromFile", &RoadBuilder<double>::AddMultilaneFromFile);
+      .def("AddDragway", &RoadBuilder<double>::AddDragway,
+           py::return_value_policy::reference)
+      .def("AddOnramp", &RoadBuilder<double>::AddOnramp,
+           py::return_value_policy::reference)
+      .def("AddMonolaneFromFile", &RoadBuilder<double>::AddMonolaneFromFile,
+           py::return_value_policy::reference)
+      .def("AddMultilaneFromFile", &RoadBuilder<double>::AddMultilaneFromFile,
+           py::return_value_policy::reference);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(

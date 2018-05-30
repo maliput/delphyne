@@ -32,11 +32,7 @@ namespace delphyne {
  ** Interfaces
  *****************************************************************************/
 
-/**
- * @brief Trajectory following agents
- *
- * @TODO(daniel.stonier) add agent type (for visualisation purpose only)
- */
+/// @brief Trajectory following agents
 class TrajectoryAgent : public delphyne::Agent {
  public:
   // TODO(daniel.stonier) convert this to accepting a Trajectory class instead

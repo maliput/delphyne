@@ -31,9 +31,7 @@ namespace delphyne {
 ** Interfaces
 *****************************************************************************/
 
-/**
- * @brief A very simple vehicle agent that can be teleoperated.
- */
+/// @brief A very simple vehicle agent that can be teleoperated.
 class SimpleCar : public delphyne::Agent {
  public:
   SimpleCar(const std::string& name, double x, double y,

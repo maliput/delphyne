@@ -34,38 +34,32 @@ namespace delphyne {
 ** Interfaces
 *****************************************************************************/
 
-/**
- * @brief An agent that follows roads as if they were railroad tracks.
- *
- * The underlying road network has a reference line for each lane which
- * is utilised by this agent as a railroad track.
- *
- * Initial position is specified in the lane longitudinal co-ordinate
- * (how far along the track) and the agent will follow
- * this track exactly - the only variance it is permitted is the speed
- * with which it follows the track.
- *
- * TODO(daniel.stonier): enable nominal_speed as a dynamically
- * configurable variable from the scenario (e.g. from python scriptlets)
- */
+/// @brief An agent that follows roads as if they were railroad tracks.
+///
+/// The underlying road network has a reference line for each lane which
+/// is utilised by this agent as a railroad track.
+///
+/// Initial position is specified in the lane longitudinal co-ordinate
+/// (how far along the track) and the agent will follow
+/// this track exactly - the only variance it is permitted is the speed
+/// with which it follows the track.
 class RailCar : public delphyne::Agent {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
-  /**
-   * @brief Default constructor
-   *
-   * @param name: unique name for the agent
-   * @param lane: the lane to start in
-   * @param direction_of_travel: designates whether the car will travel
-   *            with or against the flow specified by the lane's rules
-   * @param longitudinal_position: initial position on the lane's track
-   *            (maliput lane coordinate, 's' (m))
-   * @param lateral_offset: offset perpendicular to the centre road line
-   *            (maliput lane coordinate 'r' (m))
-   * @param speed: actual initial speed
-   * @param nominal_speed: desired cruising speed
-   */
+  ///
+  /// @brief Default constructor
+  ///
+  /// @param name[in] Unique name for the agent.
+  /// @param lane[in] The lane to start in.
+  /// @param direction_of_travel[in] Designates whether the car will travel
+  ///            with or against the flow specified by the lane's rules
+  /// @param longitudinal_position[in] Initial position on the lane's track
+  ///            (maliput lane coordinate, 's' (m)).
+  /// @param lateral_offset[in] The offset perpendicular to the centre road
+  ///            line (maliput lane coordinate 'r' (m)).
+  /// @param speed[in] The actual initial speed.
+  /// @param nominal_speed[in] The desired cruising speed.
   RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
           bool direction_of_travel,
           double longitudinal_position,  // s

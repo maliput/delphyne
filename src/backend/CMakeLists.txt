@@ -54,8 +54,6 @@ install(TARGETS scene_system
   ARCHIVE DESTINATION lib
 )
 
-add_subdirectory(translation_systems)
-
 ##############################################################################
 # Automotive Simulator
 ##############################################################################
@@ -80,7 +78,7 @@ target_link_libraries(
     ${IGNITION-TRANSPORT_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}
   PRIVATE
-    drake_ign_translation_systems
+    translations
     realtime_utils
 )
 

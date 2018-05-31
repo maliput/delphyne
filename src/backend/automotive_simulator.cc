@@ -30,10 +30,10 @@
 
 #include "backend/automotive_simulator.h"
 #include "backend/system.h"
-#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
-#include "backend/translation_systems/ign_driving_command_to_drake.h"
-#include "backend/translation_systems/lcm_viewer_draw_to_ign_model_v.h"
-#include "backend/translation_systems/lcm_viewer_load_robot_to_ign_model_v.h"
+#include "translations/drake_simple_car_state_to_ign.h"
+#include "translations/ign_driving_command_to_drake.h"
+#include "translations/lcm_viewer_draw_to_ign_model_v.h"
+#include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 
 namespace delphyne {
 

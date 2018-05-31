@@ -9,7 +9,7 @@
 #include "ignition/msgs.hh"
 
 #include "backend/system.h"
-#include "backend/translation_systems/drake_to_ign.h"
+#include "translations/drake_to_ign.h"
 
 #include "delphyne/protobuf/simple_car_state.pb.h"
 
@@ -22,6 +22,7 @@ class DrakeSimpleCarStateToIgn
                         ignition::msgs::SimpleCarState> {
  public:
   DrakeSimpleCarStateToIgn();
+  virtual ~DrakeSimpleCarStateToIgn() = default;
 
  protected:
   // @brief @see DrakeToIgn::DoDrakeToIgnTranslation.

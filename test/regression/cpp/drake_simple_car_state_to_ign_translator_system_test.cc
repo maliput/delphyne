@@ -1,12 +1,12 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
-
 #include <memory>
 
 #include "drake/systems/framework/framework_common.h"
 
 #include <gtest/gtest.h>
+
+#include "translations/drake_simple_car_state_to_ign.h"
 
 #include "helpers.h"
 

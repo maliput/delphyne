@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/ign_model_v_to_lcm_viewer_draw.h"
+#include "translations/ign_model_v_to_lcm_viewer_draw.h"
 
 #include "backend/time_conversion.h"
 

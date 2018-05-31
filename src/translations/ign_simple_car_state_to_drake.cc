@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/ign_simple_car_state_to_drake.h"
+#include "translations/ign_simple_car_state_to_drake.h"
 
 namespace delphyne {
 

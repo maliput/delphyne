@@ -35,7 +35,7 @@ macro(delphyne_build_tests)
         simulation_runner
         automotive_simulator
         scene_system
-        drake_ign_translation_systems
+        translations
         time_conversion
         protobuf
         ${drake_LIBRARIES}

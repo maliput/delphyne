@@ -31,12 +31,14 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
+// public headers
+#include "delphyne/maliput/find_lane.h"
+
+// private headers
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
-#include "backend/translation_systems/drake_simple_car_state_to_ign.h"
-#include "backend/translation_systems/ign_driving_command_to_drake.h"
-
-#include "delphyne/maliput/find_lane.h"
+#include "translations/drake_simple_car_state_to_ign.h"
+#include "translations/ign_driving_command_to_drake.h"
 
 /*****************************************************************************
  ** Namespaces

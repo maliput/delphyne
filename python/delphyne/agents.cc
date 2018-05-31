@@ -1,5 +1,5 @@
 /**
- * @file /delphyne/python/bindings/agents.cc
+ * @file python/delphyne/agents.cc
  *
  * Copyright 2017 Toyota Research Institute
  */

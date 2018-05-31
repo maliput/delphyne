@@ -1,4 +1,11 @@
-// Copyright 2017 Toyota Research Institute
+/**
+ * @file python/delphyne/bindings.cc
+ *
+ * Copyright 2017 Toyota Research Institute
+ */
+/*****************************************************************************
+** Includes
+*****************************************************************************/
 
 #include <memory>
 
@@ -16,6 +23,10 @@
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
+/*****************************************************************************
+** Namespaces
+*****************************************************************************/
+
 namespace py = pybind11;
 
 using std::unique_ptr;
@@ -31,7 +42,12 @@ using drake::maliput::api::RoadGeometry;
 using drake::systems::BasicVector;
 
 namespace {
-PYBIND11_MODULE(python_bindings, m) {
+
+/*****************************************************************************
+** Implementation
+*****************************************************************************/
+
+PYBIND11_MODULE(bindings, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
 
@@ -95,5 +111,9 @@ PYBIND11_MODULE(python_bindings, m) {
       .def("Start", &AutomotiveSimulator<double>::Start)
       .def("AddAgent", &AutomotiveSimulator<double>::AddAgent);
 }
+
+/*****************************************************************************
+ ** Trailers
+ *****************************************************************************/
 
 }  // namespace

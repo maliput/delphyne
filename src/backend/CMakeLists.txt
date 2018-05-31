@@ -67,6 +67,11 @@ add_library(automotive_simulator
   system.h
 )
 set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)
+target_include_directories(
+  automotive_simulator
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+)
 target_link_libraries(
   automotive_simulator
   PUBLIC
@@ -94,6 +99,9 @@ install(TARGETS automotive_simulator
 # Right now this can't be made shared - segfaults
 # keyboard_controlled_simulation.py at the gil_scoped_acquire
 # call
+
+include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
+
 add_library(simulation_runner
   STATIC
   interactive_simulation_stats.cc
@@ -104,6 +112,11 @@ add_library(simulation_runner
 # Position independent code can disappear once we are able to drop STATIC
 set_property(TARGET simulation_runner PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
+target_include_directories(
+  simulation_runner
+  PUBLIC
+    $<BUILD_INTERFACE:${PYTHON_INCLUDE_DIRS}>
+)
 target_link_libraries(
   simulation_runner
   PUBLIC
@@ -112,7 +125,7 @@ target_link_libraries(
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}
-    ${drake_LIBRARIES}
+    drake::drake
     pybind11::module
     ${PYTHON_LIBRARIES}
 )
@@ -126,25 +139,4 @@ install(TARGETS simulation_runner
 delphyne_install_includes(
   ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
   system.h
-)
-
-# ----------------------------------------
-# Python bindings.
-#
-include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
-pybind11_add_module(python_bindings python_bindings.cc)
-
-target_link_libraries(python_bindings
-  PRIVATE
-    simulation_runner
-    automotive_simulator
-    ${drake_LIBRARIES}
-    pybind11::module
-    ${PYTHON_LIBRARIES}
-)
-
-install(TARGETS python_bindings
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
 )

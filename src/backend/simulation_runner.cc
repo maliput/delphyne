@@ -19,8 +19,6 @@
 
 #include <pybind11/pybind11.h>
 
-namespace py = pybind11;
-
 namespace delphyne {
 namespace {
 
@@ -221,7 +219,7 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   // interpreter lock if there is at least one callback.
   if (callbacks.size() > 0) {
     // 1. Acquires the lock to the python interpreter.
-    py::gil_scoped_acquire acquire;
+    pybind11::gil_scoped_acquire acquire;
     // 2. Performs the callbacks.
     for (std::function<void()> callback : callbacks) {
       callback();

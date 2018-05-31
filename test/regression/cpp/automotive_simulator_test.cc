@@ -62,6 +62,13 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
   return link_count;
 }
 
+// Using a dragway for most of the tests since it's the simplest, least
+// volatile of the maliput road backends - i.e. should be able to trust it
+// (tested elsewhere) and we can focus on the business of testing delphyne
+// and the agents. Note that by construction, we guarantee that a chain
+// such as road_geometry->junction(0)->segment(0)->lane(0) which is used
+// frequently in the tests below exists and does not need to be checked
+// for a null pointer.
 std::unique_ptr<const drake::maliput::dragway::RoadGeometry> CreateDragway(
     const std::string& name, const int& number_of_lanes) {
   return std::make_unique<const drake::maliput::dragway::RoadGeometry>(

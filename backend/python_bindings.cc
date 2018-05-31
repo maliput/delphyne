@@ -16,11 +16,6 @@
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
-#include "include/delphyne/agent_plugin_base.h"
-#include "src/agents/mobil_car.h"
-#include "src/agents/rail_car.h"
-#include "src/agents/trajectory_car.h"
-
 namespace py = pybind11;
 
 using std::unique_ptr;
@@ -29,10 +24,6 @@ using delphyne::AutomotiveSimulator;
 using delphyne::RoadBuilder;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
-using delphyne::AgentPluginParams;
-using delphyne::RailCarAgentParams;
-using delphyne::TrajectoryCarAgentParams;
-using delphyne::MobilCarAgentParams;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarParams;
 using drake::automotive::MaliputRailcarState;
@@ -43,41 +34,6 @@ namespace {
 PYBIND11_MODULE(python_bindings, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
-
-  py::class_<AgentPluginParams>(m, "AgentPluginParams");
-
-  py::class_<RailCarAgentParams, AgentPluginParams>(m, "RailCarAgentParams")
-      .def(py::init<
-           std::unique_ptr<drake::automotive::LaneDirection>,
-           std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>>());
-
-  py::class_<TrajectoryCarAgentParams, AgentPluginParams>(
-      m, "TrajectoryCarAgentParams")
-      .def(py::init<std::unique_ptr<drake::automotive::Curve2<double>>>());
-
-  py::class_<MobilCarAgentParams, AgentPluginParams>(m, "MobilCarAgentParams")
-      .def(py::init<bool>());
-
-  py::class_<MaliputRailcarState<double>, BasicVector<double>>(
-      m, "MaliputRailcarState")
-      .def(py::init<>())
-      .def_property("s", &MaliputRailcarState<double>::s,
-                    &MaliputRailcarState<double>::set_s)
-      .def_property("speed", &MaliputRailcarState<double>::speed,
-                    &MaliputRailcarState<double>::set_speed);
-
-  py::class_<MaliputRailcarParams<double>, BasicVector<double>>(
-      m, "MaliputRailcarParams")
-      .def(py::init<>())
-      .def_property("r", &MaliputRailcarParams<double>::r,
-                    &MaliputRailcarParams<double>::set_r)
-      .def_property("h", &MaliputRailcarParams<double>::h,
-                    &MaliputRailcarParams<double>::set_h)
-      .def_property("max_speed", &MaliputRailcarParams<double>::max_speed,
-                    &MaliputRailcarParams<double>::set_max_speed)
-      .def_property("velocity_limit_kp",
-                    &MaliputRailcarParams<double>::velocity_limit_kp,
-                    &MaliputRailcarParams<double>::set_velocity_limit_kp);
 
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
       .def(py::init<>())
@@ -137,25 +93,7 @@ PYBIND11_MODULE(python_bindings, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("Start", &AutomotiveSimulator<double>::Start)
-      .def("AddAgent", &AutomotiveSimulator<double>::AddAgent)
-      .def("AddLoadableAgent",
-           py::overload_cast<
-               const std::string&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*>(
-               &AutomotiveSimulator<double>::AddLoadableAgent))
-      .def("AddLoadableAgent",
-           py::overload_cast<
-               const std::string&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent))
-      .def("AddLoadableAgent",
-           py::overload_cast<
-               const std::string&, const std::string&, const std::string&,
-               std::unique_ptr<drake::systems::BasicVector<double>>,
-               const RoadGeometry*, std::unique_ptr<AgentPluginParams>>(
-               &AutomotiveSimulator<double>::AddLoadableAgent));
+      .def("AddAgent", &AutomotiveSimulator<double>::AddAgent);
 }
 
 }  // namespace

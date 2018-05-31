@@ -1,49 +1,113 @@
-// Copyright 2017 Toyota Research Institute
+/**
+ * @file src/agents/rail_car.h
+ *
+ * Copyright 2017 Toyota Research Institute
+ */
+/*****************************************************************************
+** Includes
+*****************************************************************************/
+
+#pragma once
 
 #include <memory>
-#include <utility>
+#include <string>
 
-#include "drake/automotive/gen/maliput_railcar_params.h"
-#include "drake/automotive/lane_direction.h"
+#include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/gen/maliput_railcar_state.h>
+#include <drake/automotive/maliput/api/lane.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/common/drake_copyable.h>
+#include <drake/systems/framework/diagram_builder.h>
+#include <drake/systems/framework/system.h>
+#include <drake/systems/rendering/pose_aggregator.h>
 
-#include "include/delphyne/agent_plugin_base.h"
+#include "delphyne/agent_base.h"
+#include "systems/maliput_railcar.h"
+
+/*****************************************************************************
+** Namespaces
+*****************************************************************************/
 
 namespace delphyne {
 
-/// This class models the required extra parameters to create a railcar.
-class RailCarAgentParams final : public delphyne::AgentPluginParams {
+/*****************************************************************************
+** Interfaces
+*****************************************************************************/
+
+/// @brief An agent that follows roads as if they were railroad tracks.
+///
+/// The underlying road network has a reference line for each lane which
+/// is utilised by this agent as a railroad track.
+///
+/// Initial position is specified in the lane longitudinal co-ordinate
+/// (how far along the track) and the agent will follow
+/// this track exactly - the only variance it is permitted is the speed
+/// with which it follows the track.
+class RailCar : public delphyne::Agent {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarAgentParams)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
-  /// Default constructor.
   ///
-  /// @param[in] initial_lane_direction The initial lane direction of travel.
+  /// @brief Default constructor
   ///
-  /// @param[in] start_params The parameters that the car will use as a start
-  /// state. See MaliputRailcarParams in Drake.
-  RailCarAgentParams(
-      std::unique_ptr<drake::automotive::LaneDirection> lane_direction,
-      std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>
-          start_params)
-      : lane_direction_(std::move(lane_direction)),
-        start_params_(std::move(start_params)) {}
+  /// @param name[in] Unique name for the agent.
+  /// @param lane[in] The lane to start in.
+  /// @param direction_of_travel[in] Designates whether the car will travel
+  ///            with or against the flow specified by the lane's rules
+  /// @param longitudinal_position[in] Initial position on the lane's track
+  ///            (maliput lane coordinate, 's' (m)).
+  /// @param lateral_offset[in] The offset perpendicular to the centre road
+  ///            line (maliput lane coordinate 'r' (m)).
+  /// @param speed[in] The actual initial speed.
+  /// @param nominal_speed[in] The desired cruising speed.
+  RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
+          bool direction_of_travel,
+          double longitudinal_position,  // s
+          double lateral_offset,         // r
+          double speed, double nominal_speed);
 
-  /// Returns the initial lane travel direction.
-  const drake::automotive::LaneDirection* get_raw_lane_direction() const {
-    return lane_direction_.get();
-  }
+  int Configure(
+      int id, const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<double>* builder,
+      drake::systems::rendering::PoseAggregator<double>* aggregator,
+      drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
-  /// Returns the initial car start parameters.
-  const drake::automotive::MaliputRailcarParams<double>* get_raw_start_params()
-      const {
-    return start_params_.get();
-  }
+  int Initialize(drake::systems::Context<double>* context) override;
+
+  drake::systems::System<double>* get_system() const;
 
  private:
-  std::unique_ptr<drake::automotive::LaneDirection> lane_direction_;
+  struct Parameters {
+    const drake::maliput::api::Lane& lane;
+    bool direction_of_travel{true};
+    double position{0.0};
+    double offset{0.0};
+    double speed{0.0};
+    double nominal_speed{0.0};
+    Parameters(const drake::maliput::api::Lane& lane, bool direction_of_travel,
+               double position,  // s
+               double offset,    // r
+               double speed, double nominal_speed)
+        : lane(lane),
+          direction_of_travel(direction_of_travel),
+          position(position),
+          offset(offset),
+          speed(speed),
+          nominal_speed(nominal_speed) {}
+  } initial_parameters_;
 
-  std::unique_ptr<drake::automotive::MaliputRailcarParams<double>>
-      start_params_;
+  typedef drake::automotive::MaliputRailcarState<double> RailCarContextState;
+  typedef drake::automotive::MaliputRailcarParams<double>
+      RailCarContextParameters;
+  typedef drake::automotive::MaliputRailcar2<double> RailCarSystem;
+
+  std::unique_ptr<RailCarContextState> rail_car_context_state_;
+  std::unique_ptr<RailCarContextParameters> rail_car_context_parameters_;
+  RailCarSystem* rail_car_system_;
 };
+
+/*****************************************************************************
+** Trailers
+*****************************************************************************/
 
 }  // namespace delphyne

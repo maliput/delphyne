@@ -32,11 +32,7 @@ namespace delphyne {
  ** Interfaces
  *****************************************************************************/
 
-/**
- * @brief Trajectory following agents
- *
- * @TODO(daniel.stonier) add agent type (for visualisation purpose only)
- */
+/// @brief Trajectory following agents
 class TrajectoryAgent : public delphyne::Agent {
  public:
   // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
@@ -45,7 +41,8 @@ class TrajectoryAgent : public delphyne::Agent {
                   const std::vector<std::vector<double>>& translations);
 
   int Configure(
-      const int& id, drake::systems::DiagramBuilder<double>* builder,
+      int id, const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<double>* builder,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 

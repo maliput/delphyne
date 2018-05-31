@@ -24,8 +24,7 @@ target_link_libraries(public_headers
 install(
   FILES
     agent_base.h
-    agent_plugin_base.h
-    types.h
+    names.h
   DESTINATION
     ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
 )
@@ -36,3 +35,9 @@ install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )
+
+##############################################################################
+# Subdirectories
+##############################################################################
+
+add_subdirectory(maliput)

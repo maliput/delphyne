@@ -34,7 +34,6 @@
 
 // public headers
 #include "delphyne/agent_base.h"
-#include "delphyne/agent_plugin_base.h"
 
 // private headers
 #include "backend/ign_publisher_system.h"
@@ -66,44 +65,18 @@ class AutomotiveSimulator {
   /// Return the scene.
   std::unique_ptr<ignition::msgs::Scene> GetScene();
 
-  /// Adds a Vehicle to this simulation from a loadable module.
-  ///
-  /// @pre Start() has NOT been called.
-  ///
-  /// @param plugin_library_name The name of the plugin library, without the
-  /// "lib" prefix or ".so" suffix.
-  ///
-  /// @param parameters Parameters to be passed to the loadable module
-  /// "configure" method.
-  ///
-  /// @param name The agent's name, which must be unique among all agents.
-  /// Otherwise a std::runtime_error will be thrown.
-  ///
-  /// @param initial_state The vehicle's initial state.
-  ///
-  /// @return The ID of the agent that was just added to the simulation, or -1
-  /// on error.
-  int AddLoadableAgent(
-      const std::string& plugin_library_name, const std::string& agent_name,
-      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-      const drake::maliput::api::RoadGeometry* road,
-      std::unique_ptr<AgentPluginParams> parameters);
-
-  /// Specify the exact plugin name if there should be more than one plugin
-  /// in the plugin library.
-  int AddLoadableAgent(
-      const std::string& plugin_library_name, const std::string& plugin_name,
-      const std::string& agent_name,
-      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-      const drake::maliput::api::RoadGeometry* road,
-      std::unique_ptr<AgentPluginParams> parameters);
-
-  /// A handy overload in case the plugin doesn't require any extra parameters.
-  int AddLoadableAgent(
-      const std::string& plugin_library_name, const std::string& agent_name,
-      std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-      const drake::maliput::api::RoadGeometry* road);
-
+  /**
+   * @brief Adds an agent to the simulation.
+   *
+   * The user should have custom constructed this agent from
+   * a child-class of @ref delphyne::AgentBase<T> "AgentBase". In
+   * turn, the simulator then calls this agent's configure method
+   * to perform the necessary system configuration and wiring to
+   * ready this agent for use in the simulation.
+   *
+   * @param agent[in] The user provided agent to add to the simulation.
+   * @return A simulator generated unqiue id for the agent.
+   */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
 
   /// Sets the RoadGeometry for this simulation.
@@ -111,13 +84,6 @@ class AutomotiveSimulator {
   /// @pre Start() has NOT been called.
   const drake::maliput::api::RoadGeometry* SetRoadGeometry(
       std::unique_ptr<const drake::maliput::api::RoadGeometry> road);
-
-  /// Finds and returns a pointer to a lane with the specified name. This method
-  /// throws a std::runtime_error if no such lane exists.
-  ///
-  /// @pre SetRoadGeometry() was called.
-  ///
-  const drake::maliput::api::Lane* FindLane(const std::string& name) const;
 
   /// Returns the System whose name matches @p name.  Throws an exception if no
   /// such system has been added, or multiple such systems have been added.
@@ -202,11 +168,10 @@ class AutomotiveSimulator {
   void InitializeSceneGeometryAggregator();
 
   // Initializes each of the agents that have been added to the simulation.
-  void InitializeLoadableAgents();
   void InitializeAgents();
 
   // For both building and simulation.
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_{};
+  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_{};
 
   // === Start for building. ===
   std::unique_ptr<RigidBodyTree<T>> tree_{std::make_unique<RigidBodyTree<T>>()};
@@ -249,8 +214,7 @@ class AutomotiveSimulator {
   // with static id counters since they may run into threading problems)
   int unique_system_id_{0};
 
-  // Maps an agent id to a pointer to the system that implements the agent.
-  std::map<int, std::unique_ptr<delphyne::AgentPluginBase<T>>> loadable_agents_;
+  // Maps from simulator generated unique id's to the agents.
   std::map<int, std::unique_ptr<delphyne::AgentBase<T>>> agents_;
 
   // For simulation.

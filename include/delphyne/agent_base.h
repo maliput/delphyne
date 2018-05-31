@@ -7,58 +7,70 @@
 #include <string>
 
 #include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
-#include "./types.h"
+#include "./names.h"
 
 namespace delphyne {
-/// The abstract class that all delphyne agents must inherit from. Concrete
-/// implementations must implement both the 'Configure' method and the
+/// @brief The parent of all agents in delphyne!
+///
+/// This is the abstract class that all delphyne agents must inherit from.
+/// Concrete implementations must implement both the 'Configure' method and the
 /// 'Initialize' method; see the documentation for those methods for more
 /// information.
 ///
 /// @tparam T must generally be a "double-like" type.  Currently, the supported
-///           template types are 'double', 'drake::AutoDiffXd', and
-///           'drake::symbolic::Expression'.
+///           template types are 'double', 'delphyne::AutoDiff', and
+///           'delphyne::Symbolic'.
 template <typename T>
 class AgentBase {
  public:
-  /// Constructor with user-customisable parameters common to
-  /// all agents.
+  /// @brief Constructor initialising common agent parameters.
   ///
   /// @param name: name string for the agent (must be unique in any given
   /// simulation.
   explicit AgentBase(const std::string& name) : name_(name) {}
   virtual ~AgentBase() = default;
 
-  /// The `Configure` method is used by
-  /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" to perform
-  /// any simulator-specific configuration necessary for the agent. This
-  /// includes generating an id, diagram wiring and setting up the visuals.
+  /// @brief Used by the simulator to wire the agent into the simulation.
+  ///
+  /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" will call
+  /// this method to perform any simulator-specific configuration
+  /// necessary for the agent. This includes generating an id, passing
+  /// in the ground truth world information, diagram wiring and setting
+  /// up the visuals.
   ///
   /// Creators of scenarios need never to call this method.
   ///
-  /// @param builder: the diagram builder, use to wire systems ready for
+  /// @param id[in] A unique id, provided by the simulator
+  /// to be stored by the agent for referential purposes.
+  /// @param road_geometry[in] A handle for the agent to the ground truth
+  /// road network information.
+  /// @param builder[out] The diagram builder, use to wire systems ready for
   /// converting into the simulator's diagram.
-  /// @param aggregator: every agent should connect to this and publish
-  /// it's state for access by all
+  /// @param aggregator[out] Every agent should connect to this and publish
+  /// it's state for access by all.
   /// @param car_vis_applicator:
   virtual int Configure(
-      const int& id, drake::systems::DiagramBuilder<T>* builder,
-      drake::systems::rendering::PoseAggregator<T>* aggregator,
-      drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
+      int id, const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<double>* builder,
+      drake::systems::rendering::PoseAggregator<double>* aggregator,
+      drake::automotive::CarVisApplicator<double>* car_vis_applicator) = 0;
 
+  /// @brief Prepare the background context(s) for the agent in this method.
+  ///
   /// Derived classes will typically use this to drop variable state on
   /// the context before simulation starts.
   ///
   /// This method is called by the
   /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator".
   ///
-  /// @todo(daniel.stonier): pre-declare state to be dropped on the
-  /// context via the diagram builder in the Configure step, thereby
-  /// making this method redundant.
+  /// @param[in] context the agent system's context
+  ///
+  /// @sa AgentBase::get_system()
   virtual int Initialize(drake::systems::Context<T>* context) = 0;
 
   /// @brief Name accessor
@@ -66,6 +78,8 @@ class AgentBase {
   /// @brief ID accessor
   const int& id() { return id_; }
 
+  /// @brief Accesses the system responsible for the 'defacto' car state.
+  ///
   /// Access the system, currently used internally by
   /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" to feed
   /// the Initialize method with the required sub-context.

@@ -31,11 +31,12 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
-                     const double& heading, const double& velocity)
-    : delphyne::Agent(name), simple_car_state_(), simple_car_system_() {
+SimpleCar::SimpleCar(const std::string& name, double x, double y,
+                     double heading, double velocity)
+    : delphyne::Agent(name),
+      simple_car_state_(std::make_unique<SimpleCarState>()),
+      simple_car_system_() {
   igndbg << "SimpleCar constructor" << std::endl;
-  simple_car_state_ = std::make_unique<SimpleCarState>();
   simple_car_state_->set_x(x);
   simple_car_state_->set_y(y);
   simple_car_state_->set_heading(heading);
@@ -43,7 +44,8 @@ SimpleCar::SimpleCar(const std::string& name, const double& x, const double& y,
 }
 
 int SimpleCar::Configure(
-    const int& id, drake::systems::DiagramBuilder<double>* builder,
+    int id, const drake::maliput::api::RoadGeometry* road_geometry,
+    drake::systems::DiagramBuilder<double>* builder,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
   igndbg << "SimpleCar configure" << std::endl;
@@ -86,7 +88,8 @@ int SimpleCar::Configure(
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
-  auto ports = aggregator->AddSinglePoseAndVelocityInput(name_, id);
+  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
+      aggregator->AddSinglePoseAndVelocityInput(name_, id);
   builder->Connect(simple_car_system_->pose_output(), ports.pose_descriptor);
   builder->Connect(simple_car_system_->velocity_output(),
                    ports.velocity_descriptor);
@@ -115,6 +118,7 @@ int SimpleCar::Configure(
 }
 
 int SimpleCar::Initialize(drake::systems::Context<double>* context) {
+  // TODO(daniel.stonier) unwind this and pre-declare instead
   igndbg << "SimpleCar initialize" << std::endl;
 
   drake::systems::VectorBase<double>& context_state =

@@ -15,6 +15,8 @@
 
 #include "delphyne/agent_base.h"
 
+#include "agents/mobil_car.h"
+#include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
 
@@ -36,9 +38,16 @@ PYBIND11_MODULE(agents, m) {
 
   py::class_<delphyne::Agent>(m, "AgentBase");
 
+  py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
+      .def(
+          py::init<const std::string&, bool, double, double, double, double>());
+
+  py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
+      .def(py::init<const std::string&, const drake::maliput::api::Lane&, bool,
+                    double, double, double, double>());
+
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
-      .def(py::init<const std::string&, const double&, const double&,
-                    const double&, const double&>());
+      .def(py::init<const std::string&, double, double, double, double>());
 
   py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(m, "TrajectoryAgent")
       .def(py::init<const std::string&, const std::vector<double>&,

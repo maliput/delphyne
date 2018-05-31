@@ -21,20 +21,14 @@ import time
 from contextlib import contextmanager
 from delphyne.bindings import (
     AutomotiveSimulator,
-    MaliputRailcarParams,
-    MaliputRailcarState,
-    MobilCarAgentParams,
-    RailCarAgentParams
 )
 from delphyne.agents import (
+    MobilCar,
+    RailCar,
     SimpleCar,
     TrajectoryAgent
 )
 from delphyne.launcher import Launcher
-from pydrake.automotive import (
-    LaneDirection,
-    SimpleCarState
-)
 
 #
 # Methods
@@ -125,78 +119,56 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
     and adds it to the simulation.
     """
     agent = SimpleCar(str(robot_id),
-                      position_x,
-                      position_y,
-                      0.0,
-                      0.0)
+                      position_x,  # scene x-coordinate (m)
+                      position_y,  # scene y-coordinate (m)
+                      0.0,         # heading (radians)
+                      0.0)         # speed in the direction of travel (m/s)
     simulator.AddAgent(agent)
 
-
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, robot_id, road,
-                  position_x=0, position_y=0, velocity=1.0):
+def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
-    # Initial State
-    mobil_car_state = SimpleCarState()
-    mobil_car_state.set_x(position_x)
-    mobil_car_state.set_y(position_y)
-    mobil_car_state.set_velocity(velocity)
-
-    # Parameters
-    agent_params = MobilCarAgentParams(True)
-
-    # Instantiate
-    simulator.AddLoadableAgent("mobil-car",
-                               str(robot_id),
-                               mobil_car_state,
-                               road,
-                               agent_params)
-
+    agent = MobilCar(name,      # unique name
+                     True,      # direction_of_travel
+                     x,         # scene x-coordinate (m)
+                     y,         # scene y-coordinate (m)
+                     heading,   # heading (radians)
+                     speed)     # speed in the s-direction (m/s)
+    simulator.AddAgent(agent)
 
 # pylint: disable=too-many-arguments
-def add_maliput_railcar(
-        simulator, robot_id, road, lane, s_coordinate=0, speed=0):
-    """Instantiates a new Maliput Railcar and adds
-    it to the simulation.
+def add_rail_car(simulator, name, lane, position, offset, speed):
+    """Instantiates a Railcar and adds it to the simulation.
     """
-    # Initial State
-    railcar_state = MaliputRailcarState()
-    railcar_state.s = s_coordinate
-    railcar_state.speed = speed
-    lane_direction = LaneDirection(lane, True)
+    # Note: keyword arguments not permitted with the bindings
+    # TODO(daniel.stonier) true?
+    agent = RailCar(name,      # unique name
+                    lane,      # lane
+                    True,      # direction_of_travel
+                    position,  # lane s-coordinate (m)
+                    offset,    # lane r-coordinate (m)
+                    speed,     # speed in the s-direction (m/s)
+                    5.0)       # nominal_speed (m/s)
+    simulator.AddAgent(agent)
 
-    # Parameters
-    start_params = MaliputRailcarParams()
-    start_params.r = 0
-    start_params.h = 0
-    agent_params = RailCarAgentParams(lane_direction, start_params)
-
-    # Instantiate
-    simulator.AddLoadableAgent("rail-car",
-                               str(robot_id),
-                               railcar_state,
-                               road,
-                               agent_params)
-
-
-def add_trajectory_agent(
-        simulator, robot_id, times, headings, translations):
+# pylint: disable=too-many-arguments
+def add_trajectory_agent(simulator, name, times, headings, waypoints):
     """
     Instantiates a trajectory agent with a trajectory defined by times,
     headings and translations.
     Args:
         simulator: the automotive simulator object
-        robot_id: name of the agent
+        name: name of the agent
         times: list of times defining the trajectory (floats)
         headings: list of yaw headings defining the trajectory (floats)
-        translations: list of translations defining the trajectory (x, y, z)
+        waypoints: list of points (x,y,z) defining the trajectory (x, y, z)
     An example translations argument:
-        translation = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
+        waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    agent = TrajectoryAgent(str(robot_id),
-                            times,
-                            headings,
-                            translations)
+    agent = TrajectoryAgent(name,
+                            times,       # timings (sec)
+                            headings,    # list of headings (radians)
+                            waypoints)   # list of x-y-z-tuples (m, m, m)
     simulator.AddAgent(agent)

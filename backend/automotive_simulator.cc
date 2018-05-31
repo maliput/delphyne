@@ -28,7 +28,6 @@
 #include "drake/systems/framework/system.h"
 #include "drake/systems/primitives/multiplexer.h"
 
-#include "backend/agent_plugin_loader.h"
 #include "backend/automotive_simulator.h"
 #include "backend/system.h"
 #include "backend/translation_systems/drake_simple_car_state_to_ign.h"
@@ -134,10 +133,10 @@ int AutomotiveSimulator<T>::AddAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id, builder_.get(), aggregator_, car_vis_applicator_) <
-      0) {
+  if (agent->Configure(id, road_geometry_.get(), builder_.get(), aggregator_,
+                       car_vis_applicator_) < 0) {
     ignerr << "Failed to configure agent '" << agent->name() << "'"
-           << std::endl;
+         << std::endl;
     return -1;
   }
   agents_[id] = std::move(agent);
@@ -145,113 +144,22 @@ int AutomotiveSimulator<T>::AddAgent(
 }
 
 template <typename T>
-int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin_library_name, const std::string& agent_name,
-    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-    const drake::maliput::api::RoadGeometry* road) {
-  return AddLoadableAgent(plugin_library_name, "", agent_name,
-                          std::move(initial_state), road,
-                          std::make_unique<AgentPluginParams>());
-}
-
-template <typename T>
-int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin_library_name, const std::string& agent_name,
-    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-    const drake::maliput::api::RoadGeometry* road,
-    std::unique_ptr<AgentPluginParams> parameters) {
-  return AddLoadableAgent(plugin_library_name, "", agent_name,
-                          std::move(initial_state), road,
-                          std::move(parameters));
-}
-
-template <typename T>
-int AutomotiveSimulator<T>::AddLoadableAgent(
-    const std::string& plugin_library_name, const std::string& plugin_name,
-    const std::string& agent_name,
-    std::unique_ptr<drake::systems::BasicVector<T>> initial_state,
-    const drake::maliput::api::RoadGeometry* road,
-    std::unique_ptr<AgentPluginParams> parameters) {
-  /*********************
-   * Checks
-   *********************/
-  DELPHYNE_DEMAND(!has_started());
-  DELPHYNE_DEMAND(aggregator_ != nullptr);
-  CheckNameUniqueness(agent_name);
-
-  /*********************
-   * Load Agent Plugin
-   *********************/
-  std::unique_ptr<delphyne::AgentPluginBase<T>> agent;
-  if (plugin_name.empty()) {
-    agent = delphyne::LoadPlugin<T>(plugin_library_name);
-  } else {
-    agent = delphyne::LoadPlugin<T>(plugin_library_name, plugin_name);
-  }
-  if (agent == nullptr) {
-    return -1;
-  }
-
-  /*********************
-   * Configure Agent
-   *********************/
-  int id = unique_system_id_++;
-
-  if (agent->Configure(agent_name, id, builder_.get(), aggregator_,
-                       car_vis_applicator_, road, std::move(parameters)) < 0) {
-    return -1;
-  }
-  loadable_agents_[id] = std::move(agent);
-  if (plugin_library_name != "trajectory-agent") {
-    loadable_agent_initial_states_[id] =
-        std::move(initial_state);  // store in the agent itself?
-  }
-  return id;
-}
-
-template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road) {
   DELPHYNE_DEMAND(!has_started());
-  road_ = std::move(road);
+  road_geometry_ = std::move(road);
   GenerateAndLoadRoadNetworkUrdf();
-  return road_.get();
-}
-
-template <typename T>
-const drake::maliput::api::Lane* AutomotiveSimulator<T>::FindLane(
-    const std::string& name) const {
-  if (road_ == nullptr) {
-    throw std::runtime_error(
-        "AutomotiveSimulator::FindLane(): RoadGeometry "
-        "not set. Please call SetRoadGeometry() first before calling this "
-        "method.");
-  }
-  for (int i = 0; i < road_->num_junctions(); ++i) {
-    const drake::maliput::api::Junction* junction = road_->junction(i);
-    for (int j = 0; j < junction->num_segments(); ++j) {
-      const drake::maliput::api::Segment* segment = junction->segment(j);
-      for (int k = 0; k < segment->num_lanes(); ++k) {
-        const drake::maliput::api::Lane* lane = segment->lane(k);
-        if (lane->id() == LaneId(name)) {
-          return lane;
-        }
-      }
-    }
-  }
-  throw std::runtime_error(
-      "AutomotiveSimulator::FindLane(): Failed to find "
-      "lane named \"" +
-      name + "\".");
+  return road_geometry_.get();
 }
 
 template <typename T>
 void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
-  std::string filename = road_->id().string();
+  std::string filename = road_geometry_->id().string();
   std::transform(filename.begin(), filename.end(), filename.begin(),
                  [](char ch) { return ch == ' ' ? '_' : ch; });
   drake::maliput::utility::GenerateUrdfFile(
-      road_.get(), "/tmp", filename, drake::maliput::utility::ObjFeatures());
+      road_geometry_.get(), "/tmp", filename,
+      drake::maliput::utility::ObjFeatures());
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());
@@ -372,25 +280,6 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::InitializeLoadableAgents() {
-  for (const auto& pair : loadable_agent_initial_states_) {
-    int id = pair.first;
-    const drake::systems::BasicVector<T>* initial_state = pair.second.get();
-    drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *(loadable_agents_[id]->get_system()),
-        &simulator_->get_mutable_context());
-
-    drake::systems::VectorBase<T>& context_state =
-        context.get_mutable_continuous_state().get_mutable_vector();
-    drake::systems::BasicVector<T>* const state =
-        dynamic_cast<drake::systems::BasicVector<T>*>(&context_state);
-    DELPHYNE_ASSERT(state);
-    state->set_value(initial_state->get_value());
-    loadable_agents_[id]->Initialize(&context);
-  }
-}
-
-template <typename T>
 void AutomotiveSimulator<T>::InitializeAgents() {
   // TODO(daniel.stonier) This is a bad smell, agents may be composed of more
   // than one system. More likely what we need to do is pass it diagram_.
@@ -412,7 +301,6 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
 
   InitializeSceneGeometryAggregator();
 
-  InitializeLoadableAgents();
   InitializeAgents();
 
   simulator_->set_target_realtime_rate(realtime_rate);
@@ -437,15 +325,6 @@ double AutomotiveSimulator<T>::get_current_simulation_time() const {
 
 template <typename T>
 void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
-  // TODO(daniel.stonier) deprecate in favour of agents_
-  for (const auto& agent : loadable_agents_) {
-    if (agent.second->get_name() == name) {
-      throw std::runtime_error("An agent named \"" + name +
-                               "\" already "
-                               "exists. It has id " +
-                               std::to_string(agent.first) + ".");
-    }
-  }
   for (const auto& agent : agents_) {
     if (agent.second->name() == name) {
       throw std::runtime_error("An agent named \"" + name +

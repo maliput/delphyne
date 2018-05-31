@@ -64,7 +64,6 @@ add_subdirectory(translation_systems)
 # Automotive-simulator library
 #
 add_library(automotive_simulator
-  agent_plugin_loader.cc
   automotive_simulator.cc
   road_builder.h
   system.h

@@ -38,6 +38,10 @@ using drake::automotive::PriusVis;
 
 namespace delphyne {
 
+/*****************************************************************************
+ * Convenience Methods / Classes
+ ****************************************************************************/
+
 struct LinkInfo {
   LinkInfo(std::string name_in, int robot_num_in, int num_geom_in)
       : name(name_in), robot_num(robot_num_in), num_geom(num_geom_in) {}
@@ -58,23 +62,56 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
   return link_count;
 }
 
-// Fixture class for share configuration among all tests.
-class AutomotiveSimulatorTest : public ::testing::Test {
- protected:
-  void SetUp() {
-    // Set the paths where agents can be found.
-    const char* env = "DELPHYNE_AGENT_PLUGIN_PATH=" DELPHYNE_PROJECT_BINARY_DIR
-                      "/src/agents:" DELPHYNE_PROJECT_BINARY_DIR
-                      "/test/regression/cpp/agent_plugin";
-    putenv(const_cast<char*>(env));
-  }
-};
+// Using a dragway for most of the tests since it's the simplest, least
+// volatile of the maliput road backends - i.e. should be able to trust it
+// (tested elsewhere) and we can focus on the business of testing delphyne
+// and the agents. Note that by construction, we guarantee that a chain
+// such as road_geometry->junction(0)->segment(0)->lane(0) which is used
+// frequently in the tests below exists and does not need to be checked
+// for a null pointer.
+std::unique_ptr<const drake::maliput::dragway::RoadGeometry> CreateDragway(
+    const std::string& name, const int& number_of_lanes) {
+  return std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+      drake::maliput::api::RoadGeometryId(name), number_of_lanes,
+      100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
+      5 /* maximum_height */,
+      std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+      std::numeric_limits<double>::epsilon() /* angular_tolerance
+      */);
+}
 
-static const drake::maliput::api::RoadGeometry* kNullRoad{nullptr};
+// Checks the message has the expected link count and includes the
+// chassis floor as its first link.
+void CheckModelLinks(const ignition::msgs::Model_V& message) {
+  const int link_count = GetLinkCount(message);
+
+  const ignition::msgs::Link& link = message.models(0).link(0);
+
+  EXPECT_EQ(link_count, PriusVis<double>(0, "").num_poses());
+  EXPECT_EQ(link.name(), "chassis_floor");
+}
+
+// Returns the x-position of the vehicle based on an ignition::msgs::Model_V.
+// It also checks that the y-position of the vehicle is equal to the provided y
+// value.
+double GetXPosition(const ignition::msgs::Model_V& message, double y) {
+  const ignition::msgs::Link& link = message.models(0).link(0);
+  EXPECT_DOUBLE_EQ(link.pose().position().y(), y);
+  return link.pose().position().x();
+}
+
+/*****************************************************************************
+ * Tests
+ ****************************************************************************/
+
+// Fixture class for share configuration among all tests.
+// Define Setup() if you need to set env variables and the like
+class AutomotiveSimulatorTest : public ::testing::Test {};
 
 // Tests GetScene to return the scene
 TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent = std::make_unique<delphyne::SimpleCar>("bob", 0.0, 0.0, 0.0, 0.0);
   simulator->AddAgent(std::move(agent));
@@ -99,7 +136,8 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
       LinkInfo("top_lidar_link", 0, 1),
       LinkInfo("rear_right_lidar_link", 0, 1),
       LinkInfo("rear_left_lidar_link", 0, 1),
-      LinkInfo("world", 0, 0)};
+      LinkInfo("world", 0, 0),
+      LinkInfo("surface", 0, 1)};
 
   for (int i = 0; i < scene->model_size(); i++) {
     auto model = scene->model(i);
@@ -133,6 +171,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent = std::make_unique<delphyne::SimpleCar>("bob", 0.0, 0.0, 0.0, 0.0);
   const int id = simulator->AddAgent(std::move(agent));
@@ -177,6 +216,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.
 TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
+
   const double kX{10};
   const double kY{5.5};
   const double kHeading{M_PI_2};
@@ -210,16 +251,9 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-
-  const drake::maliput::api::RoadGeometry* road{};
-  EXPECT_NO_THROW(
-      road = simulator->SetRoadGeometry(
-          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"),
-              2 /* num lanes */, 100 /* length */, 4 /* lane width */,
-              1 /* shoulder width */, 5 /* maximum_height */,
-              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+  const drake::maliput::api::RoadGeometry* road_geometry{};
+  EXPECT_NO_THROW(road_geometry = simulator->SetRoadGeometry(
+                      CreateDragway("TestDragway", 2)););
 
   // Create one MOBIL car and two stopped cars arranged as follows:
   //
@@ -229,54 +263,40 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // +---->  +s, +x  | MOBIL Car |   | Decoy 1 |
   // ---------------------------------------------------------------
 
-  auto simple_car_state =
-      std::make_unique<drake::automotive::SimpleCarState<double>>();
-  simple_car_state->set_x(2.0);
-  simple_car_state->set_y(-2.0);
-  simple_car_state->set_velocity(10.0);
-
-  auto mobil_params = std::make_unique<MobilCarAgentParams>(true);
-  const int id_mobil = simulator->AddLoadableAgent(
-      "mobil-car", "MOBIL0", std::move(simple_car_state), road,
-      std::move(mobil_params));
+  auto mobil = std::make_unique<delphyne::MobilCar>("MOBIL0",
+                                                    true,  // lane_direction,
+                                                    2.0,   // x
+                                                    -2.0,  // y
+                                                    0.0,   // heading
+                                                    10.0   // velocity
+                                                    );
+  const int id_mobil = simulator->AddAgent(std::move(mobil));
   EXPECT_EQ(0, id_mobil);
-  auto decoy_state1 = std::make_unique<MaliputRailcarState<double>>();
-  decoy_state1->set_s(6.0);
-  decoy_state1->set_speed(0.0);
 
-  auto lane_direction1 = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(0));
-
-  auto start_params1 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-
-  auto railcar_params1 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction1), std::move(start_params1));
-
-  const int id_decoy1 =
-      simulator->AddLoadableAgent("rail-car", "decoy1", std::move(decoy_state1),
-                                  road, std::move(railcar_params1));
+  auto decoy_1 = std::make_unique<delphyne::RailCar>(
+      "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      6.0,   // position (m)
+      0.0,   // offset (m)
+      0.0,   // speed (m)
+      0.0    // nominal_speed (m/s)
+      );
+  const int id_decoy1 = simulator->AddAgent(std::move(decoy_1));
   EXPECT_EQ(1, id_decoy1);
 
-  auto decoy_state2 = std::make_unique<MaliputRailcarState<double>>();
-  decoy_state2->set_s(20.0);
-  decoy_state2->set_speed(0.0);
-
-  auto lane_direction2 = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(1));
-
-  auto start_params2 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-
-  auto railcar_params2 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction2), std::move(start_params2));
-
-  const int id_decoy2 =
-      simulator->AddLoadableAgent("rail-car", "decoy2", std::move(decoy_state2),
-                                  road, std::move(railcar_params2));
+  auto decoy_2 = std::make_unique<delphyne::RailCar>(
+      "decoy2", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      20.0,  // position (m)
+      0.0,   // offset (m)
+      0.0,   // speed (m/s)
+      0.0    // nominal_speed (m/s)
+      );
+  const int id_decoy2 = simulator->AddAgent(std::move(decoy_2));
   EXPECT_EQ(2, id_decoy2);
 
-  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
+  // Setup the an ignition callback to store the latest
+  // ignition::msgs::Model_V
   // that is published to /visualizer/scene_update.
   ignition::msgs::Model_V draw_message;
 
@@ -294,7 +314,8 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Finish all initialization, so that we can test the post-init state.
   simulator->Start();
 
-  // Advances the simulation to allow the MaliputRailcar to begin accelerating.
+  // Advances the simulation to allow the MaliputRailcar to begin
+  // accelerating.
   simulator->StepBy(0.5);
 
   EXPECT_EQ(GetLinkCount(draw_message),
@@ -306,8 +327,10 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   EXPECT_GE(mobil_y, -2.);
 }
 
-// Simulate a trajectory agent
 TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
+
   //  std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
   //  Eigen::Quaternion<double> zero_heading(
   //      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
@@ -331,8 +354,6 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   std::unique_ptr<delphyne::TrajectoryAgent> alice =
       std::make_unique<delphyne::TrajectoryAgent>("alice", times, headings,
                                                   translations);
-
-  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   const int id = simulator->AddAgent(std::move(alice));
 
@@ -362,11 +383,11 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
     // std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
-  // Plus one to include the world.
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 1 + 1;
+  // Plus two to include the world and road geometry
+  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 1 + 2;
 
   // Minus one to omit world, which remains still.
-  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
+  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 2);
 
   auto alice_model = draw_message.models(id);
 
@@ -391,112 +412,58 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
 }
 
-// Checks the message has the expected link count and includes the
-// chassis floor as its first link.
-void CheckModelLinks(const ignition::msgs::Model_V& message) {
-  const int link_count = GetLinkCount(message);
-
-  auto link = message.models(0).link(0);
-
-  EXPECT_EQ(link_count, PriusVis<double>(0, "").num_poses());
-  EXPECT_EQ(link.name(), "chassis_floor");
-}
-
-// Returns the x-position of the vehicle based on an ignition::msgs::Model_V.
-// It also checks that the y-position of the vehicle is equal to the provided y
-// value.
-double GetXPosition(const ignition::msgs::Model_V& message, double y) {
-  auto link = message.models(0).link(0);
-  EXPECT_DOUBLE_EQ(link.pose().position().y(), y);
-  return link.pose().position().x();
-}
-
-TEST_F(AutomotiveSimulatorTest, TestBadMaliputRailcars) {
+TEST_F(AutomotiveSimulatorTest, TestBadRailcars) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  std::unique_ptr<const drake::maliput::dragway::RoadGeometry> dragway =
+      CreateDragway("TestDragway", 1);
 
   const double kR{0.5};
-  MaliputRailcarParams<double> params;
-  params.set_r(kR);
 
-  const drake::maliput::api::RoadGeometry* road{};
-
-  auto lane_direction1 = std::make_unique<drake::automotive::LaneDirection>();
-  auto state1 = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params1 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  auto railcar_params1 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction1), std::move(start_params1));
-
-  const int id1 = simulator->AddLoadableAgent(
-      "rail-car", "foo", std::move(state1), road, std::move(railcar_params1));
-
+  // make sure the simulator has a road geometry
+  auto agent_1 = std::make_unique<delphyne::RailCar>(
+      "foo", *(dragway->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      kR,    // offset
+      0.0,   // speed
+      0.0    // nominal_speed
+      );
+  const int id1 = simulator->AddAgent(std::move(agent_1));
   EXPECT_LT(id1, 0);
 
-  EXPECT_NO_THROW(
-      road = simulator->SetRoadGeometry(
-          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"),
-              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
-              1 /* shoulder width */, 5 /* maximum_height */,
-              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+  // sim is using a different road geometry
+  simulator->SetRoadGeometry(std::move(dragway));
+  std::unique_ptr<const drake::maliput::dragway::RoadGeometry>
+      different_dragway = CreateDragway("DifferentDragway", 2);
+  auto agent_2 = std::make_unique<delphyne::RailCar>(
+      "bar", *(different_dragway->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      kR,    // offset
+      0.0,   // speed
+      0.0    // nominal_speed
+      );
+  const int id2 = simulator->AddAgent(std::move(agent_2));
 
-  auto lane_direction2 = std::make_unique<drake::automotive::LaneDirection>();
-  auto state2 = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params2 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  auto railcar_params2 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction2), std::move(start_params2));
-  const int id2 = simulator->AddLoadableAgent(
-      "rail-car", "bar", std::move(state2), road, std::move(railcar_params2));
   EXPECT_LT(id2, 0);
-
-  const auto different_road =
-      std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("DifferentDragway"),
-          2 /* num lanes */, 50 /* length */, 3 /* lane width */,
-          2 /* shoulder width */, 5 /* maximum_height */,
-          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-          std::numeric_limits<double>::epsilon() /* angular_tolerance */);
-
-  auto lane_direction3 = std::make_unique<drake::automotive::LaneDirection>(
-      different_road->junction(0)->segment(0)->lane(0));
-  auto state3 = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params3 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  auto railcar_params3 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction3), std::move(start_params3));
-  const int id3 = simulator->AddLoadableAgent(
-      "rail-car", "baz", std::move(state3), road, std::move(railcar_params3));
-
-  EXPECT_LT(id3, 0);
 }
 
 // Covers railcar behavior.
 TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-  const double kR{0.5};
+  auto road_geometry =
+      simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
-  const drake::maliput::api::RoadGeometry* road{};
-  EXPECT_NO_THROW(
-      road = simulator->SetRoadGeometry(
-          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"),
-              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
-              1 /* shoulder width */, 5 /* maximum_height */,
-              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
-
-  auto lane_direction = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(0));
-  auto state = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  start_params->set_r(kR);
-  auto railcar_params = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction), std::move(start_params));
-  const int id = simulator->AddLoadableAgent(
-      "rail-car", "model", std::move(state), road, std::move(railcar_params));
+  const double k_offset{0.5};
+  auto agent = std::make_unique<delphyne::RailCar>(
+      "model", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,      // lane_direction,
+      0.0,       // position
+      k_offset,  // offset
+      0.0,       // speed
+      0.0        // nominal_speed
+      );
+  const int id = simulator->AddAgent(std::move(agent));
 
   EXPECT_GE(id, 0);
 
@@ -531,7 +498,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // The following tolerance was determined empirically.
   const double kPoseXTolerance{1e-4};
 
-  EXPECT_NEAR(GetXPosition(draw_message, kR), initial_x, kPoseXTolerance);
+  EXPECT_NEAR(GetXPosition(draw_message, k_offset), initial_x, kPoseXTolerance);
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
@@ -539,6 +506,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
 // collectively result in the correct ignition messages being published.
 TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent1 =
       std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
@@ -577,8 +545,8 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
                                           viewer_draw_callback);
 
-  // Plus one to include the world.
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 1;
+  // Plus two to include the world and road geometry
+  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 2;
 
   simulator->Start();
 
@@ -617,13 +585,15 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   }
 
   // Checks number of links in the viewer_draw message.
-  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 1);
+  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 2);
 }
 
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
 // added to the simulation.
 TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  const drake::maliput::api::RoadGeometry* road_geometry =
+      simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent1 =
       std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
@@ -632,62 +602,46 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   EXPECT_NO_THROW(simulator->AddAgent(std::move(agent1)));
   EXPECT_THROW(simulator->AddAgent(std::move(agent2)), std::runtime_error);
 
-  const double kR{0.5};
-  const drake::maliput::api::RoadGeometry* road{};
-  EXPECT_NO_THROW(
-      road = simulator->SetRoadGeometry(
-          std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-              drake::maliput::api::RoadGeometryId("TestDragway"),
-              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
-              1 /* shoulder width */, 5 /* maximum_height */,
-              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-              std::numeric_limits<double>::epsilon() /* angular_tolerance */)));
+  auto agent_1 = std::make_unique<delphyne::RailCar>(
+      "FOO", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      0.0,   // offset
+      0.0,   // speed
+      5.0    // nominal_speed
+      );
+  EXPECT_NO_THROW(simulator->AddAgent(std::move(agent_1)));
 
-  auto lane_direction4 = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(0));
-  auto state4 = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params4 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  start_params4->set_r(kR);
-  auto railcar_params4 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction4), std::move(start_params4));
-  EXPECT_NO_THROW(simulator->AddLoadableAgent(
-      "rail-car", "FOO", std::move(state4), road, std::move(railcar_params4)));
+  auto agent_2 = std::make_unique<delphyne::RailCar>(
+      "alice", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      0.0,   // offset
+      0.0,   // speed
+      5.0    // nominal_speed
+      );
+  EXPECT_NO_THROW(simulator->AddAgent(std::move(agent_2)));
 
-  auto lane_direction5 = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(0));
-  auto state5 = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params5 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  start_params5->set_r(kR);
-  auto railcar_params5 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction5), std::move(start_params5));
-  EXPECT_NO_THROW(simulator->AddLoadableAgent("rail-car", "alice",
-                                              std::move(state5), road,
-                                              std::move(railcar_params5)));
-
-  auto lane_direction6 = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(0));
-  auto state6 = std::make_unique<MaliputRailcarState<double>>();
-  auto start_params6 =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  start_params6->set_r(kR);
-  auto railcar_params6 = std::make_unique<RailCarAgentParams>(
-      std::move(lane_direction6), std::move(start_params6));
-  EXPECT_THROW(
-      simulator->AddLoadableAgent("rail-car", "alice", std::move(state6), road,
-                                  std::move(railcar_params6)),
-      std::runtime_error);
+  auto agent_3 = std::make_unique<delphyne::RailCar>(
+      "alice", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      0.0,   // offset
+      0.0,   // speed
+      5.0    // nominal_speed
+      );
+  EXPECT_THROW(simulator->AddAgent(std::move(agent_3)), std::runtime_error);
 }
 
-// Verifies that the velocity outputs of the MaliputRailcars are connected to
+// Verifies that the velocity outputs of the rail cars are connected to
 // the PoseAggregator, which prevents a regression of #5894.
 TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
 
   const drake::maliput::api::RoadGeometry* road = simulator->SetRoadGeometry(
       std::make_unique<const drake::maliput::dragway::RoadGeometry>(
-          drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */,
+          drake::maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes
+          */,
           100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
           5 /* maximum_height */,
           std::numeric_limits<double>::epsilon() /* linear_tolerance */,
@@ -695,46 +649,38 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 
   const double kR{0.5};
 
-  auto alice_initial_state = std::make_unique<MaliputRailcarState<double>>();
-  alice_initial_state->set_s(5.0);
-  alice_initial_state->set_speed(1.0);
-  auto alice_lane_direction =
-      std::make_unique<drake::automotive::LaneDirection>(
-          road->junction(0)->segment(0)->lane(0));
-  auto alice_start_params =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  alice_start_params->set_r(kR);
-  auto alice_railcar_params = std::make_unique<RailCarAgentParams>(
-      std::move(alice_lane_direction), std::move(alice_start_params));
+  auto alice = std::make_unique<delphyne::RailCar>(
+      "alice", *(road->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      5.0,   // position
+      kR,    // offset
+      1.0,   // speed
+      5.0    // nominal_speed
+      );
 
-  const int alice_id = simulator->AddLoadableAgent(
-      "rail-car", "Alice", std::move(alice_initial_state), road,
-      std::move(alice_railcar_params));
+  auto bob = std::make_unique<delphyne::RailCar>(
+      "bob", *(road->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      kR,    // offset
+      0.0,   // speed
+      0.0    // nominal_speed
+      );
 
-  auto bob_initial_state = std::make_unique<MaliputRailcarState<double>>();
-  auto bob_lane_direction = std::make_unique<drake::automotive::LaneDirection>(
-      road->junction(0)->segment(0)->lane(0));
-  auto bob_start_params =
-      std::make_unique<drake::automotive::MaliputRailcarParams<double>>();
-  bob_start_params->set_r(kR);
-  auto bob_railcar_params = std::make_unique<RailCarAgentParams>(
-      std::move(bob_lane_direction), std::move(bob_start_params));
-
-  const int bob_id = simulator->AddLoadableAgent(
-      "rail-car", "Bob", std::move(bob_initial_state), road,
-      std::move(bob_railcar_params));
+  int alice_id = simulator->AddAgent(std::move(alice));
+  int bob_id = simulator->AddAgent(std::move(bob));
 
   EXPECT_NO_THROW(simulator->Start());
 
-  // Advances the simulation to allow Alice's MaliputRailcar to move at fixed
-  // speed and Bob's MaliputRailcar to not move.
+  // Advances the simulation to allow Alice to move at fixed
+  // speed and Bob to not move.
   simulator->StepBy(1);
 
   const int kAliceIndex{0};
   const int kBobIndex{1};
 
-  // Verifies that the velocity within the PoseAggregator's PoseBundle output is
-  // non-zero.
+  // Verifies that the velocity within the PoseAggregator's PoseBundle output
+  // is non-zero.
   const drake::systems::rendering::PoseBundle<double> poses =
       simulator->GetCurrentPoses();
   ASSERT_EQ(poses.get_num_poses(), 2);
@@ -747,6 +693,7 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 // Tests Build/Start logic
 TEST_F(AutomotiveSimulatorTest, TestBuild) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent1 =
       std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
@@ -767,6 +714,7 @@ TEST_F(AutomotiveSimulatorTest, TestBuild) {
 // Tests Build/Start logic (calling Start only)
 TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+  simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent1 =
       std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
@@ -778,24 +726,6 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   simulator->Start(0.0);
   EXPECT_NO_THROW(simulator->GetDiagram());
 }
-
-//// Tests that AddLoadableAgent basically works.
-// TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentBasic) {
-//  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-//  auto state = std::make_unique<SimpleCarState<double>>();
-//  ASSERT_EQ(0, simulator->AddLoadableAgent("simple-car", "my_test_model",
-//                                           std::move(state), kNullRoad));
-//}
-//
-//// Tests that AddLoadableAgent returns -1 when unable to find plugin.
-// TEST_F(AutomotiveSimulatorTest, TestAddLoadableAgentNonExistent) {
-//  const int kErrorReturnCode{-1};
-//  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
-//  auto state = std::make_unique<SimpleCarState<double>>();
-//  ASSERT_EQ(kErrorReturnCode,
-//            simulator->AddLoadableAgent("NonExistentPlugin", "my_test_model",
-//                                        std::move(state), kNullRoad));
-//}
 
 //////////////////////////////////////////////////
 int main(int argc, char** argv) {

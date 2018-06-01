@@ -32,15 +32,11 @@ namespace delphyne {
  *****************************************************************************/
 
 SimpleCar::SimpleCar(const std::string& name, double x, double y,
-                     double heading, double velocity)
+                     double heading, double speed)
     : delphyne::Agent(name),
-      simple_car_state_(std::make_unique<SimpleCarState>()),
+      initial_parameters_(x, y, heading, speed),
       simple_car_system_() {
   igndbg << "SimpleCar constructor" << std::endl;
-  simple_car_state_->set_x(x);
-  simple_car_state_->set_y(y);
-  simple_car_state_->set_heading(heading);
-  simple_car_state_->set_velocity(velocity);
 }
 
 int SimpleCar::Configure(
@@ -56,17 +52,30 @@ int SimpleCar::Configure(
   id_ = id;
 
   /*********************
-   * Instantiate System
+   * Context
+   *********************/
+  typedef drake::automotive::SimpleCarState<double> ContextState;
+  typedef drake::automotive::SimpleCarParams<double> ContextParams;
+  ContextState context_state;
+  context_state.set_x(initial_parameters_.x);
+  context_state.set_y(initial_parameters_.y);
+  context_state.set_heading(initial_parameters_.heading);
+  context_state.set_velocity(initial_parameters_.speed);
+  ContextParams context_params;
+
+  /*********************
+   * Simple Car System
    *********************/
   std::unique_ptr<drake::automotive::SimpleCar2<double>> system =
-      std::make_unique<drake::automotive::SimpleCar2<double>>();
+      std::make_unique<drake::automotive::SimpleCar2<double>>(context_state,
+                                                              context_params);
   system->set_name(name_);
   simple_car_system_ =
       builder->template AddSystem<drake::automotive::SimpleCar2<double>>(
           std::move(system));
 
   /*********************
-   * Teleop
+   * Teleop Systems
    *********************/
   std::string command_channel = "teleop/" + std::to_string(id);
   auto driving_command_subscriber = builder->template AddSystem<
@@ -118,16 +127,11 @@ int SimpleCar::Configure(
 }
 
 int SimpleCar::Initialize(drake::systems::Context<double>* context) {
-  // TODO(daniel.stonier) unwind this and pre-declare instead
   igndbg << "SimpleCar initialize" << std::endl;
 
-  drake::systems::VectorBase<double>& context_state =
-      context->get_mutable_continuous_state().get_mutable_vector();
-  drake::systems::BasicVector<double>* const state =
-      dynamic_cast<drake::systems::BasicVector<double>*>(&context_state);
-  DELPHYNE_ASSERT(state);
-  state->set_value(simple_car_state_->get_value());
-
+  // TODO(daniel.stonier) deprecate this method once all agents
+  // have shifted to pre-declaring their context on system construction
+  // (see Configure().
   return 0;
 }
 

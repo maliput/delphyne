@@ -35,7 +35,7 @@ namespace delphyne {
 class SimpleCar : public delphyne::Agent {
  public:
   SimpleCar(const std::string& name, double x, double y, double heading,
-            double velocity);
+            double speed);
   int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
@@ -47,9 +47,15 @@ class SimpleCar : public delphyne::Agent {
   drake::systems::System<double>* get_system() const;
 
  private:
-  typedef drake::automotive::SimpleCarState<double> SimpleCarState;
-  typedef std::unique_ptr<SimpleCarState> SimpleCarStatePtr;
-  SimpleCarStatePtr simple_car_state_;
+  struct Parameters {
+    double x{0.0};        // scene x-coordinate (m)
+    double y{0.0};        // scene y-coordinate (m)
+    double heading{0.0};  // scene heading (around z-axis (radians)
+    double speed{0.0};    // speed in axis defined by the heading (m/s)
+    Parameters(double x, double y, double heading, double speed)
+        : x(x), y(y), heading(heading), speed(speed) {}
+  } initial_parameters_;
+
   drake::automotive::SimpleCar2<double>* simple_car_system_;
 };
 

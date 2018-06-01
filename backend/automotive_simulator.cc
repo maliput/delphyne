@@ -136,7 +136,7 @@ int AutomotiveSimulator<T>::AddAgent(
   if (agent->Configure(id, road_geometry_.get(), builder_.get(), aggregator_,
                        car_vis_applicator_) < 0) {
     ignerr << "Failed to configure agent '" << agent->name() << "'"
-         << std::endl;
+           << std::endl;
     return -1;
   }
   agents_[id] = std::move(agent);

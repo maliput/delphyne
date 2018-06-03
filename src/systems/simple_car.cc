@@ -59,13 +59,18 @@ const SimpleCarParams<T>& get_params(const systems::Context<T>& context) {
 
 template <typename T>
 SimpleCar2<T>::SimpleCar2()
+    : SimpleCar2(SimpleCarState<T>(), SimpleCarParams<T>()) {}
+
+template <typename T>
+SimpleCar2<T>::SimpleCar2(const SimpleCarState<T>& initial_context_state,
+                          const SimpleCarParams<T>& initial_context_parameters)
     : systems::LeafSystem<T>(systems::SystemTypeTag<automotive::SimpleCar2>{}) {
   this->DeclareVectorInputPort(DrivingCommand<T>());
   this->DeclareVectorOutputPort(&SimpleCar2::CalcStateOutput);
   this->DeclareVectorOutputPort(&SimpleCar2::CalcPose);
   this->DeclareVectorOutputPort(&SimpleCar2::CalcVelocity);
-  this->DeclareContinuousState(SimpleCarState<T>());
-  this->DeclareNumericParameter(SimpleCarParams<T>());
+  this->DeclareContinuousState(initial_context_state);
+  this->DeclareNumericParameter(initial_context_parameters);
 
   this->DeclareInequalityConstraint(&SimpleCar2::CalcSteeringAngleConstraint, 2,
                                     "steering angle limit");

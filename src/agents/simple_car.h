@@ -47,6 +47,11 @@ class SimpleCar : public delphyne::Agent {
   drake::systems::System<double>* get_system() const;
 
  private:
+  // Container for the agent's initial configuration.
+  //
+  // Note: this is independent of whatever computational mechanisms
+  // are used internally and is a useful construct for recording and
+  // logging / streaming to debug configuration errors.
   struct Parameters {
     double x{0.0};        // scene x-coordinate (m)
     double y{0.0};        // scene y-coordinate (m)

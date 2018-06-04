@@ -83,10 +83,16 @@ SimulatorRunner::SimulatorRunner(
     ignerr << "Error advertising service [" << kSceneRequestServiceName << "]"
            << std::endl;
   }
-  // Initializes the python machinery so we can invoke a python callback
-  // function on each simulation step.
-  Py_Initialize();
-  PyEval_InitThreads();
+
+  // The get_internals() function initializes the `internals.tstate` for
+  // subsequent `gil_scoped_acquire` calls. If the gil_scoped_acquire is
+  // attempted to be called before having initialized the internals.tstate,
+  // it would end up into a segmentation fault. This initialization should
+  // only occur if the SimulatorRunner class is instantiated from within a
+  // python script, which is checked in the if statement.
+  if (Py_IsInitialized()) {
+    pybind11::detail::get_internals();
+  }
 
   // Tell the simulator to run steps as fast as possible, as are handling the
   // sleep (if required) between steps.

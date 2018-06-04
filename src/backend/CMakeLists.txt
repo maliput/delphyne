@@ -91,18 +91,12 @@ install(TARGETS automotive_simulator
 # ----------------------------------------
 # Simulator-runner library
 #
-# Right now this can't be made shared - segfaults
-# keyboard_controlled_simulation.py at the gil_scoped_acquire
-# call
 add_library(simulation_runner
-  STATIC
   interactive_simulation_stats.cc
   simulation_run_stats.cc
   simulation_runner.cc
   system.h
 )
-# Position independent code can disappear once we are able to drop STATIC
-set_property(TARGET simulation_runner PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
 target_link_libraries(
   simulation_runner

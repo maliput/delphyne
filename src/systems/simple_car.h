@@ -55,9 +55,6 @@ class SimpleCar2 final : public systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar2)
 
-  /// @brief Creates the system with context initialised to defaults.
-  SimpleCar2();
-
   /// @brief Initialise the background context on construction.
   ///
   /// The alternative is to back-fill these context values after the
@@ -66,8 +63,10 @@ class SimpleCar2 final : public systems::LeafSystem<T> {
   ///
   /// @param initial_context_state[in] The continuous state.
   /// @param iniital_context_parameters[in] The numeric parameterisation.
-  SimpleCar2(const SimpleCarState<T>& initial_context_state,
-             const SimpleCarParams<T>& initial_context_parameters);
+  SimpleCar2(
+      const SimpleCarState<T>& initial_context_state = SimpleCarState<T>(),
+      const SimpleCarParams<T>& initial_context_parameters =
+          SimpleCarParams<T>());
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>

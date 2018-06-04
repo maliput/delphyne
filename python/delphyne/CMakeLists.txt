@@ -34,6 +34,25 @@ install(
   DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )
 
+####################
+# Maliput Bindings
+####################
+
+pybind11_add_module(maliput_bindings maliput.cc)
+set_target_properties(maliput_bindings PROPERTIES OUTPUT_NAME maliput)
+
+target_link_libraries(maliput_bindings
+  PRIVATE
+    maliput_utilities
+    drake::drake
+    pybind11::module
+    ${PYTHON_LIBRARIES}
+)
+
+install(
+  TARGETS maliput_bindings
+  DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
+)
 
 ####################
 # Other Bindings

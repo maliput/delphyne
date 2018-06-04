@@ -63,8 +63,20 @@ int MobilCar::Configure(
     return -1;
   }
 
+  /******************************************
+   * Initial Context Variables
+   ******************************************/
+  typedef drake::automotive::SimpleCarState<double> ContextContinuousState;
+  typedef drake::automotive::SimpleCarParams<double> ContextNumericParameters;
+  ContextContinuousState context_continuous_state;
+  context_continuous_state.set_x(initial_parameters_.x);
+  context_continuous_state.set_y(initial_parameters_.y);
+  context_continuous_state.set_heading(initial_parameters_.heading);
+  context_continuous_state.set_velocity(initial_parameters_.speed);
+  ContextNumericParameters context_numeric_parameters;
+
   /*********************
-   * Systems
+   * Instantiate Systems
    *********************/
   // driving
   drake::automotive::MobilPlanner<double>* mobil_planner =
@@ -91,7 +103,10 @@ int MobilCar::Configure(
 
   simple_car_system_ =
       builder->template AddSystem<drake::automotive::SimpleCar2<double>>(
-          std::make_unique<drake::automotive::SimpleCar2<double>>());
+          std::make_unique<drake::automotive::SimpleCar2<double>>(
+              context_continuous_state,
+              context_numeric_parameters
+              ));
   simple_car_system_->set_name(name_ + "_simple_car");
 
   drake::systems::Multiplexer<double>* mux =
@@ -164,27 +179,9 @@ int MobilCar::Configure(
 }
 
 int MobilCar::Initialize(drake::systems::Context<double>* system_context) {
-  // TODO(daniel.stonier) unwind this and pre-declare instead
-
-  igndbg << "MobilCar initialize" << std::endl;
-
-  typedef drake::automotive::SimpleCarState<double> SimpleCarContextState;
-  typedef std::unique_ptr<SimpleCarContextState> SimpleCarContextStatePtr;
-
-  auto simple_car_state = std::make_unique<SimpleCarContextState>();
-  // TODO(daniel.stonier) check for 'in-lane' bounds?
-  simple_car_state->set_x(initial_parameters_.x);
-  simple_car_state->set_y(initial_parameters_.y);
-  simple_car_state->set_heading(initial_parameters_.heading);
-  simple_car_state->set_velocity(initial_parameters_.speed);
-
-  drake::systems::VectorBase<double>& context_state =
-      system_context->get_mutable_continuous_state().get_mutable_vector();
-  drake::systems::BasicVector<double>* const state =
-      dynamic_cast<drake::systems::BasicVector<double>*>(&context_state);
-  DELPHYNE_ASSERT(state);
-  state->set_value(simple_car_state->get_value());
-
+  // TODO(daniel.stonier) deprecate this method once all agents
+  // have shifted to pre-declaring their context on system construction
+  // (see Configure().
   return 0;
 }
 

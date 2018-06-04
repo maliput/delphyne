@@ -9,7 +9,7 @@
 #include "ignition/msgs.hh"
 
 #include "backend/system.h"
-#include "backend/translation_systems/drake_to_ign.h"
+#include "translations/drake_to_ign.h"
 
 namespace delphyne {
 

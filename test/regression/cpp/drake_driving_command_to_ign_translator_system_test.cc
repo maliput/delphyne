@@ -1,7 +1,5 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/drake_driving_command_to_ign.h"
-
 #include <memory>
 
 #include "drake/systems/framework/framework_common.h"
@@ -9,6 +7,7 @@
 #include <gtest/gtest.h>
 
 #include "helpers.h"
+#include "translations/drake_driving_command_to_ign.h"
 
 namespace delphyne {
 

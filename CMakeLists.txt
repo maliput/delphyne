@@ -190,7 +190,6 @@ else (build_errors)
   message (STATUS "Build Type: ${CMAKE_BUILD_TYPE}")
   message (STATUS "Install path: ${CMAKE_INSTALL_PREFIX}")
 
-  add_subdirectory(backend)
   add_subdirectory(include)
   add_subdirectory(src)
   add_subdirectory(python)

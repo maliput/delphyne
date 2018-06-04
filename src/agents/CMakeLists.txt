@@ -20,6 +20,7 @@ target_link_libraries(
   agents
   PUBLIC
     maliput_utilities
+    translations
     public_headers
     drake_systems
     drake::drake

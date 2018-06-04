@@ -9,6 +9,12 @@ set(TEST_TYPE UNIT)
 # Helper library.
 add_library(test_helpers helpers.cc)
 
+target_include_directories(
+  test_helpers
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+)
+
 target_link_libraries(test_helpers
   gtest
   gtest_main

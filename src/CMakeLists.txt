@@ -14,6 +14,8 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 ##############################################################################
 
 add_subdirectory(agents)
+add_subdirectory(backend)
 add_subdirectory(maliput)
 add_subdirectory(protobuf)
 add_subdirectory(systems)
+add_subdirectory(translations)

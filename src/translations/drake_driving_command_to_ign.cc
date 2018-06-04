@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/translation_systems/drake_driving_command_to_ign.h"
+#include "translations/drake_driving_command_to_ign.h"
 
 #include <map>
 #include <string>

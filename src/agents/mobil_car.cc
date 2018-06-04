@@ -23,8 +23,8 @@
 
 // private headers
 #include "backend/ign_publisher_system.h"
-#include "translations/drake_simple_car_state_to_ign.h"
 #include "systems/simple_car.h"
+#include "translations/drake_simple_car_state_to_ign.h"
 
 /*****************************************************************************
  ** Namespaces

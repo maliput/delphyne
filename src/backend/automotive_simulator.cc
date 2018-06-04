@@ -54,6 +54,19 @@ using drake::systems::SystemOutput;
 
 template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator() {
+
+  // Avoid the many & varied 'info' level logging messages coming from drake.
+  //
+  // Note: Drake will have defined HAVE_SPDLOG if it is using that
+  // (see lib/cmake/spdlog/spdlog-config.cmake that was installed by drake).
+  //
+  // It would be preferable if drake did not spam downstream application
+  // development on info channels, but that will require a discussion and
+  // a large swipe at the many uses in drake.
+#ifdef HAVE_SPDLOG
+  drake::log()->set_level(spdlog::level::warn);
+#endif
+
   aggregator_ =
       builder_
           ->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();
@@ -314,7 +327,6 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
 template <typename T>
 void AutomotiveSimulator<T>::StepBy(const T& time_step) {
   const T time = simulator_->get_context().get_time();
-  SPDLOG_TRACE(drake::log(), "Time is now {}", time);
   simulator_->StepTo(time + time_step);
 }
 

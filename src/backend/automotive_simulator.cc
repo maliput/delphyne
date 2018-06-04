@@ -292,17 +292,6 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::InitializeAgents() {
-  // TODO(daniel.stonier) This is a bad smell, agents may be composed of more
-  // than one system. More likely what we need to do is pass it diagram_.
-  for (const auto& pair : agents_) {
-    drake::systems::Context<T>& context = diagram_->GetMutableSubsystemContext(
-        *(pair.second->get_system()), &simulator_->get_mutable_context());
-    pair.second->Initialize(&context);
-  }
-}
-
-template <typename T>
 void AutomotiveSimulator<T>::Start(double realtime_rate) {
   DELPHYNE_DEMAND(!has_started());
   if (diagram_ == nullptr) {
@@ -312,8 +301,6 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   simulator_ = std::make_unique<drake::systems::Simulator<T>>(*diagram_);
 
   InitializeSceneGeometryAggregator();
-
-  InitializeAgents();
 
   simulator_->set_target_realtime_rate(realtime_rate);
   const double max_step_size = 0.01;

@@ -37,6 +37,7 @@
 // private headers
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
+#include "systems/maliput_rail_car.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
 
@@ -57,8 +58,7 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
                  double speed, double nominal_speed)
     : delphyne::Agent(name),
       initial_parameters_(lane, direction_of_travel, longitudinal_position,
-                          lateral_offset, speed, nominal_speed),
-      rail_car_system_(nullptr) {
+                          lateral_offset, speed, nominal_speed) {
   igndbg << "RailCar constructor" << std::endl;
 }
 
@@ -117,7 +117,8 @@ int RailCar::Configure(
    * Initial Context Variables
    ******************************************/
   typedef drake::automotive::MaliputRailcarState<double> ContextContinuousState;
-  typedef drake::automotive::MaliputRailcarParams<double> ContextNumericParameters;
+  typedef drake::automotive::MaliputRailcarParams<double>
+      ContextNumericParameters;
   ContextContinuousState context_continuous_state;
   context_continuous_state.set_s(initial_parameters_.position);
   context_continuous_state.set_speed(initial_parameters_.speed);
@@ -136,60 +137,48 @@ int RailCar::Configure(
   // travel against the flow the lane's nominal direction (traffic flow).
   // Probably preferable to not use this at all and specify things separately.
   drake::automotive::LaneDirection lane_direction(
-      &(initial_parameters_.lane),
-      initial_parameters_.direction_of_travel);
-  std::unique_ptr<RailCarSystem> system =
-      std::make_unique<RailCarSystem>(
-          lane_direction,
-          context_continuous_state,
-          context_numeric_parameters);
-  system->set_name(name_);
-  rail_car_system_ =
-      builder->template AddSystem<RailCarSystem>(std::move(system));
+      &(initial_parameters_.lane), initial_parameters_.direction_of_travel);
+  typedef drake::automotive::MaliputRailCar<double> RailCarSystem;
+  RailCarSystem* rail_car_system = builder->template AddSystem<RailCarSystem>(
+      std::make_unique<RailCarSystem>(lane_direction, context_continuous_state,
+                                      context_numeric_parameters));
+  rail_car_system->set_name(name_);
 
   /*********************
-   * Diagram Wiring
+   * Simulator Wiring
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
   drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
       aggregator->AddSinglePoseAndVelocityInput(name_, id);
-  builder->Connect(rail_car_system_->pose_output(), ports.pose_descriptor);
-  builder->Connect(rail_car_system_->velocity_output(),
+  builder->Connect(rail_car_system->pose_output(), ports.pose_descriptor);
+  builder->Connect(rail_car_system->velocity_output(),
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id_, name_));
 
   /*********************
-   * Other
+   * State Publisher
    *********************/
   auto agent_state_translator =
       builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
-  const std::string car_state_channel =
+  const std::string agent_state_channel =
       "agents/" + std::to_string(id) + "/state";
-  auto car_state_publisher = builder->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+      AgentStatePublisherSystem;
+  AgentStatePublisherSystem* agent_state_publisher_system =
+      builder->template AddSystem<AgentStatePublisherSystem>(
+          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
   // Drake car states are translated to ignition.
-  builder->Connect(rail_car_system_->simple_car_state_output(),
+  builder->Connect(rail_car_system->simple_car_state_output(),
                    agent_state_translator->get_input_port(0));
 
   // And then the translated ignition car state is published.
-  builder->Connect(*agent_state_translator, *car_state_publisher);
+  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
 
   return 0;
-}
-
-int RailCar::Initialize(drake::systems::Context<double>* system_context) {
-  // TODO(daniel.stonier) deprecate this method once all agents
-  // have shifted to pre-declaring their context on system construction
-  // (see Configure().
-    return 0;
-}
-
-drake::systems::System<double>* RailCar::get_system() const {
-  return rail_car_system_;
 }
 
 }  // namespace delphyne

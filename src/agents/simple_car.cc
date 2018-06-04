@@ -33,9 +33,7 @@ namespace delphyne {
 
 SimpleCar::SimpleCar(const std::string& name, double x, double y,
                      double heading, double speed)
-    : delphyne::Agent(name),
-      initial_parameters_(x, y, heading, speed),
-      simple_car_system_() {
+    : delphyne::Agent(name), initial_parameters_(x, y, heading, speed) {
   igndbg << "SimpleCar constructor" << std::endl;
 }
 
@@ -54,33 +52,34 @@ int SimpleCar::Configure(
   /*********************
    * Context
    *********************/
-  typedef drake::automotive::SimpleCarState<double> ContextState;
-  typedef drake::automotive::SimpleCarParams<double> ContextParams;
-  ContextState context_state;
-  context_state.set_x(initial_parameters_.x);
-  context_state.set_y(initial_parameters_.y);
-  context_state.set_heading(initial_parameters_.heading);
-  context_state.set_velocity(initial_parameters_.speed);
-  ContextParams context_params;
+  typedef drake::automotive::SimpleCarState<double> ContextContinuousState;
+  typedef drake::automotive::SimpleCarParams<double> ContextNumericParameters;
+  ContextContinuousState context_continuous_state;
+  context_continuous_state.set_x(initial_parameters_.x);
+  context_continuous_state.set_y(initial_parameters_.y);
+  context_continuous_state.set_heading(initial_parameters_.heading);
+  context_continuous_state.set_velocity(initial_parameters_.speed);
+  ContextNumericParameters context_numeric_parameters;
 
   /*********************
    * Simple Car System
    *********************/
-  std::unique_ptr<drake::automotive::SimpleCar2<double>> system =
-      std::make_unique<drake::automotive::SimpleCar2<double>>(context_state,
-                                                              context_params);
-  system->set_name(name_);
-  simple_car_system_ =
-      builder->template AddSystem<drake::automotive::SimpleCar2<double>>(
-          std::move(system));
+  typedef drake::automotive::SimpleCar2<double> SimpleCarSystem;
+  SimpleCarSystem* simple_car_system =
+      builder->template AddSystem<SimpleCarSystem>(
+          std::make_unique<SimpleCarSystem>(context_continuous_state,
+                                            context_numeric_parameters));
+  simple_car_system->set_name(name_);
 
   /*********************
    * Teleop Systems
    *********************/
   std::string command_channel = "teleop/" + std::to_string(id);
-  auto driving_command_subscriber = builder->template AddSystem<
-      IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>>(
-      command_channel);
+  typedef IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>
+      DrivingCommandSubscriber;
+  DrivingCommandSubscriber* driving_command_subscriber =
+      builder->template AddSystem<DrivingCommandSubscriber>(
+          std::make_unique<DrivingCommandSubscriber>(command_channel));
 
   auto driving_command_translator =
       builder->template AddSystem<IgnDrivingCommandToDrake>();
@@ -90,51 +89,43 @@ int SimpleCar::Configure(
   builder->Connect(*driving_command_subscriber, *driving_command_translator);
 
   // And then the translated Drake command is sent to the car.
-  builder->Connect(*driving_command_translator, *simple_car_system_);
+  builder->Connect(*driving_command_translator, *simple_car_system);
 
   /*********************
-   * Diagram Wiring
+   * Simulator Wiring
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
   drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
       aggregator->AddSinglePoseAndVelocityInput(name_, id);
-  builder->Connect(simple_car_system_->pose_output(), ports.pose_descriptor);
-  builder->Connect(simple_car_system_->velocity_output(),
+  builder->Connect(simple_car_system->pose_output(), ports.pose_descriptor);
+  builder->Connect(simple_car_system->velocity_output(),
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
 
   /*********************
-   * Other
+   * State Publisher
    *********************/
   auto agent_state_translator =
       builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
-  const std::string car_state_channel =
+  const std::string agent_state_channel =
       "agents/" + std::to_string(id) + "/state";
-  auto car_state_publisher = builder->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+      AgentStatePublisherSystem;
+  AgentStatePublisherSystem* agent_state_publisher_system =
+      builder->template AddSystem<AgentStatePublisherSystem>(
+          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
   // Drake car states are translated to ignition.
-  builder->Connect(simple_car_system_->state_output(),
+  builder->Connect(simple_car_system->state_output(),
                    agent_state_translator->get_input_port(0));
 
   // And then the translated ignition car state is published.
-  builder->Connect(*agent_state_translator, *car_state_publisher);
+  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
 
   return 0;
-}
-
-int SimpleCar::Initialize(drake::systems::Context<double>* context) {
-  // TODO(daniel.stonier) deprecate this method once all agents
-  // have shifted to pre-declaring their context on system construction
-  // (see Configure().
-  return 0;
-}
-
-drake::systems::System<double>* SimpleCar::get_system() const {
-  return simple_car_system_;
 }
 
 /*****************************************************************************

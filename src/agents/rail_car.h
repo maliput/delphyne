@@ -24,9 +24,6 @@
 // public headers
 #include "delphyne/agent_base.h"
 
-// private headers
-#include "systems/maliput_rail_car.h"
-
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -75,10 +72,6 @@ class RailCar : public delphyne::Agent {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
-  int Initialize(drake::systems::Context<double>* context) override;
-
-  drake::systems::System<double>* get_system() const;
-
  private:
   // Container for the agent's initial configuration.
   //
@@ -87,9 +80,9 @@ class RailCar : public delphyne::Agent {
   // logging / streaming to debug configuration errors.
   struct Parameters {
     const drake::maliput::api::Lane& lane;
-    bool direction_of_travel{true}; // with or against the lane s-axis
-    double position{0.0};       // longitudinal position in lane (m)
-    double offset{0.0};         // lateral position in lane (m)
+    bool direction_of_travel{true};  // with or against the lane s-axis
+    double position{0.0};            // longitudinal position in lane (m)
+    double offset{0.0};              // lateral position in lane (m)
     double speed{0.0};          // speed in direction of the lane s-axis (m/s)
     double nominal_speed{0.0};  // nominal cruising speed (m/s)
     Parameters(const drake::maliput::api::Lane& lane, bool direction_of_travel,
@@ -103,10 +96,6 @@ class RailCar : public delphyne::Agent {
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
-
-  typedef drake::automotive::MaliputRailCar<double> RailCarSystem;
-
-  RailCarSystem* rail_car_system_;
 };
 
 /*****************************************************************************

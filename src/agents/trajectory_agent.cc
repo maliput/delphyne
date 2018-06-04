@@ -39,7 +39,7 @@ TrajectoryAgent::TrajectoryAgent(
     const std::string& name, const std::vector<double>& times,
     const std::vector<double>& headings,
     const std::vector<std::vector<double>>& translations)
-    : delphyne::Agent(name), trajectory_(), trajectory_follower_system_() {
+    : delphyne::Agent(name) {
   igndbg << "TrajectoryAgent constructor" << std::endl;
   Eigen::Quaternion<double> zero_heading(
       Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
@@ -76,31 +76,29 @@ int TrajectoryAgent::Configure(
    *********************/
   id_ = id;
 
-  /*********************
-   * Instantiate System
-   *********************/
+  /******************************************
+   * Trajectory Follower System
+   ******************************************/
   // TODO(daniel.stonier) have this sample on update events from the simulation
   // than arbitrarily choosing it's own update rate.
   double sampling_time = 0.01;
-  std::unique_ptr<drake::automotive::TrajectoryFollower<double>> system =
-      std::make_unique<drake::automotive::TrajectoryFollower<double>>(
-          *trajectory_, sampling_time);
-  system->set_name(name_);
-  trajectory_follower_system_ =
-      builder
-          ->template AddSystem<drake::automotive::TrajectoryFollower<double>>(
-              std::move(system));
+
+  typedef drake::automotive::TrajectoryFollower<double> TrajectoryFollower;
+  TrajectoryFollower* trajectory_follower_system =
+      builder->template AddSystem<TrajectoryFollower>(
+          std::make_unique<TrajectoryFollower>(*trajectory_, sampling_time));
+  trajectory_follower_system->set_name(name_);
 
   /*********************
-   * Diagram Wiring
+   * Simulator Wiring
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
   drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
       aggregator->AddSinglePoseAndVelocityInput(name_, id);
-  builder->Connect(trajectory_follower_system_->pose_output(),
+  builder->Connect(trajectory_follower_system->pose_output(),
                    ports.pose_descriptor);
-  builder->Connect(trajectory_follower_system_->velocity_output(),
+  builder->Connect(trajectory_follower_system->velocity_output(),
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
@@ -113,27 +111,19 @@ int TrajectoryAgent::Configure(
 
   const std::string agent_state_channel =
       "agents/" + std::to_string(id) + "/state";
-  auto agent_state_publisher =
-      builder->AddSystem<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-          agent_state_channel);
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+      AgentStatePublisherSystem;
+  AgentStatePublisherSystem* agent_state_publisher_system =
+      builder->template AddSystem<AgentStatePublisherSystem>(
+          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
   // Drake car states are translated to ignition.
-  builder->Connect(trajectory_follower_system_->state_output(),
+  builder->Connect(trajectory_follower_system->state_output(),
                    agent_state_translator->get_input_port(0));
 
   // And then the translated ignition car state is published.
-  builder->Connect(*agent_state_translator, *agent_state_publisher);
+  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
   return 0;
-}
-
-int TrajectoryAgent::Initialize(drake::systems::Context<double>* context) {
-  // TODO(daniel.stonier) unwind this and pre-declare instead
-  igndbg << "TrajectoryAgent initialize" << std::endl;
-  return 0;
-}
-
-drake::systems::System<double>* TrajectoryAgent::get_system() const {
-  return trajectory_follower_system_;
 }
 
 /*****************************************************************************

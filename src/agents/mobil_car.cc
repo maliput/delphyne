@@ -21,8 +21,10 @@
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
 
+// private headers
 #include "backend/ign_publisher_system.h"
 #include "translations/drake_simple_car_state_to_ign.h"
+#include "systems/simple_car.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -37,8 +39,7 @@ namespace delphyne {
 MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
                    double y, double heading, double speed)
     : delphyne::Agent(name),
-      initial_parameters_(direction_of_travel, x, y, heading, speed),
-      simple_car_system_(nullptr) {
+      initial_parameters_(direction_of_travel, x, y, heading, speed) {
   igndbg << "MobilCar constructor" << std::endl;
 }
 
@@ -101,13 +102,12 @@ int MobilCar::Configure(
           std::make_unique<drake::automotive::PurePursuitController<double>>());
   pursuit->set_name(name_ + "_pure_pursuit_controller");
 
-  simple_car_system_ =
-      builder->template AddSystem<drake::automotive::SimpleCar2<double>>(
-          std::make_unique<drake::automotive::SimpleCar2<double>>(
-              context_continuous_state,
-              context_numeric_parameters
-              ));
-  simple_car_system_->set_name(name_ + "_simple_car");
+  typedef drake::automotive::SimpleCar2<double> SimpleCarSystem;
+  SimpleCarSystem* simple_car_system =
+      builder->template AddSystem<SimpleCarSystem>(
+          std::make_unique<SimpleCarSystem>(context_continuous_state,
+                                            context_numeric_parameters));
+  simple_car_system->set_name(name_ + "_simple_car");
 
   drake::systems::Multiplexer<double>* mux =
       builder->template AddSystem<drake::systems::Multiplexer<double>>(
@@ -115,41 +115,46 @@ int MobilCar::Configure(
               drake::automotive::DrivingCommand<double>()));
   mux->set_name(name_ + "_mux");
 
-  // publishing
-  auto car_state_translator =
+  /*********************
+   * State Publisher
+   *********************/
+  auto agent_state_translator =
       builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
-  const std::string car_state_channel =
+  const std::string agent_state_channel =
       "agents/" + std::to_string(id) + "/state";
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+      AgentStatePublisherSystem;
+  AgentStatePublisherSystem* agent_state_publisher_system =
+      builder->template AddSystem<AgentStatePublisherSystem>(
+          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
-  IgnPublisherSystem<ignition::msgs::SimpleCarState>* car_state_publisher =
-      builder->template AddSystem<
-          IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-          std::make_unique<IgnPublisherSystem<ignition::msgs::SimpleCarState>>(
-              car_state_channel));
+  // publishing
+  builder->Connect(simple_car_system->state_output(),
+                   agent_state_translator->get_input_port(0));
+  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
 
   /*********************
    * Diagram Wiring
    *********************/
   // driving
-  builder->Connect(simple_car_system_->pose_output(),
+  builder->Connect(simple_car_system->pose_output(),
                    mobil_planner->ego_pose_input());
-  builder->Connect(simple_car_system_->velocity_output(),
+  builder->Connect(simple_car_system->velocity_output(),
                    mobil_planner->ego_velocity_input());
   builder->Connect(idm_controller->acceleration_output(),
                    mobil_planner->ego_acceleration_input());
   builder->Connect(aggregator->get_output_port(0),
                    mobil_planner->traffic_input());
 
-  builder->Connect(simple_car_system_->pose_output(),
+  builder->Connect(simple_car_system->pose_output(),
                    idm_controller->ego_pose_input());
-  builder->Connect(simple_car_system_->velocity_output(),
+  builder->Connect(simple_car_system->velocity_output(),
                    idm_controller->ego_velocity_input());
   builder->Connect(aggregator->get_output_port(0),
                    idm_controller->traffic_input());
 
-  builder->Connect(simple_car_system_->pose_output(),
-                   pursuit->ego_pose_input());
+  builder->Connect(simple_car_system->pose_output(), pursuit->ego_pose_input());
   builder->Connect(mobil_planner->lane_output(), pursuit->lane_input());
   // Build DrivingCommand via a mux of two scalar outputs (a BasicVector where
   // row 0 = steering command, row 1 = acceleration command).
@@ -157,36 +162,22 @@ int MobilCar::Configure(
   builder->Connect(idm_controller->acceleration_output(),
                    mux->get_input_port(1));
   builder->Connect(mux->get_output_port(0),
-                   simple_car_system_->get_input_port(0));
+                   simple_car_system->get_input_port(0));
 
-  // simulator
+  /*********************
+   * Simulator Wiring
+   *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
   drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
       aggregator->AddSinglePoseAndVelocityInput(name_, id);
-  builder->Connect(simple_car_system_->pose_output(), ports.pose_descriptor);
-  builder->Connect(simple_car_system_->velocity_output(),
+  builder->Connect(simple_car_system->pose_output(), ports.pose_descriptor);
+  builder->Connect(simple_car_system->velocity_output(),
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
 
-  // publishing
-  builder->Connect(simple_car_system_->state_output(),
-                   car_state_translator->get_input_port(0));
-  builder->Connect(*car_state_translator, *car_state_publisher);
-
   return 0;
-}
-
-int MobilCar::Initialize(drake::systems::Context<double>* system_context) {
-  // TODO(daniel.stonier) deprecate this method once all agents
-  // have shifted to pre-declaring their context on system construction
-  // (see Configure().
-  return 0;
-}
-
-drake::systems::System<double>* MobilCar::get_system() const {
-  return simple_car_system_;
 }
 
 }  // namespace delphyne

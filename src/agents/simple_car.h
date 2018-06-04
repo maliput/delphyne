@@ -42,10 +42,6 @@ class SimpleCar : public delphyne::Agent {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
-  int Initialize(drake::systems::Context<double>* context) override;
-
-  drake::systems::System<double>* get_system() const;
-
  private:
   // Container for the agent's initial configuration.
   //
@@ -60,8 +56,6 @@ class SimpleCar : public delphyne::Agent {
     Parameters(double x, double y, double heading, double speed)
         : x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
-
-  drake::automotive::SimpleCar2<double>* simple_car_system_;
 };
 
 /*****************************************************************************

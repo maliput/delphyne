@@ -18,8 +18,8 @@
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
+// public headers
 #include "delphyne/agent_base.h"
-#include "systems/simple_car.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -62,10 +62,6 @@ class MobilCar : public delphyne::Agent {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
-  int Initialize(drake::systems::Context<double>* system_context) override;
-
-  drake::systems::System<double>* get_system() const;
-
  private:
   struct Parameters {
     bool direction_of_travel{true};
@@ -82,9 +78,6 @@ class MobilCar : public delphyne::Agent {
           heading(heading),
           speed(speed) {}
   } initial_parameters_;
-
-  typedef drake::automotive::SimpleCar2<double> SimpleCarSystem;
-  SimpleCarSystem* simple_car_system_;
 };
 
 /*****************************************************************************

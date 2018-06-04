@@ -127,8 +127,6 @@ int SimpleCar::Configure(
 }
 
 int SimpleCar::Initialize(drake::systems::Context<double>* context) {
-  igndbg << "SimpleCar initialize" << std::endl;
-
   // TODO(daniel.stonier) deprecate this method once all agents
   // have shifted to pre-declaring their context on system construction
   // (see Configure().

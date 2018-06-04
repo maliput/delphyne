@@ -58,8 +58,6 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
     : delphyne::Agent(name),
       initial_parameters_(lane, direction_of_travel, longitudinal_position,
                           lateral_offset, speed, nominal_speed),
-      rail_car_context_state_(),
-      rail_car_context_parameters_(),
       rail_car_system_(nullptr) {
   igndbg << "RailCar constructor" << std::endl;
 }
@@ -115,6 +113,19 @@ int RailCar::Configure(
     return -1;
   }
 
+  /******************************************
+   * Initial Context Variables
+   ******************************************/
+  typedef drake::automotive::MaliputRailcarState<double> ContextContinuousState;
+  typedef drake::automotive::MaliputRailcarParams<double> ContextNumericParameters;
+  ContextContinuousState context_continuous_state;
+  context_continuous_state.set_s(initial_parameters_.position);
+  context_continuous_state.set_speed(initial_parameters_.speed);
+  ContextNumericParameters context_numeric_parameters;
+  context_numeric_parameters.set_r(initial_parameters_.offset);
+  context_numeric_parameters.set_h(0.0);
+  context_numeric_parameters.set_max_speed(initial_parameters_.nominal_speed);
+
   /*********************
    * Instantiate System
    *********************/
@@ -124,11 +135,14 @@ int RailCar::Configure(
   // indicate where in the road network it is and whether it is desired to
   // travel against the flow the lane's nominal direction (traffic flow).
   // Probably preferable to not use this at all and specify things separately.
-  //   Refactor back in drake to not use at all
+  drake::automotive::LaneDirection lane_direction(
+      &(initial_parameters_.lane),
+      initial_parameters_.direction_of_travel);
   std::unique_ptr<RailCarSystem> system =
-      std::make_unique<RailCarSystem>(drake::automotive::LaneDirection(
-          &(initial_parameters_.lane),
-          initial_parameters_.direction_of_travel));
+      std::make_unique<RailCarSystem>(
+          lane_direction,
+          context_continuous_state,
+          context_numeric_parameters);
   system->set_name(name_);
   rail_car_system_ =
       builder->template AddSystem<RailCarSystem>(std::move(system));
@@ -168,41 +182,10 @@ int RailCar::Configure(
 }
 
 int RailCar::Initialize(drake::systems::Context<double>* system_context) {
-  // TODO(daniel.stonier) unwind this and pre-declare instead
-
-  /********************
-   * Context State
-   *******************/
-  rail_car_context_state_ = std::make_unique<RailCarContextState>();
-  // TODO(daniel.stonier) check for 'in-lane' bounds?
-  rail_car_context_state_->set_s(initial_parameters_.position);
-  rail_car_context_state_->set_speed(initial_parameters_.speed);
-
-  drake::systems::VectorBase<double>& context_state =
-      system_context->get_mutable_continuous_state().get_mutable_vector();
-  drake::systems::BasicVector<double>* const state =
-      dynamic_cast<drake::systems::BasicVector<double>*>(&context_state);
-  // TODO(daniel.stonier) prefer an error message and returning -1
-  DELPHYNE_ASSERT(state);
-  state->set_value(rail_car_context_state_->get_value());
-
-  /********************
-   * Context Parameters
-   *******************/
-  rail_car_context_parameters_ = std::make_unique<RailCarContextParameters>();
-  rail_car_context_parameters_->set_r(initial_parameters_.offset);
-  // TODO(daniel.stonier) check or clamp to lane height?
-  rail_car_context_parameters_->set_h(0.0);
-  rail_car_context_parameters_->set_max_speed(
-      initial_parameters_.nominal_speed);
-  // TODO(daniel.stonier) Just trust the default kp for now
-  // rail_car_context_parameters->set_velocity_limit_kp().
-
-  RailCarContextParameters& context_parameters =
-      rail_car_system_->get_mutable_parameters(system_context);
-  context_parameters.set_value(rail_car_context_parameters_->get_value());
-
-  return 0;
+  // TODO(daniel.stonier) deprecate this method once all agents
+  // have shifted to pre-declaring their context on system construction
+  // (see Configure().
+    return 0;
 }
 
 drake::systems::System<double>* RailCar::get_system() const {

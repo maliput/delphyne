@@ -21,8 +21,8 @@
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
+// public headers
 #include "delphyne/agent_base.h"
-#include "systems/maliput_railcar.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -72,18 +72,19 @@ class RailCar : public delphyne::Agent {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
-  int Initialize(drake::systems::Context<double>* context) override;
-
-  drake::systems::System<double>* get_system() const;
-
  private:
+  // Container for the agent's initial configuration.
+  //
+  // Note: this is independent of whatever computational mechanisms
+  // are used internally and is a useful construct for recording and
+  // logging / streaming to debug configuration errors.
   struct Parameters {
     const drake::maliput::api::Lane& lane;
-    bool direction_of_travel{true};
-    double position{0.0};
-    double offset{0.0};
-    double speed{0.0};
-    double nominal_speed{0.0};
+    bool direction_of_travel{true};  // with or against the lane s-axis
+    double position{0.0};            // longitudinal position in lane (m)
+    double offset{0.0};              // lateral position in lane (m)
+    double speed{0.0};          // speed in direction of the lane s-axis (m/s)
+    double nominal_speed{0.0};  // nominal cruising speed (m/s)
     Parameters(const drake::maliput::api::Lane& lane, bool direction_of_travel,
                double position,  // s
                double offset,    // r
@@ -95,15 +96,6 @@ class RailCar : public delphyne::Agent {
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
-
-  typedef drake::automotive::MaliputRailcarState<double> RailCarContextState;
-  typedef drake::automotive::MaliputRailcarParams<double>
-      RailCarContextParameters;
-  typedef drake::automotive::MaliputRailcar2<double> RailCarSystem;
-
-  std::unique_ptr<RailCarContextState> rail_car_context_state_;
-  std::unique_ptr<RailCarContextParameters> rail_car_context_parameters_;
-  RailCarSystem* rail_car_system_;
 };
 
 /*****************************************************************************

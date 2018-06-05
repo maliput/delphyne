@@ -15,7 +15,6 @@
 
 #include <drake/automotive/car_vis_applicator.h>
 #include <drake/automotive/trajectory.h>
-#include <drake/automotive/trajectory_follower.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
@@ -35,7 +34,6 @@ namespace delphyne {
 /// @brief Trajectory following agents
 class TrajectoryAgent : public delphyne::Agent {
  public:
-  // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
   TrajectoryAgent(const std::string& name, const std::vector<double>& times,
                   const std::vector<double>& headings,
                   const std::vector<std::vector<double>>& translations);
@@ -46,13 +44,8 @@ class TrajectoryAgent : public delphyne::Agent {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
-  int Initialize(drake::systems::Context<double>* context) override;
-
-  drake::systems::System<double>* get_system() const;
-
  private:
-  std::unique_ptr<drake::automotive::Trajectory> trajectory_;
-  drake::automotive::TrajectoryFollower<double>* trajectory_follower_system_;
+  std::unique_ptr<drake::automotive::Trajectory> trajectory_{};
 };
 
 /*****************************************************************************

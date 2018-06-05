@@ -37,6 +37,7 @@
 // private headers
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
+#include "systems/maliput_rail_car.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
 
@@ -57,10 +58,7 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
                  double speed, double nominal_speed)
     : delphyne::Agent(name),
       initial_parameters_(lane, direction_of_travel, longitudinal_position,
-                          lateral_offset, speed, nominal_speed),
-      rail_car_context_state_(),
-      rail_car_context_parameters_(),
-      rail_car_system_(nullptr) {
+                          lateral_offset, speed, nominal_speed) {
   igndbg << "RailCar constructor" << std::endl;
 }
 
@@ -115,6 +113,20 @@ int RailCar::Configure(
     return -1;
   }
 
+  /******************************************
+   * Initial Context Variables
+   ******************************************/
+  typedef drake::automotive::MaliputRailcarState<double> ContextContinuousState;
+  typedef drake::automotive::MaliputRailcarParams<double>
+      ContextNumericParameters;
+  ContextContinuousState context_continuous_state;
+  context_continuous_state.set_s(initial_parameters_.position);
+  context_continuous_state.set_speed(initial_parameters_.speed);
+  ContextNumericParameters context_numeric_parameters;
+  context_numeric_parameters.set_r(initial_parameters_.offset);
+  context_numeric_parameters.set_h(0.0);
+  context_numeric_parameters.set_max_speed(initial_parameters_.nominal_speed);
+
   /*********************
    * Instantiate System
    *********************/
@@ -124,89 +136,49 @@ int RailCar::Configure(
   // indicate where in the road network it is and whether it is desired to
   // travel against the flow the lane's nominal direction (traffic flow).
   // Probably preferable to not use this at all and specify things separately.
-  //   Refactor back in drake to not use at all
-  std::unique_ptr<RailCarSystem> system =
-      std::make_unique<RailCarSystem>(drake::automotive::LaneDirection(
-          &(initial_parameters_.lane),
-          initial_parameters_.direction_of_travel));
-  system->set_name(name_);
-  rail_car_system_ =
-      builder->template AddSystem<RailCarSystem>(std::move(system));
+  drake::automotive::LaneDirection lane_direction(
+      &(initial_parameters_.lane), initial_parameters_.direction_of_travel);
+  typedef drake::automotive::MaliputRailCar<double> RailCarSystem;
+  RailCarSystem* rail_car_system = builder->template AddSystem<RailCarSystem>(
+      std::make_unique<RailCarSystem>(lane_direction, context_continuous_state,
+                                      context_numeric_parameters));
+  rail_car_system->set_name(name_);
 
   /*********************
-   * Diagram Wiring
+   * Simulator Wiring
    *********************/
   // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
   // agents, reuse?
   drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
       aggregator->AddSinglePoseAndVelocityInput(name_, id);
-  builder->Connect(rail_car_system_->pose_output(), ports.pose_descriptor);
-  builder->Connect(rail_car_system_->velocity_output(),
+  builder->Connect(rail_car_system->pose_output(), ports.pose_descriptor);
+  builder->Connect(rail_car_system->velocity_output(),
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id_, name_));
 
   /*********************
-   * Other
+   * State Publisher
    *********************/
   auto agent_state_translator =
       builder->template AddSystem<DrakeSimpleCarStateToIgn>();
 
-  const std::string car_state_channel =
+  const std::string agent_state_channel =
       "agents/" + std::to_string(id) + "/state";
-  auto car_state_publisher = builder->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::SimpleCarState>>(car_state_channel);
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+      AgentStatePublisherSystem;
+  AgentStatePublisherSystem* agent_state_publisher_system =
+      builder->template AddSystem<AgentStatePublisherSystem>(
+          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
   // Drake car states are translated to ignition.
-  builder->Connect(rail_car_system_->simple_car_state_output(),
+  builder->Connect(rail_car_system->simple_car_state_output(),
                    agent_state_translator->get_input_port(0));
 
   // And then the translated ignition car state is published.
-  builder->Connect(*agent_state_translator, *car_state_publisher);
+  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
 
   return 0;
-}
-
-int RailCar::Initialize(drake::systems::Context<double>* system_context) {
-  // TODO(daniel.stonier) unwind this and pre-declare instead
-
-  /********************
-   * Context State
-   *******************/
-  rail_car_context_state_ = std::make_unique<RailCarContextState>();
-  // TODO(daniel.stonier) check for 'in-lane' bounds?
-  rail_car_context_state_->set_s(initial_parameters_.position);
-  rail_car_context_state_->set_speed(initial_parameters_.speed);
-
-  drake::systems::VectorBase<double>& context_state =
-      system_context->get_mutable_continuous_state().get_mutable_vector();
-  drake::systems::BasicVector<double>* const state =
-      dynamic_cast<drake::systems::BasicVector<double>*>(&context_state);
-  // TODO(daniel.stonier) prefer an error message and returning -1
-  DELPHYNE_ASSERT(state);
-  state->set_value(rail_car_context_state_->get_value());
-
-  /********************
-   * Context Parameters
-   *******************/
-  rail_car_context_parameters_ = std::make_unique<RailCarContextParameters>();
-  rail_car_context_parameters_->set_r(initial_parameters_.offset);
-  // TODO(daniel.stonier) check or clamp to lane height?
-  rail_car_context_parameters_->set_h(0.0);
-  rail_car_context_parameters_->set_max_speed(
-      initial_parameters_.nominal_speed);
-  // TODO(daniel.stonier) Just trust the default kp for now
-  // rail_car_context_parameters->set_velocity_limit_kp().
-
-  RailCarContextParameters& context_parameters =
-      rail_car_system_->get_mutable_parameters(system_context);
-  context_parameters.set_value(rail_car_context_parameters_->get_value());
-
-  return 0;
-}
-
-drake::systems::System<double>* RailCar::get_system() const {
-  return rail_car_system_;
 }
 
 }  // namespace delphyne

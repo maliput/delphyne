@@ -58,10 +58,6 @@ const SimpleCarParams<T>& get_params(const systems::Context<T>& context) {
 }  // namespace
 
 template <typename T>
-SimpleCar2<T>::SimpleCar2()
-    : SimpleCar2(SimpleCarState<T>(), SimpleCarParams<T>()) {}
-
-template <typename T>
 SimpleCar2<T>::SimpleCar2(const SimpleCarState<T>& initial_context_state,
                           const SimpleCarParams<T>& initial_context_parameters)
     : systems::LeafSystem<T>(systems::SystemTypeTag<automotive::SimpleCar2>{}) {

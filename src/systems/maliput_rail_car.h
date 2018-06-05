@@ -25,7 +25,7 @@ namespace automotive {
 /// Parameters:
 ///   * See MaliputRailcarParams.
 ///
-/// State vector:
+/// Continuous State:
 ///   * See MaliputRailcarState.
 ///
 /// Abstract state:
@@ -63,9 +63,9 @@ namespace automotive {
 ///
 /// @ingroup automotive_plants
 template <typename T>
-class MaliputRailcar2 final : public systems::LeafSystem<T> {
+class MaliputRailCar final : public systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MaliputRailcar2)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MaliputRailCar)
   /// Defines a distance that is "close enough" to the end of a lane for the
   /// vehicle to transition to an ongoing branch. The primary constraint on the
   /// selection of this variable is the application's degree of sensitivity to
@@ -95,7 +95,11 @@ class MaliputRailcar2 final : public systems::LeafSystem<T> {
   ///
   /// @param initial_lane_direction The initial lane and direction of travel.
   ///
-  explicit MaliputRailcar2(const LaneDirection& initial_lane_direction);
+  explicit MaliputRailCar(const LaneDirection& initial_lane_direction);
+
+  MaliputRailCar(const LaneDirection& initial_lane_direction,
+                 const MaliputRailcarState<T>& initial_context_state,
+                 const MaliputRailcarParams<T>& initial_context_parameters);
 
   /// Returns a mutable reference to the parameters in the given @p context.
   MaliputRailcarParams<T>& get_mutable_parameters(
@@ -111,22 +115,16 @@ class MaliputRailcar2 final : public systems::LeafSystem<T> {
   const systems::OutputPort<T>& velocity_output() const;
   /// @}
 
-  static constexpr T kDefaultInitialS = T(0);
-  static constexpr T kDefaultInitialSpeed = T(1);
-
  private:
   // System<T> overrides.
   void DoCalcTimeDerivatives(
       const systems::Context<T>& context,
       systems::ContinuousState<T>* derivatives) const override;
 
+  // LeafSystem<T> overrides.
   void SetDefaultState(const systems::Context<T>& context,
                        systems::State<T>* state) const override;
 
-  /// Sets `railcar_state` to contain the default state for MaliputRailcar.
-  static void SetDefaultState(MaliputRailcarState<T>* railcar_state);
-
-  // LeafSystem<T> overrides.
   std::unique_ptr<systems::AbstractValues> AllocateAbstractState()
       const override;
   optional<bool> DoHasDirectFeedthrough(int, int) const override;
@@ -173,6 +171,7 @@ class MaliputRailcar2 final : public systems::LeafSystem<T> {
       const systems::Context<T>& context) const;
 
   const LaneDirection initial_lane_direction_{};
+
   int command_input_port_index_{};
   int simple_car_state_output_port_index_{};
   int state_output_port_index_{};

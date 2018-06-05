@@ -167,9 +167,6 @@ class AutomotiveSimulator {
   // have been created (since it owns the context).
   void InitializeSceneGeometryAggregator();
 
-  // Initializes each of the agents that have been added to the simulation.
-  void InitializeAgents();
-
   // For both building and simulation.
   std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_{};
 

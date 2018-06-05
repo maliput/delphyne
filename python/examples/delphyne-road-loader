@@ -66,7 +66,7 @@ def main():
     road to be added from the command line args"""
 
     parser = argparse.ArgumentParser(
-        prog="road_loading",
+        prog="delphyne-road-loader",
         description="Simple demo that shows how to load a road network in a \
         simulation by using the RoadBuilder class.",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)

@@ -44,7 +44,7 @@ def main():
     on the provided configuration.
     """
     parser = argparse.ArgumentParser(
-        prog="maliput_racing_circuit",
+        prog="delphyne-gazoo",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-n", "--num-cars", default=3, type=int,
                         help="The number of MOBIL cars on scene.")

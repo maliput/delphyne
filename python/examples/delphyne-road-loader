@@ -46,9 +46,14 @@ from __future__ import print_function
 import argparse
 import sys
 
-from delphyne.bindings import (
+from delphyne.maliput import (
+    create_dragway,
+    create_monolane_from_file,
+    create_multilane_from_file,
+    create_on_ramp
+)
+from delphyne.simulation import (
     AutomotiveSimulator,
-    RoadBuilder,
     SimulatorRunner
 )
 from delphyne.simulation_utils import launch_interactive_simulation
@@ -108,23 +113,33 @@ def main():
 
     simulator = AutomotiveSimulator()
 
-    builder = RoadBuilder(simulator)
-
     if road_type == "dragway":
-        builder.AddDragway("Demo dragway",
-                           args.lanes,
-                           args.length,
-                           args.lane_width,
-                           args.shoulder_width,
-                           args.max_height)
+        simulator.set_road_geometry(
+            create_dragway(
+                name="Demo Dragway",
+                num_lanes=args.lanes,
+                length=args.length,
+                lane_width=args.lane_width,
+                shoulder_width=args.shoulder_width,
+                maximum_height=args.max_height
+            )
+        )
     elif road_type == "onramp":
-        builder.AddOnramp()
+        simulator.set_road_geometry(create_on_ramp())
     elif road_type in ["monolane", "multilane"]:
         try:
             if road_type == "monolane":
-                builder.AddMonolaneFromFile(args.filename)
+                simulator.set_road_geometry(
+                    create_monolane_from_file(
+                        file_path=args.filename
+                    )
+                )
             else:
-                builder.AddMultilaneFromFile(args.filename)
+                simulator.set_road_geometry(
+                    create_multilane_from_file(
+                        file_path=args.filename
+                    )
+                )
         except RuntimeError, error:
             print("There was an error trying to load the road network:")
             print(str(error))
@@ -136,7 +151,7 @@ def main():
     runner = SimulatorRunner(simulator, SIMULATION_TIME_STEP_SECS)
 
     with launch_interactive_simulation(runner):
-        runner.Start()
+        runner.start()
 
 
 if __name__ == "__main__":

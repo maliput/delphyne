@@ -65,8 +65,14 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
 std::unique_ptr<const drake::maliput::api::RoadGeometry>
 CreateMultilaneFromFile(const std::string& file_path);
 
+/// @brief Create a monolane from yaml source.
+///
+/// @param[in] file_path A string pointing to the file to be loaded.
+std::unique_ptr<const drake::maliput::api::RoadGeometry>
+CreateMonolaneFromFile(const std::string& file_path);
+
 /// @brief Create a monolane on-ramp.
-std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnramp();
+std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp();
 
 /*****************************************************************************
 ** Trailers

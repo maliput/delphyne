@@ -55,14 +55,13 @@ install(
 )
 
 ####################
-# Other Bindings
+# Sim Bindings
 ####################
-# TODO(daniel.stonier) break it down, maliput/simulator etc
 
-pybind11_add_module(other_bindings bindings.cc)
-set_target_properties(other_bindings PROPERTIES OUTPUT_NAME bindings)
+pybind11_add_module(simulation_bindings simulation.cc)
+set_target_properties(simulation_bindings PROPERTIES OUTPUT_NAME simulation)
 
-target_link_libraries(other_bindings
+target_link_libraries(simulation_bindings
   PRIVATE
     simulation_runner
     automotive_simulator
@@ -72,6 +71,6 @@ target_link_libraries(other_bindings
 )
 
 install(
-  TARGETS other_bindings
+  TARGETS simulation_bindings
   DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )

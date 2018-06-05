@@ -157,9 +157,9 @@ int AutomotiveSimulator<T>::AddAgent(
 
 template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
-    std::unique_ptr<const RoadGeometry> road) {
+    std::unique_ptr<const RoadGeometry> road_geometry) {
   DELPHYNE_DEMAND(!has_started());
-  road_geometry_ = std::move(road);
+  road_geometry_ = std::move(road_geometry);
   GenerateAndLoadRoadNetworkUrdf();
   return road_geometry_.get();
 }

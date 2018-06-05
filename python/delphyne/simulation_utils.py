@@ -2,15 +2,15 @@
 #
 # Copyright 2017 Toyota Research Institute
 #
-#
+##############################################################################
 # Documentation
-#
+##############################################################################
 
 """A group of common functions useful for python-scripted simulations"""
 
-#
+##############################################################################
 # Imports
-#
+##############################################################################
 
 from __future__ import print_function
 
@@ -19,7 +19,8 @@ import sys
 import time
 
 from contextlib import contextmanager
-from delphyne.bindings import (
+
+from delphyne.simulation import (
     AutomotiveSimulator,
 )
 from delphyne.agents import (
@@ -30,10 +31,9 @@ from delphyne.agents import (
 )
 from delphyne.launcher import Launcher
 
-#
+##############################################################################
 # Methods
-#
-
+##############################################################################
 
 @contextmanager
 def launch_interactive_simulation(simulator_runner,
@@ -51,8 +51,8 @@ def launch_interactive_simulation(simulator_runner,
     except RuntimeError as error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
-        if simulator_runner.IsInteractiveLoopRunning():
-            simulator_runner.Stop()
+        if simulator_runner.is_interactive_loop_running():
+            simulator_runner.stop()
         print("Simulation ended")
         print_simulation_stats(simulator_runner)
         # This is needed to avoid a possible deadlock. See SimulatorRunner
@@ -67,10 +67,10 @@ def print_simulation_stats(simulator_runner):
     """
     stats = simulator_runner.get_stats()
     print("= Simulation stats ==========================")
-    print("  Simulation runs: {}".format(stats.TotalRuns()))
-    print("  Simulation steps: {}".format(stats.TotalExecutedSteps()))
-    print("  Elapsed simulation time: {}s".format(stats.TotalElapsedSimtime()))
-    print("  Elapsed real time: {}s".format(stats.TotalElapsedRealtime()))
+    print("  Simulation runs: {}".format(stats.total_runs()))
+    print("  Simulation steps: {}".format(stats.total_executed_steps()))
+    print("  Elapsed simulation time: {}s".format(stats.total_elapsed_simtime()))
+    print("  Elapsed real time: {}s".format(stats.total_elapsed_realtime()))
     print("=============================================")
 
 
@@ -115,28 +115,29 @@ def launch_visualizer(launcher, layout_filename):
 
 
 def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
-    """Instantiates a new Simple Prius Car
-    and adds it to the simulation.
+    """Instantiates a new Simple Prius Car and adds it to the simulation.
     """
-    agent = SimpleCar(str(robot_id),
-                      position_x,  # scene x-coordinate (m)
-                      position_y,  # scene y-coordinate (m)
-                      0.0,         # heading (radians)
-                      0.0)         # speed in the direction of travel (m/s)
-    simulator.AddAgent(agent)
+    agent = SimpleCar(
+        name=str(robot_id),
+        x=position_x,  # scene x-coordinate (m)
+        y=position_y,  # scene y-coordinate (m)
+        heading=0.0,   # heading (radians)
+        speed=0.0)     # speed in the direction of travel (m/s)
+    simulator.add_agent(agent)
 
 # pylint: disable=too-many-arguments
 def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
-    agent = MobilCar(name,      # unique name
-                     True,      # direction_of_travel
-                     x,         # scene x-coordinate (m)
-                     y,         # scene y-coordinate (m)
-                     heading,   # heading (radians)
-                     speed)     # speed in the s-direction (m/s)
-    simulator.AddAgent(agent)
+    agent = MobilCar(
+        name=name,                # unique name
+        direction_of_travel=True, # with or against the lane s-direction
+        x=x,                      # scene x-coordinate (m)
+        y=y,                      # scene y-coordinate (m)
+        heading=heading,          # heading (radians)
+        speed=speed)              # the s-direction (m/s)
+    simulator.add_agent(agent)
 
 # pylint: disable=too-many-arguments
 def add_rail_car(simulator, name, lane, position, offset, speed):
@@ -144,14 +145,15 @@ def add_rail_car(simulator, name, lane, position, offset, speed):
     """
     # Note: keyword arguments not permitted with the bindings
     # TODO(daniel.stonier) true?
-    agent = RailCar(name,      # unique name
-                    lane,      # lane
-                    True,      # direction_of_travel
-                    position,  # lane s-coordinate (m)
-                    offset,    # lane r-coordinate (m)
-                    speed,     # speed in the s-direction (m/s)
-                    5.0)       # nominal_speed (m/s)
-    simulator.AddAgent(agent)
+    agent = RailCar(
+        name=name,                       # unique name
+        lane=lane,                       # lane
+        direction_of_travel=True,        # direction_of_travel
+        longitudinal_position=position,  # lane s-coordinate (m)
+        lateral_offset=offset,           # lane r-coordinate (m)
+        speed=speed,                     # initial speed in the s-direction (m/s)
+        nominal_speed=5.0)               # nominal_speed (m/s)
+    simulator.add_agent(agent)
 
 # pylint: disable=too-many-arguments
 def add_trajectory_agent(simulator, name, times, headings, waypoints):
@@ -171,4 +173,4 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
                             times,       # timings (sec)
                             headings,    # list of headings (radians)
                             waypoints)   # list of x-y-z-tuples (m, m, m)
-    simulator.AddAgent(agent)
+    simulator.add_agent(agent)

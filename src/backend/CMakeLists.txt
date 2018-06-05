@@ -63,7 +63,6 @@ install(TARGETS scene_system
 #
 add_library(automotive_simulator
   automotive_simulator.cc
-  road_builder.h
   system.h
 )
 set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)

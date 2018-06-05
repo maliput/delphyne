@@ -6,17 +6,16 @@
 """
 This demo consists of a suite of dynamically loaded cars,
 running simultaneously on a dragway road.
-For the time being, three cars are supported:
-   - A Prius Simple Car.
-   - A MOBIL Simple Car.
-   - A MaliputRailCar.
 """
 
 from __future__ import print_function
 
-from delphyne.bindings import (
+from delphyne.maliput import (
+    create_dragway
+)
+
+from delphyne.simulation import (
     AutomotiveSimulator,
-    RoadBuilder,
     SimulatorRunner
 )
 
@@ -35,17 +34,18 @@ def main():
     """Excercises a simulator loaded with multiple different cars."""
 
     simulator = AutomotiveSimulator()
-    builder = RoadBuilder(simulator)
 
-    # A Dragway!
-    num_dragway_lanes = 4
-    dragway_length = 100.0  # meters
-    dragway_lane_width = 3.7  # meters
-    dragway_shoulder_width = 3.0  # meters
-    maximum_height = 5.0  # meters
-    dragway = builder.AddDragway("Automotive Demo Dragway", num_dragway_lanes,
-                                 dragway_length, dragway_lane_width,
-                                 dragway_shoulder_width, maximum_height)
+    # The road geometry
+    dragway = simulator.set_road_geometry(
+        create_dragway(
+            name="Automotive Demo Dragway",
+            num_lanes=4,
+            length=100.0,
+            lane_width=3.7,
+            shoulder_width=3.0,
+            maximum_height=5.0
+        )
+    )
 
     # Adds the different cars.
     simple_car_position_x = 0.0
@@ -91,7 +91,7 @@ def main():
 
     # Starts the simulation and runs it indefinitely.
     with launch_interactive_simulation(runner):
-        runner.Start()
+        runner.start()
 
 
 if __name__ == "__main__":

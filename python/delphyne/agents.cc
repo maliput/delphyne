@@ -40,19 +40,49 @@ PYBIND11_MODULE(agents, m) {
 
   py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
       .def(
-          py::init<const std::string&, bool, double, double, double, double>());
+          py::init<const std::string&, bool, double, double, double, double>(),
+          "Construct and configure a mobil car",
+          py::arg("name"),
+          py::arg("direction_of_travel"),
+          py::arg("x"),
+          py::arg("y"),
+          py::arg("heading"),
+          py::arg("speed")
+          );
 
   py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
       .def(py::init<const std::string&, const drake::maliput::api::Lane&, bool,
-                    double, double, double, double>());
+                    double, double, double, double>(),
+           "Construct and configure a rail car",
+           py::arg("name"),
+           py::arg("lane"),
+           py::arg("direction_of_travel"),
+           py::arg("longitudinal_position"),
+           py::arg("lateral_offset"),
+           py::arg("speed"),
+           py::arg("nominal_speed")
+           );
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
-      .def(py::init<const std::string&, double, double, double, double>());
+      .def(py::init<const std::string&, double, double, double, double>(),
+           "Construct and configure a simple car",
+           py::arg("name"),
+           py::arg("x"),
+           py::arg("y"),
+           py::arg("heading"),
+           py::arg("speed")
+           );
 
   py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(m, "TrajectoryAgent")
       .def(py::init<const std::string&, const std::vector<double>&,
                     const std::vector<double>&,
-                    const std::vector<std::vector<double>>&>());
+                    const std::vector<std::vector<double>>&>(),
+           "Construct and configure a trajectory agent",
+           py::arg("name"),
+           py::arg("times"),
+           py::arg("headings"),
+           py::arg("translations")
+           );
 }
 
 /*****************************************************************************

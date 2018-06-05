@@ -32,7 +32,7 @@ import sys
 import termios
 import time
 
-from delphyne.bindings import SimulatorRunner
+from delphyne.simulation import SimulatorRunner
 from delphyne.simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
@@ -93,22 +93,22 @@ def demo_callback(runner, launcher, keyboard_handler):
     if keyboard_handler.key_hit():
         key = keyboard_handler.get_character().lower()
         if key == 'p':
-            if runner.IsSimulationPaused():
-                runner.UnpauseSimulation()
+            if runner.is_simulation_paused():
+                runner.unpause_simulation()
                 print("Simulation is now running.")
             else:
-                runner.PauseSimulation()
+                runner.pause_simulation()
                 print("Simulation is now paused.")
         elif key == 'q':
-            runner.Stop()
+            runner.stop()
             print("Quitting simulation.")
             # This is needed to avoid a possible deadlock.
             # See SimulatorRunner class description.
             time.sleep(0.5)
             launcher.terminate()
         elif key == 's':
-            if runner.IsSimulationPaused():
-                runner.RequestSimulationStepExecution(1)
+            if runner.is_simulation_paused():
+                runner.request_simulation_step_execution(1)
                 print("Simulation step of {0}s executed.".
                       format(SIMULATION_TIME_STEP_SECS))
             else:
@@ -123,7 +123,7 @@ def main():
 
     keyboard = KeyboardHandler()
 
-    runner.AddStepCallback(
+    runner.add_step_callback(
         lambda: demo_callback(runner, launcher, keyboard))
 
     with launch_interactive_simulation(runner) as launcher:
@@ -135,7 +135,7 @@ def main():
               "* <q> will stop the simulation and quit the demo.          *\n"
               "************************************************************\n")
 
-        runner.Start()
+        runner.start()
 
 
 if __name__ == "__main__":

@@ -10,10 +10,10 @@
 #include "delphyne/maliput/road_builder.h"
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
+#include <drake/automotive/maliput/monolane/loader.h>
 #include <drake/automotive/maliput/multilane/loader.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/monolane_onramp_merge.h>
-
 
 /*****************************************************************************
 ** Namespaces
@@ -43,6 +43,11 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry>
 CreateMultilaneFromFile(const std::string& file_path) {
   return drake::maliput::multilane::LoadFile(
       drake::maliput::multilane::BuilderFactory(), file_path);
+}
+
+std::unique_ptr<const drake::maliput::api::RoadGeometry>
+CreateMonolaneFromFile(const std::string& file_path) {
+  return drake::maliput::monolane::LoadFile(file_path);
 }
 
 std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {

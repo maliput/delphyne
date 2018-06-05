@@ -24,7 +24,7 @@ from __future__ import print_function
 
 import argparse
 
-from delphyne.bindings import SimulatorRunner
+from delphyne.simulation import SimulatorRunner
 from delphyne.simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
@@ -56,11 +56,11 @@ class RealtimeRateChanger(object):
         if self._steps == 0:
             last_round_realtime_rate = self._runner.get_stats(
             ).get_current_realtime_rate()
-            rate = self._runner.GetRealtimeRate() + 0.2
+            rate = self._runner.get_realtime_rate() + 0.2
             if rate >= 1.6:
                 rate = 0.6
             self._steps = int(rate * 3000)
-            self._runner.SetRealtimeRate(rate)
+            self._runner.set_realtime_rate(rate)
             print("Running at real-time rate {0} for {1} steps."
                   " Last real-time measure was {2}"
                   .format(rate, self._steps, last_round_realtime_rate))
@@ -99,12 +99,12 @@ def main():
 
     rate_changer = RealtimeRateChanger(runner, initial_steps)
 
-    runner.AddStepCallback(rate_changer.tick)
+    runner.add_step_callback(rate_changer.tick)
 
     with launch_interactive_simulation(runner):
         print("Running at real-time rate {0} for {1} steps"
-              .format(runner.GetRealtimeRate(), initial_steps))
-        runner.Start()
+              .format(runner.get_realtime_rate(), initial_steps))
+        runner.start()
 
 
 if __name__ == "__main__":

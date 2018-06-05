@@ -7,7 +7,7 @@
 
 import time
 import unittest
-from delphyne.bindings import (
+from delphyne.simulation import (
     AutomotiveSimulator,
     SimulatorRunner
 )

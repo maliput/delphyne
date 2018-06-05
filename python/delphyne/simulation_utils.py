@@ -35,6 +35,7 @@ from delphyne.launcher import Launcher
 # Methods
 ##############################################################################
 
+
 @contextmanager
 def launch_interactive_simulation(simulator_runner,
                                   layout="layoutWithTeleop.config"):
@@ -69,7 +70,8 @@ def print_simulation_stats(simulator_runner):
     print("= Simulation stats ==========================")
     print("  Simulation runs: {}".format(stats.total_runs()))
     print("  Simulation steps: {}".format(stats.total_executed_steps()))
-    print("  Elapsed simulation time: {}s".format(stats.total_elapsed_simtime()))
+    print("  Elapsed simulation time: {}s".format(
+        stats.total_elapsed_simtime()))
     print("  Elapsed real time: {}s".format(stats.total_elapsed_realtime()))
     print("=============================================")
 
@@ -125,19 +127,21 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
         speed=0.0)     # speed in the direction of travel (m/s)
     simulator.add_agent(agent)
 
+
 # pylint: disable=too-many-arguments
 def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
     agent = MobilCar(
-        name=name,                # unique name
-        direction_of_travel=True, # with or against the lane s-direction
-        x=x,                      # scene x-coordinate (m)
-        y=y,                      # scene y-coordinate (m)
-        heading=heading,          # heading (radians)
-        speed=speed)              # the s-direction (m/s)
+        name=name,                 # unique name
+        direction_of_travel=True,  # with or against the lane s-direction
+        x=x,                       # scene x-coordinate (m)
+        y=y,                       # scene y-coordinate (m)
+        heading=heading,           # heading (radians)
+        speed=speed)               # the s-direction (m/s)
     simulator.add_agent(agent)
+
 
 # pylint: disable=too-many-arguments
 def add_rail_car(simulator, name, lane, position, offset, speed):
@@ -151,9 +155,10 @@ def add_rail_car(simulator, name, lane, position, offset, speed):
         direction_of_travel=True,        # direction_of_travel
         longitudinal_position=position,  # lane s-coordinate (m)
         lateral_offset=offset,           # lane r-coordinate (m)
-        speed=speed,                     # initial speed in the s-direction (m/s)
+        speed=speed,                     # initial speed in s-direction (m/s)
         nominal_speed=5.0)               # nominal_speed (m/s)
     simulator.add_agent(agent)
+
 
 # pylint: disable=too-many-arguments
 def add_trajectory_agent(simulator, name, times, headings, waypoints):

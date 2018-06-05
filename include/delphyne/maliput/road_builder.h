@@ -26,7 +26,6 @@
 namespace delphyne {
 namespace maliput {
 
-
 /*****************************************************************************
 ** Methods
 *****************************************************************************/
@@ -56,8 +55,8 @@ namespace maliput {
 std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
     const std::string& name, int num_lanes, double length, double lane_width,
     double shoulder_width, double maximum_height,
-    double linear_tolerance=std::numeric_limits<double>::epsilon(),
-    double angular_tolerance=std::numeric_limits<double>::epsilon());
+    double linear_tolerance = std::numeric_limits<double>::epsilon(),
+    double angular_tolerance = std::numeric_limits<double>::epsilon());
 
 /// @brief Create a multilane from yaml source.
 ///
@@ -68,8 +67,8 @@ CreateMultilaneFromFile(const std::string& file_path);
 /// @brief Create a monolane from yaml source.
 ///
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const drake::maliput::api::RoadGeometry>
-CreateMonolaneFromFile(const std::string& file_path);
+std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateMonolaneFromFile(
+    const std::string& file_path);
 
 /// @brief Create a monolane on-ramp.
 std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp();

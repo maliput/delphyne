@@ -5,6 +5,7 @@
 install(
   FILES
     __init__.py
+    console.py
     launcher.py
     simulation_utils.py
   DESTINATION

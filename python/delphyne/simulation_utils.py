@@ -16,6 +16,7 @@ from __future__ import print_function
 
 import os
 import sys
+import textwrap
 import time
 
 from contextlib import contextmanager
@@ -30,6 +31,8 @@ from delphyne.agents import (  # pylint: disable=no-name-in-module
     TrajectoryAgent
 )
 from delphyne.launcher import Launcher
+
+from . import console
 
 ##############################################################################
 # Methods
@@ -168,7 +171,7 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
         times: list of times defining the trajectory (floats)
         headings: list of yaw headings defining the trajectory (floats)
         waypoints: list of points (x,y,z) defining the trajectory (x, y, z)
-    An example translations argument:
+    An example waypoints argument:
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
     agent = TrajectoryAgent(name,
@@ -176,3 +179,38 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
                             headings,    # list of headings (radians)
                             waypoints)   # list of x-y-z-tuples (m, m, m)
     simulator.add_agent(agent)
+
+def create_argparse_description(title, content):
+    """
+    Format an argparse description in a nice way with a banner + title and
+    content beneath.
+    Args:
+        title:
+        content:
+    """
+    text_wrapper = textwrap.TextWrapper(
+        width=70,
+        replace_whitespace=False)
+    if console.has_colours:
+        banner_line = console.green + "*" * 70 + "\n" + console.reset
+        s = "\n"
+        s += banner_line
+        s += console.bold_white + title.center(70) + "\n" + console.reset
+        s += banner_line
+        s += "\n"
+        s += text_wrapper.fill(textwrap.dedent(content).strip())
+        s += "\n\n"
+        s += banner_line
+    else:
+        s = content
+    return s
+
+def create_argparse_epilog():
+    """
+    Create a humourous anecdote for argparse's epilog.
+    """
+    if console.has_colours:
+        return console.cyan + "And his noodly appendage reached forth to tickle the blessed...\n" + console.reset
+    else:
+        return None
+

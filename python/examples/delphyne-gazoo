@@ -17,7 +17,9 @@ delphyne-gazoo --num-cars=2
 from __future__ import print_function
 
 import argparse
+import colorama
 import os.path
+import textwrap
 
 from delphyne.maliput import (
     create_multilane_from_file
@@ -31,23 +33,36 @@ from delphyne.simulation import (
 from delphyne.simulation_utils import (
     add_rail_car,
     add_mobil_car,
+    create_argparse_description,
+    create_argparse_epilog,
     get_delphyne_resource_root,
     launch_interactive_simulation
 )
 
+import delphyne.console as console
+
 SIMULATION_TIME_STEP_SECS = 0.015
 
-
 def main():
-    """
-    Parses the command line options and launches the loadable-agent demo based
-    on the provided configuration.
-    """
+    description =\
+        "An example of three railcars and a variable number of MOBIL "\
+        "controlled cars running in a closed-loop maliput road."
+
     parser = argparse.ArgumentParser(
-        prog="delphyne-gazoo",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        description=create_argparse_description(
+            "Gazoo Racing!",
+            """
+            An example of three railcars and a variable number of
+            MOBIL controlled cars running in a closed-loop maliput
+            road.\n\n
+
+            https://toyotagazooracing.com/\n\n
+            """
+        ),
+        epilog=create_argparse_epilog(),
+        formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-n", "--num-cars", default=3, type=int,
-                        help="The number of MOBIL cars on scene.")
+                        help="The number of MOBIL cars on scene (default: 3).")
 
     args = parser.parse_args()
 

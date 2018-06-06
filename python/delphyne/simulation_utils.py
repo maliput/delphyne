@@ -38,7 +38,7 @@ from delphyne.launcher import Launcher
 
 @contextmanager
 def launch_interactive_simulation(simulator_runner,
-                                  layout="layoutWithTeleop.config"):
+                                  layout="layout_with_teleop.config"):
     """Defines a context manager function used to hande the execution of an
     interactive simulation. An interactive simulation launches the delphyne
     visualizer in a separate process and ends the simulation when the

@@ -7,7 +7,7 @@
 
 import time
 import unittest
-from delphyne.bindings import (
+from delphyne.simulation import (
     AutomotiveSimulator,
     SimulatorRunner
 )
@@ -34,12 +34,12 @@ class TestSimulationRunnerPy(unittest.TestCase):
         self.callback_called = False
         # Add a prius car to the simulation.
         agent = SimpleCar("simple-car", 0.0, 0.0, 0.0, 0.0)
-        self.simulator.AddAgent(agent)
+        self.simulator.add_agent(agent)
         # Creates a simulator runner.
         self.runner = SimulatorRunner(
             self.simulator, self.SIMULATION_STEP)
         # Register a step callback.
-        self.runner.AddStepCallback(self.callback_test)
+        self.runner.add_step_callback(self.callback_test)
 
     def callback_test(self):
         """Sets a flag to True."""
@@ -53,15 +53,15 @@ class TestSimulationRunnerPy(unittest.TestCase):
         self.assertFalse(self.callback_called)
 
         # Starts the simulator runner.
-        self.runner.Start()
+        self.runner.start()
 
-        self.runner.PauseSimulation()
+        self.runner.pause_simulation()
 
         # Waits until the simulator initializes its machinery.
         time.sleep(0.1)
 
         # Ensure simulator is paused.
-        self.assertTrue(self.runner.IsSimulationPaused())
+        self.assertTrue(self.runner.is_simulation_paused())
 
         # Checks that callback has been called.
         self.assertTrue(self.callback_called)
@@ -74,10 +74,10 @@ class TestSimulationRunnerPy(unittest.TestCase):
         self.assertFalse(self.callback_called)
 
         # Starts the simulator runner.
-        self.runner.Start()
+        self.runner.start()
 
         # Ensure simulator is not paused.
-        self.assertFalse(self.runner.IsSimulationPaused())
+        self.assertFalse(self.runner.is_simulation_paused())
 
         # Waits until the simulator initializes its machinery.
         time.sleep(0.1)

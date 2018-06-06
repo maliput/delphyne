@@ -21,7 +21,7 @@ from __future__ import print_function
 
 import argparse
 
-from delphyne.bindings import SimulatorRunner
+from delphyne.simulation import SimulatorRunner
 from delphyne.simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
@@ -72,7 +72,7 @@ def main():
         print("Running simulation for {0} seconds @ {1}x real-time rate "
               .format(simulation_duration, realtime_rate))
 
-        runner.RunAsyncFor(simulation_duration, launcher.terminate)
+        runner.run_async_for(simulation_duration, launcher.terminate)
 
 
 if __name__ == "__main__":

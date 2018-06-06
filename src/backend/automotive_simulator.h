@@ -83,7 +83,7 @@ class AutomotiveSimulator {
   ///
   /// @pre Start() has NOT been called.
   const drake::maliput::api::RoadGeometry* SetRoadGeometry(
-      std::unique_ptr<const drake::maliput::api::RoadGeometry> road);
+      std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry);
 
   /// Returns the System whose name matches @p name.  Throws an exception if no
   /// such system has been added, or multiple such systems have been added.

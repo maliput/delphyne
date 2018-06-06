@@ -15,10 +15,6 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <pybind11/pybind11.h>
-
-#include <Python.h>
-
 #include "backend/automotive_simulator.h"
 #include "backend/interactive_simulation_stats.h"
 #include "backend/system.h"

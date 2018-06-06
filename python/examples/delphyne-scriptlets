@@ -7,7 +7,8 @@
 python binding to the C++ `SimulatorRunner` class.
 
 Note that this is not a configurable demo, it will just create a sample
-simulation with a prius car that can be driven around.
+simulation with a prius car that can be driven around and road tests
+a couple of python scriptlets (callbacks) in the simulator's tick-tock.
 
 Check the other examples in this directory for more advanced uses.
 """
@@ -20,7 +21,7 @@ import argparse
 import random
 import time
 
-from delphyne.bindings import SimulatorRunner
+from delphyne.simulation import SimulatorRunner
 from delphyne.simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
@@ -93,14 +94,14 @@ def main():
 
     with launch_interactive_simulation(runner):
         # Add a callback to record and print statistics
-        runner.AddStepCallback(stats.record_tick)
+        runner.add_step_callback(stats.record_tick)
 
         # Add a second callback that prints a message roughly every 500 calls
-        runner.AddStepCallback(random_print)
+        runner.add_step_callback(random_print)
 
         stats.start()
 
-        runner.Start()
+        runner.start()
 
 
 if __name__ == "__main__":

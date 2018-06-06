@@ -34,7 +34,7 @@ $ ./ign service --service /world_control --reqtype ignition.msgs.WorldControl \
 
 from __future__ import print_function
 
-from delphyne.bindings import SimulatorRunner
+from delphyne.simulation import SimulatorRunner
 from delphyne.simulation_utils import (
     build_simple_car_simulator,
     launch_interactive_simulation
@@ -57,7 +57,7 @@ def main():
                              start_paused)
 
     with launch_interactive_simulation(runner):
-        runner.Start()
+        runner.start()
 
 
 if __name__ == "__main__":

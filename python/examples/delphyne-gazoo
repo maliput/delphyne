@@ -11,7 +11,7 @@ In order to run the demo with a number of MOBIL cars different to three, a
 number between 0 and 6 can be passed as an argument. For example:
 
 ```
-maliput_racing_circuit.py --num-cars=2
+delphyne-gazoo --num-cars=2
 ```
 """
 from __future__ import print_function
@@ -19,9 +19,12 @@ from __future__ import print_function
 import argparse
 import os.path
 
-from delphyne.bindings import (
+from delphyne.maliput import (
+    create_multilane_from_file
+)
+
+from delphyne.simulation import (
     AutomotiveSimulator,
-    RoadBuilder,
     SimulatorRunner
 )
 
@@ -41,7 +44,7 @@ def main():
     on the provided configuration.
     """
     parser = argparse.ArgumentParser(
-        prog="maliput_racing_circuit",
+        prog="delphyne-gazoo",
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("-n", "--num-cars", default=3, type=int,
                         help="The number of MOBIL cars on scene.")
@@ -56,8 +59,6 @@ def main():
 
     simulator = AutomotiveSimulator()
 
-    builder = RoadBuilder(simulator)
-
     filename = "{0}/roads/circuit.yaml".format(
         get_delphyne_resource_root())
 
@@ -67,13 +68,18 @@ def main():
               .format(os.path.abspath(filename)))
         quit()
 
-    road = builder.AddMultilaneFromFile(filename)
+    # The road geometry
+    road_geometry = simulator.set_road_geometry(
+        create_multilane_from_file(
+            file_path=filename
+        )
+    )
 
     # Setup railcar 1
     railcar_speed = 4.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id = 1
-    lane_1 = road.junction(2).segment(0).lane(0)
+    lane_1 = road_geometry.junction(2).segment(0).lane(0)
     add_rail_car(simulator,
                  name=str(robot_id),
                  lane=lane_1,
@@ -85,7 +91,7 @@ def main():
     railcar_speed = 8.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id += 1
-    lane_2 = road.junction(2).segment(0).lane(1)
+    lane_2 = road_geometry.junction(2).segment(0).lane(1)
     add_rail_car(simulator,
                  name=str(robot_id),
                  lane=lane_2,
@@ -97,7 +103,7 @@ def main():
     railcar_speed = 7.0  # Units in m/s.
     railcar_s = 0.0  # Units in m.
     robot_id += 1
-    lane_3 = road.junction(2).segment(0).lane(2)
+    lane_3 = road_geometry.junction(2).segment(0).lane(2)
     add_rail_car(simulator,
                  name=str(robot_id),
                  lane=lane_3,
@@ -113,8 +119,8 @@ def main():
         robot_id += 1
         add_mobil_car(simulator,
                       name=str(robot_id),
-                      x=-10.0 + x_offset * (1 + i / 3),
-                      y=0.0 + y_offset * (i % 3),
+                      scene_x=-10.0 + x_offset * (1 + i / 3),
+                      scene_y=0.0 + y_offset * (i % 3),
                       heading=0.0,
                       speed=velocity_base * i)
 
@@ -124,7 +130,7 @@ def main():
     with launch_interactive_simulation(runner) as launcher:
         print("Running simulation for {0} seconds.".format(
             simulation_duration))
-        runner.RunAsyncFor(simulation_duration, launcher.terminate)
+        runner.run_async_for(simulation_duration, launcher.terminate)
 
 
 if __name__ == "__main__":

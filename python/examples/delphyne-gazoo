@@ -11,7 +11,7 @@ In order to run the demo with a number of MOBIL cars different to three, a
 number between 0 and 6 can be passed as an argument. For example:
 
 ```
-maliput_racing_circuit.py --num-cars=2
+delphyne-gazoo --num-cars=2
 ```
 """
 from __future__ import print_function
@@ -119,8 +119,8 @@ def main():
         robot_id += 1
         add_mobil_car(simulator,
                       name=str(robot_id),
-                      x=-10.0 + x_offset * (1 + i / 3),
-                      y=0.0 + y_offset * (i % 3),
+                      scene_x=-10.0 + x_offset * (1 + i / 3),
+                      scene_y=0.0 + y_offset * (i % 3),
                       heading=0.0,
                       speed=velocity_base * i)
 

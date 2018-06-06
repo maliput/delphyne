@@ -95,10 +95,11 @@ install(TARGETS automotive_simulator
 # ----------------------------------------
 # Simulator-runner library
 #
-# Right now this can't be made shared - segfaults
-# keyboard_controlled_simulation.py at the gil_scoped_acquire
-# call
-
+# Right now this can't be made shared - segfaults. For more
+# information, refer to:
+#
+#   https://github.com/ToyotaResearchInstitute/delphyne/issues/341
+#
 include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 
 add_library(simulation_runner

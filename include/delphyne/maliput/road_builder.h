@@ -1,17 +1,14 @@
-/**
- * @file include/delphyne/maliput/find_lane.h
- *
- * Copyright 2017 Toyota Research Institute
- *
- * Note: Some/all of the methods here could eventually make it upstream to
- * Drake as conveniences or be made redundant should some of the methods
- * there gain python bindings traction.
- */
+// Copyright 2017 Toyota Research Institute
+//
+// Some/all of the methods here could eventually make it upstream to
+// Drake as conveniences or be made redundant should some of the
+// methods there gain python bindings traction.
+
+#pragma once
+
 /*****************************************************************************
 ** Includes
 ****************************************************************************/
-
-#pragma once
 
 #include <limits>
 #include <memory>
@@ -30,7 +27,7 @@ namespace maliput {
 ** Methods
 *****************************************************************************/
 
-/// @brief Creates a dragway
+/// @brief Creates a dragway.
 ///
 /// @param[in] name The name of the dragway. Will be used as the ID of the
 /// underlying RoadGeometry.

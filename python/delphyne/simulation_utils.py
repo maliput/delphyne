@@ -20,10 +20,10 @@ import time
 
 from contextlib import contextmanager
 
-from delphyne.simulation import (
+from delphyne.simulation import (  # pylint: disable=no-name-in-module
     AutomotiveSimulator,
 )
-from delphyne.agents import (
+from delphyne.agents import (  # pylint: disable=no-name-in-module
     MobilCar,
     RailCar,
     SimpleCar,
@@ -117,8 +117,7 @@ def launch_visualizer(launcher, layout_filename):
 
 
 def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
-    """Instantiates a new Simple Prius Car and adds it to the simulation.
-    """
+    """Instantiates a new Simple Prius Car and adds it to the simulation."""
     agent = SimpleCar(
         name=str(robot_id),
         x=position_x,  # scene x-coordinate (m)
@@ -129,15 +128,15 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
 
 
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
+def add_mobil_car(simulator, name, scene_x=0, scene_y=0, heading=0.0, speed=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """
     agent = MobilCar(
         name=name,                 # unique name
         direction_of_travel=True,  # with or against the lane s-direction
-        x=x,                       # scene x-coordinate (m)
-        y=y,                       # scene y-coordinate (m)
+        x=scene_x,                 # scene x-coordinate (m)
+        y=scene_y,                 # scene y-coordinate (m)
         heading=heading,           # heading (radians)
         speed=speed)               # the s-direction (m/s)
     simulator.add_agent(agent)
@@ -145,10 +144,7 @@ def add_mobil_car(simulator, name, x=0, y=0, heading=0.0, speed=1.0):
 
 # pylint: disable=too-many-arguments
 def add_rail_car(simulator, name, lane, position, offset, speed):
-    """Instantiates a Railcar and adds it to the simulation.
-    """
-    # Note: keyword arguments not permitted with the bindings
-    # TODO(daniel.stonier) true?
+    """Instantiates a Railcar and adds it to the simulation."""
     agent = RailCar(
         name=name,                       # unique name
         lane=lane,                       # lane

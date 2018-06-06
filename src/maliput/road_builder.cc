@@ -32,7 +32,7 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
     const std::string& name, int num_lanes, double length, double lane_width,
     double shoulder_width, double maximum_height, double linear_tolerance,
     double angular_tolerance) {
-  auto id = drake::maliput::api::RoadGeometryId(name);
+  drake::maliput::api::RoadGeometryId id(name);
   return std::make_unique<const drake::maliput::dragway::RoadGeometry>(
       id, num_lanes, length, lane_width, shoulder_width, maximum_height,
       linear_tolerance, angular_tolerance);

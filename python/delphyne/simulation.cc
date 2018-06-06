@@ -25,16 +25,9 @@
 
 namespace py = pybind11;
 
-using std::unique_ptr;
-
 using delphyne::AutomotiveSimulator;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
-using drake::automotive::LaneDirection;
-using drake::automotive::MaliputRailcarParams;
-using drake::automotive::MaliputRailcarState;
-using drake::maliput::api::RoadGeometry;
-using drake::systems::BasicVector;
 
 namespace {
 
@@ -59,10 +52,10 @@ PYBIND11_MODULE(simulation, m) {
            &InteractiveSimulationStats::get_current_realtime_rate);
 
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
-      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double>())
-      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, bool>())
-      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, double>())
-      .def(py::init<unique_ptr<AutomotiveSimulator<double>>, double, double,
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double>())
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, bool>())
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, double>())
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, double,
                     bool>())
       .def("set_realtime_rate", &SimulatorRunner::SetRealtimeRate)
       .def("get_realtime_rate", &SimulatorRunner::GetRealtimeRate)

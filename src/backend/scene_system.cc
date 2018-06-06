@@ -67,6 +67,10 @@ void SceneSystem::CalcSceneMessage(
       continue;
     }
 
+    // Updates the model itself.
+    matching_scene_model->set_name(updated_pose_model.name());
+    matching_scene_model->mutable_pose()->CopyFrom(updated_pose_model.pose());
+
     // Updates each model link.
     for (const ignition::msgs::Link& updated_pose_link :
          updated_pose_model.link()) {

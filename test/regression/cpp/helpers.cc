@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include <drake/common/eigen_types.h>
+#include <drake/systems/rendering/pose_bundle.h>
+
 #include "backend/system.h"
 #include "drake/lcmt_viewer_draw.hpp"
 #include "drake/lcmt_viewer_geometry_data.hpp"
@@ -130,6 +133,21 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
   for (int i = 0; i < kPreloadedModels; ++i) {
     ::ignition::msgs::Model* model = robot_models.add_models();
     model->set_id(i);
+    model->set_name("none");
+
+    ::ignition::msgs::Pose* model_pose = model->mutable_pose();
+
+    ::ignition::msgs::Vector3d* model_position = model_pose->mutable_position();
+    model_position->set_x(i);
+    model_position->set_y(i + 5.0);
+    model_position->set_z(i + 10.0);
+
+    ::ignition::msgs::Quaternion* model_orientation =
+        model_pose->mutable_orientation();
+    model_orientation->set_w(i);
+    model_orientation->set_x(i + 5.0);
+    model_orientation->set_y(i + 10.0);
+    model_orientation->set_z(i + 15.0);
 
     for (int j = 0; j < kPreloadedLinks; ++j) {
       ::ignition::msgs::Link* link = model->add_link();
@@ -151,6 +169,25 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
   }
 
   return robot_models;
+}
+
+using drake::Vector3;
+using drake::Isometry3;
+using drake::Translation3;
+using drake::AngleAxis;
+using drake::systems::rendering::PoseBundle;
+
+PoseBundle<double> BuildPreloadedPoseBundle() {
+  PoseBundle<double> model_states(kPreloadedModels);
+  for (int i = 0; i < kPreloadedModels; ++i) {
+    model_states.set_model_instance_id(i, i);
+    model_states.set_name(i, std::string("model") + std::to_string(i));
+    Isometry3<double> model_pose =
+        AngleAxis<double>(i, Vector3<double>::UnitZ()) *
+        Translation3<double>(i, i, i);
+    model_states.set_pose(i, model_pose);
+  }
+  return model_states;
 }
 
 ::testing::AssertionResult CheckLcmArrayToVector3dEquivalence(

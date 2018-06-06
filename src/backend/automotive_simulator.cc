@@ -29,6 +29,7 @@
 #include "drake/systems/primitives/multiplexer.h"
 
 #include "backend/automotive_simulator.h"
+#include "backend/ign_models_assembler.h"
 #include "backend/system.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
@@ -232,8 +233,8 @@ void AutomotiveSimulator<T>::Build() {
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
 
-  // An ignition scene message is built from the geometry description, and the
-  // updated poses.
+  // An ignition scene message is built from the geometry description, and both
+  // model and links' updated poses.
 
   // The geometry description is retrieved from multiple sources as LCM viewer
   // load robot messages, so those need to be aggregated. These messages are not
@@ -252,9 +253,17 @@ void AutomotiveSimulator<T>::Build() {
   builder_->Connect(viewer_load_robot_translator->get_output_port(0),
                     scene_system_->get_geometry_models_input_port());
 
-  // The updated poses are stored in the Model_V message obtained from
-  // translating an LCM viewer draw.
+  // Updated model and links poses are stored in the Model_V message that
+  // is assembled from an LCM viewer draw translation and a pose bundle.
+  auto models_assembler = builder_->template AddSystem<IgnModelsAssembler>();
+
   builder_->Connect(viewer_draw_translator->get_output_port(0),
+                    models_assembler->get_models_input_port());
+
+  builder_->Connect(aggregator_->get_output_port(0),
+                    models_assembler->get_states_input_port());
+
+  builder_->Connect(models_assembler->get_output_port(0),
                     scene_system_->get_updated_pose_models_input_port());
 
   // The scene is then published over a scene topic to update the scene tree

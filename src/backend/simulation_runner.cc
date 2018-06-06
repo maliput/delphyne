@@ -88,6 +88,8 @@ SimulatorRunner::SimulatorRunner(
   // it would end up into a segmentation fault. This initialization should
   // only occur if the SimulatorRunner class is instantiated from within a
   // python script, which is checked in the if statement.
+  // In comment below, a similar approach to the one used here is suggested:
+  // https://github.com/pybind/pybind11/issues/1360#issuecomment-385988887
   if (Py_IsInitialized()) {
     pybind11::detail::get_internals();
   }

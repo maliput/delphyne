@@ -53,10 +53,12 @@ PYBIND11_MODULE(simulation, m) {
 
   py::class_<SimulatorRunner>(m, "SimulatorRunner")
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double>())
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, bool>())
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, double>())
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, double,
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
                     bool>())
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
+                    double>())
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
+                    double, bool>())
       .def("set_realtime_rate", &SimulatorRunner::SetRealtimeRate)
       .def("get_realtime_rate", &SimulatorRunner::GetRealtimeRate)
       .def("start", &SimulatorRunner::Start)

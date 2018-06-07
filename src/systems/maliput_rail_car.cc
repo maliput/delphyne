@@ -8,19 +8,19 @@
 #include <utility>
 #include <vector>
 
-#include <Eigen/Geometry>
+#include <drake/automotive/calc_smooth_acceleration.h>
+#include <drake/automotive/maliput/api/branch_point.h>
+#include <drake/automotive/maliput/api/lane.h>
+#include <drake/automotive/maliput/api/lane_data.h>
+#include <drake/common/cond.h>
+#include <drake/common/drake_assert.h>
+#include <drake/math/rotation_matrix.h>
+#include <drake/multibody/multibody_tree/math/spatial_velocity.h>
+#include <drake/systems/framework/basic_vector.h>
+#include <drake/systems/framework/value.h>
+#include <drake/systems/framework/vector_base.h>
 
-#include "drake/automotive/calc_smooth_acceleration.h"
-#include "drake/automotive/maliput/api/branch_point.h"
-#include "drake/automotive/maliput/api/lane.h"
-#include "drake/automotive/maliput/api/lane_data.h"
-#include "drake/common/cond.h"
-#include "drake/common/drake_assert.h"
-#include "drake/math/rotation_matrix.h"
-#include "drake/multibody/multibody_tree/math/spatial_velocity.h"
-#include "drake/systems/framework/basic_vector.h"
-#include "drake/systems/framework/value.h"
-#include "drake/systems/framework/vector_base.h"
+#include <Eigen/Geometry>
 
 namespace drake {
 

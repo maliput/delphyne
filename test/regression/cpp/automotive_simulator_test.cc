@@ -1,7 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
 #include "backend/automotive_simulator.h"
-#include <gtest/gtest.h>
 
 #include <chrono>
 #include <condition_variable>
@@ -12,15 +11,17 @@
 #include <string>
 #include <thread>
 
-#include "drake/automotive/lane_direction.h"
-#include "drake/automotive/maliput/api/lane.h"
-#include "drake/automotive/maliput/dragway/road_geometry.h"
-#include "drake/automotive/prius_vis.h"
-#include "drake/automotive/trajectory.h"
-#include "drake/common/find_resource.h"
-#include "drake/systems/framework/basic_vector.h"
-#include "drake/systems/framework/diagram_context.h"
-#include "drake/systems/rendering/pose_bundle.h"
+#include <drake/automotive/lane_direction.h>
+#include <drake/automotive/maliput/api/lane.h>
+#include <drake/automotive/maliput/dragway/road_geometry.h>
+#include <drake/automotive/prius_vis.h>
+#include <drake/automotive/trajectory.h>
+#include <drake/common/find_resource.h>
+#include <drake/systems/framework/basic_vector.h>
+#include <drake/systems/framework/diagram_context.h>
+#include <drake/systems/rendering/pose_bundle.h>
+
+#include <gtest/gtest.h>
 
 #include "agents/mobil_car.h"
 #include "agents/rail_car.h"

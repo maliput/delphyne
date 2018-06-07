@@ -2,16 +2,15 @@
 
 #pragma once
 
-#include "drake/automotive/simple_car.h"
-
 #include <cstdint>
 
-#include "ignition/msgs.hh"
+#include <drake/automotive/simple_car.h>
+
+#include <ignition/msgs.hh>
 
 #include "backend/system.h"
-#include "translations/drake_to_ign.h"
-
 #include "delphyne/protobuf/simple_car_state.pb.h"
+#include "translations/drake_to_ign.h"
 
 namespace delphyne {
 

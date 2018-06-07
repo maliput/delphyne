@@ -6,7 +6,7 @@
 #include <chrono>
 #include <thread>
 
-#include "drake/systems/framework/framework_common.h"
+#include <drake/systems/framework/framework_common.h>
 
 #include <gtest/gtest.h>
 

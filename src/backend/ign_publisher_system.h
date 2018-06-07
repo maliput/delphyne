@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
+#include <drake/systems/framework/leaf_system.h>
+
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
-
-#include <drake/systems/framework/leaf_system.h>
 
 #include "backend/system.h"
 

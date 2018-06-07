@@ -10,6 +10,7 @@
 #include <thread>
 
 #include <gtest/gtest.h>
+
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 

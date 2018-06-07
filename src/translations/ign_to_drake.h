@@ -5,8 +5,8 @@
 #include <type_traits>
 #include <vector>
 
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/framework/vector_base.h"
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/framework/vector_base.h>
 
 #include "backend/system.h"
 

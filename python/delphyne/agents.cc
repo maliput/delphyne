@@ -13,12 +13,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include "delphyne/agent_base.h"
-
 #include "agents/mobil_car.h"
 #include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
+#include "delphyne/agent_base.h"
 
 /*****************************************************************************
 ** Namespaces

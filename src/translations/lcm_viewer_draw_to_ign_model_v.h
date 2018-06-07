@@ -2,11 +2,11 @@
 
 #pragma once
 
-#include "drake/lcmt_viewer_draw.hpp"
-
 #include <cstdint>
 
-#include "ignition/msgs.hh"
+#include <drake/lcmt_viewer_draw.hpp>
+
+#include <ignition/msgs.hh>
 
 #include "backend/system.h"
 #include "translations/drake_to_ign.h"

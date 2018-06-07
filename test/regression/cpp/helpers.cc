@@ -9,11 +9,12 @@
 #include <drake/common/eigen_types.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
+#include <ignition/msgs.hh>
+
 #include "backend/system.h"
 #include "drake/lcmt_viewer_draw.hpp"
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "helpers.h"
-#include "ignition/msgs.hh"
 
 namespace delphyne {
 namespace test {

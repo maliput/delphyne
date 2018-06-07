@@ -12,11 +12,11 @@
 #include <memory>
 #include <string>
 
-#include "drake/automotive/idm_controller.h"
-#include "drake/automotive/mobil_planner.h"
-#include "drake/automotive/prius_vis.h"
-#include "drake/automotive/pure_pursuit_controller.h"
-#include "drake/systems/primitives/multiplexer.h"
+#include <drake/automotive/idm_controller.h>
+#include <drake/automotive/mobil_planner.h>
+#include <drake/automotive/prius_vis.h>
+#include <drake/automotive/pure_pursuit_controller.h>
+#include <drake/systems/primitives/multiplexer.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>

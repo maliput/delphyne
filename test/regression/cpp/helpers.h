@@ -6,11 +6,11 @@
 #include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/rendering/pose_bundle.h>
 
-#include "gtest/gtest.h"
+#include <google/protobuf/message.h>
 
-#include "google/protobuf/message.h"
+#include <gtest/gtest.h>
 
-#include "ignition/msgs.hh"
+#include <ignition/msgs.hh>
 
 namespace delphyne {
 namespace test {

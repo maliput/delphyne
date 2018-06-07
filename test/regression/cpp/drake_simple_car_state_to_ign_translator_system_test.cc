@@ -2,13 +2,12 @@
 
 #include <memory>
 
-#include "drake/systems/framework/framework_common.h"
+#include <drake/systems/framework/framework_common.h>
 
 #include <gtest/gtest.h>
 
-#include "translations/drake_simple_car_state_to_ign.h"
-
 #include "helpers.h"
+#include "translations/drake_simple_car_state_to_ign.h"
 
 namespace delphyne {
 

@@ -1,10 +1,10 @@
 // Copyright 2018 Toyota Research Institute
 
-#include <math.h>
-
 #include "backend/interactive_simulation_stats.h"
 
-#include "gtest/gtest.h"
+#include <cmath>
+
+#include <gtest/gtest.h>
 
 #include "backend/delphyne_realtime_clock.h"
 #include "backend/delphyne_time_point.h"
@@ -74,7 +74,7 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   InteractiveSimulationStats stats;
 
   // Nothing has been yet simulated.
-  EXPECT_TRUE(isnan(stats.get_current_realtime_rate()));
+  EXPECT_TRUE(std::isnan(stats.get_current_realtime_rate()));
 
   double current_run_simtime_start = 0.0;
   TimePoint current_run_realtime_start = RealtimeClock::now();

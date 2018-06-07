@@ -6,8 +6,8 @@
 #include <type_traits>
 
 #include <drake/lcmt_viewer_geometry_data.hpp>
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/framework/vector_base.h"
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/framework/vector_base.h>
 
 #include "backend/system.h"
 #include "backend/translate_exception.h"

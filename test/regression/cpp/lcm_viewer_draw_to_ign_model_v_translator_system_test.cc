@@ -2,7 +2,7 @@
 
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 
-#include "drake/systems/framework/framework_common.h"
+#include <drake/systems/framework/framework_common.h>
 
 #include <gtest/gtest.h>
 

@@ -1,11 +1,12 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "drake/systems/framework/framework_common.h"
+#include "translations/ign_model_v_to_lcm_viewer_draw.h"
+
+#include <drake/systems/framework/framework_common.h>
 
 #include <gtest/gtest.h>
 
 #include "helpers.h"
-#include "translations/ign_model_v_to_lcm_viewer_draw.h"
 
 namespace delphyne {
 

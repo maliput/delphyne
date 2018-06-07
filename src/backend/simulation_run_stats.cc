@@ -1,6 +1,7 @@
 // Copyright 2018 Toyota Research Institute
 
 #include "backend/simulation_run_stats.h"
+
 #include "backend/delphyne_realtime_clock.h"
 #include "backend/system.h"
 

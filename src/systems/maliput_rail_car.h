@@ -5,16 +5,16 @@
 #include <memory>
 #include <vector>
 
-#include "drake/automotive/gen/maliput_railcar_params.h"
-#include "drake/automotive/gen/maliput_railcar_state.h"
-#include "drake/automotive/gen/simple_car_state.h"
-#include "drake/automotive/lane_direction.h"
-#include "drake/automotive/maliput/api/lane.h"
-#include "drake/common/drake_copyable.h"
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/framework/system_symbolic_inspector.h"
-#include "drake/systems/rendering/frame_velocity.h"
-#include "drake/systems/rendering/pose_vector.h"
+#include <drake/automotive/gen/maliput_railcar_params.h>
+#include <drake/automotive/gen/maliput_railcar_state.h>
+#include <drake/automotive/gen/simple_car_state.h>
+#include <drake/automotive/lane_direction.h>
+#include <drake/automotive/maliput/api/lane.h>
+#include <drake/common/drake_copyable.h>
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/framework/system_symbolic_inspector.h>
+#include <drake/systems/rendering/frame_velocity.h>
+#include <drake/systems/rendering/pose_vector.h>
 
 namespace drake {
 namespace automotive {

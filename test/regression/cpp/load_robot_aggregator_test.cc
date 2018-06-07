@@ -6,9 +6,9 @@
 #include <memory>
 #include <vector>
 
-#include "drake/systems/framework/framework_common.h"
+#include <drake/systems/framework/framework_common.h>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 
 #include "test/regression/cpp/helpers.h"
 

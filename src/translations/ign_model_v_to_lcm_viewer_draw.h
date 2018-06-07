@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include "drake/lcmt_viewer_draw.hpp"
+#include <drake/lcmt_viewer_draw.hpp>
 
-#include "ignition/msgs.hh"
+#include <ignition/msgs.hh>
 
 #include "backend/system.h"
 #include "translations/ign_to_drake.h"

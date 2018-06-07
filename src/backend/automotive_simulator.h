@@ -8,29 +8,29 @@
 #include <utility>
 #include <vector>
 
+#include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/curve2.h>
+#include <drake/automotive/gen/maliput_railcar_state.h>
+#include <drake/automotive/gen/trajectory_car_state.h>
+#include <drake/automotive/idm_controller.h>
+#include <drake/automotive/lane_direction.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput_railcar.h>
+#include <drake/automotive/mobil_planner.h>
+#include <drake/automotive/pure_pursuit_controller.h>
+#include <drake/automotive/simple_car.h>
+#include <drake/automotive/trajectory_car.h>
+#include <drake/common/drake_copyable.h>
+#include <drake/multibody/rigid_body_tree.h>
+#include <drake/systems/analysis/simulator.h>
+#include <drake/systems/framework/diagram.h>
+#include <drake/systems/framework/diagram_builder.h>
+#include <drake/systems/rendering/pose_aggregator.h>
+#include <drake/systems/rendering/pose_bundle.h>
+#include <drake/systems/rendering/pose_bundle_to_draw_message.h>
+
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
-
-#include "drake/automotive/car_vis_applicator.h"
-#include "drake/automotive/curve2.h"
-#include "drake/automotive/gen/maliput_railcar_state.h"
-#include "drake/automotive/gen/trajectory_car_state.h"
-#include "drake/automotive/idm_controller.h"
-#include "drake/automotive/lane_direction.h"
-#include "drake/automotive/maliput/api/road_geometry.h"
-#include "drake/automotive/maliput_railcar.h"
-#include "drake/automotive/mobil_planner.h"
-#include "drake/automotive/pure_pursuit_controller.h"
-#include "drake/automotive/simple_car.h"
-#include "drake/automotive/trajectory_car.h"
-#include "drake/common/drake_copyable.h"
-#include "drake/multibody/rigid_body_tree.h"
-#include "drake/systems/analysis/simulator.h"
-#include "drake/systems/framework/diagram.h"
-#include "drake/systems/framework/diagram_builder.h"
-#include "drake/systems/rendering/pose_aggregator.h"
-#include "drake/systems/rendering/pose_bundle.h"
-#include "drake/systems/rendering/pose_bundle_to_draw_message.h"
 
 // public headers
 #include "delphyne/agent_base.h"

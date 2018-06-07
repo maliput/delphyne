@@ -1,10 +1,10 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "drake/systems/framework/framework_common.h"
+#include "translations/ign_driving_command_to_drake.h"
+
+#include <drake/systems/framework/framework_common.h>
 
 #include <gtest/gtest.h>
-
-#include "translations/ign_driving_command_to_drake.h"
 
 namespace delphyne {
 

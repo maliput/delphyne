@@ -6,12 +6,12 @@
 #include <string>
 #include <thread>
 
-#include "drake/systems/analysis/simulator.h"
-#include "drake/systems/framework/diagram_builder.h"
+#include <drake/systems/analysis/simulator.h>
+#include <drake/systems/framework/diagram_builder.h>
 
 #include <gtest/gtest.h>
 
-#include "ignition/msgs.hh"
+#include <ignition/msgs.hh>
 
 #include "helpers.h"
 

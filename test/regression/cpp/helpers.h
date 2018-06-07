@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include "drake/lcmt_viewer_draw.hpp"
-#include "drake/lcmt_viewer_load_robot.hpp"
+#include <drake/lcmt_viewer_draw.hpp>
+#include <drake/lcmt_viewer_load_robot.hpp>
+#include <drake/systems/rendering/pose_bundle.h>
 
 #include "gtest/gtest.h"
 
@@ -28,6 +29,12 @@ drake::lcmt_viewer_load_robot BuildPreloadedLoadRobotMsg();
 //
 // @return a loaded Model_V message.
 ignition::msgs::Model_V BuildPreloadedModelVMsg();
+
+// Generates a pre-loaded pose bundle with model poses
+// (@see BuildPreloadedModelVMsg).
+//
+// @return a drake::systems::rendering::PoseBundle<double> instance.
+drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 
 // Asserts that all the array-iterable values from
 // lcm_msg match the content of the ign_models object.

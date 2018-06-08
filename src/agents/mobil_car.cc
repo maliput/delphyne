@@ -11,17 +11,28 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include <drake/automotive/idm_controller.h>
 #include <drake/automotive/mobil_planner.h>
 #include <drake/automotive/prius_vis.h>
 #include <drake/automotive/pure_pursuit_controller.h>
+#include <drake/common/eigen_types.h>
+#include <drake/geometry/geometry_frame.h>
+#include <drake/geometry/geometry_ids.h>
+#include <drake/geometry/geometry_instance.h>
+#include <drake/geometry/shape_specification.h>
+#include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/primitives/multiplexer.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
 
+// public headers
+#include "delphyne/macros.h"
+
 // private headers
+#include "agents/helpers/geometry_wiring.h"
 #include "backend/ign_publisher_system.h"
 #include "systems/simple_car.h"
 #include "translations/drake_simple_car_state_to_ign.h"
@@ -46,8 +57,13 @@ MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
 int MobilCar::Configure(
     int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
+    drake::geometry::SceneGraph<double>* scene_graph,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
+  DELPHYNE_DEMAND(builder != nullptr);
+  DELPHYNE_DEMAND(scene_graph != nullptr);
+  DELPHYNE_DEMAND(aggregator != nullptr);
+  DELPHYNE_DEMAND(car_vis_applicator != nullptr);
   igndbg << "MobilCar configure" << std::endl;
 
   /*********************
@@ -176,6 +192,17 @@ int MobilCar::Configure(
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
+
+  // Computes the initial world to car transform X_WC0.
+  const drake::Isometry3<double> X_WC0 =
+      drake::Translation3<double>(initial_parameters_.x,
+                                  initial_parameters_.y, 0.)
+      * drake::AngleAxis<double>(initial_parameters_.heading,
+                                 drake::Vector3<double>::UnitZ());
+
+  // Wires up the Prius geometry.
+  builder->Connect(simple_car_system->pose_output(), WirePriusGeometry(
+      name_, X_WC0, builder, scene_graph, &geometry_ids_));
 
   return 0;
 }

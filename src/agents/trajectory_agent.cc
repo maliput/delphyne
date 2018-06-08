@@ -17,10 +17,16 @@
 #include <drake/automotive/prius_vis.h>
 #include <drake/automotive/trajectory.h>
 #include <drake/automotive/trajectory_follower.h>
+#include <drake/common/eigen_types.h>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+// public headers
+#include "delphyne/macros.h"
+
+// private headers
+#include "agents/helpers/geometry_wiring.h"
 #include "backend/ign_publisher_system.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 
@@ -39,7 +45,7 @@ TrajectoryAgent::TrajectoryAgent(
     const std::string& name, const std::vector<double>& times,
     const std::vector<double>& headings,
     const std::vector<std::vector<double>>& translations)
-    : delphyne::Agent(name) {
+    : delphyne::Agent(name), initial_time_(times.back()) {
   igndbg << "TrajectoryAgent constructor" << std::endl;
   Eigen::Quaternion<double> zero_heading(
       Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
@@ -67,8 +73,13 @@ TrajectoryAgent::TrajectoryAgent(
 int TrajectoryAgent::Configure(
     int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
+    drake::geometry::SceneGraph<double>* scene_graph,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
+  DELPHYNE_DEMAND(builder != nullptr);
+  DELPHYNE_DEMAND(scene_graph != nullptr);
+  DELPHYNE_DEMAND(aggregator != nullptr);
+  DELPHYNE_DEMAND(car_vis_applicator != nullptr);
   igndbg << "TrajectoryAgent configure" << std::endl;
 
   /*********************
@@ -102,6 +113,17 @@ int TrajectoryAgent::Configure(
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
+
+  // Computes the initial world to car transform X_WC0.
+  const drake::automotive::PoseVelocity initial_car_pose_velocity =
+      trajectory_->value(initial_time_);
+  const drake::Isometry3<double> X_WC0 =
+      drake::Translation3<double>(initial_car_pose_velocity.translation())
+      * initial_car_pose_velocity.rotation();
+
+  // Wires up the Prius geometry.
+  builder->Connect(trajectory_follower_system->pose_output(), WirePriusGeometry(
+      name_, X_WC0, builder, scene_graph, &geometry_ids_));
 
   /*********************
    * State Publisher

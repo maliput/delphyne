@@ -16,6 +16,7 @@
 #include <drake/automotive/gen/maliput_railcar_state.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
@@ -69,6 +70,7 @@ class RailCar : public delphyne::Agent {
   int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
+      drake::geometry::SceneGraph<double>* scene_graph,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 

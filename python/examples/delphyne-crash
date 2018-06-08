@@ -1,0 +1,9 @@
+#!/usr/bin/env python2.7
+#
+# Copyright 2018 Toyota Research Institute
+#
+
+import delphyne.demos.crash
+
+if __name__ == "__main__":
+    delphyne.demos.crash.main()

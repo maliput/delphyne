@@ -1,3 +1,5 @@
+add_subdirectory(helpers)
+
 ##############################################################################
 # Agents
 ##############################################################################
@@ -26,6 +28,7 @@ target_link_libraries(
     drake::drake
     Eigen3::Eigen
   PRIVATE
+    agent_helpers  
     translations
 )
 install(TARGETS agents

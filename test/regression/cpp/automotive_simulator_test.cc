@@ -688,6 +688,113 @@ TEST_F(AutomotiveSimulatorTest, TestBuild2) {
   EXPECT_NO_THROW(simulator->GetDiagram());
 }
 
+// Tests that collision detection works as expected. To that
+// end, it sets up a simulation with three (3) simple Prius cars
+// and two (2) straight lanes. `Bob` and `Alice` drive in opposite
+// directions, and `Smith` goes behind `Bob` but with a slight
+// heading deviation towards the other lane. Eventually, `Alice`
+// and `Smith` collide.
+//
+// +---------------------------------------------+
+//
+//                           +-------+  +-------+
+//   <---------------------+ |  Bob  |  | Smith |
+//                           +-------+  +-------+
+//                                   <-/
+// +----------------------------- <-/------------+
+//                             <-/
+//   +-------+              <-/
+//   | Alice | +-----X---<-/------------------->
+//   +-------+
+//
+// +---------------------------------------------+
+TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
+  const int kNumLanes{2};
+  const double kZeroSOffset{0.};  // in m
+  const double kZeroROffset{0.};  // in m
+  const double kZeroHOffset{0.};  // in m
+  const double kHeadingEast{0.};  // in rads
+  const double kHeadingWest{M_PI};  // in rads
+  const double kHeadingDeviation{M_PI * 4. / 180.};  // in rads
+  const double kCruiseSpeed{10.};  // in m/s
+  const double kCarDistance{5.};  // in m
+
+  // Instantiates a simulator.
+  auto simulator = std::make_unique<AutomotiveSimulator<double>>();
+
+  // Builds a two (2) lane dragway to populate the
+  // simulation world with.
+  const drake::maliput::api::RoadGeometry* road =
+      simulator->SetRoadGeometry(CreateDragway(
+          "TestDragway", kNumLanes));
+
+  // Retrieves references to both lanes. Below's indirections
+  // are guaranteed to be safe by Maliput's Dragway implementation.
+  const drake::maliput::api::Lane* first_lane =
+      road->junction(0)->segment(0)->lane(0);
+  const drake::maliput::api::Lane* second_lane =
+      road->junction(0)->segment(0)->lane(1);
+
+  // Configures agent `Bob`.
+  const drake::maliput::api::LanePosition agent_bob_lane_position{
+    kCarDistance, kZeroROffset, kZeroHOffset};
+  const drake::maliput::api::GeoPosition agent_bob_geo_position =
+      first_lane->ToGeoPosition(agent_bob_lane_position);
+  auto agent_bob = std::make_unique<delphyne::SimpleCar>(
+      "bob", agent_bob_geo_position.x(),
+      agent_bob_geo_position.y(),
+      kHeadingEast, kCruiseSpeed);
+  simulator->AddAgent(std::move(agent_bob)); // Unused agent `Bob` id.
+
+  // Configures agent `Alice`.
+  const drake::maliput::api::LanePosition agent_alice_lane_position{
+    second_lane->length(), kZeroROffset, kZeroHOffset};
+  const drake::maliput::api::GeoPosition agent_alice_geo_position =
+      second_lane->ToGeoPosition(agent_alice_lane_position);
+  auto agent_alice = std::make_unique<delphyne::SimpleCar>(
+      "alice", agent_alice_geo_position.x(),
+      agent_alice_geo_position.y(),
+      kHeadingWest, kCruiseSpeed);
+  const int agent_alice_id = simulator->AddAgent(std::move(agent_alice));
+
+  // Configures agent `Smith`.
+  const drake::maliput::api::LanePosition agent_smith_lane_position{
+    kZeroSOffset, kZeroROffset, kZeroHOffset};
+  const drake::maliput::api::GeoPosition agent_smith_geo_position =
+      first_lane->ToGeoPosition(agent_smith_lane_position);
+  auto agent_smith = std::make_unique<delphyne::SimpleCar>(
+      "smith", agent_smith_geo_position.x(),
+      agent_smith_geo_position.y(),
+      kHeadingEast + kHeadingDeviation, kCruiseSpeed);
+  const int agent_smith_id = simulator->AddAgent(std::move(agent_smith));
+
+  // Finishes initialization and starts the simulation.
+  simulator->Start();
+
+  // Verifies that no agent is in collision at the beginning
+  // of the simulation.
+  std::vector<std::pair<int, int>> agent_pairs_in_collision =
+      simulator->GetCollisions();
+  EXPECT_EQ(agent_pairs_in_collision.size(), 0);
+
+  // Simulates forward in time.
+  const double kTimeToCollision{5.};  // in sec
+  simulator->StepBy(kTimeToCollision);
+
+  // Checks that there was a collision and that the colliding
+  // agents are the expected ones.
+  agent_pairs_in_collision = simulator->GetCollisions();
+  EXPECT_EQ(agent_pairs_in_collision.size(), 1);
+  const int first_colliding_agent_id = agent_pairs_in_collision[0].first;
+  const int second_colliding_agent_id = agent_pairs_in_collision[0].second;
+  // Cannot make any assumption regarding pair order, see
+  // delphyne::AutomotiveSimulator::GetCollisions().
+  EXPECT_TRUE((first_colliding_agent_id == agent_alice_id &&
+               second_colliding_agent_id == agent_smith_id) ||
+              (first_colliding_agent_id == agent_smith_id &&
+               second_colliding_agent_id == agent_alice_id));
+}
+
 //////////////////////////////////////////////////
 int main(int argc, char** argv) {
   ::testing::InitGoogleTest(&argc, argv);

@@ -5,6 +5,7 @@
 install(
   FILES
     __init__.py
+    crash.py
     dragway.py
     helpers.py
     gazoo.py

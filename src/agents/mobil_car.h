@@ -14,6 +14,7 @@
 
 #include <drake/automotive/car_vis_applicator.h>
 #include <drake/common/drake_copyable.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
@@ -59,6 +60,7 @@ class MobilCar : public delphyne::Agent {
   int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
+      drake::geometry::SceneGraph<double>* scene_graph,
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 

@@ -21,6 +21,10 @@ git
 libignition-cmake-dev
 mercurial
 pkg-config
+pylint
+python-pip
 python3-vcstool
 EOF
 )
+# Install pip dependencies
+pip install --user pycodestyle

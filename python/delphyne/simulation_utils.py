@@ -128,7 +128,8 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
 
 
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, name, scene_x=0, scene_y=0, heading=0.0, speed=1.0):
+def add_mobil_car(simulator, name, scene_x=0,
+                  scene_y=0, heading=0.0, speed=1.0):
     """Instantiates a new MOBIL Car and adds
     it to the simulation.
     """

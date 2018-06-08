@@ -13,6 +13,7 @@ from delphyne.simulation import (
 )
 from delphyne.agents import SimpleCar
 
+
 class TestSimulationRunnerPy(unittest.TestCase):
     """
     Unit tests for the simulation_runner python binding

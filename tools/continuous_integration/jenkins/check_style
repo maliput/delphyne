@@ -3,3 +3,4 @@
 set -euo pipefail
 
 ./tools/run_cpplint.sh
+./tools/run_python_checks.sh

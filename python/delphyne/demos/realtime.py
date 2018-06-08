@@ -13,7 +13,7 @@ Manipulating the rate of time at startup and in runtime.
 
 from __future__ import print_function
 
-import delphyne.simulation as simulation
+import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 from . import helpers
@@ -50,6 +50,7 @@ class RealtimeRateChanger(object):
 
 
 def parse_arguments():
+    "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
         "Realtime Rate Changer",
         """
@@ -74,6 +75,7 @@ to `1.6` to depict how dynamic real-time rate impacts on the simulation.
 
 
 def main():
+    """Keeping pylint entertained."""
     # Read the initial real-time rate from command line. Default to 1.0 if none
     # specified.
     args = parse_arguments()

@@ -13,8 +13,8 @@ from __future__ import print_function
 
 import sys
 
-import delphyne.maliput as maliput
-import delphyne.simulation as simulation
+import delphyne.maliput as maliput  # pylint: disable=no-name-in-module
+import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 from . import helpers
@@ -25,9 +25,10 @@ from . import helpers
 
 
 def parse_arguments():
+    "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
-            "Maliput Roads",
-            """
+        "Maliput Roads",
+        """
 Load one of the various types of maliput road networks
 into an empty (free of agents) simulation. For the time
 being the following road network types are supported:
@@ -93,6 +94,7 @@ $ delphyne-roads multilane
 ##############################################################################
 
 def main():
+    """Keeping pylint entertained."""
     args = parse_arguments()
 
     simulator = simulation.AutomotiveSimulator()

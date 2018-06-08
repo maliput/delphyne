@@ -21,7 +21,7 @@ from __future__ import print_function
 import random
 import time
 
-import delphyne.simulation as simulation
+import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 from . import helpers
@@ -40,6 +40,7 @@ class SimulationStats(object):
     def __init__(self):
         """Just init the stats"""
         self.reset()
+        self._current_start_time = None
 
     def reset(self):
         """Clear all values"""
@@ -78,12 +79,13 @@ def random_print():
 
 
 def parse_arguments():
+    "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
-            "Scriptlets",
-            """
+        "Scriptlets",
+        """
 This is a minimal example demonstrating the inclusion of a python
 callback (scriptlet) to be triggered at each tick of the simulation.
-            """
+        """
     )
     return parser.parse_args()
 
@@ -93,6 +95,7 @@ callback (scriptlet) to be triggered at each tick of the simulation.
 
 
 def main():
+    """Keeping pylint entertained."""
     args = parse_arguments()
 
     stats = SimulationStats()

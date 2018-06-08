@@ -13,10 +13,9 @@ The gazoo demo.
 from __future__ import print_function
 
 import os.path
-import textwrap
 
-import delphyne.maliput as maliput
-import delphyne.simulation as simulation
+import delphyne.maliput as maliput  # pylint: disable=no-name-in-module
+import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 from . import helpers
@@ -27,14 +26,15 @@ from . import helpers
 
 
 def parse_arguments():
+    "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
-            "Gazoo Racing!",
-            """
+        "Gazoo Racing!",
+        """
 An example of three railcars and a variable number of MOBIL controlled
 cars running in a closed-loop maliput road.
 
 See also https://toyotagazooracing.com/
-            """
+        """
     )
     parser.add_argument("-n", "--num-cars", default=3, type=int,
                         help="The number of MOBIL cars on scene (default: 3).")
@@ -47,6 +47,7 @@ See also https://toyotagazooracing.com/
 
 
 def main():
+    """Keeping pylint entertained."""
     args = parse_arguments()
 
     if args.num_cars > 6 or args.num_cars < 0:

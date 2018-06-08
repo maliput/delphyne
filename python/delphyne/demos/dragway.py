@@ -11,8 +11,8 @@ The dragway demo.
 
 from __future__ import print_function
 
-import delphyne.maliput as maliput
-import delphyne.simulation as simulation
+import delphyne.maliput as maliput  # pylint: disable=no-name-in-module
+import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 from . import helpers
@@ -23,10 +23,11 @@ from . import helpers
 
 
 def parse_arguments():
+    "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
-            "Dragway",
-            "\nAll of delphyne's agents on a single dragway.\n",
-            default_duration=15.0)
+        "Dragway",
+        "\nAll of delphyne's agents on a single dragway.\n",
+        default_duration=15.0)
     return parser.parse_args()
 
 ##############################################################################
@@ -35,6 +36,7 @@ def parse_arguments():
 
 
 def main():
+    """Keeping pylint entertained."""
     args = parse_arguments()
 
     simulator = simulation.AutomotiveSimulator()
@@ -54,35 +56,37 @@ def main():
     simple_car_position_x = 0.0
     simple_car_position_y = 1.5 * 3.7
     car_id = 0
-    utilities.add_simple_car(simulator, car_id, simple_car_position_x,
-                   simple_car_position_y)
+    utilities.add_simple_car(
+        simulator, car_id,
+        simple_car_position_x,
+        simple_car_position_y)
 
     car_id += 1
-    utilities.add_mobil_car(simulator,
-                  name=str(car_id),
-                  scene_x=0.0,
-                  scene_y=-0.5*3.7,
-                  heading=0.0,
-                  speed=1.0)
+    utilities.add_mobil_car(
+        simulator,
+        name=str(car_id),
+        scene_x=0.0,
+        scene_y=-0.5*3.7,
+        heading=0.0,
+        speed=1.0)
 
     car_id += 1
-    utilities.add_rail_car(simulator,
-                 name=str(car_id),
-                 lane=dragway.junction(0).segment(0).lane(1),
-                 position=0.0,
-                 offset=0.0,
-                 speed=3.0)
+    utilities.add_rail_car(
+        simulator,
+        name=str(car_id),
+        lane=dragway.junction(0).segment(0).lane(1),
+        position=0.0,
+        offset=0.0,
+        speed=3.0)
 
     car_id += 1
-    times = [
-        0.0, 5.0, 10.0, 15.0, 20.0]
-    headings = [
-        0.0, 0.0,  0.0,  0.0,  0.0]
+    times = [0.0, 5.0, 10.0, 15.0, 20.0]
+    headings = [0.0, 0.0, 0.0, 0.0, 0.0]
     waypoints = [
-        [0.0,   -5.55, 0.0],
-        [10.0,  -5.55, 0.0],
-        [30.0,  -5.55, 0.0],
-        [60.0,  -5.55, 0.0],
+        [0.0,   -5.55, 0.0],  # pylint: disable=C0326
+        [10.0,  -5.55, 0.0],  # pylint: disable=C0326
+        [30.0,  -5.55, 0.0],  # pylint: disable=C0326
+        [60.0,  -5.55, 0.0],  # pylint: disable=C0326
         [100.0, -5.55, 0.0]
     ]
     utilities.add_trajectory_agent(

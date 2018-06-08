@@ -14,7 +14,6 @@
 
 from __future__ import print_function
 
-import argparse
 import os
 import sys
 import time
@@ -22,9 +21,7 @@ import time
 from contextlib import contextmanager
 
 from . import agents  # pylint: disable=no-name-in-module
-from . import console
 from . import launcher
-from . import simulation  # pylint: disable=no-name-in-module
 
 ##############################################################################
 # Launchers
@@ -57,13 +54,13 @@ def launch_interactive_simulation(simulator_runner,
         launch_manager.kill()
 
 
-def launch_visualizer(launcher, layout_filename):
+def launch_visualizer(launcher_manager, layout_filename):
     """Launches the project's visualizer with a given layout"""
     ign_visualizer = "visualizer"
     layout_key = "--layout="
     layout_path = os.path.join(get_delphyne_resource_root(), layout_filename)
     teleop_config = layout_key + layout_path
-    launcher.launch([ign_visualizer, teleop_config])
+    launcher_manager.launch([ign_visualizer, teleop_config])
 
 ##############################################################################
 # Environment
@@ -168,6 +165,7 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
 # Other
 ##############################################################################
 
+
 def print_simulation_stats(simulator_runner):
     """Get the interactive simulation statistics and print them on standard
     output.
@@ -180,4 +178,3 @@ def print_simulation_stats(simulator_runner):
         stats.total_elapsed_simtime()))
     print("  Elapsed real time: {}s".format(stats.total_elapsed_realtime()))
     print("=============================================")
-

@@ -18,7 +18,7 @@ import sys
 import termios
 import time
 
-import delphyne.simulation as simulation
+import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 from . import helpers
@@ -103,6 +103,7 @@ def demo_callback(runner, launcher, keyboard_handler, time_step_seconds):
 
 
 def parse_arguments():
+    "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
         "Keyboard Teleoperation & Time Manipulation",
         """
@@ -121,21 +122,22 @@ keyboard on the GUI's teleop widget. In the console, we can toggle
 
 
 def main():
+    """Keeping pylint entertained."""
     args = parse_arguments()
 
     simulator = helpers.build_simple_car_simulator()
 
-    SIMULATION_TIME_STEP_SECS = 0.001
+    simulation_time_step_secs = 0.001
     runner = simulation.SimulatorRunner(
         simulator,
-        time_step=SIMULATION_TIME_STEP_SECS
+        time_step=simulation_time_step_secs
     )
 
     keyboard = KeyboardHandler()
 
     runner.add_step_callback(
         lambda: demo_callback(runner, launcher, keyboard,
-                              SIMULATION_TIME_STEP_SECS))
+                              simulation_time_step_secs))
 
     print("\n"
           "************************************************************\n"

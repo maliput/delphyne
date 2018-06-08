@@ -5,8 +5,8 @@
 #include <limits>
 #include <vector>
 
+#include "backend/assert.h"
 #include "backend/simulation_run_stats.h"
-#include "backend/system.h"
 
 namespace delphyne {
 

@@ -9,7 +9,7 @@
 #include "delphyne/types.h"
 
 // private headers
-#include "backend/system.h"
+#include "backend/assert.h"
 
 namespace delphyne {
 

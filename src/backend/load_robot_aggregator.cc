@@ -5,7 +5,7 @@
 #include <functional>
 #include <vector>
 
-#include "backend/system.h"
+#include "backend/assert.h"
 
 namespace delphyne {
 

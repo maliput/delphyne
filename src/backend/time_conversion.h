@@ -7,7 +7,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/system.h"
+#include "backend/assert.h"
 
 namespace delphyne {
 

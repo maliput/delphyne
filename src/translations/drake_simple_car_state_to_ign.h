@@ -8,7 +8,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/system.h"
+#include "backend/assert.h"
 #include "delphyne/protobuf/simple_car_state.pb.h"
 #include "translations/drake_to_ign.h"
 

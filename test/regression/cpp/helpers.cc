@@ -11,7 +11,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/system.h"
+#include "backend/assert.h"
 #include "drake/lcmt_viewer_draw.hpp"
 #include "drake/lcmt_viewer_geometry_data.hpp"
 #include "helpers.h"

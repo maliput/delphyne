@@ -5,7 +5,7 @@
 #include <map>
 #include <vector>
 
-#include "backend/system.h"
+#include "backend/assert.h"
 #include "backend/time_conversion.h"
 
 namespace delphyne {

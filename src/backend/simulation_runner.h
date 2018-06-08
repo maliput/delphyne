@@ -15,9 +15,9 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
+#include "backend/assert.h"
 #include "backend/automotive_simulator.h"
 #include "backend/interactive_simulation_stats.h"
-#include "backend/system.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 #include "delphyne/protobuf/simulation_in_message.pb.h"
 

@@ -26,12 +26,12 @@ install(TARGETS time_conversion
 add_library(scene_system
   load_robot_aggregator.cc
   scene_system.cc
-  system.h
 )
 set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-system)
 target_link_libraries(
   scene_system
   PUBLIC
+    assert
     ${IGNITION-MSGS_LIBRARIES}
     ${drake_LIBRARIES}
   PRIVATE
@@ -41,6 +41,42 @@ install(TARGETS scene_system
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
+)
+
+# ----------------------------------------
+# Assert library
+#
+add_library(assert INTERFACE)
+
+target_include_directories(
+  assert
+  INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
+)
+
+target_link_libraries(assert
+  INTERFACE
+    drake::drake
+)
+
+delphyne_install_includes(
+  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/assert
+  assert.h
+)
+
+install(
+  FILES
+    assert.h
+  DESTINATION
+    ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
+)
+
+install(TARGETS assert EXPORT ${PROJECT_NAME}-targets
+  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime
+  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Runtime
+  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
+  PUBLIC_HEADER DESTINATION include COMPONENT Development
 )
 
 ##############################################################################
@@ -53,7 +89,6 @@ install(TARGETS scene_system
 add_library(automotive_simulator
   automotive_simulator.cc
   ign_models_assembler.cc
-  system.h
 )
 set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)
 target_include_directories(
@@ -64,6 +99,7 @@ target_include_directories(
 target_link_libraries(
   automotive_simulator
   PUBLIC
+    assert
     public_headers
     scene_system
     protobuf_messages
@@ -90,7 +126,6 @@ add_library(simulation_runner
   interactive_simulation_stats.cc
   simulation_run_stats.cc
   simulation_runner.cc
-  system.h
 )
 set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
 target_include_directories(
@@ -101,6 +136,7 @@ target_include_directories(
 target_link_libraries(
   simulation_runner
   PUBLIC
+    assert
     automotive_simulator
     protobuf_messages
     ${IGNITION-COMMON_LIBRARIES}
@@ -115,9 +151,4 @@ install(TARGETS simulation_runner
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
-)
-
-delphyne_install_includes(
-  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
-  system.h
 )

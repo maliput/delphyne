@@ -16,7 +16,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#include "backend/system.h"
+#include "backend/assert.h"
 #include "delphyne/protobuf/automotive_driving_command.pb.h"
 
 namespace delphyne {

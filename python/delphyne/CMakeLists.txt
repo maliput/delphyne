@@ -2,12 +2,14 @@
 # Modules
 ##############################################################################
 
+add_subdirectory(demos)
+
 install(
   FILES
     __init__.py
     console.py
     launcher.py
-    simulation_utils.py
+    utilities.py
   DESTINATION
     ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )

@@ -14,15 +14,15 @@ Simple colour definitions for consoles.
 
 The current list of colour definitions include:
 
- * ``Regular``: black, red, green, yellow, blue, magenta, cyan, white
- * ``Bold``: bold, bold_black, bold_red, bold_green, bold_yellow,
-             bold_blue, bold_magenta, bold_cyan, bold_white
+ * ``Regular``: BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE
+ * ``Bold``: BOLD, BOLD_BLACK, BOLD_RED, BOLD_GREEN, BOLD_YELLOW,
+             BOLD_BLUE, BOLD_MAGENTA, BOLD_CYAN, BOLD_WHITE
 
 These colour definitions can be used in the following way:
 .. code-block:: python
    import delphyne.console as console
-   print(console.cyan + "    Name" + console.reset + ": " + console.yellow +
-         "Dude" + console.reset)
+   print(console.CYAN + "    Name" + console.RESET + ": " + console.YELLOW +
+         "Dude" + console.RESET)
 
 Note: 'colorama' is a drop-in replacement for this module (with actual
 cross-platform support) with the only caveat being that it does not have
@@ -32,6 +32,8 @@ the ability to determine whether colour is available.
 ##############################################################################
 # Imports
 ##############################################################################
+
+from __future__ import print_function
 
 import os
 import sys
@@ -58,24 +60,32 @@ def console_has_colours():
         return False
     return True
 
-has_colours = console_has_colours()
+
+HAS_COLOURS = console_has_colours()
 """ Whether the loading program has access to colours or not."""
 
-if has_colours:
-    reset = "\x1b[0m"
-    bold = "\x1b[%sm" % '1'
-    black, red, green, yellow, blue, magenta, cyan, white = ["\x1b[%sm" % str(i) for i in range(30, 38)]
-    bold_black, bold_red, bold_green, bold_yellow, bold_blue, bold_magenta, bold_cyan, bold_white = ["\x1b[%sm" % ('1;' + str(i)) for i in range(30, 38)]
-else:
-    reset = ""
-    bold = ""
-    black, red, green, yellow, blue, magenta, cyan, white = ["" for i in range(30, 38)]
-    bold_black, bold_red, bold_green, bold_yellow, bold_blue, bold_magenta, bold_cyan, bold_white = ["" for i in range(30, 38)]
 
-colours = [bold,
-           black, red, green, yellow, blue, magenta, cyan, white,
-           bold_black, bold_red, bold_green, bold_yellow, bold_blue, bold_magenta, bold_cyan, bold_white
-           ]
+if HAS_COLOURS:
+    RESET = "\x1b[0m"
+    BOLD = "\x1b[%sm" % '1'
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = [
+        "\x1b[%sm" % str(i) for i in range(30, 38)]
+    [BOLD_BLACK, BOLD_RED, BOLD_GREEN, BOLD_YELLOW, BOLD_BLUE,
+     BOLD_MAGENTA, BOLD_CYAN, BOLD_WHITE] = [
+         "\x1b[%sm" % ('1;' + str(i)) for i in range(30, 38)]
+else:
+    RESET = ""
+    BOLD = ""
+    BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = [
+        "" for i in range(30, 38)]
+    [BOLD_BLACK, BOLD_RED, BOLD_GREEN, BOLD_YELLOW, BOLD_BLUE,
+     BOLD_MAGENTA, BOLD_CYAN, BOLD_WHITE] = [
+         "" for i in range(30, 38)]
+
+COLOURS = [BOLD,
+           BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
+           BOLD_BLACK, BOLD_RED, BOLD_GREEN, BOLD_YELLOW, BOLD_BLUE,
+           BOLD_MAGENTA, BOLD_CYAN, BOLD_WHITE]
 """List of all available colours."""
 
 ##############################################################################
@@ -83,7 +93,7 @@ colours = [bold,
 ##############################################################################
 
 if __name__ == '__main__':
-    for colour in colours:
-        print(colour + "dude" + reset)
+    for colour in COLOURS:
+        print(colour + "dude" + RESET)
     print("some normal text")
-    print(cyan + "    Name" + reset + ": " + yellow + "Dude" + reset)
+    print(CYAN + "    Name" + RESET + ": " + YELLOW + "Dude" + RESET)

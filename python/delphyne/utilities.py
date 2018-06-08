@@ -14,28 +14,20 @@
 
 from __future__ import print_function
 
+import argparse
 import os
 import sys
-import textwrap
 import time
 
 from contextlib import contextmanager
 
-from delphyne.simulation import (  # pylint: disable=no-name-in-module
-    AutomotiveSimulator,
-)
-from delphyne.agents import (  # pylint: disable=no-name-in-module
-    MobilCar,
-    RailCar,
-    SimpleCar,
-    TrajectoryAgent
-)
-from delphyne.launcher import Launcher
-
+from . import agents  # pylint: disable=no-name-in-module
 from . import console
+from . import launcher
+from . import simulation  # pylint: disable=no-name-in-module
 
 ##############################################################################
-# Methods
+# Launchers
 ##############################################################################
 
 
@@ -47,50 +39,35 @@ def launch_interactive_simulation(simulator_runner,
     visualizer in a separate process and ends the simulation when the
     visualizer is closed."""
 
-    launcher = Launcher()
+    launch_manager = launcher.Launcher()
     try:
-        launch_visualizer(launcher, layout)
-        yield launcher
-        launcher.wait(float("Inf"))
+        launch_visualizer(launch_manager, layout)
+        yield launch_manager
+        launch_manager.wait(float("Inf"))
     except RuntimeError as error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
         if simulator_runner.is_interactive_loop_running():
             simulator_runner.stop()
-        print("Simulation ended")
+        print("Simulation ended. I'm happy, you should be too.")
         print_simulation_stats(simulator_runner)
         # This is needed to avoid a possible deadlock. See SimulatorRunner
         # class description.
         time.sleep(0.5)
-        launcher.kill()
+        launch_manager.kill()
 
 
-def print_simulation_stats(simulator_runner):
-    """Get the interactive simulation statistics and print them on standard
-    output.
-    """
-    stats = simulator_runner.get_stats()
-    print("= Simulation stats ==========================")
-    print("  Simulation runs: {}".format(stats.total_runs()))
-    print("  Simulation steps: {}".format(stats.total_executed_steps()))
-    print("  Elapsed simulation time: {}s".format(
-        stats.total_elapsed_simtime()))
-    print("  Elapsed real time: {}s".format(stats.total_elapsed_realtime()))
-    print("=============================================")
+def launch_visualizer(launcher, layout_filename):
+    """Launches the project's visualizer with a given layout"""
+    ign_visualizer = "visualizer"
+    layout_key = "--layout="
+    layout_path = os.path.join(get_delphyne_resource_root(), layout_filename)
+    teleop_config = layout_key + layout_path
+    launcher.launch([ign_visualizer, teleop_config])
 
-
-def build_simple_car_simulator(initial_positions=None):
-    """Creates an AutomotiveSimulator instance and attachs a simple car to it.
-    Returns the newly created simulator.
-    """
-    if initial_positions is None:
-        initial_positions = [(0.0, 0.0)]
-    simulator = AutomotiveSimulator()
-    car_id = 0
-    for car_position in initial_positions:
-        add_simple_car(simulator, car_id, car_position[1], car_position[0])
-        car_id += 1
-    return simulator
+##############################################################################
+# Environment
+##############################################################################
 
 
 def get_from_env_or_fail(var):
@@ -110,18 +87,25 @@ def get_delphyne_resource_root():
     return get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
 
 
-def launch_visualizer(launcher, layout_filename):
-    """Launches the project's visualizer with a given layout"""
-    ign_visualizer = "visualizer"
-    layout_key = "--layout="
-    layout_path = os.path.join(get_delphyne_resource_root(), layout_filename)
-    teleop_config = layout_key + layout_path
-    launcher.launch([ign_visualizer, teleop_config])
-
+##############################################################################
+# Agents
+##############################################################################
+#
+# These are methods that typically don't do much, but basically ensure that
+# adding an agent to the simulation is pythonic and doesn't leave you with
+# zombie objects after ownership has been transferred to a simulation
+#
+# - construct the agent
+# - add it to the simulator
+# - check that the operation succeeded
+# -   failure : throw an exception
+# -   success : return a handle to the agent
+#
+# TODO(daniel.stonier) exception handling and return handles to the agent
 
 def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
-    """Instantiates a new Simple Prius Car and adds it to the simulation."""
-    agent = SimpleCar(
+    """Adds a simple car to the simulation."""
+    agent = agents.SimpleCar(
         name=str(robot_id),
         x=position_x,  # scene x-coordinate (m)
         y=position_y,  # scene y-coordinate (m)
@@ -131,12 +115,10 @@ def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
 
 
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, name, scene_x=0,
-                  scene_y=0, heading=0.0, speed=1.0):
-    """Instantiates a new MOBIL Car and adds
-    it to the simulation.
-    """
-    agent = MobilCar(
+def add_mobil_car(simulator, name, scene_x=0, scene_y=0,
+                  heading=0.0, speed=1.0):
+    """Adds a lane changing (MOBIL) car to the simulation."""
+    agent = agents.MobilCar(
         name=name,                 # unique name
         direction_of_travel=True,  # with or against the lane s-direction
         x=scene_x,                 # scene x-coordinate (m)
@@ -148,8 +130,8 @@ def add_mobil_car(simulator, name, scene_x=0,
 
 # pylint: disable=too-many-arguments
 def add_rail_car(simulator, name, lane, position, offset, speed):
-    """Instantiates a Railcar and adds it to the simulation."""
-    agent = RailCar(
+    """Adds a centre-line following rail car to the simulation."""
+    agent = agents.RailCar(
         name=name,                       # unique name
         lane=lane,                       # lane
         direction_of_travel=True,        # direction_of_travel
@@ -163,8 +145,9 @@ def add_rail_car(simulator, name, lane, position, offset, speed):
 # pylint: disable=too-many-arguments
 def add_trajectory_agent(simulator, name, times, headings, waypoints):
     """
-    Instantiates a trajectory agent with a trajectory defined by times,
-    headings and translations.
+    Adds a trajectory agent to the simulation.
+    The trajectory is a time parameterised curve that is constructed
+    from lists of knot points defined by times, headings and translations.
     Args:
         simulator: the automotive simulator object
         name: name of the agent
@@ -174,43 +157,27 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
     An example waypoints argument:
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    agent = TrajectoryAgent(name,
-                            times,       # timings (sec)
-                            headings,    # list of headings (radians)
-                            waypoints)   # list of x-y-z-tuples (m, m, m)
+    agent = agents.TrajectoryAgent(
+        name,
+        times,       # timings (sec)
+        headings,    # list of headings (radians)
+        waypoints)   # list of x-y-z-tuples (m, m, m)
     simulator.add_agent(agent)
 
-def create_argparse_description(title, content):
-    """
-    Format an argparse description in a nice way with a banner + title and
-    content beneath.
-    Args:
-        title:
-        content:
-    """
-    text_wrapper = textwrap.TextWrapper(
-        width=70,
-        replace_whitespace=False)
-    if console.has_colours:
-        banner_line = console.green + "*" * 70 + "\n" + console.reset
-        s = "\n"
-        s += banner_line
-        s += console.bold_white + title.center(70) + "\n" + console.reset
-        s += banner_line
-        s += "\n"
-        s += text_wrapper.fill(textwrap.dedent(content).strip())
-        s += "\n\n"
-        s += banner_line
-    else:
-        s = content
-    return s
+##############################################################################
+# Other
+##############################################################################
 
-def create_argparse_epilog():
+def print_simulation_stats(simulator_runner):
+    """Get the interactive simulation statistics and print them on standard
+    output.
     """
-    Create a humourous anecdote for argparse's epilog.
-    """
-    if console.has_colours:
-        return console.cyan + "And his noodly appendage reached forth to tickle the blessed...\n" + console.reset
-    else:
-        return None
+    stats = simulator_runner.get_stats()
+    print("= Simulation stats ==========================")
+    print("  Simulation runs: {}".format(stats.total_runs()))
+    print("  Simulation steps: {}".format(stats.total_executed_steps()))
+    print("  Elapsed simulation time: {}s".format(
+        stats.total_elapsed_simtime()))
+    print("  Elapsed real time: {}s".format(stats.total_elapsed_realtime()))
+    print("=============================================")
 

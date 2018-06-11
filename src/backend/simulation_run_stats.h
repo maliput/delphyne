@@ -5,7 +5,10 @@
 #include <chrono>
 #include <limits>
 
-#include "backend/delphyne_time_point.h"
+// public headers
+#include "delphyne/types.h"
+
+// private headers
 #include "backend/system.h"
 
 namespace delphyne {

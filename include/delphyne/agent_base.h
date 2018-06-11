@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <delphyne/types.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -12,7 +13,6 @@
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
-#include "./names.h"
 
 namespace delphyne {
 /// @brief The parent of all agents in delphyne!

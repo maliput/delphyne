@@ -21,17 +21,6 @@ install(TARGETS time_conversion
 )
 
 # ----------------------------------------
-# Real-time Clock and related aliases
-add_library(realtime_utils delphyne_duration.h delphyne_realtime_clock.h delphyne_time_point.h)
-set_target_properties(realtime_utils PROPERTIES LINKER_LANGUAGE CXX OUTPUT_NAME ${PROJECT_NAME}-realtime-clock)
-
-install(TARGETS realtime_utils
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-)
-
-# ----------------------------------------
 # Scene-builder library
 #
 add_library(scene_system
@@ -84,7 +73,6 @@ target_link_libraries(
     ${IGNITION-MSGS_LIBRARIES}
   PRIVATE
     translations
-    realtime_utils
 )
 
 install(TARGETS automotive_simulator

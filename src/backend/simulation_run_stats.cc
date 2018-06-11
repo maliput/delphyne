@@ -2,7 +2,7 @@
 
 #include "backend/simulation_run_stats.h"
 
-#include "backend/delphyne_realtime_clock.h"
+// private headers
 #include "backend/system.h"
 
 namespace delphyne {

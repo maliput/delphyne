@@ -6,8 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "backend/delphyne_realtime_clock.h"
-#include "backend/delphyne_time_point.h"
+#include "delphyne/types.h"
 
 namespace delphyne {
 

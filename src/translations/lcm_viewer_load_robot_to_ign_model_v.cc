@@ -5,8 +5,8 @@
 #include <map>
 #include <vector>
 
-#include "backend/assert.h"
 #include "backend/time_conversion.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

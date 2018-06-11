@@ -8,7 +8,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/assert.h"
+#include "delphyne/macros.h"
 #include "delphyne/protobuf/automotive_driving_command.pb.h"
 #include "translations/drake_to_ign.h"
 

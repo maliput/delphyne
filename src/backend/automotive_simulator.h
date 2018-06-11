@@ -36,11 +36,11 @@
 #include "delphyne/agent_base.h"
 
 // private headers
-#include "backend/assert.h"
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

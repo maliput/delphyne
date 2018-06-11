@@ -8,7 +8,7 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/vector_base.h>
 
-#include "backend/assert.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

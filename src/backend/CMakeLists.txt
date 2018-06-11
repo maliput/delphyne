@@ -12,6 +12,7 @@ set_target_properties(time_conversion PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-tim
 target_link_libraries(
   time_conversion
   PUBLIC
+    public_headers
     ${IGNITION-MSGS_LIBRARIES}
 )
 install(TARGETS time_conversion
@@ -31,7 +32,7 @@ set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-
 target_link_libraries(
   scene_system
   PUBLIC
-    assert
+    public_headers
     ${IGNITION-MSGS_LIBRARIES}
     ${drake_LIBRARIES}
   PRIVATE
@@ -41,42 +42,6 @@ install(TARGETS scene_system
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
-)
-
-# ----------------------------------------
-# Assert library
-#
-add_library(assert INTERFACE)
-
-target_include_directories(
-  assert
-  INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
-)
-
-target_link_libraries(assert
-  INTERFACE
-    drake::drake
-)
-
-delphyne_install_includes(
-  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/assert
-  assert.h
-)
-
-install(
-  FILES
-    assert.h
-  DESTINATION
-    ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
-)
-
-install(TARGETS assert EXPORT ${PROJECT_NAME}-targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT Runtime
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Runtime
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT Development
-  PUBLIC_HEADER DESTINATION include COMPONENT Development
 )
 
 ##############################################################################
@@ -99,10 +64,9 @@ target_include_directories(
 target_link_libraries(
   automotive_simulator
   PUBLIC
-    assert
-    public_headers
     scene_system
     protobuf_messages
+    public_headers
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
@@ -136,9 +100,9 @@ target_include_directories(
 target_link_libraries(
   simulation_runner
   PUBLIC
-    assert
     automotive_simulator
     protobuf_messages
+    public_headers
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}

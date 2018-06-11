@@ -3,7 +3,7 @@
 #include "backend/simulation_run_stats.h"
 
 // private headers
-#include "backend/assert.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

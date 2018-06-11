@@ -12,7 +12,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/assert.h"
+#include "delphyne/macros.h"
 #include "helpers.h"
 
 namespace delphyne {

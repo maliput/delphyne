@@ -8,7 +8,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "backend/assert.h"
+#include "delphyne/macros.h"
 #include "translations/drake_to_ign.h"
 
 namespace delphyne {

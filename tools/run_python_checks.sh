@@ -19,4 +19,4 @@ if [ "$PYLINTFAILED" -ne "0" ]; then
   echo $'\n*** Pylint failed ***'
   exit 1
 fi
-exit 0
+

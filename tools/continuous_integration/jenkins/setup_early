@@ -27,4 +27,5 @@ python3-vcstool
 EOF
 )
 # Install pip dependencies
+# TODO(apojomovsky) #446 Replace this by a deb install as soon as we go to 18.04
 pip install --user pycodestyle

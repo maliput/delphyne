@@ -100,10 +100,10 @@ def get_delphyne_resource_root():
 #
 # TODO(daniel.stonier) exception handling and return handles to the agent
 
-def add_simple_car(simulator, robot_id, position_x=0, position_y=0):
+def add_simple_car(simulator, name, position_x=0, position_y=0):
     """Adds a simple car to the simulation."""
     agent = agents.SimpleCar(
-        name=str(robot_id),
+        name=name,
         x=position_x,  # scene x-coordinate (m)
         y=position_y,  # scene y-coordinate (m)
         heading=0.0,   # heading (radians)

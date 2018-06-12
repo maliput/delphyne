@@ -57,9 +57,10 @@ def main():
     simple_car_position_y = 1.5 * 3.7
     car_id = 0
     utilities.add_simple_car(
-        simulator, car_id,
-        simple_car_position_x,
-        simple_car_position_y)
+        simulator,
+        name=str(car_id),
+        position_x=simple_car_position_x,
+        position_y=simple_car_position_y)
 
     car_id += 1
     utilities.add_mobil_car(

@@ -100,7 +100,12 @@ def main():
 
     stats = SimulationStats()
 
-    simulator = helpers.build_simple_car_simulator()
+    simulator = simulation.AutomotiveSimulator()
+    utilities.add_simple_car(
+        simulator,
+        name=str(0),
+        position_x=0.0,
+        position_y=0.0)
 
     runner = simulation.SimulatorRunner(
         simulator=simulator,

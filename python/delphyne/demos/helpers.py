@@ -21,25 +21,6 @@ import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
 ##############################################################################
-# Builders
-##############################################################################
-
-
-def build_simple_car_simulator(initial_positions=None):
-    """Creates an AutomotiveSimulator instance and attachs a simple car to it.
-    Returns the newly created simulator.
-    """
-    if initial_positions is None:
-        initial_positions = [(0.0, 0.0)]
-    simulator = simulation.AutomotiveSimulator()
-    car_id = 0
-    for car_position in initial_positions:
-        utilities.add_simple_car(simulator, car_id, car_position[1],
-                                 car_position[0])
-        car_id += 1
-    return simulator
-
-##############################################################################
 # Argparsing
 ##############################################################################
 

@@ -13,6 +13,9 @@ Manipulating the rate of time at startup and in runtime.
 
 from __future__ import print_function
 
+import os
+import sys
+
 import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
 import delphyne.utilities as utilities
 
@@ -59,14 +62,14 @@ simulator runner is created and while the simulation is running.
 
 To pass an initial real-time rate use the `--realtime_rate` flag, like:
 
-$ realtime_rate_changer.py --realtime_rate=2.0
+$ {0} --realtime_rate=2.0
 
 If none is specified the default will be set to `1.0` (i.e. run the simulation
 in real-time).
 
 Once the scripts starts running it will cycle between a real-time rate of `0.6`
 to `1.6` to depict how dynamic real-time rate impacts on the simulation.
-        """)
+        """.format(os.path.basename(sys.argv[0])))
     return parser.parse_args()
 
 ##############################################################################

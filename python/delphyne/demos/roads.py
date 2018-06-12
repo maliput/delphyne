@@ -11,6 +11,7 @@ Load a simulation with one of a few sample maliput road networks.
 
 from __future__ import print_function
 
+import os
 import sys
 
 import delphyne.maliput as maliput  # pylint: disable=no-name-in-module
@@ -38,17 +39,17 @@ This demo uses the subcommand style, where each road
 type can handle different parameters. To get help on each
 road type's parameters, run for example:
 
-$ delphyne-roads multilane --help
+$ {0} multilane --help
 
 Some examples:
 
-$ delphyne-roads dragway --length=200 --shoulder-width=2.5
-$ delphyne-roads onramp
-$ delphyne-roads monolane
+$ {0} dragway --length=200 --shoulder-width=2.5
+$ {0} onramp
+$ {0} monolane
 --filename='./install/share/delphyne/roads/double_ring.yaml'
-$ delphyne-roads multilane
+$ {0} multilane
 --filename='./install/share/delphyne/roads/circuit.yaml'
-            """
+        """.format(os.path.basename(sys.argv[0]))
     )
     subparsers = parser.add_subparsers(dest="road_type")
 

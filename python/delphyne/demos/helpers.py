@@ -69,7 +69,6 @@ def create_argument_parser(title, content, default_duration=-1.0):
         epilog=create_argparse_epilog(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-d", "--duration", default=default_duration,
-                        type=check_positive_float_or_zero,
                         help="Stop at this time (indefinite if -ve)"
                         " (default: {0}s)".format(default_duration))
     parser.add_argument("-r", "--realtime_rate", default=1.0,
@@ -111,5 +110,3 @@ def create_argparse_epilog():
         msg = "And his noodly appendage reached forth to "\
               "tickle the blessed...\n"
         return console.CYAN + msg + console.RESET
-    else:
-        return None

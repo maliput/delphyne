@@ -24,7 +24,7 @@ These colour definitions can be used in the following way:
    print(console.CYAN + "    Name" + console.RESET + ": " + console.YELLOW +
          "Dude" + console.RESET)
 
-Note: 'colorama' is a drop-in replacement for this module (with actual
+..note:: 'colorama' is a drop-in replacement for this module (with actual
 cross-platform support) with the only caveat being that it does not have
 the ability to determine whether colour is available.
 """

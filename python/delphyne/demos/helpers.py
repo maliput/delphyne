@@ -50,8 +50,8 @@ def create_argument_parser(title, content, default_duration=-1.0):
         epilog=create_argparse_epilog(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-d", "--duration", default=default_duration,
-                        help="Stop at this time (indefinite if -ve)"
-                        " (default: {0}s)".format(default_duration))
+                        help="Simulation length (sec)(endless if -ve)"
+                        "(default: {0}s)".format(default_duration))
     parser.add_argument("-r", "--realtime_rate", default=1.0,
                         type=check_positive_float_or_zero,
                         help="Ratio of sim vs real time (default: 1.0)")

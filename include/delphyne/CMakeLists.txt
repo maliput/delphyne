@@ -31,12 +31,7 @@ install(
 )
 
 # Install the exported target
-install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  PUBLIC_HEADER DESTINATION include
-)
+install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets)
 
 ##############################################################################
 # Subdirectories

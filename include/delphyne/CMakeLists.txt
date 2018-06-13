@@ -26,7 +26,7 @@ install(
     agent_base.h
     types.h
   DESTINATION
-    ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
+    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
 )
 
 # Install the exported target

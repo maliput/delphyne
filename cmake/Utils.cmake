@@ -71,19 +71,19 @@ endmacro ()
 
 #################################################
 macro (delphyne_install_includes _subdir)
-  install(FILES ${ARGN} DESTINATION ${INCLUDE_INSTALL_DIR}/${_subdir} COMPONENT headers)
+  install(FILES ${ARGN} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${_subdir} COMPONENT headers)
 endmacro()
 
 #################################################
 macro (delphyne_install_library _name)
   set_target_properties(${_name} PROPERTIES SOVERSION ${PROJECT_MAJOR_VERSION} VERSION ${PROJECT_VERSION_FULL})
-  install (TARGETS ${_name} DESTINATION ${LIB_INSTALL_DIR} COMPONENT shlib)
+  install (TARGETS ${_name} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT shlib)
 endmacro ()
 
 #################################################
 macro (delphyne_install_executable _name)
   set_target_properties(${_name} PROPERTIES VERSION ${PROJECT_VERSION_FULL})
-  install (TARGETS ${_name} DESTINATION ${BIN_INSTALL_DIR})
+  install (TARGETS ${_name} DESTINATION ${CMAKE_INSTALL_BINDIR})
   manpage(${_name} 1)
 endmacro ()
 

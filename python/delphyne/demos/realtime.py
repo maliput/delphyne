@@ -2,7 +2,7 @@
 #
 # Copyright 2017 Toyota Research Institute
 #
-# TODO(daniel.stonier) this demo would be easier if there were
+# WTF(daniel.stonier) this demo would be easier if there were
 # agents on a road moving from the start (currently have to teleop it).
 """
 Manipulating the rate of time at startup and in runtime.
@@ -16,7 +16,7 @@ from __future__ import print_function
 import os
 import sys
 
-import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
+import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
 from . import helpers

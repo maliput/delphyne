@@ -11,8 +11,8 @@ The dragway demo.
 
 from __future__ import print_function
 
-import delphyne.maliput as maliput  # pylint: disable=no-name-in-module
-import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
+import delphyne.maliput as maliput
+import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
 from . import helpers

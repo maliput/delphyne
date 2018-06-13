@@ -20,7 +20,7 @@ import time
 
 from contextlib import contextmanager
 
-from . import agents  # pylint: disable=no-name-in-module
+from . import agents
 from . import launcher
 
 ##############################################################################

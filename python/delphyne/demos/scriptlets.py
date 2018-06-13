@@ -21,7 +21,7 @@ from __future__ import print_function
 import random
 import time
 
-import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
+import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
 from . import helpers

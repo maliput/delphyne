@@ -17,8 +17,6 @@ from __future__ import print_function
 import argparse
 
 import delphyne.console as console
-import delphyne.simulation as simulation  # pylint: disable=no-name-in-module
-import delphyne.utilities as utilities
 
 ##############################################################################
 # Argparsing

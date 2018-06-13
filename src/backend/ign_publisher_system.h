@@ -20,11 +20,11 @@ namespace delphyne {
 /// A system to publish ignition messages at its single abstract input
 /// port through an ignition transport topic.
 ///
-/// @tparam T A valid ignition message type.
-template <typename T, typename std::enable_if<
-                        std::is_base_of<
-                          ignition::transport::ProtoMsg, T
-                          >::value, int>::type = 0>
+/// @tparam IGN_TYPE A valid ignition message type.
+template <typename IGN_TYPE, typename std::enable_if<
+                               std::is_base_of<
+                                 ignition::transport::ProtoMsg, IGN_TYPE
+                                 >::value, int>::type = 0>
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
   /// Constructs a publisher that forwards messages at a given fixed rate
@@ -43,11 +43,11 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
     const double kPublishTimeOffset{0.};
     const drake::systems::PublishEvent<double> publish_event(
         drake::systems::Event<double>::TriggerType::kPeriodic,
-        std::bind(&IgnPublisherSystem<T>::PublishIgnMessage, this,
+        std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this,
                   std::placeholders::_1, std::placeholders::_2));
     this->DeclarePeriodicEvent(
         1.0/publish_rate, kPublishTimeOffset, publish_event);
-    publisher_ = node_.Advertise<T>(topic_name);
+    publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
 
   /// Constructs a publisher that forwards messages at the fastest possible
@@ -61,10 +61,10 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
     this->DeclareAbstractInputPort();
     const drake::systems::PublishEvent<double> publish_event(
         drake::systems::Event<double>::TriggerType::kPerStep,
-        std::bind(&IgnPublisherSystem<T>::PublishIgnMessage, this,
+        std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this,
                   std::placeholders::_1, std::placeholders::_2));
     this->DeclarePerStepEvent(publish_event);
-    publisher_ = node_.Advertise<T>(topic_name);
+    publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
 
   /// Default destructor.
@@ -88,7 +88,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
     DELPHYNE_DEMAND(input_message != nullptr);
     // Publishes the message onto the specified
     // ignition transport topic.
-    publisher_.Publish(input_message->GetValue<T>());
+    publisher_.Publish(input_message->GetValue<IGN_TYPE>());
   }
 
   // The topic on which to publish ignition transport messages.

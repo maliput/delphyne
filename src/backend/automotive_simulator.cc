@@ -228,7 +228,7 @@ void AutomotiveSimulator<T>::Build() {
   // The translated Model_V message is then published.
   auto model_v_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "visualizer/scene_update");
+          "visualizer/scene_update", kSceneUpdatePublishRateHz);
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
@@ -271,7 +271,7 @@ void AutomotiveSimulator<T>::Build() {
   // same frequency the simulation runs at, the publishing frequency is reduced.
   auto scene_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
-          "scene", kScenePublishRateHz);
+          "scene", kSceneTreePublishRateHz);
   builder_->Connect(*scene_system_, *scene_publisher);
 
   pose_bundle_output_port_ =

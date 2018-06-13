@@ -16,12 +16,16 @@ check_program_installed pylint
 declare -i PEP8FAILED=0
 declare -i PYLINTFAILED=0
 
+# Exclude Dirs:
+#  - build/style helper scripts in ./tools
+#  - test helper scripts in test/utils
+#  - entry points in python/examples
 
 # Run PEP 8
-grep -rl --exclude-dir={tools,utils} '^#!/.*python' . | xargs pycodestyle ||  PEP8FAILED=1
+grep -rl --exclude-dir={tools,utils,examples} '^#!/.*python' . | xargs pycodestyle ||  PEP8FAILED=1
 if [ "$PEP8FAILED" -eq "0" ]; then
   # Run pylint
-  grep -rl --exclude-dir={tools,utils} '^#!/.*python' . | xargs pylint || PYLINTFAILED=1
+grep -rl --exclude-dir={tools,utils,examples} '^#!/.*python' . | xargs pylint || PYLINTFAILED=1
 else
   echo $'\n*** PEP8 failed, not doing pylint ***'
   exit 1

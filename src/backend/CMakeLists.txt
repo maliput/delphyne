@@ -12,6 +12,7 @@ set_target_properties(time_conversion PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-tim
 target_link_libraries(
   time_conversion
   PUBLIC
+    public_headers
     ${IGNITION-MSGS_LIBRARIES}
 )
 install(TARGETS time_conversion
@@ -26,12 +27,12 @@ install(TARGETS time_conversion
 add_library(scene_system
   load_robot_aggregator.cc
   scene_system.cc
-  system.h
 )
 set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-system)
 target_link_libraries(
   scene_system
   PUBLIC
+    public_headers
     ${IGNITION-MSGS_LIBRARIES}
     ${drake_LIBRARIES}
   PRIVATE
@@ -53,7 +54,6 @@ install(TARGETS scene_system
 add_library(automotive_simulator
   automotive_simulator.cc
   ign_models_assembler.cc
-  system.h
 )
 set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)
 target_include_directories(
@@ -64,9 +64,9 @@ target_include_directories(
 target_link_libraries(
   automotive_simulator
   PUBLIC
-    public_headers
     scene_system
     protobuf_messages
+    public_headers
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
@@ -90,7 +90,6 @@ add_library(simulation_runner
   interactive_simulation_stats.cc
   simulation_run_stats.cc
   simulation_runner.cc
-  system.h
 )
 set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
 target_include_directories(
@@ -103,6 +102,7 @@ target_link_libraries(
   PUBLIC
     automotive_simulator
     protobuf_messages
+    public_headers
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}
@@ -115,9 +115,4 @@ install(TARGETS simulation_runner
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
-)
-
-delphyne_install_includes(
-  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/backend
-  system.h
 )

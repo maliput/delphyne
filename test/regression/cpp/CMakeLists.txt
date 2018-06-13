@@ -18,6 +18,7 @@ target_include_directories(
 target_link_libraries(test_helpers
   gtest
   gtest_main
+  public_headers
   ${drake_LIBRARIES}
   ${IGNITION-MSGS_LIBRARIES}
 )

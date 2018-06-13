@@ -40,7 +40,7 @@
 #include "backend/ign_subscriber_system.h"
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
-#include "backend/system.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

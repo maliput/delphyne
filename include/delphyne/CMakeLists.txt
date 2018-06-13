@@ -12,7 +12,7 @@ target_include_directories(
   public_headers
   INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
 )
 
 target_link_libraries(public_headers
@@ -24,17 +24,14 @@ target_link_libraries(public_headers
 install(
   FILES
     agent_base.h
+    macros.h
     types.h
   DESTINATION
     ${INCLUDE_INSTALL_DIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
 )
 
 # Install the exported target
-install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-)
+install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets)
 
 ##############################################################################
 # Subdirectories

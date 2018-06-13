@@ -30,7 +30,7 @@
 
 #include "backend/automotive_simulator.h"
 #include "backend/ign_models_assembler.h"
-#include "backend/system.h"
+#include "delphyne/macros.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"

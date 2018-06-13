@@ -5,14 +5,14 @@
 #include "drake/common/drake_assert.h"
 
 #if defined(__GNUC__)
-#define DELPHYNE_BACKEND_DEPRECATED(version) __attribute__((deprecated))
-#define DELPHYNE_BACKEND_FORCEINLINE __attribute__((always_inline))
+#define DELPHYNE_DEPRECATED(version) __attribute__((deprecated))
+#define DELPHYNE_FORCEINLINE __attribute__((always_inline))
 #elif defined(_WIN32)
-#define DELPHYNE_BACKEND_DEPRECATED(version) ()
-#define DELPHYNE_BACKEND_FORCEINLINE __forceinline
+#define DELPHYNE_DEPRECATED(version) ()
+#define DELPHYNE_FORCEINLINE __forceinline
 #else
-#define DELPHYNE_BACKEND_DEPRECATED(version) ()
-#define DELPHYNE_BACKEND_FORCEINLINE
+#define DELPHYNE_DEPRECATED(version) ()
+#define DELPHYNE_FORCEINLINE
 #endif
 
 /// \def DELPHYNE_ASSERT

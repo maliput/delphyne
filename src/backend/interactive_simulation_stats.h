@@ -6,7 +6,7 @@
 #include <vector>
 
 #include "backend/simulation_run_stats.h"
-#include "backend/system.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

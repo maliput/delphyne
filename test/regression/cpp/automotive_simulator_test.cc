@@ -546,12 +546,9 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
                                           viewer_draw_callback);
 
-  // Plus two to include the world and road geometry
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 2;
-
   simulator->Start();
 
-  std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
+  const std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
 
   int scene_link_count = 0;
   for (const ignition::msgs::Model& model : scene->model()) {
@@ -562,23 +559,23 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
     }
   }
 
+  // Plus two to include the world and road geometry
+  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 2;
   // Checks number of links in the robot message.
   EXPECT_EQ(scene_link_count, expected_num_links);
 
-  // Runs a single simulation step.
-  simulator->StepBy(1e-3);
-
   // Waits until the callback has been executed twice, as that
   // ensures that draw_message will not be further changed.
-  std::unique_lock<std::mutex> lck(mtx);
-  std::cv_status status;
   const uint32_t kTimeoutMillis = 500;
-
+  std::unique_lock<std::mutex> lck(mtx);
   while (num_of_callback_calls < 2) {
+    // Runs a single simulation step.
+    simulator->StepBy(1e-3);
     // The condition variable will wait for the callback function to be
     // notified or will raise a test assertion if the timeout time is reached.
     // This prevents the test to fall into a possible deadlock state.
-    status = cv.wait_for(lck, std::chrono::milliseconds(kTimeoutMillis));
+    std::cv_status status =
+        cv.wait_for(lck, std::chrono::milliseconds(kTimeoutMillis));
     if (status == std::cv_status::timeout) {
       FAIL() << "Condition variable timed out after waiting for "
              << kTimeoutMillis << "ms.";

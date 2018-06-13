@@ -143,7 +143,7 @@ class AutomotiveSimulator {
  private:
   // The rate at which the scene is published over ign-transport to update the
   // scene tree widget tree.
-  const double kScenePublishPeriodMs = 250.0;
+  const double kScenePublishRateHz{60.0};
 
   // Verifies that the provided `name` of an agent is unique among all agents
   // that have been added to the `AutomotiveSimulator`. Throws a

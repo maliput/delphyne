@@ -17,83 +17,88 @@
 
 namespace delphyne {
 
-/// Publishes an ignition-transport message. The data to populate the message
-/// comes from the system's abstract input port.
+/// A system to publish ignition messages at its single abstract input
+/// port through an ignition transport topic.
 ///
-/// @tparam IGN_TYPE must be a valid ignition message type
-template <class IGN_TYPE>
+/// @tparam T A valid ignition message type.
+template <typename T, typename std::enable_if<
+                        std::is_base_of<
+                          ignition::transport::ProtoMsg, T
+                          >::value, int>::type = 0>
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
-  /// Default constructor.
+  /// Constructs a publisher that forwards messages at a given fixed rate
+  /// to the given ignition transport topic.
   ///
   /// @param[in] topic_name The name of the ignition topic this system will
-  /// be publishing to.
-  /// @param[in] publish_period_ms The publishing period, in milliseconds. 0 to
-  /// publish as fast as possible (on every simulation tick).
+  ///                       be publishing to.
+  /// @param[in] publish_rate The publishing rate, in Hz.
+  /// @pre Given @p publish_rate is a positive number.
+  /// @warning Failure to meet any of the preconditions will abort execution.
   explicit IgnPublisherSystem(const std::string& topic_name,
-                              double publish_period_ms = 0.0)
-      : topic_name_(topic_name), publish_period_(publish_period_ms) {
-    DeclareAbstractInputPort();
-    publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
+                              double publish_rate)
+      : topic_name_(topic_name) {
+    DELPHYNE_DEMAND(publish_rate > 0.);
+    this->DeclareAbstractInputPort();
+    const double kPublishTimeOffset{0.};
+    const drake::systems::PublishEvent<double> publish_event(
+        drake::systems::Event<double>::TriggerType::kPeriodic,
+        std::bind(&IgnPublisherSystem<T>::PublishIgnMessage, this,
+                  std::placeholders::_1, std::placeholders::_2));
+    this->DeclarePeriodicEvent(
+        1.0/publish_rate, kPublishTimeOffset, publish_event);
+    publisher_ = node_.Advertise<T>(topic_name);
+  }
+
+  /// Constructs a publisher that forwards messages at the fastest possible
+  /// rate (i.e. on every simulation step) to the given ignition transport
+  /// topic.
+  ///
+  /// @param[in] topic_name The name of the ignition topic this system will
+  ///                       be publishing to.
+  explicit IgnPublisherSystem(const std::string& topic_name)
+      : topic_name_(topic_name) {
+    this->DeclareAbstractInputPort();
+    const drake::systems::PublishEvent<double> publish_event(
+        drake::systems::Event<double>::TriggerType::kPerStep,
+        std::bind(&IgnPublisherSystem<T>::PublishIgnMessage, this,
+                  std::placeholders::_1, std::placeholders::_2));
+    this->DeclarePerStepEvent(publish_event);
+    publisher_ = node_.Advertise<T>(topic_name);
   }
 
   /// Default destructor.
   ~IgnPublisherSystem() override {}
 
-  /// @see LeafSystem::DoPublish
-  ///
-  /// Takes an ignition message from the input port of the @p context and
-  /// publishes it onto an ignition channel.
-  void DoPublish(
-      const drake::systems::Context<double>& context,
-      const std::vector<const drake::systems::PublishEvent<double>*>&)
-      const override {
-    // Conditional publishing checks and timekeeping are only performed if the
-    // publishing period is non-zero (i.e. if this is a throttled publisher).
-    if (publish_period_.count() > 0) {
-      // Checks if it's time to publish.
-      const std::chrono::time_point<std::chrono::steady_clock> now =
-          std::chrono::steady_clock::now();
-      const std::chrono::duration<double, std::milli> elapsed =
-          now - last_publish_time_;
-      if (elapsed < publish_period_) {
-        return;
-      }
-
-      // It's time to publish!
-      last_publish_time_ = now;
-    }
-
-    // Retrieves the ignition message content from input port.
-    const int kPortIndex = 0;
-    const drake::systems::AbstractValue* input =
-        EvalAbstractInput(context, kPortIndex);
-    DELPHYNE_DEMAND(input != nullptr);
-
-    const IGN_TYPE& ign_message = input->GetValue<IGN_TYPE>();
-
-    // Publishes onto the specified ign-transport topic.
-    publisher_.Publish(ign_message);
-  }
-
   /// Returns the topic name it publishes to.
   inline const std::string& get_topic_name() { return topic_name_; }
 
  private:
-  // The topic on which to publish ign-transport messages.
+  // Takes the ignition message at the input port in the current
+  // @p context and publishes it onto an ignition transport channel.
+  // @see drake::systems::System::Publish, drake::systems::PublishEvent
+  void PublishIgnMessage(
+      const drake::systems::Context<double>& context,
+      const drake::systems::PublishEvent<double>& event) {
+    // Retrieves the input value from the sole input port.
+    const int kPortIndex = 0;
+    const drake::systems::AbstractValue* input_message =
+        EvalAbstractInput(context, kPortIndex);
+    // Verifies that the input value is valid.
+    DELPHYNE_DEMAND(input_message != nullptr);
+    // Publishes the message onto the specified
+    // ignition transport topic.
+    publisher_.Publish(input_message->GetValue<T>());
+  }
+
+  // The topic on which to publish ignition transport messages.
   const std::string topic_name_;
 
   // Ignition transport node.
   ignition::transport::Node node_;
 
   // Ignition transport publisher.
-  mutable ignition::transport::Node::Publisher publisher_;
-
-  // The time between message publications (ms).
-  const std::chrono::duration<double, std::milli> publish_period_;
-
-  // The last time that a message was published at.
-  mutable std::chrono::steady_clock::time_point last_publish_time_;
+  ignition::transport::Node::Publisher publisher_;
 };
 
 }  // namespace delphyne

@@ -387,8 +387,12 @@ class SimulatorRunner {
   // @brief Whether the simulation is paused or not.
   bool paused_{false};
 
-  // @brief The statistics of the (possibly man) simulation runs.
+  // @brief The statistics of the (possibly many) simulation runs.
   InteractiveSimulationStats stats_;
+
+  // @brief Mutex to avoid calling SetupNewRunStats simultaneously from
+  // different threads.
+  std::mutex stats_mutex_;
 };
 
 }  // namespace delphyne

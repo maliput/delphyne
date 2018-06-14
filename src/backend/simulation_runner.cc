@@ -252,6 +252,7 @@ void SimulatorRunner::StepSimulationBy(double time_step) {
 }
 
 void SimulatorRunner::SetupNewRunStats() {
+  std::lock_guard<std::mutex> lock(stats_mutex_);
   stats_.NewRunStartingAt(simulator_->get_current_simulation_time(),
                           realtime_rate_);
 }

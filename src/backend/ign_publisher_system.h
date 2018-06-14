@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include <drake/systems/framework/leaf_system.h>
 

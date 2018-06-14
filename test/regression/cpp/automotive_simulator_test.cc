@@ -28,6 +28,7 @@
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
 #include "delphyne/protobuf/simple_car_state.pb.h"
+#include "helpers.h"
 #include "test/test_config.h"
 
 using drake::automotive::PriusVis;
@@ -42,6 +43,7 @@ namespace delphyne {
 /*****************************************************************************
  * Convenience Methods / Classes
  ****************************************************************************/
+namespace {
 
 struct LinkInfo {
   LinkInfo(std::string name_in, int robot_num_in, int num_geom_in)
@@ -50,6 +52,11 @@ struct LinkInfo {
   int robot_num{};
   int num_geom{};
 };
+
+// Returns the Prius link count.
+int GetPriusLinkCount() {
+  return PriusVis<double>(0, "").num_poses();
+}
 
 // Returns the number of links present in the ignition::msgs::Model_V message
 // passed as a parameter.
@@ -88,7 +95,7 @@ void CheckModelLinks(const ignition::msgs::Model_V& message) {
 
   const ignition::msgs::Link& link = message.models(0).link(0);
 
-  EXPECT_EQ(link_count, PriusVis<double>(0, "").num_poses());
+  EXPECT_EQ(link_count, GetPriusLinkCount());
   EXPECT_EQ(link.name(), "chassis_floor");
 }
 
@@ -101,13 +108,21 @@ double GetXPosition(const ignition::msgs::Model_V& message, double y) {
   return link.pose().position().x();
 }
 
+}  // namespace
+
 /*****************************************************************************
  * Tests
  ****************************************************************************/
 
 // Fixture class for share configuration among all tests.
 // Define Setup() if you need to set env variables and the like
-class AutomotiveSimulatorTest : public ::testing::Test {};
+class AutomotiveSimulatorTest : public ::testing::Test {
+ protected:
+  const double kSmallTimeStep{0.01};
+  const double kLargeTimeStep{1.0};
+  const double kRealtimeFactor{10.};
+  const std::chrono::milliseconds kTimeoutMs{500};
+};
 
 // Tests GetScene to return the scene
 TEST_F(AutomotiveSimulatorTest, TestGetScene) {
@@ -159,16 +174,6 @@ TEST_F(AutomotiveSimulatorTest, BasicTest) {
 
 // Covers simple-car, Start and StepBy
 TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
-  ignition::msgs::SimpleCarState state_message;
-  std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
-      callback =
-          [&state_message](const ignition::msgs::SimpleCarState& ign_message) {
-            state_message = ign_message;
-          };
-
-  ignition::transport::Node node;
-
-  node.Subscribe<ignition::msgs::SimpleCarState>("agents/0/state", callback);
 
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
@@ -180,37 +185,43 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   EXPECT_EQ(id, 0);
 
   // Finish all initialization, so that we can test the post-init state.
-  simulator->Start();
+  simulator->Start(kRealtimeFactor);
 
   // Simulate an external system sending a driving command to the car at
   // full throttle
-  auto publisher =
-      node.Advertise<ignition::msgs::AutomotiveDrivingCommand>("teleop/0");
+  using ignition::msgs::AutomotiveDrivingCommand;
+  const std::string kTeleopTopicName{"teleop/0"};
+  ignition::transport::Node node;
+  auto publisher = node.Advertise<AutomotiveDrivingCommand>(kTeleopTopicName);
 
-  ignition::msgs::AutomotiveDrivingCommand ignMsg;
+  AutomotiveDrivingCommand ign_msg;
+  ign_msg.mutable_time()->set_sec(0);
+  ign_msg.mutable_time()->set_nsec(0);
+  ign_msg.set_acceleration(11.0);
+  ign_msg.set_theta(0);
+  publisher.Publish(ign_msg);
 
-  ignMsg.mutable_time()->set_sec(0);
-  ignMsg.mutable_time()->set_nsec(0);
-  ignMsg.set_acceleration(11.0);
-  ignMsg.set_theta(0);
+  // Set up a monitor to check for ignition::msgs::SimpleCarState
+  // messages coming from the agent.
+  const std::string kStateTopicName{"agents/0/state"};
+  test::IgnMonitor<ignition::msgs::SimpleCarState> ign_monitor(kStateTopicName);
 
-  publisher.Publish(ignMsg);
+  // Shortly after starting, we should have not have moved much.
+  const int kStateMessagesCount{1};
+  EXPECT_TRUE(ign_monitor.do_until(
+      kStateMessagesCount, kTimeoutMs,
+      [this, &simulator]() {
+        simulator->StepBy(kSmallTimeStep);
+      }));
 
-  // Shortly after starting, we should have not have moved much. Take two
-  // small steps so that we get a publish a small time after zero (publish
-  // occurs at the beginning of a step unless specific publishing times are
-  // set).
-  simulator->StepBy(0.005);
-  simulator->StepBy(0.005);
+  ignition::msgs::SimpleCarState state_message =
+      ign_monitor.get_last_message();
+  EXPECT_LT(state_message.x(), 0.1);
 
-  EXPECT_GT(state_message.x(), 0.0);
-  EXPECT_LT(state_message.x(), 0.001);
+  // Move a lot. Confirm that we're moving in +x.
+  simulator->StepBy(kLargeTimeStep);
 
-  // Move a lot.  Confirm that we're moving in +x.
-  for (int i = 0; i < 100; ++i) {
-    simulator->StepBy(0.01);
-  }
-
+  state_message = ign_monitor.get_last_message();
   EXPECT_GT(state_message.x(), 1.0);
 }
 
@@ -224,25 +235,28 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   const double kHeading{M_PI_2};
   const double kVelocity{4.5};
 
-  auto agent =
-      std::make_unique<delphyne::SimpleCar>("bob", kX, kY, kHeading, kVelocity);
+  auto agent = std::make_unique<delphyne::SimpleCar>(
+      "bob", kX, kY, kHeading, kVelocity);
   const int id = simulator->AddAgent(std::move(agent));
   EXPECT_EQ(id, 0);
 
-  ignition::msgs::SimpleCarState state_message;
-  std::function<void(const ignition::msgs::SimpleCarState& ign_message)>
-      callback =
-          [&state_message](const ignition::msgs::SimpleCarState& ign_message) {
-            state_message = ign_message;
-          };
+  // Set up a monitor to check for ignition::msgs::SimpleCarState
+  // messages coming from the agent.
+  const std::string kStateTopicName{"agents/0/state"};
+  test::IgnMonitor<ignition::msgs::SimpleCarState>
+      ign_monitor(kStateTopicName);
 
-  ignition::transport::Node node;
+  simulator->Start(kRealtimeFactor);
 
-  node.Subscribe<ignition::msgs::SimpleCarState>("agents/0/state", callback);
+  const int kStateMessagesCount{1};
+  EXPECT_TRUE(ign_monitor.do_until(
+      kStateMessagesCount, kTimeoutMs,
+      [this, &simulator]() {
+        simulator->StepBy(kSmallTimeStep);
+      }));
 
-  simulator->Start();
-  simulator->StepBy(1e-3);
-
+  const ignition::msgs::SimpleCarState state_message =
+      ign_monitor.get_last_message();
   EXPECT_EQ(state_message.x(), kX);
   EXPECT_EQ(state_message.y(), kY);
   EXPECT_EQ(state_message.heading(), kHeading);
@@ -253,8 +267,9 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   const drake::maliput::api::RoadGeometry* road_geometry{};
-  EXPECT_NO_THROW(road_geometry = simulator->SetRoadGeometry(
-                      CreateDragway("TestDragway", 2)););
+  EXPECT_NO_THROW({
+      road_geometry = simulator->SetRoadGeometry(
+          CreateDragway("TestDragway", 2));});
 
   // Create one MOBIL car and two stopped cars arranged as follows:
   //
@@ -296,31 +311,25 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   const int id_decoy2 = simulator->AddAgent(std::move(decoy_2));
   EXPECT_EQ(2, id_decoy2);
 
-  // Setup the an ignition callback to store the latest
-  // ignition::msgs::Model_V
-  // that is published to /visualizer/scene_update.
-  ignition::msgs::Model_V draw_message;
-
-  std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback =
-          [&draw_message](const ignition::msgs::Model_V& ign_message) {
-            draw_message = ign_message;
-          };
-
-  ignition::transport::Node node;
-
-  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
-                                          viewer_draw_callback);
+  // Setup an ignition transport topic monitor to listen to
+  // ignition::msgs::Model_V messages being published to
+  // the visualizer.
+  const std::string kDrawTopicName{"visualizer/scene_update"};
+  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
 
   // Finish all initialization, so that we can test the post-init state.
-  simulator->Start();
+  simulator->Start(kRealtimeFactor);
 
   // Advances the simulation to allow the MaliputRailcar to begin
   // accelerating.
-  simulator->StepBy(0.5);
+  simulator->StepBy(kLargeTimeStep);
 
-  EXPECT_EQ(GetLinkCount(draw_message),
-            3 * PriusVis<double>(0, "").num_poses());
+  // Ensures that at least one draw message has arrived.
+  const int kDrawMessagesCount{1};
+  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+
+  const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
+  EXPECT_EQ(GetLinkCount(draw_message), 3 * GetPriusLinkCount());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
   const double mobil_y =
@@ -360,35 +369,27 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
 
   EXPECT_EQ(0, id);
 
-  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /visualizer/scene_update.
-  ignition::msgs::Model_V draw_message;
+  // Setup an ignition transport topic monitor to listen to
+  // ignition::msgs::Model_V messages being published to
+  // the visualizer.
+  const std::string kDrawTopicName{"visualizer/scene_update"};
+  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
 
-  std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback =
-          [&draw_message](const ignition::msgs::Model_V& ign_message) {
-            draw_message = ign_message;
-          };
+  // Finish all initialization, so that we can test the post-init state.
+  simulator->Start(kRealtimeFactor);
 
-  ignition::transport::Node node;
+  // Simulate for 10 seconds.
+  simulator->StepBy(10.);
 
-  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
-                                          viewer_draw_callback);
+  // Ensures at least one draw message has arrived.
+  const int kDrawMessagesCount{1};
+  EXPECT_TRUE(ign_monitor.wait_until(
+      kDrawMessagesCount, kTimeoutMs));
 
-  //  // Finish all initialization, so that we can test the post-init state.
-  simulator->Start();
-  //
-  // Simulate for 10 seconds...as fast as possible
-  for (int i = 0; i < 1000; ++i) {
-    simulator->StepBy(0.01);
-    // std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
+  const ignition::msgs::Model_V draw_message =
+      ign_monitor.get_last_message();
 
-  // Plus two to include the world and road geometry
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 1 + 2;
-
-  // Minus one to omit world, which remains still.
-  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 2);
+  EXPECT_EQ(GetLinkCount(draw_message), GetPriusLinkCount());
 
   auto alice_model = draw_message.models(id);
 
@@ -401,10 +402,10 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   EXPECT_EQ(link.name(), "chassis_floor");
 
   EXPECT_NEAR(link.pose().position().x(),
-              // PriusVis<double>::kVisOffset + 30.00,
-              // ... doesn't exactly work because the trajectory agent is
-              // splining it's way along?
-              31.369480133056641, kPoseXTolerance);
+              // PriusVis<double>::kVisOffset + 30.00 won't work
+              // because the trajectory agent is splining it's
+              // way along.
+              31.409479141235352, kPoseXTolerance);
   EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
   EXPECT_NEAR(link.pose().position().z(), 0.37832599878311157, kTolerance);
   EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
@@ -468,38 +469,31 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
 
   EXPECT_GE(id, 0);
 
-  // Setup an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /visualizer/scene_update
-  ignition::msgs::Model_V draw_message;
+  // Setup an ignition transport topic monitor to listen to
+  // ignition::msgs::Model_V messages being published to
+  // the visualizer.
+  const std::string kDrawTopicName{"visualizer/scene_update"};
+  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
 
-  std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback =
-          [&draw_message](const ignition::msgs::Model_V& ign_message) {
-            draw_message = ign_message;
-          };
+  simulator->Start(kRealtimeFactor);
 
-  ignition::transport::Node node;
+  simulator->StepBy(kLargeTimeStep);
 
-  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
-                                          viewer_draw_callback);
+  // Ensures that at least one draw message has arrived.
+  const int kDrawMessagesCount{1};
+  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
 
-  simulator->Start();
+  // Retrieves last draw message.
+  const ignition::msgs::Model_V draw_message =
+      ign_monitor.get_last_message();
 
-  // Takes two steps to trigger the publishing of an LCM draw message.
-  simulator->StepBy(0.005);
-  simulator->StepBy(0.005);
-
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
-
-  const double initial_x = PriusVis<double>::kVisOffset;
   // Verifies the acceleration is zero.
-
   CheckModelLinks(draw_message);
 
   // The following tolerance was determined empirically.
   const double kPoseXTolerance{1e-4};
-
-  EXPECT_NEAR(GetXPosition(draw_message, k_offset), initial_x, kPoseXTolerance);
+  EXPECT_NEAR(GetXPosition(draw_message, k_offset),
+              PriusVis<double>::kVisOffset, kPoseXTolerance);
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
@@ -516,39 +510,16 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
   simulator->AddAgent(std::move(agent1));
   simulator->AddAgent(std::move(agent2));
 
-  // Setup the an ignition callback to store the latest ignition::msgs::Model_V
-  // that is published to /visualizer/scene_update
-  ignition::msgs::Model_V draw_message;
+  // Setup an ignition transport topic monitor to listen to
+  // ignition::msgs::Model_V messages being published to
+  // the visualizer.
+  const std::string kDrawTopicName{"visualizer/scene_update"};
+  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
 
-  // Condition variable for critical section.
-  std::condition_variable cv;
-  // Mutex for critical section.
-  std::mutex mtx;
+  simulator->Start(kRealtimeFactor);
 
-  // This counter keeps track of the number of times that the
-  // callback function has been called.
-  int num_of_callback_calls = 0;
-
-  std::function<void(const ignition::msgs::Model_V& ign_message)>
-      viewer_draw_callback = [&draw_message, &mtx, &cv, &num_of_callback_calls](
-          const ignition::msgs::Model_V& ign_message) {
-        std::unique_lock<std::mutex> lck(mtx);
-        draw_message = ign_message;
-        // Increases the counter to keep track of how
-        // many times the callback has been called.
-        num_of_callback_calls++;
-        // Notifies the main thread that the counter was increased.
-        cv.notify_one();
-      };
-
-  ignition::transport::Node node;
-
-  node.Subscribe<ignition::msgs::Model_V>("visualizer/scene_update",
-                                          viewer_draw_callback);
-
-  simulator->Start();
-
-  const std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
+  const std::unique_ptr<ignition::msgs::Scene> scene =
+      simulator->GetScene();
 
   int scene_link_count = 0;
   for (const ignition::msgs::Model& model : scene->model()) {
@@ -559,31 +530,23 @@ TEST_F(AutomotiveSimulatorTest, TestLcmOutput) {
     }
   }
 
-  // Plus two to include the world and road geometry
-  const int expected_num_links = PriusVis<double>(0, "").num_poses() * 2 + 2;
-  // Checks number of links in the robot message.
-  EXPECT_EQ(scene_link_count, expected_num_links);
+  // Checks number of links in the robot message, should be
+  // equal to the Prius link count plus world and road geometry.
+  EXPECT_EQ(scene_link_count, 2 * GetPriusLinkCount() + 2);
 
-  // Waits until the callback has been executed twice, as that
-  // ensures that draw_message will not be further changed.
-  const uint32_t kTimeoutMillis = 500;
-  std::unique_lock<std::mutex> lck(mtx);
-  while (num_of_callback_calls < 2) {
-    // Runs a single simulation step.
-    simulator->StepBy(1e-3);
-    // The condition variable will wait for the callback function to be
-    // notified or will raise a test assertion if the timeout time is reached.
-    // This prevents the test to fall into a possible deadlock state.
-    std::cv_status status =
-        cv.wait_for(lck, std::chrono::milliseconds(kTimeoutMillis));
-    if (status == std::cv_status::timeout) {
-      FAIL() << "Condition variable timed out after waiting for "
-             << kTimeoutMillis << "ms.";
-    }
-  }
+  // Takes a large step to for at least two draw messages to get
+  // published, as that ensures that draw_message will not be
+  // further changed.
+  simulator->StepBy(kLargeTimeStep);
+  const int kDrawMessagesCount{2};
+  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+
+  // Retrieves last draw message.
+  const ignition::msgs::Model_V draw_message =
+      ign_monitor.get_last_message();
 
   // Checks number of links in the viewer_draw message.
-  EXPECT_EQ(GetLinkCount(draw_message), expected_num_links - 2);
+  EXPECT_EQ(GetLinkCount(draw_message), 2 * GetPriusLinkCount());
 }
 
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
@@ -672,7 +635,7 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 
   // Advances the simulation to allow Alice to move at fixed
   // speed and Bob to not move.
-  simulator->StepBy(1);
+  simulator->StepBy(kLargeTimeStep);
 
   const int kAliceIndex{0};
   const int kBobIndex{1};

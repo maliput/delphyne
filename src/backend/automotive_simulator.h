@@ -141,13 +141,13 @@ class AutomotiveSimulator {
   double get_current_simulation_time() const;
 
  private:
-  // The rate at which the scene is published over ign-transport to update the
-  // scene tree widget tree.
-  const double kSceneTreePublishRateHz{4.0};
+  // The rate at which the scene is published over ignition transport to
+  // update the scene tree widget tree.
+  static constexpr double kSceneTreePublishRateHz{4.0};
 
-  // The rate at which model updates are published over ign-transport to
-  // update the scene itself.
-  const double kSceneUpdatePublishRateHz{60.0};
+  // The rate at which model updates are published over ignition transport
+  // to update the scene itself.
+  static constexpr double kSceneUpdatePublishRateHz{60.0};
 
   // Verifies that the provided `name` of an agent is unique among all agents
   // that have been added to the `AutomotiveSimulator`. Throws a

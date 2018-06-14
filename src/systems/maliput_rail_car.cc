@@ -30,6 +30,7 @@ using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LanePosition;
 using maliput::api::Rotation;
+using systems::AbstractValue;
 using systems::BasicVector;
 using systems::Context;
 using systems::ContinuousState;
@@ -101,7 +102,8 @@ MaliputRailCar<T>::MaliputRailCar(
       this->DeclareVectorOutputPort(&MaliputRailCar::CalcPose).get_index();
   velocity_output_port_index_ =
       this->DeclareVectorOutputPort(&MaliputRailCar::CalcVelocity).get_index();
-
+  this->DeclareAbstractState(
+      AbstractValue::Make<LaneDirection>(initial_lane_direction));
   this->DeclareContinuousState(initial_context_state);
   this->DeclareNumericParameter(initial_context_parameters);
 }
@@ -330,37 +332,8 @@ void MaliputRailCar<T>::ImplCalcTimeDerivatives(
 }
 
 template <typename T>
-std::unique_ptr<systems::AbstractValues>
-MaliputRailCar<T>::AllocateAbstractState() const {
-  std::vector<std::unique_ptr<systems::AbstractValue>> abstract_values;
-  const LaneDirection lane_direction;
-  abstract_values.push_back(std::unique_ptr<systems::AbstractValue>(
-      std::make_unique<systems::Value<LaneDirection>>(lane_direction)));
-  return std::make_unique<systems::AbstractValues>(std::move(abstract_values));
-}
-
-template <typename T>
 optional<bool> MaliputRailCar<T>::DoHasDirectFeedthrough(int, int) const {
   return false;
-}
-
-template <typename T>
-void MaliputRailCar<T>::SetDefaultState(const Context<T>& context,
-                                        State<T>* state) const {
-  // TODO(daniel.stonier): Looks like LeafSystem<T>::SetDefaultState
-  // handles continuous and discrete states, but does not handle
-  // abstract state. Might be worth pushing a PR upstream for that
-  // instead of having to have this 'hack' here. That might take
-  // some additional changes to use DeclareAbstractState though.
-
-  // Let LeafSystem handle the continuous state
-  systems::LeafSystem<T>::SetDefaultState(context, state);
-  // Handle the abstract state ourselves
-  LaneDirection& lane_direction =
-      state->get_mutable_abstract_state()
-          .get_mutable_value(0)
-          .template GetMutableValue<LaneDirection>();
-  lane_direction = initial_lane_direction_;
 }
 
 // TODO(liang.fok): Switch to guard functions once they are available. The

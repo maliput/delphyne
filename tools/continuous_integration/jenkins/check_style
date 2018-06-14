@@ -1,7 +1,16 @@
 #!/bin/bash
 
-set -euo pipefail
+set -e
 
-./tools/run_cpplint.sh
-./tools/run_python_checks.sh
+CPPLINT_EXIT=0
+PYCHECKS_EXIT=0
 
+printf "\nRunning C++ checks:\n"
+./tools/run_cpplint.sh || CPPLINT_EXIT=$?
+
+printf "\nRunning Python checks:\n"
+./tools/run_python_checks.sh || PYCHECKS_EXIT=$?
+
+EXIT=0
+[ "$CPPLINT_EXIT" -ne 0 ] || [ "$PYCHECKS_EXIT" -ne 0 ] && EXIT=1
+exit $EXIT

@@ -89,3 +89,4 @@ def create_argparse_epilog():
         msg = "And his noodly appendage reached forth to "\
               "tickle the blessed...\n"
         return console.CYAN + msg + console.RESET
+    return ""

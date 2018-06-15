@@ -1,13 +1,12 @@
+
 // Copyright 2018 Toyota Research Institute
 
 #include "backend/ign_publisher_system.h"
 
 #include <chrono>
-#include <string>
-#include <thread>
 
 #include <drake/systems/analysis/simulator.h>
-#include <drake/systems/framework/diagram_builder.h>
+#include <drake/systems/framework/value.h>
 
 #include <gtest/gtest.h>
 
@@ -16,102 +15,82 @@
 #include "helpers.h"
 
 namespace delphyne {
+namespace {
 
 class IgnPublisherSystemTest : public ::testing::Test {
-  void SubscriberMockCallback(const ignition::msgs::Model_V& message) {
-    ign_msg_ = message;
-    handler_called_count_++;
-  }
-
- public:
-  // Ignition transport node.
-  ignition::transport::Node node_;
-
-  // Callback count.
-  int handler_called_count_ = -1;
-
-  // The received message.
-  ignition::msgs::Model_V ign_msg_;
-
-  const std::string kTopicName = "visualizer/scene_update";
-
-  void SetUp() override {
-    handler_called_count_ = 0;
-
-    node_.Subscribe(kTopicName, &IgnPublisherSystemTest::SubscriberMockCallback,
-                    this);
-  }
+ protected:
+  // Ignition transport topic name to subscribe/publish to.
+  const std::string kTopicName{"visualizer/scene_update"};
+  // Dummy ignition message for testing purposes.
+  const ignition::msgs::Model_V kIgnMsg{
+    test::BuildPreloadedModelVMsg()};
+  const std::chrono::milliseconds kTimeoutMs{100};
 };
 
 // Creates an Ignition Publisher System and publish a message, then checks that
 // it has been correctly received.
-TEST_F(IgnPublisherSystemTest, PublishTest) {
+TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
+  // Sets up publisher system and monitor subscription.
   IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName);
+  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
 
-  std::unique_ptr<drake::systems::Context<double>> context =
-      ign_publisher.CreateDefaultContext();
-
-  // Fills the ign message with sample data.
-  const ignition::msgs::Model_V ign_msg = test::BuildPreloadedModelVMsg();
+  // Creates a simulator to work with the publisher.
+  drake::systems::Simulator<double> simulator(
+      ign_publisher, ign_publisher.CreateDefaultContext());
 
   // Configures context's input with the pre-loaded message.
-  context->FixInputPort(
-      0, std::make_unique<drake::systems::Value<ignition::msgs::Model_V>>(
-             ign_msg));
+  simulator.get_mutable_context().FixInputPort(
+      0, drake::systems::AbstractValue::Make(kIgnMsg));
 
-  // Makes the IgnPublisherSystem to publish the message.
-  ign_publisher.Publish(*context.get());
+  // Simulates for a small time period.
+  simulator.Initialize();
+  const double kPublishDeadline{0.1};
+  simulator.StepTo(kPublishDeadline);
 
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  // Checks that the correct amount of messages have been published.
+  const int kMessagesToPublish = simulator.get_num_steps_taken();
+  ASSERT_TRUE(ign_monitor.wait_until(kMessagesToPublish, kTimeoutMs));
 
-  // Checks that ignition-transport topic callback has been called.
-  ASSERT_EQ(1, handler_called_count_);
-
-  // Verifies the equivalence of the original lcm message and
-  // the received ignition-transport message.
-  EXPECT_TRUE(test::CheckProtobufMsgEquality(ign_msg, ign_msg_));
+  // Verifies the equivalence of the original ignition message
+  // and the received one.
+  EXPECT_TRUE(test::CheckProtobufMsgEquality(
+      kIgnMsg, ign_monitor.get_last_message()));
 }
 
 // Creates an Ignition Publisher System and publish a message repeatedly at a
 // low frequency, then checks that it has been received the correct amount of
 // times.
 TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
-  const double kPublishPeriodMs = 250.0;
-  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName,
-                                                            kPublishPeriodMs);
+  const double kPublishRateHz{4.0};
+  // Sets up publisher system and monitor subscription.
+  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(
+      kTopicName, kPublishRateHz);
+  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
 
-  std::unique_ptr<drake::systems::Context<double>> context =
-      ign_publisher.CreateDefaultContext();
-
-  // Fills the ign message with sample data.
-  const ignition::msgs::Model_V ign_msg = test::BuildPreloadedModelVMsg();
+  // Creates a simulator to work with the publisher.
+  drake::systems::Simulator<double> simulator(
+      ign_publisher, ign_publisher.CreateDefaultContext());
 
   // Configures context's input with the pre-loaded message.
-  context->FixInputPort(
-      0, std::make_unique<drake::systems::Value<ignition::msgs::Model_V>>(
-             ign_msg));
+  simulator.get_mutable_context().FixInputPort(
+      0, drake::systems::AbstractValue::Make(kIgnMsg));
 
-  const int kMessagesToPublish = 4;
-  // The first message is published immediately, so we need to wait a little bit
-  // more than the period times the number of messages, minus one.
-  const std::chrono::duration<double, std::milli> kPublishingTime{
-      kPublishPeriodMs * 1.1 * (kMessagesToPublish - 1)};
+  // Simulates enough for the expected message count to get
+  // published.
+  simulator.Initialize();
+  const int kMessagesToPublish{5};
+  const double kPublishDeadline =
+      kMessagesToPublish / kPublishRateHz;
+  simulator.StepTo(kPublishDeadline);
 
-  // Since the Drake simulator is not running, we need to call Publish on our
-  // own, simulating the simulator.
-  const std::chrono::time_point<std::chrono::steady_clock> start =
-      std::chrono::steady_clock::now();
-  auto now = start;
+  // Checks that the correct amount of messages have been published.
+  ASSERT_TRUE(ign_monitor.wait_until(kMessagesToPublish, kTimeoutMs));
 
-  do {
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    ign_publisher.Publish(*context.get());
-
-    now = std::chrono::steady_clock::now();
-  } while ((now - start) < kPublishingTime);
-
-  // Checks the correct amount of messages have been published.
-  ASSERT_EQ(kMessagesToPublish, handler_called_count_);
+  // Verifies the equivalence of the original ignition message
+  // and the received one.
+  EXPECT_TRUE(test::CheckProtobufMsgEquality(
+      kIgnMsg, ign_monitor.get_last_message()));
 }
 
+}  // namespace
 }  // namespace delphyne

@@ -2,6 +2,10 @@
 
 #pragma once
 
+#include <condition_variable>
+#include <chrono>
+#include <mutex>
+
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/rendering/pose_bundle.h>
@@ -11,6 +15,7 @@
 #include <gtest/gtest.h>
 
 #include <ignition/msgs.hh>
+#include <ignition/transport.hh>
 
 namespace delphyne {
 namespace test {
@@ -117,6 +122,93 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 ::testing::AssertionResult CheckProtobufMsgEquality(
     const google::protobuf::MessageLite& lhs,
     const google::protobuf::MessageLite& rhs);
+
+// A helper class to monitor publications over an ignition
+// transport topic.
+//
+// @tparam IGN_TYPE A valid ignition message type.
+template <typename IGN_TYPE, typename std::enable_if<
+                               std::is_base_of<
+                                 ignition::transport::ProtoMsg, IGN_TYPE
+                                 >::value, int>::type = 0>
+class IgnMonitor {
+ public:
+  // Constructs a monitor for the given topic.
+  // @param topic_name Valid ignition transport topic name.
+  explicit IgnMonitor(const std::string& topic_name) {
+    node_.Subscribe(topic_name, &IgnMonitor::OnTopicMessage, this);
+  }
+
+  // Returns the last received message.
+  IGN_TYPE get_last_message() const {
+    std::lock_guard<std::mutex> guard(mutex_);
+    return last_message_;
+  }
+
+  // Returns the count of messages received.
+  int get_message_count() const {
+    std::lock_guard<std::mutex> guard(mutex_);
+    return message_count_;
+  }
+
+  // Waits for at least @p message_count messages to have arrived,
+  // with a given @p timeout.
+  //
+  // @param message_count Count of messages to wait for.
+  // @param timeout Timeout for the wait.
+  // @return Whether the wait succeeded or not (i.e. it timed out).
+  template <typename R, typename P>
+  bool wait_until(int message_count,
+                  std::chrono::duration<R, P> timeout) const {
+    return do_until(message_count, timeout, []{});
+  }
+
+  // Waits for at least @p message_count messages to have arrived,
+  // with a given @p timeout, while performing the given @p procedure.
+  //
+  // @param message_count Count of messages to wait for.
+  // @param timeout Timeout for the wait.
+  // @param procedure Callable to execute within the wait loop
+  //                  (upon message arrival)
+  // @return Whether the wait succeeded or not (i.e. it timed out).
+  template <typename R, typename P>
+  bool do_until(int message_count,
+                std::chrono::duration<R, P> timeout,
+                std::function<void()> procedure) const {
+    std::unique_lock<std::mutex> guard(mutex_);
+    while (message_count_ < message_count) {
+      procedure();
+      if (cv_.wait_for(guard, timeout)
+          == std::cv_status::timeout) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+ private:
+  // Ignition subscriber callback, updating state
+  // and notify all threads waiting on this instance.
+  //
+  // @param message Message received.
+  void OnTopicMessage(const IGN_TYPE& message) {
+    std::lock_guard<std::mutex> guard(mutex_);
+    last_message_ = message;
+    message_count_++;
+    cv_.notify_all();
+  }
+
+  // Ignition transport node for subscription.
+  ignition::transport::Node node_{};
+  // Received message count.
+  int message_count_{0};
+  // Last ignition message received.
+  IGN_TYPE last_message_{};
+  // Mutex to synchronize state read/write operations.
+  mutable std::mutex mutex_{};
+  // Condition variable for state blocking checks.
+  mutable std::condition_variable cv_{};
+};
 
 }  // namespace test
 }  // namespace delphyne

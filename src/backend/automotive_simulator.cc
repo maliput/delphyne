@@ -271,7 +271,7 @@ void AutomotiveSimulator<T>::Build() {
   // same frequency the simulation runs at, the publishing frequency is reduced.
   auto scene_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
-          "scene", kScenePublishPeriodMs);
+          "scene", kSceneTreePublishRateHz);
   builder_->Connect(*scene_system_, *scene_publisher);
 
   pose_bundle_output_port_ =

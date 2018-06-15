@@ -12,5 +12,7 @@ printf "\nRunning Python checks:\n"
 ./tools/run_python_checks.sh || PYCHECKS_EXIT=$?
 
 EXIT=0
-[ "$CPPLINT_EXIT" -ne 0 ] || [ "$PYCHECKS_EXIT" -ne 0 ] && EXIT=1
+if [ "$CPPLINT_EXIT" -ne 0 ] || [ "$PYCHECKS_EXIT" -ne 0 ] ; then
+  EXIT=1
+fi
 exit $EXIT

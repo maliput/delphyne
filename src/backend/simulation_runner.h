@@ -238,8 +238,11 @@ class SimulatorRunner {
     return simulator_->get_current_simulation_time();
   }
 
-  /// @brief Returns the collected interactive simulation statistics
-  const InteractiveSimulationStats& get_stats() const { return stats_; }
+  /// @brief Returns a copy of the collected interactive simulation statistics
+  InteractiveSimulationStats get_stats() const {
+    std::lock_guard<std::mutex> lock(stats_mutex_);
+    return stats_;
+  }
 
   // @brief The service offered to control the simulation.
   static constexpr char const* kControlService = "/world_control";
@@ -392,7 +395,7 @@ class SimulatorRunner {
 
   // @brief Mutex to avoid calling SetupNewRunStats simultaneously from
   // different threads.
-  std::mutex stats_mutex_;
+  mutable std::mutex stats_mutex_;
 };
 
 }  // namespace delphyne

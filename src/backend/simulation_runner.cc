@@ -238,14 +238,20 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 void SimulatorRunner::StepSimulationBy(double time_step) {
   simulator_->StepBy(time_step);
 
-  stats_.StepExecuted(simulator_->get_current_simulation_time());
+  {
+    std::lock_guard<std::mutex> lock(stats_mutex_);
+    stats_.StepExecuted(simulator_->get_current_simulation_time());
+  }
 
   // Return if running at full speed
   if (realtime_rate_ == 0) {
     return;
   }
 
+  stats_mutex_.lock();
   const TimePoint expected_realtime = stats_.CurrentStepExpectedRealtimeEnd();
+  stats_mutex_.unlock();
+
   if (expected_realtime > RealtimeClock::now()) {
     std::this_thread::sleep_until(expected_realtime);
   }
@@ -321,7 +327,10 @@ void SimulatorRunner::SendWorldStats() {
 
   ignition::msgs::WorldStatistics msg;
   msg.set_paused(paused_);
-  msg.set_real_time_factor(stats_.get_current_realtime_rate());
+  {
+    std::lock_guard<std::mutex> lock(stats_mutex_);
+    msg.set_real_time_factor(stats_.get_current_realtime_rate());
+  }
 
   // TODO(caguero): Fill other fields when relevant.
 

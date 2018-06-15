@@ -122,11 +122,6 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
       systems::ContinuousState<T>* derivatives) const override;
 
   // LeafSystem<T> overrides.
-  void SetDefaultState(const systems::Context<T>& context,
-                       systems::State<T>* state) const override;
-
-  std::unique_ptr<systems::AbstractValues> AllocateAbstractState()
-      const override;
   optional<bool> DoHasDirectFeedthrough(int, int) const override;
   void DoCalcNextUpdateTime(const systems::Context<T>& context,
                             systems::CompositeEventCollection<T>*,

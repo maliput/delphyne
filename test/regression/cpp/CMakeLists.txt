@@ -19,8 +19,9 @@ target_link_libraries(test_helpers
   gtest
   gtest_main
   public_headers
-  ${drake_LIBRARIES}
-  ${IGNITION-MSGS_LIBRARIES}
+  drake::drake
+  ignition-msgs2::ignition-msgs2
+  ignition-transport5::ignition-transport5
 )
 
 ##############################################################################

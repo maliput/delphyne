@@ -1,0 +1,14 @@
+// Copyright 2017 Toyota Research Institute
+
+#pragma once
+
+/*****************************************************************************
+** Macros
+*****************************************************************************/
+
+#define DELPHYNE_MAJOR_VERSION ${PROJECT_MAJOR_VERSION}
+#define DELPHYNE_MINOR_VERSION ${PROJECT_MINOR_VERSION}
+#define DELPHYNE_PATCH_VERSION ${PROJECT_PATCH_VERSION}
+
+#define DELPHYNE_VERSION "${PROJECT_VERSION}"
+#define DELPHYNE_VERSION_FULL "${PROJECT_VERSION_FULL}"

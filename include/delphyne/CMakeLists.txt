@@ -1,16 +1,23 @@
 ##############################################################################
-# Header Library
+# Configured
 ##############################################################################
 
-# TODO(daniel.stonier) : Consider keeping it simple and exporting a single
-# delphyne target. Caveat: might want to split concerns
-# between developers and visualiser requirements.
+configure_file(version.h.in
+  ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/version.h
+)
 
-add_library(public_headers INTERFACE) # should list the headers here?
+##############################################################################
+# Targets
+##############################################################################
+
+# Can this be handled so that the interface library is exactly the headers
+# we designate (in the install)?
+add_library(public_headers INTERFACE)
 
 target_include_directories(
   public_headers
   INTERFACE
+    $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
 )
@@ -20,17 +27,22 @@ target_link_libraries(public_headers
     drake::drake
 )
 
-# Install files
+##############################################################################
+# Installs
+##############################################################################
+
+# Files
 install(
   FILES
     agent_base.h
     macros.h
     types.h
+    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/version.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
 )
 
-# Install the exported target
+# Exports
 install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets)
 
 ##############################################################################

@@ -19,7 +19,7 @@ target_include_directories(
   INTERFACE
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
+    $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(public_headers
@@ -39,7 +39,7 @@ install(
     types.h
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/version.h
   DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
+    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
 # Exports

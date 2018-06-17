@@ -50,44 +50,6 @@ macro (BUILD_WARNING)
 endmacro (BUILD_WARNING)
 
 #################################################
-macro (delphyne_add_library _name)
-  # Not defining STATIC or SHARED will use BUILD_SHARED_LIBS variable
-  add_library(${_name} ${ARGN})
-  target_link_libraries (${_name} ${general_libraries})
-endmacro ()
-
-#################################################
-macro (delphyne_add_static_library _name)
-  add_library(${_name} STATIC ${ARGN})
-  target_link_libraries (${_name} ${general_libraries})
-endmacro ()
-
-#################################################
-macro (delphyne_add_executable _name)
-  add_executable(${_name} ${ARGN})
-  target_link_libraries (${_name} ${general_libraries})
-endmacro ()
-
-
-#################################################
-macro (delphyne_install_includes _subdir)
-  install(FILES ${ARGN} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${_subdir} COMPONENT headers)
-endmacro()
-
-#################################################
-macro (delphyne_install_library _name)
-  set_target_properties(${_name} PROPERTIES SOVERSION ${PROJECT_MAJOR_VERSION} VERSION ${PROJECT_VERSION_FULL})
-  install (TARGETS ${_name} DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT shlib)
-endmacro ()
-
-#################################################
-macro (delphyne_install_executable _name)
-  set_target_properties(${_name} PROPERTIES VERSION ${PROJECT_VERSION_FULL})
-  install (TARGETS ${_name} DESTINATION ${CMAKE_INSTALL_BINDIR})
-  manpage(${_name} 1)
-endmacro ()
-
-#################################################
 # Macro to setup supported compiler warnings
 # Based on work of Florent Lamiraux, Thomas Moulard, JRL, CNRS/AIST.
 include(CheckCXXCompilerFlag)

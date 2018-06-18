@@ -61,20 +61,18 @@ PYBIND11_MODULE(simulation, m) {
            "Load the simulator and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused.",
-           py::arg("simulator"), py::arg("time_step"),
-           py::arg("paused"))
+           py::arg("simulator"), py::arg("time_step"), py::arg("paused"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
                     double>(),
-                    "Load the simulator and initialise it to run"
-                    "at the specified time step and realtime rate.",
-                    py::arg("simulator"), py::arg("time_step"),
-                    py::arg("realtime_rate"))
+           "Load the simulator and initialise it to run"
+           "at the specified time step and realtime rate.",
+           py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
                     double, bool>(),
            "Load the simulator and initialise time step, realtime rate"
            "and whether you wish the simulation to start paused.",
-            py::arg("simulator"), py::arg("time_step"),
-            py::arg("realtime_rate"), py::arg("paused"))
+           py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"),
+           py::arg("paused"))
       .def("set_realtime_rate", &SimulatorRunner::SetRealtimeRate)
       .def("get_realtime_rate", &SimulatorRunner::GetRealtimeRate)
       .def("start", &SimulatorRunner::Start)

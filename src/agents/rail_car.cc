@@ -65,61 +65,56 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
   igndbg << "RailCar constructor" << std::endl;
 }
 
-int RailCar::Configure(
+void RailCar::Configure(
     int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
     drake::geometry::SceneGraph<double>* scene_graph,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
-  DELPHYNE_DEMAND(builder != nullptr);
-  DELPHYNE_DEMAND(scene_graph != nullptr);
-  DELPHYNE_DEMAND(aggregator != nullptr);
-  DELPHYNE_DEMAND(car_vis_applicator != nullptr);
   igndbg << "RailCar configure" << std::endl;
+
+  /*********************
+   * Checks
+   *********************/
+  DELPHYNE_VALIDATE(builder != nullptr, std::invalid_argument,
+                    "Builder must not be null");
+  DELPHYNE_VALIDATE(scene_graph != nullptr, std::invalid_argument,
+                    "Scene graph must not be null");
+  DELPHYNE_VALIDATE(aggregator != nullptr, std::invalid_argument,
+                    "Aggregator must not be null");
+  DELPHYNE_VALIDATE(car_vis_applicator != nullptr, std::invalid_argument,
+                    "Car visualization applicator must not be null");
+  DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
+                    "Rail cars need a road geometry to drive on, make "
+                    "sure the simulation is configured with one.");
+
+  DELPHYNE_VALIDATE(initial_parameters_.lane.segment(), std::runtime_error,
+                    "The lane to be initialised on is not part of a "
+                    "road segment (subsequently road geometry).");
+  DELPHYNE_VALIDATE(initial_parameters_.lane.segment()->junction(),
+                    std::runtime_error,
+                    "The lane to be initialised on is not connected to "
+                    "a junction (subsequently road geometry).");
+  DELPHYNE_VALIDATE(
+      initial_parameters_.lane.segment()->junction()->road_geometry(),
+      std::runtime_error,
+      "The lane to be initialised on is not part of a road geometry.");
+  DELPHYNE_VALIDATE(
+      initial_parameters_.lane.segment()->junction()->road_geometry()->id() ==
+          road_geometry->id(),
+      std::runtime_error,
+      "The provided initial lane is not on the same road geometry as that used "
+      "by the simulation");
+  DELPHYNE_VALIDATE(
+      maliput::FindLane(initial_parameters_.lane.id(), *road_geometry),
+      std::runtime_error,
+      "The provided initial lane is not within this simulation's "
+      "RoadGeometry.");
 
   /*********************
    * Basics
    *********************/
   id_ = id;
-
-  /*********************
-   * Checks
-   *********************/
-  if (!road_geometry) {
-    ignerr << "Rail cars need a road geometry to drive on, make sure "
-           << "the simulation is configured with one." << std::endl;
-    return -1;
-  }
-  if (!initial_parameters_.lane.segment()) {
-    ignerr << "The lane to be initialised on is not part of a road segment "
-           << "(subsequently road geometry)." << std::endl;
-    return -1;
-  }
-  if (!initial_parameters_.lane.segment()->junction()) {
-    ignerr << "The lane to be initialised on is not connected to a junction "
-           << "(subsequently road geometry)." << std::endl;
-    return -1;
-  }
-  if (!initial_parameters_.lane.segment()->junction()->road_geometry()) {
-    ignerr << "The lane to be initialised on is not part of a road geometry."
-           << std::endl;
-    return -1;
-  }
-  if (initial_parameters_.lane.segment()->junction()->road_geometry()->id() !=
-      road_geometry->id()) {
-    ignerr << "RailCar::Configure(): "
-              "The provided initial lane is not on the same road geometry "
-              "as that used by the simulation"
-           << std::endl;
-    return -1;
-  }
-  if (!maliput::FindLane(initial_parameters_.lane.id(), *road_geometry)) {
-    ignerr << "RailCar::Configure(): "
-              "The provided initial lane is not within this simulation's "
-              "RoadGeometry."
-           << std::endl;
-    return -1;
-  }
 
   /******************************************
    * Initial Context Variables
@@ -201,8 +196,6 @@ int RailCar::Configure(
 
   // And then the translated ignition car state is published.
   builder->Connect(*agent_state_translator, *agent_state_publisher_system);
-
-  return 0;
 }
 
 }  // namespace delphyne

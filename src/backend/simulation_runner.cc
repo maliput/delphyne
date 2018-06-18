@@ -62,7 +62,8 @@ SimulatorRunner::SimulatorRunner(
       simulator_(std::move(sim)),
       realtime_rate_(realtime_rate),
       paused_(paused) {
-  DELPHYNE_DEMAND(realtime_rate >= 0.);
+  DELPHYNE_VALIDATE(realtime_rate >= 0.0, std::invalid_argument,
+                    "Realtime rate must be >= 0.0");
 
   // Advertises the service for controlling the simulation.
   node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
@@ -124,12 +125,14 @@ SimulatorRunner::~SimulatorRunner() {
 }
 
 void SimulatorRunner::PauseSimulation() {
-  DELPHYNE_DEMAND(!paused_);
+  DELPHYNE_VALIDATE(!paused_, std::runtime_error,
+                    "Cannot pause already paused simulation");
   paused_ = true;
 }
 
 void SimulatorRunner::UnpauseSimulation() {
-  DELPHYNE_DEMAND(paused_);
+  DELPHYNE_VALIDATE(paused_, std::runtime_error,
+                    "Cannot unpause already running simulation");
 
   // If there are any pending step requests, erase them
   steps_requested_ = 0;
@@ -149,7 +152,8 @@ void SimulatorRunner::Start() {
 }
 
 void SimulatorRunner::Stop() {
-  DELPHYNE_DEMAND(interactive_loop_running_);
+  DELPHYNE_VALIDATE(interactive_loop_running_, std::runtime_error,
+                    "Cannot stop a simulation that is not running");
 
   // If there are any pending step requests, erase them
   steps_requested_ = 0;
@@ -159,7 +163,8 @@ void SimulatorRunner::Stop() {
 
 void SimulatorRunner::RunAsyncFor(double duration,
                                   std::function<void()> callback) {
-  DELPHYNE_DEMAND(!interactive_loop_running_);
+  DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error,
+                    "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
   main_thread_ = std::thread([this, duration, callback]() {
     this->RunInteractiveSimulationLoopFor(duration, callback);
@@ -167,15 +172,18 @@ void SimulatorRunner::RunAsyncFor(double duration,
 }
 
 void SimulatorRunner::RunSyncFor(double duration) {
-  DELPHYNE_DEMAND(!interactive_loop_running_);
+  DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error,
+                    "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
   this->RunInteractiveSimulationLoopFor(duration, [] {});
 }
 
 void SimulatorRunner::RunInteractiveSimulationLoopFor(
     double duration, std::function<void()> callback) {
-  DELPHYNE_DEMAND(duration >= 0);
-  DELPHYNE_DEMAND(callback != nullptr);
+  DELPHYNE_VALIDATE(duration >= 0.0, std::invalid_argument,
+                    "Duration must be >= 0.0");
+  DELPHYNE_VALIDATE(callback != nullptr, std::invalid_argument,
+                    "Callback must not be null");
 
   SetupNewRunStats();
 
@@ -258,9 +266,11 @@ void SimulatorRunner::SetupNewRunStats() {
 }
 
 void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {
-  DELPHYNE_DEMAND(interactive_loop_running_);
-  DELPHYNE_DEMAND(paused_);
-  DELPHYNE_DEMAND(steps > 0);
+  DELPHYNE_VALIDATE(steps > 0, std::invalid_argument, "Steps must be > 0");
+  DELPHYNE_VALIDATE(interactive_loop_running_, std::runtime_error,
+                    "Cannot step a simulation that is not yet running");
+  DELPHYNE_VALIDATE(paused_, std::runtime_error,
+                    "Cannot step a simulation that is not paused");
 
   SetupNewRunStats();
 
@@ -268,7 +278,8 @@ void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {
 }
 
 void SimulatorRunner::SetRealtimeRate(double realtime_rate) {
-  DELPHYNE_DEMAND(realtime_rate >= 0.);
+  DELPHYNE_VALIDATE(realtime_rate >= 0.0, std::invalid_argument,
+                    "Realtime rate must be >= 0.0");
   realtime_rate_ = realtime_rate;
   SetupNewRunStats();
 }

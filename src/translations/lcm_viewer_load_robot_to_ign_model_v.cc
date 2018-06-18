@@ -13,7 +13,8 @@ namespace delphyne {
 void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
     const drake::lcmt_viewer_load_robot& lcm_message,
     ignition::msgs::Model_V* ign_message, int64_t time) const {
-  DELPHYNE_DEMAND(ign_message != nullptr);
+  DELPHYNE_VALIDATE(ign_message != nullptr, std::invalid_argument,
+                    "Ignition message pointer must not be null");
 
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation

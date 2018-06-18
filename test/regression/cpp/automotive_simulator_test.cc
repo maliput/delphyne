@@ -174,7 +174,6 @@ TEST_F(AutomotiveSimulatorTest, BasicTest) {
 
 // Covers simple-car, Start and StepBy
 TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
-
   // Set up a basic simulation with just a Prius SimpleCar.
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
@@ -430,8 +429,9 @@ TEST_F(AutomotiveSimulatorTest, TestBadRailcars) {
       0.0,   // speed
       0.0    // nominal_speed
       );
-  const int id1 = simulator->AddAgent(std::move(agent_1));
-  EXPECT_LT(id1, 0);
+  EXPECT_ARGUMENT_THROW(simulator->AddAgent(std::move(agent_1)),
+                        "Rail cars need a road geometry to drive on, make sure "
+                        "the simulation is configured with one.");
 
   // sim is using a different road geometry
   simulator->SetRoadGeometry(std::move(dragway));
@@ -445,9 +445,9 @@ TEST_F(AutomotiveSimulatorTest, TestBadRailcars) {
       0.0,   // speed
       0.0    // nominal_speed
       );
-  const int id2 = simulator->AddAgent(std::move(agent_2));
-
-  EXPECT_LT(id2, 0);
+  EXPECT_RUNTIME_THROW(simulator->AddAgent(std::move(agent_2)),
+                       "The provided initial lane is not on the same road "
+                       "geometry as that used by the simulation");
 }
 
 // Covers railcar behavior.
@@ -561,7 +561,9 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto agent2 =
       std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
   EXPECT_NO_THROW(simulator->AddAgent(std::move(agent1)));
-  EXPECT_THROW(simulator->AddAgent(std::move(agent2)), std::runtime_error);
+  EXPECT_RUNTIME_THROW(
+      simulator->AddAgent(std::move(agent2)),
+      "An agent named \"Model1\" already exists. It has id 0.");
 
   auto agent_1 = std::make_unique<delphyne::RailCar>(
       "FOO", *(road_geometry->junction(0)->segment(0)->lane(0)),
@@ -591,7 +593,8 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
       0.0,   // speed
       5.0    // nominal_speed
       );
-  EXPECT_THROW(simulator->AddAgent(std::move(agent_3)), std::runtime_error);
+  EXPECT_RUNTIME_THROW(simulator->AddAgent(std::move(agent_3)),
+                       "An agent named \"alice\" already exists. It has id 2.");
 }
 
 // Verifies that the velocity outputs of the rail cars are connected to

@@ -85,7 +85,8 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[out] ign_position The ignition position message.
   static void PositionArrayToIgnition(const float position[3],
                                       ignition::msgs::Vector3d* ign_position) {
-    DELPHYNE_DEMAND(ign_position != nullptr);
+    DELPHYNE_VALIDATE(ign_position != nullptr, std::invalid_argument,
+                      "Ignition vector pointer must not be null");
 
     ign_position->set_x(position[0]);
     ign_position->set_y(position[1]);
@@ -99,7 +100,8 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[out] ign_quaternion The ign quaternion message.
   static void QuaternionArrayToIgnition(
       const float quaternion[4], ignition::msgs::Quaternion* ign_quaternion) {
-    DELPHYNE_DEMAND(ign_quaternion != nullptr);
+    DELPHYNE_VALIDATE(ign_quaternion != nullptr, std::invalid_argument,
+                      "Ignition quaternion pointer must not be null");
 
     ign_quaternion->set_w(quaternion[0]);
     ign_quaternion->set_x(quaternion[1]);
@@ -114,7 +116,8 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[out] ign_color The ign color message.
   static void LcmColorToIgnition(const float lcm_color[4],
                                  ignition::msgs::Color* ign_color) {
-    DELPHYNE_DEMAND(ign_color != nullptr);
+    DELPHYNE_VALIDATE(ign_color != nullptr, std::invalid_argument,
+                      "Ignition color pointer must not be null");
 
     ign_color->set_r(lcm_color[0]);
     ign_color->set_g(lcm_color[1]);
@@ -170,8 +173,12 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[out] ign_color The ign box geometry.
   static void LcmBoxToIgnition(const drake::lcmt_viewer_geometry_data& lcm_box,
                                ignition::msgs::BoxGeom* ign_box) {
-    DELPHYNE_DEMAND(lcm_box.type == drake::lcmt_viewer_geometry_data::BOX);
-    DELPHYNE_DEMAND(ign_box != nullptr);
+    DELPHYNE_VALIDATE(
+        lcm_box.type == drake::lcmt_viewer_geometry_data::BOX,
+        std::invalid_argument,
+        "LCM geometry data expected to be a BOX");
+    DELPHYNE_VALIDATE(ign_box != nullptr, std::invalid_argument,
+                      "Ignition box pointer must not be null");
     if (lcm_box.num_float_data != 3) {
       throw TranslateException(
           "Expected 3 float elements for box translation, but got " +
@@ -192,9 +199,12 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   static void LcmSphereToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_sphere,
       ignition::msgs::SphereGeom* ign_sphere) {
-    DELPHYNE_DEMAND(lcm_sphere.type ==
-                    drake::lcmt_viewer_geometry_data::SPHERE);
-    DELPHYNE_DEMAND(ign_sphere != nullptr);
+    DELPHYNE_VALIDATE(
+        lcm_sphere.type == drake::lcmt_viewer_geometry_data::SPHERE,
+        std::invalid_argument,
+        "LCM geometry data expected to be a SPHERE");
+    DELPHYNE_VALIDATE(ign_sphere != nullptr, std::invalid_argument,
+                      "Ignition sphere pointer must not be null");
     if (lcm_sphere.num_float_data != 1) {
       throw TranslateException(
           "Expected 1 float element for sphere translation, but got " +
@@ -212,9 +222,12 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   static void LcmCylinderToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_cylinder,
       ignition::msgs::CylinderGeom* ign_cylinder) {
-    DELPHYNE_DEMAND(lcm_cylinder.type ==
-                    drake::lcmt_viewer_geometry_data::CYLINDER);
-    DELPHYNE_DEMAND(ign_cylinder != nullptr);
+    DELPHYNE_VALIDATE(
+        lcm_cylinder.type == drake::lcmt_viewer_geometry_data::CYLINDER,
+        std::invalid_argument,
+        "LCM geometry data expected to be a CYLINDER");
+    DELPHYNE_VALIDATE(ign_cylinder != nullptr, std::invalid_argument,
+                      "Ignition cylinder pointer must not be null");
     if (lcm_cylinder.num_float_data != 2) {
       throw TranslateException(
           "Expected 2 float elements for cylinder translation, but got " +
@@ -233,8 +246,12 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   static void LcmMeshToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_mesh,
       ignition::msgs::MeshGeom* ign_mesh) {
-    DELPHYNE_DEMAND(lcm_mesh.type == drake::lcmt_viewer_geometry_data::MESH);
-    DELPHYNE_DEMAND(ign_mesh != nullptr);
+    DELPHYNE_VALIDATE(
+        lcm_mesh.type == drake::lcmt_viewer_geometry_data::MESH,
+        std::invalid_argument,
+        "LCM geometry data expected to be a MESH");
+    DELPHYNE_VALIDATE(ign_mesh != nullptr, std::invalid_argument,
+                      "Ignition mesh pointer must not be null");
     if (lcm_mesh.string_data.empty()) {
       throw TranslateException("Expected a mesh filename for translation");
     }
@@ -264,7 +281,8 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // output port.
   void CalcIgnMessage(const drake::systems::Context<double>& context,
                       IGN_TYPE* ign_message) const {
-    DELPHYNE_DEMAND(ign_message != nullptr);
+    DELPHYNE_VALIDATE(ign_message != nullptr, std::invalid_argument,
+                      "Ignition message pointer must not be null");
 
     // Retrieves the Drake message from the input port.
     const DRAKE_TYPE& drake_message = ReadInputPort(context);
@@ -293,11 +311,11 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   ReadInputPort(const drake::systems::Context<double>& context) const {
     const drake::systems::VectorBase<double>* const input_vector =
         EvalVectorInput(context, kPortIndex);
-    DELPHYNE_DEMAND(input_vector != nullptr);
+    DELPHYNE_VALIDATE(input_vector != nullptr, std::runtime_error,
+                      "Could not get vector from system");
 
     const DRAKE_TYPE* const vector =
         dynamic_cast<const DRAKE_TYPE*>(input_vector);
-    DELPHYNE_DEMAND(vector != nullptr);
 
     return *vector;
   }
@@ -311,7 +329,8 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   ReadInputPort(const drake::systems::Context<double>& context) const {
     const drake::systems::AbstractValue* input =
         EvalAbstractInput(context, kPortIndex);
-    DELPHYNE_DEMAND(input != nullptr);
+    DELPHYNE_VALIDATE(input != nullptr, std::runtime_error,
+                      "Could not get abstract input from system");
 
     return input->GetValue<DRAKE_TYPE>();
   }

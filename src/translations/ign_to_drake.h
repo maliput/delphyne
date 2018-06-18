@@ -104,12 +104,14 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // output port.
   void CalcDrakeMessage(const drake::systems::Context<double>& context,
                         DRAKE_TYPE* drake_message) const {
-    DELPHYNE_DEMAND(drake_message != nullptr);
+    DELPHYNE_VALIDATE(drake_message != nullptr, std::invalid_argument,
+                      "Drake message pointer must not be null");
 
     // Retrieves the ignition message from the input port.
     const drake::systems::AbstractValue* input =
         EvalAbstractInput(context, kPortIndex);
-    DELPHYNE_DEMAND(input != nullptr);
+    DELPHYNE_VALIDATE(input != nullptr, std::runtime_error,
+                      "Could not get abstract input from system");
 
     const IGN_TYPE& ign_message = input->GetValue<IGN_TYPE>();
 

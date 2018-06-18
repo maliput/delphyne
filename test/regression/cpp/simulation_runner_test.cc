@@ -18,6 +18,7 @@
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/scene_request.pb.h"
+#include "helpers.h"
 
 namespace delphyne {
 
@@ -179,66 +180,54 @@ TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
 // @brief Asserts that the execution breaks if the runner is paused twice in
 // a row
 TEST_F(SimulationRunnerTest, TestCantPauseTwice) {
-  // We need this flag for safe multithreaded death tests
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-
   sim_runner_->Start();
   sim_runner_->PauseSimulation();
 
-  EXPECT_DEATH(sim_runner_->PauseSimulation(), "condition '!paused_' failed.");
+  EXPECT_RUNTIME_THROW(sim_runner_->PauseSimulation(),
+                       "Cannot pause already paused simulation");
 }
 
 // @brief Asserts that the execution breaks if the runner is unpaused twice in
 // a row
 TEST_F(SimulationRunnerTest, TestCantUnpauseTwice) {
-  // We need this flag for safe multithreaded death tests
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-
   sim_runner_->Start();
   sim_runner_->PauseSimulation();
   sim_runner_->UnpauseSimulation();
 
-  EXPECT_DEATH(sim_runner_->UnpauseSimulation(), "condition 'paused_' failed.");
+  EXPECT_RUNTIME_THROW(sim_runner_->UnpauseSimulation(),
+                       "Cannot unpause already running simulation");
 }
 
 // @brief Asserts that the execution breaks if a RequestSimulationStepExecution
 // is received if the simulation hasn't started.
 TEST_F(SimulationRunnerTest, TestRequestSimulationStepExecutionWhenNotStarted) {
-  // We need this flag for safe multithreaded death tests
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-  EXPECT_DEATH(sim_runner_->RequestSimulationStepExecution(1u),
-               "condition 'interactive_loop_running_' failed.");
+  EXPECT_RUNTIME_THROW(sim_runner_->RequestSimulationStepExecution(1u),
+                       "Cannot step a simulation that is not yet running");
 }
 
 // @brief Asserts that the execution breaks if a Start() is requested twice
 TEST_F(SimulationRunnerTest, TestCantStartTwice) {
-  // We need this flag for safe multithreaded death tests
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   sim_runner_->Start();
-  EXPECT_DEATH(sim_runner_->Start(),
-               "condition '!interactive_loop_running_' failed.");
+  EXPECT_RUNTIME_THROW(sim_runner_->Start(),
+                       "Cannot run a simulation that is already running");
 }
 
 // @brief Asserts that the execution breaks if Stop() is called and the
 // simulation runner hasn't started yet.
 TEST_F(SimulationRunnerTest, TestStopWithoutStartShouldFail) {
-  // We need this flag for safe multithreaded death tests
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
-  EXPECT_DEATH(sim_runner_->Stop(),
-               "condition 'interactive_loop_running_' failed.");
+  EXPECT_RUNTIME_THROW(sim_runner_->Stop(),
+                       "Cannot stop a simulation that is not running");
 }
 
 // @brief Asserts that the execution breaks if a RequestSimulationStepExecution
 // is received if the simulation is paused.
 TEST_F(SimulationRunnerTest, TestRequestSimulationStepExecutionWhenUnPaused) {
-  // We need this flag for safe multithreaded death tests
-  ::testing::FLAGS_gtest_death_test_style = "threadsafe";
   sim_runner_->Start();
 
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 
-  EXPECT_DEATH(sim_runner_->RequestSimulationStepExecution(1u),
-               "condition 'paused_' failed.");
+  EXPECT_RUNTIME_THROW(sim_runner_->RequestSimulationStepExecution(1u),
+                       "Cannot step a simulation that is not paused");
 }
 
 // @brief Checks that RunSyncFor executes the simulation for the expected

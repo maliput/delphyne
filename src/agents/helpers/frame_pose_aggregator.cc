@@ -22,8 +22,10 @@ const drake::systems::InputPortDescriptor<T>&
 FramePoseAggregator<T>::DeclareInput(
     const drake::geometry::FrameId& frame_id) {
   // Make sure no other input was declared with the same frame ID.
-  DELPHYNE_DEMAND(std::find(frame_ids_.begin(), frame_ids_.end(),
-                            frame_id) == frame_ids_.end());
+  DELPHYNE_VALIDATE(std::find(frame_ids_.begin(), frame_ids_.end(),
+                              frame_id) == frame_ids_.end(),
+                    std::runtime_error,
+                    "Duplicate input with same frame ID");
   const drake::systems::InputPortDescriptor<T>& pose_port =
       this->DeclareVectorInputPort(drake::systems::rendering::PoseVector<T>());
   frame_ids_.push_back(frame_id);

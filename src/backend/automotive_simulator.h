@@ -86,25 +86,6 @@ class AutomotiveSimulator {
   const drake::maliput::api::RoadGeometry* SetRoadGeometry(
       std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry);
 
-  /// Returns the System whose name matches @p name.  Throws an exception if no
-  /// such system has been added, or multiple such systems have been added.
-  //
-  /// This is the builder variant of the method.  It can only be used prior to
-  /// Start() being called.
-  ///
-  /// @pre Start() has NOT been called.
-  drake::systems::System<T>& GetBuilderSystemByName(std::string name);
-
-  /// Returns the System whose name matches @p name.  Throws an exception if no
-  /// such system has been added, or multiple such systems have been added.
-  ///
-  /// This is the diagram variant of the method, which can only be used after
-  /// Start() is called.
-  ///
-  /// @pre Start() has been called.
-  const drake::systems::System<T>& GetDiagramSystemByName(
-      std::string name) const;
-
   /// Builds the Diagram.  No further changes to the diagram may occur after
   /// this has been called.
   ///
@@ -161,12 +142,6 @@ class AutomotiveSimulator {
   // std::runtime_error if it is not unique meaning an agent of the same name
   // was already added.
   void CheckNameUniqueness(const std::string& name);
-
-  // Connects the provided pose and velocity output ports of a vehicle model to
-  // the PoseAggregator and adds a PriusVis for visualizing the vehicle.
-  void ConnectCarOutputsAndPriusVis(
-      int id, const drake::systems::OutputPort<T>& pose_output,
-      const drake::systems::OutputPort<T>& velocity_output);
 
   // Generates the URDF model of the road network and loads it into the
   // `RigidBodyTree`. Member variable `road_` must be set prior to calling this

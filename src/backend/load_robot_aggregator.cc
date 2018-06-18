@@ -17,7 +17,8 @@ LoadRobotAggregator::LoadRobotAggregator() {
 void LoadRobotAggregator::CalcAggregatedLoadRobot(
     const drake::systems::Context<double>& context,
     drake::lcmt_viewer_load_robot* load_robot_message) const {
-  DELPHYNE_DEMAND(load_robot_message != nullptr);
+  DELPHYNE_VALIDATE(load_robot_message != nullptr, std::invalid_argument,
+                    "Load robot message pointer must not be null");
 
   using LoadRobotGenerator = std::function<drake::lcmt_viewer_load_robot()>;
 

@@ -69,7 +69,8 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
 
   void SetDefaultState(const drake::systems::Context<double>&,
                        drake::systems::State<double>* state) const override {
-    DELPHYNE_DEMAND(state != nullptr);
+    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
+                      "State pointer must not be null");
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
 
@@ -99,8 +100,10 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
       const drake::systems::Context<double>& context,
       drake::systems::CompositeEventCollection<double>* events,
       double* time) const override {
-    DELPHYNE_DEMAND(events != nullptr);
-    DELPHYNE_DEMAND(time != nullptr);
+    DELPHYNE_VALIDATE(events != nullptr, std::invalid_argument,
+                      "Events pointer must not be null");
+    DELPHYNE_VALIDATE(time != nullptr, std::invalid_argument,
+                      "Time pointer must not be null");
 
     // An update time calculation is required here to avoid having
     // a NaN value when callling the StepBy method.
@@ -135,14 +138,16 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
       const std::vector<
           const drake::systems::UnrestrictedUpdateEvent<double>*>&,
       drake::systems::State<double>* state) const override {
-    DELPHYNE_DEMAND(state != nullptr);
+    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
+                      "State pointer must not be null");
 
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
 
   void ProcessMessageAndStoreToAbstractState(
       drake::systems::AbstractValues* abstract_state) const {
-    DELPHYNE_DEMAND(abstract_state != nullptr);
+    DELPHYNE_VALIDATE(abstract_state != nullptr, std::invalid_argument,
+                      "Abstract state pointer must not be null");
 
     std::lock_guard<std::mutex> lock(received_message_mutex_);
 
@@ -157,7 +162,8 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
 
   void CalcIgnMessage(const drake::systems::Context<double>& context,
                       drake::systems::AbstractValue* output_value) const {
-    DELPHYNE_DEMAND(output_value != nullptr);
+    DELPHYNE_VALIDATE(output_value != nullptr, std::invalid_argument,
+                      "Output value pointer must not be null");
 
     output_value->SetFrom(
         context.get_abstract_state().get_value(kStateIndexMessage));

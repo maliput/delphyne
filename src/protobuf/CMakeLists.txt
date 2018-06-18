@@ -41,7 +41,7 @@ target_include_directories(
   protobuf_messages
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     ${PROTOBUF_INCLUDE_DIRS}
 )
 target_link_libraries(
@@ -55,10 +55,12 @@ target_link_libraries(
 # Install
 ##############################################################################
 
-delphyne_install_includes(
-  ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/protobuf
-  ${PROTO_HEADERS}
-  ${PROTO_DESCRIPTORS}
+install(
+  FILES
+    ${PROTO_HEADERS}
+    ${PROTO_DESCRIPTORS}
+  DESTINATION
+    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/protobuf
 )
 
 install(

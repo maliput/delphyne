@@ -1,18 +1,6 @@
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
 
-project (delphyne)
-
-string (TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
-string (TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-
-set (PROJECT_MAJOR_VERSION 0)
-set (PROJECT_MINOR_VERSION 1)
-set (PROJECT_PATCH_VERSION 1)
-
-set (PROJECT_VERSION ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION})
-set (PROJECT_VERSION_FULL ${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION})
-
-message (STATUS "${PROJECT_NAME} version ${PROJECT_VERSION_FULL}")
+project(delphyne LANGUAGES CXX VERSION 3.0.0)
 
 set (project_cmake_dir ${PROJECT_SOURCE_DIR}/cmake
   CACHE PATH "Location of CMake scripts")
@@ -60,8 +48,6 @@ set (BUILD_DELPHYNE ON CACHE INTERNAL
   "Build Delphyne" FORCE)
 set (build_errors "" CACHE INTERNAL "build errors" FORCE)
 set (build_warnings "" CACHE INTERNAL "build warnings" FORCE)
-
-include (${project_cmake_dir}/DissectVersion.cmake)
 
 ##############################################################################
 # Find 3rd Party Packages
@@ -172,18 +158,9 @@ if (build_errors)
       "Please see the BUILD ERRORS above.")
 else (build_errors)
 
-  ########################################
-  # Write the config.hh file
-  configure_file (${project_cmake_dir}/config.hh.in
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/config.hh)
-  delphyne_install_includes(
-    ${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}
-    ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/config.hh)
-
   include_directories(
     ${CMAKE_SOURCE_DIR}
     ${PROJECT_BINARY_DIR}
-    ${PROJECT_BINARY_DIR}/include
   )
 
   link_directories(${PROJECT_BINARY_DIR}/src)
@@ -225,7 +202,7 @@ else (build_errors)
   # Version module
   write_basic_config_version_file(
     ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-    VERSION ${PROJECT_VERSION_FULL}
+    VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
   )
 
@@ -235,13 +212,13 @@ else (build_errors)
       ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
       ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
     DESTINATION
-      ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}
+      ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
   )
   install(
     EXPORT ${PROJECT_NAME}-targets
     NAMESPACE ${PROJECT_NAME}::
     DESTINATION
-      ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}
+      ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
   )
 
   ########################################
@@ -253,6 +230,4 @@ else (build_errors)
     add_subdirectory(cmake/packager-hooks)
   endif()
 
-  message(STATUS "Configuration successful. Type make to compile
-  ${PROJECT_NAME_LOWER}")
 endif(build_errors)

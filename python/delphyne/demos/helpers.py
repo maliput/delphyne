@@ -81,7 +81,6 @@ def create_argparse_description(title, content):
     return desc
 
 
-# pylint: disable=inconsistent-return-statements
 def create_argparse_epilog():
     """
     Create a humourous anecdote for argparse's epilog.
@@ -90,3 +89,4 @@ def create_argparse_epilog():
         msg = "And his noodly appendage reached forth to "\
               "tickle the blessed...\n"
         return console.CYAN + msg + console.RESET
+    return None

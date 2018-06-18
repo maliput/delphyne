@@ -63,9 +63,19 @@ set (build_warnings "" CACHE INTERNAL "build warnings" FORCE)
 
 include (${project_cmake_dir}/DissectVersion.cmake)
 
-message (STATUS "\n\n====== Finding 3rd Party Packages ======")
-include (${project_cmake_dir}/SearchForStuff.cmake)
-message (STATUS "----------------------------------------\n")
+##############################################################################
+# Find 3rd Party Packages
+##############################################################################
+
+message (STATUS "\n\n====== Finding 3rd Party Packages ======\n")
+
+find_package(drake REQUIRED)
+find_package(ignition-common2 REQUIRED)
+find_package(ignition-math5 REQUIRED)
+find_package(ignition-msgs2 REQUIRED)
+find_package(ignition-transport5 REQUIRED)
+
+message (STATUS "\n----------------------------------------\n")
 
 #####################################
 MESSAGE(STATUS "Checking build type")

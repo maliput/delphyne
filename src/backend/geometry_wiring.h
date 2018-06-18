@@ -10,10 +10,12 @@
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/geometry/geometry_instance.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/geometry/shape_specification.h>
+#include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 
-#include "agents/helpers/frame_pose_aggregator.h"
+#include "backend/frame_pose_aggregator.h"
 
 namespace delphyne {
 
@@ -45,9 +47,8 @@ inline std::string ResolveFrameName(const std::string& root,
 /// @tparam T A valid Eigen scalar type.
 // TODO(hidmic): Extend support for non-double types when SceneGraph supports
 // them.
-template <typename T,
-          typename std::enable_if<
-            std::is_same<T, double>::value, int>::type = 0>
+template <typename T, typename std::enable_if<std::is_same<T, double>::value,
+                                              int>::type = 0>
 const drake::systems::InputPortDescriptor<T>& WirePriusGeometry(
     const std::string& frame_root,
     const drake::Isometry3<T>& initial_world_to_car_transform,
@@ -79,22 +80,20 @@ const drake::systems::InputPortDescriptor<T>& WirePriusGeometry(
   const GeometryFrame car_frame(
       detail::ResolveFrameName(frame_root, "car_frame"),
       initial_world_to_car_transform);
-  const FrameId car_frame_id =
-      scene_graph->RegisterFrame(source_id, car_frame);
+  const FrameId car_frame_id = scene_graph->RegisterFrame(source_id, car_frame);
 
   // Registers the Prius car chassis frame.
   const GeometryFrame car_chassis_frame(
       detail::ResolveFrameName(frame_root, "car_chassis_frame"),
       kPriusCarToChassisTranslation * kPriusCarToChassisRotation);
-  const FrameId car_chassis_frame_id = scene_graph->RegisterFrame(
-      source_id, car_frame_id, car_chassis_frame);
+  const FrameId car_chassis_frame_id =
+      scene_graph->RegisterFrame(source_id, car_frame_id, car_chassis_frame);
 
   // Registers a bounding box geometry for the whole car with the
   // car chassis frame as its origin.
-  auto car_bounding_box =
-      std::make_unique<GeometryInstance>(
-          Isometry3<T>::Identity(), std::make_unique<Box>(
-              kPriusCarLength, kPriusCarWidth, kPriusCarHeight));
+  auto car_bounding_box = std::make_unique<GeometryInstance>(
+      Isometry3<T>::Identity(),
+      std::make_unique<Box>(kPriusCarLength, kPriusCarWidth, kPriusCarHeight));
 
   geometry_ids->insert(scene_graph->RegisterGeometry(
       source_id, car_chassis_frame_id, std::move(car_bounding_box)));
@@ -107,9 +106,8 @@ const drake::systems::InputPortDescriptor<T>& WirePriusGeometry(
 
   // Fixes the car-to-chassis transform.
   auto fixed_chassis_pose =
-      builder->template AddSystem<ConstantVectorSource<T>>(
-          PoseVector<T>(kPriusCarToChassisRotation,
-                        kPriusCarToChassisTranslation));
+      builder->template AddSystem<ConstantVectorSource<T>>(PoseVector<T>(
+          kPriusCarToChassisRotation, kPriusCarToChassisTranslation));
 
   builder->Connect(fixed_chassis_pose->get_output_port(),
                    frame_pose_aggregator->DeclareInput(car_chassis_frame_id));

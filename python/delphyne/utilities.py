@@ -101,7 +101,7 @@ def get_delphyne_resource_root():
 #
 # TODO(daniel.stonier) exception handling and return handles to the agent
 
-def add_simple_car(simulator, name, position_x=0, position_y=0):
+def add_simple_car(simulator, name, position_x, position_y):
     """Adds a simple car to the simulation."""
     agent = agents.SimpleCar(
         name=name,
@@ -113,8 +113,8 @@ def add_simple_car(simulator, name, position_x=0, position_y=0):
 
 
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, name, scene_x=0, scene_y=0,
-                  heading=0.0, speed=1.0):
+def add_mobil_car(simulator, name, scene_x, scene_y,
+                  heading, speed, road_geometry):
     """Adds a lane changing (MOBIL) car to the simulation."""
     agent = agents.MobilCar(
         name=name,                 # unique name
@@ -122,12 +122,14 @@ def add_mobil_car(simulator, name, scene_x=0, scene_y=0,
         x=scene_x,                 # scene x-coordinate (m)
         y=scene_y,                 # scene y-coordinate (m)
         heading=heading,           # heading (radians)
-        speed=speed)               # the s-direction (m/s)
+        speed=speed,               # the s-direction (m/s)
+        road_geometry=road_geometry)  # maliput road geometry
     simulator.add_agent(agent)
 
 
 # pylint: disable=too-many-arguments
-def add_rail_car(simulator, name, lane, position, offset, speed):
+def add_rail_car(simulator, name, lane, position, offset,
+                 speed, road_geometry):
     """Adds a centre-line following rail car to the simulation."""
     agent = agents.RailCar(
         name=name,                       # unique name
@@ -136,7 +138,8 @@ def add_rail_car(simulator, name, lane, position, offset, speed):
         longitudinal_position=position,  # lane s-coordinate (m)
         lateral_offset=offset,           # lane r-coordinate (m)
         speed=speed,                     # initial speed in s-direction (m/s)
-        nominal_speed=5.0)               # nominal_speed (m/s)
+        nominal_speed=5.0,               # nominal_speed (m/s)
+        road_geometry=road_geometry)     # maliput road geometry
     simulator.add_agent(agent)
 
 

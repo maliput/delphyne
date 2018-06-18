@@ -34,7 +34,6 @@ target_link_libraries(public_headers
 # Files
 install(
   FILES
-    agent_base.h
     macros.h
     types.h
     ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/version.h
@@ -50,3 +49,4 @@ install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets)
 ##############################################################################
 
 add_subdirectory(maliput)
+add_subdirectory(mi6)

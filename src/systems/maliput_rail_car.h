@@ -7,6 +7,7 @@
 
 #include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/automotive/gen/maliput_railcar_state.h>
+#include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/common/drake_copyable.h>
@@ -108,6 +109,7 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
   /// @{
   const systems::InputPortDescriptor<T>& command_input() const;
   const systems::OutputPort<T>& state_output() const;
+  const systems::OutputPort<T>& simple_car_state_output() const;
   const systems::OutputPort<T>& lane_state_output() const;
   const systems::OutputPort<T>& pose_output() const;
   const systems::OutputPort<T>& velocity_output() const;
@@ -128,6 +130,9 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
       const systems::Context<T>& context,
       const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
       systems::State<T>* state) const override;
+
+  void CalcSimpleCarStateOutput(const systems::Context<T>& context,
+                                SimpleCarState<T>* output) const;
 
   void CalcStateOutput(const systems::Context<T>& context,
                        MaliputRailcarState<T>* output) const;
@@ -163,6 +168,7 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
   const LaneDirection initial_lane_direction_{};
 
   int command_input_port_index_{};
+  int simple_car_state_output_port_index_{};
   int state_output_port_index_{};
   int lane_state_output_port_index_{};
   int pose_output_port_index_{};

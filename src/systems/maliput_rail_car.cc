@@ -91,6 +91,9 @@ MaliputRailCar<T>::MaliputRailCar(
   state_output_port_index_ =
       this->DeclareVectorOutputPort(&MaliputRailCar::CalcStateOutput)
           .get_index();
+  simple_car_state_output_port_index_ =
+      this->DeclareVectorOutputPort(&MaliputRailCar::CalcSimpleCarStateOutput)
+          .get_index();
   lane_state_output_port_index_ =
       this->DeclareAbstractOutputPort(LaneDirection(initial_lane_direction),
                                       &MaliputRailCar::CalcLaneOutput)
@@ -113,6 +116,11 @@ const InputPortDescriptor<T>& MaliputRailCar<T>::command_input() const {
 template <typename T>
 const OutputPort<T>& MaliputRailCar<T>::state_output() const {
   return this->get_output_port(state_output_port_index_);
+}
+
+template <typename T>
+const OutputPort<T>& MaliputRailCar<T>::simple_car_state_output() const {
+  return this->get_output_port(simple_car_state_output_port_index_);
 }
 
 template <typename T>
@@ -147,6 +155,40 @@ void MaliputRailCar<T>::CalcStateOutput(const Context<T>& context,
   DRAKE_ASSERT(state.speed() >= -1e-3);
   using std::max;
   output->set_speed(max(T(0), state.speed()));
+}
+
+template <typename T>
+void MaliputRailCar<T>::CalcSimpleCarStateOutput(
+    const Context<T>& context, SimpleCarState<T>* output) const {
+  // Obtains car pose.
+  auto pose = std::make_unique<drake::systems::rendering::PoseVector<T>>();
+  CalcPose(context, pose.get());
+  const Eigen::Translation<T, 3> pose_translation = pose->get_translation();
+  const Eigen::Quaternion<T> pose_rotation = pose->get_rotation();
+  // Translates pose from quaternion to euler.
+  const Eigen::Vector3d euler_rotation =
+      pose_rotation.toRotationMatrix().eulerAngles(0, 1, 2);
+
+  // Obtains car velocity.
+  auto velocity =
+      std::make_unique<drake::systems::rendering::FrameVelocity<T>>();
+  CalcVelocity(context, velocity.get());
+  const drake::multibody::SpatialVelocity<T> spatial_velocity =
+      velocity->get_velocity();
+  const double velocity_norm =
+      static_cast<double>(spatial_velocity.translational().norm());
+
+  // Fills the SimpleCarState message.
+  SimpleCarState<T> state{};
+  state.set_x(pose_translation.x());
+  state.set_y(pose_translation.y());
+  state.set_heading(euler_rotation(2));
+  state.set_velocity(velocity_norm);
+
+  output->set_value(state.get_value());
+
+  // Don't allow small negative velocities to escape the state.
+  output->set_velocity(std::max(T(0), state.velocity()));
 }
 
 template <typename T>

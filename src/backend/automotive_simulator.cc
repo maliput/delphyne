@@ -6,15 +6,30 @@
 #include <vector>
 
 #include <drake/automotive/maliput/utility/generate_urdf.h>
+#include <drake/automotive/prius_vis.h>
+#include <drake/common/drake_throw.h>
+#include <drake/common/eigen_types.h>
 #include <drake/common/text_logging.h>
+#include <drake/geometry/geometry_frame.h>
+#include <drake/geometry/geometry_ids.h>
+#include <drake/geometry/geometry_instance.h>
+#include <drake/geometry/shape_specification.h>
 #include <drake/multibody/joints/floating_base_types.h>
 #include <drake/multibody/parsers/urdf_parser.h>
 #include <drake/multibody/rigid_body_plant/create_load_robot_message.h>
 #include <drake/systems/analysis/runge_kutta2_integrator.h>
 #include <drake/systems/framework/context.h>
+#include <drake/systems/framework/system.h>
+#include <drake/systems/primitives/constant_vector_source.h>
+#include <drake/systems/primitives/multiplexer.h>
 
 #include "backend/automotive_simulator.h"
+#include "backend/geometry_wiring.h"
 #include "backend/ign_models_assembler.h"
+#include "backend/ign_publisher_system.h"
+#include "delphyne/macros.h"
+#include "translations/drake_simple_car_state_to_ign.h"
+#include "translations/ign_driving_command_to_drake.h"
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 
@@ -97,8 +112,7 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
 // into a shared method.
 
 template <typename T>
-int AutomotiveSimulator<T>::AddAgent(
-    std::unique_ptr<delphyne::AgentBase<T>> agent) {
+int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<AgentBase<T>> agent) {
   /*********************
    * Checks
    *********************/
@@ -107,13 +121,67 @@ int AutomotiveSimulator<T>::AddAgent(
   CheckNameUniqueness(agent->name());
 
   /*********************
-   * Configure Agent
+   * Unique ID
    *********************/
   int id = unique_system_id_++;
 
-  agent->Configure(id, road_geometry_.get(), builder_.get(), scene_graph_,
-                   aggregator_, car_vis_applicator_);
+  /*********************
+   * Agent Diagram
+   *********************/
+  std::unique_ptr<DiagramBundle<T>> bundle = agent->BuildDiagram();
+  drake::systems::Diagram<double>* diagram =
+      builder_->AddSystem(std::move(bundle->diagram));
 
+  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
+      aggregator_->AddSinglePoseAndVelocityInput(agent->name(), id);
+  builder_->Connect(diagram->get_output_port(bundle->outputs["pose"]),
+                    ports.pose_descriptor);
+  builder_->Connect(diagram->get_output_port(bundle->outputs["velocity"]),
+                    ports.velocity_descriptor);
+  builder_->Connect(aggregator_->get_output_port(0),
+                    diagram->get_input_port(bundle->inputs["traffic_poses"]));
+
+  /*********************
+   * Agent Visuals
+   *********************/
+  // TODO(daniel.stonier) this just enforces ... 'everything is a prius'.
+  // We'll need a means of having the agents report what visual they have and
+  // hooking that up. Also wondering why visuals are in the drake diagram?
+  car_vis_applicator_->AddCarVis(
+      std::make_unique<drake::automotive::PriusVis<double>>(id, agent->name()));
+
+  /*********************
+   * Agent Geometry
+   *********************/
+  // Wires up the Prius geometry.
+  builder_->Connect(
+      diagram->get_output_port(bundle->outputs["pose"]),
+      WirePriusGeometry(agent->name(), agent->initial_world_pose(),
+                        builder_.get(), scene_graph_,
+                        &(agent->mutable_geometry_ids())));
+
+  /*********************
+   * State Publisher
+   *********************/
+  auto agent_state_translator =
+      builder_->template AddSystem<DrakeSimpleCarStateToIgn>();
+
+  const std::string agent_state_channel =
+      "agents/" + std::to_string(id) + "/state";
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+      AgentStatePublisherSystem;
+  AgentStatePublisherSystem* agent_state_publisher_system =
+      builder_->template AddSystem<AgentStatePublisherSystem>(
+          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
+
+  // Drake car states are translated to ignition.
+  builder_->Connect(diagram->get_output_port(bundle->outputs["state"]),
+                    agent_state_translator->get_input_port(0));
+
+  // And then the translated ignition car state is published.
+  builder_->Connect(*agent_state_translator, *agent_state_publisher_system);
+
+  // save a handle to it
   agents_[id] = std::move(agent);
   return id;
 }
@@ -156,12 +224,11 @@ struct IsSourceOf {
   // @remarks As only a reference to the object is kept (to keep it
   //          lightweight), the caller MUST ensure that the object
   //          instance outlives the functor instance.
-  explicit IsSourceOf(const U& object_in)
-      : object(object_in) {}
+  explicit IsSourceOf(const U& object_in) : object(object_in) {}
 
   // Checks whether the given (agent ID, agent) pair is the source of the
   // associated `object`.
-  bool operator() (
+  bool operator()(
       const std::pair<const int, std::unique_ptr<AgentBase<T>>>& id_agent) {
     return id_agent.second->is_source_of(object);
   }
@@ -173,8 +240,8 @@ struct IsSourceOf {
 }  // namespace
 
 template <typename T>
-const std::vector<std::pair<int, int>>
-    AutomotiveSimulator<T>::GetCollisions() const {
+const std::vector<std::pair<int, int>> AutomotiveSimulator<T>::GetCollisions()
+    const {
   DELPHYNE_VALIDATE(has_started(), std::runtime_error,
                     "Can only get collisions on a running simulation");
   using drake::geometry::GeometryId;
@@ -313,8 +380,9 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   const drake::systems::OutputPort<T>& scene_query_port =
       scene_graph_->get_query_output_port();
   scene_query_ = scene_query_port.Allocate();
-  scene_query_port.Calc(diagram_->GetSubsystemContext(
-      *scene_graph_, simulator_->get_context()), scene_query_.get());
+  scene_query_port.Calc(
+      diagram_->GetSubsystemContext(*scene_graph_, simulator_->get_context()),
+      scene_query_.get());
 }
 
 template <typename T>
@@ -333,14 +401,15 @@ void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
   for (const auto& agent : agents_) {
     DELPHYNE_VALIDATE(agent.second->name() != name, std::runtime_error,
                       "An agent named \"" + name +
-                      "\" already exists. It has id " +
-                      std::to_string(agent.first) + ".");
+                          "\" already exists. It has id " +
+                          std::to_string(agent.first) + ".");
   }
 }
 
 template <typename T>
 PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
-  DELPHYNE_VALIDATE(has_started(), std::runtime_error,
+  DELPHYNE_VALIDATE(
+      has_started(), std::runtime_error,
       "Cannot get poses for a simulation that has not yet started");
   const auto& context = simulator_->get_context();
   std::unique_ptr<SystemOutput<T>> system_output =

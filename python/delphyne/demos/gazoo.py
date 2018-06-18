@@ -85,7 +85,8 @@ def main():
         lane=lane_1,
         position=railcar_s,
         offset=0.0,
-        speed=railcar_speed)
+        speed=railcar_speed,
+        road_geometry=road_geometry)
 
     # Setup railcar 2
     railcar_speed = 8.0  # (m/s)
@@ -98,7 +99,8 @@ def main():
         lane=lane_2,
         position=railcar_s,
         offset=0.0,
-        speed=railcar_speed)
+        speed=railcar_speed,
+        road_geometry=road_geometry)
 
     # Setup railcar 3
     railcar_speed = 7.0  # (m/s)
@@ -111,7 +113,8 @@ def main():
         lane=lane_3,
         position=railcar_s,
         offset=0.0,
-        speed=railcar_speed)
+        speed=railcar_speed,
+        road_geometry=road_geometry)
 
     # Setup MOBIL cars.
     for i in range(mobil_cars_num):
@@ -125,7 +128,8 @@ def main():
             scene_x=-10.0 + x_offset * (1 + i / 3),
             scene_y=0.0 + y_offset * (i % 3),
             heading=0.0,
-            speed=velocity_base * i)
+            speed=velocity_base * i,
+            road_geometry=road_geometry)
 
     runner = simulation.SimulatorRunner(
         simulator=simulator,

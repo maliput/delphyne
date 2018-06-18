@@ -12,14 +12,9 @@
 #include <memory>
 #include <string>
 
-#include <drake/automotive/car_vis_applicator.h>
 #include <drake/automotive/gen/simple_car_state.h>
-#include <drake/geometry/scene_graph.h>
-#include <drake/systems/framework/diagram_builder.h>
-#include <drake/systems/framework/system.h>
-#include <drake/systems/rendering/pose_aggregator.h>
 
-#include "delphyne/agent_base.h"
+#include "delphyne/mi6/agent_base.h"
 #include "systems/simple_car.h"
 
 /*****************************************************************************
@@ -37,12 +32,8 @@ class SimpleCar : public delphyne::Agent {
  public:
   SimpleCar(const std::string& name, double x, double y, double heading,
             double speed);
-  void Configure(
-      int id, const drake::maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder,
-      drake::geometry::SceneGraph<double>* scene_graph,
-      drake::systems::rendering::PoseAggregator<double>* aggregator,
-      drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
+
+  std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
  private:
   // Container for the agent's initial configuration.

@@ -36,6 +36,7 @@ install(TARGETS scene_system
 #
 add_library(automotive_simulator
   automotive_simulator.cc
+  frame_pose_aggregator.cc
   ign_models_assembler.cc
 )
 set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)

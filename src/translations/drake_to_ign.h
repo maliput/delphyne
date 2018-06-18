@@ -173,10 +173,9 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   // @param[out] ign_color The ign box geometry.
   static void LcmBoxToIgnition(const drake::lcmt_viewer_geometry_data& lcm_box,
                                ignition::msgs::BoxGeom* ign_box) {
-    DELPHYNE_VALIDATE(
-        lcm_box.type == drake::lcmt_viewer_geometry_data::BOX,
-        std::invalid_argument,
-        "LCM geometry data expected to be a BOX");
+    DELPHYNE_VALIDATE(lcm_box.type == drake::lcmt_viewer_geometry_data::BOX,
+                      std::invalid_argument,
+                      "LCM geometry data expected to be a BOX");
     DELPHYNE_VALIDATE(ign_box != nullptr, std::invalid_argument,
                       "Ignition box pointer must not be null");
     if (lcm_box.num_float_data != 3) {
@@ -201,8 +200,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
       ignition::msgs::SphereGeom* ign_sphere) {
     DELPHYNE_VALIDATE(
         lcm_sphere.type == drake::lcmt_viewer_geometry_data::SPHERE,
-        std::invalid_argument,
-        "LCM geometry data expected to be a SPHERE");
+        std::invalid_argument, "LCM geometry data expected to be a SPHERE");
     DELPHYNE_VALIDATE(ign_sphere != nullptr, std::invalid_argument,
                       "Ignition sphere pointer must not be null");
     if (lcm_sphere.num_float_data != 1) {
@@ -224,8 +222,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
       ignition::msgs::CylinderGeom* ign_cylinder) {
     DELPHYNE_VALIDATE(
         lcm_cylinder.type == drake::lcmt_viewer_geometry_data::CYLINDER,
-        std::invalid_argument,
-        "LCM geometry data expected to be a CYLINDER");
+        std::invalid_argument, "LCM geometry data expected to be a CYLINDER");
     DELPHYNE_VALIDATE(ign_cylinder != nullptr, std::invalid_argument,
                       "Ignition cylinder pointer must not be null");
     if (lcm_cylinder.num_float_data != 2) {
@@ -246,10 +243,9 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
   static void LcmMeshToIgnition(
       const drake::lcmt_viewer_geometry_data& lcm_mesh,
       ignition::msgs::MeshGeom* ign_mesh) {
-    DELPHYNE_VALIDATE(
-        lcm_mesh.type == drake::lcmt_viewer_geometry_data::MESH,
-        std::invalid_argument,
-        "LCM geometry data expected to be a MESH");
+    DELPHYNE_VALIDATE(lcm_mesh.type == drake::lcmt_viewer_geometry_data::MESH,
+                      std::invalid_argument,
+                      "LCM geometry data expected to be a MESH");
     DELPHYNE_VALIDATE(ign_mesh != nullptr, std::invalid_argument,
                       "Ignition mesh pointer must not be null");
     if (lcm_mesh.string_data.empty()) {

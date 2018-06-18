@@ -12,15 +12,11 @@
 #include <memory>
 #include <string>
 
-#include <drake/automotive/car_vis_applicator.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
-#include <drake/geometry/scene_graph.h>
-#include <drake/systems/framework/diagram_builder.h>
-#include <drake/systems/framework/system.h>
-#include <drake/systems/rendering/pose_aggregator.h>
 
 // public headers
-#include "delphyne/agent_base.h"
+#include "delphyne/mi6/agent_base.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -55,14 +51,10 @@ class MobilCar : public delphyne::Agent {
   /// @param heading[in] The orientation of the car in the x-y frame.
   /// @param speed[in] The actual initial speed.
   MobilCar(const std::string& name, bool direction_of_travel, double x,
-           double y, double heading, double speed);
+           double y, double heading, double speed,
+           const drake::maliput::api::RoadGeometry& road_geometry);
 
-  void Configure(
-      int id, const drake::maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder,
-      drake::geometry::SceneGraph<double>* scene_graph,
-      drake::systems::rendering::PoseAggregator<double>* aggregator,
-      drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
+  std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
  private:
   struct Parameters {
@@ -80,6 +72,8 @@ class MobilCar : public delphyne::Agent {
           heading(heading),
           speed(speed) {}
   } initial_parameters_;
+
+  const drake::maliput::api::RoadGeometry& road_geometry_;
 };
 
 /*****************************************************************************

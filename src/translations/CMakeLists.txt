@@ -10,7 +10,6 @@ add_library(translations
   ign_simple_car_state_to_drake.cc
   lcm_viewer_draw_to_ign_model_v.cc
   lcm_viewer_load_robot_to_ign_model_v.cc
-  pose_and_vel_to_simple_car_state.cc
   time_conversion.cc
 )
 set_target_properties(translations PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-translations)

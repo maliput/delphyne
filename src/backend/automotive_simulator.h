@@ -34,7 +34,7 @@
 #include <ignition/transport.hh>
 
 // public headers
-#include "delphyne/agent_base.h"
+#include "delphyne/mi6/agent_base.h"
 
 // private headers
 #include "backend/ign_publisher_system.h"

@@ -12,18 +12,13 @@
 #include <memory>
 #include <string>
 
-#include <drake/automotive/car_vis_applicator.h>
 #include <drake/automotive/gen/maliput_railcar_state.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
-#include <drake/geometry/scene_graph.h>
-#include <drake/systems/framework/diagram_builder.h>
-#include <drake/systems/framework/system.h>
-#include <drake/systems/rendering/pose_aggregator.h>
 
 // public headers
-#include "delphyne/agent_base.h"
+#include "delphyne/mi6/agent_base.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -65,14 +60,10 @@ class RailCar : public delphyne::Agent {
           bool direction_of_travel,
           double longitudinal_position,  // s
           double lateral_offset,         // r
-          double speed, double nominal_speed);
+          double speed, double nominal_speed,
+          const drake::maliput::api::RoadGeometry& road_geometry);
 
-  void Configure(
-      int id, const drake::maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder,
-      drake::geometry::SceneGraph<double>* scene_graph,
-      drake::systems::rendering::PoseAggregator<double>* aggregator,
-      drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
+  std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
  private:
   // Container for the agent's initial configuration.
@@ -98,6 +89,8 @@ class RailCar : public delphyne::Agent {
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
+
+  const drake::maliput::api::RoadGeometry& road_geometry_;
 };
 
 /*****************************************************************************

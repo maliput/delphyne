@@ -16,6 +16,7 @@
 
 #include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
+#include "delphyne/macros.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 
 namespace delphyne {
@@ -88,7 +89,7 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
   std::chrono::microseconds min_simulation_time(9500);
   std::chrono::microseconds max_simulation_time(10500);
 
-  InteractiveSimulationStats stats = sim_runner_->get_stats();
+  const InteractiveSimulationStats& stats = sim_runner_->get_stats();
 
   EXPECT_GE(duration, min_simulation_time);
   EXPECT_LE(duration, max_simulation_time);
@@ -117,7 +118,7 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
 
   sim_runner_->RunSyncFor(kTimeStep);
 
-  InteractiveSimulationStats stats = sim_runner_->get_stats();
+  const InteractiveSimulationStats& stats = sim_runner_->get_stats();
   EXPECT_EQ(1, stats.TotalExecutedSteps());
 
   EXPECT_TRUE(callback_called_);

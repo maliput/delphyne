@@ -12,6 +12,7 @@ void InteractiveSimulationStats::NewRunStartingAt(
 void InteractiveSimulationStats::NewRunStartingAt(
     double start_simtime, double expected_realtime_rate,
     const TimePoint& start_realtime) {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (!run_stats_.empty()) {
     SimulationRunStats* current = GetMutableCurrentRunStats();
     current->RunFinished();
@@ -30,6 +31,7 @@ void InteractiveSimulationStats::NewRunStartingAt(
 
 const SimulationRunStats& InteractiveSimulationStats::GetCurrentRunStats()
     const {
+  std::lock_guard<std::mutex> lock(mutex_);
   DELPHYNE_DEMAND(!run_stats_.empty());
   return run_stats_.at(run_stats_.size() - 1);
 }

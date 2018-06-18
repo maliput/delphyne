@@ -3,6 +3,7 @@
 #pragma once
 
 #include <limits>
+#include <mutex>
 #include <vector>
 
 #include "backend/simulation_run_stats.h"
@@ -38,6 +39,10 @@ namespace delphyne {
 /// was idle.
 class InteractiveSimulationStats {
  public:
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(InteractiveSimulationStats);
+
+  InteractiveSimulationStats() {}
+
   /// @brief Creates a new simulation run, starting at `start_simtime`
   ///
   /// @param[in] start_simtime. The time the simulation started, given by the
@@ -162,6 +167,8 @@ class InteractiveSimulationStats {
 
   // @brief The ratio between weighed simulation time and weighed real time.
   double weighted_realtime_rate_{std::numeric_limits<double>::quiet_NaN()};
+
+  mutable std::mutex mutex_;
 };
 
 }  // namespace delphyne

@@ -7,6 +7,7 @@
 
 install(
   PROGRAMS
+    delphyne-crash
     delphyne-dragway
     delphyne-gazoo
     delphyne-keyop

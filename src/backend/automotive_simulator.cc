@@ -76,6 +76,9 @@ AutomotiveSimulator<T>::AutomotiveSimulator() {
       builder_->template AddSystem<drake::automotive::CarVisApplicator<T>>();
   car_vis_applicator_->set_name("car_vis_applicator");
 
+  scene_graph_ = builder_->template AddSystem<drake::geometry::SceneGraph<T>>();
+  scene_graph_->set_name("scene_graph");
+
   scene_system_ = builder_->template AddSystem<SceneSystem>();
   scene_system_->set_name("scene_system");
 
@@ -146,8 +149,8 @@ int AutomotiveSimulator<T>::AddAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id, road_geometry_.get(), builder_.get(), aggregator_,
-                       car_vis_applicator_) < 0) {
+  if (agent->Configure(id, road_geometry_.get(), builder_.get(),
+                       scene_graph_, aggregator_, car_vis_applicator_) < 0) {
     ignerr << "Failed to configure agent '" << agent->name() << "'"
            << std::endl;
     return -1;
@@ -206,6 +209,59 @@ const drake::systems::System<T>& AutomotiveSimulator<T>::GetDiagramSystemByName(
   }
   DRAKE_THROW_UNLESS(result);
   return *result;
+}
+
+namespace {
+
+// A helper functor to check for a given object source (e.g. a GeometryId)
+// on agent ID to agent mappings. Useful in combination with the STL algorithm
+// library.
+//
+// @tparam T Agents' scalar type.
+// @tparam U Object type.
+// @see delphyne::AgentBase::is_source_of()
+template <typename T, typename U>
+struct IsSourceOf {
+  // Constructs the functor with given @p object_in reference.
+  // @remarks As only a reference to the object is kept (to keep it
+  //          lightweight), the caller MUST ensure that the object
+  //          instance outlives the functor instance.
+  explicit IsSourceOf(const U& object_in)
+      : object(object_in) {}
+
+  // Checks whether the given (agent ID, agent) pair is the source of the
+  // associated `object`.
+  bool operator() (
+      const std::pair<const int, std::unique_ptr<AgentBase<T>>>& id_agent) {
+    return id_agent.second->is_source_of(object);
+  }
+
+  // Associated object to check the source of.
+  const U& object;
+};
+
+}  // namespace
+
+template <typename T>
+const std::vector<std::pair<int, int>>
+    AutomotiveSimulator<T>::GetCollisions() const {
+  DELPHYNE_DEMAND(has_started());
+  using drake::geometry::GeometryId;
+  using drake::geometry::QueryObject;
+  using drake::geometry::PenetrationAsPointPair;
+  const std::vector<PenetrationAsPointPair<T>> collisions =
+      scene_query_->GetValue<QueryObject<T>>().ComputePointPairPenetration();
+  std::vector<std::pair<int, int>> agents_colliding;
+  for (const auto& collision : collisions) {
+    const auto it_A = std::find_if(agents_.begin(), agents_.end(),
+                                   IsSourceOf<T, GeometryId>(collision.id_A));
+    DELPHYNE_DEMAND(it_A != agents_.end());
+    const auto it_B = std::find_if(agents_.begin(), agents_.end(),
+                                   IsSourceOf<T, GeometryId>(collision.id_B));
+    DELPHYNE_DEMAND(it_B != agents_.end());
+    agents_colliding.emplace_back(it_A->first, it_B->first);
+  }
+  return agents_colliding;
 }
 
 template <typename T>
@@ -317,6 +373,13 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
       *diagram_, max_step_size, &simulator_->get_mutable_context());
   simulator_->get_mutable_integrator()->set_fixed_step_mode(true);
   simulator_->Initialize();
+
+  // Retrieve SceneGraph query object for later use.
+  const drake::systems::OutputPort<T>& scene_query_port =
+      scene_graph_->get_query_output_port();
+  scene_query_ = scene_query_port.Allocate();
+  scene_query_port.Calc(diagram_->GetSubsystemContext(
+      *scene_graph_, simulator_->get_context()), scene_query_.get());
 }
 
 template <typename T>

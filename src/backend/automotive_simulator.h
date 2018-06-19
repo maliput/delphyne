@@ -21,6 +21,7 @@
 #include <drake/automotive/simple_car.h>
 #include <drake/automotive/trajectory_car.h>
 #include <drake/common/drake_copyable.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram.h>
@@ -75,7 +76,7 @@ class AutomotiveSimulator {
    * ready this agent for use in the simulation.
    *
    * @param agent[in] The user provided agent to add to the simulation.
-   * @return A simulator generated unqiue id for the agent.
+   * @return A simulator generated unique id for the agent.
    */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
 
@@ -119,6 +120,16 @@ class AutomotiveSimulator {
   ///
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
+
+  /// Returns all agent ID pairs that are currently in collision.
+  ///
+  /// @remarks The order in which collision pairs are returned may
+  ///          vary with the collision detection backend used and thus
+  ///          no order is enforced. DO NOT expect nor rely on any given
+  ///          order.
+  /// @pre Start() has been called.
+  /// @warning Failure to meet any of the preconditions will abort execution.
+  const std::vector<std::pair<int, int>> GetCollisions() const;
 
   /// Calls Build() on the diagram (if it has not been build already) and
   /// initializes the Simulator.  No further changes to the diagram may occur
@@ -201,6 +212,14 @@ class AutomotiveSimulator {
   // Creates a scene message from a geometry description and up-to-date poses
   // for non-static elements.
   SceneSystem* scene_system_{};
+
+  // The scene graph used to register all agents geometries within
+  // the simulation.
+  drake::geometry::SceneGraph<T>* scene_graph_{};
+
+  // The scene query associated with the scene graph of the simulation,
+  // for later geometrical queries (i.e. collisions).
+  std::unique_ptr<drake::systems::AbstractValue> scene_query_{};
 
   // Takes the output of car_vis_applicator_ and creates an lcmt_viewer_draw
   // message containing the latest poses of the visual elements.

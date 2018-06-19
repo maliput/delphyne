@@ -2,12 +2,13 @@
 
 #pragma once
 
-#include <map>
-#include <memory>
+#include <set>
 #include <string>
 
 #include <drake/automotive/car_vis_applicator.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/geometry/geometry_ids.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/rendering/pose_aggregator.h>
@@ -40,25 +41,38 @@ class AgentBase {
   /// @ref delphyne::AutomotiveSimulator "AutomotiveSimulator" will call
   /// this method to perform any simulator-specific configuration
   /// necessary for the agent. This includes generating an id, passing
-  /// in the ground truth world information, diagram wiring and setting
-  /// up the visuals.
+  /// in the ground truth world information, diagram wiring, geometry
+  /// registration and setting up the visuals.
   ///
   /// Creators of scenarios need never to call this method.
   ///
-  /// @param id[in] A unique id, provided by the simulator
+  /// @param[in] id A unique id, provided by the simulator
   /// to be stored by the agent for referential purposes.
-  /// @param road_geometry[in] A handle for the agent to the ground truth
+  /// @param[in] road_geometry A handle for the agent to the ground truth
   /// road network information.
-  /// @param builder[out] The diagram builder, use to wire systems ready for
+  /// @param[out] builder The diagram builder, use to wire systems ready for
   /// converting into the simulator's diagram.
-  /// @param aggregator[out] Every agent should connect to this and publish
+  /// @param[out] scene_graph The global scene graph for agents to register
+  /// geometry.
+  /// @param[out] aggregator Every agent should connect to this and publish
   /// it's state for access by all.
-  /// @param car_vis_applicator:
+  /// @param[out] car_vis_applicator The applicator to delegate agent
+  /// visualizations to.
+  /// @return Non zero on failure, zero on success.
   virtual int Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder,
-      drake::systems::rendering::PoseAggregator<double>* aggregator,
-      drake::automotive::CarVisApplicator<double>* car_vis_applicator) = 0;
+      drake::systems::DiagramBuilder<T>* builder,
+      drake::geometry::SceneGraph<T>* scene_graph,
+      drake::systems::rendering::PoseAggregator<T>* aggregator,
+      drake::automotive::CarVisApplicator<T>* car_vis_applicator) = 0;
+
+  /// Checks whether this agent is the source for the given
+  /// @p geometry_id (i.e. has registered the geometry associated
+  /// with that id) or not.
+  virtual bool is_source_of(
+      const drake::geometry::GeometryId& geometry_id) const {
+    return (geometry_ids_.count(geometry_id) != 0);
+  }
 
   /// @brief Name accessor
   const std::string& name() { return name_; }
@@ -71,6 +85,9 @@ class AgentBase {
   // to register inputs on the pose aggregator
   int id_{0};
   std::string name_;
+  // The set of geometry IDs associated with the geometries registered
+  // by this agent upon configuration.
+  std::set<drake::geometry::GeometryId> geometry_ids_{};
 };
 
 typedef AgentBase<double> Agent;

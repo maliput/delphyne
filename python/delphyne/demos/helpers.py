@@ -85,8 +85,8 @@ def create_argparse_epilog():
     """
     Create a humourous anecdote for argparse's epilog.
     """
+    msg = "And his noodly appendage reached forth to "\
+          "tickle the blessed...\n"
     if console.HAS_COLOURS:
-        msg = "And his noodly appendage reached forth to "\
-              "tickle the blessed...\n"
         return console.CYAN + msg + console.RESET
     return None

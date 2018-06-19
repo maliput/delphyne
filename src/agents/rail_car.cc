@@ -28,13 +28,16 @@
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/api/segment.h>
 #include <drake/automotive/prius_vis.h>
+#include <drake/common/eigen_types.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_aggregator.h>
 
 // public headers
+#include "delphyne/macros.h"
 #include "delphyne/maliput/find_lane.h"
 
 // private headers
+#include "agents/helpers/geometry_wiring.h"
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "systems/maliput_rail_car.h"
@@ -65,8 +68,13 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
 int RailCar::Configure(
     int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
+    drake::geometry::SceneGraph<double>* scene_graph,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
+  DELPHYNE_DEMAND(builder != nullptr);
+  DELPHYNE_DEMAND(scene_graph != nullptr);
+  DELPHYNE_DEMAND(aggregator != nullptr);
+  DELPHYNE_DEMAND(car_vis_applicator != nullptr);
   igndbg << "RailCar configure" << std::endl;
 
   /*********************
@@ -156,6 +164,22 @@ int RailCar::Configure(
                    ports.velocity_descriptor);
   car_vis_applicator->AddCarVis(
       std::make_unique<drake::automotive::PriusVis<double>>(id_, name_));
+
+  drake::maliput::api::LanePosition initial_car_lane_position{
+    initial_parameters_.position, initial_parameters_.offset, 0.};
+  drake::maliput::api::GeoPosition initial_car_geo_position =
+      initial_parameters_.lane.ToGeoPosition(initial_car_lane_position);
+  drake::maliput::api::Rotation initial_car_orientation =
+      initial_parameters_.lane.GetOrientation(initial_car_lane_position);
+
+  // Computes the initial world to car transform X_WC0.
+  const drake::Isometry3<double> X_WC0 =
+      drake::Translation3<double>(initial_car_geo_position.xyz())
+      * initial_car_orientation.quat();
+
+  // Wires up the Prius geometry.
+  builder->Connect(rail_car_system->pose_output(), WirePriusGeometry(
+      name_, X_WC0, builder, scene_graph, &geometry_ids_));
 
   /*********************
    * State Publisher

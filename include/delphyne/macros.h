@@ -27,10 +27,9 @@
 #define DELPHYNE_ABORT() DRAKE_ABORT()
 
 /// \def DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN
-/// deletes the special member functions for copy-construction, copy-assignment,
+/// Deletes the special member functions for copy-construction, copy-assignment,
 /// move-construction, and move-assignment.
-/// Invoke this this macro in the public section of the
-/// class declaration, e.g.:
+/// Invoke this macro in the public section of the class declaration, e.g.:
 /// <pre>
 /// class Foo {
 ///  public:

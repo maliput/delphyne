@@ -58,7 +58,8 @@ def launch_visualizer(launcher_manager, layout_filename):
     """Launches the project's visualizer with a given layout"""
     ign_visualizer = "visualizer"
     layout_key = "--layout="
-    layout_path = os.path.join(get_delphyne_resource_root(), layout_filename)
+    layout_path = os.path.join(get_delphyne_resource_root(),
+                               "layouts", layout_filename)
     teleop_config = layout_key + layout_path
     launcher_manager.launch([ign_visualizer, teleop_config])
 

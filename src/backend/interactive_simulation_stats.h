@@ -3,6 +3,7 @@
 #pragma once
 
 #include <limits>
+#include <mutex>
 #include <vector>
 
 #include "backend/simulation_run_stats.h"
@@ -38,6 +39,10 @@ namespace delphyne {
 /// was idle.
 class InteractiveSimulationStats {
  public:
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(InteractiveSimulationStats);
+
+  InteractiveSimulationStats() {}
+
   /// @brief Creates a new simulation run, starting at `start_simtime`
   ///
   /// @param[in] start_simtime. The time the simulation started, given by the
@@ -78,9 +83,9 @@ class InteractiveSimulationStats {
   /// wall clock.
   void StepExecuted(double simtime, const TimePoint& realtime);
 
-  /// @brief Returns the current running simulation stats @see
+  /// @brief Returns a copy of the current running simulation stats @see
   /// SimulationRunStats
-  const SimulationRunStats& GetCurrentRunStats() const;
+  SimulationRunStats GetCurrentRunStats() const;
 
   /// @brief Returns the sum of the elapsed simulation time of all the
   /// simulation runs.
@@ -128,14 +133,26 @@ class InteractiveSimulationStats {
   /// with the above example and using a 0.5 weighing factor, in only 15 steps
   /// the real-time rate drops to ~0.102, closely matching our 0.1 configured
   /// factor.
-  double get_current_realtime_rate() const { return weighted_realtime_rate_; }
+  double get_current_realtime_rate() const {
+    std::lock_guard<std::mutex> lock(mutex_);
+    return weighted_realtime_rate_;
+  }
 
  private:
-  // Returns the current running simulation stats @see SimulationRunStats
-  SimulationRunStats* GetMutableCurrentRunStats();
+  // @pre The private methods of this class do not use the mutex system since
+  // it has been agreed that only public methods will do so.
+  // Consequently, it is assumed that these methods are called from a
+  // thread-safe context.
 
-  // Updates the value of the `weighted_realtime_rate_` field based on the
-  // elapsed simulation and real time of an executed step.
+  // @brief Returns a reference to the current running simulation stats @see
+  // SimulationRunStats
+  const SimulationRunStats& GetUnsafeCurrentRunStats() const;
+
+  // @brief Returns the current running simulation stats @see SimulationRunStats
+  SimulationRunStats* GetUnsafeMutableCurrentRunStats();
+
+  // @brief Updates the value of the `weighted_realtime_rate_` field based
+  // on the elapsed simulation and real time of an executed step.
   void UpdateWeightedRealtimeRate(double simtime, const TimePoint& realtime);
 
   // @brief All the recorded simulation runs
@@ -162,6 +179,9 @@ class InteractiveSimulationStats {
 
   // @brief The ratio between weighed simulation time and weighed real time.
   double weighted_realtime_rate_{std::numeric_limits<double>::quiet_NaN()};
+
+  // @brief A mutex to synchronize stats read/write operations.
+  mutable std::mutex mutex_;
 };
 
 }  // namespace delphyne

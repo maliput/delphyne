@@ -387,7 +387,7 @@ class SimulatorRunner {
   // @brief Whether the simulation is paused or not.
   bool paused_{false};
 
-  // @brief The statistics of the (possibly man) simulation runs.
+  // @brief The statistics of the (possibly many) simulation runs.
   InteractiveSimulationStats stats_;
 };
 

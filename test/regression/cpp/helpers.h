@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <condition_variable>
 #include <chrono>
+#include <condition_variable>
 #include <mutex>
 
 #include <drake/lcmt_viewer_draw.hpp>
@@ -127,10 +127,10 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // transport topic.
 //
 // @tparam IGN_TYPE A valid ignition message type.
-template <typename IGN_TYPE, typename std::enable_if<
-                               std::is_base_of<
-                                 ignition::transport::ProtoMsg, IGN_TYPE
-                                 >::value, int>::type = 0>
+template <typename IGN_TYPE,
+          typename std::enable_if<
+              std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value,
+              int>::type = 0>
 class IgnMonitor {
  public:
   // Constructs a monitor for the given topic.
@@ -160,7 +160,7 @@ class IgnMonitor {
   template <typename R, typename P>
   bool wait_until(int message_count,
                   std::chrono::duration<R, P> timeout) const {
-    return do_until(message_count, timeout, []{});
+    return do_until(message_count, timeout, [] {});
   }
 
   // Waits for at least @p message_count messages to have arrived,
@@ -172,14 +172,12 @@ class IgnMonitor {
   //                  (upon message arrival)
   // @return Whether the wait succeeded or not (i.e. it timed out).
   template <typename R, typename P>
-  bool do_until(int message_count,
-                std::chrono::duration<R, P> timeout,
+  bool do_until(int message_count, std::chrono::duration<R, P> timeout,
                 std::function<void()> procedure) const {
     std::unique_lock<std::mutex> guard(mutex_);
     while (message_count_ < message_count) {
       procedure();
-      if (cv_.wait_for(guard, timeout)
-          == std::cv_status::timeout) {
+      if (cv_.wait_for(guard, timeout) == std::cv_status::timeout) {
         return false;
       }
     }

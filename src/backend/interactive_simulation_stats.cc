@@ -12,8 +12,9 @@ void InteractiveSimulationStats::NewRunStartingAt(
 void InteractiveSimulationStats::NewRunStartingAt(
     double start_simtime, double expected_realtime_rate,
     const TimePoint& start_realtime) {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (!run_stats_.empty()) {
-    SimulationRunStats* current = GetMutableCurrentRunStats();
+    SimulationRunStats* current = GetUnsafeMutableCurrentRunStats();
     current->RunFinished();
     // Discard an empty run
     if (current->get_executed_steps() == 0) {
@@ -28,13 +29,19 @@ void InteractiveSimulationStats::NewRunStartingAt(
                                           start_realtime));
 }
 
-const SimulationRunStats& InteractiveSimulationStats::GetCurrentRunStats()
+SimulationRunStats InteractiveSimulationStats::GetCurrentRunStats() const {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return GetUnsafeCurrentRunStats();
+}
+
+const SimulationRunStats& InteractiveSimulationStats::GetUnsafeCurrentRunStats()
     const {
   DELPHYNE_DEMAND(!run_stats_.empty());
   return run_stats_.at(run_stats_.size() - 1);
 }
 
-SimulationRunStats* InteractiveSimulationStats::GetMutableCurrentRunStats() {
+SimulationRunStats*
+InteractiveSimulationStats::GetUnsafeMutableCurrentRunStats() {
   DELPHYNE_DEMAND(!run_stats_.empty());
   return &run_stats_.back();
 }
@@ -45,13 +52,17 @@ void InteractiveSimulationStats::StepExecuted(double simtime) {
 
 void InteractiveSimulationStats::StepExecuted(double simtime,
                                               const TimePoint& realtime) {
+  std::lock_guard<std::mutex> lock(mutex_);
   UpdateWeightedRealtimeRate(simtime, realtime);
-  GetMutableCurrentRunStats()->StepExecuted(simtime, realtime);
+  GetUnsafeMutableCurrentRunStats()->StepExecuted(simtime, realtime);
 }
 
 const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd()
     const {
-  auto current_run = GetCurrentRunStats();
+  std::lock_guard<std::mutex> lock(mutex_);
+
+  const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
+
   const double current_realtime_rate = current_run.get_expected_realtime_rate();
   const double current_elapsed_simtime = current_run.ElapsedSimtime();
   return current_run.get_start_realtime() +
@@ -67,7 +78,7 @@ void InteractiveSimulationStats::UpdateWeightedRealtimeRate(
   // changes.
   static const double kWeighFactor{0.95};
 
-  auto current_run = GetCurrentRunStats();
+  const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
 
   const double simtime_passed = simtime - current_run.get_last_step_simtime();
   const Duration realtime_passed =
@@ -81,26 +92,33 @@ void InteractiveSimulationStats::UpdateWeightedRealtimeRate(
 }
 
 double InteractiveSimulationStats::TotalElapsedSimtime() const {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (run_stats_.empty()) {
     return 0.0;
   }
-  return GetCurrentRunStats().ElapsedSimtime() + total_elapsed_simtime_;
+  return GetUnsafeCurrentRunStats().ElapsedSimtime() + total_elapsed_simtime_;
 }
 
 double InteractiveSimulationStats::TotalElapsedRealtime() const {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (run_stats_.empty()) {
     return 0.0;
   }
-  return GetCurrentRunStats().ElapsedRealtime() + total_elapsed_realtime_;
+  return GetUnsafeCurrentRunStats().ElapsedRealtime() + total_elapsed_realtime_;
 }
 
 int InteractiveSimulationStats::TotalExecutedSteps() const {
+  std::lock_guard<std::mutex> lock(mutex_);
   if (run_stats_.empty()) {
     return 0;
   }
-  return GetCurrentRunStats().get_executed_steps() + total_executed_steps_;
+  return GetUnsafeCurrentRunStats().get_executed_steps() +
+         total_executed_steps_;
 }
 
-int InteractiveSimulationStats::TotalRuns() const { return run_stats_.size(); }
+int InteractiveSimulationStats::TotalRuns() const {
+  std::lock_guard<std::mutex> lock(mutex_);
+  return run_stats_.size();
+}
 
 }  // namespace delphyne

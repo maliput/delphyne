@@ -246,6 +246,7 @@ void SimulatorRunner::StepSimulationBy(double time_step) {
   }
 
   const TimePoint expected_realtime = stats_.CurrentStepExpectedRealtimeEnd();
+
   if (expected_realtime > RealtimeClock::now()) {
     std::this_thread::sleep_until(expected_realtime);
   }

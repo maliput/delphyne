@@ -87,7 +87,8 @@ PYBIND11_MODULE(simulation, m) {
       .def("unpause_simulation", &SimulatorRunner::UnpauseSimulation)
       .def("request_simulation_step_execution",
            &SimulatorRunner::RequestSimulationStepExecution)
-      .def("get_stats", &SimulatorRunner::get_stats);
+      .def("get_stats", &SimulatorRunner::get_stats,
+           py::return_value_policy::reference);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(

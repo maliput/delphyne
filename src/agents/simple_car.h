@@ -37,7 +37,7 @@ class SimpleCar : public delphyne::Agent {
  public:
   SimpleCar(const std::string& name, double x, double y, double heading,
             double speed);
-  int Configure(
+  void Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::geometry::SceneGraph<double>* scene_graph,

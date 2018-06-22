@@ -5,8 +5,8 @@
 #include <chrono>
 #include <memory>
 #include <string>
-#include <vector>
 #include <type_traits>
+#include <vector>
 
 #include <drake/systems/framework/leaf_system.h>
 
@@ -39,7 +39,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   explicit IgnPublisherSystem(const std::string& topic_name,
                               double publish_rate)
       : topic_name_(topic_name) {
-    DELPHYNE_DEMAND(publish_rate > 0.);
+    DELPHYNE_VALIDATE(publish_rate > 0.0, std::invalid_argument,
+                      "Invalid publish rate (must be > 0.0)");
     this->DeclareAbstractInputPort();
     const double kPublishTimeOffset{0.};
     const drake::systems::PublishEvent<double> publish_event(
@@ -86,7 +87,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
     const drake::systems::AbstractValue* input_message =
         EvalAbstractInput(context, kPortIndex);
     // Verifies that the input value is valid.
-    DELPHYNE_DEMAND(input_message != nullptr);
+    DELPHYNE_VALIDATE(input_message != nullptr, std::runtime_error,
+                      "Failed to get input from system");
     // Publishes the message onto the specified
     // ignition transport topic.
     publisher_.Publish(input_message->GetValue<IGN_TYPE>());

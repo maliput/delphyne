@@ -57,7 +57,7 @@ class MobilCar : public delphyne::Agent {
   MobilCar(const std::string& name, bool direction_of_travel, double x,
            double y, double heading, double speed);
 
-  int Configure(
+  void Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::geometry::SceneGraph<double>* scene_graph,

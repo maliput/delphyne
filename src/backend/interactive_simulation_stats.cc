@@ -36,13 +36,15 @@ SimulationRunStats InteractiveSimulationStats::GetCurrentRunStats() const {
 
 const SimulationRunStats& InteractiveSimulationStats::GetUnsafeCurrentRunStats()
     const {
-  DELPHYNE_DEMAND(!run_stats_.empty());
+  DELPHYNE_VALIDATE(!run_stats_.empty(), std::runtime_error,
+                    "Runtime statistics are empty");
   return run_stats_.at(run_stats_.size() - 1);
 }
 
 SimulationRunStats*
 InteractiveSimulationStats::GetUnsafeMutableCurrentRunStats() {
-  DELPHYNE_DEMAND(!run_stats_.empty());
+  DELPHYNE_VALIDATE(!run_stats_.empty(), std::runtime_error,
+                    "Runtime statistics are empty");
   return &run_stats_.back();
 }
 

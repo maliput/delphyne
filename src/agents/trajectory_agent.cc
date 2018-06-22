@@ -70,17 +70,25 @@ TrajectoryAgent::TrajectoryAgent(
                                           eigen_translations));
 }
 
-int TrajectoryAgent::Configure(
+void TrajectoryAgent::Configure(
     int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
     drake::geometry::SceneGraph<double>* scene_graph,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
-  DELPHYNE_DEMAND(builder != nullptr);
-  DELPHYNE_DEMAND(scene_graph != nullptr);
-  DELPHYNE_DEMAND(aggregator != nullptr);
-  DELPHYNE_DEMAND(car_vis_applicator != nullptr);
   igndbg << "TrajectoryAgent configure" << std::endl;
+
+  /*********************
+   * Checks
+   *********************/
+  DELPHYNE_VALIDATE(builder != nullptr, std::invalid_argument,
+                    "Builder must not be null");
+  DELPHYNE_VALIDATE(scene_graph != nullptr, std::invalid_argument,
+                    "Scene graph must not be null");
+  DELPHYNE_VALIDATE(aggregator != nullptr, std::invalid_argument,
+                    "Aggregator must not be null");
+  DELPHYNE_VALIDATE(car_vis_applicator != nullptr, std::invalid_argument,
+                    "Car visualization applicator must not be null");
 
   /*********************
    * Basics
@@ -145,7 +153,6 @@ int TrajectoryAgent::Configure(
 
   // And then the translated ignition car state is published.
   builder->Connect(*agent_state_translator, *agent_state_publisher_system);
-  return 0;
 }
 
 /*****************************************************************************

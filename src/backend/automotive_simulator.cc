@@ -2,55 +2,28 @@
 
 #include <algorithm>
 #include <functional>
-#include <map>
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/gen/driving_command.h>
-#include <drake/automotive/gen/driving_command_translator.h>
-#include <drake/automotive/gen/maliput_railcar_state_translator.h>
-#include <drake/automotive/gen/simple_car_state.h>
-#include <drake/automotive/gen/simple_car_state_translator.h>
-#include <drake/automotive/idm_controller.h>
-#include <drake/automotive/maliput/api/junction.h>
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/segment.h>
 #include <drake/automotive/maliput/utility/generate_urdf.h>
-#include <drake/automotive/prius_vis.h>
-#include <drake/common/drake_throw.h>
 #include <drake/common/text_logging.h>
 #include <drake/multibody/joints/floating_base_types.h>
 #include <drake/multibody/parsers/urdf_parser.h>
 #include <drake/multibody/rigid_body_plant/create_load_robot_message.h>
 #include <drake/systems/analysis/runge_kutta2_integrator.h>
-#include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/context.h>
-#include <drake/systems/framework/system.h>
-#include <drake/systems/primitives/multiplexer.h>
 
 #include "backend/automotive_simulator.h"
 #include "backend/ign_models_assembler.h"
-#include "delphyne/macros.h"
-#include "translations/drake_simple_car_state_to_ign.h"
-#include "translations/ign_driving_command_to_drake.h"
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 
 namespace delphyne {
 
-using drake::automotive::SimpleCarStateIndices;
-using drake::automotive::DrivingCommandIndices;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LaneId;
 using drake::maliput::api::RoadGeometry;
-using drake::maliput::api::RoadGeometryId;
-using drake::multibody::joints::kRollPitchYaw;
 using drake::systems::AbstractValue;
-using drake::systems::OutputPort;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::RungeKutta2Integrator;
-using drake::systems::System;
 using drake::systems::SystemOutput;
 
 template <typename T>
@@ -89,13 +62,15 @@ AutomotiveSimulator<T>::AutomotiveSimulator() {
 
 template <typename T>
 drake::systems::DiagramBuilder<T>* AutomotiveSimulator<T>::get_builder() {
-  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_VALIDATE(!has_started(), std::runtime_error,
+                    "Cannot get the builder on a running simulation");
   return builder_.get();
 }
 
 template <typename T>
 std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
-  DELPHYNE_DEMAND(simulator_ != nullptr);
+  DELPHYNE_VALIDATE(simulator_ != nullptr, std::runtime_error,
+                    "Cannot get the scene on an uninitialized simulator");
 
   auto scene_msg = std::make_unique<ignition::msgs::Scene>();
 
@@ -117,19 +92,6 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
   return std::move(scene_msg);
 }
 
-template <typename T>
-void AutomotiveSimulator<T>::ConnectCarOutputsAndPriusVis(
-    int id, const OutputPort<T>& pose_output,
-    const OutputPort<T>& velocity_output) {
-  DELPHYNE_DEMAND(&pose_output.get_system() == &velocity_output.get_system());
-  const std::string name = pose_output.get_system().get_name();
-  auto ports = aggregator_->AddSinglePoseAndVelocityInput(name, id);
-  builder_->Connect(pose_output, ports.pose_descriptor);
-  builder_->Connect(velocity_output, ports.velocity_descriptor);
-  car_vis_applicator_->AddCarVis(
-      std::make_unique<drake::automotive::PriusVis<T>>(id, name));
-}
-
 // TODO(jwnimmer-tri): Modify the various vehicle model systems to be more
 // uniform so common code from the following AddFooCar() methods can be moved
 // into a shared method.
@@ -140,8 +102,8 @@ int AutomotiveSimulator<T>::AddAgent(
   /*********************
    * Checks
    *********************/
-  DELPHYNE_DEMAND(!has_started());
-  DELPHYNE_DEMAND(aggregator_ != nullptr);
+  DELPHYNE_VALIDATE(!has_started(), std::runtime_error,
+                    "Cannot add an agent to a running simulation");
   CheckNameUniqueness(agent->name());
 
   /*********************
@@ -149,12 +111,9 @@ int AutomotiveSimulator<T>::AddAgent(
    *********************/
   int id = unique_system_id_++;
 
-  if (agent->Configure(id, road_geometry_.get(), builder_.get(),
-                       scene_graph_, aggregator_, car_vis_applicator_) < 0) {
-    ignerr << "Failed to configure agent '" << agent->name() << "'"
-           << std::endl;
-    return -1;
-  }
+  agent->Configure(id, road_geometry_.get(), builder_.get(), scene_graph_,
+                   aggregator_, car_vis_applicator_);
+
   agents_[id] = std::move(agent);
   return id;
 }
@@ -162,7 +121,8 @@ int AutomotiveSimulator<T>::AddAgent(
 template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road_geometry) {
-  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_VALIDATE(!has_started(), std::runtime_error,
+                    "Cannot set a road geometry on a running simulation");
   road_geometry_ = std::move(road_geometry);
   GenerateAndLoadRoadNetworkUrdf();
   return road_geometry_.get();
@@ -179,36 +139,6 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());
-}
-
-template <typename T>
-drake::systems::System<T>& AutomotiveSimulator<T>::GetBuilderSystemByName(
-    std::string name) {
-  DELPHYNE_DEMAND(!has_started());
-  drake::systems::System<T>* result{nullptr};
-  for (drake::systems::System<T>* system : builder_->GetMutableSystems()) {
-    if (system->get_name() == name) {
-      DRAKE_THROW_UNLESS(!result);
-      result = system;
-    }
-  }
-  DRAKE_THROW_UNLESS(result);
-  return *result;
-}
-
-template <typename T>
-const drake::systems::System<T>& AutomotiveSimulator<T>::GetDiagramSystemByName(
-    std::string name) const {
-  DELPHYNE_DEMAND(has_started());
-  const drake::systems::System<T>* result{nullptr};
-  for (const drake::systems::System<T>* system : diagram_->GetSystems()) {
-    if (system->get_name() == name) {
-      DRAKE_THROW_UNLESS(!result);
-      result = system;
-    }
-  }
-  DRAKE_THROW_UNLESS(result);
-  return *result;
 }
 
 namespace {
@@ -245,7 +175,8 @@ struct IsSourceOf {
 template <typename T>
 const std::vector<std::pair<int, int>>
     AutomotiveSimulator<T>::GetCollisions() const {
-  DELPHYNE_DEMAND(has_started());
+  DELPHYNE_VALIDATE(has_started(), std::runtime_error,
+                    "Can only get collisions on a running simulation");
   using drake::geometry::GeometryId;
   using drake::geometry::QueryObject;
   using drake::geometry::PenetrationAsPointPair;
@@ -255,10 +186,12 @@ const std::vector<std::pair<int, int>>
   for (const auto& collision : collisions) {
     const auto it_A = std::find_if(agents_.begin(), agents_.end(),
                                    IsSourceOf<T, GeometryId>(collision.id_A));
-    DELPHYNE_DEMAND(it_A != agents_.end());
+    DELPHYNE_VALIDATE(it_A != agents_.end(), std::runtime_error,
+                      "Could not find first agent in list of agents");
     const auto it_B = std::find_if(agents_.begin(), agents_.end(),
                                    IsSourceOf<T, GeometryId>(collision.id_B));
-    DELPHYNE_DEMAND(it_B != agents_.end());
+    DELPHYNE_VALIDATE(it_B != agents_.end(), std::runtime_error,
+                      "Could not find second agent in list of agents");
     agents_colliding.emplace_back(it_A->first, it_B->first);
   }
   return agents_colliding;
@@ -266,7 +199,8 @@ const std::vector<std::pair<int, int>>
 
 template <typename T>
 void AutomotiveSimulator<T>::Build() {
-  DELPHYNE_DEMAND(diagram_ == nullptr);
+  DELPHYNE_VALIDATE(diagram_ == nullptr, std::runtime_error,
+                    "Cannot call Build more than once");
 
   builder_->Connect(aggregator_->get_output_port(0),
                     car_vis_applicator_->get_car_poses_input_port());
@@ -358,7 +292,8 @@ void AutomotiveSimulator<T>::InitializeSceneGeometryAggregator() {
 
 template <typename T>
 void AutomotiveSimulator<T>::Start(double realtime_rate) {
-  DELPHYNE_DEMAND(!has_started());
+  DELPHYNE_VALIDATE(!has_started(), std::runtime_error,
+                    "Cannot start an already running simulation");
   if (diagram_ == nullptr) {
     Build();
   }
@@ -396,23 +331,23 @@ double AutomotiveSimulator<T>::get_current_simulation_time() const {
 template <typename T>
 void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
   for (const auto& agent : agents_) {
-    if (agent.second->name() == name) {
-      throw std::runtime_error("An agent named \"" + name +
-                               "\" already "
-                               "exists. It has id " +
-                               std::to_string(agent.first) + ".");
-    }
+    DELPHYNE_VALIDATE(agent.second->name() != name, std::runtime_error,
+                      "An agent named \"" + name +
+                      "\" already exists. It has id " +
+                      std::to_string(agent.first) + ".");
   }
 }
 
 template <typename T>
 PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
-  DELPHYNE_DEMAND(has_started());
+  DELPHYNE_VALIDATE(has_started(), std::runtime_error,
+      "Cannot get poses for a simulation that has not yet started");
   const auto& context = simulator_->get_context();
   std::unique_ptr<SystemOutput<T>> system_output =
       diagram_->AllocateOutput(context);
   diagram_->CalcOutput(context, system_output.get());
-  DELPHYNE_DEMAND(system_output->get_num_ports() == 1);
+  DELPHYNE_VALIDATE(system_output->get_num_ports() == 1, std::runtime_error,
+                    "System output has too many ports");
   const AbstractValue* abstract_value = system_output->get_data(0);
   const PoseBundle<T>& pose_bundle =
       abstract_value->GetValueOrThrow<PoseBundle<T>>();

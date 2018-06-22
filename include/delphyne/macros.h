@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <string>
+
 #include "drake/common/drake_assert.h"
 #include "drake/common/drake_copyable.h"
 
@@ -41,3 +43,32 @@
 /// */
 #define DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(class) \
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(class)
+
+/// \def STR_SIMPLE
+/// Internal stringify a token
+
+/// \def STR
+/// Stringify a token
+
+#define STR_SIMPLE(x) #x
+#define STR(x) STR_SIMPLE(x)
+
+/// \def DELPHYNE_VALIDATE
+/// Used to validate that an argument passed into a function or method is true;
+/// if not, an exception of type exctype is thrown.
+
+#define DELPHYNE_VALIDATE(pred, exctype, message)                       \
+  do {                                                                  \
+    if (!(pred)) {                                                      \
+      std::string fullname = std::string(__FILE__);                     \
+      size_t found = fullname.find_last_of("/");                        \
+      std::string fname = fullname;                                     \
+      if (found != std::string::npos) {                                 \
+        fname = fullname.substr(found+1);                               \
+      }                                                                 \
+      std::string errmsg(fname);                                        \
+      errmsg.append(":").append(__func__).append(":").append(STR(__LINE__)); \
+      errmsg.append(": ").append(message);                              \
+      throw exctype(errmsg);                                            \
+    }                                                                   \
+  } while (0)

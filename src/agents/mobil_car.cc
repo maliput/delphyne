@@ -54,31 +54,33 @@ MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
   igndbg << "MobilCar constructor" << std::endl;
 }
 
-int MobilCar::Configure(
+void MobilCar::Configure(
     int id, const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder,
     drake::geometry::SceneGraph<double>* scene_graph,
     drake::systems::rendering::PoseAggregator<double>* aggregator,
     drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
-  DELPHYNE_DEMAND(builder != nullptr);
-  DELPHYNE_DEMAND(scene_graph != nullptr);
-  DELPHYNE_DEMAND(aggregator != nullptr);
-  DELPHYNE_DEMAND(car_vis_applicator != nullptr);
   igndbg << "MobilCar configure" << std::endl;
+
+  /*********************
+   * Checks
+   *********************/
+  DELPHYNE_VALIDATE(builder != nullptr, std::invalid_argument,
+                    "Builder must not be null");
+  DELPHYNE_VALIDATE(scene_graph != nullptr, std::invalid_argument,
+                    "Scene graph must not be null");
+  DELPHYNE_VALIDATE(aggregator != nullptr, std::invalid_argument,
+                    "Aggregator must not be null");
+  DELPHYNE_VALIDATE(car_vis_applicator != nullptr, std::invalid_argument,
+                    "Car visualization applicator must not be null");
+  DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
+                    "Mobil cars need a road geometry to drive on, make sure "
+                    "the simulation is configured with one.");
 
   /*********************
    * Basics
    *********************/
   id_ = id;
-
-  /*********************
-   * Checks
-   *********************/
-  if (!road_geometry) {
-    ignerr << "Rail cars need a road geometry to drive on, make sure "
-           << "the simulation is configured with one." << std::endl;
-    return -1;
-  }
 
   /******************************************
    * Initial Context Variables
@@ -203,8 +205,6 @@ int MobilCar::Configure(
   // Wires up the Prius geometry.
   builder->Connect(simple_car_system->pose_output(), WirePriusGeometry(
       name_, X_WC0, builder, scene_graph, &geometry_ids_));
-
-  return 0;
 }
 
 }  // namespace delphyne

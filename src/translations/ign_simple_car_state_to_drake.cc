@@ -7,7 +7,8 @@ namespace delphyne {
 void IgnSimpleCarStateToDrake::DoIgnToDrakeTranslation(
     const ignition::msgs::SimpleCarState& ign_message,
     drake::automotive::SimpleCarState<double>* drake_message) const {
-  DELPHYNE_DEMAND(drake_message != nullptr);
+  DELPHYNE_VALIDATE(drake_message != nullptr, std::invalid_argument,
+                    "Drake message pointer must not be null");
 
   drake_message->set_x(ign_message.x());
   drake_message->set_y(ign_message.y());

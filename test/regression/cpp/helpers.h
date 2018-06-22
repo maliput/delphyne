@@ -5,6 +5,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
+#include <string>
 
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_load_robot.hpp>
@@ -16,6 +17,28 @@
 
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
+
+#define EXPECT_THROW_OF_TYPE(type, statement, msg)                         \
+  do {                                                                     \
+    try {                                                                  \
+      statement;                                                           \
+    } catch (type const& err) {                                            \
+      if (std::string(err.what()).find(msg) == std::string::npos) {        \
+        FAIL() << "Expected error msg containing:" << std::endl            \
+               << msg << std::endl                                         \
+               << "Saw error msg:" << std::endl                            \
+               << err.what() << std::endl;                                 \
+      }                                                                    \
+    } catch (std::exception const& err) {                                  \
+      FAIL() << "Expected " #type << std::endl                             \
+             << "Saw exception type: " << typeid(err).name() << std::endl; \
+    }                                                                      \
+  } while (0)
+
+#define EXPECT_RUNTIME_THROW(st, msg) \
+  EXPECT_THROW_OF_TYPE(std::runtime_error, st, msg)
+#define EXPECT_ARGUMENT_THROW(st, msg) \
+  EXPECT_THROW_OF_TYPE(std::invalid_argument, st, msg)
 
 namespace delphyne {
 namespace test {

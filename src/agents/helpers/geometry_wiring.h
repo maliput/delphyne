@@ -2,8 +2,8 @@
 #pragma once
 
 #include <memory>
-#include <string>
 #include <set>
+#include <string>
 #include <utility>
 
 #include <drake/common/eigen_types.h>
@@ -68,7 +68,7 @@ const drake::systems::InputPortDescriptor<T>& WirePriusGeometry(
   // Prius' dimensional constants have been retrieved or computed from its SDF
   // (currently living in Drake).
   const T kPriusCarLength{4.6257};  // in meters.
-  const T kPriusCarWidth{1.8208};  // in meters.
+  const T kPriusCarWidth{1.8208};   // in meters.
   const T kPriusCarHeight{1.3957};  // in meters.
   const Translation3<T> kPriusCarToChassisTranslation(1.40948, 0., 0.69785);
   const Quaternion<T> kPriusCarToChassisRotation{Quaternion<T>::Identity()};

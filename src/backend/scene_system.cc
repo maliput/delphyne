@@ -24,7 +24,8 @@ SceneSystem::SceneSystem() {
 void SceneSystem::CalcSceneMessage(
     const drake::systems::Context<double>& context,
     ignition::msgs::Scene* scene_message) const {
-  DELPHYNE_DEMAND(scene_message != nullptr);
+  DELPHYNE_VALIDATE(scene_message != nullptr, std::invalid_argument,
+                    "Scene message pointer must not be null");
 
   // Clears old scene state from the previous CalcSceneMessage call.
   // @see DeclareAbstractOutputPort

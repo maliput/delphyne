@@ -39,7 +39,7 @@ class TrajectoryAgent : public delphyne::Agent {
                   const std::vector<double>& headings,
                   const std::vector<std::vector<double>>& translations);
 
-  int Configure(
+  void Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder,
       drake::geometry::SceneGraph<double>* scene_graph,

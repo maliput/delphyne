@@ -59,7 +59,7 @@ class AgentBase {
   /// @param[out] car_vis_applicator The applicator to delegate agent
   /// visualizations to.
   /// @return Non zero on failure, zero on success.
-  virtual int Configure(
+  virtual void Configure(
       int id, const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<T>* builder,
       drake::geometry::SceneGraph<T>* scene_graph,

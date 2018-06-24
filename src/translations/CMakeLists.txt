@@ -20,6 +20,7 @@ target_include_directories(
 )
 target_link_libraries(translations
   PUBLIC
+    public_headers
     protobuf
     protobuf_messages
     ${drake_LIBRARIES}

@@ -12,7 +12,8 @@ add_library(test_helpers helpers.cc)
 target_include_directories(
   test_helpers
   PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
 target_link_libraries(test_helpers

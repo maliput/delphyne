@@ -1,6 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "test/regression/cpp/helpers.h"
+#include "helpers.h"
 
 #include <exception>
 #include <string>
@@ -14,7 +14,6 @@
 #include <ignition/msgs.hh>
 
 #include "delphyne/macros.h"
-#include "helpers.h"
 
 namespace delphyne {
 namespace test {

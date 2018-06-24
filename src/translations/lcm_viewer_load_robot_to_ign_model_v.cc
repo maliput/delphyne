@@ -5,8 +5,11 @@
 #include <map>
 #include <vector>
 
-#include "backend/time_conversion.h"
+// public headers
 #include "delphyne/macros.h"
+
+// private headers
+#include "translations/time_conversion.h"
 
 namespace delphyne {
 

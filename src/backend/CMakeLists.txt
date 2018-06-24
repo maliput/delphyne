@@ -1,34 +1,17 @@
-include (${project_cmake_dir}/Utils.cmake)
-include_directories(${PYTHON_INCLUDE_DIRS})
-
 ##############################################################################
-# Common Libraries
+# Scene Builder
 ##############################################################################
 
-# ----------------------------------------
-# Time Conversions (includes ignition conversions)
-add_library(time_conversion time_conversion.cc)
-set_target_properties(time_conversion PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-time-conversion)
-target_link_libraries(
-  time_conversion
-  PUBLIC
-    public_headers
-    ${IGNITION-MSGS_LIBRARIES}
-)
-install(TARGETS time_conversion
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-)
-
-# ----------------------------------------
-# Scene-builder library
-#
 add_library(scene_system
   load_robot_aggregator.cc
   scene_system.cc
 )
 set_target_properties(scene_system PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-scene-system)
+target_include_directories(
+  scene_system
+  PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+)
 target_link_libraries(
   scene_system
   PUBLIC
@@ -95,6 +78,7 @@ set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-s
 target_include_directories(
   simulation_runner
   PUBLIC
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${PYTHON_INCLUDE_DIRS}>
 )
 target_link_libraries(

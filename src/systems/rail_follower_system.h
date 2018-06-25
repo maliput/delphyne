@@ -6,7 +6,7 @@
 #include <vector>
 
 #include <drake/automotive/gen/maliput_railcar_params.h>
-#include <drake/automotive/gen/maliput_railcar_state.h>
+//#include <drake/automotive/gen/maliput_railcar_state.h>
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/lane.h>
@@ -16,8 +16,12 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 
-namespace drake {
-namespace automotive {
+#include "systems/rail_follower_state.h"
+
+namespace delphyne {
+
+using drake::automotive::LaneDirection;
+using drake::automotive::MaliputRailcarParams;
 
 /// MaliputRailcar models a vehicle that follows a maliput::api::Lane as if it
 /// were on rails and neglecting all physics.
@@ -26,7 +30,7 @@ namespace automotive {
 ///   * See MaliputRailcarParams.
 ///
 /// Continuous State:
-///   * See MaliputRailcarState.
+///   * See RailFollowerState.
 ///
 /// Abstract state:
 ///   * See LaneDirection.
@@ -34,14 +38,14 @@ namespace automotive {
 /// <B>Input Port Accessors:</B>
 ///
 ///   - command_input(): Contains the desired acceleration. This port
-///     contains a systems::BasicVector of size 1. It is optional in that it
+///     contains a drake::systems::BasicVector of size 1. It is optional in that it
 ///     need not be connected. When it is unconnected, the railcar will travel
 ///     at its initial velocity, which is specified in MaliputRailcarParams.
 ///
 /// <B>Output Port Accessors:</B>
 ///
 ///   - state_output(): Contains this system's state vector. See
-///     MaliputRailcarState.
+///     RailFollowerState.
 ///
 ///   - lane_state_output(): Contains this system's lane direction state. See
 ///     LaneDirection.
@@ -59,13 +63,10 @@ namespace automotive {
 /// Instantiated templates for the following ScalarTypes are provided:
 /// - double
 ///
-/// They are already available to link against in the containing library.
-///
-/// @ingroup automotive_plants
 template <typename T>
-class MaliputRailCar final : public systems::LeafSystem<T> {
+class RailFollowerSystem final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MaliputRailCar)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailFollowerSystem)
   /// Defines a distance that is "close enough" to the end of a lane for the
   /// vehicle to transition to an ongoing branch. The primary constraint on the
   /// selection of this variable is the application's degree of sensitivity to
@@ -95,66 +96,74 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
   ///
   /// @param initial_lane_direction The initial lane and direction of travel.
   ///
-  explicit MaliputRailCar(const LaneDirection& initial_lane_direction);
+  explicit RailFollowerSystem(const LaneDirection& initial_lane_direction);
 
-  MaliputRailCar(const LaneDirection& initial_lane_direction,
-                 const MaliputRailcarState<T>& initial_context_state,
-                 const MaliputRailcarParams<T>& initial_context_parameters);
+  /// Constructor that initialises all variables in the system that will be
+  /// placed on the context. This includes the continuous state, parameters
+  /// and non-continuous state variables.
+  ///
+  /// @param[in] initial_lane_direction The initial lane and direction of travel.
+  /// @param[in] initial_context_state The continuous state variables
+  /// @param[in] initial_context_parameters The parameters
+  RailFollowerSystem(
+      const LaneDirection& initial_lane_direction,
+      const RailFollowerState<T>& initial_context_state,
+      const MaliputRailcarParams<T>& initial_context_parameters);
 
   /// Returns a mutable reference to the parameters in the given @p context.
   MaliputRailcarParams<T>& get_mutable_parameters(
-      systems::Context<T>* context) const;
+      drake::systems::Context<T>* context) const;
 
   /// Getter methods for input and output ports.
   /// @{
-  const systems::InputPortDescriptor<T>& command_input() const;
-  const systems::OutputPort<T>& state_output() const;
-  const systems::OutputPort<T>& simple_car_state_output() const;
-  const systems::OutputPort<T>& lane_state_output() const;
-  const systems::OutputPort<T>& pose_output() const;
-  const systems::OutputPort<T>& velocity_output() const;
+  const drake::systems::InputPortDescriptor<T>& command_input() const;
+  const drake::systems::OutputPort<T>& state_output() const;
+  const drake::systems::OutputPort<T>& simple_car_state_output() const;
+  const drake::systems::OutputPort<T>& lane_state_output() const;
+  const drake::systems::OutputPort<T>& pose_output() const;
+  const drake::systems::OutputPort<T>& velocity_output() const;
   /// @}
 
  private:
   // System<T> overrides.
   void DoCalcTimeDerivatives(
-      const systems::Context<T>& context,
-      systems::ContinuousState<T>* derivatives) const override;
+      const drake::systems::Context<T>& context,
+      drake::systems::ContinuousState<T>* derivatives) const override;
 
   // LeafSystem<T> overrides.
-  optional<bool> DoHasDirectFeedthrough(int, int) const override;
-  void DoCalcNextUpdateTime(const systems::Context<T>& context,
-                            systems::CompositeEventCollection<T>*,
+  drake::optional<bool> DoHasDirectFeedthrough(int, int) const override;
+  void DoCalcNextUpdateTime(const drake::systems::Context<T>& context,
+                            drake::systems::CompositeEventCollection<T>*,
                             T* time) const override;
   void DoCalcUnrestrictedUpdate(
-      const systems::Context<T>& context,
-      const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
-      systems::State<T>* state) const override;
+      const drake::systems::Context<T>& context,
+      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+      drake::systems::State<T>* state) const override;
 
-  void CalcSimpleCarStateOutput(const systems::Context<T>& context,
-                                SimpleCarState<T>* output) const;
+  void CalcSimpleCarStateOutput(const drake::systems::Context<T>& context,
+                                drake::automotive::SimpleCarState<T>* output) const;
 
-  void CalcStateOutput(const systems::Context<T>& context,
-                       MaliputRailcarState<T>* output) const;
+  void CalcStateOutput(const drake::systems::Context<T>& context,
+                       RailFollowerState<T>* output) const;
 
-  void CalcLaneOutput(const systems::Context<T>& context,
+  void CalcLaneOutput(const drake::systems::Context<T>& context,
                       LaneDirection* output) const;
 
-  void CalcPose(const systems::Context<T>& context,
-                systems::rendering::PoseVector<T>* pose) const;
+  void CalcPose(const drake::systems::Context<T>& context,
+                drake::systems::rendering::PoseVector<T>* pose) const;
 
-  void CalcVelocity(const systems::Context<T>& context,
-                    systems::rendering::FrameVelocity<T>* pose) const;
+  void CalcVelocity(const drake::systems::Context<T>& context,
+                    drake::systems::rendering::FrameVelocity<T>* pose) const;
 
   void ImplCalcTimeDerivatives(const MaliputRailcarParams<T>& params,
-                               const MaliputRailcarState<T>& state,
+                               const RailFollowerState<T>& state,
                                const LaneDirection& lane_direction,
-                               const systems::BasicVector<T>& input,
-                               MaliputRailcarState<T>* rates) const;
+                               const drake::systems::BasicVector<T>& input,
+                               RailFollowerState<T>* rates) const;
 
   void ImplCalcTimeDerivativesDouble(const MaliputRailcarParams<double>& params,
-                                     const MaliputRailcarState<double>& state,
-                                     MaliputRailcarState<double>* rates) const;
+                                     const RailFollowerState<double>& state,
+                                     RailFollowerState<double>* rates) const;
 
   // Calculates the vehicle's `r` coordinate based on whether it's traveling
   // with or against `s` in the current lane relative to the initial lane.
@@ -163,7 +172,7 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
 
   // Finds our parameters in a context.
   const MaliputRailcarParams<T>& get_parameters(
-      const systems::Context<T>& context) const;
+      const drake::systems::Context<T>& context) const;
 
   const LaneDirection initial_lane_direction_{};
 
@@ -175,5 +184,4 @@ class MaliputRailCar final : public systems::LeafSystem<T> {
   int velocity_output_port_index_{};
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delohyne

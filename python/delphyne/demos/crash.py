@@ -12,6 +12,7 @@ The crash demo.
 from __future__ import print_function
 
 import math
+from functools import wraps
 
 from delphyne.agents import SimpleCar
 from delphyne.simulation import (
@@ -19,8 +20,10 @@ from delphyne.simulation import (
     SimulatorRunner
 )
 from delphyne.utilities import (
-    launch_interactive_simulation
+    launch_interactive_simulation,
+    emplace
 )
+
 
 from . import helpers
 
@@ -41,22 +44,48 @@ in collision course.
     return parser.parse_args()
 
 
-def check_for_collisions(runner, simulator):
+@emplace(SimulatorRunner.add_collision_callback)
+def add_collision_callback(_, method):
     """
-    Checks for collisions between agents in simulation,
+    Decorates :meth:`SimulatorRunner.add_collision_callback` method
+    to handle collision callbacks that take a :class:`SimulatorRunner`
+    instance and a list of tuples of :class:`AgentBase` instances that
+    are in collision as arguments in that order.
+    """
+    @wraps(method)
+    def _method_wrapper(self, callback):
+        @wraps(callback)
+        def _callback_wrapper(agents_in_collision):
+            simulator = self.get_simulator()
+            agents_in_collision = [
+                (simulator.get_mutable_agent_by_id(agent1_id),
+                 simulator.get_mutable_agent_by_id(agent2_id))
+                for agent1_id, agent2_id in agents_in_collision
+            ]
+            callback(self, agents_in_collision)
+        return method(self, _callback_wrapper)
+    return _method_wrapper
+
+
+def on_agent_collision(runner, agents_in_collision):
+    """
+    Callback on for collision between agents in simulation,
     stopping the runner if *any* collision is detected.
+
     :param runner: Current simulation runner.
-    :type runner: delphyne.simulation.SimulationRunner
-    :param simulator: Current simulator.
-    :type simulator: delphyne.simulation.AutomotiveSimulator
+    :type runner: :class:`delphyne.simulation.SimulatorRunner`
+    :param agents_in_collision: List of agents (e.g. cars) currently
+                                in collision.
+    :type agents_in_collision: list[tuple[:class:`delphyne.agents.AgentBase`,
+                                          :class:`delphyne.agents.AgentBase`]]
     """
-    collisions = simulator.get_collisions()
-    if any(collisions):
-        print("Collision detected between the following car IDs:")
-        for pair in collisions:
-            print(pair)
-        print("Simulation stopped.")
-        runner.stop()
+    print("Collisions have been detected!")
+    for agent1, agent2 in agents_in_collision:
+        print("{} and {} have crashed.".format(
+            agent1.name(), agent2.name()
+        ))
+    print("Simulation stopped.")
+    runner.stop()
 
 
 ##############################################################################
@@ -109,8 +138,6 @@ def main():
 
     with launch_interactive_simulation(runner):
         # Adds a callback to check for agent collisions.
-        runner.add_step_callback(
-            lambda: check_for_collisions(runner, simulator)
-        )
-
+        runner.add_collision_callback(on_agent_collision)
+        runner.enable_collisions()
         runner.start()

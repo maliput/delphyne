@@ -168,6 +168,20 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 TEST_F(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   EXPECT_NE(nullptr, simulator->get_builder());
+
+  auto agent_bob = std::make_unique<delphyne::SimpleCar>(
+      "bob", 0.0, 0.0, 0.0, 0.0);
+  const int agent_bob_id = simulator->AddAgent(std::move(agent_bob));
+  EXPECT_EQ(simulator->GetAgentById(agent_bob_id).name(), "bob");
+
+  auto agent_alice = std::make_unique<delphyne::SimpleCar>(
+      "alice", 0.0, 0.0, 0.0, 0.0);
+  const int agent_alice_id = simulator->AddAgent(std::move(agent_alice));
+  EXPECT_EQ(simulator->GetAgentById(agent_alice_id).name(), "alice");
+
+  // Verifies that passing an unknown agent ID is an error.
+  const int agent_x_id = -1;
+  EXPECT_THROW(simulator->GetAgentById(agent_x_id), std::runtime_error);
 }
 
 // Covers simple-car, Start and StepBy

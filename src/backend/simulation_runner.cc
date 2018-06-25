@@ -10,6 +10,7 @@
 #include <mutex>
 #include <thread>
 #include <utility>
+#include <vector>
 
 #include <drake/common/unused.h>
 
@@ -142,9 +143,22 @@ void SimulatorRunner::UnpauseSimulation() {
   paused_ = false;
 }
 
+void SimulatorRunner::EnableCollisions() {
+  collisions_enabled_ = true;
+}
+
+void SimulatorRunner::DisableCollisions() {
+  collisions_enabled_ = false;
+}
+
 void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(mutex_);
   step_callbacks_.push_back(callable);
+}
+
+void SimulatorRunner::AddCollisionCallback(CollisionCallback callable) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  collision_callbacks_.push_back(callable);
 }
 
 void SimulatorRunner::Start() {
@@ -217,7 +231,8 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 
   // A copy of the python callbacks so we can process them in a thread-safe
   // way
-  std::vector<std::function<void()>> callbacks;
+  std::vector<std::function<void()>> step_callbacks;
+  std::vector<CollisionCallback> collision_callbacks;
 
   // 3. Processes outgoing messages (notifications) and send world stats.
   {
@@ -228,17 +243,39 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
     SendWorldStats();
 
     // Makes a temporal copy of the python callbacks while we have the lock.
-    callbacks = step_callbacks_;
+    step_callbacks = step_callbacks_;
+    collision_callbacks = collision_callbacks_;
   }
 
   // This if is here so that we only grab the python global
   // interpreter lock if there is at least one callback.
-  if (callbacks.size() > 0) {
+  if (!step_callbacks.empty()) {
     // 1. Acquires the lock to the python interpreter.
     pybind11::gil_scoped_acquire acquire;
     // 2. Performs the callbacks.
-    for (std::function<void()> callback : callbacks) {
+    for (std::function<void()> callback : step_callbacks) {
       callback();
+    }
+  }
+
+  // Computes collisions iff collisions are enabled and simulation
+  // is not paused.
+  if (collisions_enabled_ && !paused_) {
+    // Computes collisions between agents.
+    const std::vector<std::pair<int, int>> agents_in_collision =
+        simulator_->GetCollisions();
+    if (!agents_in_collision.empty()) {
+      // Pauses simulation if necessary.
+      PauseSimulation();
+      // Calls all registered collision callbacks, if any.
+      if (!collision_callbacks.empty()) {
+        // 1. Acquires the lock to the python interpreter.
+        pybind11::gil_scoped_acquire acquire;
+        // 2. Calls all collision callbacks.
+        for (CollisionCallback callback : collision_callbacks) {
+          callback(agents_in_collision);
+        }
+      }
     }
   }
 }

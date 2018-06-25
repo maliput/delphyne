@@ -170,6 +170,22 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
 ##############################################################################
 
 
+def emplace(method):
+    """
+    Python decorator that performs an in-place replacement of the given
+    `method` using the decorated function, that takes the associated
+    class object and the method itself as arguments, in that order.
+
+    :param method: unbound class method.
+    """
+    def _do_emplace(method_decorator):
+        cls = method.im_class
+        method_wrapper = method_decorator(cls, method)
+        setattr(cls, method.__name__, method_wrapper)
+        return method_wrapper
+    return _do_emplace
+
+
 def print_simulation_stats(simulator_runner):
     """Get the interactive simulation statistics and print them on standard
     output.

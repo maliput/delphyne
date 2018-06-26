@@ -195,14 +195,15 @@ void RailCar::Configure(
   // Connects the railcar's pose and velocity outputs to the simple car
   // state calculator system.
   builder->Connect(rail_car_system->pose_output(),
-                   pose_and_vel_to_simple_car_state->get_input_port(0));
+                   pose_and_vel_to_simple_car_state->get_pose_input_port());
   builder->Connect(rail_car_system->velocity_output(),
-                   pose_and_vel_to_simple_car_state->get_input_port(1));
+                   pose_and_vel_to_simple_car_state->get_velocity_input_port());
 
   // Connects the simple car state calculator system's output to the ignition
   // publisher.
-  builder->Connect(pose_and_vel_to_simple_car_state->simple_car_state_output(),
-                   agent_state_publisher_system->get_input_port(0));
+  builder->Connect(
+      pose_and_vel_to_simple_car_state->get_simple_car_state_output(),
+      agent_state_publisher_system->get_input_port(0));
 }
 
 }  // namespace delphyne

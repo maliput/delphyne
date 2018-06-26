@@ -4,8 +4,11 @@
 
 #include <algorithm>
 
+#include <drake/common/eigen_types.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/vector_base.h>
+#include <drake/systems/rendering/frame_velocity.h>
+#include <drake/systems/rendering/pose_vector.h>
 
 #include "delphyne/protobuf/simple_car_state.pb.h"
 
@@ -37,14 +40,14 @@ void PoseAndVelToSimpleCarState::CalcSimpleCarState(
   const drake::systems::rendering::PoseVector<double>* const pose =
       dynamic_cast<const drake::systems::rendering::PoseVector<double>*>(
           pose_vector);
-  const Eigen::Translation<double, 3> pose_translation =
+  const drake::Translation3<double> pose_translation =
       pose->get_translation();
   const Eigen::Quaternion<double> pose_rotation = pose->get_rotation();
   // Translates pose from quaternion to euler.
   const Eigen::Vector3d euler_rotation =
       pose_rotation.toRotationMatrix().eulerAngles(0, 1, 2);
 
-  // Obtains car velocity as a VectorBase
+  // Obtains car velocity as a VectorBase.
   const drake::systems::VectorBase<double>* const velocity_vector =
       EvalVectorInput(context, velocity_input_port_index_);
   // Casts VectorBase as FrameVelocity.
@@ -63,10 +66,8 @@ void PoseAndVelToSimpleCarState::CalcSimpleCarState(
   state.set_y(pose_translation.y());
   state.set_heading(euler_rotation(2));
   state.set_velocity(velocity_norm);
-  // Don't allow small negative velocities to escape the state.
-  state.set_velocity(std::max(0.0, state.velocity()));
 
-  // Set output value with the generated SimpleCarState message.
+  // Sets the output value with the generated SimpleCarState message.
   output->CopyFrom(state);
 }
 

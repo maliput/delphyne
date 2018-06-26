@@ -43,6 +43,7 @@
 #include "systems/maliput_rail_car.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
+#include "translations/pose_and_vel_to_simple_car_state.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -190,8 +191,19 @@ void RailCar::Configure(
       builder->template AddSystem<AgentStatePublisherSystem>(
           std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
-  // Drake car states are translated to ignition.
-  builder->Connect(rail_car_system->simple_car_state_output(),
+  auto pose_and_vel_to_simple_car_state =
+      builder->template AddSystem<PoseAndVelToSimpleCarState>();
+
+  // Connects the railcar's pose and velocity outputs to the simple car
+  // state calclator system.
+  builder->Connect(rail_car_system->pose_output(),
+                   pose_and_vel_to_simple_car_state->get_input_port(0));
+  builder->Connect(rail_car_system->velocity_output(),
+                   pose_and_vel_to_simple_car_state->get_input_port(1));
+
+  // Connects the simple car state calculator system's output to the ignition
+  // publisher.
+  builder->Connect(pose_and_vel_to_simple_car_state->simple_car_state_output(),
                    agent_state_translator->get_input_port(0));
 
   // And then the translated ignition car state is published.

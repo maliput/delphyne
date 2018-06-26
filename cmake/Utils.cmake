@@ -1,15 +1,12 @@
 ################################################################################
-#append_to_cached_string(_string _cacheDesc [items...])
 # Appends items to a cached list.
 macro(append_to_cached_string _string _cacheDesc)
   foreach(newItem ${ARGN})
     set(${_string} "${${_string}} ${newItem}" CACHE INTERNAL ${_cacheDesc} FORCE)
   endforeach(newItem ${ARGN})
-  #string(STRIP ${${_string}} ${_string})
 endmacro(append_to_cached_string)
 
 ################################################################################
-# append_to_cached_list (_list _cacheDesc [items...]
 # Appends items to a cached list.
 macro(append_to_cached_list _list _cacheDesc)
   set(tempList ${${_list}})

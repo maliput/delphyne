@@ -26,7 +26,6 @@ macro(list_to_string _string _list)
     foreach(_item ${_list})
       set(${_string} "${${_string}} ${_item}")
     endforeach(_item)
-    #string(STRIP ${${_string}} ${_string})
 endmacro(list_to_string)
 
 #################################################

@@ -2,8 +2,12 @@
 
 #include "translations/pose_and_vel_to_simple_car_state.h"
 
+#include <algorithm>
+
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/vector_base.h>
+
+#include "delphyne/protobuf/simple_car_state.pb.h"
 
 namespace delphyne {
 
@@ -18,14 +22,14 @@ PoseAndVelToSimpleCarState::PoseAndVelToSimpleCarState() {
       this->DeclareInputPort(drake::systems::kVectorValued, kVelocityVectorSize)
           .get_index();
   // Declares output port.
-  output_port_index_ = this->DeclareVectorOutputPort(
+  output_port_index_ = this->DeclareAbstractOutputPort(
                                &PoseAndVelToSimpleCarState::CalcSimpleCarState)
                            .get_index();
 }
 
 void PoseAndVelToSimpleCarState::CalcSimpleCarState(
     const drake::systems::Context<double>& context,
-    drake::automotive::SimpleCarState<double>* output) const {
+    ignition::msgs::SimpleCarState* output) const {
   // Obtains car pose as a VectorBase.
   const drake::systems::VectorBase<double>* const pose_vector =
       EvalVectorInput(context, pose_input_port_index_);
@@ -54,16 +58,16 @@ void PoseAndVelToSimpleCarState::CalcSimpleCarState(
       static_cast<double>(spatial_velocity.translational().norm());
 
   // Creates and fills a SimpleCarState message.
-  drake::automotive::SimpleCarState<double> state{};
+  ignition::msgs::SimpleCarState state{};
   state.set_x(pose_translation.x());
   state.set_y(pose_translation.y());
   state.set_heading(euler_rotation(2));
   state.set_velocity(velocity_norm);
+  // Don't allow small negative velocities to escape the state.
+  state.set_velocity(std::max(0.0, state.velocity()));
 
   // Set output value with the generated SimpleCarState message.
-  output->set_value(state.get_value());
-  // Don't allow small negative velocities to escape the state.
-  output->set_velocity(std::max(0.0, state.velocity()));
+  output->CopyFrom(state);
 }
 
 }  // namespace delphyne

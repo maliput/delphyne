@@ -5,6 +5,8 @@
 #include <drake/automotive/simple_car.h>
 #include <drake/systems/framework/leaf_system.h>
 
+#include "delphyne/protobuf/simple_car_state.pb.h"
+
 namespace delphyne {
 
 // @brief A system that takes a pose and a velocity vectors from a maliput rail
@@ -20,9 +22,8 @@ class PoseAndVelToSimpleCarState : public drake::systems::LeafSystem<double> {
 
  protected:
   /// @brief Calculates the SimpleCarState message based on the given context.
-  void CalcSimpleCarState(
-      const drake::systems::Context<double>& context,
-      drake::automotive::SimpleCarState<double>* output) const;
+  void CalcSimpleCarState(const drake::systems::Context<double>& context,
+                          ignition::msgs::SimpleCarState* output) const;
 
  private:
   int pose_input_port_index_{};

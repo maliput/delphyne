@@ -1,4 +1,4 @@
-# Check if SSE instructions are available on the machine where 
+# Check if SSE instructions are available on the machine where
 # the project is compiled.
 
 EXEC_PROGRAM(cat ARGS "/proc/cpuinfo" OUTPUT_VARIABLE CPUINFO)
@@ -52,6 +52,7 @@ set(SSE2_FOUND   true  CACHE BOOL "SSE2 available on host")
 set(SSE3_FOUND   false CACHE BOOL "SSE3 available on host")
 set(SSSE3_FOUND  false CACHE BOOL "SSSE3 available on host")
 set(SSE4_1_FOUND false CACHE BOOL "SSE4.1 available on host")
+set(SSE4_2_FOUND false CACHE BOOL "SSE4.2 available on host")
 
 if(NOT SSE2_FOUND)
       MESSAGE(STATUS "Could not find hardware support for SSE2 on this machine.")
@@ -65,5 +66,8 @@ endif(NOT SSSE3_FOUND)
 if(NOT SSE4_1_FOUND)
       MESSAGE(STATUS "Could not find hardware support for SSE4.1 on this machine.")
 endif(NOT SSE4_1_FOUND)
+if(NOT SSE4_2_FOUND)
+      MESSAGE(STATUS "Could not find hardware support for SSE4.2 on this machine.")
+endif(NOT SSE4_2_FOUND)
 
-mark_as_advanced(SSE2_FOUND SSE3_FOUND SSSE3_FOUND SSE4_1_FOUND)
+mark_as_advanced(SSE2_FOUND SSE3_FOUND SSSE3_FOUND SSE4_1_FOUND SSE4_2_FOUND)

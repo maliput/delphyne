@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "test/regression/cpp/helpers.h"
+#include "helpers.h"
 
 namespace delphyne {
 

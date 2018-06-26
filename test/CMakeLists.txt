@@ -34,7 +34,6 @@ macro(delphyne_build_tests)
         automotive_simulator
         scene_system
         translations
-        time_conversion
         protobuf
         drake::drake
         ${IGNITION-COMMON_LIBRARIES}

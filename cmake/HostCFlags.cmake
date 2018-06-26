@@ -1,4 +1,4 @@
-include (${project_cmake_dir}/FindSSE.cmake)
+include (${PROJECT_SOURCE_DIR}/cmake/FindSSE.cmake)
 
 if (SSE2_FOUND)
   set (CMAKE_C_FLAGS_ALL "-msse -msse2 ${CMAKE_C_FLAGS_ALL}")

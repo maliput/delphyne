@@ -1,53 +1,29 @@
 ################################################################################
-#APPEND_TO_CACHED_STRING(_string _cacheDesc [items...])
 # Appends items to a cached list.
-MACRO (APPEND_TO_CACHED_STRING _string _cacheDesc)
-  FOREACH (newItem ${ARGN})
-    SET (${_string} "${${_string}} ${newItem}" CACHE INTERNAL ${_cacheDesc} FORCE)
-  ENDFOREACH (newItem ${ARGN})
-  #STRING(STRIP ${${_string}} ${_string})
-ENDMACRO (APPEND_TO_CACHED_STRING)
+macro(append_to_cached_string _string _cacheDesc)
+  foreach(newItem ${ARGN})
+    set(${_string} "${${_string}} ${newItem}" CACHE INTERNAL ${_cacheDesc} FORCE)
+  endforeach(newItem ${ARGN})
+endmacro(append_to_cached_string)
 
 ################################################################################
-# APPEND_TO_CACHED_LIST (_list _cacheDesc [items...]
 # Appends items to a cached list.
-MACRO (APPEND_TO_CACHED_LIST _list _cacheDesc)
-  SET (tempList ${${_list}})
-  FOREACH (newItem ${ARGN})
-    LIST (APPEND tempList ${newItem})
-  ENDFOREACH (newItem ${newItem})
-  SET (${_list} ${tempList} CACHE INTERNAL ${_cacheDesc} FORCE)
-ENDMACRO(APPEND_TO_CACHED_LIST)
+macro(append_to_cached_list _list _cacheDesc)
+  set(tempList ${${_list}})
+  foreach(newItem ${ARGN})
+    list(APPEND tempList ${newItem})
+  endforeach(newItem ${newItem})
+  set(${_list} ${tempList} CACHE INTERNAL ${_cacheDesc} FORCE)
+endmacro(append_to_cached_list)
 
 #################################################
 # Macro to turn a list into a string (why doesn't CMake have this built-in?)
-MACRO (LIST_TO_STRING _string _list)
-    SET (${_string})
-    FOREACH (_item ${_list})
-      SET (${_string} "${${_string}} ${_item}")
-    ENDFOREACH (_item)
-    #STRING(STRIP ${${_string}} ${_string})
-ENDMACRO (LIST_TO_STRING)
-
-#################################################
-# BUILD ERROR macro
-macro (BUILD_ERROR)
-  foreach (str ${ARGN})
-    SET (msg "\t${str}")
-    MESSAGE (STATUS ${msg})
-    APPEND_TO_CACHED_LIST(build_errors "build errors" ${msg})
-  endforeach ()
-endmacro (BUILD_ERROR)
-
-#################################################
-# BUILD WARNING macro
-macro (BUILD_WARNING)
-  foreach (str ${ARGN})
-    SET (msg "\t${str}" )
-    MESSAGE (STATUS ${msg} )
-    APPEND_TO_CACHED_LIST(build_warnings "build warning" ${msg})
-  endforeach (str ${ARGN})
-endmacro (BUILD_WARNING)
+macro(list_to_string _string _list)
+    set(${_string})
+    foreach(_item ${_list})
+      set(${_string} "${${_string}} ${_item}")
+    endforeach(_item)
+endmacro(list_to_string)
 
 #################################################
 # Macro to setup supported compiler warnings

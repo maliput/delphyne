@@ -99,7 +99,8 @@ def main():
         simulator=simulator,
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
-        paused=args.paused
+        paused=args.paused,
+        log=args.log
     )
 
     rate_changer = RealtimeRateChanger(runner, initial_steps)

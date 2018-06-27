@@ -56,6 +56,9 @@ def create_argument_parser(title, content, default_duration=-1.0):
     parser.add_argument('-p', '--paused',
                         action='store_true',
                         help='Start the simulation paused (default: False)')
+    parser.add_argument('-l', '--log',
+                        action='store_true',
+                        help='Log simulation data (default: False)')
     return parser
 
 

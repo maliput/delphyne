@@ -364,4 +364,28 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
             kSimulationDuration * (1. + kSimulationRelativeTolerance));
 }
 
+// @brief Asserts that simulation does not log by default, and logging can be
+// started and stopped.
+TEST_F(SimulationRunnerTest, TestStartStopLogging) {
+  sim_runner_->Start();
+
+  // Simulation should not log by default.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  sim_runner_->StartLogging();
+
+  // Simulation should now be logging.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  EXPECT_NE(std::string::npos,
+    sim_runner_->GetLogFilename().find(".delphyne/logs"));
+
+  sim_runner_->StopLogging();
+
+  // Simulation should no longer be logging.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  EXPECT_TRUE(sim_runner_->GetLogFilename().empty());
+}
+
 }  // namespace delphyne

@@ -132,6 +132,7 @@ def main():
         time_step=0.015,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused
+        log=args.log
     )
 
     with utilities.launch_interactive_simulation(runner) as launcher:

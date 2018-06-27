@@ -57,22 +57,24 @@ PYBIND11_MODULE(simulation, m) {
            "at the specified time step.",
            py::arg("simulator"), py::arg("time_step"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
-                    bool>(),
+                    bool, bool>(),
            "Load the simulator and initialise it to run"
            "at the specified time step and whether you wish"
-           "the simulation to start paused.",
-           py::arg("simulator"), py::arg("time_step"), py::arg("paused"))
+           "the simulation to start paused and with logging enabled.",
+           py::arg("simulator"), py::arg("time_step"), py::arg("paused"),
+           py::arg("log"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
                     double>(),
            "Load the simulator and initialise it to run"
            "at the specified time step and realtime rate.",
            py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
-                    double, bool>(),
+                    double, bool, bool>(),
            "Load the simulator and initialise time step, realtime rate"
-           "and whether you wish the simulation to start paused.",
+           "and whether you wish the simulation to start paused and with "
+           "logging enabled.",
            py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"),
-           py::arg("paused"))
+           py::arg("paused"), py::arg("log"))
       .def("set_realtime_rate", &SimulatorRunner::SetRealtimeRate)
       .def("get_realtime_rate", &SimulatorRunner::GetRealtimeRate)
       .def("start", &SimulatorRunner::Start)
@@ -88,7 +90,15 @@ PYBIND11_MODULE(simulation, m) {
       .def("request_simulation_step_execution",
            &SimulatorRunner::RequestSimulationStepExecution)
       .def("get_stats", &SimulatorRunner::get_stats,
-           py::return_value_policy::reference);
+           py::return_value_policy::reference)
+      .def("is_logging",
+           &SimulatorRunner::IsLogging)
+      .def("start_logging",
+           &SimulatorRunner::StartLogging)
+      .def("stop_logging",
+           &SimulatorRunner::StopLogging)
+      .def("get_log_filename",
+           &SimulatorRunner::GetLogFilename);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(

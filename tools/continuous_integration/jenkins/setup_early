@@ -19,6 +19,7 @@ awscli
 curl
 git
 libignition-cmake-dev
+libsqlite3-dev
 mercurial
 pkg-config
 pylint

@@ -1,13 +1,16 @@
 // Copyright 2017 Toyota Research Institute
 
 #include "backend/simulation_runner.h"
-
+#include <dirent.h>
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
+#include <iomanip>
 #include <limits>
 #include <memory>
 #include <mutex>
+#include <regex>
+#include <sstream>
 #include <thread>
 #include <utility>
 
@@ -55,14 +58,67 @@ void WaitForShutdown() {
   g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
+std::string CreateLogfile() {
+  // Get the home path, or use /tmp if not available.
+  const char *homePath = std::getenv("HOME");
+  std::stringstream logPath;
+  if (!homePath) {
+    ignerr << "Unable to get HOME environment variable. "
+           << "Logging to /tmp/delphyne.\n";
+    logPath << "/tmp/delphyne/";
+  } else {
+    logPath << homePath <<  "/.delphyne/";
+  }
+
+  // Create the directory if we can't open the log path.
+  DIR *dir = opendir(logPath.str().c_str());
+  if (!dir) {
+    mkdir(logPath.str().c_str(), S_IRWXU | S_IRGRP | S_IROTH);
+  }
+
+  // Add the "logs" subdirectory
+  logPath << "logs/";
+
+  // Create the directory if we can't open the log path.
+  dir = opendir(logPath.str().c_str());
+  if (!dir) {
+    mkdir(logPath.str().c_str(), S_IRWXU | S_IRGRP | S_IROTH);
+  }
+
+  // Construct a timestamp log file name
+  std::time_t now = std::time(nullptr);
+  std::tm tm = *std::localtime(&now);
+  logPath << std::put_time(&tm, "%FT%H%M%S%z");
+
+  FILE *testFile = nullptr;
+
+  if ((testFile = fopen((logPath.str() + ".db").c_str(), "r"))) {
+    int counter = 1;
+    logPath << "-";
+    while ((testFile = fopen(
+      (logPath.str() + std::to_string(counter) + ".db").c_str(), "r"))) {
+      ++counter;
+    }
+    logPath << counter;
+  }
+
+  logPath << ".db";
+
+  return logPath.str();
+}
+
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-    double time_step, double realtime_rate, bool paused)
+    double time_step, double realtime_rate, bool paused, bool log)
     : time_step_(time_step),
       simulator_(std::move(sim)),
       realtime_rate_(realtime_rate),
       paused_(paused) {
   DELPHYNE_DEMAND(realtime_rate >= 0.);
+
+  if (log) {
+    StartLogging();
+  }
 
   // Advertises the service for controlling the simulation.
   node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
@@ -101,18 +157,18 @@ SimulatorRunner::SimulatorRunner(
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-    double time_step, bool paused)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, paused) {}
+    double time_step, bool paused, bool log)
+    : SimulatorRunner(std::move(sim), time_step, 1.0, paused, log) {}
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step, double realtime_rate)
-    : SimulatorRunner(std::move(sim), time_step, realtime_rate, false) {}
+    : SimulatorRunner(std::move(sim), time_step, realtime_rate, false, false) {}
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, false) {}
+    : SimulatorRunner(std::move(sim), time_step, 1.0, false, false) {}
 
 SimulatorRunner::~SimulatorRunner() {
   // In case the simulation thread was running and the client code didn't
@@ -121,6 +177,8 @@ SimulatorRunner::~SimulatorRunner() {
   if (main_thread_.joinable()) {
     main_thread_.join();
   }
+
+  recorder_.Stop();
 }
 
 void SimulatorRunner::PauseSimulation() {
@@ -386,6 +444,38 @@ bool SimulatorRunner::OnSceneRequest(
     incoming_msgs_.push(input_message);
   }
   return true;
+}
+
+void SimulatorRunner::StartLogging() {
+  if (!logging_) {
+    logging_ = true;
+    // Log every topic. The return value is the number of topics subscribed, or
+    // a negative number on error.
+    const int64_t addTopicResult = recorder_.AddTopic(std::regex(".*"));
+    if (addTopicResult < 0) {
+      ignerr << "An error occured when adding topics to the logger.\n";
+      logging_ = false;
+    } else {
+      // Begin recording
+      const ignition::transport::log::RecorderError result =
+        recorder_.Start(CreateLogfile());
+      if (ignition::transport::log::RecorderError::SUCCESS != result) {
+        ignerr << "Failed to start recording.\n";
+        logging_ = false;
+      }
+    }
+  }
+}
+
+void SimulatorRunner::StopLogging() {
+  if (logging_) {
+    logging_ = false;
+    recorder_.Stop();
+  }
+}
+
+std::string SimulatorRunner::GetLogFilename() const {
+  return recorder_.Filename();
 }
 
 }  // namespace delphyne

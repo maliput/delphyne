@@ -59,7 +59,7 @@ find_package(drake REQUIRED)
 find_package(ignition-common2 REQUIRED)
 find_package(ignition-math5 REQUIRED)
 find_package(ignition-msgs2 REQUIRED)
-find_package(ignition-transport5 REQUIRED)
+find_package(ignition-transport5 REQUIRED COMPONENTS log)
 
 message (STATUS "\n----------------------------------------\n")
 

@@ -48,6 +48,9 @@ def launch_interactive_simulation(simulator_runner,
             simulator_runner.stop()
         print("Simulation ended. I'm happy, you should be too.")
         print_simulation_stats(simulator_runner)
+        if simulator_runner.is_logging():
+            print("Simulation has been logged in {}".format(
+                simulator_runner.get_log_filename()))
         # This is needed to avoid a possible deadlock. See SimulatorRunner
         # class description.
         time.sleep(0.5)

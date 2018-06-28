@@ -35,15 +35,17 @@ PYBIND11_MODULE(agents, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
 
-  py::class_<delphyne::Agent>(m, "AgentBase");
+  py::class_<delphyne::Agent, std::shared_ptr<delphyne::Agent>>(m, "AgentBase");
 
-  py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
+  py::class_<delphyne::MobilCar, delphyne::Agent,
+             std::shared_ptr<delphyne::MobilCar>>(m, "MobilCar")
       .def(py::init<const std::string&, bool, double, double, double, double>(),
            "Construct and configure a mobil car", py::arg("name"),
            py::arg("direction_of_travel"), py::arg("x"), py::arg("y"),
            py::arg("heading"), py::arg("speed"));
 
-  py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
+  py::class_<delphyne::RailCar, delphyne::Agent,
+             std::shared_ptr<delphyne::RailCar>>(m, "RailCar")
       .def(py::init<const std::string&, const drake::maliput::api::Lane&, bool,
                     double, double, double, double>(),
            "Construct and configure a rail car", py::arg("name"),
@@ -51,12 +53,14 @@ PYBIND11_MODULE(agents, m) {
            py::arg("longitudinal_position"), py::arg("lateral_offset"),
            py::arg("speed"), py::arg("nominal_speed"));
 
-  py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
+  py::class_<delphyne::SimpleCar, delphyne::Agent,
+             std::shared_ptr<delphyne::SimpleCar>>(m, "SimpleCar")
       .def(py::init<const std::string&, double, double, double, double>(),
            "Construct and configure a simple car", py::arg("name"),
            py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));
 
-  py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(m, "TrajectoryAgent")
+  py::class_<delphyne::TrajectoryAgent, delphyne::Agent,
+             std::shared_ptr<delphyne::TrajectoryAgent>>(m, "TrajectoryAgent")
       .def(py::init<const std::string&, const std::vector<double>&,
                     const std::vector<double>&,
                     const std::vector<std::vector<double>>&>(),

@@ -42,9 +42,9 @@ void PoseAndVelToSimpleCarState::CalcSimpleCarState(
           pose_vector);
   const drake::Translation3<double> pose_translation =
       pose->get_translation();
-  const Eigen::Quaternion<double> pose_rotation = pose->get_rotation();
+  const drake::Quaternion<double> pose_rotation = pose->get_rotation();
   // Translates pose from quaternion to euler.
-  const Eigen::Vector3d euler_rotation =
+  const drake::Vector3<double> euler_rotation =
       pose_rotation.toRotationMatrix().eulerAngles(0, 1, 2);
 
   // Obtains car velocity as a VectorBase.

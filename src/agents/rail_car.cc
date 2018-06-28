@@ -43,6 +43,7 @@
 #include "systems/maliput_rail_car.h"
 #include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
+#include "translations/pose_and_vel_to_simple_car_state.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -161,7 +162,7 @@ void RailCar::Configure(
       std::make_unique<drake::automotive::PriusVis<double>>(id_, name_));
 
   drake::maliput::api::LanePosition initial_car_lane_position{
-    initial_parameters_.position, initial_parameters_.offset, 0.};
+      initial_parameters_.position, initial_parameters_.offset, 0.};
   drake::maliput::api::GeoPosition initial_car_geo_position =
       initial_parameters_.lane.ToGeoPosition(initial_car_lane_position);
   drake::maliput::api::Rotation initial_car_orientation =
@@ -169,19 +170,17 @@ void RailCar::Configure(
 
   // Computes the initial world to car transform X_WC0.
   const drake::Isometry3<double> X_WC0 =
-      drake::Translation3<double>(initial_car_geo_position.xyz())
-      * initial_car_orientation.quat();
+      drake::Translation3<double>(initial_car_geo_position.xyz()) *
+      initial_car_orientation.quat();
 
   // Wires up the Prius geometry.
-  builder->Connect(rail_car_system->pose_output(), WirePriusGeometry(
-      name_, X_WC0, builder, scene_graph, &geometry_ids_));
+  builder->Connect(
+      rail_car_system->pose_output(),
+      WirePriusGeometry(name_, X_WC0, builder, scene_graph, &geometry_ids_));
 
   /*********************
    * State Publisher
    *********************/
-  auto agent_state_translator =
-      builder->template AddSystem<DrakeSimpleCarStateToIgn>();
-
   const std::string agent_state_channel =
       "agents/" + std::to_string(id) + "/state";
   typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
@@ -190,12 +189,21 @@ void RailCar::Configure(
       builder->template AddSystem<AgentStatePublisherSystem>(
           std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
 
-  // Drake car states are translated to ignition.
-  builder->Connect(rail_car_system->simple_car_state_output(),
-                   agent_state_translator->get_input_port(0));
+  auto pose_and_vel_to_simple_car_state =
+      builder->template AddSystem<PoseAndVelToSimpleCarState>();
 
-  // And then the translated ignition car state is published.
-  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
+  // Connects the railcar's pose and velocity outputs to the simple car
+  // state calculator system.
+  builder->Connect(rail_car_system->pose_output(),
+                   pose_and_vel_to_simple_car_state->get_pose_input_port());
+  builder->Connect(rail_car_system->velocity_output(),
+                   pose_and_vel_to_simple_car_state->get_velocity_input_port());
+
+  // Connects the simple car state calculator system's output to the ignition
+  // publisher.
+  builder->Connect(
+      pose_and_vel_to_simple_car_state->get_simple_car_state_output(),
+      agent_state_publisher_system->get_input_port(0));
 }
 
 }  // namespace delphyne

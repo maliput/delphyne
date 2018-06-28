@@ -158,6 +158,10 @@ void SimpleCar::Configure(
   builder->Connect(*agent_state_translator, *agent_state_publisher_system);
 }
 
+void SimpleCar::Print() {
+  std::cerr << "SimpleCar Print!" << std::endl;
+}
+
 /*****************************************************************************
  ** Trailers
  *****************************************************************************/

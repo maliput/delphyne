@@ -57,7 +57,8 @@ PYBIND11_MODULE(agents, m) {
              std::shared_ptr<delphyne::SimpleCar>>(m, "SimpleCar")
       .def(py::init<const std::string&, double, double, double, double>(),
            "Construct and configure a simple car", py::arg("name"),
-           py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));
+           py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"))
+      .def("print", &delphyne::SimpleCar::Print);
 
   py::class_<delphyne::TrajectoryAgent, delphyne::Agent,
              std::shared_ptr<delphyne::TrajectoryAgent>>(m, "TrajectoryAgent")

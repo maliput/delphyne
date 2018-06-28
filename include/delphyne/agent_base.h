@@ -27,7 +27,7 @@ namespace delphyne {
 ///           template types are 'double', 'delphyne::AutoDiff', and
 ///           'delphyne::Symbolic'.
 template <typename T>
-class AgentBase {
+class AgentBase : public std::enable_shared_from_this<AgentBase<T>> {
  public:
   /// @brief Constructor initialising common agent parameters.
   ///

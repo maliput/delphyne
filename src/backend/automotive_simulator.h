@@ -76,9 +76,8 @@ class AutomotiveSimulator {
    * ready this agent for use in the simulation.
    *
    * @param agent[in] The user provided agent to add to the simulation.
-   * @return A simulator generated unique id for the agent.
    */
-  int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
+  void AddAgent(std::shared_ptr<delphyne::AgentBase<T>> agent);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -206,7 +205,7 @@ class AutomotiveSimulator {
   int unique_system_id_{0};
 
   // Maps from simulator generated unique id's to the agents.
-  std::map<int, std::unique_ptr<delphyne::AgentBase<T>>> agents_;
+  std::map<int, std::shared_ptr<delphyne::AgentBase<T>>> agents_;
 
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};

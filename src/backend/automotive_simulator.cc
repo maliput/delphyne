@@ -97,8 +97,8 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
 // into a shared method.
 
 template <typename T>
-int AutomotiveSimulator<T>::AddAgent(
-    std::unique_ptr<delphyne::AgentBase<T>> agent) {
+void AutomotiveSimulator<T>::AddAgent(
+    std::shared_ptr<delphyne::AgentBase<T>> agent) {
   /*********************
    * Checks
    *********************/
@@ -114,8 +114,7 @@ int AutomotiveSimulator<T>::AddAgent(
   agent->Configure(id, road_geometry_.get(), builder_.get(), scene_graph_,
                    aggregator_, car_vis_applicator_);
 
-  agents_[id] = std::move(agent);
-  return id;
+  agents_[id] = agent;
 }
 
 template <typename T>
@@ -162,7 +161,7 @@ struct IsSourceOf {
   // Checks whether the given (agent ID, agent) pair is the source of the
   // associated `object`.
   bool operator() (
-      const std::pair<const int, std::unique_ptr<AgentBase<T>>>& id_agent) {
+      const std::pair<const int, std::shared_ptr<AgentBase<T>>>& id_agent) {
     return id_agent.second->is_source_of(object);
   }
 

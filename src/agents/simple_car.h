@@ -44,6 +44,8 @@ class SimpleCar : public delphyne::Agent {
       drake::systems::rendering::PoseAggregator<double>* aggregator,
       drake::automotive::CarVisApplicator<double>* car_vis_applicator) override;
 
+  void Print();
+
  private:
   // Container for the agent's initial configuration.
   //

@@ -131,7 +131,9 @@ PYBIND11_MODULE(simulation, m) {
       .def("start", &AutomotiveSimulator<double>::Start)
       .def("set_road_geometry", &AutomotiveSimulator<double>::SetRoadGeometry,
            "Transfer a road geometry to the control of the simulator",
-           py::arg("road_geometry"));
+           py::arg("road_geometry"))
+      .def("get_current_simulation_time",
+           &AutomotiveSimulator<double>::GetCurrentSimulationTime);
 }
 
 /*****************************************************************************

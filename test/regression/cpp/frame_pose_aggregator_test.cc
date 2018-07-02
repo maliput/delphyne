@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "agents/helpers/frame_pose_aggregator.h"
+#include "backend/frame_pose_aggregator.h"
 
 #include <memory>
 

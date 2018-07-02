@@ -69,7 +69,8 @@ def main():
         scene_x=0.0,
         scene_y=-0.5*3.7,
         heading=0.0,
-        speed=1.0)
+        speed=1.0,
+        road_geometry=dragway)
 
     car_id += 1
     utilities.add_rail_car(
@@ -78,7 +79,8 @@ def main():
         lane=dragway.junction(0).segment(0).lane(1),
         position=0.0,
         offset=0.0,
-        speed=3.0)
+        speed=3.0,
+        road_geometry=dragway)
 
     car_id += 1
     times = [0.0, 5.0, 10.0, 15.0, 20.0]

@@ -30,6 +30,7 @@ target_link_libraries(test_helpers
 ##############################################################################
 
 set(SOURCES
+  agent_diagram_builder_test.cc
   automotive_simulator_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
   drake_simple_car_state_to_ign_translator_system_test.cc

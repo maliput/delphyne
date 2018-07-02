@@ -57,18 +57,18 @@
 /// Used to validate that an argument passed into a function or method is true;
 /// if not, an exception of type exctype is thrown.
 
-#define DELPHYNE_VALIDATE(pred, exctype, message)                       \
-  do {                                                                  \
-    if (!(pred)) {                                                      \
-      std::string fullname = std::string(__FILE__);                     \
-      size_t found = fullname.find_last_of("/");                        \
-      std::string fname = fullname;                                     \
-      if (found != std::string::npos) {                                 \
-        fname = fullname.substr(found+1);                               \
-      }                                                                 \
-      std::string errmsg(fname);                                        \
+#define DELPHYNE_VALIDATE(pred, exctype, message)                            \
+  do {                                                                       \
+    if (!(pred)) {                                                           \
+      std::string fullname = std::string(__FILE__);                          \
+      size_t found = fullname.find_last_of("/");                             \
+      std::string fname = fullname;                                          \
+      if (found != std::string::npos) {                                      \
+        fname = fullname.substr(found + 1);                                  \
+      }                                                                      \
+      std::string errmsg(fname);                                             \
       errmsg.append(":").append(__func__).append(":").append(STR(__LINE__)); \
-      errmsg.append(": ").append(message);                              \
-      throw exctype(errmsg);                                            \
-    }                                                                   \
+      errmsg.append(": ").append(message);                                   \
+      throw exctype(errmsg);                                                 \
+    }                                                                        \
   } while (0)

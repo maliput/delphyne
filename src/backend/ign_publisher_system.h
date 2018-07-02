@@ -22,10 +22,10 @@ namespace delphyne {
 /// port through an ignition transport topic.
 ///
 /// @tparam IGN_TYPE A valid ignition message type.
-template <typename IGN_TYPE, typename std::enable_if<
-                               std::is_base_of<
-                                 ignition::transport::ProtoMsg, IGN_TYPE
-                                 >::value, int>::type = 0>
+template <typename IGN_TYPE,
+          typename std::enable_if<
+              std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value,
+              int>::type = 0>
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
   /// Constructs a publisher that forwards messages at a given fixed rate
@@ -47,8 +47,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
         drake::systems::Event<double>::TriggerType::kPeriodic,
         std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this,
                   std::placeholders::_1, std::placeholders::_2));
-    this->DeclarePeriodicEvent(
-        1.0/publish_rate, kPublishTimeOffset, publish_event);
+    this->DeclarePeriodicEvent(1.0 / publish_rate, kPublishTimeOffset,
+                               publish_event);
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
 
@@ -79,9 +79,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   // Takes the ignition message at the input port in the current
   // @p context and publishes it onto an ignition transport channel.
   // @see drake::systems::System::Publish, drake::systems::PublishEvent
-  void PublishIgnMessage(
-      const drake::systems::Context<double>& context,
-      const drake::systems::PublishEvent<double>& event) {
+  void PublishIgnMessage(const drake::systems::Context<double>& context,
+                         const drake::systems::PublishEvent<double>& event) {
     // Retrieves the input value from the sole input port.
     const int kPortIndex = 0;
     const drake::systems::AbstractValue* input_message =

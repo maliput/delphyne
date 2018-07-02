@@ -1,5 +1,3 @@
-add_subdirectory(helpers)
-
 ##############################################################################
 # Agents
 ##############################################################################
@@ -21,14 +19,14 @@ target_include_directories(
 target_link_libraries(
   agents
   PUBLIC
+    mi6
+    public_headers
     maliput_utilities
     translations
-    public_headers
     drake_systems
     drake::drake
     Eigen3::Eigen
   PRIVATE
-    agent_helpers  
     translations
 )
 install(TARGETS agents

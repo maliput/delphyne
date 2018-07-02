@@ -14,19 +14,8 @@
 
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/gen/simple_car_state_translator.h>
-#include <drake/automotive/prius_vis.h>
-#include <drake/common/eigen_types.h>
 
-// public headers
-#include "delphyne/macros.h"
-
-// private headers
-#include "agents/helpers/geometry_wiring.h"
-
-#include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
-
-#include "translations/drake_simple_car_state_to_ign.h"
 #include "translations/ign_driving_command_to_drake.h"
 
 /*****************************************************************************
@@ -42,33 +31,17 @@ namespace delphyne {
 SimpleCar::SimpleCar(const std::string& name, double x, double y,
                      double heading, double speed)
     : delphyne::Agent(name), initial_parameters_(x, y, heading, speed) {
-  igndbg << "SimpleCar constructor" << std::endl;
+  // TODO(daniel.stonier) stop using this, make use of an initial value on
+  // the pose output
+  initial_world_pose_ = drake::Isometry3<double>(
+      drake::Translation3<double>(initial_parameters_.x, initial_parameters_.y,
+                                  0.0) *
+      drake::AngleAxis<double>(initial_parameters_.heading,
+                               drake::Vector3<double>::UnitZ()));
 }
 
-void SimpleCar::Configure(
-    int id, const drake::maliput::api::RoadGeometry* road_geometry,
-    drake::systems::DiagramBuilder<double>* builder,
-    drake::geometry::SceneGraph<double>* scene_graph,
-    drake::systems::rendering::PoseAggregator<double>* aggregator,
-    drake::automotive::CarVisApplicator<double>* car_vis_applicator) {
-  igndbg << "SimpleCar configure" << std::endl;
-
-  /*********************
-   * Checks
-   *********************/
-  DELPHYNE_VALIDATE(builder != nullptr, std::invalid_argument,
-                    "Builder must not be null");
-  DELPHYNE_VALIDATE(scene_graph != nullptr, std::invalid_argument,
-                    "Scene graph must not be null");
-  DELPHYNE_VALIDATE(aggregator != nullptr, std::invalid_argument,
-                    "Aggregator must not be null");
-  DELPHYNE_VALIDATE(car_vis_applicator != nullptr, std::invalid_argument,
-                    "Car visualization applicator must not be null");
-
-  /*********************
-   * Basics
-   *********************/
-  id_ = id;
+std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
+  DiagramBuilder builder(name_);
 
   /*********************
    * Context
@@ -87,75 +60,37 @@ void SimpleCar::Configure(
    *********************/
   typedef drake::automotive::SimpleCar2<double> SimpleCarSystem;
   SimpleCarSystem* simple_car_system =
-      builder->template AddSystem<SimpleCarSystem>(
-          std::make_unique<SimpleCarSystem>(context_continuous_state,
-                                            context_numeric_parameters));
+      builder.AddSystem(std::make_unique<SimpleCarSystem>(
+          context_continuous_state, context_numeric_parameters));
   simple_car_system->set_name(name_);
 
   /*********************
    * Teleop Systems
    *********************/
-  std::string command_channel = "teleop/" + std::to_string(id);
+  std::string command_channel = "teleop/" + this->name();
   typedef IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>
       DrivingCommandSubscriber;
-  DrivingCommandSubscriber* driving_command_subscriber =
-      builder->template AddSystem<DrivingCommandSubscriber>(
-          std::make_unique<DrivingCommandSubscriber>(command_channel));
+  DrivingCommandSubscriber* driving_command_subscriber = builder.AddSystem(
+      std::make_unique<DrivingCommandSubscriber>(command_channel));
 
   auto driving_command_translator =
-      builder->template AddSystem<IgnDrivingCommandToDrake>();
+      builder.AddSystem(std::make_unique<IgnDrivingCommandToDrake>());
 
   // Ignition driving commands received through the subscriber are translated
   // to Drake.
-  builder->Connect(*driving_command_subscriber, *driving_command_translator);
+  builder.Connect(*driving_command_subscriber, *driving_command_translator);
 
   // And then the translated Drake command is sent to the car.
-  builder->Connect(*driving_command_translator, *simple_car_system);
+  builder.Connect(*driving_command_translator, *simple_car_system);
 
   /*********************
-   * Simulator Wiring
+   * Diagram Outputs
    *********************/
-  // TODO(daniel.stonier): This is a very repeatable pattern for vehicle
-  // agents, reuse?
-  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
-      aggregator->AddSinglePoseAndVelocityInput(name_, id);
-  builder->Connect(simple_car_system->pose_output(), ports.pose_descriptor);
-  builder->Connect(simple_car_system->velocity_output(),
-                   ports.velocity_descriptor);
-  car_vis_applicator->AddCarVis(
-      std::make_unique<drake::automotive::PriusVis<double>>(id, name_));
+  builder.ExportStateOutput(simple_car_system->state_output());
+  builder.ExportPoseOutput(simple_car_system->pose_output());
+  builder.ExportVelocityOutput(simple_car_system->velocity_output());
 
-  // Computes the initial world to car transform X_WC0.
-  const drake::Isometry3<double> X_WC0 =
-      drake::Translation3<double>(initial_parameters_.x,
-                                  initial_parameters_.y, 0.)
-      * drake::AngleAxis<double>(initial_parameters_.heading,
-                                 drake::Vector3<double>::UnitZ());
-
-  // Wires up the Prius geometry.
-  builder->Connect(simple_car_system->pose_output(), WirePriusGeometry(
-      name_, X_WC0, builder, scene_graph, &geometry_ids_));
-
-  /*********************
-   * State Publisher
-   *********************/
-  auto agent_state_translator =
-      builder->template AddSystem<DrakeSimpleCarStateToIgn>();
-
-  const std::string agent_state_channel =
-      "agents/" + std::to_string(id) + "/state";
-  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
-      AgentStatePublisherSystem;
-  AgentStatePublisherSystem* agent_state_publisher_system =
-      builder->template AddSystem<AgentStatePublisherSystem>(
-          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
-
-  // Drake car states are translated to ignition.
-  builder->Connect(simple_car_system->state_output(),
-                   agent_state_translator->get_input_port(0));
-
-  // And then the translated ignition car state is published.
-  builder->Connect(*agent_state_translator, *agent_state_publisher_system);
+  return std::move(builder.Build());
 }
 
 /*****************************************************************************

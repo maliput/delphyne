@@ -22,8 +22,7 @@ class IgnPublisherSystemTest : public ::testing::Test {
   // Ignition transport topic name to subscribe/publish to.
   const std::string kTopicName{"visualizer/scene_update"};
   // Dummy ignition message for testing purposes.
-  const ignition::msgs::Model_V kIgnMsg{
-    test::BuildPreloadedModelVMsg()};
+  const ignition::msgs::Model_V kIgnMsg{test::BuildPreloadedModelVMsg()};
   const std::chrono::milliseconds kTimeoutMs{100};
 };
 
@@ -53,8 +52,8 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
 
   // Verifies the equivalence of the original ignition message
   // and the received one.
-  EXPECT_TRUE(test::CheckProtobufMsgEquality(
-      kIgnMsg, ign_monitor.get_last_message()));
+  EXPECT_TRUE(
+      test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
 }
 
 // Creates an Ignition Publisher System and publish a message repeatedly at a
@@ -63,8 +62,8 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
 TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   const double kPublishRateHz{4.0};
   // Sets up publisher system and monitor subscription.
-  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(
-      kTopicName, kPublishRateHz);
+  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName,
+                                                            kPublishRateHz);
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
 
   // Creates a simulator to work with the publisher.
@@ -79,8 +78,7 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   // published.
   simulator.Initialize();
   const int kMessagesToPublish{5};
-  const double kPublishDeadline =
-      kMessagesToPublish / kPublishRateHz;
+  const double kPublishDeadline = kMessagesToPublish / kPublishRateHz;
   simulator.StepTo(kPublishDeadline);
 
   // Checks that the correct amount of messages have been published.
@@ -88,8 +86,8 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
 
   // Verifies the equivalence of the original ignition message
   // and the received one.
-  EXPECT_TRUE(test::CheckProtobufMsgEquality(
-      kIgnMsg, ign_monitor.get_last_message()));
+  EXPECT_TRUE(
+      test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
 }
 
 }  // namespace

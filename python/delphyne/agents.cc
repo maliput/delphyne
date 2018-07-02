@@ -17,7 +17,7 @@
 #include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
-#include "delphyne/agent_base.h"
+#include "delphyne/mi6/agent_base.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -38,18 +38,21 @@ PYBIND11_MODULE(agents, m) {
   py::class_<delphyne::Agent>(m, "AgentBase");
 
   py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
-      .def(py::init<const std::string&, bool, double, double, double, double>(),
+      .def(py::init<const std::string&, bool, double, double, double, double,
+                    const drake::maliput::api::RoadGeometry&>(),
            "Construct and configure a mobil car", py::arg("name"),
            py::arg("direction_of_travel"), py::arg("x"), py::arg("y"),
-           py::arg("heading"), py::arg("speed"));
+           py::arg("heading"), py::arg("speed"), py::arg("road_geometry"));
 
   py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
       .def(py::init<const std::string&, const drake::maliput::api::Lane&, bool,
-                    double, double, double, double>(),
+                    double, double, double, double,
+                    const drake::maliput::api::RoadGeometry&>(),
            "Construct and configure a rail car", py::arg("name"),
            py::arg("lane"), py::arg("direction_of_travel"),
            py::arg("longitudinal_position"), py::arg("lateral_offset"),
-           py::arg("speed"), py::arg("nominal_speed"));
+           py::arg("speed"), py::arg("nominal_speed"),
+           py::arg("road_geometry"));
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
       .def(py::init<const std::string&, double, double, double, double>(),

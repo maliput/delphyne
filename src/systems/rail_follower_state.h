@@ -1,8 +1,9 @@
 // Copyright 2017 Toyota Research Institute
 
 // This is roughly equivalent to the results of a class generated from
-// a drake 'named vector' protobuf file. Adding the machinery for writing
-// and generating drake named vectors is beyond the scope of delphyne.
+// a drake 'named vector' protobuf file. Given the effort to support named
+// vectors outside of drake, it is as yet undecided whether there is sufficient
+// value add in Delphyne to follow suit.
 
 #pragma once
 
@@ -60,7 +61,7 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
   }
 
   /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  /// name.  This is only available for T ==  delphyne::Symbolic.
   template <typename U = T>
   typename std::enable_if<std::is_same<U, Symbolic>::value>::type
   SetToNamedVariables() {

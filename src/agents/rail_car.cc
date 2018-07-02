@@ -14,7 +14,6 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/automotive/gen/simple_car_state_translator.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/junction.h>
@@ -99,8 +98,8 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
    * Initial Context Variables
    ******************************************/
   typedef RailFollowerState<double> ContextContinuousState;
-  typedef drake::automotive::MaliputRailcarParams<double>
-      ContextNumericParameters;
+  typedef RailFollowerParams<double> ContextNumericParameters;
+
   ContextContinuousState context_continuous_state;
   context_continuous_state.set_s(initial_parameters_.position);
   context_continuous_state.set_speed(initial_parameters_.speed);

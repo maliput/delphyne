@@ -5,8 +5,6 @@
 #include <memory>
 #include <vector>
 
-#include <drake/automotive/gen/maliput_railcar_params.h>
-//#include <drake/automotive/gen/maliput_railcar_state.h>
 #include <drake/automotive/gen/simple_car_state.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/lane.h>
@@ -16,18 +14,18 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 
+#include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
 
 namespace delphyne {
 
 using drake::automotive::LaneDirection;
-using drake::automotive::MaliputRailcarParams;
 
-/// MaliputRailcar models a vehicle that follows a maliput::api::Lane as if it
+/// RailFollowerSystem models an entity that follows a maliput::api::Lane as if it
 /// were on rails and neglecting all physics.
 ///
 /// Parameters:
-///   * See MaliputRailcarParams.
+///   * See RailFollowerParams.
 ///
 /// Continuous State:
 ///   * See RailFollowerState.
@@ -38,9 +36,10 @@ using drake::automotive::MaliputRailcarParams;
 /// <B>Input Port Accessors:</B>
 ///
 ///   - command_input(): Contains the desired acceleration. This port
-///     contains a drake::systems::BasicVector of size 1. It is optional in that it
-///     need not be connected. When it is unconnected, the railcar will travel
-///     at its initial velocity, which is specified in MaliputRailcarParams.
+///     contains a drake::systems::BasicVector of size 1. It is optional
+///     in that it need not be connected. When it is unconnected, the
+///     modelled entity will travel at its initial velocity, which is
+///     specified in RailFollowerParams.
 ///
 /// <B>Output Port Accessors:</B>
 ///
@@ -58,7 +57,7 @@ using drake::automotive::MaliputRailcarParams;
 ///     always zero, see #5751.
 ///
 /// @tparam T must support certain arithmetic operations;
-/// for details, see drake::symbolic::Expression.
+/// for details, see delphyne::Symbolic.
 ///
 /// Instantiated templates for the following ScalarTypes are provided:
 /// - double
@@ -68,10 +67,11 @@ class RailFollowerSystem final : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailFollowerSystem)
   /// Defines a distance that is "close enough" to the end of a lane for the
-  /// vehicle to transition to an ongoing branch. The primary constraint on the
-  /// selection of this variable is the application's degree of sensitivity to
-  /// position state discontinuity when the MaliputRailcar "jumps" from its
-  /// current lane to a lane in an ongoing branch. A smaller value results in a
+  /// modelled entity to transition to an ongoing branch. The primary
+  /// constraint on the selection of this variable is the application's
+  /// degree of sensitivity to position state discontinuity when the
+  /// modelled entity "jumps" from its current lane to a lane in an
+  /// ongoing branch. A smaller value results in a
   /// smaller spatial discontinuity. If this value is zero, the spatial
   /// discontinuity will be zero. However, it will trigger the use of
   /// kTimeEpsilon, which results in a temporal discontinuity.
@@ -81,15 +81,16 @@ class RailFollowerSystem final : public drake::systems::LeafSystem<T> {
   /// always greater than (i.e., after) the current time. Despite the spatial
   /// window provided by kLaneEndEpsilon, it is still possible for the vehicle
   /// to end up precisely at the end of its current lane (e.g., it could be
-  /// initialized in this state). In this scenario, the next update time will be
-  /// equal to the current time. The integrator, however, requires that the next
-  /// update time be strictly after the current time, which is when this
-  /// constant is used. The primary constraint on the selection of this constant
-  /// is the application's sensitivity to a MaliputRailcar being "late" in its
-  /// transition to an ongoing branch once it is at the end of its current lane.
-  /// The smaller this value, the less "late" the transition will occur. This
-  /// value cannot be zero since that will violate the integrator's need for the
-  /// next update time to be strictly after the current time.
+  /// initialized in this state). In this scenario, the next update time
+  /// will be equal to the current time. The integrator, however, requires
+  /// that the next update time be strictly after the current time, which
+  /// is when this constant is used. The primary constraint on the selection
+  /// of this constant is the application's sensitivity to the modelled
+  /// entity being "late" in its transition to an ongoing branch once it
+  /// is at the end of its current lane. The smaller this value, the less
+  /// "late" the transition will occur. This value cannot be zero since
+  /// that will violate the integrator's need for the next update time to
+  /// be strictly after the current time.
   static constexpr double kTimeEpsilon{1e-12};
 
   /// The constructor.
@@ -108,10 +109,10 @@ class RailFollowerSystem final : public drake::systems::LeafSystem<T> {
   RailFollowerSystem(
       const LaneDirection& initial_lane_direction,
       const RailFollowerState<T>& initial_context_state,
-      const MaliputRailcarParams<T>& initial_context_parameters);
+      const RailFollowerParams<T>& initial_context_parameters);
 
   /// Returns a mutable reference to the parameters in the given @p context.
-  MaliputRailcarParams<T>& get_mutable_parameters(
+  RailFollowerParams<T>& get_mutable_parameters(
       drake::systems::Context<T>* context) const;
 
   /// Getter methods for input and output ports.
@@ -155,23 +156,23 @@ class RailFollowerSystem final : public drake::systems::LeafSystem<T> {
   void CalcVelocity(const drake::systems::Context<T>& context,
                     drake::systems::rendering::FrameVelocity<T>* pose) const;
 
-  void ImplCalcTimeDerivatives(const MaliputRailcarParams<T>& params,
+  void ImplCalcTimeDerivatives(const RailFollowerParams<T>& params,
                                const RailFollowerState<T>& state,
                                const LaneDirection& lane_direction,
                                const drake::systems::BasicVector<T>& input,
                                RailFollowerState<T>* rates) const;
 
-  void ImplCalcTimeDerivativesDouble(const MaliputRailcarParams<double>& params,
+  void ImplCalcTimeDerivativesDouble(const RailFollowerParams<double>& params,
                                      const RailFollowerState<double>& state,
                                      RailFollowerState<double>* rates) const;
 
   // Calculates the vehicle's `r` coordinate based on whether it's traveling
   // with or against `s` in the current lane relative to the initial lane.
-  T CalcR(const MaliputRailcarParams<T>& params,
+  T CalcR(const RailFollowerParams<T>& params,
           const LaneDirection& lane_direction) const;
 
   // Finds our parameters in a context.
-  const MaliputRailcarParams<T>& get_parameters(
+  const RailFollowerParams<T>& get_parameters(
       const drake::systems::Context<T>& context) const;
 
   const LaneDirection initial_lane_direction_{};

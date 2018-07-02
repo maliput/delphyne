@@ -19,6 +19,7 @@ target_include_directories(
 target_link_libraries(
   drake_systems
   PUBLIC
+    public_headers
     drake::drake
 )
 install(

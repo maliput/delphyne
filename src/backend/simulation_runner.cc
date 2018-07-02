@@ -63,14 +63,23 @@ std::string CreateLogfile() {
   if (!homePath) {
     ignerr << "Unable to get HOME environment variable. "
            << "Logging to /tmp/delphyne.\n";
-    logPath = "/tmp/delphyne/logs/";
+    logPath = "/tmp/delphyne/";
   } else {
     logPath = homePath;
-    logPath += "/.delphyne/logs/";
+    logPath += "/.delphyne/";
   }
 
   // Create the directory if we can't open the log path.
   DIR *dir = opendir(logPath.c_str());
+  if (!dir) {
+    mkdir(logPath.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
+  }
+
+  // Add the "logs" subdirectory
+  logPath += "logs/";
+
+  // Create the directory if we can't open the log path.
+  dir = opendir(logPath.c_str());
   if (!dir) {
     mkdir(logPath.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
   }

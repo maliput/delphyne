@@ -90,7 +90,15 @@ PYBIND11_MODULE(simulation, m) {
       .def("request_simulation_step_execution",
            &SimulatorRunner::RequestSimulationStepExecution)
       .def("get_stats", &SimulatorRunner::get_stats,
-           py::return_value_policy::reference);
+           py::return_value_policy::reference)
+      .def("is_logging",
+           &SimulatorRunner::IsLogging)
+      .def("start_logging",
+           &SimulatorRunner::StartLogging)
+      .def("stop_logging",
+           &SimulatorRunner::StopLogging)
+      .def("get_log_filename",
+           &SimulatorRunner::GetLogFilename);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(

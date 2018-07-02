@@ -183,9 +183,8 @@ class SimulatorRunner {
 
   /// @brief Adds a callback to be invoked on agent collision.
   ///
-  /// @note For collisions to be computed in the first place,
-  ///       collision detection must be enabled in the first
-  ///       place (via EnableCollisions()).
+  /// @note For collisions to be computed in the first place, collision
+  ///       detection must be enabled (via EnableCollisions()).
   /// @note The simulation step will be effectively blocked
   ///       during the sequential execution of all registered
   ///       callbacks.
@@ -250,13 +249,14 @@ class SimulatorRunner {
   ///  @brief Unauses the simulation, no-op if called multiple times.
   void UnpauseSimulation();
 
-  /// @brief Enables collisions during the simulation.
-  ///
-  /// While colliions
-  void EnableCollisions();
+  /// @brief Enables collisions during the simulation, no-op if
+  /// called multiple times.
+  /// @note Simulation will be paused on collision detection.
+  void EnableCollisions() { collisions_enabled_ = true; }
 
-  /// @brief Disables collisions during the simulation.
-  void DisableCollisions();
+  /// @brief Disables collisions during the simulation, no-op if
+  /// called multiple times.
+  void DisableCollisions() { collisions_enabled_ = false; }
 
   /// @brief Returns the current simulation time in seconds.
   double get_current_simulation_time() const {

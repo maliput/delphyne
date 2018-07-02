@@ -75,7 +75,7 @@ class AutomotiveSimulator {
    * to perform the necessary system configuration and wiring to
    * ready this agent for use in the simulation.
    *
-   * @param agent[in] The user provided agent to add to the simulation.
+   * @param[in] agent The user provided agent to add to the simulation.
    * @return A simulator generated unique id for the agent.
    */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
@@ -83,7 +83,7 @@ class AutomotiveSimulator {
   /// Returns an immutable reference to the agent with the
   /// given @p agent_id.
   ///
-  /// @param agent_id[in] The ID of the agent, as returned
+  /// @param[in] agent_id The ID of the agent, as returned
   ///                     by AddAgent().
   /// @throw std::runtime_error if no agent with given ID
   ///                           is known to to the simulator.
@@ -92,7 +92,7 @@ class AutomotiveSimulator {
   /// Returns an mutable reference to the agent with the
   /// given @p agent_id.
   ///
-  /// @param agent_id[in] The ID of the agent, as returned
+  /// @param[in] agent_id The ID of the agent, as returned
   ///                     by AddAgent().
   /// @throw std::runtime_error if no agent with given ID
   ///                           is known to to the simulator.

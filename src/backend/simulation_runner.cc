@@ -143,14 +143,6 @@ void SimulatorRunner::UnpauseSimulation() {
   paused_ = false;
 }
 
-void SimulatorRunner::EnableCollisions() {
-  collisions_enabled_ = true;
-}
-
-void SimulatorRunner::DisableCollisions() {
-  collisions_enabled_ = false;
-}
-
 void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(mutex_);
   step_callbacks_.push_back(callable);

@@ -26,18 +26,7 @@ namespace delphyne {
 class SimulationRunnerTest : public ::testing::Test {
  protected:
   void SetUp() override {
-    const double kXOffset{0.};  // in m
-    const double kYOffset{0.};  // in m
-    const double kHeadingEast{0.};  // in rads
-    const double kHeadingWest{M_PI};  // in rads
-
     auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
-    auto agent_bob = std::make_unique<delphyne::SimpleCar>(
-        "bob", kXOffset, kYOffset, kHeadingEast, kCruiseSpeed);
-    simulator->AddAgent(std::move(agent_bob));
-    auto agent_alice = std::make_unique<delphyne::SimpleCar>(
-        "alice", kXOffset + kCarDistance, kYOffset, kHeadingWest, kCruiseSpeed);
-    simulator->AddAgent(std::move(agent_alice));
     sim_runner_ =
         std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
   }
@@ -62,8 +51,6 @@ class SimulationRunnerTest : public ::testing::Test {
   }
 
   const double kTimeStep{0.01};  // 10 millis
-  const double kCarDistance{10.};  // in m
-  const double kCruiseSpeed{10.};  // in m/s
 
   bool callback_called_{false};
 
@@ -191,19 +178,8 @@ TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 }
 
-// @brief Asserts that the simulator is paused if a collision
-// is detected.
-// TODO(hidmic): Uncomment test when python specific bits are
-//               moved out of the SimulationRunner.
-// TEST_F(SimulationRunnerTest, TestPauseOnCollision) {
-//   sim_runner_->EnableCollisions();
-//   sim_runner_->AddCollisionCallback([this](auto) {
-//       EXPECT_TRUE(sim_runner_->IsSimulationPaused());
-//       sim_runner_->Stop();
-//     });
-//   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
-//   sim_runner_->RunSyncFor(kCarDistance / kCruiseSpeed);
-// }
+// TODO(hidmic): Test pause on collision when python specific bits are
+//               moved out of the SimulationRunner (#488).
 
 // @brief Asserts that the execution breaks if the runner is paused twice in
 // a row

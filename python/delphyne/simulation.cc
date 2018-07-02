@@ -61,7 +61,8 @@ PYBIND11_MODULE(simulation, m) {
            "Load the simulator and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled.",
-           py::arg("simulator"), py::arg("time_step"), py::arg("paused"), py::arg("log"))
+           py::arg("simulator"), py::arg("time_step"), py::arg("paused"),
+           py::arg("log"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
                     double>(),
            "Load the simulator and initialise it to run"

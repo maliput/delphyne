@@ -57,7 +57,6 @@ void WaitForShutdown() {
 }
 
 std::string CreateLogfile() {
-
   // Get the home path, or use /tmp if not available.
   const char *homePath = std::getenv("HOME");
   std::string logPath;
@@ -69,8 +68,8 @@ std::string CreateLogfile() {
     logPath = homePath;
     logPath += "/.delphyne/logs/";
   }
-   
-  // Create the directory if we can't open the log path. 
+
+  // Create the directory if we can't open the log path.
   DIR *dir = opendir(logPath.c_str());
   if (!dir) {
     mkdir(logPath.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
@@ -426,8 +425,7 @@ bool SimulatorRunner::OnSceneRequest(
   return true;
 }
 
-void SimulatorRunner::StartLogging()
-{
+void SimulatorRunner::StartLogging() {
   if (!logging_) {
     logging_ = true;
     // Log every topic
@@ -440,22 +438,20 @@ void SimulatorRunner::StartLogging()
       const auto result = recorder_.Start(CreateLogfile());
       if (ignition::transport::log::RecorderError::SUCCESS != result) {
         ignerr << "Failed to start recording.\n";
-	logging_ = false;
+        logging_ = false;
       }
     }
   }
 }
 
-void SimulatorRunner::StopLogging()
-{
+void SimulatorRunner::StopLogging() {
   if (logging_) {
     logging_ = false;
     recorder_.Stop();
   }
 }
 
-std::string SimulatorRunner::GetLogFilename() const
-{
+std::string SimulatorRunner::GetLogFilename() const {
   return recorder_.Filename();
 }
 

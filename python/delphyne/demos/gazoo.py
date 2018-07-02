@@ -131,7 +131,7 @@ def main():
         simulator=simulator,
         time_step=0.015,  # (secs)
         realtime_rate=args.realtime_rate,
-        paused=args.paused
+        paused=args.paused,
         log=args.log
     )
 

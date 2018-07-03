@@ -14,6 +14,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
+#include "agents/simple_car.h"
 #include "backend/automotive_simulator.h"
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
@@ -176,6 +177,9 @@ TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
 
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 }
+
+// TODO(hidmic): Test pause on collision when python specific bits are
+//               moved out of the SimulationRunner (#488).
 
 // @brief Asserts that the execution breaks if the runner is paused twice in
 // a row

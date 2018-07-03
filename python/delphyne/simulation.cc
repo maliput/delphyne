@@ -82,11 +82,20 @@ PYBIND11_MODULE(simulation, m) {
       .def("is_interactive_loop_running",
            &SimulatorRunner::IsInteractiveLoopRunning)
       .def("add_step_callback", &SimulatorRunner::AddStepCallback)
+      .def("add_collision_callback", &SimulatorRunner::AddCollisionCallback)
+      .def("enable_collisions", &SimulatorRunner::EnableCollisions)
+      .def("disable_collisions", &SimulatorRunner::DisableCollisions)
       .def("is_simulation_paused", &SimulatorRunner::IsSimulationPaused)
       .def("pause_simulation", &SimulatorRunner::PauseSimulation)
       .def("unpause_simulation", &SimulatorRunner::UnpauseSimulation)
       .def("request_simulation_step_execution",
            &SimulatorRunner::RequestSimulationStepExecution)
+      .def("get_simulator",
+           &SimulatorRunner::GetSimulator,
+           py::return_value_policy::reference_internal)
+      .def("get_mutable_simulator",
+           &SimulatorRunner::GetMutableSimulator,
+           py::return_value_policy::reference_internal)
       .def("get_stats", &SimulatorRunner::get_stats,
            py::return_value_policy::reference);
 
@@ -94,6 +103,12 @@ PYBIND11_MODULE(simulation, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("add_agent", &AutomotiveSimulator<double>::AddAgent)
+      .def("get_agent_by_id",
+           &AutomotiveSimulator<double>::GetAgentById,
+           py::return_value_policy::reference_internal)
+      .def("get_mutable_agent_by_id",
+           &AutomotiveSimulator<double>::GetMutableAgentById,
+           py::return_value_policy::reference_internal)
       .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions)
       .def("start", &AutomotiveSimulator<double>::Start)
       .def("set_road_geometry", &AutomotiveSimulator<double>::SetRoadGeometry,

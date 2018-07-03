@@ -35,7 +35,8 @@ PYBIND11_MODULE(agents, m) {
   py::module::import("pydrake.systems.framework");
   py::module::import("pydrake.maliput.api");
 
-  py::class_<delphyne::Agent>(m, "AgentBase");
+  py::class_<delphyne::Agent>(m, "AgentBase")
+      .def("name", &delphyne::Agent::name);
 
   py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
       .def(py::init<const std::string&, bool, double, double, double, double,

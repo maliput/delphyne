@@ -75,10 +75,28 @@ class AutomotiveSimulator {
    * to perform the necessary system configuration and wiring to
    * ready this agent for use in the simulation.
    *
-   * @param agent[in] The user provided agent to add to the simulation.
+   * @param[in] agent The user provided agent to add to the simulation.
    * @return A simulator generated unique id for the agent.
    */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
+
+  /// Returns an immutable reference to the agent with the
+  /// given @p agent_id.
+  ///
+  /// @param[in] agent_id The ID of the agent, as returned
+  ///                     by AddAgent().
+  /// @throw std::runtime_error if no agent with given ID
+  ///                           is known to to the simulator.
+  const delphyne::AgentBase<T>& GetAgentById(int agent_id) const;
+
+  /// Returns an mutable reference to the agent with the
+  /// given @p agent_id.
+  ///
+  /// @param[in] agent_id The ID of the agent, as returned
+  ///                     by AddAgent().
+  /// @throw std::runtime_error if no agent with given ID
+  ///                           is known to to the simulator.
+  delphyne::AgentBase<T>* GetMutableAgentById(int agent_id);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -109,7 +127,7 @@ class AutomotiveSimulator {
   ///          no order is enforced. DO NOT expect nor rely on any given
   ///          order.
   /// @pre Start() has been called.
-  /// @warning Failure to meet any of the preconditions will abort execution.
+  /// @throw std::runtime_error if any of the preconditions is not met.
   const std::vector<std::pair<int, int>> GetCollisions() const;
 
   /// Calls Build() on the diagram (if it has not been build already) and

@@ -10,6 +10,7 @@
 #include <queue>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 #include <ignition/msgs.hh>
@@ -108,6 +109,11 @@ void WaitForShutdown();
 ///   loop before exiting the while.
 class SimulatorRunner {
  public:
+  // @brief On agent collision callback function type.
+  // @see AutomotiveSimulator::GetCollisions()
+  using CollisionCallback = std::function<void(
+      const std::vector<std::pair<int, int>>&)>;
+
   /// @brief Default constructor.
   ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
@@ -175,6 +181,16 @@ class SimulatorRunner {
   /// python world.
   void AddStepCallback(std::function<void()> callable);
 
+  /// @brief Adds a callback to be invoked on agent collision.
+  ///
+  /// @note For collisions to be computed in the first place, collision
+  ///       detection must be enabled (via EnableCollisions()).
+  /// @note The simulation step will be effectively blocked
+  ///       during the sequential execution of all registered
+  ///       callbacks.
+  /// @param[in] callable The callback function.
+  void AddCollisionCallback(CollisionCallback callable);
+
   /// @brief Spawns a new thread that runs the interactive simulation loop.
   ///
   /// @pre The simulation loop should not be running.
@@ -233,9 +249,26 @@ class SimulatorRunner {
   ///  @brief Unauses the simulation, no-op if called multiple times.
   void UnpauseSimulation();
 
+  /// @brief Enables collisions during the simulation, no-op if
+  /// called multiple times.
+  /// @note Simulation will be paused on collision detection.
+  void EnableCollisions() { collisions_enabled_ = true; }
+
+  /// @brief Disables collisions during the simulation, no-op if
+  /// called multiple times.
+  void DisableCollisions() { collisions_enabled_ = false; }
+
   /// @brief Returns the current simulation time in seconds.
   double get_current_simulation_time() const {
     return simulator_->get_current_simulation_time();
+  }
+
+  const delphyne::AutomotiveSimulator<double>& GetSimulator() const {
+    return *simulator_;
+  }
+
+  delphyne::AutomotiveSimulator<double>* GetMutableSimulator() {
+    return simulator_.get();
   }
 
   /// @brief Returns the collected interactive simulation statistics
@@ -374,6 +407,13 @@ class SimulatorRunner {
   // @brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.
   std::vector<std::function<void()>> step_callbacks_;
+
+  // @brief A vector that holds all the registered callbacks that need to be
+  // triggered on agent collision.
+  std::vector<CollisionCallback> collision_callbacks_;
+
+  // @brief Whether collisions are checked for during simulation or not.
+  bool collisions_enabled_{false};
 
   // @brief The period between world statistics updates (ms).
   const double kWorldStatsPeriodMs_ = 250.0;

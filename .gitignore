@@ -8,5 +8,8 @@
 .pydevproject
 .settings
 
+# VSCode
+.vscode
+
 # Other
 src/dude

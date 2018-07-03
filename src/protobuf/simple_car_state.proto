@@ -17,21 +17,24 @@ message SimpleCarState
   /// \brief Optional header data
   optional Header header   = 1;
 
+  /// \brief The agent's name
+  optional string name     = 2;
+
   /// \brief The timestamp in sec and nsec
-  optional Time time       = 2;
+  optional Time time       = 3;
 
   /// \brief Current position of the car in x
   /// relative to the coordinate origin
-  optional double x        = 3;
+  optional double x        = 4;
 
   /// \brief Current position of the car in y
   /// relative to the coordinate origin
-  optional double y        = 4;
+  optional double y        = 5;
 
   /// \brief Current heading of the car in radians
-  optional double heading  = 5;
+  optional double heading  = 6;
 
   /// \brief Current speed module of the car in radians
-  optional double velocity = 6;
+  optional double velocity = 7;
 }
 

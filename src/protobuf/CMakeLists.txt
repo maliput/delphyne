@@ -12,6 +12,7 @@ set(PROTO_MESSAGES
   automotive_driving_command.proto
   scene_request.proto
   simple_car_state.proto
+  simple_car_state_v.proto
   simulation_in_message.proto
   viewer_command.proto
   viewer2_comms.proto

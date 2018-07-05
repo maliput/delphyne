@@ -169,20 +169,6 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 TEST_F(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   EXPECT_NE(nullptr, simulator->get_builder());
-
-  auto agent_bob =
-      std::make_unique<delphyne::SimpleCar>("bob", 0.0, 0.0, 0.0, 0.0);
-  const int agent_bob_id = simulator->AddAgent(std::move(agent_bob));
-  EXPECT_EQ(simulator->GetAgentById(agent_bob_id).name(), "bob");
-
-  auto agent_alice =
-      std::make_unique<delphyne::SimpleCar>("alice", 0.0, 0.0, 0.0, 0.0);
-  const int agent_alice_id = simulator->AddAgent(std::move(agent_alice));
-  EXPECT_EQ(simulator->GetAgentById(agent_alice_id).name(), "alice");
-
-  // Verifies that passing an unknown agent ID is an error.
-  const int agent_x_id = -1;
-  EXPECT_THROW(simulator->GetAgentById(agent_x_id), std::runtime_error);
 }
 
 // Covers simple-car, Start and StepBy
@@ -219,7 +205,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(
       kStateTopicName);
 
-  // Shortly after starting, we should have not have moved much.
+  // Shortly after starting, we should not have moved much.
   const int kStateMessagesCount{1};
   EXPECT_TRUE(ign_monitor.do_until(
       kStateMessagesCount, kTimeoutMs,
@@ -373,17 +359,6 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
-  //  std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
-  //  Eigen::Quaternion<double> zero_heading(
-  //      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
-  //  std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
-  //  std::vector<Eigen::Vector3d> translations{
-  //      Eigen::Vector3d(0.0, 0.00, 0.00), Eigen::Vector3d(10.0, 0.00, 0.00),
-  //      Eigen::Vector3d(30.0, 0.00, 0.00), Eigen::Vector3d(60.0, 0.00, 0.00),
-  //      Eigen::Vector3d(100.0, 0.00, 0.00)};
-  //  drake::automotive::AgentTrajectory trajectory =
-  //      drake::automotive::AgentTrajectory::Make(times, orientations,
-  //                                               translations);
   const double kPoseXTolerance{1e-6};
   const double kTolerance{1e-8};
 

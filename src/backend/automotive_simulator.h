@@ -80,15 +80,6 @@ class AutomotiveSimulator {
    */
   int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
 
-  /// Returns an immutable reference to the agent with the
-  /// given @p agent_id.
-  ///
-  /// @param[in] agent_id The ID of the agent, as returned
-  ///                     by AddAgent().
-  /// @throw std::runtime_error if no agent with given ID
-  ///                           is known to to the simulator.
-  const delphyne::AgentBase<T>& GetAgentById(int agent_id) const;
-
   /// Returns an mutable reference to the agent with the
   /// given @p agent_id.
   ///

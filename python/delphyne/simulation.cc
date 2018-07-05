@@ -124,9 +124,6 @@ PYBIND11_MODULE(simulation, m) {
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
       .def("add_agent", &AutomotiveSimulator<double>::AddAgent)
-      .def("get_agent_by_id",
-           &AutomotiveSimulator<double>::GetAgentById,
-           py::return_value_policy::reference_internal)
       .def("get_mutable_agent_by_id",
            &AutomotiveSimulator<double>::GetMutableAgentById,
            py::return_value_policy::reference_internal)

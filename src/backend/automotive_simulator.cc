@@ -181,14 +181,6 @@ const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
 }
 
 template <typename T>
-const delphyne::AgentBase<T>&
-AutomotiveSimulator<T>::GetAgentById(int agent_id) const {
-  DELPHYNE_VALIDATE(agents_.count(agent_id) != 0, std::runtime_error,
-                    "No agent found with the given ID.");
-  return *agents_.at(agent_id);
-}
-
-template <typename T>
 delphyne::AgentBase<T>* AutomotiveSimulator<T>::GetMutableAgentById(
     int agent_id) {
   DELPHYNE_VALIDATE(agents_.count(agent_id) != 0, std::runtime_error,

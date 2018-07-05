@@ -5,10 +5,12 @@
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
+#include <iomanip>
 #include <limits>
 #include <memory>
 #include <mutex>
 #include <regex>
+#include <sstream>
 #include <thread>
 #include <utility>
 
@@ -59,40 +61,35 @@ void WaitForShutdown() {
 std::string CreateLogfile() {
   // Get the home path, or use /tmp if not available.
   const char *homePath = std::getenv("HOME");
-  std::string logPath;
+  std::stringstream logPath;
   if (!homePath) {
     ignerr << "Unable to get HOME environment variable. "
            << "Logging to /tmp/delphyne.\n";
-    logPath = "/tmp/delphyne/";
+    logPath << "/tmp/delphyne/";
   } else {
-    logPath = homePath;
-    logPath += "/.delphyne/";
+    logPath << homePath <<  "/.delphyne/";
   }
 
   // Create the directory if we can't open the log path.
-  DIR *dir = opendir(logPath.c_str());
+  DIR *dir = opendir(logPath.str().c_str());
   if (!dir) {
-    mkdir(logPath.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
+    mkdir(logPath.str().c_str(), S_IRWXU | S_IRGRP | S_IROTH);
   }
 
   // Add the "logs" subdirectory
-  logPath += "logs/";
+  logPath << "logs/";
 
   // Create the directory if we can't open the log path.
-  dir = opendir(logPath.c_str());
+  dir = opendir(logPath.str().c_str());
   if (!dir) {
-    mkdir(logPath.c_str(), S_IRWXU | S_IRGRP | S_IROTH);
+    mkdir(logPath.str().c_str(), S_IRWXU | S_IRGRP | S_IROTH);
   }
 
   // Construct a timestamp log file name
-  time_t now;
-  time(&now);
-  char buf[sizeof("2011-10-08T07:07:09Z")];
-  strftime(buf, sizeof(buf), "%FT%TZ", gmtime(&now));
-  std::string logFilename = buf;
-  logFilename += ".db";
-
-  return logPath + logFilename;
+  std::time_t now = std::time(nullptr);
+  std::tm tm = *std::localtime(&now);
+  logPath << std::put_time(&tm, "%FT%T%z") << ".db";
+  return logPath.str();
 }
 
 SimulatorRunner::SimulatorRunner(
@@ -437,14 +434,16 @@ bool SimulatorRunner::OnSceneRequest(
 void SimulatorRunner::StartLogging() {
   if (!logging_) {
     logging_ = true;
-    // Log every topic
-    const auto addTopicResult = recorder_.AddTopic(std::regex(".*"));
+    // Log every topic. The return value is the number of topics subscribed, or
+    // a negative number on error.
+    const int64_t addTopicResult = recorder_.AddTopic(std::regex(".*"));
     if (addTopicResult < 0) {
       ignerr << "An error occured when adding topics to the logger.\n";
       logging_ = false;
     } else {
       // Begin recording
-      const auto result = recorder_.Start(CreateLogfile());
+      const ignition::transport::log::RecorderError result =
+        recorder_.Start(CreateLogfile());
       if (ignition::transport::log::RecorderError::SUCCESS != result) {
         ignerr << "Failed to start recording.\n";
         logging_ = false;

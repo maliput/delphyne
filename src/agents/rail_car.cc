@@ -29,6 +29,8 @@
 
 // private headers
 #include "systems/rail_follower.h"
+#include "systems/rail_follower_params.h"
+#include "systems/rail_follower_state.h"
 
 /*****************************************************************************
  ** Namespaces

@@ -31,7 +31,8 @@ namespace delphyne {
 ** Interfaces
 *****************************************************************************/
 
-/// Specializes BasicVector with specific getters and setters.
+/// Specializes BasicVector with specific getters and setters that
+/// specify the continuous state for a RailFollower system.
 template <typename T>
 class RailFollowerState final : public drake::systems::BasicVector<T> {
 
@@ -75,10 +76,10 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
 
   /// @name Getters and Setters
   //@{
-  /// The s-coordinate of the vehicle in a `Lane`-frame.
+  /// The longitudinal position along the current rail (m).
   const T& s() const { return this->GetAtIndex(kS); }
   void set_s(const T& s) { this->SetAtIndex(kS, s); }
-  /// The speed of the vehicle in physical space.
+  /// The speed of the vehicle in physical space (not nec. rail speed) (m/s).
   const T& speed() const { return this->GetAtIndex(kSpeed); }
   void set_speed(const T& speed) { this->SetAtIndex(kSpeed, speed); }
   //@}

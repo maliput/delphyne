@@ -30,7 +30,12 @@ namespace delphyne {
 ** Interfaces
 *****************************************************************************/
 
-/// Specializes BasicVector with specific getters and setters.
+/// Specializes BasicVector with specific getters and setters that
+/// specify the parameters used in updating a RailFollower system.
+///
+/// Parameters:
+///   r : orthogonal offset from the lane centreline (rail) (m)
+///
 template <typename T>
 class RailFollowerParams final : public drake::systems::BasicVector<T> {
 

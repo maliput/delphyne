@@ -102,13 +102,13 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   /// placed on the context. This includes the continuous state, parameters
   /// and non-continuous state variables.
   ///
-  /// @param[in] initial_lane_direction The initial lane and direction of travel.
+  /// @param[in] initial_lane_direction The initial lane and direction of
+  /// travel.
   /// @param[in] initial_context_state The continuous state variables
   /// @param[in] initial_context_parameters The parameters
-  RailFollower(
-      const drake::automotive::LaneDirection& initial_lane_direction,
-      const RailFollowerState<T>& initial_context_state,
-      const RailFollowerParams<T>& initial_context_parameters);
+  RailFollower(const drake::automotive::LaneDirection& initial_lane_direction,
+               const RailFollowerState<T>& initial_context_state,
+               const RailFollowerParams<T>& initial_context_parameters);
 
   /// Returns a mutable reference to the parameters in the given @p context.
   RailFollowerParams<T>& get_mutable_parameters(
@@ -140,8 +140,9 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
       const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
       drake::systems::State<T>* state) const override;
 
-  void CalcSimpleCarStateOutput(const drake::systems::Context<T>& context,
-                                drake::automotive::SimpleCarState<T>* output) const;
+  void CalcSimpleCarStateOutput(
+      const drake::systems::Context<T>& context,
+      drake::automotive::SimpleCarState<T>* output) const;
 
   void CalcStateOutput(const drake::systems::Context<T>& context,
                        RailFollowerState<T>* output) const;
@@ -155,11 +156,11 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   void CalcVelocity(const drake::systems::Context<T>& context,
                     drake::systems::rendering::FrameVelocity<T>* pose) const;
 
-  void ImplCalcTimeDerivatives(const RailFollowerParams<T>& params,
-                               const RailFollowerState<T>& state,
-                               const drake::automotive::LaneDirection& lane_direction,
-                               const drake::systems::BasicVector<T>& input,
-                               RailFollowerState<T>* rates) const;
+  void ImplCalcTimeDerivatives(
+      const RailFollowerParams<T>& params, const RailFollowerState<T>& state,
+      const drake::automotive::LaneDirection& lane_direction,
+      const drake::systems::BasicVector<T>& input,
+      RailFollowerState<T>* rates) const;
 
   void ImplCalcTimeDerivativesDouble(const RailFollowerParams<double>& params,
                                      const RailFollowerState<double>& state,
@@ -182,7 +183,6 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   const drake::automotive::LaneDirection& get_lane_direction(
       const drake::systems::Context<T>& context) const;
 
-
   /********************
    * Initial Values
    *******************/
@@ -201,4 +201,4 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   int lane_direction_context_index_{};
 };
 
-}  // namespace delohyne
+}  // namespace delphyne

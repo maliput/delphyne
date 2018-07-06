@@ -14,6 +14,7 @@
 #include <array>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <drake/common/symbolic_variable.h>
 #include <drake/systems/framework/basic_vector.h>
@@ -35,9 +36,7 @@ namespace delphyne {
 /// specify the continuous state for a RailFollower system.
 template <typename T>
 class RailFollowerState final : public drake::systems::BasicVector<T> {
-
  private:
-
   /// @name Vector indices.
   //@{
   static constexpr int kS = 0;
@@ -70,9 +69,7 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
     this->set_speed(drake::symbolic::Variable(kNames[kSpeed]));
   }
 
-  RailFollowerState<T>* DoClone() const final {
-    return new RailFollowerState;
-  }
+  RailFollowerState<T>* DoClone() const final { return new RailFollowerState; }
 
   /// @name Getters and Setters
   //@{
@@ -106,9 +103,8 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
   }
 };
 
-
 /*****************************************************************************
 ** Trailers
 *****************************************************************************/
 
-} // namespace delphyne
+}  // namespace delphyne

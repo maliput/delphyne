@@ -37,7 +37,6 @@ TrajectoryAgent::TrajectoryAgent(
     const std::vector<double>& headings,
     const std::vector<std::vector<double>>& translations)
     : delphyne::Agent(name) {
-
   Eigen::Quaternion<double> zero_heading(
       Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
 

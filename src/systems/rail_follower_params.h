@@ -1,6 +1,5 @@
 // Copyright 2017 Toyota Research Institute
 
-
 // This is roughly equivalent to the results of a class generated from
 // a drake 'named vector' protobuf file. Given the effort to support named
 // vectors outside of drake, it is as yet undecided whether there is sufficient
@@ -15,6 +14,7 @@
 #include <array>
 #include <sstream>
 #include <string>
+#include <vector>
 
 #include <drake/systems/framework/basic_vector.h>
 
@@ -38,9 +38,7 @@ namespace delphyne {
 ///
 template <typename T>
 class RailFollowerParams final : public drake::systems::BasicVector<T> {
-
  private:
-
   /// @name Vector indices.
   //@{
   static constexpr int kR = 0;
@@ -76,7 +74,8 @@ class RailFollowerParams final : public drake::systems::BasicVector<T> {
     this->set_r(drake::symbolic::Variable(kNames[kR]));
     this->set_h(drake::symbolic::Variable(kNames[kH]));
     this->set_max_speed(drake::symbolic::Variable(kNames[kMaxSpeed]));
-    this->set_velocity_limit_kp(drake::symbolic::Variable(kNames[kVelocityLimitKp]));
+    this->set_velocity_limit_kp(
+        drake::symbolic::Variable(kNames[kVelocityLimitKp]));
   }
 
   RailFollowerParams<T>* DoClone() const final {
@@ -123,10 +122,8 @@ class RailFollowerParams final : public drake::systems::BasicVector<T> {
   }
 };
 
-
 /*****************************************************************************
 ** Trailers
 *****************************************************************************/
 
-} // namespace delphyne
-
+}  // namespace delphyne

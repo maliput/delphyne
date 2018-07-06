@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -40,16 +41,12 @@ namespace delphyne {
 *****************************************************************************/
 
 template <typename T>
-const std::vector<std::string> RailFollowerState<T>::kNames{
-  "s",
-  "speed"
-};
+const std::vector<std::string> RailFollowerState<T>::kNames{"s", "speed"};
 
 template <typename T>
 const std::vector<std::string> RailFollowerState<T>::kDocStrings{
-  "The longitudinal position along the current rail (m).",
-  "The speed of the vehicle in physical space (not nec. rail speed) (m/s)."
-};
+    "The longitudinal position along the current rail (m).",
+    "The speed of the vehicle in physical space (not nec. rail speed) (m/s)."};
 
 template <typename T>
 const std::vector<double> RailFollowerState<T>::kDefaults{0.0, 0.0};
@@ -60,22 +57,20 @@ const std::vector<double> RailFollowerState<T>::kDefaults{0.0, 0.0};
 
 template <typename T>
 const std::vector<std::string> RailFollowerParams<T>::kNames{
-  "r",
-  "h",
-  "max_speed",
-  "velocity_limit_kp"
-};
+    "r", "h", "max_speed", "velocity_limit_kp"};
 
 template <typename T>
 const std::vector<std::string> RailFollowerParams<T>::kDocStrings{
-  "The vehicles position in the lane's r-axis (perpendicular axis) (m).",
-  "The vehicles height about the lane's surface (m).",
-  "The limit on the vehicle's forward speed, in meters per second; this element must be positive (m/s).",
-  "The smoothing constant for min/max velocity limits; this element must be positive."
-};
+    "The vehicles position in the lane's r-axis (perpendicular axis) (m).",
+    "The vehicles height about the lane's surface (m).",
+    "The limit on the vehicle's forward speed, in meters per second; this "
+    "element must be positive (m/s).",
+    "The smoothing constant for min/max velocity limits; this element must be "
+    "positive."};
 
 template <typename T>
-const std::vector<double> RailFollowerParams<T>::kDefaults{0.0, 0.0, 45.0, 10.0};
+const std::vector<double> RailFollowerParams<T>::kDefaults{0.0, 0.0, 45.0,
+                                                           10.0};
 
 /*****************************************************************************
 ** RailFollower
@@ -90,7 +85,7 @@ template <typename T>
 RailFollower<T>::RailFollower(
     const drake::automotive::LaneDirection& initial_lane_direction)
     : RailFollower(initial_lane_direction, RailFollowerState<T>(),
-                     RailFollowerParams<T>()) {}
+                   RailFollowerParams<T>()) {}
 
 template <typename T>
 RailFollower<T>::RailFollower(
@@ -102,28 +97,30 @@ RailFollower<T>::RailFollower(
       this->DeclareInputPort(drake::systems::kVectorValued, 1).get_index();
 
   state_output_port_index_ =
-      this->DeclareVectorOutputPort(&RailFollower::CalcStateOutput)
-          .get_index();
+      this->DeclareVectorOutputPort(&RailFollower::CalcStateOutput).get_index();
   simple_car_state_output_port_index_ =
       this->DeclareVectorOutputPort(&RailFollower::CalcSimpleCarStateOutput)
           .get_index();
   lane_state_output_port_index_ =
       this->DeclareAbstractOutputPort(
-          drake::automotive::LaneDirection(initial_lane_direction),
-          &RailFollower::CalcLaneOutput)
+              drake::automotive::LaneDirection(initial_lane_direction),
+              &RailFollower::CalcLaneOutput)
           .get_index();
   pose_output_port_index_ =
       this->DeclareVectorOutputPort(&RailFollower::CalcPose).get_index();
   velocity_output_port_index_ =
       this->DeclareVectorOutputPort(&RailFollower::CalcVelocity).get_index();
   lane_direction_context_index_ = this->DeclareAbstractState(
-      drake::systems::AbstractValue::Make<drake::automotive::LaneDirection>(initial_lane_direction));
-  rail_follower_params_context_index_ = this->DeclareNumericParameter(initial_context_parameters);
+      drake::systems::AbstractValue::Make<drake::automotive::LaneDirection>(
+          initial_lane_direction));
+  rail_follower_params_context_index_ =
+      this->DeclareNumericParameter(initial_context_parameters);
   this->DeclareContinuousState(initial_context_state);
 }
 
 template <typename T>
-const drake::systems::InputPortDescriptor<T>& RailFollower<T>::command_input() const {
+const drake::systems::InputPortDescriptor<T>& RailFollower<T>::command_input()
+    const {
   return this->get_input_port(command_input_port_index_);
 }
 
@@ -133,12 +130,14 @@ const drake::systems::OutputPort<T>& RailFollower<T>::state_output() const {
 }
 
 template <typename T>
-const drake::systems::OutputPort<T>& RailFollower<T>::simple_car_state_output() const {
+const drake::systems::OutputPort<T>& RailFollower<T>::simple_car_state_output()
+    const {
   return this->get_output_port(simple_car_state_output_port_index_);
 }
 
 template <typename T>
-const drake::systems::OutputPort<T>& RailFollower<T>::lane_state_output() const {
+const drake::systems::OutputPort<T>& RailFollower<T>::lane_state_output()
+    const {
   return this->get_output_port(lane_state_output_port_index_);
 }
 
@@ -155,13 +154,13 @@ const drake::systems::OutputPort<T>& RailFollower<T>::velocity_output() const {
 template <typename T>
 RailFollowerParams<T>& RailFollower<T>::get_mutable_parameters(
     drake::systems::Context<T>* context) const {
-  return this->template GetMutableNumericParameter<RailFollowerParams>(
-      context, 0);
+  return this->template GetMutableNumericParameter<RailFollowerParams>(context,
+                                                                       0);
 }
 
 template <typename T>
 void RailFollower<T>::CalcStateOutput(const drake::systems::Context<T>& context,
-                                        RailFollowerState<T>* output) const {
+                                      RailFollowerState<T>* output) const {
   const RailFollowerState<T>& state = get_rail_follower_state(context);
   output->set_value(state.get_value());
 
@@ -172,7 +171,8 @@ void RailFollower<T>::CalcStateOutput(const drake::systems::Context<T>& context,
 
 template <typename T>
 void RailFollower<T>::CalcSimpleCarStateOutput(
-    const drake::systems::Context<T>& context, drake::automotive::SimpleCarState<T>* output) const {
+    const drake::systems::Context<T>& context,
+    drake::automotive::SimpleCarState<T>* output) const {
   // Obtains car pose.
   auto pose = std::make_unique<drake::systems::rendering::PoseVector<T>>();
   CalcPose(context, pose.get());
@@ -208,7 +208,8 @@ template <typename T>
 void RailFollower<T>::CalcLaneOutput(
     const drake::systems::Context<T>& context,
     drake::automotive::LaneDirection* output) const {
-  const drake::automotive::LaneDirection& lane_direction = get_lane_direction(context);
+  const drake::automotive::LaneDirection& lane_direction =
+      get_lane_direction(context);
   *output = lane_direction;
 }
 
@@ -230,13 +231,15 @@ void RailFollower<T>::CalcPose(
   // Start with context archeology.
   const RailFollowerParams<T>& params = get_rail_follower_parameters(context);
   const RailFollowerState<T>& state = get_rail_follower_state(context);
-  const drake::automotive::LaneDirection& lane_direction = get_lane_direction(context);
+  const drake::automotive::LaneDirection& lane_direction =
+      get_lane_direction(context);
 
-  const drake::maliput::api::LanePosition lane_position(state.s(), CalcR(params, lane_direction),
-                                   params.h());
+  const drake::maliput::api::LanePosition lane_position(
+      state.s(), CalcR(params, lane_direction), params.h());
   const drake::maliput::api::GeoPosition geo_position =
       lane_direction.lane->ToGeoPosition(lane_position);
-  const drake::maliput::api::Rotation rotation = lane_direction.lane->GetOrientation(lane_position);
+  const drake::maliput::api::Rotation rotation =
+      lane_direction.lane->GetOrientation(lane_position);
 
   using std::atan2;
   using std::sin;
@@ -252,8 +255,8 @@ void RailFollower<T>::CalcPose(
                  atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
   pose->set_translation(Eigen::Translation<T, 3>(geo_position.xyz()));
   const drake::math::RollPitchYaw<T> rpy(adjusted_rotation.roll(),
-                                  adjusted_rotation.pitch(),
-                                  adjusted_rotation.yaw());
+                                         adjusted_rotation.pitch(),
+                                         adjusted_rotation.yaw());
   pose->set_rotation(rpy.ToQuaternion());
 }
 
@@ -264,7 +267,8 @@ void RailFollower<T>::CalcVelocity(
   // Start with context archeology.
   const RailFollowerParams<T>& params = get_rail_follower_parameters(context);
   const RailFollowerState<T>& state = get_rail_follower_state(context);
-  const drake::automotive::LaneDirection& lane_direction = get_lane_direction(context);
+  const drake::automotive::LaneDirection& lane_direction =
+      get_lane_direction(context);
 
   // In the following code:
   //  - v is the translational component of the spatial velocity.
@@ -276,8 +280,9 @@ void RailFollower<T>::CalcVelocity(
   const drake::Vector3<T> v_LC_L(
       lane_direction.with_s ? state.speed() : -state.speed(), 0 /* r_dot */,
       0 /* h_dot */);
-  const drake::maliput::api::Rotation rotation = lane_direction.lane->GetOrientation(
-      drake::maliput::api::LanePosition(state.s(), params.r(), params.h()));
+  const drake::maliput::api::Rotation rotation =
+      lane_direction.lane->GetOrientation(
+          drake::maliput::api::LanePosition(state.s(), params.r(), params.h()));
   const Eigen::Matrix<T, 3, 3> R_WL = rotation.matrix();
   const drake::Vector3<T> v_WC_W = R_WL * v_LC_L;
 
@@ -294,11 +299,13 @@ void RailFollower<T>::DoCalcTimeDerivatives(
 
   const RailFollowerParams<T>& params = get_rail_follower_parameters(context);
   const RailFollowerState<T>& state = get_rail_follower_state(context);
-  const drake::automotive::LaneDirection& lane_direction = get_lane_direction(context);
+  const drake::automotive::LaneDirection& lane_direction =
+      get_lane_direction(context);
 
   // Obtains the input.
-  const drake::systems::BasicVector<T>* input = this->template EvalVectorInput<drake::systems::BasicVector>(
-      context, command_input_port_index_);
+  const drake::systems::BasicVector<T>* input =
+      this->template EvalVectorInput<drake::systems::BasicVector>(
+          context, command_input_port_index_);
 
   // Allocates and uses a BasicVector containing a zero acceleration command in
   // case the input contains nullptr.
@@ -309,7 +316,8 @@ void RailFollower<T>::DoCalcTimeDerivatives(
   DRAKE_ASSERT(input->size() == 1);
 
   // Obtains the result structure.
-  drake::systems::VectorBase<T>& vector_derivatives = derivatives->get_mutable_vector();
+  drake::systems::VectorBase<T>& vector_derivatives =
+      derivatives->get_mutable_vector();
   RailFollowerState<T>* const rates =
       dynamic_cast<RailFollowerState<T>*>(&vector_derivatives);
   DRAKE_ASSERT(rates != nullptr);
@@ -320,14 +328,17 @@ void RailFollower<T>::DoCalcTimeDerivatives(
 template <typename T>
 void RailFollower<T>::ImplCalcTimeDerivatives(
     const RailFollowerParams<T>& params, const RailFollowerState<T>& state,
-    const drake::automotive::LaneDirection& lane_direction, const drake::systems::BasicVector<T>& input,
+    const drake::automotive::LaneDirection& lane_direction,
+    const drake::systems::BasicVector<T>& input,
     RailFollowerState<T>* rates) const {
   const T speed = state.speed();
   const T sigma_v = drake::cond(lane_direction.with_s, speed, -speed);
   const drake::maliput::api::LanePosition motion_derivatives =
       lane_direction.lane->EvalMotionDerivatives(
-          drake::maliput::api::LanePosition(state.s(), CalcR(params, lane_direction), params.h()),
-          drake::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */, 0 /* eta_v */));
+          drake::maliput::api::LanePosition(
+              state.s(), CalcR(params, lane_direction), params.h()),
+          drake::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
+                                               0 /* eta_v */));
   // Since the railcar's IsoLaneVelocity's rho_v and eta_v values are both
   // zero, we expect the resulting motion derivative's r and h values to
   // also be zero. The IsoLaneVelocity's sigma_v, which may be non-zero, maps
@@ -337,9 +348,9 @@ void RailFollower<T>::ImplCalcTimeDerivatives(
   rates->set_s(motion_derivatives.s());
 
   const T desired_acceleration = input.GetAtIndex(0);
-  const T smooth_acceleration =
-      drake::automotive::calc_smooth_acceleration(desired_acceleration, params.max_speed(),
-                               params.velocity_limit_kp(), state.speed());
+  const T smooth_acceleration = drake::automotive::calc_smooth_acceleration(
+      desired_acceleration, params.max_speed(), params.velocity_limit_kp(),
+      state.speed());
   rates->set_speed(smooth_acceleration);
 }
 
@@ -366,7 +377,8 @@ void RailFollower<T>::DoCalcNextUpdateTime(
     *time = T(std::numeric_limits<double>::infinity());
   } else {
     const RailFollowerParams<T>& params = get_rail_follower_parameters(context);
-    const drake::automotive::LaneDirection& lane_direction = get_lane_direction(context);
+    const drake::automotive::LaneDirection& lane_direction =
+        get_lane_direction(context);
 
     const T& s = state.s();
     const T& speed = state.speed();
@@ -379,8 +391,10 @@ void RailFollower<T>::DoCalcNextUpdateTime(
     const T sigma_v = drake::cond(with_s, speed, -speed);
     const drake::maliput::api::LanePosition motion_derivatives =
         lane_direction.lane->EvalMotionDerivatives(
-            drake::maliput::api::LanePosition(s, CalcR(params, lane_direction), params.h()),
-            drake::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */, 0 /* eta_v */));
+            drake::maliput::api::LanePosition(s, CalcR(params, lane_direction),
+                                              params.h()),
+            drake::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
+                                                 0 /* eta_v */));
     const T s_dot = motion_derivatives.s();
 
     const T distance = drake::cond(with_s, T(lane->length()) - s, -s);
@@ -404,8 +418,10 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
     const drake::systems::Context<T>& context,
     const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
     drake::systems::State<T>* next_state) const {
-  const RailFollowerState<T>& current_railcar_state = get_rail_follower_state(context);
-  const drake::automotive::LaneDirection& current_lane_direction = get_lane_direction(context);
+  const RailFollowerState<T>& current_railcar_state =
+      get_rail_follower_state(context);
+  const drake::automotive::LaneDirection& current_lane_direction =
+      get_lane_direction(context);
   DRAKE_ASSERT(current_lane_direction.lane != nullptr);
   const bool current_with_s = current_lane_direction.with_s;
   const double current_s = current_railcar_state.s();
@@ -414,7 +430,8 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
   // Copies the present state into the new one.
   next_state->CopyFrom(context.get_state());
 
-  drake::systems::ContinuousState<T>& cs = next_state->get_mutable_continuous_state();
+  drake::systems::ContinuousState<T>& cs =
+      next_state->get_mutable_continuous_state();
   drake::systems::VectorBase<T>& cv = cs.get_mutable_vector();
   RailFollowerState<T>* const next_railcar_state =
       dynamic_cast<RailFollowerState<T>*>(&cv);
@@ -431,14 +448,16 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
   // Sets the speed to be zero if the car is at or is after the end of the road.
   if (current_with_s) {
     const int num_branches =
-        current_lane_direction.lane->GetOngoingBranches(drake::maliput::api::LaneEnd::kFinish)
+        current_lane_direction.lane
+            ->GetOngoingBranches(drake::maliput::api::LaneEnd::kFinish)
             ->size();
     if (num_branches == 0 && current_s >= current_length - kLaneEndEpsilon) {
       next_railcar_state->set_speed(0);
     }
   } else {
     const int num_branches =
-        current_lane_direction.lane->GetOngoingBranches(drake::maliput::api::LaneEnd::kStart)
+        current_lane_direction.lane
+            ->GetOngoingBranches(drake::maliput::api::LaneEnd::kStart)
             ->size();
     if (num_branches == 0 && current_s <= kLaneEndEpsilon) {
       next_railcar_state->set_speed(0);
@@ -447,16 +466,18 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
 
   if (next_railcar_state->speed() != 0) {
     drake::automotive::LaneDirection& next_lane_direction =
-        next_state->template get_mutable_abstract_state<drake::automotive::LaneDirection>(0);
+        next_state->template get_mutable_abstract_state<
+            drake::automotive::LaneDirection>(0);
     // TODO(liang.fok) Generalize the following to support the selection of
     // non-default branches or non-zero ongoing branches. See #5702.
     drake::optional<drake::maliput::api::LaneEnd> next_branch;
     if (current_with_s) {
-      next_branch =
-          current_lane_direction.lane->GetDefaultBranch(drake::maliput::api::LaneEnd::kFinish);
+      next_branch = current_lane_direction.lane->GetDefaultBranch(
+          drake::maliput::api::LaneEnd::kFinish);
       if (!next_branch) {
         const drake::maliput::api::LaneEndSet* ongoing_lanes =
-            current_lane_direction.lane->GetOngoingBranches(drake::maliput::api::LaneEnd::kFinish);
+            current_lane_direction.lane->GetOngoingBranches(
+                drake::maliput::api::LaneEnd::kFinish);
         if (ongoing_lanes != nullptr) {
           if (ongoing_lanes->size() > 0) {
             next_branch = ongoing_lanes->get(0);
@@ -464,11 +485,12 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
         }
       }
     } else {
-      next_branch =
-          current_lane_direction.lane->GetDefaultBranch(drake::maliput::api::LaneEnd::kStart);
+      next_branch = current_lane_direction.lane->GetDefaultBranch(
+          drake::maliput::api::LaneEnd::kStart);
       if (!next_branch) {
         const drake::maliput::api::LaneEndSet* ongoing_lanes =
-            current_lane_direction.lane->GetOngoingBranches(drake::maliput::api::LaneEnd::kStart);
+            current_lane_direction.lane->GetOngoingBranches(
+                drake::maliput::api::LaneEnd::kStart);
         if (ongoing_lanes != nullptr) {
           if (ongoing_lanes->size() > 0) {
             next_branch = ongoing_lanes->get(0);
@@ -512,13 +534,15 @@ const RailFollowerState<T>& RailFollower<T>::get_rail_follower_state(
 template <typename T>
 const RailFollowerParams<T>& RailFollower<T>::get_rail_follower_parameters(
     const drake::systems::Context<T>& context) const {
-  return this->template GetNumericParameter<RailFollowerParams>(context, rail_follower_params_context_index_);
+  return this->template GetNumericParameter<RailFollowerParams>(
+      context, rail_follower_params_context_index_);
 }
 
 template <typename T>
 const drake::automotive::LaneDirection& RailFollower<T>::get_lane_direction(
     const drake::systems::Context<T>& context) const {
-  return context.template get_abstract_state<drake::automotive::LaneDirection>(lane_direction_context_index_);
+  return context.template get_abstract_state<drake::automotive::LaneDirection>(
+      lane_direction_context_index_);
 }
 
 /*****************************************************************************

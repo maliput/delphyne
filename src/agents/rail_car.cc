@@ -120,11 +120,9 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   drake::automotive::LaneDirection lane_direction(
       &(initial_parameters_.lane), initial_parameters_.direction_of_travel);
   RailFollower<double>* rail_follower_system =
-      builder.AddSystem(
-          std::make_unique<RailFollower<double>>(
-              lane_direction,
-              context_continuous_state,
-              context_numeric_parameters));
+      builder.AddSystem(std::make_unique<RailFollower<double>>(
+          lane_direction, context_continuous_state,
+          context_numeric_parameters));
   rail_follower_system->set_name(name_ + "_system");
 
   /*********************

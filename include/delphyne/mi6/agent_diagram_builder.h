@@ -18,8 +18,8 @@
 #include <drake/systems/primitives/pass_through.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
-#include "delphyne/mi6/diagram_bundle.h"
 #include "delphyne/macros.h"
+#include "delphyne/mi6/diagram_bundle.h"
 #include "delphyne/types.h"
 
 /*****************************************************************************
@@ -67,8 +67,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// than once before building.
   void ExportStateOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(
-        outputs_.count("state") == 0,
-        std::runtime_error,
+        outputs_.count("state") == 0, std::runtime_error,
         "A state output port has already been exported and this diagram "
         "enforces that there can be only one.");
     outputs_["state"] = this->ExportOutput(output);
@@ -84,8 +83,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// than once before building.
   void ExportPoseOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(
-        outputs_.count("pose") == 0,
-        std::runtime_error,
+        outputs_.count("pose") == 0, std::runtime_error,
         "A pose output port has already been exported and this diagram "
         "enforces that there can be only one.");
     outputs_["pose"] = this->ExportOutput(output);
@@ -101,8 +99,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// than once before building.
   void ExportVelocityOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(
-        outputs_.count("velocity") == 0,
-        std::runtime_error,
+        outputs_.count("velocity") == 0, std::runtime_error,
         "A velocity output port has already been exported and this diagram "
         "enforces that there can be only one.");
     outputs_["velocity"] = this->ExportOutput(output);
@@ -124,21 +121,15 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
     // Check that all indices have been set
     //   inputs: "traffic_poses"
     //   outputs: "state", "pose", "velocity"
-    DELPHYNE_VALIDATE(
-        outputs_.count("state") == 1,
-        std::runtime_error,
-        "A state output port has not been exported (see "
-        "AgentDiagramBuilder::ExportStateOutput)");
-    DELPHYNE_VALIDATE(
-        outputs_.count("pose") == 1,
-        std::runtime_error,
-        "A pose output port has not been exported (see "
-        "AgentDiagramBuilder::ExportPoseOutput)");
-    DELPHYNE_VALIDATE(
-        outputs_.count("velocity") == 1,
-        std::runtime_error,
-        "A velocity output port has not been exported (see "
-        "AgentDiagramBuilder::ExportPoseOutput)");
+    DELPHYNE_VALIDATE(outputs_.count("state") == 1, std::runtime_error,
+                      "A state output port has not been exported (see "
+                      "AgentDiagramBuilder::ExportStateOutput)");
+    DELPHYNE_VALIDATE(outputs_.count("pose") == 1, std::runtime_error,
+                      "A pose output port has not been exported (see "
+                      "AgentDiagramBuilder::ExportPoseOutput)");
+    DELPHYNE_VALIDATE(outputs_.count("velocity") == 1, std::runtime_error,
+                      "A velocity output port has not been exported (see "
+                      "AgentDiagramBuilder::ExportPoseOutput)");
     auto bundle = std::make_unique<DiagramBundle<T>>();
     bundle->diagram = drake::systems::DiagramBuilder<T>::Build();
     bundle->diagram->set_name(name_);

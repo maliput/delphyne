@@ -88,7 +88,24 @@ std::string CreateLogfile() {
   // Construct a timestamp log file name
   std::time_t now = std::time(nullptr);
   std::tm tm = *std::localtime(&now);
-  logPath << std::put_time(&tm, "%FT%T%z") << ".db";
+  logPath << std::put_time(&tm, "%FT%T%z");
+
+  FILE *testFile = nullptr;
+
+  if ((testFile = fopen((logPath.str() + ".db").c_str(), "r")))
+  {
+    int counter = 1;
+    logPath << "-";
+    while ((testFile = fopen(
+      (logPath.str() + std::to_string(counter) + ".db").c_str(), "r")))
+    {
+      ++counter;
+    }
+    logPath << counter;
+  }
+
+  logPath << ".db";
+
   return logPath.str();
 }
 
@@ -437,6 +454,7 @@ void SimulatorRunner::StartLogging() {
     // Log every topic. The return value is the number of topics subscribed, or
     // a negative number on error.
     const int64_t addTopicResult = recorder_.AddTopic(std::regex(".*"));
+ 
     if (addTopicResult < 0) {
       ignerr << "An error occured when adding topics to the logger.\n";
       logging_ = false;

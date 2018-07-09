@@ -386,6 +386,19 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   EXPECT_FALSE(sim_runner_->IsLogging());
 
   EXPECT_TRUE(sim_runner_->GetLogFilename().empty());
+
+  sim_runner_->StartLogging();
+
+  // Simulation should now be logging.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  std::time_t now = std::time(nullptr);
+  std::tm tm = *std::localtime(&now);
+  std::stringstream logPath;
+  logPath << ".delphyne/logs/" << std::put_time(&tm, "%FT%H:%M");
+
+  EXPECT_NE(std::string::npos,
+    sim_runner_->GetLogFilename().find(logPath.str()));
 }
 
 }  // namespace delphyne

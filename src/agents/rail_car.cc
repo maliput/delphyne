@@ -14,7 +14,6 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/gen/maliput_railcar_params.h>
 #include <drake/automotive/gen/simple_car_state_translator.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/junction.h>
@@ -29,7 +28,9 @@
 #include "delphyne/maliput/find_lane.h"
 
 // private headers
-#include "systems/maliput_rail_car.h"
+#include "systems/rail_follower.h"
+#include "systems/rail_follower_params.h"
+#include "systems/rail_follower_state.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -98,9 +99,9 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   /******************************************
    * Initial Context Variables
    ******************************************/
-  typedef drake::automotive::MaliputRailcarState<double> ContextContinuousState;
-  typedef drake::automotive::MaliputRailcarParams<double>
-      ContextNumericParameters;
+  typedef RailFollowerState<double> ContextContinuousState;
+  typedef RailFollowerParams<double> ContextNumericParameters;
+
   ContextContinuousState context_continuous_state;
   context_continuous_state.set_s(initial_parameters_.position);
   context_continuous_state.set_speed(initial_parameters_.speed);
@@ -120,18 +121,18 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   // Probably preferable to not use this at all and specify things separately.
   drake::automotive::LaneDirection lane_direction(
       &(initial_parameters_.lane), initial_parameters_.direction_of_travel);
-  typedef drake::automotive::MaliputRailCar<double> RailCarSystem;
-  RailCarSystem* rail_car_system = builder.AddSystem(
-      std::make_unique<RailCarSystem>(lane_direction, context_continuous_state,
-                                      context_numeric_parameters));
-  rail_car_system->set_name(name_ + "_system");
+  RailFollower<double>* rail_follower_system =
+      builder.AddSystem(std::make_unique<RailFollower<double>>(
+          lane_direction, context_continuous_state,
+          context_numeric_parameters));
+  rail_follower_system->set_name(name_ + "_system");
 
   /*********************
    * Diagram Outputs
    *********************/
-  builder.ExportStateOutput(rail_car_system->simple_car_state_output());
-  builder.ExportPoseOutput(rail_car_system->pose_output());
-  builder.ExportVelocityOutput(rail_car_system->velocity_output());
+  builder.ExportStateOutput(rail_follower_system->simple_car_state_output());
+  builder.ExportPoseOutput(rail_follower_system->pose_output());
+  builder.ExportVelocityOutput(rail_follower_system->velocity_output());
 
   return std::move(builder.Build());
 }

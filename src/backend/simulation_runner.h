@@ -112,8 +112,8 @@ class SimulatorRunner {
  public:
   // @brief On agent collision callback function type.
   // @see AutomotiveSimulator::GetCollisions()
-  using CollisionCallback = std::function<void(
-      const std::vector<std::pair<int, int>>&)>;
+  using CollisionCallback =
+      std::function<void(const std::vector<std::pair<int, int>>&)>;
 
   /// @brief Default constructor.
   ///
@@ -130,9 +130,10 @@ class SimulatorRunner {
   /// simulator in paused mode.
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
+  /// @param[in] logfile_name A string with a custom file name for the log.
   SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-                  double time_step, double realtime_rate, bool paused,
-                  bool log);
+                  double time_step, double realtime_rate, bool paused, bool log,
+                  std::string logfile_name);
 
   /// @brief Simplified constructor that starts the simulator at a real-time
   /// rate of 1.0.
@@ -149,6 +150,24 @@ class SimulatorRunner {
   /// to disk.
   SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
                   double time_step, bool paused, bool log);
+
+  /// @brief Simplified constructor that starts the simulator at a real-time
+  /// rate of 1.0.
+  ///
+  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// the simulation.
+  ///
+  /// @param[in] time_step The slot of time (seconds) simulated in each
+  /// simulation step.
+  ///
+  /// @param[in] paused A boolean value that if true, will start the
+  /// simulator in paused mode.
+  /// @param[in] log A boolean value that if true, will log messages
+  /// to disk.
+  /// @param[in] logfile_name A string with a custom file name for the log.
+  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+                  double time_step, bool paused, bool log,
+                  std::string logfile_name);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false, and log = true.
@@ -283,7 +302,10 @@ class SimulatorRunner {
   /// @brief Returns the logging state. True indicates that logging is enabled.
   bool IsLogging() const { return logging_; }
 
-  /// @brief Start logging.
+  /// @brief Start logging to a given file or path.
+  void StartLogging(const std::string& filename);
+
+  /// @brief Start logging to a default named file.
   void StartLogging();
 
   /// @brief Stop logging.

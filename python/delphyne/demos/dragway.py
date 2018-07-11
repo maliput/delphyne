@@ -104,8 +104,9 @@ def main():
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,
-        log=args.log
-    )
+        log=args.log,
+        logfile_name=args.logfile_name)
+
 
     with utilities.launch_interactive_simulation(runner) as launcher:
         if args.duration < 0:

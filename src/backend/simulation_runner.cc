@@ -1,7 +1,10 @@
 // Copyright 2017 Toyota Research Institute
 
 #include "backend/simulation_runner.h"
+
 #include <dirent.h>
+#include <libgen.h>
+
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
@@ -48,6 +51,138 @@ static void SignalHandler(int signal) {
   }
 }
 
+// @brief Creates a given path recursively.
+// @param[in] dir : Directory path to be created.
+// @param[in] mode : The file mode to create the dir with.
+// @return int : the result of the last mkdir operation:
+// 0 on success, otherwise -1.
+int mkpath(const char* dir, mode_t mode) {
+  struct stat status_buffer;
+  if (!stat(dir, &status_buffer)) return 0;
+  // Calls itself recursively to create the
+  // succesive levels up to the top directory.
+  mkpath(dirname(strdupa(dir)), mode);
+  return mkdir(dir, mode);
+}
+
+// @brief Creates the filename under which a log will be saved.
+// @return string : the logfile name with extension.
+std::string GenerateFilenameForLog() {
+  std::stringstream filename{};
+  // Get environmental variable.
+  const std::string logs_prefix_varname{"DELPHYNE_LOGS_PREFIX"};
+  const char* delphyne_logs_prefix = std::getenv(logs_prefix_varname.c_str());
+  if (delphyne_logs_prefix == NULL) {
+    igndbg << "Unable to get " << logs_prefix_varname
+           << " environment variable." << std::endl;
+  } else {
+    // Appends the prefix taken from the env var.
+    filename << delphyne_logs_prefix << "-";
+  }
+  // Constructs a timestamp log file name.
+  std::time_t now = std::time(nullptr);
+  std::tm tm = *std::localtime(&now);
+  filename << std::put_time(&tm, "%FT%H%M%S%z");
+
+  return filename.str();
+}
+
+// @brief Creates the directory structure in disk to store a logfile.
+// Based on availability, it uses the following precedence:
+// - The path defined in the $DELPHYNE_LOGS_PATH env variable.
+// - The $HOME/.delphyne/ path.
+// - The /tmp/delphyne/ path.
+// @return string : the destination path of the logfile.
+std::string GenerateDirectoryPathForLog() {
+  std::stringstream absolute_path;
+  const std::string logs_path_varname{"DELPHYNE_LOGS_PATH"};
+  // Get environmental variables.
+  const char* delphyne_logs_path = std::getenv(logs_path_varname.c_str());
+  const char* home_path = std::getenv("HOME");
+  if (delphyne_logs_path == NULL) {
+    // In case DELPHYNE_LOGS_PATH isn't available.
+    igndbg << "Unable to get " << logs_path_varname << " environment variable."
+           << std::endl;
+    if (home_path == NULL) {
+      igndbg << "Unable to get HOME environment variable." << std::endl;
+      // Uses /tmp/delphyne as base path.
+      absolute_path << "/tmp/delphyne";
+    } else {
+      // Uses ~/.delphyne as base path.
+      absolute_path << home_path << "/.delphyne";
+    }
+  } else {
+    // In case DELPHYNE_LOGS_PATH is available, uses it.
+    absolute_path << delphyne_logs_path;
+  }
+  // Appends the logs directory to the path.
+  absolute_path << "/logs/";
+  // Returns a string with the generated path.
+  return absolute_path.str();
+}
+
+// @brief Creates the directory structure to the desired logfile in disk.
+// @param[in] filename : A string containing the logfile name with an optional
+// relative path.
+// @return string : The full path to the logfile.
+std::string CreateLogfile(std::string filename) {
+  const mode_t file_mode = S_IRWXU | S_IRGRP | S_IROTH;
+
+  std::string full_path{GenerateDirectoryPathForLog()};
+
+  // The filename is empty, generate it.
+  if (filename.empty()) {
+    filename = GenerateFilenameForLog();
+  }
+
+  const bool has_relative_path{filename.find('/') != std::string::npos};
+
+  // If the filename has extension, removes it.
+  const size_t lastindex = filename.find_last_of(".");
+  if (lastindex != std::string::npos) {
+    filename = filename.substr(0, lastindex);
+  }
+
+  if (has_relative_path) {
+    // If there is a '/' at the beginning, removes it.
+    if (filename.at(0) == '/') {
+      filename.erase(filename.begin());
+    }
+    // Creates a new string with the relative path alone without the filename.
+    const std::string relative_path{
+        filename.substr(0, filename.find_last_of('/'))};
+    // Appends the relative path to the absolute one.
+    full_path += relative_path;
+  }
+
+  // Creates the directory structure in disk if necessary.
+  DIR* dir = opendir(full_path.c_str());
+  if (!dir) {
+    mkpath(full_path.c_str(), file_mode);
+  }
+
+  // Appends the filename to the path;
+  full_path += filename;
+
+  // Checks that the file doesn't exists already,
+  // appending a number to the basename otherwise.
+  FILE* testFile = nullptr;
+  if ((testFile = fopen((full_path + ".db").c_str(), "r"))) {
+    int counter = 1;
+    filename += "-";
+    while ((testFile = fopen(
+                (full_path + std::to_string(counter) + ".db").c_str(), "r"))) {
+      ++counter;
+    }
+    full_path += std::to_string(counter);
+  }
+
+  // Appends the file extension.
+  full_path += ".db";
+
+  return full_path;
+}
+
 }  // namespace
 
 void WaitForShutdown() {
@@ -59,58 +194,10 @@ void WaitForShutdown() {
   g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
-std::string CreateLogfile() {
-  // Get the home path, or use /tmp if not available.
-  const char *homePath = std::getenv("HOME");
-  std::stringstream logPath;
-  if (!homePath) {
-    ignerr << "Unable to get HOME environment variable. "
-           << "Logging to /tmp/delphyne.\n";
-    logPath << "/tmp/delphyne/";
-  } else {
-    logPath << homePath <<  "/.delphyne/";
-  }
-
-  // Create the directory if we can't open the log path.
-  DIR *dir = opendir(logPath.str().c_str());
-  if (!dir) {
-    mkdir(logPath.str().c_str(), S_IRWXU | S_IRGRP | S_IROTH);
-  }
-
-  // Add the "logs" subdirectory
-  logPath << "logs/";
-
-  // Create the directory if we can't open the log path.
-  dir = opendir(logPath.str().c_str());
-  if (!dir) {
-    mkdir(logPath.str().c_str(), S_IRWXU | S_IRGRP | S_IROTH);
-  }
-
-  // Construct a timestamp log file name
-  std::time_t now = std::time(nullptr);
-  std::tm tm = *std::localtime(&now);
-  logPath << std::put_time(&tm, "%FT%H%M%S%z");
-
-  FILE *testFile = nullptr;
-
-  if ((testFile = fopen((logPath.str() + ".db").c_str(), "r"))) {
-    int counter = 1;
-    logPath << "-";
-    while ((testFile = fopen(
-      (logPath.str() + std::to_string(counter) + ".db").c_str(), "r"))) {
-      ++counter;
-    }
-    logPath << counter;
-  }
-
-  logPath << ".db";
-
-  return logPath.str();
-}
-
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-    double time_step, double realtime_rate, bool paused, bool log)
+    double time_step, double realtime_rate, bool paused, bool log,
+    std::string logfile_name)
     : time_step_(time_step),
       simulator_(std::move(sim)),
       realtime_rate_(realtime_rate),
@@ -119,7 +206,11 @@ SimulatorRunner::SimulatorRunner(
                     "Realtime rate must be >= 0.0");
 
   if (log) {
-    StartLogging();
+    if (logfile_name.empty()) {
+      StartLogging();
+    } else {
+      StartLogging(logfile_name);
+    }
   }
 
   // Advertises the service for controlling the simulation.
@@ -160,17 +251,24 @@ SimulatorRunner::SimulatorRunner(
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step, bool paused, bool log)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, paused, log) {}
+    : SimulatorRunner(std::move(sim), time_step, 1.0, paused, log, "") {}
+
+SimulatorRunner::SimulatorRunner(
+    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+    double time_step, bool paused, bool log, std::string logfile_name)
+    : SimulatorRunner(std::move(sim), time_step, 1.0, paused, log,
+                      logfile_name) {}
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step, double realtime_rate)
-    : SimulatorRunner(std::move(sim), time_step, realtime_rate, false, false) {}
+    : SimulatorRunner(std::move(sim), time_step, realtime_rate, false, false,
+                      "") {}
 
 SimulatorRunner::SimulatorRunner(
     std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
     double time_step)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, false, false) {}
+    : SimulatorRunner(std::move(sim), time_step, 1.0, false, false, "") {}
 
 SimulatorRunner::~SimulatorRunner() {
   // In case the simulation thread was running and the client code didn't
@@ -486,7 +584,9 @@ bool SimulatorRunner::OnSceneRequest(
   return true;
 }
 
-void SimulatorRunner::StartLogging() {
+void SimulatorRunner::StartLogging() { StartLogging(""); }
+
+void SimulatorRunner::StartLogging(const std::string& filename) {
   if (!logging_) {
     logging_ = true;
     // Log every topic. The return value is the number of topics subscribed, or
@@ -498,7 +598,7 @@ void SimulatorRunner::StartLogging() {
     } else {
       // Begin recording
       const ignition::transport::log::RecorderError result =
-        recorder_.Start(CreateLogfile());
+          recorder_.Start(CreateLogfile(filename));
       if (ignition::transport::log::RecorderError::SUCCESS != result) {
         ignerr << "Failed to start recording.\n";
         logging_ = false;

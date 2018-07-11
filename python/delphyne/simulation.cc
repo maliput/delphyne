@@ -56,25 +56,33 @@ PYBIND11_MODULE(simulation, m) {
            "Load the simulator and initialise it to run"
            "at the specified time step.",
            py::arg("simulator"), py::arg("time_step"))
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
-                    bool, bool>(),
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, bool,
+                    bool>(),
            "Load the simulator and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled.",
            py::arg("simulator"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"))
+      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, bool,
+                    bool, std::string>(),
+           "Load the simulator and initialise it to run"
+           "at the specified time step and whether you wish"
+           "the simulation to start paused and with logging enabled,"
+           "allowing you to also set a custom logfile name.",
+           py::arg("simulator"), py::arg("time_step"), py::arg("paused"),
+           py::arg("log"), py::arg("logfile_name"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
                     double>(),
            "Load the simulator and initialise it to run"
            "at the specified time step and realtime rate.",
            py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"))
       .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
-                    double, bool, bool>(),
+                    double, bool, bool, std::string>(),
            "Load the simulator and initialise time step, realtime rate"
            "and whether you wish the simulation to start paused and with "
            "logging enabled.",
            py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"),
-           py::arg("paused"), py::arg("log"))
+           py::arg("paused"), py::arg("log"), py::arg("logfile_name"))
       .def("set_realtime_rate", &SimulatorRunner::SetRealtimeRate)
       .def("get_realtime_rate", &SimulatorRunner::GetRealtimeRate)
       .def("start", &SimulatorRunner::Start)
@@ -103,7 +111,10 @@ PYBIND11_MODULE(simulation, m) {
       .def("is_logging",
            &SimulatorRunner::IsLogging)
       .def("start_logging",
-           &SimulatorRunner::StartLogging)
+           (void (SimulatorRunner::*)(void)) & SimulatorRunner::StartLogging)
+      .def("start_logging",
+          (void (SimulatorRunner::*)(const std::string&))
+          &SimulatorRunner::StartLogging)
       .def("stop_logging",
            &SimulatorRunner::StopLogging)
       .def("get_log_filename",

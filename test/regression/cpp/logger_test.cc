@@ -69,7 +69,7 @@ TEST_F(LoggerTest, TestStartStopLogging) {
   std::time_t now = std::time(nullptr);
   std::tm tm = *std::localtime(&now);
   std::stringstream logPath;
-  logPath << ".delphyne/logs/" << std::put_time(&tm, "%FT%H:%M");
+  logPath << ".delphyne/logs/" << std::put_time(&tm, "%FT%H%M");
 
   EXPECT_NE(std::string::npos,
     sim_runner_->GetLogFilename().find(logPath.str()));

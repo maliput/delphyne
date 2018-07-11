@@ -88,7 +88,7 @@ std::string CreateLogfile() {
   // Construct a timestamp log file name
   std::time_t now = std::time(nullptr);
   std::tm tm = *std::localtime(&now);
-  logPath << std::put_time(&tm, "%FT%T%z");
+  logPath << std::put_time(&tm, "%FT%H%M%S%z");
 
   FILE *testFile = nullptr;
 

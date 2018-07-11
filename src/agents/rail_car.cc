@@ -31,6 +31,7 @@
 #include "systems/rail_follower.h"
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
+#include "systems/velocity_controller.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -126,6 +127,12 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
           lane_direction, context_continuous_state,
           context_numeric_parameters));
   rail_follower_system->set_name(name_ + "_system");
+
+  auto velocity_controller = builder.AddSystem(
+      std::make_unique<delphyne::VelocityController<double>>());
+
+  builder.Connect(velocity_controller->acceleration_output(),
+                  rail_follower_system->command_input());
 
   /*********************
    * Diagram Outputs

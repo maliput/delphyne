@@ -112,10 +112,6 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
   return std::move(scene_msg);
 }
 
-// TODO(jwnimmer-tri): Modify the various vehicle model systems to be more
-// uniform so common code from the following AddFooCar() methods can be moved
-// into a shared method.
-
 template <typename T>
 int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<AgentBase<T>> agent) {
   /*********************

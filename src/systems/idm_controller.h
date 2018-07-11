@@ -1,3 +1,5 @@
+// Copyright 2017 Toyota Research Institute
+
 #pragma once
 
 #include <memory>
@@ -10,16 +12,17 @@
 #include "drake/automotive/idm_planner.h"
 #include "drake/automotive/maliput/api/lane_data.h"
 #include "drake/automotive/maliput/api/road_geometry.h"
-#include "drake/automotive/pose_selector.h"
 #include "drake/common/drake_copyable.h"
 #include "drake/systems/framework/leaf_system.h"
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_vector.h"
 
+#include "systems/traffic_pose_selector.h"
+
 namespace drake {
 namespace automotive {
 
-/// IdmController implements the IDM (Intelligent Driver Model) planner,
+/// IDMController implements the IDM (Intelligent Driver Model) planner,
 /// computed based only on the nearest car ahead.  See IdmPlanner and
 /// PoseSelector for details.  The output of this block is an acceleration value
 /// passed as a command to the vehicle.
@@ -51,9 +54,9 @@ namespace automotive {
 ///
 /// @ingroup automotive_controllers
 template <typename T>
-class IdmController : public systems::LeafSystem<T> {
+class IDMController : public systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(IdmController)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(IDMController)
 
   /// Constructor.
   /// @param road The pre-defined RoadGeometry.
@@ -65,19 +68,19 @@ class IdmController : public systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  IdmController(const maliput::api::RoadGeometry& road,
+  IDMController(const maliput::api::RoadGeometry& road,
                 ScanStrategy path_or_branches,
                 RoadPositionStrategy road_position_strategy,
                 double period_sec);
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
-  explicit IdmController(const IdmController<U>& other)
-      : IdmController<T>(other.road_, other.path_or_branches_,
+  explicit IDMController(const IDMController<U>& other)
+      : IDMController<T>(other.road_, other.path_or_branches_,
                          other.road_position_strategy_,
                          other.period_sec_) {}
 
-  ~IdmController() override;
+  ~IDMController() override;
 
   /// See the class description for details on the following input ports.
   /// @{
@@ -109,7 +112,7 @@ class IdmController : public systems::LeafSystem<T> {
 
  private:
   // Allow different specializations to access each other's private data.
-  template <typename> friend class IdmController;
+  template <typename> friend class IDMController;
 
   // Converts @p pose into RoadPosition.
   const maliput::api::RoadPosition GetRoadPosition(
@@ -136,7 +139,7 @@ namespace systems {
 namespace scalar_conversion {
 // Disable symbolic support, because we use ExtractDoubleOrThrow.
 template <>
-struct Traits<automotive::IdmController> : public NonSymbolicTraits {};
+struct Traits<automotive::IDMController> : public NonSymbolicTraits {};
 }  // namespace scalar_conversion
 }  // namespace systems
 

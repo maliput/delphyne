@@ -1,3 +1,5 @@
+// Copyright 2018 Toyota Research Institute
+
 #pragma once
 
 #include <map>
@@ -51,7 +53,7 @@ enum class ScanStrategy { kBranches, kPath };
 /// within RoadGeometry::ToRoadPosition().
 enum class RoadPositionStrategy { kCache, kExhaustiveSearch };
 
-/// PoseSelector is a class that provides the relevant pose or poses with
+/// TrafficPoseSelector is a class that provides the relevant pose or poses with
 /// respect to a given ego vehicle driving within a given maliput road geometry.
 ///
 /// Instantiated templates for the following kinds of T's are provided:
@@ -62,11 +64,11 @@ enum class RoadPositionStrategy { kCache, kExhaustiveSearch };
 ///
 /// TODO(jadecastro): Enable AutoDiffXd support, and add unit tests.
 template <typename T>
-class PoseSelector {
+class TrafficPoseSelector {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(PoseSelector)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrafficPoseSelector)
 
-  PoseSelector() = delete;
+  TrafficPoseSelector() = delete;
 
   /// Returns the leading and trailing vehicles in a given @p lane or @p road
   /// that are closest to an ego vehicle along its path, as measured along the
@@ -117,9 +119,9 @@ class PoseSelector {
       const systems::rendering::PoseBundle<T>& traffic_poses,
       const T& scan_distance, ScanStrategy path_or_branches);
 
-  /// Same as PoseSelector::FindClosestPair() except that it returns a single
-  /// ClosestPose for either the vehicle ahead (AheadOrBehind::kAhead) or behind
-  /// (AheadOrBehind::kBehind).
+  /// Same as TrafficPoseSelector::FindClosestPair() except that it returns a
+  /// single ClosestPose for either the vehicle ahead (AheadOrBehind::kAhead)
+  /// or behind (AheadOrBehind::kBehind).
   ///
   /// Cars in other lanes are only tracked if they are in confluent lanes to a
   /// given branch point within the `scan_distance`; i.e. cars in two

@@ -1,4 +1,6 @@
-#include "drake/automotive/mobil_planner.h"
+// Copyright 2017 Toyota Research Institute
+
+#include "systems/mobil_planner.h"
 
 #include <algorithm>
 #include <cmath>
@@ -28,7 +30,7 @@ using systems::rendering::PoseVector;
 namespace automotive {
 
 template <typename T>
-MobilPlanner<T>::MobilPlanner(const RoadGeometry& road, bool initial_with_s,
+MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
                               RoadPositionStrategy road_position_strategy,
                               double period_sec)
     : road_(road),
@@ -42,7 +44,7 @@ MobilPlanner<T>::MobilPlanner(const RoadGeometry& road, bool initial_with_s,
           this->DeclareVectorInputPort(BasicVector<T>(1)).get_index()},
       traffic_index_{this->DeclareAbstractInputPort().get_index()},
       lane_index_{
-          this->DeclareAbstractOutputPort(&MobilPlanner::CalcLaneDirection)
+          this->DeclareAbstractOutputPort(&MOBILPlanner::CalcLaneDirection)
               .get_index()} {
   // Validate the provided RoadGeometry.
   DRAKE_DEMAND(road_.num_junctions() > 0);
@@ -61,34 +63,34 @@ MobilPlanner<T>::MobilPlanner(const RoadGeometry& road, bool initial_with_s,
 }
 
 template <typename T>
-const systems::InputPortDescriptor<T>& MobilPlanner<T>::ego_pose_input() const {
+const systems::InputPortDescriptor<T>& MOBILPlanner<T>::ego_pose_input() const {
   return systems::System<T>::get_input_port(ego_pose_index_);
 }
 
 template <typename T>
-const systems::InputPortDescriptor<T>& MobilPlanner<T>::ego_velocity_input()
+const systems::InputPortDescriptor<T>& MOBILPlanner<T>::ego_velocity_input()
     const {
   return systems::System<T>::get_input_port(ego_velocity_index_);
 }
 
 template <typename T>
-const systems::InputPortDescriptor<T>& MobilPlanner<T>::ego_acceleration_input()
+const systems::InputPortDescriptor<T>& MOBILPlanner<T>::ego_acceleration_input()
     const {
   return systems::System<T>::get_input_port(ego_acceleration_index_);
 }
 
 template <typename T>
-const systems::InputPortDescriptor<T>& MobilPlanner<T>::traffic_input() const {
+const systems::InputPortDescriptor<T>& MOBILPlanner<T>::traffic_input() const {
   return systems::System<T>::get_input_port(traffic_index_);
 }
 
 template <typename T>
-const systems::OutputPort<T>& MobilPlanner<T>::lane_output() const {
+const systems::OutputPort<T>& MOBILPlanner<T>::lane_output() const {
   return systems::System<T>::get_output_port(lane_index_);
 }
 
 template <typename T>
-void MobilPlanner<T>::CalcLaneDirection(const systems::Context<T>& context,
+void MOBILPlanner<T>::CalcLaneDirection(const systems::Context<T>& context,
                                         LaneDirection* lane_direction) const {
   // Obtain the parameters.
   const IdmPlannerParameters<T>& idm_params =
@@ -130,7 +132,7 @@ void MobilPlanner<T>::CalcLaneDirection(const systems::Context<T>& context,
 }
 
 template <typename T>
-void MobilPlanner<T>::ImplCalcLaneDirection(
+void MOBILPlanner<T>::ImplCalcLaneDirection(
     const PoseVector<T>& ego_pose, const FrameVelocity<T>& ego_velocity,
     const PoseBundle<T>& traffic_poses, const BasicVector<T>& ego_accel_command,
     const IdmPlannerParameters<T>& idm_params,
@@ -170,7 +172,7 @@ void MobilPlanner<T>::ImplCalcLaneDirection(
 }
 
 template <typename T>
-const std::pair<T, T> MobilPlanner<T>::ComputeIncentives(
+const std::pair<T, T> MOBILPlanner<T>::ComputeIncentives(
     const std::pair<const Lane*, const Lane*> lanes,
     const IdmPlannerParameters<T>& idm_params,
     const MobilPlannerParameters<T>& mobil_params,
@@ -181,9 +183,10 @@ const std::pair<T, T> MobilPlanner<T>::ComputeIncentives(
   std::pair<T, T> incentives(-kDefaultLargeAccel, -kDefaultLargeAccel);
 
   DRAKE_DEMAND(ego_closest_pose.odometry.lane != nullptr);
-  const ClosestPoses current_closest_poses = PoseSelector<T>::FindClosestPair(
-      ego_closest_pose.odometry.lane, ego_pose, traffic_poses,
-      idm_params.scan_ahead_distance(), ScanStrategy::kPath);
+  const ClosestPoses current_closest_poses =
+      TrafficPoseSelector<T>::FindClosestPair(
+          ego_closest_pose.odometry.lane, ego_pose, traffic_poses,
+          idm_params.scan_ahead_distance(), ScanStrategy::kPath);
   // Construct ClosestPose containers for the leading, trailing, and ego car.
   const ClosestPose<T>& leading_closest_pose =
       current_closest_poses.at(AheadOrBehind::kAhead);
@@ -201,9 +204,11 @@ const std::pair<T, T> MobilPlanner<T>::ComputeIncentives(
       trailing_this_new_accel - trailing_this_old_accel;
   // Compute the incentive for the left lane.
   if (lanes.first != nullptr) {
-    const ClosestPoses left_closest_poses = PoseSelector<T>::FindClosestPair(
-        lanes.first, ego_pose, traffic_poses, idm_params.scan_ahead_distance(),
-        ScanStrategy::kPath);
+    const ClosestPoses left_closest_poses =
+        TrafficPoseSelector<T>::FindClosestPair(
+            lanes.first, ego_pose, traffic_poses,
+            idm_params.scan_ahead_distance(),
+            ScanStrategy::kPath);
     ComputeIncentiveOutOfLane(idm_params, mobil_params, left_closest_poses,
                               ego_closest_pose, ego_acceleration,
                               trailing_delta_accel_this, &incentives.first);
@@ -211,9 +216,10 @@ const std::pair<T, T> MobilPlanner<T>::ComputeIncentives(
   // Compute the incentive for the right lane.
   if (lanes.second != nullptr) {
     const ClosestPoses right_closest_poses =
-        PoseSelector<T>::FindClosestPair(lanes.second, ego_pose, traffic_poses,
-                                         idm_params.scan_ahead_distance(),
-                                         ScanStrategy::kPath);
+        TrafficPoseSelector<T>::FindClosestPair(
+            lanes.second, ego_pose, traffic_poses,
+            idm_params.scan_ahead_distance(),
+            ScanStrategy::kPath);
     ComputeIncentiveOutOfLane(idm_params, mobil_params, right_closest_poses,
                               ego_closest_pose, ego_acceleration,
                               trailing_delta_accel_this, &incentives.second);
@@ -222,7 +228,7 @@ const std::pair<T, T> MobilPlanner<T>::ComputeIncentives(
 }
 
 template <typename T>
-void MobilPlanner<T>::ComputeIncentiveOutOfLane(
+void MOBILPlanner<T>::ComputeIncentiveOutOfLane(
     const IdmPlannerParameters<T>& idm_params,
     const MobilPlannerParameters<T>& mobil_params,
     const ClosestPoses& closest_poses, const ClosestPose<T>& ego_closest_pose,
@@ -258,7 +264,7 @@ void MobilPlanner<T>::ComputeIncentiveOutOfLane(
 }
 
 template <typename T>
-const T MobilPlanner<T>::EvaluateIdm(
+const T MOBILPlanner<T>::EvaluateIdm(
     const IdmPlannerParameters<T>& idm_params,
     const ClosestPose<T>& trailing_closest_pose,
     const ClosestPose<T>& leading_closest_pose) const {
@@ -285,14 +291,14 @@ const T MobilPlanner<T>::EvaluateIdm(
   const T& s_dot_behind =
       (abs(trailing_car_odometry.pos.s()) == std::numeric_limits<T>::infinity())
           ? 0.
-          : PoseSelector<T>::GetSigmaVelocity(trailing_car_odometry);
+          : TrafficPoseSelector<T>::GetSigmaVelocity(trailing_car_odometry);
   const RoadOdometry<T> leading_car_odometry(
       {leading_closest_pose.odometry.lane, leading_closest_pose.odometry.pos},
       leading_closest_pose.odometry.vel);
   const T& s_dot_ahead =
       (abs(leading_car_odometry.pos.s()) == std::numeric_limits<T>::infinity())
           ? 0.
-          : PoseSelector<T>::GetSigmaVelocity(leading_car_odometry);
+          : TrafficPoseSelector<T>::GetSigmaVelocity(leading_car_odometry);
   const T closing_velocity = s_dot_behind - s_dot_ahead;
 
   return IdmPlanner<T>::Evaluate(idm_params, s_dot_behind, net_distance,
@@ -300,7 +306,7 @@ const T MobilPlanner<T>::EvaluateIdm(
 }
 
 template <typename T>
-void MobilPlanner<T>::DoCalcUnrestrictedUpdate(
+void MOBILPlanner<T>::DoCalcUnrestrictedUpdate(
     const systems::Context<T>& context,
     const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
     systems::State<T>* state) const {
@@ -323,7 +329,7 @@ void MobilPlanner<T>::DoCalcUnrestrictedUpdate(
 }
 
 // These instantiations must match the API documentation in mobil_planner.h.
-template class MobilPlanner<double>;
+template class MOBILPlanner<double>;
 
 }  // namespace automotive
 }  // namespace drake

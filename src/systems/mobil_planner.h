@@ -1,3 +1,5 @@
+// Copyright 2017 Toyota Research Institute
+
 #pragma once
 
 #include <map>
@@ -14,12 +16,13 @@
 #include "drake/automotive/lane_direction.h"
 #include "drake/automotive/maliput/api/lane.h"
 #include "drake/automotive/maliput/api/road_geometry.h"
-#include "drake/automotive/pose_selector.h"
 #include "drake/automotive/road_odometry.h"
 #include "drake/common/drake_copyable.h"
 #include "drake/systems/framework/leaf_system.h"
 #include "drake/systems/rendering/pose_bundle.h"
 #include "drake/systems/rendering/pose_vector.h"
+
+#include "systems/traffic_pose_selector.h"
 
 namespace drake {
 namespace automotive {
@@ -82,11 +85,11 @@ namespace automotive {
 ///     Transportation Research Board, v1999, 2007, pp 86-94.
 ///     http://trrjournalonline.trb.org/doi/abs/10.3141/1999-10.
 template <typename T>
-class MobilPlanner : public systems::LeafSystem<T> {
+class MOBILPlanner : public systems::LeafSystem<T> {
  public:
   typedef typename std::map<AheadOrBehind, const ClosestPose<T>> ClosestPoses;
 
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilPlanner)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MOBILPlanner)
 
   /// A constructor that initializes the MOBIL planner.
   /// @param road The pre-defined RoadGeometry.
@@ -96,7 +99,7 @@ class MobilPlanner : public systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  MobilPlanner(const maliput::api::RoadGeometry& road, bool initial_with_s,
+  MOBILPlanner(const maliput::api::RoadGeometry& road, bool initial_with_s,
                RoadPositionStrategy road_position_strategy,
                double period_sec);
 

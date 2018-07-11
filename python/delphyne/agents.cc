@@ -44,7 +44,8 @@ PYBIND11_MODULE(agents, m) {
                     const drake::maliput::api::RoadGeometry&>(),
            "Construct and configure a mobil car", py::arg("name"),
            py::arg("direction_of_travel"), py::arg("x"), py::arg("y"),
-           py::arg("heading"), py::arg("speed"), py::arg("road_geometry"));
+           py::arg("heading"), py::arg("speed"), py::arg("road_geometry"),
+           py::keep_alive<1, 2>());
 
   py::class_<delphyne::RailCar, delphyne::Agent>(m, "RailCar")
       .def(py::init<const std::string&, const drake::maliput::api::Lane&, bool,
@@ -54,19 +55,22 @@ PYBIND11_MODULE(agents, m) {
            py::arg("lane"), py::arg("direction_of_travel"),
            py::arg("longitudinal_position"), py::arg("lateral_offset"),
            py::arg("speed"), py::arg("nominal_speed"),
-           py::arg("road_geometry"));
+           py::arg("road_geometry"),
+           py::keep_alive<1, 2>());
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
       .def(py::init<const std::string&, double, double, double, double>(),
            "Construct and configure a simple car", py::arg("name"),
-           py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));
+           py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"),
+           py::keep_alive<1, 2>());
 
   py::class_<delphyne::TrajectoryAgent, delphyne::Agent>(m, "TrajectoryAgent")
       .def(py::init<const std::string&, const std::vector<double>&,
                     const std::vector<double>&,
                     const std::vector<std::vector<double>>&>(),
            "Construct and configure a trajectory agent", py::arg("name"),
-           py::arg("times"), py::arg("headings"), py::arg("translations"));
+           py::arg("times"), py::arg("headings"), py::arg("translations"),
+           py::keep_alive<1, 2>());
 }
 
 /*****************************************************************************

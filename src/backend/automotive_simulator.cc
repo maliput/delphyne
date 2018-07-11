@@ -177,8 +177,8 @@ const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
 }
 
 template <typename T>
-const delphyne::AgentBase<T>& AutomotiveSimulator<T>::GetAgentById(
-    int agent_id) const {
+const delphyne::AgentBase<T>&
+AutomotiveSimulator<T>::GetAgentById(int agent_id) const {
   DELPHYNE_VALIDATE(agents_.count(agent_id) != 0, std::runtime_error,
                     "No agent found with the given ID.");
   return *agents_.at(agent_id);
@@ -348,9 +348,9 @@ void AutomotiveSimulator<T>::Build() {
   // Connects the PoseBundleToSimpleCarState_v input and output.
   builder_->Connect(
       aggregator_->get_output_port(0),
-      pose_bundle_to_simple_car_state_v_->get_pose_bundle_input_port());
+      pose_bundle_to_simple_car_state_v_->get_input_port(0));
   builder_->Connect(
-      pose_bundle_to_simple_car_state_v_->get_simple_car_state_v_output(),
+      pose_bundle_to_simple_car_state_v_->get_output_port(0),
       agents_state_publisher_system->get_input_port(0));
 
   diagram_ = builder_->Build();

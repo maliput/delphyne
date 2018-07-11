@@ -2,43 +2,26 @@
 
 #pragma once
 
-#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/rendering/pose_bundle.h>
 
-#include "delphyne/protobuf/simple_car_state.pb.h"
+#include <ignition/msgs.hh>
+
 #include "delphyne/protobuf/simple_car_state_v.pb.h"
+#include "translations/drake_to_ign.h"
 
 namespace delphyne {
 
 /// @brief A system that takes a PoseBundle and generates an array of
 /// SimpleCarStates (SimpleCarState_V).
-class PoseBundleToSimpleCarState_V : public drake::systems::LeafSystem<double> {
- public:
-  PoseBundleToSimpleCarState_V();
-
-  /// @brief Returns the output port of the system.
-  const drake::systems::OutputPort<double>& get_simple_car_state_v_output()
-      const {
-    return this->get_output_port(output_port_index_);
-  }
-
-  /// @brief Returns the input port descriptor for the pose bundle. This port
-  /// expects a drake::sytems::rendering::PoseBundle<double>.
-  const drake::systems::InputPortDescriptor<double>&
-  get_pose_bundle_input_port() const {
-    return get_input_port(pose_bundle_input_port_index_);
-  }
-
+class PoseBundleToSimpleCarState_V
+    : public DrakeToIgn<drake::systems::rendering::PoseBundle<double>,
+                        ignition::msgs::SimpleCarState_V> {
  protected:
-  /// @brief Calculates the SimpleCarState_V message based on the given context.
-  void CalcSimpleCarState_V(const drake::systems::Context<double>& context,
-                            ignition::msgs::SimpleCarState_V* output) const;
-
- private:
-  // @brief The pose bundle input port index assigned by the system.
-  int pose_bundle_input_port_index_{};
-
-  // @brief The abstract output port index assigned by the system.
-  int output_port_index_{};
+  // @brief @see DrakeToIgn::DoDrakeToIgnTranslation.
+  void DoDrakeToIgnTranslation(
+      const drake::systems::rendering::PoseBundle<double>& drake_message,
+      ignition::msgs::SimpleCarState_V* ign_message,
+      int64_t time_ms) const override;
 };
 
 }  // namespace delphyne

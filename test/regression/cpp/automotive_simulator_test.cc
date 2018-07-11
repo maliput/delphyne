@@ -225,6 +225,8 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
       kStateMessagesCount, kTimeoutMs,
       [this, &simulator]() { simulator->StepBy(kSmallTimeStep); }));
 
+  EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
+
   ignition::msgs::SimpleCarState state_message =
       ign_monitor.get_last_message().states(0);
   EXPECT_LT(state_message.x(), 0.1);
@@ -264,12 +266,15 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
       kStateMessagesCount, kTimeoutMs,
       [this, &simulator]() { simulator->StepBy(kSmallTimeStep); }));
 
+
+  EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
+
   const ignition::msgs::SimpleCarState state_message =
       ign_monitor.get_last_message().states(0);
 
-  // A very minimal loss of accuracy is produced during the conversion from the
-  // PoseBundle to the SimpleCarState. Hence, a small tolerance is allowed when
-  // comparing the values from the SimpleCarState with the expected values.
+  // Computations of SimpleCarState from a PoseBundle incur minimal numerical
+  // precision loss. Hence, a small tolerance is allowed when comparing the
+  // values from the SimpleCarState with the expected values.
   const double kAccuracy = 1e-15;
 
   EXPECT_EQ(state_message.x(), kX);

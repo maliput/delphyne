@@ -22,6 +22,7 @@
 #include <drake/automotive/maliput/api/segment.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/framework/context.h>
+#include <drake/systems/primitives/constant_vector_source.h>
 
 // public headers
 #include "delphyne/macros.h"
@@ -133,6 +134,19 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
 
   builder.Connect(velocity_controller->acceleration_output(),
                   rail_follower_system->command_input());
+
+  builder.Connect(rail_follower_system->velocity_output(),
+                  velocity_controller->feedback_input());
+
+  auto velocity_input =
+      std::make_unique<drake::systems::ConstantVectorSource<double>>(
+          initial_parameters_.speed);
+  velocity_input_ = velocity_input.get();
+
+  auto velocity_input_system = builder.AddSystem(std::move(velocity_input));
+
+  builder.Connect(velocity_input_system->get_output_port(),
+                  velocity_controller->command_input());
 
   /*********************
    * Diagram Outputs

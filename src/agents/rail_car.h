@@ -16,6 +16,7 @@
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
+#include <drake/systems/primitives/constant_vector_source.h>
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
@@ -89,6 +90,8 @@ class RailCar : public delphyne::Agent {
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
+
+  mutable drake::systems::ConstantVectorSource<double>* velocity_input_;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

@@ -7,6 +7,7 @@
 ** Includes
 *****************************************************************************/
 
+#include <string>
 #include <vector>
 
 #include <pybind11/functional.h>

@@ -37,14 +37,29 @@ after a fixed amount of time.
 
     return parser.parse_args()
 
-changed_speed = False
-def check_time(simulator, myagent):
-    global changed_speed
-    if simulator.get_current_simulation_time() >= 10.0 and not changed_speed:
-        context = simulator.get_mutable_context()
-        diagram = simulator.get_diagram()
-        myagent.set_velocity(context, diagram, 10.0)
-        changed_speed = True
+
+class TimeMonitor(object):
+    '''
+    A class to monitor the time on every callback and perform an action after
+    ten seconds have elapsed.
+    '''
+    def __init__(self, simulator, agent):
+        self.simulator = simulator
+        self.agent = agent
+        self.changed_speed = False
+
+    def check_tick(self):
+        '''
+        The callback called on every simulator iteration.  It checks
+        to see if the elapsed simulator_time is greater than 10 seconds, and
+        once it is, it changes the speed of the agent.
+        '''
+        if self.simulator.get_current_simulation_time() >= 10.0 \
+           and not self.changed_speed:
+            context = self.simulator.get_mutable_context()
+            diagram = self.simulator.get_diagram()
+            self.agent.set_velocity(context, diagram, 10.0)
+            self.changed_speed = True
 
 
 ##############################################################################
@@ -97,10 +112,10 @@ def main():
         logfile_name=args.logfile_name
     )
 
+    monitor = TimeMonitor(simulator, myagent)
+
     with utilities.launch_interactive_simulation(runner) as launcher:
-        runner.add_step_callback(
-            lambda: check_time(simulator, myagent)
-        )
+        runner.add_step_callback(monitor.check_tick)
 
         if args.duration < 0:
             # run indefinitely

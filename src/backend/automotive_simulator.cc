@@ -465,6 +465,11 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
   return pose_bundle;
 }
 
+template <typename T>
+drake::systems::Context<T>* AutomotiveSimulator<T>::GetMutableContext() {
+  return &simulator_->get_mutable_context();
+}
+
 template class AutomotiveSimulator<double>;
 
 }  // namespace delphyne

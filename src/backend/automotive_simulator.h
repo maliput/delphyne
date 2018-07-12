@@ -141,6 +141,8 @@ class AutomotiveSimulator {
   /// @see documentation of Simulator::Context::get_time.
   double GetCurrentSimulationTime() const;
 
+  drake::systems::Context<T>* GetMutableContext();
+
  private:
   // The rate at which the scene is published over ignition transport to
   // update the scene tree widget tree.

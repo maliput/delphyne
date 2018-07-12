@@ -56,7 +56,8 @@ PYBIND11_MODULE(agents, m) {
            py::arg("longitudinal_position"), py::arg("lateral_offset"),
            py::arg("speed"), py::arg("nominal_speed"),
            py::arg("road_geometry"),
-           py::keep_alive<1, 2>());
+           py::keep_alive<1, 2>())
+      .def("set_velocity", &delphyne::RailCar::SetVelocity);
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")
       .def(py::init<const std::string&, double, double, double, double>(),

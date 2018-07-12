@@ -158,4 +158,18 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   return std::move(builder.Build());
 }
 
+void RailCar::SetVelocity(drake::systems::Context<double>* sim_context,
+                          const drake::systems::Diagram<double>* diagram,
+                          double new_vel_mps) {
+  drake::systems::Context<double>& vel_input_context =
+      diagram->GetMutableSubsystemContext(*velocity_input_, sim_context);
+
+  drake::systems::BasicVector<double>& sourcevel =
+      velocity_input_->get_mutable_source_value(&vel_input_context);
+
+  Eigen::VectorXd newval(1);
+  newval[0] = new_vel_mps;
+  sourcevel.set_value(newval);
+}
+
 }  // namespace delphyne

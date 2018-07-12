@@ -66,6 +66,10 @@ class RailCar : public delphyne::Agent {
 
   std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
+  void SetVelocity(drake::systems::Context<double>* sim_context,
+                   const drake::systems::Diagram<double>* diagram,
+                   double new_vel_mps);
+
  private:
   // Container for the agent's initial configuration.
   //

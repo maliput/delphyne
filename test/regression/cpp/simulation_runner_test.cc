@@ -307,7 +307,7 @@ TEST_F(SimulationRunnerTest, TestRunSyncFor) {
   sim_runner_->RunSyncFor(kDuration);
 
   // Compare simulation time
-  const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
+  const auto elapsed_sim_time = sim_runner_->GetCurrentSimulationTime();
 
   EXPECT_GE(elapsed_sim_time, kDuration * (1. - kRelativeTolerance));
   EXPECT_LE(elapsed_sim_time, kDuration * (1. + kRelativeTolerance));
@@ -342,7 +342,7 @@ TEST_F(SimulationRunnerTest, TestRunAsyncFor) {
   }
 
   // Compare simulation time
-  const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
+  const auto elapsed_sim_time = sim_runner_->GetCurrentSimulationTime();
 
   EXPECT_GE(elapsed_sim_time, kDuration * (1. - kRelativeTolerance));
   EXPECT_LE(elapsed_sim_time, kDuration * (1. + kRelativeTolerance));
@@ -410,7 +410,7 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
   EXPECT_LE(wall_clock_duration, max_wall_clock_time);
 
   // Compare simulation time
-  const auto elapsed_sim_time = sim_runner_->get_current_simulation_time();
+  const auto elapsed_sim_time = sim_runner_->GetCurrentSimulationTime();
 
   EXPECT_GE(elapsed_sim_time,
             kSimulationDuration * (1. - kSimulationRelativeTolerance));

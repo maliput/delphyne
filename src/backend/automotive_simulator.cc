@@ -435,7 +435,7 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 }
 
 template <typename T>
-double AutomotiveSimulator<T>::get_current_simulation_time() const {
+double AutomotiveSimulator<T>::GetCurrentSimulationTime() const {
   return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
 }
 

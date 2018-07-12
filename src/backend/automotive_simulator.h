@@ -139,7 +139,7 @@ class AutomotiveSimulator {
 
   /// Returns the current simulation time in seconds.
   /// @see documentation of Simulator::Context::get_time.
-  double get_current_simulation_time() const;
+  double GetCurrentSimulationTime() const;
 
  private:
   // The rate at which the scene is published over ignition transport to

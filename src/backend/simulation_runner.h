@@ -285,8 +285,8 @@ class SimulatorRunner {
   void DisableCollisions() { collisions_enabled_ = false; }
 
   /// @brief Returns the current simulation time in seconds.
-  double get_current_simulation_time() const {
-    return simulator_->get_current_simulation_time();
+  double GetCurrentSimulationTime() const {
+    return simulator_->GetCurrentSimulationTime();
   }
 
   const delphyne::AutomotiveSimulator<double>& GetSimulator() const {

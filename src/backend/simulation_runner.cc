@@ -217,10 +217,10 @@ void SimulatorRunner::RunInteractiveSimulationLoopFor(
 
   SetupNewRunStats();
 
-  const double sim_end = simulator_->get_current_simulation_time() + duration;
+  const double sim_end = simulator_->GetCurrentSimulationTime() + duration;
 
   while (interactive_loop_running_ &&
-         (simulator_->get_current_simulation_time() < sim_end)) {
+         (simulator_->GetCurrentSimulationTime() < sim_end)) {
     RunInteractiveSimulationLoopStep();
   }
 
@@ -299,7 +299,7 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 void SimulatorRunner::StepSimulationBy(double time_step) {
   simulator_->StepBy(time_step);
 
-  stats_.StepExecuted(simulator_->get_current_simulation_time());
+  stats_.StepExecuted(simulator_->GetCurrentSimulationTime());
 
   // Return if running at full speed
   if (realtime_rate_ == 0) {
@@ -314,7 +314,7 @@ void SimulatorRunner::StepSimulationBy(double time_step) {
 }
 
 void SimulatorRunner::SetupNewRunStats() {
-  stats_.NewRunStartingAt(simulator_->get_current_simulation_time(),
+  stats_.NewRunStartingAt(simulator_->GetCurrentSimulationTime(),
                           realtime_rate_);
 }
 

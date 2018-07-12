@@ -89,7 +89,8 @@ target_link_libraries(
     protobuf_messages
     public_headers
     ${IGNITION-COMMON_LIBRARIES}
-    ${IGNITION-TRANSPORT_LIBRARIES}
+    ignition-transport5::core
+    ignition-transport5::log
     ${IGNITION-MSGS_LIBRARIES}
     drake::drake
     pybind11::module

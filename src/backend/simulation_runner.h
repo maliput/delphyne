@@ -15,6 +15,7 @@
 
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
+#include <ignition/transport/log/Recorder.hh>
 
 #include "backend/automotive_simulator.h"
 #include "backend/interactive_simulation_stats.h"
@@ -127,8 +128,11 @@ class SimulatorRunner {
   ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
+  /// @param[in] log A boolean value that if true, will log messages
+  /// to disk.
   SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-                  double time_step, double realtime_rate, bool paused);
+                  double time_step, double realtime_rate, bool paused,
+                  bool log);
 
   /// @brief Simplified constructor that starts the simulator at a real-time
   /// rate of 1.0.
@@ -141,11 +145,13 @@ class SimulatorRunner {
   ///
   /// @param[in] paused A boolean value that if true, will start the
   /// simulator in paused mode.
+  /// @param[in] log A boolean value that if true, will log messages
+  /// to disk.
   SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-                  double time_step, bool paused);
+                  double time_step, bool paused, bool log);
 
   /// @brief Simplified constructor that starts the simulator with
-  /// _paused = false.
+  /// _paused = false, and log = true.
   ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
@@ -159,7 +165,7 @@ class SimulatorRunner {
                   double time_step, double realtime_rate);
 
   /// @brief Simplified constructor that starts the simulator with
-  /// _paused = false and a real-time rate of 1.0.
+  /// _paused = false, a real-time rate of 1.0, and log = true.
   ///
   /// @param[in] sim A pointer to a simulator. Note that we take ownership of
   /// the simulation.
@@ -273,6 +279,19 @@ class SimulatorRunner {
 
   /// @brief Returns the collected interactive simulation statistics
   const InteractiveSimulationStats& get_stats() const { return stats_; }
+
+  /// @brief Returns the logging state. True indicates that logging is enabled.
+  bool IsLogging() const { return logging_; }
+
+  /// @brief Start logging.
+  void StartLogging();
+
+  /// @brief Stop logging.
+  void StopLogging();
+
+  /// @brief Get the log file name, or empty string if logging has not
+  /// been started.
+  std::string GetLogFilename() const;
 
   // @brief The service offered to control the simulation.
   static constexpr char const* kControlService = "/world_control";
@@ -429,6 +448,12 @@ class SimulatorRunner {
 
   // @brief The statistics of the (possibly many) simulation runs.
   InteractiveSimulationStats stats_;
+
+  // @brief An Ignition Transport log recorder object.
+  ignition::transport::log::Recorder recorder_;
+
+  // @brief Whether the simulation is logging or not.
+  bool logging_{false};
 };
 
 }  // namespace delphyne

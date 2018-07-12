@@ -45,6 +45,7 @@ set(SOURCES
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
   lcm_viewer_load_robot_to_ign_model_v_translator_system_test.cc
   load_robot_aggregator_test.cc
+  logger_test.cc
   scene_system_test.cc
   simulation_run_stats_test.cc
   simulation_runner_test.cc

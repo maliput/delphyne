@@ -150,6 +150,7 @@ def add_rail_car(simulator, name, lane, position, offset,
         nominal_speed=20.0,              # nominal_speed (m/s)
         road_geometry=road_geometry)     # maliput road geometry
     simulator.add_agent(agent)
+    return agent
 
 
 # pylint: disable=too-many-arguments

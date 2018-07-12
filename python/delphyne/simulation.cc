@@ -111,7 +111,7 @@ PYBIND11_MODULE(simulation, m) {
       .def("is_logging",
            &SimulatorRunner::IsLogging)
       .def("start_logging",
-           (void (SimulatorRunner::*)(void)) & SimulatorRunner::StartLogging)
+           (void (SimulatorRunner::*)(void))&SimulatorRunner::StartLogging)
       .def("start_logging",
           (void (SimulatorRunner::*)(const std::string&))
           &SimulatorRunner::StartLogging)

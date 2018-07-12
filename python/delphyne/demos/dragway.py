@@ -107,7 +107,6 @@ def main():
         log=args.log,
         logfile_name=args.logfile_name)
 
-
     with utilities.launch_interactive_simulation(runner) as launcher:
         if args.duration < 0:
             # run indefinitely

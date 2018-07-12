@@ -138,7 +138,6 @@ def main():
                              log=args.log,
                              logfile_name=args.logfile_name)
 
-
     with launch_interactive_simulation(runner):
         # Adds a callback to check for agent collisions.
         runner.add_collision_callback(on_agent_collision)

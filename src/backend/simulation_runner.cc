@@ -54,8 +54,7 @@ static void SignalHandler(int signal) {
 // @brief Creates a given path recursively.
 // @param[in] dir : Directory path to be created.
 // @param[in] mode : The file mode to create the dir with.
-// @return int : the result of the last mkdir operation:
-// 0 on success, otherwise -1.
+// @return The result of the last mkdir operation: 0 on success, otherwise -1.
 int mkpath(const char* dir, mode_t mode) {
   struct stat status_buffer;
   if (!stat(dir, &status_buffer)) return 0;
@@ -66,14 +65,13 @@ int mkpath(const char* dir, mode_t mode) {
 }
 
 // @brief Creates the filename under which a log will be saved.
-// @return string : the logfile name with extension.
+// @return The logfile name with extension.
 std::string GenerateFilenameForLog() {
   std::stringstream filename{};
   // Get environmental variable.
-  const std::string logs_prefix_varname{"DELPHYNE_LOGS_PREFIX"};
-  const char* delphyne_logs_prefix = std::getenv(logs_prefix_varname.c_str());
+  const char* delphyne_logs_prefix = std::getenv("DELPHYNE_LOGS_PREFIX");
   if (delphyne_logs_prefix == NULL) {
-    igndbg << "Unable to get " << logs_prefix_varname
+    igndbg << "Unable to get DELPHYNE_LOGS_PREFIX"
            << " environment variable." << std::endl;
   } else {
     // Appends the prefix taken from the env var.
@@ -88,21 +86,21 @@ std::string GenerateFilenameForLog() {
 }
 
 // @brief Creates the directory structure in disk to store a logfile.
-// Based on availability, it uses the following precedence:
+//
+// Based on availability, it applies the following precedence:
 // - The path defined in the $DELPHYNE_LOGS_PATH env variable.
 // - The $HOME/.delphyne/ path.
 // - The /tmp/delphyne/ path.
-// @return string : the destination path of the logfile.
+// @return The destination path of the logfile.
 std::string GenerateDirectoryPathForLog() {
   std::stringstream absolute_path;
-  const std::string logs_path_varname{"DELPHYNE_LOGS_PATH"};
   // Get environmental variables.
-  const char* delphyne_logs_path = std::getenv(logs_path_varname.c_str());
-  const char* home_path = std::getenv("HOME");
+  const char* delphyne_logs_path = std::getenv("DELPHYNE_LOGS_PATH");
   if (delphyne_logs_path == NULL) {
     // In case DELPHYNE_LOGS_PATH isn't available.
-    igndbg << "Unable to get " << logs_path_varname << " environment variable."
+    igndbg << "Unable to get DELPHYNE_LOGS_PATH environment variable."
            << std::endl;
+    const char* home_path = std::getenv("HOME");
     if (home_path == NULL) {
       igndbg << "Unable to get HOME environment variable." << std::endl;
       // Uses /tmp/delphyne as base path.
@@ -124,18 +122,26 @@ std::string GenerateDirectoryPathForLog() {
 // @brief Creates the directory structure to the desired logfile in disk.
 // @param[in] filename : A string containing the logfile name with an optional
 // relative path.
-// @return string : The full path to the logfile.
+// @return The full path to the logfile.
 std::string CreateLogfile(std::string filename) {
   const mode_t file_mode = S_IRWXU | S_IRGRP | S_IROTH;
 
   std::string full_path{GenerateDirectoryPathForLog()};
 
-  // The filename is empty, generate it.
+  // If the filename has a trailing slash, ignores and uses default.
+  if (filename.back() == '/') {
+    ignerr << "The given logfile name is ill-formed. "
+              "Logging to default location."
+           << std::endl;
+    filename = "";
+  }
+
+  // The filename is empty, generates it.
   if (filename.empty()) {
     filename = GenerateFilenameForLog();
   }
 
-  const bool has_relative_path{filename.find('/') != std::string::npos};
+  const bool has_path{filename.find('/') != std::string::npos};
 
   // If the filename has extension, removes it.
   const size_t lastindex = filename.find_last_of(".");
@@ -143,16 +149,19 @@ std::string CreateLogfile(std::string filename) {
     filename = filename.substr(0, lastindex);
   }
 
-  if (has_relative_path) {
-    // If there is a '/' at the beginning, removes it.
+  if (has_path) {
+    // If there is a '/' at the beginning, we assume an absolute path.
     if (filename.at(0) == '/') {
-      filename.erase(filename.begin());
+      full_path = filename.substr(0, filename.rfind('/'));
+    } else {  // else, we assume a relative path.
+      // Creates a new string with the relative path alone without the filename.
+      const std::string relative_path{
+          filename.substr(0, filename.find_last_of('/'))};
+      // Appends the relative path to the absolute one.
+      full_path += relative_path;
     }
-    // Creates a new string with the relative path alone without the filename.
-    const std::string relative_path{
-        filename.substr(0, filename.find_last_of('/'))};
-    // Appends the relative path to the absolute one.
-    full_path += relative_path;
+    // Leaves only the filename without the path.
+    filename = filename.substr(filename.rfind('/') + 1);
   }
 
   // Creates the directory structure in disk if necessary.
@@ -206,11 +215,7 @@ SimulatorRunner::SimulatorRunner(
                     "Realtime rate must be >= 0.0");
 
   if (log) {
-    if (logfile_name.empty()) {
-      StartLogging();
-    } else {
-      StartLogging(logfile_name);
-    }
+    StartLogging(logfile_name);
   }
 
   // Advertises the service for controlling the simulation.

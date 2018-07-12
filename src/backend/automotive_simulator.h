@@ -104,7 +104,7 @@ class AutomotiveSimulator {
   /// Returns the System containing the entire AutomotiveSimulator diagram.
   ///
   /// @pre Build() has been called.
-  const drake::systems::System<T>& GetDiagram() const { return *diagram_; }
+  const drake::systems::System<T>* GetDiagram() const { return diagram_.get(); }
 
   /// Returns the current poses of all vehicles in the simulation.
   ///

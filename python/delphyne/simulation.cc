@@ -133,7 +133,9 @@ PYBIND11_MODULE(simulation, m) {
            "Transfer a road geometry to the control of the simulator",
            py::arg("road_geometry"))
       .def("get_current_simulation_time",
-           &AutomotiveSimulator<double>::GetCurrentSimulationTime);
+           &AutomotiveSimulator<double>::GetCurrentSimulationTime)
+      .def("get_diagram", &AutomotiveSimulator<double>::GetDiagram,
+           py::return_value_policy::reference_internal);
 }
 
 /*****************************************************************************

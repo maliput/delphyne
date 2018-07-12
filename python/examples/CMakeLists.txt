@@ -7,6 +7,7 @@
 
 install(
   PROGRAMS
+    delphyne-change-speed-time
     delphyne-crash
     delphyne-dragway
     delphyne-gazoo

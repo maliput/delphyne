@@ -5,6 +5,7 @@
 install(
   FILES
     __init__.py
+    change_speed_time.py
     crash.py
     dragway.py
     helpers.py

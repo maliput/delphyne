@@ -28,10 +28,11 @@
 #include "backend/ign_models_assembler.h"
 #include "backend/ign_publisher_system.h"
 #include "delphyne/macros.h"
-#include "translations/drake_simple_car_state_to_ign.h"
+#include "delphyne/protobuf/simple_car_state_v.pb.h"
 #include "translations/ign_driving_command_to_drake.h"
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
+#include "translations/pose_bundle_to_simple_car_state_v.h"
 
 namespace delphyne {
 
@@ -160,27 +161,6 @@ int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<AgentBase<T>> agent) {
                         builder_.get(), scene_graph_,
                         &(agent->mutable_geometry_ids())));
 
-  /*********************
-   * State Publisher
-   *********************/
-  auto agent_state_translator =
-      builder_->template AddSystem<DrakeSimpleCarStateToIgn>();
-
-  const std::string agent_state_channel =
-      "agents/" + std::to_string(id) + "/state";
-  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
-      AgentStatePublisherSystem;
-  AgentStatePublisherSystem* agent_state_publisher_system =
-      builder_->template AddSystem<AgentStatePublisherSystem>(
-          std::make_unique<AgentStatePublisherSystem>(agent_state_channel));
-
-  // Drake car states are translated to ignition.
-  builder_->Connect(diagram->get_output_port(bundle->outputs["state"]),
-                    agent_state_translator->get_input_port(0));
-
-  // And then the translated ignition car state is published.
-  builder_->Connect(*agent_state_translator, *agent_state_publisher_system);
-
   // save a handle to it
   agents_[id] = std::move(agent);
   return id;
@@ -205,8 +185,8 @@ AutomotiveSimulator<T>::GetAgentById(int agent_id) const {
 }
 
 template <typename T>
-delphyne::AgentBase<T>*
-AutomotiveSimulator<T>::GetMutableAgentById(int agent_id) {
+delphyne::AgentBase<T>* AutomotiveSimulator<T>::GetMutableAgentById(
+    int agent_id) {
   DELPHYNE_VALIDATE(agents_.count(agent_id) != 0, std::runtime_error,
                     "No agent found with the given ID.");
   return agents_[agent_id].get();
@@ -349,6 +329,29 @@ void AutomotiveSimulator<T>::Build() {
 
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
+
+  // Defines a SimpleCarState_V channel name.
+  const std::string agent_state_channel = "agents/state";
+
+  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState_V>
+      AgentsStatePublisherSystem;
+
+  // Creates a PoseBundleToSimpleCarState_V system.
+  PoseBundleToSimpleCarState_V* pose_bundle_to_simple_car_state_v_ =
+      builder_->template AddSystem<PoseBundleToSimpleCarState_V>(
+          std::make_unique<PoseBundleToSimpleCarState_V>());
+
+  AgentsStatePublisherSystem* agents_state_publisher_system =
+      builder_->template AddSystem<AgentsStatePublisherSystem>(
+          std::make_unique<AgentsStatePublisherSystem>(agent_state_channel));
+
+  // Connects the PoseBundleToSimpleCarState_v input and output.
+  builder_->Connect(
+      aggregator_->get_output_port(0),
+      pose_bundle_to_simple_car_state_v_->get_input_port(0));
+  builder_->Connect(
+      pose_bundle_to_simple_car_state_v_->get_output_port(0),
+      agents_state_publisher_system->get_input_port(0));
 
   diagram_ = builder_->Build();
   diagram_->set_name("AutomotiveSimulator");

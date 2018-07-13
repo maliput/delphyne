@@ -21,7 +21,7 @@ namespace drake {
 namespace automotive {
 
 /// ClosestPose bundles together the RoadOdometry of a particular target along
-/// with its distance measure relative to the ego vehicle.  Its intended use is
+/// with its distance measure relative to the ego vehicle. Its intended use is
 /// as the return argument for PoseSelector member functions.
 template <typename T>
 struct ClosestPose {
@@ -46,8 +46,8 @@ enum class AheadOrBehind { kAhead = 0, kBehind = 1 };
 enum class ScanStrategy { kBranches, kPath };
 
 /// If kCache, configures a planning system (e.g. IdmController, MobilPlanner)
-/// to declare an abstract state that caches the last-computed RoadPosition.  If
-/// kExhaustiveSearch, then the system will contain no abstract states.  Note
+/// to declare an abstract state that caches the last-computed RoadPosition. If
+/// kExhaustiveSearch, then the system will contain no abstract states. Note
 /// that the kCache option is for performance speedup (at the expense of
 /// optimizer compatibility) by preventing a potentially sizeable computation
 /// within RoadGeometry::ToRoadPosition().
@@ -72,7 +72,7 @@ class TrafficPoseSelector {
 
   /// Returns the leading and trailing vehicles in a given @p lane or @p road
   /// that are closest to an ego vehicle along its path, as measured along the
-  /// `s`-coordinate of the ego vehicle's lane.  If @p path_or_branches is
+  /// `s`-coordinate of the ego vehicle's lane. If @p path_or_branches is
   /// ScanStrategy::kPath, only poses in the same path as the ego (ahead or
   /// behind) are tracked; if ScanStrategy::kBranches, poses in lanes that
   /// eventually merge (converge to the same branch point that is on the default
@@ -81,33 +81,33 @@ class TrafficPoseSelector {
   ///
   /// Users should take heed to the fact that ScanStrategy::kBranches does _not_
   /// assess the relationship between traffic and ego vehicle velocity when
-  /// selecting poses.  Thus, cars within the same lane as the ego but with
+  /// selecting poses. Thus, cars within the same lane as the ego but with
   /// negative net-velocity (approaching the ego car, from the ego's
   /// point-of-view) could be ignored in favor of a car in a branch with
   /// positive net-velocity.
   ///
   /// The ego vehicle must be within the `driveable_bounds` of @p lane (i.e. the
-  /// road is contiguous with @p lane along the `r`-direction).  This function
+  /// road is contiguous with @p lane along the `r`-direction). This function
   /// is used, for instance, as logic for lane-change planners (e.g. MOBIL).
   /// The ego car's pose (@p ego_pose) and the poses of the traffic cars (@p
-  /// traffic_poses) are provided.  The parameter @p scan_distance determines
+  /// traffic_poses) are provided. The parameter @p scan_distance determines
   /// the distance along the sequence of lanes to scan before declaring that no
   /// traffic car is ahead (resp. behind) the ego car.
   ///
   /// @return A map of AheadOrBehind values to vehicle ClosestPoses (containing
-  /// RoadOdometries and closest relative distances).  Relative distances are
+  /// RoadOdometries and closest relative distances). Relative distances are
   /// always positive, and a distance of positive infinity is returned if no
-  /// traffic cars are found.  Note that when no vehicle is detected in front of
+  /// traffic cars are found. Note that when no vehicle is detected in front of
   /// (resp. behind) the ego vehicle, the respective RoadPosition within
   /// ClosestPoses will contain an `s`-value of positive (resp. negative)
-  /// infinity.  Any traffic poses that are redunant with `ego_pose` (i.e. have
+  /// infinity. Any traffic poses that are redunant with `ego_pose` (i.e. have
   /// the same RoadPosition as the ego car and thus the same `s` and `r` value)
-  /// are discarded.  If no leading/trailing vehicles are seen within
+  /// are discarded. If no leading/trailing vehicles are seen within
   /// scan-distance of the ego car, `s`-positions are taken to be at infinite
-  /// distances away from the ego car.  Note also that traffic vehicles having
+  /// distances away from the ego car. Note also that traffic vehicles having
   /// exactly the same `s`-position as the ego vehicle but with different
   /// `r`-value or are directly perpendicular in a Lane::to_left(),
-  /// Lane::to_right() lane are taken to be *behind* the ego vehicle.  Note that
+  /// Lane::to_right() lane are taken to be *behind* the ego vehicle. Note that
   /// this implementation is greatly simplified by considering poses as points
   /// (i.e. vehicle geometries are ignored).
   ///
@@ -140,8 +140,8 @@ class TrafficPoseSelector {
       ScanStrategy path_or_branches);
 
   /// Extracts the vehicle's `s`-direction velocity based on its RoadOdometry @p
-  /// road_odometry in the Lane coordinate frame.  Assumes the road has zero
-  /// elevation and superelevation.  Throws if any element of
+  /// road_odometry in the Lane coordinate frame. Assumes the road has zero
+  /// elevation and superelevation. Throws if any element of
   /// `road_odometry.pos` is not within the respective bounds of
   /// `road_odometry.lane`.
   ///

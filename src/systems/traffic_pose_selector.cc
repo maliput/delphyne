@@ -46,21 +46,21 @@ template <typename T>
 bool IsWithinDriveableBounds(const Lane* lane,
                              const LanePositionT<T>& lane_position,
                              const double linear_tolerance) {
-  if (lane_position.s() < -linear_tolerance ||
-      lane_position.s() > lane->length() + linear_tolerance) {
+  const double s = ExtractDoubleOrThrow(lane_position.s());
+  if (s < -linear_tolerance || s > lane->length() + linear_tolerance) {
     return false;
   }
-  const RBounds r_bounds = lane->driveable_bounds(
-      ExtractDoubleOrThrow(lane_position.s()));
-  if (lane_position.r() < r_bounds.min() - linear_tolerance ||
-      lane_position.r() > r_bounds.max() + linear_tolerance) {
+  const double r = ExtractDoubleOrThrow(lane_position.r());
+  const RBounds r_bounds = lane->driveable_bounds(s);
+  if (r < r_bounds.min() - linear_tolerance ||
+      r > r_bounds.max() + linear_tolerance) {
     return false;
   }
   const HBounds h_bounds =
-      lane->elevation_bounds(ExtractDoubleOrThrow(lane_position.s()),
-                             ExtractDoubleOrThrow(lane_position.r()));
-  return (lane_position.h() >= h_bounds.min() - linear_tolerance &&
-          lane_position.h() <= h_bounds.max() + linear_tolerance);
+      lane->elevation_bounds(s, r);
+  const double h = ExtractDoubleOrThrow(lane_position.h());
+  return (h >= h_bounds.min() - linear_tolerance &&
+          h <= h_bounds.max() + linear_tolerance);
 }
 
 // Returns `true` if and only if @p geo_position is within the longitudinal (s),
@@ -118,9 +118,9 @@ bool IsWithinLaneBounds(const Lane* lane,
 
 
 // Given a @p lane_end, returns the LaneEnd corresponding to the
-// exit-point of an ongoing lane.  If the LaneEnd corresponds to a default
-// branch at that end, then it is returned.  If there is no default branch, the
-// ongoing LaneEnd with index = 0 is selected.  Otherwise, returns a LaneEnd
+// exit-point of an ongoing lane. If the LaneEnd corresponds to a default
+// branch at that end, then it is returned. If there is no default branch, the
+// ongoing LaneEnd with index = 0 is selected. Otherwise, returns a LaneEnd
 // with its `lane` member-field set to `nullptr`.
 LaneEnd GetDefaultOrFirstOngoingLaneEndAhead(const LaneEnd& lane_end) {
   DRAKE_DEMAND(lane_end.lane != nullptr);
@@ -150,12 +150,12 @@ LaneEnd FindLaneEnd(
     const Lane* lane, const LanePositionT<T>& lane_position,
     const Quaternion<T>& rotation, AheadOrBehind side) {
   // Get the vehicle's heading with respect to the current lane; use it to
-  // determine if the vehicle is facing with or against the lane's canonical
-  // direction.
+  // determine if the vehicle is facing towards or against the lane's
+  // canonical direction.
   const Quaternion<double> lane_rotation =
       lane->GetOrientation(lane_position.MakeDouble()).quat();
   // The dot product of two quaternions is the cosine of half the angle between
-  // the two rotations.  Given two quaternions q₀, q₁ and letting θ be the angle
+  // the two rotations. Given two quaternions q₀, q₁ and letting θ be the angle
   // difference between them, then -π/2 ≤ θ ≤ π/2 iff q₀.q₁ ≥ √2/2.
   const T rotations_dotp = rotation.dot(lane_rotation);
   // True if one or the other, but not both.
@@ -168,7 +168,7 @@ LaneEnd FindLaneEnd(
 // `h` positions, and zero velocities. If @p lane_end_ahead refers to
 // to an end (i.e. LaneEnd::kFinish), a RoadOdometry containing an s-position
 // at positive infinity is returned; otherwise a negative-infinite position is
-// returned.  For T == AutoDiffXd, the derivatives of the returned RoadOdometry
+// returned. For T == AutoDiffXd, the derivatives of the returned RoadOdometry
 // are made to be coherent with respect to @p pose.
 template <typename T>
 RoadOdometry<T> MakeInfiniteOdometry(const LaneEnd& lane_end_ahead,
@@ -216,7 +216,7 @@ T CalcLaneProgress(const LaneEnd& lane_end_ahead,
 }
 
 // Returns true if `lane0` has an equal identifier as `lane1`, and false
-// otherwise.  The result is trivially false if either is nullptr.
+// otherwise. The result is trivially false if either is nullptr.
 bool IsEqual(const Lane* lane0, const Lane* lane1) {
   if (!lane0 || !lane1) return false;
   return lane0->id() == lane1->id();
@@ -282,7 +282,7 @@ ClosestPose<T> FindSingleClosestInDefaultPath(
         // Ignore traffic cars that are not in the desired direction (ahead or
         // behind) of the ego car (with respect to the car's current direction).
         // Cars with identical s-values as the ego but shifted laterally are
-        // treated as `kBehind` cars.  Note that this check is only needed when
+        // treated as `kBehind` cars. Note that this check is only needed when
         // the two share the same lane or, equivalently, `distance_scanned <= 0`
         if (traffic_lane_progress_delta < 0. ||
             (side == AheadOrBehind::kAhead &&
@@ -347,7 +347,7 @@ using LaneEndDistance = std::pair<const T, const maliput::api::LaneEnd>;
 
 // Returns the closest pose to the ego car given a `lane`, the ego vehicle's
 // pose `ego_pose`, a PoseBundle of `traffic_poses`, the AheadOrBehind specifier
-// `side`, and a set of `branches` to be checked.  The return value is the same
+// `side`, and a set of `branches` to be checked. The return value is the same
 // as TrafficPoseSelector<T>::FindSingleClosestPose().
 template <typename T>
 ClosestPose<T> FindSingleClosestInBranches(
@@ -415,7 +415,7 @@ ClosestPose<T> FindSingleClosestInBranches(
       std::tie(ego_distance_to_branch, branch) = distance_to_branch;
       // The distance ahead needed to scan for intersection is assumed equal to
       // the distance scanned in the ego vehicle's lane times the ratio of
-      // s-velocity of the traffic car to that of the ego car.  Cars much slower
+      // s-velocity of the traffic car to that of the ego car. Cars much slower
       // than the ego car are thus phased out closer to the branch-point, while
       // those that are faster remain in scope further away from the
       // branch-point.
@@ -434,7 +434,7 @@ ClosestPose<T> FindSingleClosestInBranches(
         const Lane* trial_lane = next_traffic_lane_end_ahead.lane;
         const LaneEnd::Which trial_lane_end = next_traffic_lane_end_ahead.end;
         // If this vehicle is in the trial_lane, then use it to compute the
-        // effective headway distance to the ego vehicle.  Otherwise continue
+        // effective headway distance to the ego vehicle. Otherwise continue
         // down its path looking for the lane connected to a branch up to
         // distance_to_scan.
         if (IsEqual(trial_lane, branch.lane) &&

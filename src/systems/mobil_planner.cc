@@ -178,7 +178,7 @@ const std::pair<T, T> MOBILPlanner<T>::ComputeIncentives(
     const MobilPlannerParameters<T>& mobil_params,
     const ClosestPose<T>& ego_closest_pose, const PoseVector<T>& ego_pose,
     const PoseBundle<T>& traffic_poses, const T& ego_acceleration) const {
-  // Initially disincentivize both neighboring lane options.  N.B. The first and
+  // Initially disincentivize both neighboring lane options. N.B. The first and
   // second elements correspond to the left and right lanes, respectively.
   std::pair<T, T> incentives(-kDefaultLargeAccel, -kDefaultLargeAccel);
 

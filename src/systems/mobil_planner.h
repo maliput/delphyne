@@ -30,7 +30,7 @@ namespace automotive {
 /// MOBIL (Minimizing Overall Braking Induced by Lane Changes) [1] is a planner
 /// that minimizes braking requirement for the ego car while also minimizing
 /// (per a weighting factor) the braking requirements of any trailing cars
-/// within the ego car's immediate neighborhood.  The weighting factor
+/// within the ego car's immediate neighborhood. The weighting factor
 /// encapsulates the politeness of the ego car to the surrounding traffic.
 /// Neighboring cars are defined as those cars immediately ahead and behind the
 /// ego, in the current lane and any adjacent lanes; these are determined from
@@ -38,10 +38,10 @@ namespace automotive {
 ///
 /// The induced braking by the ego car and the car following immediately behind
 /// it is compared with the induced braking by the ego and its new follower if
-/// the ego were to move to any of the neighboring lanes.  The choice that
+/// the ego were to move to any of the neighboring lanes. The choice that
 /// minimizes the induced braking - alternatively maximizes the ego car's
 /// "incentive" (the weighted sum of accelerations that the ego car and its
-/// neighbors gain by changing lanes) - is chosen as the new lane request.  The
+/// neighbors gain by changing lanes) - is chosen as the new lane request. The
 /// request is expressed as a LaneDirection, that references a valid lane in the
 /// provided RoadGeometry and the direction of travel.
 ///
@@ -74,7 +74,7 @@ namespace automotive {
 ///
 /// Output Port 0: A LaneDirection containing a lane that the ego vehicle must
 ///   move into and the direction of travel with respect to the lane's canonical
-///   direction of travel.  LaneDirection must be consistent with the provided
+///   direction of travel. LaneDirection must be consistent with the provided
 ///   road.
 ///   (OutputPort getter: lane_output())
 ///
@@ -150,7 +150,7 @@ class MOBILPlanner : public systems::LeafSystem<T> {
 
   // Computes a pair of incentive measures for the provided neighboring lanes.
   // The first and second elements in `lanes` correspond to, respectively, a
-  // pair of lanes included in the incentive query.  The respective incentives
+  // pair of lanes included in the incentive query. The respective incentives
   // for these lanes are returned as the first and second elements in the return
   // value.
   const std::pair<T, T> ComputeIncentives(
@@ -165,7 +165,7 @@ class MOBILPlanner : public systems::LeafSystem<T> {
 
   // Computes a pair of incentive measures that consider the leading and
   // trailing vehicles that are closest to the pre-computed result in the
-  // current lane.  `closest_poses` contains the odometries and relative
+  // current lane. `closest_poses` contains the odometries and relative
   // distances to the leading and trailing cars.
   void ComputeIncentiveOutOfLane(const IdmPlannerParameters<T>& idm_params,
                                  const MobilPlannerParameters<T>& mobil_params,

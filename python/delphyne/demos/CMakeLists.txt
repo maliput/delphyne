@@ -10,7 +10,7 @@ install(
     helpers.py
     gazoo.py
     keyop.py
-    perf.py
+    mobil_perf.py
     realtime.py
     roads.py
     scriptlets.py

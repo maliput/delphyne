@@ -135,8 +135,8 @@ def dragway(args):
 def parse_arguments():
     "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
-        "Performance Check",
-        "\nCPU hungry agents on common roads.\n",
+        "MOBIL Performance Check",
+        "\nCPU hungry MOBIL cars on common roads.\n",
         default_duration=5.0)
     available_benchmarks = benchmark.register.keys()
     parser.add_argument(

@@ -3,14 +3,15 @@
 #include <cstdint>
 #include <iostream>
 #include <regex>
+
 #include <ignition/common/Console.hh>
 #include <ignition/transport/log/Playback.hh>
 
-namespace backend {
+namespace delphyne {
 
 int main(int argc, char* argv[]) {
   ignition::common::Console::SetVerbosity(3);
-  if (argc != 2) {
+  if (argc < 2) {
     ignerr << "No logfile was provided.\n"
            << "Usage: " << argv[0] << " <path-to-logfile.db>" << std::endl;
     return 1;
@@ -43,6 +44,6 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
-}  // namespace backend
+}  // namespace delphyne
 
-int main(int argc, char* argv[]) { return backend::main(argc, argv); }
+int main(int argc, char* argv[]) { return delphyne::main(argc, argv); }

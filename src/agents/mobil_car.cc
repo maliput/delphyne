@@ -13,9 +13,8 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/idm_controller.h>
+
 #include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/mobil_planner.h>
 #include <drake/automotive/pure_pursuit_controller.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/primitives/multiplexer.h>
@@ -27,6 +26,8 @@
 #include "delphyne/macros.h"
 
 // private headers
+#include "systems/idm_controller.h"
+#include "systems/mobil_planner.h"
 #include "systems/simple_car.h"
 
 /*****************************************************************************
@@ -70,15 +71,15 @@ std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
   /*********************
    * Instantiate Systems
    *********************/
-  drake::automotive::MobilPlanner<double>* mobil_planner = builder.AddSystem(
-      std::make_unique<drake::automotive::MobilPlanner<double>>(
+  drake::automotive::MOBILPlanner<double>* mobil_planner = builder.AddSystem(
+      std::make_unique<drake::automotive::MOBILPlanner<double>>(
           road_geometry_, initial_parameters_.direction_of_travel,
           drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
   mobil_planner->set_name(name_ + "_mobil_planner");
 
-  drake::automotive::IdmController<double>* idm_controller = builder.AddSystem(
-      std::make_unique<drake::automotive::IdmController<double>>(
+  drake::automotive::IDMController<double>* idm_controller = builder.AddSystem(
+      std::make_unique<drake::automotive::IDMController<double>>(
           road_geometry_, drake::automotive::ScanStrategy::kBranches,
           drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));

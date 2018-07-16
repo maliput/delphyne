@@ -135,7 +135,8 @@ def main():
                              time_step=0.001,  # (secs)
                              realtime_rate=args.realtime_rate,
                              paused=args.paused,
-                             log=args.log)
+                             log=args.log,
+                             logfile_name=args.logfile_name)
 
     with launch_interactive_simulation(runner):
         # Adds a callback to check for agent collisions.

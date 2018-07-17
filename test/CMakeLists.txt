@@ -29,8 +29,7 @@ macro(delphyne_build_tests)
       ${BINARY_NAME}
       PRIVATE
         agents
-        simulation_runner
-        automotive_simulator
+        backend
         translations
         protobuf
         drake::drake

@@ -66,8 +66,7 @@ set_target_properties(simulation_bindings PROPERTIES OUTPUT_NAME simulation)
 
 target_link_libraries(simulation_bindings
   PRIVATE
-    simulation_runner
-    automotive_simulator
+    backend
     drake::drake
     pybind11::module
     ${PYTHON_LIBRARIES}

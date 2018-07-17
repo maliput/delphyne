@@ -1,73 +1,43 @@
 ##############################################################################
-# Automotive Simulator
-##############################################################################
-
-add_library(automotive_simulator
-  automotive_simulator.cc
-  frame_pose_aggregator.cc
-  ign_models_assembler.cc
-  load_robot_aggregator.cc
-  scene_system.cc
-)
-set_target_properties(automotive_simulator PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-automotive-simulator)
-target_include_directories(
-  automotive_simulator
-  PUBLIC
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
-)
-target_link_libraries(
-  automotive_simulator
-  PUBLIC
-    protobuf_messages
-    public_headers
-    drake::drake
-    ignition-common2::ignition-common2
-    ignition-transport5::ignition-transport5
-    ignition-msgs2::ignition-msgs2
-  PRIVATE
-    translations
-)
-
-install(TARGETS automotive_simulator
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
-)
-
-##############################################################################
-# Simulation Runner
+# Library
 ##############################################################################
 
 include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 
-add_library(simulation_runner
+add_library(backend
+  automotive_simulator.cc
+  frame_pose_aggregator.cc
+  ign_models_assembler.cc
   interactive_simulation_stats.cc
+  load_robot_aggregator.cc
+  scene_system.cc
   simulation_run_stats.cc
-  simulation_runner.cc
+  simulation_runner.cc  # needs python
 )
-set_target_properties(simulation_runner PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-simulation-runner)
+set_target_properties(backend PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-backend)
 target_include_directories(
-  simulation_runner
+  backend
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${PYTHON_INCLUDE_DIRS}>
 )
 target_link_libraries(
-  simulation_runner
+  backend
   PUBLIC
-    automotive_simulator
     protobuf_messages
     public_headers
+    drake::drake
     ignition-common2::ignition-common2
     ignition-transport5::core
     ignition-transport5::log
     ignition-msgs2::ignition-msgs2
-    drake::drake
     pybind11::module
     ${PYTHON_LIBRARIES}
+  PRIVATE
+    translations
 )
 
-install(TARGETS simulation_runner
+install(TARGETS backend
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

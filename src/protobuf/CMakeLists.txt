@@ -49,7 +49,7 @@ target_link_libraries(
   protobuf_messages
   PUBLIC
     ${PROTOBUF_LIBRARIES}
-    ${IGNITION-MSGS_LIBRARIES}
+    ignition-msgs2::ignition-msgs2
 )
 
 ##############################################################################

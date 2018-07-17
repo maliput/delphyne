@@ -31,13 +31,12 @@ macro(delphyne_build_tests)
         agents
         simulation_runner
         automotive_simulator
-        scene_system
         translations
         protobuf
         drake::drake
-        ${IGNITION-COMMON_LIBRARIES}
-        ${IGNITION-TRANSPORT_LIBRARIES}
-        ${IGNITION-MSGS_LIBRARIES}
+        ignition-common2::ignition-common2
+        ignition-transport5::ignition-transport5
+        ignition-msgs2::ignition-msgs2
         test_helpers
         gtest_main
         gtest

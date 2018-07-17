@@ -31,7 +31,6 @@
 #include <drake/systems/rendering/pose_bundle_to_draw_message.h>
 
 #include <ignition/msgs.hh>
-#include <ignition/transport.hh>
 
 // public headers
 #include "delphyne/mi6/agent_base.h"

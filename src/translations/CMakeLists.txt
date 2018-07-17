@@ -25,10 +25,10 @@ target_link_libraries(translations
     public_headers
     protobuf
     protobuf_messages
-    ${drake_LIBRARIES}
-    ${IGNITION-COMMON_LIBRARIES}
-    ${IGNITION-MSGS_LIBRARIES}
-    ${IGNITION-TRANSPORT_LIBRARIES}
+    drake::drake
+    ignition-common2::ignition-common2
+    ignition-msgs2::ignition-msgs2
+    ignition-transport5::ignition-transport5
 )
 
 install(TARGETS translations

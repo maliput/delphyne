@@ -47,7 +47,8 @@ def create_argument_parser(title, content, default_duration=-1.0):
         description=create_argparse_description(title, content),
         epilog=create_argparse_epilog(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("-d", "--duration", default=default_duration,
+    parser.add_argument("-d", "--duration", type=float,
+                        default=default_duration,
                         help="Simulation length (sec)(endless if -ve)"
                         "(default: {0}s)".format(default_duration))
     parser.add_argument("-r", "--realtime_rate", default=1.0,

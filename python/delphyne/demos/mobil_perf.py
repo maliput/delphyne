@@ -165,7 +165,9 @@ def main():
         simulator=simulator,
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
-        paused=args.paused
+        paused=args.paused,
+        log=args.log,
+        logfile_name=args.logfile_name
     )
 
     if args.duration < 0:

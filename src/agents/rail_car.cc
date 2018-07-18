@@ -93,7 +93,7 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
       "RoadGeometry.");
 }
 
-std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
+std::unique_ptr<Agent::Diagram> RailCar::BuildDiagram() const {
   DiagramBuilder builder(name_);
 
   /******************************************

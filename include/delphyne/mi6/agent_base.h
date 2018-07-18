@@ -11,10 +11,19 @@
 #include <string>
 
 #include <drake/common/eigen_types.h>
+#include <drake/systems/framework/context.h>
+#include <drake/systems/framework/output_port.h>
+#include <drake/systems/framework/diagram_builder.h>
+#include <drake/systems/framework/value.h>
+#include <drake/systems/framework/vector_base.h>
+#include <drake/systems/framework/basic_vector.h>
+#include <drake/systems/rendering/pose_vector.h>
+#include <drake/systems/rendering/frame_velocity.h>
 #include <drake/geometry/geometry_ids.h>
 
+#include "delphyne/macros.h"
+#include "delphyne/mi6/agent_diagram.h"
 #include "delphyne/mi6/agent_diagram_builder.h"
-#include "delphyne/mi6/diagram_bundle.h"
 #include "delphyne/types.h"
 
 /*****************************************************************************
@@ -44,9 +53,9 @@ namespace delphyne {
 template <typename T>
 class AgentBase {
  public:
-  /// Type for packaging diagram and indices together in a bundle.
-  using DiagramBundle = delphyne::DiagramBundle<T>;
-  /// Specific builder for this agent. Use inside BuildDiagram().
+  /// Specific diagram for this agent. As returned by BuildDiagram().
+  using Diagram = AgentDiagram<T>;
+  /// Specific builder for this agent. To be used inside BuildDiagram().
   using DiagramBuilder = AgentDiagramBuilder<T>;
 
   /// @brief Constructor initialising common agent parameters.
@@ -64,7 +73,65 @@ class AgentBase {
   /// @return DiagramBundle : The diagram along with the relevant input
   /// and output indices for an agent diagram that allow it to be
   /// wired up with systems in the simulator diagram.
-  virtual std::unique_ptr<DiagramBundle> BuildDiagram() const = 0;
+  Diagram* TakePartIn(drake::systems::DiagramBuilder<T>* builder, int id) {
+    // TODO(hidmic): should we be passing the simulator itself instead?
+    id_ = id;
+    diagram_ = builder->AddSystem(BuildDiagram());
+    return diagram_;
+  }
+
+  const Diagram& get_diagram() const { return *diagram_; }
+
+  Diagram* get_mutable_diagram() { return diagram_; }
+
+  drake::Isometry3<T>
+  GetPose(const drake::systems::Context<T>& context) const {
+    DELPHYNE_VALIDATE(diagram_ != nullptr, std::runtime_error,
+                      "This agent is not associated to any simulation!");
+    const drake::systems::OutputPort<T>& pose_output_port =
+        diagram_->get_output_port("pose");
+    std::unique_ptr<drake::systems::AbstractValue> port_value =
+        pose_output_port.Allocate();
+    pose_output_port.Calc(context, port_value.get());
+    // TODO(hidmic): figure out why type assertions fail if
+    // trying to get the port value with the correct type in
+    // a single step (presumably related to the fact that
+    // BasicVector defines Clone() but its subclasses only
+    // inherit it, see drake::is_cloneable).
+    using drake::systems::BasicVector;
+    using drake::systems::rendering::PoseVector;
+    const BasicVector<T>& base_vector =
+        port_value->template GetValueOrThrow<BasicVector<T>>();
+    const PoseVector<T>& pose_vector =
+        dynamic_cast<const PoseVector<T>&>(base_vector);
+    return pose_vector.get_isometry();
+  }
+
+  drake::TwistVector<T>
+  GetVelocity(const drake::systems::Context<T>& context) const {
+    DELPHYNE_VALIDATE(diagram_ != nullptr, std::runtime_error,
+                      "This agent is not associated to any simulation!");
+    const drake::systems::OutputPort<T>& vel_output_port =
+        diagram_->get_output_port("velocity");
+    std::unique_ptr<drake::systems::AbstractValue> port_value =
+        vel_output_port.Allocate();
+    vel_output_port.Calc(context, port_value.get());
+    // TODO(hidmic): figure out why type assertions fail if
+    // trying to get the port value with the correct type in
+    // a single step (presumably related to the fact that
+    // BasicVector defines Clone() but its subclasses only
+    // inherit it, see drake::is_cloneable).
+    using drake::systems::BasicVector;
+    using drake::systems::rendering::FrameVelocity;
+    const BasicVector<T>& base_vector =
+        port_value->template GetValueOrThrow<BasicVector<T>>();
+    const FrameVelocity<T>& frame_velocity =
+        dynamic_cast<const FrameVelocity<T>&>(base_vector);
+    return frame_velocity.get_velocity().get_coeffs();
+  }
+
+  /// @brief ID accessor
+  int id() const { return id_; }
 
   /// @brief Name accessor
   const std::string& name() const { return name_; }
@@ -93,13 +160,19 @@ class AgentBase {
   }
 
  protected:
+  int id_;
   std::string name_;
+
   // TODO(daniel.stonier) stop using this, make use of an
   // initial value on the pose output (used by geometry settings for
   // the collision subsystem)
   drake::Isometry3<double> initial_world_pose_;
 
  private:
+  virtual std::unique_ptr<Diagram> BuildDiagram() const = 0;
+
+  Diagram* diagram_{nullptr};
+
   // TODO(daniel.stonier) dubious whether we should have
   // simulator specific machinery here
   std::set<drake::geometry::GeometryId> geometry_ids_{};

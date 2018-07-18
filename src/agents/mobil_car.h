@@ -54,8 +54,6 @@ class MobilCar : public delphyne::Agent {
            double y, double heading, double speed,
            const drake::maliput::api::RoadGeometry& road_geometry);
 
-  std::unique_ptr<DiagramBundle> BuildDiagram() const;
-
  private:
   struct Parameters {
     bool direction_of_travel{true};
@@ -72,6 +70,8 @@ class MobilCar : public delphyne::Agent {
           heading(heading),
           speed(speed) {}
   } initial_parameters_;
+
+  std::unique_ptr<Diagram> BuildDiagram() const override;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

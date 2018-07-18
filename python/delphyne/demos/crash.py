@@ -12,7 +12,7 @@ The crash demo.
 from __future__ import print_function
 
 import math
-from functools import wraps
+import numpy as np
 
 from delphyne.agents import SimpleCar
 from delphyne.simulation import (
@@ -20,8 +20,7 @@ from delphyne.simulation import (
     SimulatorRunner
 )
 from delphyne.utilities import (
-    launch_interactive_simulation,
-    emplace
+    launch_interactive_simulation
 )
 
 
@@ -44,30 +43,7 @@ in collision course.
     return parser.parse_args()
 
 
-@emplace(SimulatorRunner.add_collision_callback)
-def add_collision_callback(_, method):
-    """
-    Decorates :meth:`SimulatorRunner.add_collision_callback` method
-    to handle collision callbacks that take a :class:`SimulatorRunner`
-    instance and a list of tuples of :class:`AgentBase` instances that
-    are in collision as arguments in that order.
-    """
-    @wraps(method)
-    def _method_wrapper(self, callback):
-        @wraps(callback)
-        def _callback_wrapper(agents_in_collision):
-            simulator = self.get_simulator()
-            agents_in_collision = [
-                (simulator.get_mutable_agent_by_id(agent1_id),
-                 simulator.get_mutable_agent_by_id(agent2_id))
-                for agent1_id, agent2_id in agents_in_collision
-            ]
-            callback(self, agents_in_collision)
-        return method(self, _callback_wrapper)
-    return _method_wrapper
-
-
-def on_agent_collision(runner, agents_in_collision):
+def on_agent_collision(runner, simulator, agents_in_collision):
     """
     Callback on for collision between agents in simulation,
     stopping the runner if *any* collision is detected.
@@ -81,8 +57,22 @@ def on_agent_collision(runner, agents_in_collision):
     """
     print("Collisions have been detected!")
     for agent1, agent2 in agents_in_collision:
-        print("{} and {} have crashed.".format(
+        print("{} and {} have crashed!.".format(
             agent1.name(), agent2.name()
+        ))
+        ctx = simulator.get_context(agent1)
+        agent1_pose = agent1.get_pose(ctx)
+        agent1_velocity = agent1.get_velocity(ctx)
+        print("{} was going at {} m/s and hit {} at {}.".format(
+            agent1.name(), np.linalg.norm(agent1_velocity[3:]),
+            agent2.name(), agent1_pose.translation()
+        ))
+        ctx = simulator.get_context(agent2)
+        agent2_pose = agent2.get_pose(ctx)
+        agent2_velocity = agent2.get_velocity(ctx)
+        print("{} was going at {} m/s and hit {} at {}.".format(
+            agent2.name(), np.linalg.norm(agent2_velocity[3:]),
+            agent1.name(), agent2_pose.translation()
         ))
     print("Simulation stopped.")
     runner.stop()
@@ -140,6 +130,10 @@ def main():
 
     with launch_interactive_simulation(runner):
         # Adds a callback to check for agent collisions.
-        runner.add_collision_callback(on_agent_collision)
+        runner.add_collision_callback(
+            lambda agents_in_collision: on_agent_collision(
+                runner, runner.get_simulator(), agents_in_collision
+            )
+        )
         runner.enable_collisions()
         runner.start()

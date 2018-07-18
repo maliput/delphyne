@@ -9,6 +9,7 @@
 
 #include <vector>
 
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -36,7 +37,10 @@ PYBIND11_MODULE(agents, m) {
   py::module::import("pydrake.maliput.api");
 
   py::class_<delphyne::Agent>(m, "AgentBase")
-      .def("name", &delphyne::Agent::name);
+      .def("id", &delphyne::Agent::id)
+      .def("name", &delphyne::Agent::name)
+      .def("get_pose", &delphyne::Agent::GetPose)
+      .def("get_velocity", &delphyne::Agent::GetVelocity);
 
   py::class_<delphyne::MobilCar, delphyne::Agent>(m, "MobilCar")
       .def(py::init<const std::string&, bool, double, double, double, double,

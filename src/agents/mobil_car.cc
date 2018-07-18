@@ -53,7 +53,7 @@ MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
                                drake::Vector3<double>::UnitZ());
 }
 
-std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
+std::unique_ptr<Agent::Diagram> MobilCar::BuildDiagram() const {
   DiagramBuilder builder(name_);
 
   /******************************************

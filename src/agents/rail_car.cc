@@ -138,14 +138,11 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   builder.Connect(rail_follower_system->velocity_output(),
                   velocity_controller->feedback_input());
 
-  auto velocity_input =
-      std::make_unique<drake::systems::ConstantVectorSource<double>>(
+  velocity_input_ =
+      builder.AddSystem<drake::systems::ConstantVectorSource<double>>(
           initial_parameters_.speed);
-  velocity_input_ = velocity_input.get();
 
-  auto velocity_input_system = builder.AddSystem(std::move(velocity_input));
-
-  builder.Connect(velocity_input_system->get_output_port(),
+  builder.Connect(velocity_input_->get_output_port(),
                   velocity_controller->command_input());
 
   /*********************
@@ -167,9 +164,7 @@ void RailCar::SetVelocity(drake::systems::Context<double>* sim_context,
   drake::systems::BasicVector<double>& sourcevel =
       velocity_input_->get_mutable_source_value(&vel_input_context);
 
-  Eigen::VectorXd newval(1);
-  newval[0] = new_vel_mps;
-  sourcevel.set_value(newval);
+  sourcevel[0] = new_vel_mps;
 }
 
 }  // namespace delphyne

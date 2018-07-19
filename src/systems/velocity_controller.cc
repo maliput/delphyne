@@ -60,8 +60,6 @@ template <typename T>
 void VelocityController<T>::CalcOutputAcceleration(
     const drake::systems::Context<T>& context,
     drake::systems::BasicVector<T>* output) const {
-  Eigen::VectorXd constant_value(1);
-
   const drake::systems::rendering::FrameVelocity<T>* feedback_input =
       this->template EvalVectorInput<drake::systems::rendering::FrameVelocity>(
           context, velocity_feedback_input_port_index_);
@@ -69,17 +67,16 @@ void VelocityController<T>::CalcOutputAcceleration(
   if (feedback_input == nullptr) {
     // If the feedback is not connected, we can't do anything, so leave
     // acceleration at 0
-    constant_value[0] = 0.0;
-    output->set_value(constant_value);
+    output->SetAtIndex(0, 0.0);
     return;
   }
 
-  drake::multibody::SpatialVelocity<T> vel = feedback_input->get_velocity();
+  const drake::multibody::SpatialVelocity<T> vel =
+      feedback_input->get_velocity();
 
   // Let's calculate the magnitude of the vector to get an estimate
   // of our forward velocity.
-  double magnitude =
-      std::sqrt(vel[3] * vel[3] + vel[4] * vel[4] + vel[5] * vel[5]);
+  double magnitude = vel.translational().norm();
 
   const drake::systems::BasicVector<T>* command_input =
       this->template EvalVectorInput<drake::systems::BasicVector>(
@@ -87,19 +84,18 @@ void VelocityController<T>::CalcOutputAcceleration(
 
   // Allocates and uses a BasicVector containing a zero acceleration command in
   // case the input contains nullptr.
-  const auto default_input = drake::systems::BasicVector<T>::Make(magnitude);
+  drake::systems::BasicVector<T> default_input(magnitude);
   if (command_input == nullptr) {
-    command_input = default_input.get();
+    command_input = &default_input;
   }
 
   if (command_input->GetAtIndex(0) > magnitude) {
-    constant_value[0] = 10.0;
+    output->SetAtIndex(0, 10.0);
   } else if (command_input->GetAtIndex(0) < magnitude) {
-    constant_value[0] = -10.0;
+    output->SetAtIndex(0, -10.0);
   } else {
-    constant_value[0] = 0.0;
+    output->SetAtIndex(0, 0.0);
   }
-  output->set_value(constant_value);
 }
 
 template class VelocityController<double>;

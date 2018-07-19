@@ -66,6 +66,12 @@ class RailCar : public delphyne::Agent {
 
   std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
+  ///
+  /// @brief Change the velocity of this agent.
+  ///
+  /// @param sim_context[in] The simulator Context to use for this change
+  /// @param diagram[in] The diagram from which to look the sub-Context up
+  /// @param new_vel_mps[in] The new speed for the agent in meters/second
   void SetVelocity(drake::systems::Context<double>* sim_context,
                    const drake::systems::Diagram<double>* diagram,
                    double new_vel_mps);

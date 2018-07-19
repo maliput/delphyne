@@ -1,5 +1,5 @@
 /**
- * @file src/agents/velocity_controller.cc
+ * @file src/agents/speed_controller.cc
  *
  * Copyright 2018 Toyota Research Institute
  */
@@ -8,7 +8,7 @@
  ** Includes
  *****************************************************************************/
 
-#include "systems/velocity_controller.h"
+#include "systems/speed_controller.h"
 
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/rendering/frame_velocity.h>
@@ -24,45 +24,45 @@ namespace delphyne {
  *****************************************************************************/
 
 template <typename T>
-VelocityController<T>::VelocityController() {
-  velocity_command_input_port_index_ =
+SpeedController<T>::SpeedController() {
+  speed_command_input_port_index_ =
       this->DeclareVectorInputPort(drake::systems::BasicVector<T>(1))
           .get_index();
-  velocity_feedback_input_port_index_ =
+  speed_feedback_input_port_index_ =
       this->DeclareVectorInputPort(
               drake::systems::rendering::FrameVelocity<T>())
           .get_index();
   accel_output_port_index_ =
       this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
-                                    &VelocityController::CalcOutputAcceleration)
+                                    &SpeedController::CalcOutputAcceleration)
           .get_index();
 }
 
 template <typename T>
 const drake::systems::InputPortDescriptor<T>&
-VelocityController<T>::command_input() const {
-  return this->get_input_port(velocity_command_input_port_index_);
+SpeedController<T>::command_input() const {
+  return this->get_input_port(speed_command_input_port_index_);
 }
 
 template <typename T>
 const drake::systems::OutputPort<T>&
-VelocityController<T>::acceleration_output() const {
+SpeedController<T>::acceleration_output() const {
   return this->get_output_port(accel_output_port_index_);
 }
 
 template <typename T>
 const drake::systems::InputPortDescriptor<T>&
-VelocityController<T>::feedback_input() const {
-  return this->get_input_port(velocity_feedback_input_port_index_);
+SpeedController<T>::feedback_input() const {
+  return this->get_input_port(speed_feedback_input_port_index_);
 }
 
 template <typename T>
-void VelocityController<T>::CalcOutputAcceleration(
+void SpeedController<T>::CalcOutputAcceleration(
     const drake::systems::Context<T>& context,
     drake::systems::BasicVector<T>* output) const {
   const drake::systems::rendering::FrameVelocity<T>* feedback_input =
       this->template EvalVectorInput<drake::systems::rendering::FrameVelocity>(
-          context, velocity_feedback_input_port_index_);
+          context, speed_feedback_input_port_index_);
 
   if (feedback_input == nullptr) {
     // If the feedback is not connected, we can't do anything, so leave
@@ -75,12 +75,12 @@ void VelocityController<T>::CalcOutputAcceleration(
       feedback_input->get_velocity();
 
   // Let's calculate the magnitude of the vector to get an estimate
-  // of our forward velocity.
+  // of our forward speed.
   double magnitude = vel.translational().norm();
 
   const drake::systems::BasicVector<T>* command_input =
       this->template EvalVectorInput<drake::systems::BasicVector>(
-          context, velocity_command_input_port_index_);
+          context, speed_command_input_port_index_);
 
   // Allocates and uses a BasicVector containing a zero acceleration command in
   // case the input contains nullptr.
@@ -98,6 +98,6 @@ void VelocityController<T>::CalcOutputAcceleration(
   }
 }
 
-template class VelocityController<double>;
+template class SpeedController<double>;
 
 }  // namespace delphyne

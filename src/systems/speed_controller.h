@@ -1,5 +1,5 @@
 /**
- * @file src/agents/velocity_controller.h
+ * @file src/agents/speed_controller.h
  *
  * Copyright 2018 Toyota Research Institute
  */
@@ -23,16 +23,16 @@ namespace delphyne {
 
 /// @brief A simple controller that computes an acceleration from velocities.
 ///
-/// The controller has two inputs; the commanded velocity, and the feedback
-/// from the last computed velocity.  Based on how far away from the commanded
-/// velocity the current velocity is, produces an acceleration output.
+/// The controller has two inputs; the commanded speed, and the feedback
+/// from the last computed speed.  Based on how far away from the commanded
+/// speed the current speed is, produces an acceleration output.
 template <typename T>
-class VelocityController : public drake::systems::LeafSystem<T> {
+class SpeedController : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(VelocityController);
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SpeedController);
 
   /// @brief Default Constructor
-  VelocityController();
+  SpeedController();
 
   /// Getter methods for input and output ports.
   /// @{
@@ -50,8 +50,8 @@ class VelocityController : public drake::systems::LeafSystem<T> {
   /********************
    * System Indices
    *******************/
-  int velocity_command_input_port_index_;
-  int velocity_feedback_input_port_index_;
+  int speed_command_input_port_index_;
+  int speed_feedback_input_port_index_;
   int accel_output_port_index_;
 };
 

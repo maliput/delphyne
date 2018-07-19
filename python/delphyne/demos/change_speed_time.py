@@ -58,7 +58,7 @@ class TimeMonitor(object):
            and not self.changed_speed:
             context = self.simulator.get_mutable_context()
             diagram = self.simulator.get_diagram()
-            self.agent.set_velocity(context, diagram, 10.0)
+            self.agent.set_speed(context, diagram, 10.0)
             self.changed_speed = True
 
 

@@ -267,8 +267,10 @@ ClosestPose<T> FindSingleClosestInDefaultPath(
     for (int i = 0; i < traffic_poses.get_num_poses(); ++i) {
       const GeoPositionT<T>& traffic_geo_position = traffic_geo_positions[i];
 
+      // Skip the ego car itself (also found in the traffic cars' array).
       if (traffic_geo_position == ego_geo_position) continue;
 
+      // Skip traffic cars that are not in the current lane.
       LanePositionT<T> traffic_lane_position;
       if (!IsWithinLaneBounds(next_lane_end_ahead.lane, traffic_geo_position,
                               linear_tolerance, &traffic_lane_position)) {

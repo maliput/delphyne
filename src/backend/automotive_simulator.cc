@@ -364,25 +364,26 @@ void AutomotiveSimulator<T>::Build() {
   // Retrieves the number of agents within the system.
   const int num_agents = agents_.size();
 
-  // Creates the splitter with the right number of agents.
-  SimpleCarState_v_Splitter* splitter =
-      builder_->template AddSystem<SimpleCarState_v_Splitter>(
-          std::make_unique<SimpleCarState_v_Splitter>(num_agents));
+  if (num_agents > 0) {
+    // Creates the splitter with the right number of agents.
+    SimpleCarState_v_Splitter<double>* splitter =
+        builder_->template AddSystem<SimpleCarState_v_Splitter<double>>(
+            std::make_unique<SimpleCarState_v_Splitter<double>>(num_agents));
 
-  std::vector<AgentsStatePublisherSystem*> agent_state_vector;
+    builder_->Connect(pose_bundle_to_simple_car_state_v_->get_output_port(0),
+                      splitter->get_input_port(0));
 
-  builder_->Connect(pose_bundle_to_simple_car_state_v_->get_output_port(0),
-                    splitter->get_input_port(0));
-
-  for (int i = 0; i < num_agents; ++i) {
-    // Appends an ignition publisher to the vector for each agent.
-    agent_state_vector.push_back(
-        builder_->template AddSystem<AgentsStatePublisherSystem>(
-            std::make_unique<AgentsStatePublisherSystem>(
-                "agent/" + std::to_string(i + 1) + "/state")));
-    // Connects the SimpleCarState_v to the Splitter.
-    builder_->Connect(splitter->get_output_port(i),
-                      agent_state_vector.back()->get_input_port(0));
+    for (int i = 0; i < num_agents; ++i) {
+      // Appends an ignition publisher to the vector for each agent.
+      // Connects the SimpleCarState_v to the Splitter.
+      builder_->Connect(
+          splitter->get_output_port(i),
+          builder_
+              ->template AddSystem<AgentsStatePublisherSystem>(
+                  std::make_unique<AgentsStatePublisherSystem>(
+                      "agent/" + std::to_string(i + 1) + "/state"))
+              ->get_input_port(0));
+    }
   }
 
   diagram_ = builder_->Build();

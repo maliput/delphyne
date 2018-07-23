@@ -20,6 +20,7 @@
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
+#include "systems/speed_system.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -72,9 +73,7 @@ class RailCar : public delphyne::Agent {
   /// @param sim_context[in] The simulator Context to use for this change
   /// @param diagram[in] The diagram from which to look the sub-Context up
   /// @param new_speed_mps[in] The new speed for the agent in meters/second
-  void SetSpeed(drake::systems::Context<double>* sim_context,
-                const drake::systems::Diagram<double>* diagram,
-                double new_speed_mps);
+  void SetSpeed(double new_speed_mps);
 
  private:
   // Container for the agent's initial configuration.
@@ -101,7 +100,7 @@ class RailCar : public delphyne::Agent {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  mutable drake::systems::ConstantVectorSource<double>* speed_input_;
+  mutable delphyne::SpeedSystem* speed_system_;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

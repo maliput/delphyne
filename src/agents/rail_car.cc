@@ -32,7 +32,7 @@
 #include "systems/rail_follower.h"
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
-#include "systems/speed_controller.h"
+#include "systems/speed_system.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -129,21 +129,14 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
           context_numeric_parameters));
   rail_follower_system->set_name(name_ + "_system");
 
-  auto speed_controller = builder.AddSystem(
-      std::make_unique<delphyne::SpeedController<double>>());
+  speed_system_ = builder.AddSystem(
+      std::make_unique<delphyne::SpeedSystem>());
 
-  builder.Connect(speed_controller->acceleration_output(),
+  builder.Connect(speed_system_->acceleration_output(),
                   rail_follower_system->command_input());
 
   builder.Connect(rail_follower_system->velocity_output(),
-                  speed_controller->feedback_input());
-
-  speed_input_ =
-      builder.AddSystem<drake::systems::ConstantVectorSource<double>>(
-          initial_parameters_.speed);
-
-  builder.Connect(speed_input_->get_output_port(),
-                  speed_controller->command_input());
+                  speed_system_->feedback_input());
 
   /*********************
    * Diagram Outputs
@@ -155,16 +148,8 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   return std::move(builder.Build());
 }
 
-void RailCar::SetSpeed(drake::systems::Context<double>* sim_context,
-                       const drake::systems::Diagram<double>* diagram,
-                       double new_speed_mps) {
-  drake::systems::Context<double>& speed_input_context =
-      diagram->GetMutableSubsystemContext(*speed_input_, sim_context);
-
-  drake::systems::BasicVector<double>& sourcespeed =
-      speed_input_->get_mutable_source_value(&speed_input_context);
-
-  sourcespeed[0] = new_speed_mps;
+void RailCar::SetSpeed(double new_speed_mps) {
+  speed_system_->SetSpeed(new_speed_mps);
 }
 
 }  // namespace delphyne

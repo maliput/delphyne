@@ -134,8 +134,6 @@ PYBIND11_MODULE(simulation, m) {
            py::arg("road_geometry"))
       .def("get_current_simulation_time",
            &AutomotiveSimulator<double>::GetCurrentSimulationTime)
-      .def("get_diagram", &AutomotiveSimulator<double>::GetDiagram,
-           py::return_value_policy::reference_internal)
       .def("get_mutable_context",
            &AutomotiveSimulator<double>::GetMutableContext,
            py::return_value_policy::reference_internal);

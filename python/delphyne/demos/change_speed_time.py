@@ -56,7 +56,7 @@ class TimeMonitor(object):
         '''
         if self.simulator.get_current_simulation_time() >= 10.0 \
            and not self.changed_speed:
-            self.agent.set_speed(10.0)
+            self.agent.set_speed(20.0)
             self.changed_speed = True
 
 

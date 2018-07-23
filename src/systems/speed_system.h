@@ -3,7 +3,7 @@
 #pragma once
 
 #include <memory>
-#include <string>
+#include <mutex>
 #include <utility>
 #include <vector>
 
@@ -82,6 +82,31 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
     return this->get_input_port(speed_feedback_input_port_index_);
   }
 
+  void SetDefaultState(const drake::systems::Context<double>& context,
+                       drake::systems::State<double>* state) const override {
+    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
+                      "State pointer must not be null");
+    const drake::systems::rendering::FrameVelocity<double>* feedback_input =
+        this->template EvalVectorInput<
+            drake::systems::rendering::FrameVelocity>(
+            context, speed_feedback_input_port_index_);
+    if (feedback_input == nullptr) {
+      // If the feedback_input is nullptr, it isn't connected.  In that case,
+      // just don't update the abstract states current speed.
+      return;
+    }
+
+    const drake::multibody::SpatialVelocity<double> vel =
+        feedback_input->get_velocity();
+    double curr_speed = vel.translational().norm();
+
+    state->get_mutable_abstract_state()
+        .get_mutable_value(kStateIndexSpeed)
+        .GetMutableValue<double>() = curr_speed;
+    std::lock_guard<std::mutex> lock(speed_mutex_);
+    speed_ = curr_speed;
+  }
+
  protected:
   void DoCalcNextUpdateTime(
       const drake::systems::Context<double>& context,
@@ -135,25 +160,6 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
       curr_speed = speed_;
     }
 
-    // In the bootstrapping case, speed_ is negative.  We want to grab the
-    // current feedback speed from the context, and use that as our "base"
-    // speed.
-    if (curr_speed < 0.0) {
-      const drake::systems::rendering::FrameVelocity<double>* feedback_input =
-          this->template EvalVectorInput<
-              drake::systems::rendering::FrameVelocity>(
-              context, speed_feedback_input_port_index_);
-      if (feedback_input == nullptr) {
-        // If feedback_input is null, it isn't connected.  In that case, leave
-        // the speed negative, since if it does get hooked up we want to
-        // initialize it properly.
-        return;
-      }
-      const drake::multibody::SpatialVelocity<double> vel =
-          feedback_input->get_velocity();
-      curr_speed = vel.translational().norm();
-    }
-
     state->get_mutable_abstract_state()
         .get_mutable_value(kStateIndexSpeed)
         .GetMutableValue<double>() = curr_speed;
@@ -184,9 +190,9 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
     double input_speed = GetSpeed(context);
 
     if (input_speed > magnitude) {
-      output->SetAtIndex(0, 1.0);
+      output->SetAtIndex(0, 10.0);
     } else if (input_speed < magnitude) {
-      output->SetAtIndex(0, -1.0);
+      output->SetAtIndex(0, -10.0);
     } else {
       output->SetAtIndex(0, 0.0);
     }

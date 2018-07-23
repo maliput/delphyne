@@ -48,13 +48,11 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
 
   std::unique_ptr<drake::systems::AbstractValue> AllocateDefaultAbstractValue()
       const {
-    std::cerr << "Speed System AllocateDefaultAbstractValue" << std::endl;
     return std::make_unique<drake::systems::Value<double>>(double{});
   }
 
   std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
       const override {
-    std::cerr << "Speed System AllocateAbstractState" << std::endl;
     std::vector<std::unique_ptr<drake::systems::AbstractValue>> abstract_values(
         kTotalStateValues);
     abstract_values[kStateIndexSpeed] = AllocateDefaultAbstractValue();
@@ -72,8 +70,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
   void SetSpeed(double new_speed_mps) {
     DELPHYNE_VALIDATE(new_speed_mps >= 0.0, std::invalid_argument,
                       "Speed must be positive or 0");
-    // TODO(clalancette): We may need a lock to avoid concurrent updates with
-    // DoCalcUnrestrictedUpdate
+    std::lock_guard<std::mutex> lock(speed_mutex_);
     speed_ = new_speed_mps;
   }
 
@@ -100,10 +97,16 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
     drake::systems::LeafSystem<double>::DoCalcNextUpdateTime(context, events,
                                                              time);
 
-    const int last_speed = GetSpeed(context);
+    const double last_speed = GetSpeed(context);
+
+    double curr_speed;
+    {
+      std::lock_guard<std::mutex> lock(speed_mutex_);
+      curr_speed = speed_;
+    }
 
     // Has a new speed. Schedule an update event.
-    if (last_speed != speed_) {
+    if (last_speed != curr_speed) {
       // From Drake LCM implementation:
       // TODO(siyuan): should be context.get_time() once #5725 is resolved.
       *time = context.get_time() + 0.0001;
@@ -126,10 +129,16 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
     DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
                       "State pointer must not be null");
 
+    double curr_speed;
+    {
+      std::lock_guard<std::mutex> lock(speed_mutex_);
+      curr_speed = speed_;
+    }
+
     // In the bootstrapping case, speed_ is negative.  We want to grab the
     // current feedback speed from the context, and use that as our "base"
     // speed.
-    if (speed_ < 0.0) {
+    if (curr_speed < 0.0) {
       const drake::systems::rendering::FrameVelocity<double>* feedback_input =
           this->template EvalVectorInput<
               drake::systems::rendering::FrameVelocity>(
@@ -142,14 +151,12 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
       }
       const drake::multibody::SpatialVelocity<double> vel =
           feedback_input->get_velocity();
-      // TODO(clalancette): We may need a lock to avoid concurrent updates with
-      // UpdateSpeed
-      speed_ = vel.translational().norm();
+      curr_speed = vel.translational().norm();
     }
 
     state->get_mutable_abstract_state()
         .get_mutable_value(kStateIndexSpeed)
-        .GetMutableValue<double>() = speed_;
+        .GetMutableValue<double>() = curr_speed;
   }
 
   void CalcOutputAcceleration(
@@ -187,6 +194,9 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
 
  private:
   mutable double speed_{-1.0};
+
+  // The mutex that guards speed_.
+  mutable std::mutex speed_mutex_;
 
   // The index of the state used to access the the speed.
   static constexpr int kStateIndexSpeed = 0;

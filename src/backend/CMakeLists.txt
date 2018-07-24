@@ -8,6 +8,7 @@ add_library(backend
   automotive_simulator.cc
   frame_pose_aggregator.cc
   ign_models_assembler.cc
+  data_logger.cc
   interactive_simulation_stats.cc
   load_robot_aggregator.cc
   scene_system.cc
@@ -26,6 +27,7 @@ target_link_libraries(
   PUBLIC
     protobuf_messages
     public_headers
+    utility
     drake::drake
     ignition-common2::ignition-common2
     ignition-transport5::core

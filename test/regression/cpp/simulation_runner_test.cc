@@ -234,6 +234,67 @@ TEST_F(SimulationRunnerTest, TestRequestSimulationStepExecutionWhenUnPaused) {
                        "Cannot step a simulation that is not paused");
 }
 
+// @brief Asserts that logs can be sent to a custom destination path.
+TEST_F(SimulationRunnerTest, TestLoggingToCustomPath) {
+  sim_runner_->Start();
+
+  // Simulation should not log by default.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  // Start logging at temporary full path.
+  const std::string filename =
+      test::MakeTemporaryDirectory("/tmp/XXXXXX") + "/test.log";
+  sim_runner_->StartLogging(filename);
+
+  // Checks that logging has been started.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  // Checks that the right path is being used for logging.
+  EXPECT_EQ(sim_runner_->GetLogFilename(), filename);
+
+  sim_runner_->StopLogging();
+
+  // Checks that logging has been stopped.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+}
+
+// @brief Asserts that simulation does not log by default, and logging can be
+// started and stopped.
+TEST_F(SimulationRunnerTest, TestStartStopLogging) {
+  sim_runner_->Start();
+
+  // Simulation should not log by default.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  sim_runner_->StartLogging();
+
+  // Simulation should now be logging.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  EXPECT_NE(std::string::npos,
+    sim_runner_->GetLogFilename().find(".delphyne/logs"));
+
+  sim_runner_->StopLogging();
+
+  // Simulation should no longer be logging.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  EXPECT_TRUE(sim_runner_->GetLogFilename().empty());
+
+  sim_runner_->StartLogging();
+
+  // Simulation should now be logging.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  std::time_t now = std::time(nullptr);
+  std::tm tm = *std::localtime(&now);
+  std::stringstream logPath;
+  logPath << ".delphyne/logs/" << std::put_time(&tm, "%FT%H%M");
+
+  EXPECT_NE(std::string::npos,
+    sim_runner_->GetLogFilename().find(logPath.str()));
+}
+
 // @brief Checks that RunSyncFor executes the simulation for the expected
 // simulation time
 TEST_F(SimulationRunnerTest, TestRunSyncFor) {

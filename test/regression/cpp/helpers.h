@@ -231,5 +231,10 @@ class IgnMonitor {
   mutable std::condition_variable cv_{};
 };
 
+/// Makes and returns a temporary directory out of a @p template_path,
+/// whose last six (6) characters MUST be 'XXXXXX'.
+/// @see mkdtemp
+std::string MakeTemporaryDirectory(const std::string& template_path);
+
 }  // namespace test
 }  // namespace delphyne

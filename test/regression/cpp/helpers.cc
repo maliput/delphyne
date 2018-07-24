@@ -2,6 +2,7 @@
 
 #include "helpers.h"
 
+#include <cstdlib>
 #include <exception>
 #include <string>
 #include <vector>
@@ -612,6 +613,12 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg,
           (lhs.SerializeAsString() == rhs.SerializeAsString()))
              ? ::testing::AssertionSuccess()
              : ::testing::AssertionFailure();
+}
+
+std::string MakeTemporaryDirectory(const std::string& template_path) {
+  char template_array[template_path.length() + 1] = {0};
+  template_path.copy(template_array, template_path.length());
+  return mkdtemp(template_array);
 }
 
 }  // namespace test

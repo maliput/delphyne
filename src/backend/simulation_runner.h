@@ -15,10 +15,11 @@
 
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
-#include <ignition/transport/log/Recorder.hh>
 
 #include "backend/automotive_simulator.h"
+#include "backend/data_logger.h"
 #include "backend/interactive_simulation_stats.h"
+
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 #include "delphyne/protobuf/simulation_in_message.pb.h"
@@ -300,13 +301,13 @@ class SimulatorRunner {
   const InteractiveSimulationStats& get_stats() const { return stats_; }
 
   /// @brief Returns the logging state. True indicates that logging is enabled.
-  bool IsLogging() const { return logging_; }
-
-  /// @brief Start logging to a given file or path.
-  void StartLogging(const std::string& filename);
+  bool IsLogging() const { return logger_.is_logging(); }
 
   /// @brief Start logging to a default named file.
   void StartLogging();
+
+  /// @brief Start logging to a given file or path.
+  void StartLogging(const std::string& filename);
 
   /// @brief Stop logging.
   void StopLogging();
@@ -471,11 +472,8 @@ class SimulatorRunner {
   // @brief The statistics of the (possibly many) simulation runs.
   InteractiveSimulationStats stats_;
 
-  // @brief An Ignition Transport log recorder object.
-  ignition::transport::log::Recorder recorder_;
-
-  // @brief Whether the simulation is logging or not.
-  bool logging_{false};
+  // @brief The data logger for after simulation replays.
+  DataLogger logger_;
 };
 
 }  // namespace delphyne

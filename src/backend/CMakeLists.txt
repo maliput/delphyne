@@ -47,7 +47,7 @@ install(TARGETS backend
 )
 
 ##############################################################################
-# Replayer
+# Log replayer
 ##############################################################################
 
 add_executable(replayer
@@ -55,9 +55,12 @@ add_executable(replayer
 )
 
 target_link_libraries(replayer
-  ${IGNITION-COMMON_LIBRARIES}
-  ${IGNITION-MSGS_LIBRARIES}
-  ${IGNITION-TRANSPORT_LIBRARIES}
+  PRIVATE
+    protobuf_messages
+    public_headers
+    ${IGNITION-COMMON_LIBRARIES}
+    ${IGNITION-MSGS_LIBRARIES}
+    ${IGNITION-TRANSPORT_LIBRARIES}
 )
 
 install(TARGETS replayer

@@ -1,0 +1,9 @@
+#!/usr/bin/env python2.7
+#
+# Copyright 2018 Toyota Research Institute
+#
+
+import delphyne.toolkit.replay
+
+if __name__ == "__main__":
+    delphyne.toolkit.replay.main()

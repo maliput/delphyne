@@ -22,10 +22,10 @@ declare -i PYLINTFAILED=0
 #  - entry points in python/examples
 
 # Run PEP 8
-grep -rl --exclude-dir={tools,utils,examples} '^#!/.*python' . | xargs pycodestyle ||  PEP8FAILED=1
+grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pycodestyle ||  PEP8FAILED=1
 if [ "$PEP8FAILED" -eq "0" ]; then
   # Run pylint
-grep -rl --exclude-dir={tools,utils,examples} '^#!/.*python' . | xargs pylint || PYLINTFAILED=1
+grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pylint || PYLINTFAILED=1
 else
   echo $'\n*** PEP8 failed, not doing pylint ***'
   exit 1

@@ -16,10 +16,10 @@ from __future__ import print_function
 
 import argparse
 
-import delphyne.console as console
+import delphyne.cmdline as cmdline
 
 ##############################################################################
-# Argparsing
+# Argument parsing
 ##############################################################################
 
 
@@ -44,8 +44,8 @@ def create_argument_parser(title, content, default_duration=-1.0):
         return float_value
 
     parser = argparse.ArgumentParser(
-        description=create_argparse_description(title, content),
-        epilog=create_argparse_epilog(),
+        description=cmdline.create_argparse_description(title, content),
+        epilog=cmdline.create_argparse_epilog(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("-d", "--duration", type=float,
                         default=default_duration,
@@ -65,36 +65,3 @@ def create_argument_parser(title, content, default_duration=-1.0):
                         help='Custom logfile name (default: empty string)')
 
     return parser
-
-
-def create_argparse_description(title, content):
-    """
-    Format an argparse description in a nice way with a banner + title and
-    content beneath.
-    Args:
-        title:
-        content:
-    """
-    if console.HAS_COLOURS:
-        banner_line = console.GREEN + "*" * 70 + "\n" + console.RESET
-        desc = "\n"
-        desc += banner_line
-        desc += console.BOLD_WHITE + title.center(70) + "\n" + console.RESET
-        desc += banner_line
-        desc += content
-        desc += "\n"
-        desc += banner_line
-    else:
-        desc = content
-    return desc
-
-
-def create_argparse_epilog():
-    """
-    Create a humourous anecdote for argparse's epilog.
-    """
-    msg = "And his noodly appendage reached forth to "\
-          "tickle the blessed...\n"
-    if console.HAS_COLOURS:
-        return console.CYAN + msg + console.RESET
-    return None

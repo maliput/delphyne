@@ -3,10 +3,12 @@
 ##############################################################################
 
 add_subdirectory(demos)
+add_subdirectory(toolkit)
 
 install(
   FILES
     __init__.py
+    cmdline.py
     console.py
     launcher.py
     utilities.py

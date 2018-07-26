@@ -22,7 +22,7 @@ class SimpleCarState_v_Splitter : public drake::systems::LeafSystem<T> {
   ///
   /// In contrast to typical system's `Calc` methods, the presence of an extra
   /// argument in this function's signature comes from the need to specify which
-  /// of the vector element must be used to generate the output.
+  /// of the vector elements must be used to generate the output.
   /// given index of the SimpleCarState_v.
   /// @param[in] context The simulation context.
   /// @param[in] output A pointer to an abstracted SimpleCarState message.
@@ -33,6 +33,8 @@ class SimpleCarState_v_Splitter : public drake::systems::LeafSystem<T> {
   /// @brief Allocates an abstract value object.
   std::unique_ptr<drake::systems::AbstractValue> DoAlloc() const;
 
+  /// @brief The message instance that is updated with the system's output
+  /// on each simulation step.
   ignition::msgs::SimpleCarState state_;
 };
 

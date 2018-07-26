@@ -56,12 +56,6 @@ def add_collision_callback(_, method):
     def _method_wrapper(self, callback):
         @wraps(callback)
         def _callback_wrapper(agents_in_collision):
-            simulator = self.get_simulator()
-            agents_in_collision = [
-                (simulator.get_mutable_agent_by_id(agent1_id),
-                 simulator.get_mutable_agent_by_id(agent2_id))
-                for agent1_id, agent2_id in agents_in_collision
-            ]
             callback(self, agents_in_collision)
         return method(self, _callback_wrapper)
     return _method_wrapper

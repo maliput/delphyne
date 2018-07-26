@@ -278,8 +278,9 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   // is not paused.
   if (collisions_enabled_ && !paused_) {
     // Computes collisions between agents.
-    const std::vector<std::pair<int, int>> agents_in_collision =
-        simulator_->GetCollisions();
+    const std::vector<
+        std::pair<delphyne::AgentBase<double>*, delphyne::AgentBase<double>*>>
+        agents_in_collision = simulator_->GetCollisions();
     if (!agents_in_collision.empty()) {
       // Pauses simulation if necessary.
       PauseSimulation();

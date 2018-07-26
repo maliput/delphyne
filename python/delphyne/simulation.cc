@@ -123,11 +123,10 @@ PYBIND11_MODULE(simulation, m) {
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(
           [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
-      .def("add_agent", &AutomotiveSimulator<double>::AddAgent)
-      .def("get_mutable_agent_by_id",
-           &AutomotiveSimulator<double>::GetMutableAgentById,
+      .def("add_agent", &AutomotiveSimulator<double>::AddAgent,
            py::return_value_policy::reference_internal)
-      .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions)
+      .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions,
+           py::return_value_policy::reference_internal)
       .def("start", &AutomotiveSimulator<double>::Start)
       .def("set_road_geometry", &AutomotiveSimulator<double>::SetRoadGeometry,
            "Transfer a road geometry to the control of the simulator",

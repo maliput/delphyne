@@ -40,7 +40,9 @@ void PoseBundleToSimpleCarState_V::DoDrakeToIgnTranslation(
 
     // Appends a new state to the vector.
     ignition::msgs::SimpleCarState* current_state = ign_message->add_states();
-    current_state->set_name("/agent/" + drake_message.get_name(i) + "/state");
+    current_state->set_name(
+        "/agent/" + std::to_string(drake_message.get_model_instance_id(i)) +
+        "/state");
     current_state->set_x(pose.translation().x());
     current_state->set_y(pose.translation().y());
     current_state->set_heading(euler_rotation(2));

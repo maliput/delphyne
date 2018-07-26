@@ -11,6 +11,7 @@ add_library(translations
   lcm_viewer_draw_to_ign_model_v.cc
   lcm_viewer_load_robot_to_ign_model_v.cc
   pose_bundle_to_simple_car_state_v.cc
+  simple_car_state_v_splitter.cc
   time_conversion.cc
 )
 set_target_properties(translations PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-translations)
@@ -26,6 +27,7 @@ target_link_libraries(translations
     protobuf_messages
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
+    ${IGNITION-MSGS_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
 )
 

@@ -27,7 +27,7 @@ target_link_libraries(translations
     protobuf_messages
     ${drake_LIBRARIES}
     ${IGNITION-COMMON_LIBRARIES}
-    ignition-msgs2::ignition-msgs2
+    ${IGNITION-MSGS_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
 )
 

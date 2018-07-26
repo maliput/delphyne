@@ -15,15 +15,15 @@
 namespace delphyne {
 
 template <typename T>
-SimpleCarState_v_Splitter<T>::SimpleCarState_v_Splitter(int agents_number) {
-  DELPHYNE_VALIDATE(agents_number > 0, std::invalid_argument,
+SimpleCarState_v_Splitter<T>::SimpleCarState_v_Splitter(int num_agents) {
+  DELPHYNE_VALIDATE(num_agents > 0, std::invalid_argument,
                     "There must be at least 1 agent.");
   this->DeclareAbstractInputPort();
 
   auto do_alloc = std::bind(&SimpleCarState_v_Splitter<T>::DoAlloc, this);
   using std::placeholders::_1;
   using std::placeholders::_2;
-  for (int i = 0; i < agents_number; ++i) {
+  for (int i = 0; i < num_agents; ++i) {
     auto do_split =
         std::bind(&SimpleCarState_v_Splitter<T>::DoSplit, this, _1, _2, i);
     this->DeclareAbstractOutputPort(do_alloc, do_split);

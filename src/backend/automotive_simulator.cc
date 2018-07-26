@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -374,15 +375,14 @@ void AutomotiveSimulator<T>::Build() {
                       splitter->get_input_port(0));
 
     for (int i = 0; i < num_agents; ++i) {
-      // Appends an ignition publisher to the vector for each agent.
-      // Connects the SimpleCarState_v to the Splitter.
-      builder_->Connect(
-          splitter->get_output_port(i),
-          builder_
-              ->template AddSystem<AgentsStatePublisherSystem>(
-                  std::make_unique<AgentsStatePublisherSystem>(
-                      "agent/" + std::to_string(i + 1) + "/state"))
-              ->get_input_port(0));
+      // Adds a new SimpleCarState Splitter system for each agent found
+      // and connects it to its corresponding output of the splitter.
+      builder_->Connect(splitter->get_output_port(i),
+                        builder_
+                            ->template AddSystem<AgentsStatePublisherSystem>(
+                                std::make_unique<AgentsStatePublisherSystem>(
+                                    "agent/" + std::to_string(i) + "/state"))
+                            ->get_input_port(0));
     }
   }
 

@@ -130,7 +130,6 @@ PYBIND11_MODULE(simulation, m) {
       .def("get_mutable_agent_by_id",
            &AutomotiveSimulator<double>::GetMutableAgentById,
            py::return_value_policy::reference_internal)
-      .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions)
       .def("start", &AutomotiveSimulator<double>::Start)
       .def("set_road_geometry", &AutomotiveSimulator<double>::SetRoadGeometry,
            "Transfer a road geometry to the control of the simulator",

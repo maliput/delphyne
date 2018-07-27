@@ -53,6 +53,7 @@ add_executable(replayer
 
 target_link_libraries(replayer
   ${IGNITION-COMMON_LIBRARIES}
+  ${IGNITION-MSGS_LIBRARIES}
   ${IGNITION-TRANSPORT_LIBRARIES}
 )
 

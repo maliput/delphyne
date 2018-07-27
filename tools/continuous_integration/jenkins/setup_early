@@ -8,11 +8,27 @@ set -euo pipefail
 
 export DEBIAN_FRONTEND='noninteractive'
 
+# We've seen the "default" keyserver (p80.pool.sks-keyservers.net) fail somewhat
+# often.  This function will try the default, followed by some alternates to
+# reduce the number of times builds fail because of key problems.
+get_key() {
+    success=0
+    for keyserver in hkp://p80.pool.sks-keyservers.net:80 hkp://pgp.mit.edu:80 hkp://keyserver.ubuntu.com:80 ; do
+        sudo apt-key adv --keyserver $keyserver --recv-keys $1 || continue
+        success=1
+        break
+    done
+
+    if [ $success -eq 0 ]; then
+        exit 1
+    fi
+}
+
 # Install the direct delphyne dependencies.
 sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list'
-sudo apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys D2486D2DD83DB69272AFE98867170598AF249743
+get_key D2486D2DD83DB69272AFE98867170598AF249743
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
-sudo apt-key adv --keyserver hkp://ha.pool.sks-keyservers.net:80 --recv-key 421C365BD9FF1F717815A3895523BAEEB01FA116
+get_key 421C365BD9FF1F717815A3895523BAEEB01FA116
 sudo apt-get update -qq
 sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' <<EOF
 awscli

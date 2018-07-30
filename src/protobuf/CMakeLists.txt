@@ -12,12 +12,13 @@ set(PROTO_MESSAGES
   agent_state.proto
   agent_state_v.proto
   automotive_driving_command.proto
+  euler.proto
   scene_request.proto
   simple_car_state.proto
   simple_car_state_v.proto
   simulation_in_message.proto
-  viewer_command.proto
   viewer2_comms.proto
+  viewer_command.proto
 )
 
 protobuf_generate_cpp_with_descriptor(

@@ -42,9 +42,9 @@ GTEST_TEST(DrakeSimpleCarStateToIgnTranslatorSystemTest, TestTranslation) {
   const auto& ign_msg =
       output->get_data(kPortIndex)->GetValue<ignition::msgs::AgentState>();
 
-  EXPECT_EQ(ign_msg.x(), kExpectedX);
-  EXPECT_EQ(ign_msg.y(), kExpectedY);
-  EXPECT_EQ(ign_msg.heading(), kExpectedHeading);
+  EXPECT_EQ(ign_msg.position().x(), kExpectedX);
+  EXPECT_EQ(ign_msg.position().y(), kExpectedY);
+  EXPECT_EQ(ign_msg.orientation().yaw(), kExpectedHeading);
   EXPECT_EQ(ign_msg.velocity(), kExpectedVelocity);
 }
 

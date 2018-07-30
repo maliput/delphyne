@@ -17,9 +17,9 @@ GTEST_TEST(IgnAgentStateToDrakeTranslatorSystemTest, TestTranslation) {
   const double kExpectedVelocity{4.6};
 
   ignition::msgs::AgentState ign_msg;
-  ign_msg.set_x(kExpectedX);
-  ign_msg.set_y(kExpectedY);
-  ign_msg.set_heading(kExpectedHeading);
+  ign_msg.mutable_position()->set_x(kExpectedX);
+  ign_msg.mutable_position()->set_y(kExpectedY);
+  ign_msg.mutable_orientation()->set_yaw(kExpectedHeading);
   ign_msg.set_velocity(kExpectedVelocity);
 
   const IgnAgentStateToDrake translator;

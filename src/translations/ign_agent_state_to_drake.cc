@@ -10,9 +10,9 @@ void IgnAgentStateToDrake::DoIgnToDrakeTranslation(
   DELPHYNE_VALIDATE(drake_message != nullptr, std::invalid_argument,
                     "Drake message pointer must not be null");
 
-  drake_message->set_x(ign_message.x());
-  drake_message->set_y(ign_message.y());
-  drake_message->set_heading(ign_message.heading());
+  drake_message->set_x(ign_message.position().x());
+  drake_message->set_y(ign_message.position().y());
+  drake_message->set_heading(ign_message.orientation().yaw());
   drake_message->set_velocity(ign_message.velocity());
 }
 

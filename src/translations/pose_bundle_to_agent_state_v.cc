@@ -43,9 +43,12 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     current_state->set_name(
         "/agent/" + std::to_string(drake_message.get_model_instance_id(i)) +
         "/state");
-    current_state->set_x(pose.translation().x());
-    current_state->set_y(pose.translation().y());
-    current_state->set_heading(euler_rotation(2));
+    current_state->mutable_position()->set_x(pose.translation().x());
+    current_state->mutable_position()->set_y(pose.translation().y());
+    current_state->mutable_position()->set_z(pose.translation().z());
+    current_state->mutable_orientation()->set_roll(euler_rotation(0));
+    current_state->mutable_orientation()->set_pitch(euler_rotation(1));
+    current_state->mutable_orientation()->set_yaw(euler_rotation(2));
     current_state->set_velocity(velocity_norm);
   }
 }

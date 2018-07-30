@@ -11,6 +11,8 @@ option java_outer_classname = "AgentStateProtos";
 
 import "ignition/msgs/header.proto";
 import "ignition/msgs/time.proto";
+import "ignition/msgs/vector3d.proto";
+import "euler.proto";
 
 message AgentState
 {
@@ -27,7 +29,7 @@ message AgentState
   optional Vector3d position = 4;
 
   /// \brief Orientation of the agent (in euler).
-  optional Vector3d rotation = 5;
+  optional Euler orientation = 5;
 
   /// \brief Current speed module of the car in radians
   optional double velocity   = 6;

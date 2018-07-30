@@ -19,9 +19,12 @@ void DrakeSimpleCarStateToIgn::DoDrakeToIgnTranslation(
                     "Ignition message pointer must not be null");
 
   ign_message->mutable_time()->CopyFrom(MillisToIgnitionTime(time_ms));
-  ign_message->set_x(drake_message.x());
-  ign_message->set_y(drake_message.y());
-  ign_message->set_heading(drake_message.heading());
+  ign_message->mutable_position()->set_x(drake_message.x());
+  ign_message->mutable_position()->set_y(drake_message.y());
+  ign_message->mutable_position()->set_z(0.0);
+  ign_message->mutable_orientation()->set_roll(0.0);
+  ign_message->mutable_orientation()->set_pitch(0.0);
+  ign_message->mutable_orientation()->set_yaw(drake_message.heading());
   ign_message->set_velocity(drake_message.velocity());
 }
 

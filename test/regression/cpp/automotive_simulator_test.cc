@@ -229,13 +229,13 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
   ignition::msgs::AgentState state_message =
       ign_monitor.get_last_message().states(0);
-  EXPECT_LT(state_message.x(), 0.1);
+  EXPECT_LT(state_message.position().x(), 0.1);
 
   // Move a lot. Confirm that we're moving in +x.
   simulator->StepBy(kLargeTimeStep);
 
   state_message = ign_monitor.get_last_message().states(0);
-  EXPECT_GT(state_message.x(), 1.0);
+  EXPECT_GT(state_message.position().x(), 1.0);
 }
 
 // Tests the ability to initialize a SimpleCar to a non-zero initial state.
@@ -277,9 +277,9 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   // values from the AgentState with the expected values.
   const double kAccuracy = 1e-15;
 
-  EXPECT_EQ(state_message.x(), kX);
-  EXPECT_NEAR(state_message.y(), kY, kAccuracy);
-  EXPECT_NEAR(state_message.heading(), kHeading, kAccuracy);
+  EXPECT_EQ(state_message.position().x(), kX);
+  EXPECT_NEAR(state_message.position().y(), kY, kAccuracy);
+  EXPECT_NEAR(state_message.orientation().yaw(), kHeading, kAccuracy);
   EXPECT_NEAR(state_message.velocity(), kVelocity, kAccuracy);
 }
 

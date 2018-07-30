@@ -41,7 +41,7 @@
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
 #include "delphyne/macros.h"
-#include "delphyne/protobuf/simple_car_state_v.pb.h"
+#include "delphyne/protobuf/agent_state_v.pb.h"
 
 namespace delphyne {
 

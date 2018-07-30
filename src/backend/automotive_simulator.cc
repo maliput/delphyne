@@ -30,13 +30,13 @@
 #include "backend/ign_models_assembler.h"
 #include "backend/ign_publisher_system.h"
 #include "delphyne/macros.h"
-#include "delphyne/protobuf/simple_car_state.pb.h"
-#include "delphyne/protobuf/simple_car_state_v.pb.h"
+#include "delphyne/protobuf/agent_state.pb.h"
+#include "delphyne/protobuf/agent_state_v.pb.h"
+#include "translations/agent_state_v_splitter.h"
 #include "translations/ign_driving_command_to_drake.h"
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
-#include "translations/pose_bundle_to_simple_car_state_v.h"
-#include "translations/simple_car_state_v_splitter.h"
+#include "translations/pose_bundle_to_agent_state_v.h"
 
 namespace delphyne {
 
@@ -334,16 +334,16 @@ void AutomotiveSimulator<T>::Build() {
   pose_bundle_output_port_ =
       builder_->ExportOutput(aggregator_->get_output_port(0));
 
-  // Defines a SimpleCarState_V channel name.
+  // Defines a AgentState_V channel name.
   const std::string vectorized_agent_state_channel = "agents/state";
 
-  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState_V>
+  typedef IgnPublisherSystem<ignition::msgs::AgentState_V>
       VectorizedAgentsStatePublisherSystem;
 
-  // Creates a PoseBundleToSimpleCarState_V system.
-  PoseBundleToSimpleCarState_V* pose_bundle_to_simple_car_state_v_ =
-      builder_->template AddSystem<PoseBundleToSimpleCarState_V>(
-          std::make_unique<PoseBundleToSimpleCarState_V>());
+  // Creates a PoseBundleToAgentState_V system.
+  PoseBundleToAgentState_V* pose_bundle_to_agent_state_v_ =
+      builder_->template AddSystem<PoseBundleToAgentState_V>(
+          std::make_unique<PoseBundleToAgentState_V>());
 
   VectorizedAgentsStatePublisherSystem*
       vectorized_agents_state_publisher_system =
@@ -351,15 +351,15 @@ void AutomotiveSimulator<T>::Build() {
               std::make_unique<VectorizedAgentsStatePublisherSystem>(
                   vectorized_agent_state_channel));
 
-  // Connects the PoseBundleToSimpleCarState_v input and output.
+  // Connects the PoseBundleToAgentState_v input and output.
   builder_->Connect(aggregator_->get_output_port(0),
-                    pose_bundle_to_simple_car_state_v_->get_input_port(0));
+                    pose_bundle_to_agent_state_v_->get_input_port(0));
   builder_->Connect(
-      pose_bundle_to_simple_car_state_v_->get_output_port(0),
+      pose_bundle_to_agent_state_v_->get_output_port(0),
       vectorized_agents_state_publisher_system->get_input_port(0));
 
-  // Makes the SimpleCarState publisher type be more readable.
-  typedef IgnPublisherSystem<ignition::msgs::SimpleCarState>
+  // Makes the AgentState publisher type be more readable.
+  typedef IgnPublisherSystem<ignition::msgs::AgentState>
       AgentsStatePublisherSystem;
 
   // Retrieves the number of agents within the system.
@@ -367,15 +367,15 @@ void AutomotiveSimulator<T>::Build() {
 
   if (num_agents > 0) {
     // Creates the splitter with the right number of agents.
-    SimpleCarState_v_Splitter<double>* splitter =
-        builder_->template AddSystem<SimpleCarState_v_Splitter<double>>(
-            std::make_unique<SimpleCarState_v_Splitter<double>>(num_agents));
+    AgentState_v_Splitter<double>* splitter =
+        builder_->template AddSystem<AgentState_v_Splitter<double>>(
+            std::make_unique<AgentState_v_Splitter<double>>(num_agents));
 
-    builder_->Connect(pose_bundle_to_simple_car_state_v_->get_output_port(0),
+    builder_->Connect(pose_bundle_to_agent_state_v_->get_output_port(0),
                       splitter->get_input_port(0));
 
     for (int i = 0; i < num_agents; ++i) {
-      // Adds a new SimpleCarState Splitter system for each agent found
+      // Adds a new AgentState Splitter system for each agent found
       // and connects it to its corresponding output of the splitter.
       builder_->Connect(splitter->get_output_port(i),
                         builder_

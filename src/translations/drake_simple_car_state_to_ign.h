@@ -9,7 +9,7 @@
 #include <ignition/msgs.hh>
 
 #include "delphyne/macros.h"
-#include "delphyne/protobuf/simple_car_state.pb.h"
+#include "delphyne/protobuf/agent_state.pb.h"
 #include "translations/drake_to_ign.h"
 
 namespace delphyne {
@@ -18,7 +18,7 @@ namespace delphyne {
 /// simple car state messages.
 class DrakeSimpleCarStateToIgn
     : public DrakeToIgn<drake::automotive::SimpleCarState<double>,
-                        ignition::msgs::SimpleCarState> {
+                        ignition::msgs::AgentState> {
  public:
   DrakeSimpleCarStateToIgn();
   virtual ~DrakeSimpleCarStateToIgn() = default;
@@ -27,7 +27,7 @@ class DrakeSimpleCarStateToIgn
   // @brief @see DrakeToIgn::DoDrakeToIgnTranslation.
   void DoDrakeToIgnTranslation(
       const drake::automotive::SimpleCarState<double>& drake_message,
-      ignition::msgs::SimpleCarState* ign_message,
+      ignition::msgs::AgentState* ign_message,
       int64_t time_ms) const override;
 };
 

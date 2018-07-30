@@ -27,8 +27,8 @@
 #include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
-#include "delphyne/protobuf/simple_car_state.pb.h"
-#include "delphyne/protobuf/simple_car_state_v.pb.h"
+#include "delphyne/protobuf/agent_state.pb.h"
+#include "delphyne/protobuf/agent_state_v.pb.h"
 #include "helpers.h"
 #include "test/test_config.h"
 
@@ -213,10 +213,10 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   ign_msg.set_theta(0);
   publisher.Publish(ign_msg);
 
-  // Set up a monitor to check for ignition::msgs::SimpleCarState
+  // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"/agents/state"};
-  test::IgnMonitor<ignition::msgs::SimpleCarState_V> ign_monitor(
+  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(
       kStateTopicName);
 
   // Shortly after starting, we should have not have moved much.
@@ -227,7 +227,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
-  ignition::msgs::SimpleCarState state_message =
+  ignition::msgs::AgentState state_message =
       ign_monitor.get_last_message().states(0);
   EXPECT_LT(state_message.x(), 0.1);
 
@@ -253,10 +253,10 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   const int id = simulator->AddAgent(std::move(agent));
   EXPECT_EQ(id, 0);
 
-  // Set up a monitor to check for ignition::msgs::SimpleCarState
+  // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"agents/state"};
-  test::IgnMonitor<ignition::msgs::SimpleCarState_V> ign_monitor(
+  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(
       kStateTopicName);
 
   simulator->Start(kRealtimeFactor);
@@ -269,12 +269,12 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
-  const ignition::msgs::SimpleCarState state_message =
+  const ignition::msgs::AgentState state_message =
       ign_monitor.get_last_message().states(0);
 
-  // Computations of SimpleCarState from a PoseBundle incur minimal numerical
+  // Computations of AgentState from a PoseBundle incur minimal numerical
   // precision loss. Hence, a small tolerance is allowed when comparing the
-  // values from the SimpleCarState with the expected values.
+  // values from the AgentState with the expected values.
   const double kAccuracy = 1e-15;
 
   EXPECT_EQ(state_message.x(), kX);

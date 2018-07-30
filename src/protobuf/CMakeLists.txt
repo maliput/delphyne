@@ -9,6 +9,8 @@ include(${PROJECT_SOURCE_DIR}/cmake/Protobuf.cmake)
 ##############################################################################
 
 set(PROTO_MESSAGES
+  agent_state.proto
+  agent_state_v.proto
   automotive_driving_command.proto
   scene_request.proto
   simple_car_state.proto

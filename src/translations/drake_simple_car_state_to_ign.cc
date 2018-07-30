@@ -14,7 +14,7 @@ DrakeSimpleCarStateToIgn::DrakeSimpleCarStateToIgn()
 
 void DrakeSimpleCarStateToIgn::DoDrakeToIgnTranslation(
     const drake::automotive::SimpleCarState<double>& drake_message,
-    ignition::msgs::SimpleCarState* ign_message, int64_t time_ms) const {
+    ignition::msgs::AgentState* ign_message, int64_t time_ms) const {
   DELPHYNE_VALIDATE(ign_message != nullptr, std::invalid_argument,
                     "Ignition message pointer must not be null");
 

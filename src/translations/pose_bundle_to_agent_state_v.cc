@@ -1,23 +1,23 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "translations/pose_bundle_to_simple_car_state_v.h"
+#include "translations/pose_bundle_to_agent_state_v.h"
 
 #include <algorithm>
 
 #include <drake/common/eigen_types.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
-#include "delphyne/protobuf/simple_car_state_v.pb.h"
-#include "delphyne/protobuf/simple_car_state.pb.h"
+#include "delphyne/protobuf/agent_state_v.pb.h"
+#include "delphyne/protobuf/agent_state.pb.h"
 #include "translations/drake_to_ign.h"
 
 namespace delphyne {
 
 const unsigned int kPoseBundleVectorSize{0};
 
-void PoseBundleToSimpleCarState_V::DoDrakeToIgnTranslation(
+void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const drake::systems::rendering::PoseBundle<double>& drake_message,
-    ignition::msgs::SimpleCarState_V* ign_message, int64_t time_ms) const {
+    ignition::msgs::AgentState_V* ign_message, int64_t time_ms) const {
 
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
@@ -39,7 +39,7 @@ void PoseBundleToSimpleCarState_V::DoDrakeToIgnTranslation(
         static_cast<double>(spatial_velocity.translational().norm());
 
     // Appends a new state to the vector.
-    ignition::msgs::SimpleCarState* current_state = ign_message->add_states();
+    ignition::msgs::AgentState* current_state = ign_message->add_states();
     current_state->set_name(
         "/agent/" + std::to_string(drake_message.get_model_instance_id(i)) +
         "/state");

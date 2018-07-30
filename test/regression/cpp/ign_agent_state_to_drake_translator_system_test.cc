@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "translations/ign_simple_car_state_to_drake.h"
+#include "translations/ign_agent_state_to_drake.h"
 
 #include <drake/systems/framework/framework_common.h>
 
@@ -10,19 +10,19 @@ namespace delphyne {
 
 // @brief Checks that an ignition simple car state message on the input port is
 // correctly translated into a Drake simple car state message.
-GTEST_TEST(IgnSimpleCarStateToDrakeTranslatorSystemTest, TestTranslation) {
+GTEST_TEST(IgnAgentStateToDrakeTranslatorSystemTest, TestTranslation) {
   const double kExpectedX{1.9};
   const double kExpectedY{2.8};
   const double kExpectedHeading{3.7};
   const double kExpectedVelocity{4.6};
 
-  ignition::msgs::SimpleCarState ign_msg;
+  ignition::msgs::AgentState ign_msg;
   ign_msg.set_x(kExpectedX);
   ign_msg.set_y(kExpectedY);
   ign_msg.set_heading(kExpectedHeading);
   ign_msg.set_velocity(kExpectedVelocity);
 
-  const IgnSimpleCarStateToDrake translator;
+  const IgnAgentStateToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =
       translator.AllocateContext();
   const int kPortIndex{0};

@@ -1,0 +1,20 @@
+// Copyright 2017 Toyota Research Institute
+
+package ignition.msgs;
+option java_package = "com.ignition.msgs";
+option java_outer_classname = "AgentStateVProtos";
+
+/// \ingroup ignition.msgs
+/// \interface AgentState_V
+/// \brief An array of AgentState.
+
+import "ignition/msgs/header.proto";
+import "agent_state.proto";
+
+message AgentState_V {
+  /// \brief Optional header data.
+  optional Header header     = 1;
+
+  /// \brief An array of AgentState.
+  repeated AgentState states = 2;
+}

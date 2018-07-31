@@ -14,8 +14,13 @@ namespace delphyne {
 namespace {
 
 // A helper class that bundles ignition-transport log's playback functionality
-// with the services machinery, offering the chance to control the pause/resume
-// features though ignition services.
+// with a service-based API to control it.
+//
+// The advertised services are the following:
+// - The `/replayer/pause`: gets triggered by an `ignition::msgs::Empty`
+// message, pausing the log playback.
+// - The `/replayer/resume`: gets triggered by an `ignition::msgs::Empty`
+// message, resuming the log playback.
 class Replayer {
  public:
   explicit Replayer(const std::string& logfile)
@@ -25,15 +30,15 @@ class Replayer {
   // playback.
   int Run() {
     // Advertises services.
-    if (!node_.Advertise(pause_service, &Replayer::PauseServiceCallback,
+    if (!node_.Advertise(pause_service_, &Replayer::PauseServiceCallback,
                          this)) {
-      std::cerr << "Error advertising service [" << pause_service << "]"
+      std::cerr << "Error advertising service [" << pause_service_ << "]"
                 << std::endl;
       return 1;
     }
-    if (!node_.Advertise(resume_service, &Replayer::ResumeServiceCallback,
+    if (!node_.Advertise(resume_service_, &Replayer::ResumeServiceCallback,
                          this)) {
-      ignerr << "Error advertising service [" << resume_service << "]"
+      ignerr << "Error advertising service [" << resume_service_ << "]"
              << std::endl;
       return 1;
     }
@@ -86,10 +91,10 @@ class Replayer {
   ignition::transport::Node node_;
 
   // Pause service's name.
-  const std::string pause_service{"/replayer/pause"};
+  static constexpr const char* const pause_service_ = "/replayer/pause";
 
   // Resume service's name.
-  const std::string resume_service{"/replayer/resume"};
+  static constexpr const char* const resume_service_ = "/replayer/resume";
 
   // Logfile path passed as argument to the constructor.
   const std::string logfile_;

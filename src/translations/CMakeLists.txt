@@ -5,8 +5,6 @@
 add_library(translations
   agent_state_v_splitter.cc
   drake_driving_command_to_ign.cc
-  drake_simple_car_state_to_ign.cc
-  ign_agent_state_to_drake.cc
   ign_driving_command_to_drake.cc
   ign_model_v_to_lcm_viewer_draw.cc
   lcm_viewer_draw_to_ign_model_v.cc

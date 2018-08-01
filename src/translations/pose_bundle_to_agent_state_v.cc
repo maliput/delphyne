@@ -34,7 +34,8 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const drake::multibody::SpatialVelocity<double>& spatial_velocity =
         drake_message.get_velocity(i).get_velocity();
     const drake::Vector3<double>& rotational = spatial_velocity.rotational();
-    const drake::Vector3<double>& translational = spatial_velocity.translational();
+    const drake::Vector3<double>& translational =
+        spatial_velocity.translational();
 
     // Appends a new state to the vector.
     ignition::msgs::AgentState* current_state = ign_message->add_states();

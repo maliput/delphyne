@@ -20,7 +20,8 @@ GTEST_TEST(IgnAgentStateToDrakeTranslatorSystemTest, TestTranslation) {
   ign_msg.mutable_position()->set_x(kExpectedX);
   ign_msg.mutable_position()->set_y(kExpectedY);
   ign_msg.mutable_orientation()->set_yaw(kExpectedHeading);
-  ign_msg.set_velocity(kExpectedVelocity);
+  ign_msg.mutable_linear_velocity()->set_x(kExpectedVelocity * cos(atan(kExpectedY/kExpectedX)));
+  ign_msg.mutable_linear_velocity()->set_y(kExpectedVelocity * sin(atan(kExpectedY/kExpectedX)));
 
   const IgnAgentStateToDrake translator;
   std::unique_ptr<drake::systems::Context<double>> context =

@@ -12,25 +12,29 @@ option java_outer_classname = "AgentStateProtos";
 import "ignition/msgs/header.proto";
 import "ignition/msgs/time.proto";
 import "ignition/msgs/vector3d.proto";
-import "euler.proto";
+import "rpy_angles.proto";
 
 message AgentState
 {
   /// \brief Optional header data
-  optional Header header     = 1;
+  optional Header header             = 1;
 
   /// \brief The agent's name
-  optional string name       = 2;
+  optional string name               = 2;
 
   /// \brief The timestamp in sec and nsec
-  optional Time time         = 3;
+  optional Time time                 = 3;
 
   /// \brief Position of the agent.
-  optional Vector3d position = 4;
+  optional Vector3d position         = 4;
 
-  /// \brief Orientation of the agent (in euler).
-  optional Euler orientation = 5;
+  /// \brief Orientation of the agent in euler angles.
+  optional RPYAngles orientation     = 5;
 
-  /// \brief Current speed module of the car in radians
-  optional double velocity   = 6;
+  /// \brief Linear velocity of the agent in m/s.
+  optional Vector3d linear_velocity  = 6;
+
+  /// \brief Angular velocity of the agent in rad/s.
+  optional Vector3d angular_velocity = 7;
+
 }

@@ -17,13 +17,15 @@ GTEST_TEST(DrakeSimpleCarStateToIgnTranslatorSystemTest, TestTranslation) {
   const double kExpectedX{1.9};
   const double kExpectedY{2.8};
   const double kExpectedHeading{3.7};
-  const double kExpectedVelocity{4.6};
+  const double kExpectedSpeed{4.6};
+  const double kExpectedVelocityX{kExpectedSpeed * cos(kExpectedHeading)};
+  const double kExpectedVelocityY{kExpectedSpeed * sin(kExpectedHeading)};
 
   drake::automotive::SimpleCarState<double> drake_msg;
   drake_msg.set_x(kExpectedX);
   drake_msg.set_y(kExpectedY);
   drake_msg.set_heading(kExpectedHeading);
-  drake_msg.set_velocity(kExpectedVelocity);
+  drake_msg.set_velocity(kExpectedSpeed);
 
   const DrakeSimpleCarStateToIgn translator;
   std::unique_ptr<drake::systems::Context<double>> context =
@@ -42,10 +44,13 @@ GTEST_TEST(DrakeSimpleCarStateToIgnTranslatorSystemTest, TestTranslation) {
   const auto& ign_msg =
       output->get_data(kPortIndex)->GetValue<ignition::msgs::AgentState>();
 
+  const double kAccuracy = 1e-15;
+
   EXPECT_EQ(ign_msg.position().x(), kExpectedX);
   EXPECT_EQ(ign_msg.position().y(), kExpectedY);
   EXPECT_EQ(ign_msg.orientation().yaw(), kExpectedHeading);
-  EXPECT_EQ(ign_msg.velocity(), kExpectedVelocity);
+  EXPECT_NEAR(ign_msg.linear_velocity().x(), 0, kAccuracy);
+  EXPECT_NEAR(ign_msg.linear_velocity().y(), 0, kAccuracy);
 }
 
 }  // namespace delphyne

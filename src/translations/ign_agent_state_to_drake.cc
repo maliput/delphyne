@@ -13,7 +13,9 @@ void IgnAgentStateToDrake::DoIgnToDrakeTranslation(
   drake_message->set_x(ign_message.position().x());
   drake_message->set_y(ign_message.position().y());
   drake_message->set_heading(ign_message.orientation().yaw());
-  drake_message->set_velocity(ign_message.velocity());
+
+  const auto& vel = ign_message.linear_velocity();
+  drake_message->set_velocity(sqrt((vel.x()*vel.x() + vel.y()*vel.y())));
 }
 
 }  // namespace delphyne

@@ -31,12 +31,10 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
         pose.rotation().eulerAngles(0, 1, 2);
 
     // Calculates car's velocity.
-    const drake::systems::rendering::FrameVelocity<double> velocity =
-        drake_message.get_velocity(i);
-    const drake::multibody::SpatialVelocity<double> spatial_velocity =
-        velocity.get_velocity();
-    const double velocity_norm =
-        static_cast<double>(spatial_velocity.translational().norm());
+    const drake::multibody::SpatialVelocity<double>& spatial_velocity =
+        drake_message.get_velocity(i).get_velocity();
+    const drake::Vector3<double>& rotational = spatial_velocity.rotational();
+    const drake::Vector3<double>& translational = spatial_velocity.translational();
 
     // Appends a new state to the vector.
     ignition::msgs::AgentState* current_state = ign_message->add_states();
@@ -46,10 +44,18 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     current_state->mutable_position()->set_x(pose.translation().x());
     current_state->mutable_position()->set_y(pose.translation().y());
     current_state->mutable_position()->set_z(pose.translation().z());
+
     current_state->mutable_orientation()->set_roll(euler_rotation(0));
     current_state->mutable_orientation()->set_pitch(euler_rotation(1));
     current_state->mutable_orientation()->set_yaw(euler_rotation(2));
-    current_state->set_velocity(velocity_norm);
+
+    current_state->mutable_linear_velocity()->set_x(translational(0));
+    current_state->mutable_linear_velocity()->set_y(translational(1));
+    current_state->mutable_linear_velocity()->set_z(translational(2));
+
+    current_state->mutable_angular_velocity()->set_x(rotational(0));
+    current_state->mutable_angular_velocity()->set_y(rotational(1));
+    current_state->mutable_angular_velocity()->set_z(rotational(2));
   }
 }
 

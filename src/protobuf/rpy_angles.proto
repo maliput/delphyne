@@ -2,15 +2,15 @@
 
 package ignition.msgs;
 option java_package = "com.ignition.msgs";
-option java_outer_classname = "EulerProtos";
+option java_outer_classname = "RPYAnglesProtos";
 
 /// \ingroup ignition.msgs
-/// \interface Euler
+/// \interface RPYAngles
 /// \brief The representation of orientation in euler angles.
 
 import "ignition/msgs/header.proto";
 
-message Euler
+message RPYAngles
 {
   /// \brief Optional header data
   optional Header header    = 1;

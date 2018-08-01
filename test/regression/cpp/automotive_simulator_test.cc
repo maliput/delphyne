@@ -280,7 +280,9 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   EXPECT_EQ(state_message.position().x(), kX);
   EXPECT_NEAR(state_message.position().y(), kY, kAccuracy);
   EXPECT_NEAR(state_message.orientation().yaw(), kHeading, kAccuracy);
-  EXPECT_NEAR(state_message.velocity(), kVelocity, kAccuracy);
+  EXPECT_NEAR(state_message.linear_velocity().x(), kVelocity * cos(kHeading), kAccuracy);
+  EXPECT_NEAR(state_message.linear_velocity().y(), kVelocity * sin(kHeading), kAccuracy);
+
 }
 
 TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {

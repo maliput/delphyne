@@ -12,7 +12,7 @@ set(PROTO_MESSAGES
   agent_state.proto
   agent_state_v.proto
   automotive_driving_command.proto
-  euler.proto
+  rpy_angles.proto
   scene_request.proto
   simulation_in_message.proto
   viewer2_comms.proto

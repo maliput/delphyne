@@ -25,7 +25,7 @@ void DrakeSimpleCarStateToIgn::DoDrakeToIgnTranslation(
   ign_message->mutable_orientation()->set_roll(0.0);
   ign_message->mutable_orientation()->set_pitch(0.0);
   ign_message->mutable_orientation()->set_yaw(drake_message.heading());
-  ign_message->set_velocity(drake_message.velocity());
+  //ign_message->set_velocity(drake_message.velocity());
 }
 
 }  // namespace delphyne

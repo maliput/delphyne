@@ -472,7 +472,7 @@ class SimulatorRunner {
   // @brief The statistics of the (possibly many) simulation runs.
   InteractiveSimulationStats stats_;
 
-  // @brief The data logger for after simulation replays.
+  // @brief A logger to record simulation data.
   DataLogger logger_;
 };
 

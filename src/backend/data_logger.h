@@ -13,28 +13,6 @@
 
 namespace delphyne {
 
-namespace detail {
-
-/// Compresses the given @p srcpath directory content into the given
-/// @p destination_path archive recursively, using the zip format. All
-/// @p source_path parent directories are stripped from archive entry
-/// names if present.
-/// @returns The compression process error code.
-/// @throws std::runtime_error if @p source_path is not an existing directory.
-/// @throws std::runtime_error if @p destination_path already exists.
-int zipDirectory(const std::string& source_path,
-                 const std::string& destination_path);
-
-/// Decompresses a zip archive at @p archive_path into the given
-/// @p extract_path.
-/// @returns The compression process error code.
-/// @throws std::runtime_error if @p archive_path is not a file.
-/// @throws std::runtime_error if @p extract_path is not a directory.
-int unzipDirectory(const std::string& archive_path,
-                   const std::string& extract_path);
-
-}  // namespace detail
-
 
 /// @brief A class for simulation data logging.
 /// This class mainly logs all ignition transport topics traffic,
@@ -60,26 +38,30 @@ class DataLogger {
   /// $DELPHYNE_LOGS_PATH/logs, $HOME/.delphyne/logs or /tmp/delphyne/logs
   /// in order, based on envvar availability.
   ///
-  /// @remarks Any ongoing logging activity will be stopped before
-  ///          starting a new one.
-  ///
   /// @param[in] filename Log file name.
-  /// @returns Whether logging succesfully started or not.
-  bool Start(const std::string& filename);
+  /// @throws std::runtime_error if the logger is running already
+  ///                            (i.e. is_logging() is true).
+  /// @throws std::runtime_error if it fails to setup any associated
+  ///                            files in the filesystem.
+  /// @throws std::runtime_error if it cannot start logging topic messages.
+  void Start(const std::string& filename);
 
-  /// Logs all meshes found in the given @p scene to support
+  /// Logs all meshes found in the given @p scene to support later
   /// visualization during reproduction.
   ///
   /// @param[in] scene Scene message containing meshes.
-  /// @returns true if all meshes were successfully retrieved,
-  ///          false otherwise.
+  /// @throws std::runtime_error if the logger is not running already
+  ///                            (i.e. is_logging() is false).
+  /// @throws std::runtime_error if it fails to capture a mesh
+  ///                            (@see utility::BundledPackage::Add).
   // TODO(hidmic): This API addresses one instance of the more
   // general problem of referenced resources in the main data
   // stream (i.e. topic data). May support generalization.
-  bool CaptureMeshes(const ignition::msgs::Scene& scene_msg);
+  void CaptureMeshes(const ignition::msgs::Scene& scene_msg);
 
-  /// Stops ongoing logging activity (if any) and bundles
-  /// all logged data.
+  /// Stops ongoing logging activity and bundles all logged data.
+  /// @throws std::runtime_error if the logger is not running already
+  ///                            (i.e. is_logging() is false).
   void Stop();
 
   /// Whether the logger is currently logging or not.

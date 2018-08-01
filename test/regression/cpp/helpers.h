@@ -15,6 +15,7 @@
 
 #include <gtest/gtest.h>
 
+#include <ignition/common/Filesystem.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
@@ -231,10 +232,34 @@ class IgnMonitor {
   mutable std::condition_variable cv_{};
 };
 
-/// Makes and returns a temporary directory out of a @p template_path,
-/// whose last six (6) characters MUST be 'XXXXXX'.
-/// @see mkdtemp
+// Makes and returns a temporary directory out of a @p template_path,
+// whose last six (6) characters MUST be 'XXXXXX'.
+// @see mkdtemp
 std::string MakeTemporaryDirectory(const std::string& template_path);
+
+// An gtest Test subclass for test fixtures that make use of temporary
+// files and/or directories.
+class TestWithFiles : public ::testing::Test {
+ protected:
+  void SetUp() override {
+    tmpdir_ = test::MakeTemporaryDirectory("/tmp/XXXXXX");
+    DoSetUp();
+  }
+
+  virtual void DoSetUp() {}
+
+  void TearDown() override {
+    DoTearDown();
+    ignition::common::removeAll(tmpdir_);
+  }
+
+  virtual void DoTearDown() {}
+
+  const std::string& tmpdir() const { return tmpdir_; }
+
+ private:
+  std::string tmpdir_{""};
+};
 
 }  // namespace test
 }  // namespace delphyne

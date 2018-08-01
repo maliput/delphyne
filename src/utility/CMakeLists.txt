@@ -4,6 +4,7 @@
 
 add_library(utility
   package.cc
+  resources.cc
 )
 
 set_target_properties(utility PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-utility)
@@ -13,11 +14,13 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
-  
+
 target_link_libraries(utility
   PUBLIC
     public_headers
-    ${IGNITION-COMMON_LIBRARIES}
+    ignition-common2::ignition-common2
+  PRIVATE
+    common
 )
 
 install(TARGETS utility EXPORT ${PROJECT_NAME}-targets

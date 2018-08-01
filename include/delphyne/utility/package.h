@@ -9,6 +9,10 @@
 
 #pragma once
 
+
+#include <iostream>
+#include <cstring>
+
 #include <memory>
 #include <string>
 #include <vector>
@@ -16,6 +20,7 @@
 #include <ignition/common/URI.hh>
 
 #include "delphyne/macros.h"
+#include "delphyne/utility/resources.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -44,43 +49,34 @@ class Package {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(Package);
 
-  /// @brief Checks whether the local file referred by
-  /// @p uri_or_path exists or not.
-  bool Exists(const std::string& uri_or_path) const {
-    return (this->Find(uri_or_path) != "");
-  }
-
-  /// @brief Checks whether the local file referred by
-  /// @p uri exists or not.
-  bool Exists(const ignition::common::URI& uri) const {
-    return (this->Find(uri) != "");
-  }
-
-  /// @brief Finds local file by @p uri_or_path.
-  /// @see Find(const ignition::common::URI&)
-  /// @param[in] uri The path of the file.
-  /// @returns The full absolute path to the file, or an empty string
-  ///          if none could be found
-  std::string Find(const std::string& uri_or_path) const {
-    return this->Find(ToURI(uri_or_path));
-  }
-
-  /// @brief Finds local file by @p uri.
+  /// Resolves a @p uri_or_path, specific to this package, into a
+  /// full regular URI.
   ///
-  /// @param[in] uri The location of the file.
-  /// @returns The full absolute path to the file, or an empty string
-  ///          if none could be found
-  std::string Find(const ignition::common::URI& uri) const {
-    if (!uri.Valid()) return "";
-    return this->DoFind(uri);
+  /// @see ToURI(const std::string&)
+  /// @see Resolve(const ignition::common::URI&)
+  ignition::common::URI Resolve(const std::string& uri_or_path) const {
+    return this->Resolve(ToURI(uri_or_path));
+  }
+
+  /// Resolves a @p uri, specific to this package, into a full regular URI.
+  ///
+  /// @param[in] uri Package specific resource identifier to resolve.
+  /// @returns A valid URI on success, an invalid one on failure.
+  /// @throws std::runtime_error if @p uri is not valid (i.e. uri.Valid()
+  ///                            is false).
+  ignition::common::URI Resolve(const ignition::common::URI& uri) const {
+    DELPHYNE_VALIDATE(uri.Valid(), std::runtime_error,
+                      uri.Str() + " is not a valid URI.");
+    return this->DoResolve(uri);
   }
 
  protected:
   Package() = default;
 
  private:
-  // @see Find(const ignition::common::URI&)
-  virtual std::string DoFind(const ignition::common::URI& uri) const = 0;
+  // @see Resolve(const ignition::common::URI&)
+  virtual ignition::common::URI
+  DoResolve(const ignition::common::URI& uri) const = 0;
 };
 
 /// A Package subclass that leverages a Delphyne system installation.
@@ -92,10 +88,14 @@ class SystemPackage : public Package {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SystemPackage);
 
+  /// Default constructor.
+  /// @throws std::runtime_error if DELPHYNE_PACKAGE_PATH environment
+  ///                            variable is not set.
   SystemPackage();
 
  private:
-  std::string DoFind(const ignition::common::URI& uri) const override;
+  ignition::common::URI
+  DoResolve(const ignition::common::URI& uri) const override;
 
   // List of paths that can contain resources (e.g. meshes).
   // The content of this variable is populated with the value of the
@@ -115,30 +115,48 @@ class BundledPackage : public Package {
   /// Given @p path need not exist at construction time.
   explicit BundledPackage(const std::string& path);
 
-  /// Adds local resource referred by @p uri_or_path and
-  /// located at @p path to the bundle.
+  /// Adds @b local resource referred by @p uri_or_path.
   /// @see Add(const ignition::common::URI&, const std::string&)
-  bool Add(const std::string& uri, const std::string& path) {
-    return this->Add(ToURI(uri), path);
+  void Add(const std::string& uri_or_path) {
+    this->Add(ToURI(uri_or_path));
   }
 
-  /// Adds local resource referred by @p uri and
-  /// located at @p path to the bundle.
-  /// @param[in] uri Resource identifier.
-  /// @param[in] path Resource location in the filesystem.
-  /// @returns true if the resource was succesfully added,
-  ///          false otherwise.
-  bool Add(const ignition::common::URI& uri,
-           const std::string& path);
+  /// Adds @b local resource referred by @p uri.
+  /// @param[in] uri Identifier of the resource to be added.
+  /// @throws std::runtime_error if given @p uri is not valid
+  ///                            (i.e. uri.Valid() is false).
+  /// @throws std::runtime_error if the resource is not local. Only
+  ///                            file and package schemes are currently
+  ///                            supported.
+  /// @throws std::runtime_error if the resource or any of its dependencies
+  ///                            could not be found in the current package.
+  ///                            See PackageManager and ResourceInspector
+  ///                            singletons.
+  void Add(const ignition::common::URI& uri) {
+    DELPHYNE_VALIDATE(uri.Valid(), std::runtime_error,
+                      uri.Str() + " is not a valid URI.");
+    const std::vector<ignition::common::URI> dep_uris =
+        ResourceInspector::Instance()->Depends(uri);
+    for (const auto& dep_uri : dep_uris) {
+      if (!this->Resolve(dep_uri).Valid()) {
+        this->Add(dep_uri);
+      }
+    }
+    this->DoAdd(uri);
+  }
 
  private:
   // Resolves the given @p uri into an internal location suitable
   // for storage.
   // @param[in] uri Resource identifier.
   // @returns A full path into the bundle.
-  std::string ResolveToInternalLocation(const ignition::common::URI& uri) const;
+  std::string ResolveToInternalPath(const ignition::common::URI& uri) const;
 
-  std::string DoFind(const ignition::common::URI& uri) const override;
+  // @see Add(const ignition::common::URI&)
+  virtual void DoAdd(const ignition::common::URI& uri);
+
+  ignition::common::URI
+  DoResolve(const ignition::common::URI& uri) const override;
 
   // Package bundle root path.
   std::string path_{};
@@ -151,14 +169,21 @@ class PackageManager {
 
   static PackageManager* Instance();
 
-  /// Takes and uses given @p package
+  /// Takes and uses given @p package.
+  /// @warning This call invalidates references returned
+  ///          by PackageManager::package_in_use() and
+  ///          PackageManager::mutable_package_in_use().
   void Use(std::unique_ptr<Package> package);
 
-  /// Returns the current package in use.
+  /// Returns the an immutable reference to the current
+  /// package in use.
   const Package& package_in_use() const;
 
+  /// Returns the a mutable reference to the current
+  /// package in use.
+  Package* mutable_package_in_use();
+
  private:
-  // Default constructor.
   PackageManager() = default;
 
   // Package instance in use.

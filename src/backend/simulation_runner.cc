@@ -489,10 +489,9 @@ void SimulatorRunner::StartLogging(const std::string& filename) {
            << "Logging to default location." << std::endl;
     sanitized_filename = GenerateDefaultLogFilename();
   }
-  if (logger_.Start(sanitized_filename)) {
-    std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
-    if (!logger_.CaptureMeshes(*scene)) logger_.Stop();
-  }
+  std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
+  logger_.Start(sanitized_filename);
+  logger_.CaptureMeshes(*scene);
 }
 
 void SimulatorRunner::StopLogging() {

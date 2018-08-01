@@ -13,28 +13,56 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/log/Log.hh>
 
+#include "common/compression.h"
 #include "delphyne/utility/package.h"
-
 #include "helpers.h"
 
 namespace delphyne {
 namespace {
 
-class DataLoggerTest : public ::testing::Test {
+class DataLoggerTest : public test::TestWithFiles {
  protected:
-  void SetUp() override {
-    tmpdir_ = test::MakeTemporaryDirectory("/tmp/XXXXXX");
+  void DoSetUp() override {
     auto package = std::make_unique<utility::BundledPackage>(
-        ignition::common::joinPaths(tmpdir_, "base_package"));
-    const std::string path_to_mesh =
-        ignition::common::joinPaths(tmpdir_, "mesh.obj");
-    std::fstream fs(path_to_mesh, std::ios::out);
-    fs.close();
-    package->Add(kSceneMeshURI, path_to_mesh);
-    utility::PackageManager* package_manager =
-        utility::PackageManager::Instance();
-    package_manager->Use(std::move(package));
+        ignition::common::joinPaths(tmpdir(), "base"));
+    path_to_mesh_mtl_ =
+        ignition::common::joinPaths(tmpdir(), "quad.mtl");
+    std::fstream matfs(path_to_mesh_mtl_, std::ios::out);
+    matfs << "newmtl material0\n"
+          << "Ka 1.000000 1.000000 1.000000\n"
+          << "Kd 1.000000 1.000000 1.000000\n"
+          << "Ks 0.000000 0.000000 0.000000\n"
+          << "Tr 1.000000\n"
+          << "illum 1\n"
+          << "Ns 0.000000";
+    matfs.close();
+    path_to_mesh_ =
+        ignition::common::joinPaths(tmpdir(), "quad.obj");
+    std::ofstream meshfs(path_to_mesh_);
+    meshfs << "# quad.obj\n"
+           << "v 0.000000 0.000000 0.000000\n"
+           << "v 0.000000 1.000000 0.000000\n"
+           << "v 1.000000 1.000000 0.000000\n"
+           << "v 1.000000 0.000000 0.000000\n"
+           << "\n"
+           << "vn 0.000000 0.000000 -1.000000\n"
+           << "vn 0.000000 0.000000 -1.000000\n"
+           << "vn 0.000000 0.000000 -1.000000\n"
+           << "vn 0.000000 0.000000 -1.000000\n"
+           << "\n"
+           << "vt 0.000000 0.000000 0.000000\n"
+           << "vt 0.000000 1.000000 0.000000\n"
+           << "vt 1.000000 1.000000 0.000000\n"
+           << "vt 1.000000 0.000000 0.000000\n"
+           << "\n"
+           << "mtllib quad.mtl\n"
+           << "usemtl material0\n"
+           << "f 1/1/1 2/2/2 3/3/3\n"
+           << "f 1/1/1 3/3/3 4/4/4";
+    meshfs.close();
     logger_ = std::make_unique<DataLogger>();
+    // Setup environment to point to the temporary directory.
+    setenv("DELPHYNE_PACKAGE_PATH", tmpdir().c_str(), 1);
   }
 
   // Builds up an ignition::msgs::Scene instance with a single
@@ -47,18 +75,17 @@ class DataLoggerTest : public ::testing::Test {
     ignition::msgs::Visual* visual_msg = link_msg->add_visual();
     ignition::msgs::Geometry* geometry_msg = visual_msg->mutable_geometry();
     ignition::msgs::MeshGeom* mesh_msg = geometry_msg->mutable_mesh();
-    mesh_msg->set_filename(kSceneMeshURI);
+    mesh_msg->set_filename(path_to_mesh_);
     return scene_msg;
   }
 
-  void TearDown() override {
+  void DoTearDown() override {
     logger_.reset();
-    ignition::common::removeAll(tmpdir_);
   }
 
-  std::string tmpdir_{""};
+  std::string path_to_mesh_{""};
+  std::string path_to_mesh_mtl_{""};
   std::unique_ptr<DataLogger> logger_{nullptr};
-  const std::string kSceneMeshURI{"package://dummy/mesh"};
 };
 
 // Checks that failing to meet DataLogger methods'
@@ -74,9 +101,9 @@ TEST_F(DataLoggerTest, LoggingPreconditions) {
   EXPECT_THROW(logger_->Stop(), std::runtime_error);
 
   const std::string path_to_logfile =
-      ignition::common::joinPaths(tmpdir_, "test.log");
-  EXPECT_TRUE(logger_->Start(path_to_logfile));
-  
+      ignition::common::joinPaths(tmpdir(), "test.log");
+  logger_->Start(path_to_logfile);
+
   // Checks that trying to start a logger that has
   // already been started fails.
   EXPECT_THROW(logger_->Start(path_to_logfile), std::runtime_error);
@@ -85,22 +112,22 @@ TEST_F(DataLoggerTest, LoggingPreconditions) {
 // Checks that logging is working as expected.
 TEST_F(DataLoggerTest, LoggingWorkflow) {
   const std::string path_to_logfile =
-      ignition::common::joinPaths(tmpdir_, "test.log");
+      ignition::common::joinPaths(tmpdir(), "test.log");
   EXPECT_FALSE(ignition::common::exists(path_to_logfile));
 
-  EXPECT_TRUE(logger_->Start(path_to_logfile));
+  logger_->Start(path_to_logfile);
   EXPECT_EQ(logger_->logpath(), path_to_logfile);
 
-  EXPECT_TRUE(logger_->CaptureMeshes(BuildDummySceneMessage()));
+  logger_->CaptureMeshes(BuildDummySceneMessage());
 
   logger_->Stop();
 
   EXPECT_TRUE(ignition::common::isFile(path_to_logfile));
 
   const std::string path_to_logdir =
-      ignition::common::joinPaths(tmpdir_, "test");
+      ignition::common::joinPaths(tmpdir(), "test");
   EXPECT_TRUE(ignition::common::createDirectories(path_to_logdir));
-  EXPECT_EQ(detail::unzipDirectory(path_to_logfile, path_to_logdir), 0);
+  UnzipDirectory(path_to_logfile, path_to_logdir);
 
   const std::string topic_log_path =
       ignition::common::joinPaths(path_to_logdir, "topic.db");
@@ -112,7 +139,8 @@ TEST_F(DataLoggerTest, LoggingWorkflow) {
       ignition::common::joinPaths(path_to_logdir, "bundle");
   EXPECT_TRUE(ignition::common::isDirectory(bundled_package_path));
   utility::BundledPackage package(bundled_package_path);
-  EXPECT_TRUE(package.Exists(kSceneMeshURI));
+  EXPECT_TRUE(package.Resolve(path_to_mesh_).Valid());
+  EXPECT_TRUE(package.Resolve(path_to_mesh_mtl_).Valid());  
 }
 
 }  // namespace

@@ -1,4 +1,4 @@
-// Copyright 2017 Toyota Research Institute
+// Copyright 2018 Toyota Research Institute
 
 #include "delphyne/utility/package.h"
 
@@ -32,33 +32,31 @@ TEST(ToURITests, HandlesURIs) {
   EXPECT_EQ(uri.Str(), "git://repository");
 }
 
-class PackageTest : public ::testing::Test {
+class PackageTest : public test::TestWithFiles {
  protected:
-  void SetUp() override {
+  void DoSetUp() override {
     // Make dummy package for testing.
     using ignition::common::joinPaths;
-    tmpdir_ = test::MakeTemporaryDirectory("/tmp/XXXXXX");
-    path_to_package_ = joinPaths(tmpdir_, "package_root");
+    path_to_package_ = joinPaths(tmpdir(), "this_package");
     path_to_package_resources_ = joinPaths(path_to_package_, "package");
     ignition::common::createDirectories(path_to_package_resources_);
     path_to_resource_ = joinPaths(path_to_package_resources_, "stuff");
     std::fstream resource(path_to_resource_, std::ios::out);
-    resource.close();
-    // Setup environment to point to the built dummy package.
+    // Setup environment to point to the built dummy package. It'll also
+    // be used to setup the default package if the PackageManager is used
+    // by any of the implementations.
     setenv("DELPHYNE_PACKAGE_PATH", path_to_package_resources_.c_str(), 1);
   }
 
   void TestPackageUseCases(const Package& package) {
-    EXPECT_FALSE(package.Exists(kNonExistentResourceURI));
-    EXPECT_TRUE(package.Exists(kResourceURI));
-    EXPECT_EQ(package.Find(kResourceURI), path_to_resource_);
+    EXPECT_FALSE(package.Resolve(kNonExistentResourceURI).Valid());
+    const ignition::common::URI resolved_uri = package.Resolve(kResourceURI);
+    EXPECT_TRUE(resolved_uri.Valid());
+    EXPECT_EQ(resolved_uri.Scheme(), "file");
+    const std::string resolved_path = "/" + resolved_uri.Path().Str();
+    EXPECT_EQ(resolved_path, path_to_resource_);
   }
 
-  void TearDown() override {
-    ignition::common::removeAll(tmpdir_);
-  }
-
-  std::string tmpdir_{};
   std::string path_to_package_{};
   std::string path_to_package_resources_{};
   std::string path_to_resource_{};
@@ -81,8 +79,9 @@ TEST_F(PackageTest, UsingBundledPackage) {
 
 // Checks that adding resources to a bundled package works as expected.
 TEST_F(PackageTest, AddingToBundledPackage) {
+  using ignition::common::joinPaths;
   const std::string path_to_new_resource =
-      ignition::common::joinPaths(tmpdir_, "new_stuff");
+      joinPaths(tmpdir(), "new_stuff");
   std::fstream new_resource(path_to_new_resource, std::ios::out);
   new_resource << "dummy";
   new_resource.flush();
@@ -90,11 +89,16 @@ TEST_F(PackageTest, AddingToBundledPackage) {
 
   BundledPackage package(path_to_package_);
 
-  const std::string kNewResourceURI = "file:///new/stuff";
-  EXPECT_TRUE(package.Add(kNewResourceURI, path_to_new_resource));
-  EXPECT_TRUE(package.Exists(kNewResourceURI));
+  package.Add(path_to_new_resource);
 
-  std::fstream packaged_resource(package.Find(kNewResourceURI));
+  const ignition::common::URI resolved_uri =
+      package.Resolve(path_to_new_resource);
+  EXPECT_TRUE(resolved_uri.Valid());
+  EXPECT_EQ(resolved_uri.Scheme(), "file");
+
+  const std::string resolved_path =
+      "/" + resolved_uri.Path().Str();
+  std::fstream packaged_resource(resolved_path);
   std::string content = "";
   packaged_resource >> content;
   EXPECT_EQ(content, "dummy");

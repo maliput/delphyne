@@ -15,6 +15,10 @@
 
 #include <ignition/common/Filesystem.hh>
 #include <ignition/common/StringUtils.hh>
+#include <ignition/common/SystemPaths.hh>
+
+#include "common/compression.h"
+#include "common/filesystem.h"
 
 #include "delphyne/macros.h"
 #include "delphyne/utility/package.h"
@@ -22,27 +26,6 @@
 namespace delphyne {
 
 namespace {
-
-std::pair<std::string, std::string> SplitBasename(const std::string& path) {
-  const std::string::size_type n = path.rfind('/');
-  if (n == std::string::npos) {
-    return std::make_pair("", path);
-  }
-  return std::make_pair(path.substr(0, n + 1), path.substr(n + 1));
-}
-
-std::pair<std::string, std::string> SplitExtension(const std::string& path) {
-  const std::string::size_type n = path.rfind('.');
-  if (n != std::string::npos) {
-    std::string extension = path.substr(n);
-    if (!ignition::common::EndsWith(extension, ".") &&
-        extension.find('/') == std::string::npos) {
-      return std::make_pair(path.substr(0, n), std::move(extension));
-    }
-  }
-  return std::make_pair(path, "");
-}
-
 
 // Resolves the given @p filename path into a full path
 // suitable for logging purposes.
@@ -91,26 +74,30 @@ std::string ResolveLogPath(const std::string& filename) {
 // Generates a full path to a log file and full path to temporary
 // directory to gather log data based on the given @p filename.
 // Returned paths are guaranteed to not be present in the filesystem
-// at the time of the call.
+// at the time of the call. It's on caller behalf to avoid TOCTTOU
+// races if necessary.
 // @see ResolveLogPath
 std::pair<std::string, std::string>
 GenerateLogPaths(const std::string& filename) {
   // Gets full path based on the given filename.
   const std::string logpath = ResolveLogPath(filename);
   // Splits extension from log path.
-  std::string basepath; std::string extension;
+  std::string basepath{""}; std::string extension{""};
   std::tie(basepath, extension) = SplitExtension(logpath);
-  if (extension.empty()) extension = ".log";
+  if (extension.empty()) {
+    extension = "log";
+  }
   // Ensures neither file path nor its associated temporary
   // directory exist, adding a number to file base path until
-  // such condition holds.
+  // such condition holds. Implicit TOCTTOU race, see method
+  // documentation.
   int counter = 1;
   std::string unique_logpath = logpath;
   std::string unique_tmppath = basepath;
   while (ignition::common::exists(unique_logpath) ||
          ignition::common::exists(unique_tmppath)) {
     unique_tmppath = basepath + std::to_string(counter++);
-    unique_logpath = unique_tmppath + extension;
+    unique_logpath = unique_tmppath + "." + extension;
   }
   return std::make_pair(std::move(unique_logpath),
                         std::move(unique_tmppath));
@@ -124,23 +111,22 @@ DataLogger::~DataLogger() {
   }
 }
 
-bool DataLogger::Start(const std::string& filename) {
+void DataLogger::Start(const std::string& filename) {
   DELPHYNE_VALIDATE(!is_logging(), std::runtime_error,
                     "Cannot start logging, already running.");
   std::string logpath = "";
   std::string tmppath = "";
   std::tie(logpath, tmppath) = GenerateLogPaths(filename);
-  if (ignition::common::createDirectories(tmppath)) {
-    if (StartTopicRecording(ignition::common::joinPaths(tmppath, "topic.db"))) {
-      package_ = std::make_unique<utility::BundledPackage>(
-          ignition::common::joinPaths(tmppath, "bundle"));
-      tmppath_ = std::move(tmppath);
-      logpath_ = std::move(logpath);
-      return true;
-    }
-    ignition::common::removeAll(tmppath);
-  }
-  return false;
+  DELPHYNE_VALIDATE(
+      ignition::common::createDirectories(tmppath), std::runtime_error,
+      "Cannot setup internal temporary directory structure");
+  DELPHYNE_VALIDATE(
+      StartTopicRecording(ignition::common::joinPaths(tmppath, "topic.db")),
+      std::runtime_error, "Could not start logging topic messages.");
+  package_ = std::make_unique<utility::BundledPackage>(
+      ignition::common::joinPaths(tmppath, "bundle"));
+  tmppath_ = std::move(tmppath);
+  logpath_ = std::move(logpath);
 }
 
 namespace {
@@ -241,7 +227,7 @@ void DataLogger::StopTopicRecording() {
   topic_recorder_.Stop();
 }
 
-bool DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
+void DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
   DELPHYNE_VALIDATE(is_logging(), std::runtime_error,
                     "Cannot capture meshes if not logging.");
   // Look up all meshes in the scene.
@@ -249,75 +235,26 @@ bool DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
   find_proto_messages<ignition::msgs::MeshGeom>(
       scene_msg, std::back_inserter(mesh_msgs));
   // Logs all meshes.
-  utility::PackageManager* package_manager =
-      utility::PackageManager::Instance();
-  const utility::Package& package_in_use =
-      package_manager->package_in_use();
   for (const ignition::msgs::MeshGeom* msg : mesh_msgs) {
-    if (msg->has_filename()) {
-      const ignition::common::URI mesh_uri = utility::ToURI(msg->filename());
-      if (!package_->Exists(mesh_uri)) {
-        if (package_in_use.Exists(mesh_uri)) {
-          const std::string mesh_path = package_in_use.Find(mesh_uri);
-          if (!package_->Add(mesh_uri, mesh_path)) return false;
-        } else {
-          ignwarn << "Could not resolve " << mesh_uri.Str() << std::endl;
-        }
-      }
+    if (!msg->has_filename()) {
+      igndbg << "Found mesh with no associated mesh file." << std::endl;
+      continue;
     }
+    const ignition::common::URI mesh_uri = utility::ToURI(msg->filename());
+    if (package_->Resolve(mesh_uri).Valid()) {
+      igndbg << "Mesh " << msg->filename() << " already captured." << std::endl;
+      continue;
+    }
+    package_->Add(mesh_uri);
   }
-  return true;
 }
-
-namespace detail {
-
-// TODO(hidmic): Find a proper cross-platform mechanism to zip a
-//               directory recursively.
-int zipDirectory(const std::string& source_path,
-                 const std::string& destination_path) {
-  DELPHYNE_VALIDATE(
-      ignition::common::isDirectory(source_path), std::runtime_error,
-      "Given source path is not an existing directory.");
-  DELPHYNE_VALIDATE(
-      !ignition::common::exists(destination_path), std::runtime_error,
-      "Given destination path already exists.");
-  // Zip `source_path` contents recursively and output to `destination_path`.
-  std::stringstream cmdline_builder;
-  cmdline_builder << "cd " << source_path << ";"
-                  << "zip -r " << destination_path
-                  << " * > /dev/null";
-  const std::string cmdline = cmdline_builder.str();
-  return std::system(cmdline.c_str());
-}
-
-// TODO(hidmic): Find a proper cross-platform mechanism to unzip.
-int unzipDirectory(const std::string& archive_path,
-                   const std::string& extract_path) {
-  DELPHYNE_VALIDATE(ignition::common::isFile(archive_path), std::runtime_error,
-                    "Given source path is not an existing directory.");
-  DELPHYNE_VALIDATE(
-      ignition::common::isDirectory(extract_path), std::runtime_error,
-      "Given extraction path must be an existing directory.");
-  std::stringstream cmdline_builder;
-  // Unzip `archive_path` into `extract_path`, quietly (-q) and
-  // overwriting any files without prompting.
-  cmdline_builder << "unzip -o -q " << archive_path
-                  << " -d " << extract_path
-                  << " > /dev/null";
-  const std::string cmdline = cmdline_builder.str();
-  return std::system(cmdline.c_str());
-}
-
-}  // namespace detail
 
 void DataLogger::Stop() {
   DELPHYNE_VALIDATE(is_logging(), std::runtime_error,
                     "Cannot stop if not logging.");
   StopTopicRecording();
   package_.reset();
-  if (detail::zipDirectory(tmppath_, logpath_) != 0) {
-    ignerr << "Failed to compress log data." << std::endl;
-  }
+  ZipDirectory(tmppath_, logpath_);
   ignition::common::removeAll(tmppath_);
   tmppath_ = logpath_ = "";
 }

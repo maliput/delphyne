@@ -36,6 +36,7 @@ target_link_libraries(
     pybind11::module
     ${PYTHON_LIBRARIES}
   PRIVATE
+    common
     translations
 )
 

@@ -70,8 +70,6 @@ class RailCar : public delphyne::Agent {
   ///
   /// @brief Change the speed of this agent.
   ///
-  /// @param sim_context[in] The simulator Context to use for this change
-  /// @param diagram[in] The diagram from which to look the sub-Context up
   /// @param new_speed_mps[in] The new speed for the agent in meters/second
   void SetSpeed(double new_speed_mps);
 

@@ -162,12 +162,10 @@ delphyne::AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
                         builder_.get(), scene_graph_,
                         &(agent->mutable_geometry_ids())));
 
-  delphyne::AgentBase<T>* retptr = agent.get();
-
   // save a handle to it
   agents_[id] = std::move(agent);
 
-  return retptr;
+  return agents_[id].get();
 }
 
 template <typename T>

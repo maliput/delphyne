@@ -21,14 +21,15 @@
 
 namespace delphyne {
 
+/// The SpeedSystem implements a very simple speed controller, taking as an
+/// input the current frame velocity (from an InputPort) and the desired speed
+/// (set as an abstract state value of this class), and producing an
+/// acceleration on an OutputPort to reach that speed.
 class SpeedSystem final : public drake::systems::LeafSystem<double> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SpeedSystem)
 
   /// Default constructor.
-  ///
-  /// @param[in] topic_name The name of the ignition topic this system will
-  /// be subscribed to.
   SpeedSystem() {
     speed_feedback_input_port_index_ =
         this->DeclareVectorInputPort(
@@ -190,9 +191,9 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
     double input_speed = GetSpeed(context);
 
     if (input_speed > magnitude) {
-      output->SetAtIndex(0, 10.0);
+      output->SetAtIndex(0, kAccelerationSetPoint);
     } else if (input_speed < magnitude) {
-      output->SetAtIndex(0, -10.0);
+      output->SetAtIndex(0, -kAccelerationSetPoint);
     } else {
       output->SetAtIndex(0, 0.0);
     }
@@ -209,6 +210,10 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
 
   // The total number of states used by the system.
   static constexpr int kTotalStateValues = 1;
+
+  // The amount of acceleration that will be applied if the acceleration needs
+  // to be changed.
+  static constexpr double kAccelerationSetPoint = 10.0;
 
   /********************
    * System Indices

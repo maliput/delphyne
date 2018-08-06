@@ -1,6 +1,7 @@
 // Copyright 2017 Toyota Research Institute
 
 #include <regex>
+#include <string>
 
 #include <ignition/common/Console.hh>
 
@@ -32,7 +33,7 @@ class Replayer {
     // Advertises services.
     if (!node_.Advertise(pause_service_, &Replayer::PauseServiceCallback,
                          this)) {
-      std::cerr << "Error advertising service [" << pause_service_ << "]"
+      ignerr << "Error advertising service [" << pause_service_ << "]"
                 << std::endl;
       return 1;
     }

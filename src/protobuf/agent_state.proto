@@ -6,8 +6,17 @@ option java_outer_classname = "AgentStateProtos";
 
 /// \ingroup ignition.msgs
 /// \interface AgentState
-/// \brief The ignition equivalent of the LCM command used to show the
-/// current status of a delphyne agent in a simulation.
+/// \brief The status of a delphyne agent in a simulation.
+///
+/// Represented using the following conventions:
+/// - position: A Vector3 of the form (x, y, z) in m.
+/// - orientation: In euler angles following the x-y-z convention
+/// (roll, pitch, yaw).
+/// - linear_velocity: A Vector3 with the components of velocity projected over
+/// each of the x, y and z axes, respectively. Measured in m/s.
+/// - angular_velocity: A Vector3 with the angular velocities around the axes
+/// x, y and z, respectively. Measured in rad/s.
+
 
 import "ignition/msgs/header.proto";
 import "ignition/msgs/time.proto";

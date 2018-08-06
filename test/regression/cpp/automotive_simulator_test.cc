@@ -274,15 +274,25 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 
   // Computations of AgentState from a PoseBundle incur minimal numerical
   // precision loss. Hence, a small tolerance is allowed when comparing the
-  // values from the AgentState with the expected values.
+  // values from the AgentState with the expected values. Unused values are
+  // expected to be zero.
   const double kAccuracy = 1e-15;
 
-  EXPECT_EQ(state_message.position().x(), kX);
+  EXPECT_NEAR(state_message.position().x(), kX, kAccuracy);
   EXPECT_NEAR(state_message.position().y(), kY, kAccuracy);
+  EXPECT_EQ(state_message.position().z(), 0.0);
+
+  EXPECT_EQ(state_message.orientation().roll(), 0.0);
+  EXPECT_EQ(state_message.orientation().pitch(), 0.0);
   EXPECT_NEAR(state_message.orientation().yaw(), kHeading, kAccuracy);
+
   EXPECT_NEAR(state_message.linear_velocity().x(), kVelocity * cos(kHeading), kAccuracy);
   EXPECT_NEAR(state_message.linear_velocity().y(), kVelocity * sin(kHeading), kAccuracy);
+  EXPECT_EQ(state_message.linear_velocity().z(), 0.0);
 
+  EXPECT_EQ(state_message.angular_velocity().x(), 0.0);
+  EXPECT_EQ(state_message.angular_velocity().y(), 0.0);
+  EXPECT_EQ(state_message.angular_velocity().z(), 0.0);
 }
 
 TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {

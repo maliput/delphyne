@@ -26,7 +26,9 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
   for (int i = 0; i < drake_message.get_num_poses(); ++i) {
     // Gets the car's pose.
     const drake::Isometry3<double>& pose = drake_message.get_pose(i);
-    // Translates pose from quaternion to euler.
+    // Gets the agent's orientation in the form of a vector of euler angles
+    // following the x-y-z convention (roll-pitch-yaw).
+    // The indexes of 0, 1 and 2 represent the x, y and z axis, respectively.
     const Eigen::Vector3d euler_rotation =
         pose.rotation().eulerAngles(0, 1, 2);
 

@@ -7,7 +7,8 @@ option java_outer_classname = "RPYAnglesProtos";
 /// \ingroup ignition.msgs
 /// \interface RPYAngles
 /// \brief The representation of orientation in euler angles following the 
-/// x-y-z convention (roll-pitch-yaw).
+/// x-y-z convention (roll-pitch-yaw) with angles defined according to the
+/// right hand rule.
 
 import "ignition/msgs/header.proto";
 

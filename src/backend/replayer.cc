@@ -31,15 +31,15 @@ class Replayer {
   // playback.
   int Run() {
     // Advertises services.
-    if (!node_.Advertise(pause_service_, &Replayer::PauseServiceCallback,
+    if (!node_.Advertise(kPauseServiceName, &Replayer::PauseServiceCallback,
                          this)) {
-      ignerr << "Error advertising service [" << pause_service_ << "]"
+      ignerr << "Error advertising service [" << kPauseServiceName << "]"
                 << std::endl;
       return 1;
     }
-    if (!node_.Advertise(resume_service_, &Replayer::ResumeServiceCallback,
+    if (!node_.Advertise(kResumeServiceName, &Replayer::ResumeServiceCallback,
                          this)) {
-      ignerr << "Error advertising service [" << resume_service_ << "]"
+      ignerr << "Error advertising service [" << kResumeServiceName << "]"
              << std::endl;
       return 1;
     }
@@ -92,10 +92,10 @@ class Replayer {
   ignition::transport::Node node_;
 
   // Pause service's name.
-  static constexpr const char* const pause_service_ = "/replayer/pause";
+  static constexpr const char* const kPauseServiceName = "/replayer/pause";
 
   // Resume service's name.
-  static constexpr const char* const resume_service_ = "/replayer/resume";
+  static constexpr const char* const kResumeServiceName = "/replayer/resume";
 
   // Logfile path passed as argument to the constructor.
   const std::string logfile_;

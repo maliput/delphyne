@@ -2,7 +2,7 @@
 
 package ignition.msgs;
 option java_package = "com.ignition.msgs";
-option java_outer_classname = "SimpleCarStateProtos";
+option java_outer_classname = "ViewerCommandProtos";
 
 /// \ingroup ignition.msgs
 /// \interface ViewerCommand

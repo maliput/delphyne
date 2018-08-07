@@ -1,0 +1,48 @@
+// Copyright 2017 Toyota Research Institute
+
+package ignition.msgs;
+option java_package = "com.ignition.msgs";
+option java_outer_classname = "AgentStateProtos";
+
+/// \ingroup ignition.msgs
+/// \interface AgentState
+/// \brief The status of a delphyne agent in a simulation.
+///
+/// Represented using the following conventions:
+/// - position: A Vector3 of the form (x, y, z) in m.
+/// - orientation: In euler angles following the x-y-z convention
+/// (roll, pitch, yaw).
+/// - linear_velocity: A Vector3 with the components of velocity on each of the
+/// x, y and z axes, respectively. Measured in m/s.
+/// - angular_velocity: A Vector3 with the angular velocities around the axes
+/// x, y and z defined according to the right hand rule. Measured in rad/s.
+
+import "ignition/msgs/header.proto";
+import "ignition/msgs/time.proto";
+import "ignition/msgs/vector3d.proto";
+import "rpy_angles.proto";
+
+message AgentState
+{
+  /// \brief Optional header data
+  optional Header header             = 1;
+
+  /// \brief The agent's name
+  optional string name               = 2;
+
+  /// \brief The timestamp in sec and nsec
+  optional Time time                 = 3;
+
+  /// \brief Position of the agent.
+  optional Vector3d position         = 4;
+
+  /// \brief Orientation of the agent in euler angles.
+  optional RPYAngles orientation     = 5;
+
+  /// \brief Linear velocity of the agent in m/s.
+  optional Vector3d linear_velocity  = 6;
+
+  /// \brief Angular velocity of the agent in rad/s.
+  optional Vector3d angular_velocity = 7;
+
+}

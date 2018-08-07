@@ -1,0 +1,23 @@
+// Copyright 2017 Toyota Research Institute
+
+package ignition.msgs;
+option java_package = "com.ignition.msgs";
+option java_outer_classname = "RPYAnglesProtos";
+
+/// \ingroup ignition.msgs
+/// \interface RPYAngles
+/// \brief The representation of orientation in euler angles following the 
+/// x-y-z convention (roll-pitch-yaw) with angles defined according to the
+/// right hand rule.
+
+import "ignition/msgs/header.proto";
+
+message RPYAngles
+{
+  /// \brief Optional header data
+  optional Header header    = 1;
+
+  optional double roll      = 2;
+  optional double pitch     = 3;
+  optional double yaw       = 4;
+}

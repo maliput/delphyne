@@ -45,7 +45,7 @@ TEST_F(ResourceInspectionTest, ColladaMeshInspection) {
       ResourceInspector::Instance();
   ASSERT_TRUE(resource_inspector != nullptr);
   const std::vector<ignition::common::URI> dep_uris =
-      resource_inspector->Depends(mesh_uri);
+      resource_inspector->GetDependencies(mesh_uri);
   ASSERT_EQ(dep_uris.size(), 1);
   EXPECT_EQ(dep_uris[0].Scheme(), "file");
   const std::string path_to_dep =
@@ -77,7 +77,7 @@ TEST_F(ResourceInspectionTest, OBJMeshInspection) {
       ResourceInspector::Instance();
   ASSERT_TRUE(resource_inspector != nullptr);
   const std::vector<ignition::common::URI> dep_uris =
-      resource_inspector->Depends(mesh_uri);
+      resource_inspector->GetDependencies(mesh_uri);
   ASSERT_EQ(dep_uris.size(), 1);
   EXPECT_EQ(dep_uris[0].Scheme(), "file");
   const std::string path_to_dep =

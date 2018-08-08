@@ -41,7 +41,7 @@ namespace {
 std::string ResolveLogPath(const std::string& filename) {
   std::stringstream abs_path;
   // Skip path build if filename is an absolute path.
-  if (filename.front() != '/') {
+  if (!IsAbsolutePath(filename)) {
     // Get environmental variables.
     const char* delphyne_logs_path =
         std::getenv("DELPHYNE_LOGS_PATH");

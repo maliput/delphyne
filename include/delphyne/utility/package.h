@@ -133,10 +133,8 @@ class BundledPackage : public Package {
   ///                            See PackageManager and ResourceInspector
   ///                            singletons.
   void Add(const ignition::common::URI& uri) {
-    DELPHYNE_VALIDATE(uri.Valid(), std::runtime_error,
-                      uri.Str() + " is not a valid URI.");
     const std::vector<ignition::common::URI> dep_uris =
-        ResourceInspector::Instance()->Depends(uri);
+        ResourceInspector::Instance()->GetDependencies(uri);
     for (const auto& dep_uri : dep_uris) {
       if (!this->Resolve(dep_uri).Valid()) {
         this->Add(dep_uri);
@@ -171,17 +169,12 @@ class PackageManager {
 
   /// Takes and uses given @p package.
   /// @warning This call invalidates references returned
-  ///          by PackageManager::package_in_use() and
-  ///          PackageManager::mutable_package_in_use().
+  ///          by PackageManager::package_in_use().
   void Use(std::unique_ptr<Package> package);
 
   /// Returns the an immutable reference to the current
   /// package in use.
   const Package& package_in_use() const;
-
-  /// Returns the a mutable reference to the current
-  /// package in use.
-  Package* mutable_package_in_use();
 
  private:
   PackageManager() = default;

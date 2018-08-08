@@ -27,6 +27,8 @@
 
 #include <pybind11/pybind11.h>
 
+#include "common/filesystem.h"
+
 namespace delphyne {
 namespace {
 
@@ -483,8 +485,7 @@ void SimulatorRunner::StartLogging() {
 
 void SimulatorRunner::StartLogging(const std::string& filename) {
   std::string sanitized_filename = filename;
-  if (ignition::common::EndsWith(filename, "/") ||
-      ignition::common::EndsWith(filename, ".")) {
+  if (!IsValidFilepath(filename)) {
     ignerr << "The given log filename is ill-formed. "
            << "Logging to default location." << std::endl;
     sanitized_filename = GenerateDefaultLogFilename();

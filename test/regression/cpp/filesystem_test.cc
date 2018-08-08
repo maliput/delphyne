@@ -14,6 +14,18 @@
 namespace delphyne {
 namespace {
 
+TEST(FileSystemTest, CheckForAbsolutePaths) {
+  EXPECT_FALSE(IsAbsolutePath("test.txt"));
+  EXPECT_TRUE(IsAbsolutePath("/tmp/test.txt"));
+}
+
+TEST(FileSystemTest, CheckForValidFilenames) {
+  EXPECT_FALSE(IsValidFilepath("/tmp/test/"));
+  EXPECT_TRUE(IsValidFilepath("/tmp/test"));
+  EXPECT_FALSE(IsValidFilepath("/tmp/test/."));
+  EXPECT_FALSE(IsValidFilepath("/tmp/.."));
+}
+
 TEST(FileSystemTest, ExtractDirectoryname) {
   EXPECT_EQ(Dirname("test.txt"), "");
   EXPECT_EQ(Dirname("/tmp/test.txt"), "/tmp/");

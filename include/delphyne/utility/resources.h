@@ -38,7 +38,7 @@ class ResourceInspector {
   /// @param uri Identifier for the resource to extract dependencies from.
   /// @returns The URIs of the resource dependencies, if any.
   std::vector<ignition::common::URI>
-  Depends(const ignition::common::URI& uri) const;
+  GetDependencies(const ignition::common::URI& uri) const;
 
  private:
   ResourceInspector() = default;

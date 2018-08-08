@@ -24,6 +24,14 @@ void WalkDirectory(const std::string& dirpath,
                    const DirectoryWalkFn& walkfn,
                    bool recursive);
 
+/// Checks whether the given @p path is absolute or not.
+bool IsAbsolutePath(const std::string& path);
+
+/// Checks whether the given @p path is a valid file path
+/// (i.e. no trailing slash, no dot references to the
+/// current directory or the parent directory).
+bool IsValidFilepath(const std::string& path);
+
 /// Extracts the directory name of the given @p path.
 /// @remarks No actual filesystem lookups are performed
 ///          during directory name extraction.

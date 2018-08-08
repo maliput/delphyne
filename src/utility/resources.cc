@@ -49,7 +49,7 @@ ResourceInspector* ResourceInspector::Instance() {
 }
 
 std::vector<ignition::common::URI>
-ResourceInspector::Depends(const ignition::common::URI& uri) const {
+ResourceInspector::GetDependencies(const ignition::common::URI& uri) const {
   // TODO(hidmic): Limited support for mesh file formats only.
   // To be generalized in a follow-up work.
 

@@ -12,6 +12,16 @@
 
 namespace delphyne {
 
+bool IsAbsolutePath(const std::string& path) {
+  return path.front() == '/';
+}
+
+bool IsValidFilepath(const std::string& path) {
+  return !(ignition::common::EndsWith(path, "/") ||
+           ignition::common::EndsWith(path, "/.") ||
+           ignition::common::EndsWith(path, "/.."));
+}
+
 std::string Dirname(const std::string& path) {
   std::string::size_type n = path.rfind('/');
   if (n == std::string::npos) {

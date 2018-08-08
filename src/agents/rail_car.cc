@@ -29,10 +29,10 @@
 #include "delphyne/maliput/find_lane.h"
 
 // private headers
+#include "systems/constant_vector_settable.h"
 #include "systems/rail_follower.h"
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
-#include "systems/speed_system.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -129,10 +129,50 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
           context_numeric_parameters));
   rail_follower_system->set_name(name_ + "_system");
 
-  speed_system_ = builder.AddSystem(
-      std::make_unique<delphyne::SpeedSystem>());
+  auto get_speed =
+      [](const drake::systems::BasicVector<double>* input) -> double {
+    if (input == nullptr) {
+      // If the feedback is not connected, we can't do anything, so set the
+      // output value back to 0.
+      return 0.0;
+    }
 
-  builder.Connect(speed_system_->acceleration_output(),
+    const drake::systems::rendering::FrameVelocity<double>* feedback_input =
+        dynamic_cast<const drake::systems::rendering::FrameVelocity<double>*>(
+            input);
+    const drake::multibody::SpatialVelocity<double> vel =
+        feedback_input->get_velocity();
+
+    // Let's calculate the magnitude of the vector to get an estimate
+    // of our forward speed.
+    return vel.translational().norm();
+  };
+
+  auto speed_cb = [&get_speed](const drake::systems::BasicVector<double>* input,
+                               double requested) -> double {
+    if (input == nullptr) {
+      // If the feedback is not connected, we can't do anything, so set the
+      // output value back to 0.
+      return 0.0;
+    }
+
+    double magnitude = get_speed(input);
+
+    if (requested > magnitude) {
+      return 10.0;
+    } else if (requested < magnitude) {
+      return -10.0;
+    } else {
+      return 0.0;
+    }
+  };
+
+  speed_system_ = builder.AddSystem(
+      std::make_unique<delphyne::ConstantVectorSettable<
+          double, drake::systems::rendering::FrameVelocity<double>>>(get_speed,
+                                                                     speed_cb));
+
+  builder.Connect(speed_system_->output(),
                   rail_follower_system->command_input());
 
   builder.Connect(rail_follower_system->velocity_output(),
@@ -149,7 +189,7 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
 }
 
 void RailCar::SetSpeed(double new_speed_mps) {
-  speed_system_->SetSpeed(new_speed_mps);
+  speed_system_->Set(new_speed_mps);
 }
 
 }  // namespace delphyne

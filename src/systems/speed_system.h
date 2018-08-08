@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <memory>
 #include <mutex>
 #include <utility>
@@ -85,33 +86,6 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
     return this->get_input_port(speed_feedback_input_port_index_);
   }
 
-  void SetDefaultState(const drake::systems::Context<T>& context,
-                       drake::systems::State<T>* state) const override {
-    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
-                      "State pointer must not be null");
-    const drake::systems::rendering::FrameVelocity<T>* feedback_input =
-        this->template EvalVectorInput<
-            drake::systems::rendering::FrameVelocity>(
-            context, speed_feedback_input_port_index_);
-    if (feedback_input == nullptr) {
-      // If the feedback_input is nullptr, it isn't connected.  In that case,
-      // just don't update the abstract states' current speed.
-      return;
-    }
-
-    const drake::multibody::SpatialVelocity<T> vel =
-        feedback_input->get_velocity();
-    T curr_speed = vel.translational().norm();
-
-    drake::systems::AbstractValues* abstract_state =
-      &state->get_mutable_abstract_state();
-
-    abstract_state->get_mutable_value(kStateIndexSpeed).GetMutableValue<T>() =
-        curr_speed;
-    std::lock_guard<std::mutex> lock(speed_mutex_);
-    speed_ = curr_speed;
-  }
-
  protected:
   void DoCalcNextUpdateTime(
       const drake::systems::Context<T>& context,
@@ -125,7 +99,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
     // An update time calculation is required here to avoid having
     // a NaN value when calling the StepBy method.
     drake::systems::LeafSystem<T>::DoCalcNextUpdateTime(context, events,
-                                                             time);
+                                                        time);
 
     const T last_speed = GetSpeed(context);
 
@@ -187,14 +161,21 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
       return;
     }
 
+    T input_speed = GetSpeed(context);
+
+    if (input_speed < 0.0) {
+      // If the input_speed is negative, that means we shouldn't do anything in
+      // this controller so we just set the acceleration to 0.
+      output->SetAtIndex(0, 0.0);
+      return;
+    }
+
     const drake::multibody::SpatialVelocity<T> vel =
         feedback_input->get_velocity();
 
     // Let's calculate the magnitude of the vector to get an estimate
     // of our forward speed.
     T magnitude = vel.translational().norm();
-
-    T input_speed = GetSpeed(context);
 
     if (input_speed > magnitude) {
       output->SetAtIndex(0, kAccelerationSetPoint);

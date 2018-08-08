@@ -13,7 +13,7 @@
 
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/framework_common.h>  // OutputPortIndex
-#include <drake/systems/framework/input_port_descriptor.h>
+#include <drake/systems/framework/input_port.h>
 #include <drake/systems/framework/output_port.h>
 #include <drake/systems/primitives/pass_through.h>
 #include <drake/systems/rendering/pose_bundle.h>
@@ -112,7 +112,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// diagram. This connects them to the pass through system that
   /// makes that diagram input port available to multiple systems.
   void ConnectTrafficPosesTo(
-      const drake::systems::InputPortDescriptor<T>& destination) {
+      const drake::systems::InputPort<T>& destination) {
     this->Connect(traffic_poses_->get_output_port(), destination);
   }
 

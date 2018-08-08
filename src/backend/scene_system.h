@@ -24,7 +24,7 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
 
   // This port expects an ignition::msgs::Model_V message, containing all models
   // in the scene, including their geometry (ignition::msgs::Visual).
-  const drake::systems::InputPortDescriptor<double>&
+  const drake::systems::InputPort<double>&
   get_geometry_models_input_port() const {
     return get_input_port(geometry_models_input_port_index_);
   }
@@ -36,7 +36,7 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
   // This port expects an ignition::msgs::Model_V message containing the
   // up-to-date pose for all mobile elements (static scene elements do not
   // require a pose update).
-  const drake::systems::InputPortDescriptor<double>&
+  const drake::systems::InputPort<double>&
   get_updated_pose_models_input_port() const {
     return get_input_port(updated_pose_models_input_port_index_);
   }

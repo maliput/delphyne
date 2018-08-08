@@ -12,7 +12,7 @@
 
 #include <drake/systems/framework/diagram.h>
 #include <drake/systems/framework/framework_common.h>  // OutputPortIndex
-#include <drake/systems/framework/input_port_descriptor.h>
+#include <drake/systems/framework/input_port.h>
 
 #include "delphyne/types.h"
 

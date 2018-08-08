@@ -8,7 +8,7 @@
 #include <drake/geometry/frame_kinematics_vector.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/systems/framework/context.h>
-#include <drake/systems/framework/input_port_descriptor.h>
+#include <drake/systems/framework/input_port.h>
 #include <drake/systems/framework/leaf_system.h>
 
 namespace delphyne {
@@ -30,7 +30,7 @@ class FramePoseAggregator : public drake::systems::LeafSystem<T> {
   /// Declares a pose input port, associated with the given @p frame_id.
   /// @return The input drake::systems::rendering::PoseVector port
   /// descriptor.
-  const drake::systems::InputPortDescriptor<T>& DeclareInput(
+  const drake::systems::InputPort<T>& DeclareInput(
       const drake::geometry::FrameId& frame_id);
 
  private:

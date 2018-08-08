@@ -59,7 +59,7 @@ void ZipDirectory(const std::string& source_path,
       }
     } else {
       // Ownership for zip_source_t instances is passed to libzip
-      // upon zip_file_add() call.
+      // upon successful zip_file_add() call.
       zip_source_t* source = zip_source_file(
           zipper.get(), path.c_str(), kZeroOffset, kFullLength);
       if (source == nullptr) {
@@ -99,7 +99,7 @@ void UnzipDirectory(const std::string& archive_path,
                              archive_path + ": " +
                              zip_error_strerror(&ziperror));
   }
-  char buffer[100];
+  char buffer[4096];
   constexpr const int kNoZipFlags = 0;
   auto zip_file_deleter = [](zip_file_t *file) { zip_fclose(file); };
   for (int i = 0; i < zip_get_num_entries(zipper.get(), 0); ++i) {

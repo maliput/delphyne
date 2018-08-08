@@ -20,7 +20,7 @@
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
-#include "systems/constant_vector_settable.h"
+#include "systems/speed_system.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -98,8 +98,7 @@ class RailCar : public delphyne::Agent {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  mutable delphyne::ConstantVectorSettable<
-      double, drake::systems::rendering::FrameVelocity<double>>* speed_system_;
+  mutable delphyne::SpeedSystem* speed_system_;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

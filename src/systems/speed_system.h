@@ -25,7 +25,8 @@ namespace delphyne {
 /// input the current frame velocity (from an InputPort) and the desired speed
 /// (set as an abstract state value of this class), and producing an
 /// acceleration on an OutputPort to reach that speed.
-class SpeedSystem final : public drake::systems::LeafSystem<double> {
+template<typename T>
+class SpeedSystem final : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SpeedSystem)
 
@@ -33,23 +34,23 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
   SpeedSystem() {
     speed_feedback_input_port_index_ =
         this->DeclareVectorInputPort(
-                drake::systems::rendering::FrameVelocity<double>())
+                drake::systems::rendering::FrameVelocity<T>())
             .get_index();
 
     accel_output_port_index_ =
-        this->DeclareVectorOutputPort(drake::systems::BasicVector<double>(1),
+        this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
                                       &SpeedSystem::CalcOutputAcceleration)
             .get_index();
 
     this->DeclareAbstractState(
-        drake::systems::AbstractValue::Make<double>(double{}));
+        drake::systems::AbstractValue::Make<T>(T{}));
   }
 
   ~SpeedSystem() override {}
 
   std::unique_ptr<drake::systems::AbstractValue> AllocateDefaultAbstractValue()
       const {
-    return std::make_unique<drake::systems::Value<double>>(double{});
+    return std::make_unique<drake::systems::Value<T>>(T{});
   }
 
   std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
@@ -62,70 +63,73 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
   }
 
   /// Returns the speed stored in @p context.
-  double GetSpeed(const drake::systems::Context<double>& context) const {
-    return context.get_abstract_state()
-        .get_value(kStateIndexSpeed)
-        .GetValue<double>();
+  T GetSpeed(const drake::systems::Context<T>& context) const {
+    const drake::systems::AbstractValues* abstract_state =
+        &context.get_abstract_state();
+
+    return abstract_state->get_value(kStateIndexSpeed).GetValue<T>();
   }
 
-  void SetSpeed(double new_speed_mps) {
+  void SetSpeed(T new_speed_mps) {
     DELPHYNE_VALIDATE(new_speed_mps >= 0.0, std::invalid_argument,
                       "Speed must be positive or 0");
     std::lock_guard<std::mutex> lock(speed_mutex_);
     speed_ = new_speed_mps;
   }
 
-  const drake::systems::OutputPort<double>& acceleration_output() const {
+  const drake::systems::OutputPort<T>& acceleration_output() const {
     return this->get_output_port(accel_output_port_index_);
   }
 
-  const drake::systems::InputPortDescriptor<double>& feedback_input() const {
+  const drake::systems::InputPortDescriptor<T>& feedback_input() const {
     return this->get_input_port(speed_feedback_input_port_index_);
   }
 
-  void SetDefaultState(const drake::systems::Context<double>& context,
-                       drake::systems::State<double>* state) const override {
+  void SetDefaultState(const drake::systems::Context<T>& context,
+                       drake::systems::State<T>* state) const override {
     DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
                       "State pointer must not be null");
-    const drake::systems::rendering::FrameVelocity<double>* feedback_input =
+    const drake::systems::rendering::FrameVelocity<T>* feedback_input =
         this->template EvalVectorInput<
             drake::systems::rendering::FrameVelocity>(
             context, speed_feedback_input_port_index_);
     if (feedback_input == nullptr) {
       // If the feedback_input is nullptr, it isn't connected.  In that case,
-      // just don't update the abstract states current speed.
+      // just don't update the abstract states' current speed.
       return;
     }
 
-    const drake::multibody::SpatialVelocity<double> vel =
+    const drake::multibody::SpatialVelocity<T> vel =
         feedback_input->get_velocity();
-    double curr_speed = vel.translational().norm();
+    T curr_speed = vel.translational().norm();
 
-    state->get_mutable_abstract_state()
-        .get_mutable_value(kStateIndexSpeed)
-        .GetMutableValue<double>() = curr_speed;
+    drake::systems::AbstractValues* abstract_state =
+      &state->get_mutable_abstract_state();
+
+    abstract_state->get_mutable_value(kStateIndexSpeed).GetMutableValue<T>() =
+        curr_speed;
     std::lock_guard<std::mutex> lock(speed_mutex_);
     speed_ = curr_speed;
   }
 
  protected:
   void DoCalcNextUpdateTime(
-      const drake::systems::Context<double>& context,
-      drake::systems::CompositeEventCollection<double>* events,
-      double* time) const override {
+      const drake::systems::Context<T>& context,
+      drake::systems::CompositeEventCollection<T>* events,
+      T* time) const override {
     DELPHYNE_VALIDATE(events != nullptr, std::invalid_argument,
                       "Events pointer must not be null");
     DELPHYNE_VALIDATE(time != nullptr, std::invalid_argument,
                       "Time pointer must not be null");
 
     // An update time calculation is required here to avoid having
-    // a NaN value when callling the StepBy method.
-    drake::systems::LeafSystem<double>::DoCalcNextUpdateTime(context, events,
+    // a NaN value when calling the StepBy method.
+    drake::systems::LeafSystem<T>::DoCalcNextUpdateTime(context, events,
                                                              time);
 
-    const double last_speed = GetSpeed(context);
+    const T last_speed = GetSpeed(context);
 
-    double curr_speed;
+    T curr_speed;
     {
       std::lock_guard<std::mutex> lock(speed_mutex_);
       curr_speed = speed_;
@@ -138,38 +142,40 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
       *time = context.get_time() + 0.0001;
 
       drake::systems::EventCollection<
-          drake::systems::UnrestrictedUpdateEvent<double>>& uu_events =
+          drake::systems::UnrestrictedUpdateEvent<T>>& uu_events =
           events->get_mutable_unrestricted_update_events();
 
       uu_events.add_event(
-          std::make_unique<drake::systems::UnrestrictedUpdateEvent<double>>(
-              drake::systems::Event<double>::TriggerType::kTimed));
+          std::make_unique<drake::systems::UnrestrictedUpdateEvent<T>>(
+              drake::systems::Event<T>::TriggerType::kTimed));
     }
   }
 
   void DoCalcUnrestrictedUpdate(
-      const drake::systems::Context<double>& context,
+      const drake::systems::Context<T>& context,
       const std::vector<
-          const drake::systems::UnrestrictedUpdateEvent<double>*>&,
-      drake::systems::State<double>* state) const override {
+          const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+      drake::systems::State<T>* state) const override {
     DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
                       "State pointer must not be null");
 
-    double curr_speed;
+    T curr_speed;
     {
       std::lock_guard<std::mutex> lock(speed_mutex_);
       curr_speed = speed_;
     }
 
-    state->get_mutable_abstract_state()
-        .get_mutable_value(kStateIndexSpeed)
-        .GetMutableValue<double>() = curr_speed;
+    drake::systems::AbstractValues* abstract_state =
+      &state->get_mutable_abstract_state();
+
+    abstract_state->get_mutable_value(kStateIndexSpeed).GetMutableValue<T>() =
+        curr_speed;
   }
 
   void CalcOutputAcceleration(
-      const drake::systems::Context<double>& context,
-      drake::systems::BasicVector<double>* output) const {
-    const drake::systems::rendering::FrameVelocity<double>* feedback_input =
+      const drake::systems::Context<T>& context,
+      drake::systems::BasicVector<T>* output) const {
+    const drake::systems::rendering::FrameVelocity<T>* feedback_input =
         this->template EvalVectorInput<
             drake::systems::rendering::FrameVelocity>(
             context, speed_feedback_input_port_index_);
@@ -181,14 +187,14 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
       return;
     }
 
-    const drake::multibody::SpatialVelocity<double> vel =
+    const drake::multibody::SpatialVelocity<T> vel =
         feedback_input->get_velocity();
 
     // Let's calculate the magnitude of the vector to get an estimate
     // of our forward speed.
-    double magnitude = vel.translational().norm();
+    T magnitude = vel.translational().norm();
 
-    double input_speed = GetSpeed(context);
+    T input_speed = GetSpeed(context);
 
     if (input_speed > magnitude) {
       output->SetAtIndex(0, kAccelerationSetPoint);
@@ -200,7 +206,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
   }
 
  private:
-  mutable double speed_{-1.0};
+  mutable T speed_{-1.0};
 
   // The mutex that guards speed_.
   mutable std::mutex speed_mutex_;
@@ -213,7 +219,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<double> {
 
   // The amount of acceleration that will be applied if the acceleration needs
   // to be changed.
-  static constexpr double kAccelerationSetPoint = 10.0;
+  static constexpr T kAccelerationSetPoint = 10.0;
 
   /********************
    * System Indices

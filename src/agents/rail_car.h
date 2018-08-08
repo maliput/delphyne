@@ -98,7 +98,7 @@ class RailCar : public delphyne::Agent {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  mutable delphyne::SpeedSystem* speed_system_;
+  mutable delphyne::SpeedSystem<double>* speed_system_;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

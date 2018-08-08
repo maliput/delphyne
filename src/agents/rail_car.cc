@@ -130,7 +130,7 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   rail_follower_system->set_name(name_ + "_system");
 
   speed_system_ = builder.AddSystem(
-      std::make_unique<delphyne::SpeedSystem>());
+      std::make_unique<delphyne::SpeedSystem<double>>());
 
   builder.Connect(speed_system_->acceleration_output(),
                   rail_follower_system->command_input());

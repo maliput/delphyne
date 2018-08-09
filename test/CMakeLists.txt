@@ -29,6 +29,7 @@ macro(delphyne_build_tests)
       ${BINARY_NAME}
       PRIVATE
         agents
+        common
         backend
         translations
         protobuf

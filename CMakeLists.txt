@@ -3,7 +3,7 @@
 ##############################################################################
 
 cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
-project(delphyne LANGUAGES CXX VERSION 3.0.0)
+project(delphyne LANGUAGES C CXX VERSION 3.0.0)
 
 ##############################################################################
 # CMake Support
@@ -34,10 +34,11 @@ add_custom_target(uninstall
 message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 
 find_package(drake REQUIRED)
-find_package(ignition-common2 REQUIRED)
+find_package(ignition-common2 REQUIRED COMPONENTS graphics)
 find_package(ignition-math5 REQUIRED)
 find_package(ignition-msgs2 REQUIRED)
 find_package(ignition-transport5 REQUIRED COMPONENTS log)
+pkg_check_modules(LIBZIP REQUIRED libzip)
 
 ##############################################################################
 # Project Configuration

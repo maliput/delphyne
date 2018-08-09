@@ -50,3 +50,4 @@ install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets)
 
 add_subdirectory(maliput)
 add_subdirectory(mi6)
+add_subdirectory(utility)

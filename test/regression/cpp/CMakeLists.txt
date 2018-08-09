@@ -21,6 +21,7 @@ target_link_libraries(test_helpers
   gtest_main
   public_headers
   drake::drake
+  ignition-common2::ignition-common2
   ignition-msgs2::ignition-msgs2
   ignition-transport5::ignition-transport5
 )
@@ -32,7 +33,10 @@ target_link_libraries(test_helpers
 set(SOURCES
   agent_diagram_builder_test.cc
   automotive_simulator_test.cc
+  compression_test.cc
+  data_logger_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
+  filesystem_test.cc
   frame_pose_aggregator_test.cc
   ign_driving_command_to_drake_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
@@ -43,7 +47,8 @@ set(SOURCES
   lcm_viewer_draw_to_ign_model_v_translator_system_test.cc
   lcm_viewer_load_robot_to_ign_model_v_translator_system_test.cc
   load_robot_aggregator_test.cc
-  logger_test.cc
+  package_test.cc
+  resources_test.cc
   scene_system_test.cc
   simulation_run_stats_test.cc
   simulation_runner_test.cc

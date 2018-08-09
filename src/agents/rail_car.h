@@ -39,11 +39,10 @@ namespace delphyne {
 /// (how far along the track) and the agent will follow
 /// this track exactly - the only variance it is permitted is the speed
 /// with which it follows the track.
-class RailCar : public delphyne::Agent {
+class RailCar : public Agent {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
-  ///
   /// @brief Default constructor
   ///
   /// @param name[in] Unique name for the agent.
@@ -62,8 +61,6 @@ class RailCar : public delphyne::Agent {
           double lateral_offset,         // r
           double speed, double nominal_speed,
           const drake::maliput::api::RoadGeometry& road_geometry);
-
-  std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
  private:
   // Container for the agent's initial configuration.
@@ -89,6 +86,8 @@ class RailCar : public delphyne::Agent {
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
+
+  std::unique_ptr<Diagram> BuildDiagram() const override;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

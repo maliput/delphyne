@@ -21,8 +21,8 @@ target_link_libraries(mi6
 install(
   FILES
     agent_base.h
+    agent_diagram.h
     agent_diagram_builder.h
-    diagram_bundle.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/mi6
 )

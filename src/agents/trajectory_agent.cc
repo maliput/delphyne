@@ -68,7 +68,7 @@ TrajectoryAgent::TrajectoryAgent(
       initial_car_pose_velocity.rotation();
 }
 
-std::unique_ptr<Agent::DiagramBundle> TrajectoryAgent::BuildDiagram() const {
+std::unique_ptr<Agent::Diagram> TrajectoryAgent::BuildDiagram() const {
   DiagramBuilder builder(name_);
 
   /******************************************

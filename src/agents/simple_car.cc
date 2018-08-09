@@ -40,7 +40,7 @@ SimpleCar::SimpleCar(const std::string& name, double x, double y,
                                drake::Vector3<double>::UnitZ()));
 }
 
-std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
+std::unique_ptr<Agent::Diagram> SimpleCar::BuildDiagram() const {
   DiagramBuilder builder(name_);
 
   /*********************

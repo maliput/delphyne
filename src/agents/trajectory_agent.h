@@ -28,15 +28,15 @@ namespace delphyne {
  *****************************************************************************/
 
 /// @brief Trajectory following agents
-class TrajectoryAgent : public delphyne::Agent {
+class TrajectoryAgent : public Agent {
  public:
   TrajectoryAgent(const std::string& name, const std::vector<double>& times,
                   const std::vector<double>& headings,
                   const std::vector<std::vector<double>>& translations);
 
-  std::unique_ptr<DiagramBundle> BuildDiagram() const;
-
  private:
+  std::unique_ptr<Diagram> BuildDiagram() const override;
+
   const double initial_time_{};
   std::unique_ptr<drake::automotive::Trajectory> trajectory_{};
 };

@@ -64,6 +64,12 @@ install(
 pybind11_add_module(simulation_bindings simulation.cc)
 set_target_properties(simulation_bindings PROPERTIES OUTPUT_NAME simulation)
 
+target_include_directories(
+  simulation_bindings
+  PRIVATE
+    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/python>    
+)
+
 target_link_libraries(simulation_bindings
   PRIVATE
     backend

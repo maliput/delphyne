@@ -24,6 +24,7 @@
 #include <drake/geometry/scene_graph.h>
 #include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/analysis/simulator.h>
+#include <drake/systems/framework/context.h>
 #include <drake/systems/framework/diagram.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/rendering/pose_aggregator.h>
@@ -44,6 +45,9 @@
 #include "delphyne/protobuf/agent_state_v.pb.h"
 
 namespace delphyne {
+
+template <typename T>
+using AgentCollisionPair = std::pair<AgentBase<T>*, AgentBase<T>*>;
 
 /// AutomotiveSimulator is a helper class for constructing and running
 /// automotive-related simulations.
@@ -78,7 +82,7 @@ class AutomotiveSimulator {
    * @param[in] agent The user provided agent to add to the simulation.
    * @return A simulator generated unique id for the agent.
    */
-  int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
+  AgentBase<T>* AddAgent(std::unique_ptr<AgentBase<T>> agent);
 
   /// Returns an immutable reference to the agent with the
   /// given @p agent_id.
@@ -87,7 +91,7 @@ class AutomotiveSimulator {
   ///                     by AddAgent().
   /// @throw std::runtime_error if no agent with given ID
   ///                           is known to to the simulator.
-  const delphyne::AgentBase<T>& GetAgentById(int agent_id) const;
+  const AgentBase<T>& GetAgentByName(const std::string& name) const;
 
   /// Returns an mutable reference to the agent with the
   /// given @p agent_id.
@@ -96,7 +100,11 @@ class AutomotiveSimulator {
   ///                     by AddAgent().
   /// @throw std::runtime_error if no agent with given ID
   ///                           is known to to the simulator.
-  delphyne::AgentBase<T>* GetMutableAgentById(int agent_id);
+  AgentBase<T>* GetMutableAgentByName(const std::string& name);
+
+  const drake::systems::Context<T>& GetContext(const AgentBase<T>& agent) const;
+
+  drake::systems::Context<T>* GetMutableContext(const AgentBase<T>& agent);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -128,7 +136,7 @@ class AutomotiveSimulator {
   ///          order.
   /// @pre Start() has been called.
   /// @throw std::runtime_error if any of the preconditions is not met.
-  const std::vector<std::pair<int, int>> GetCollisions() const;
+  const std::vector<AgentCollisionPair<T>> GetCollisions() const;
 
   /// Calls Build() on the diagram (if it has not been build already) and
   /// initializes the Simulator.  No further changes to the diagram may occur
@@ -154,12 +162,6 @@ class AutomotiveSimulator {
   // The rate at which the scene is published over ignition transport to
   // update the scene tree widget tree.
   static constexpr double kSceneTreePublishRateHz{4.0};
-
-  // Verifies that the provided `name` of an agent is unique among all agents
-  // that have been added to the `AutomotiveSimulator`. Throws a
-  // std::runtime_error if it is not unique meaning an agent of the same name
-  // was already added.
-  void CheckNameUniqueness(const std::string& name);
 
   // Generates the URDF model of the road network and loads it into the
   // `RigidBodyTree`. Member variable `road_` must be set prior to calling this
@@ -224,7 +226,7 @@ class AutomotiveSimulator {
   int unique_system_id_{0};
 
   // Maps from simulator generated unique id's to the agents.
-  std::map<int, std::unique_ptr<delphyne::AgentBase<T>>> agents_;
+  std::map<std::string, std::unique_ptr<delphyne::AgentBase<T>>> agents_;
 
   // For simulation.
   std::unique_ptr<drake::systems::Diagram<T>> diagram_{};

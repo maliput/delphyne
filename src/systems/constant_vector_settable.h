@@ -28,12 +28,13 @@ class ConstantVectorSettable final : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(ConstantVectorSettable)
 
-  ConstantVectorSettable(T defaultval) {
+  explicit ConstantVectorSettable(T defaultval) {
     output_port_index_ =
         this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
                                       &ConstantVectorSettable::CalcOutputValue)
             .get_index();
-    this->DeclareAbstractState(drake::systems::AbstractValue::Make<T>(T{defaultval}));
+    this->DeclareAbstractState(
+        drake::systems::AbstractValue::Make<T>(T{defaultval}));
     val_ = defaultval;
   }
 

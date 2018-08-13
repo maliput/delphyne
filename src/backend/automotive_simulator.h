@@ -155,6 +155,10 @@ class AutomotiveSimulator {
   // update the scene tree widget tree.
   static constexpr double kSceneTreePublishRateHz{4.0};
 
+  // The rate at which scene updates are published over ignition transport to
+  // update the scene rendering.
+  static constexpr double kSceneUpdatesPublishRateHz{60.0};
+
   // Verifies that the provided `name` of an agent is unique among all agents
   // that have been added to the `AutomotiveSimulator`. Throws a
   // std::runtime_error if it is not unique meaning an agent of the same name

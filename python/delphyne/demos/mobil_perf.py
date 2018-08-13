@@ -163,7 +163,7 @@ def main():
 
     runner = simulation.SimulatorRunner(
         simulator=simulator,
-        time_step=0.001,  # (secs)
+        time_step=0.01,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,
         log=args.log,

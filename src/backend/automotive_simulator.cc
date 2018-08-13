@@ -285,7 +285,7 @@ void AutomotiveSimulator<T>::Build() {
   // The translated Model_V message is then published.
   auto model_v_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "visualizer/scene_update");
+          "visualizer/scene_update", kSceneUpdatesPublishRateHz);
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);

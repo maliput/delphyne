@@ -428,6 +428,9 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   simulator_->get_mutable_integrator()->set_fixed_step_mode(true);
   simulator_->Initialize();
 
+  // Enable caching support.
+  simulator_->get_mutable_context().EnableCaching();
+
   // Retrieve SceneGraph query object for later use.
   const drake::systems::OutputPort<T>& scene_query_port =
       scene_graph_->get_query_output_port();

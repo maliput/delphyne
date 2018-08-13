@@ -56,13 +56,25 @@ def curved_lanes(args):
     R0 = 320.  # m
     for i in range(args.num_cars):
         R = R0 - 4. * (i % 3)  # m
-        # For a 5m distance between cars.
-        theta = 5./R0 * (i / 3)  # rads
+        # For a 6m distance between cars.
+        theta = (12./R0) * (i / 3)  # rads
         utilities.add_mobil_car(
             simulator, name="mobil" + str(i),
             scene_x=R * math.sin(theta),  # m
             scene_y=R0 - R * math.cos(theta),  # m
             heading=theta,  # rads
+            speed=1.0,  # m/s
+            road_geometry=road)
+
+    # Adds the N*T rail cars to the multilane.
+    road_segment = road.junction(0).segment(0)
+    num_traffic = int(args.traffic_density * args.num_cars)
+    for i in range(num_traffic):
+        utilities.add_rail_car(
+            simulator, name="rail " + str(i),
+            lane=road_segment.lane(i % 3),
+            position=12. * (i / 3) + 6.,  # m
+            offset=0.,  # m
             speed=1.0,  # m/s
             road_geometry=road)
 
@@ -91,9 +103,21 @@ def straight_lanes(args):
     for i in range(args.num_cars):
         utilities.add_mobil_car(
             simulator, name="mobil" + str(i),
-            scene_x=5. * (i / 3),  # m
+            scene_x=12. * (i / 3),  # m
             scene_y=4. * (i % 3),  # m
             heading=0.0,  # rads
+            speed=1.0,  # m/s
+            road_geometry=road)
+
+    # Adds the N*T rail cars to the multilane.
+    road_segment = road.junction(0).segment(0)
+    num_traffic = int(args.traffic_density * args.num_cars)
+    for i in range(num_traffic):
+        utilities.add_rail_car(
+            simulator, name="rail " + str(i),
+            lane=road_segment.lane(i % 3),
+            position=12. * (i / 3) + 6.,  # m
+            offset=0.,  # m
             speed=1.0,  # m/s
             road_geometry=road)
 
@@ -123,9 +147,21 @@ def dragway(args):
     for i in range(args.num_cars):
         utilities.add_mobil_car(
             simulator, name="mobil" + str(i),
-            scene_x=5.0 * (i / 4),  # m
+            scene_x=12.0 * (i / 4),  # m
             scene_y=-5.5 + 3.7 * (i % 4),  # m
             heading=0.0,  # rads
+            speed=1.0,  # m/s
+            road_geometry=road)
+
+    # Adds the N*T rail cars to the multilane.
+    road_segment = road.junction(0).segment(0)
+    num_traffic = int(args.traffic_density * args.num_cars)
+    for i in range(num_traffic):
+        utilities.add_rail_car(
+            simulator, name="rail " + str(i),
+            lane=road_segment.lane(i % 4),
+            position=12. * (i / 4) + 6.,  # m
+            offset=0.,  # m
             speed=1.0,  # m/s
             road_geometry=road)
 
@@ -142,6 +178,11 @@ def parse_arguments():
     parser.add_argument(
         "benchmark", choices=available_benchmarks,
         help="Benchmark to be run."
+    )
+    parser.add_argument(
+        "-t", "--traffic-density", default=0, type=float,
+        help=("The number of rail cars per "
+              "MOBIL car on scene (default: 0).")
     )
     parser.add_argument(
         "-n", "--num-cars", default=20, type=int,

@@ -51,20 +51,26 @@ def launch_interactive_simulation(simulator_runner,
         if simulator_runner.is_logging():
             print("Simulation has been logged in {}".format(
                 simulator_runner.get_log_filename()))
-        # This is needed to avoid a possible deadlock. See SimulatorRunner
-        # class description.
+        # This is needed to avoid a possible deadlock. See
+        # SimulatorRunner class description.
         time.sleep(0.5)
         launch_manager.kill()
 
 
-def launch_visualizer(launcher_manager, layout_filename):
-    """Launches the project's visualizer with a given layout"""
+def launch_visualizer(launcher_manager, layout_filename, bundle_path=None):
+    """
+    Launches the project's visualizer with a given layout and using the
+    given bundled package, if any.
+    """
     ign_visualizer = "visualizer"
+    ign_visualizer_args = []
     layout_key = "--layout="
     layout_path = os.path.join(get_delphyne_resource_root(),
                                "layouts", layout_filename)
-    teleop_config = layout_key + layout_path
-    launcher_manager.launch([ign_visualizer, teleop_config])
+    ign_visualizer_args.append(layout_key + layout_path)
+    if bundle_path:
+        ign_visualizer_args.append("--package=" + bundle_path)
+    launcher_manager.launch([ign_visualizer] + ign_visualizer_args)
 
 ##############################################################################
 # Environment

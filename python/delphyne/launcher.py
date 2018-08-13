@@ -41,7 +41,7 @@ class Launcher(object):
         self.done = False  # Internal terminate signal.
         self.name = os.path.basename(__file__)
 
-    def launch(self, command, label=None, cwd=None):
+    def launch(self, command, label=None, cwd=None, environ=None):
         """Launch a process to be managed with the group. If no label is
         supplied, a label is synthesized from the supplied command line.
         """
@@ -52,6 +52,8 @@ class Launcher(object):
         # making sure to use the C locale, so that meshes and textures are
         # properly parsed.
         command_env = dict(os.environ)
+        if environ is not None:
+            command_env.update(environ)
         command_env['LC_ALL'] = 'C'
 
         if not cwd:

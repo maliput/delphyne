@@ -8,52 +8,64 @@
 #include <ignition/msgs.hh>
 
 #include <ignition/transport.hh>
+
+#include <ignition/transport/log/Batch.hh>
+#include <ignition/transport/log/Log.hh>
+#include <ignition/transport/log/Message.hh>
 #include <ignition/transport/log/Playback.hh>
+#include <ignition/transport/log/QueryOptions.hh>
+
+#include "delphyne/macros.h"
+#include "delphyne/protobuf/scene_request.pb.h"
 
 namespace delphyne {
-
 namespace {
 
 // A helper class that bundles ignition-transport log's playback functionality
 // with a service-based API to control it.
 //
-// The advertised services are the following:
-// - The `/replayer/pause`: gets triggered by an `ignition::msgs::Empty`
-// message, pausing the log playback.
-// - The `/replayer/resume`: gets triggered by an `ignition::msgs::Empty`
-// message, resuming the log playback.
+// The advertised services are:
+// - */replayer/pause*: expects an ignition::msgs::Empty request message,
+//                      pausing a running log playback.
+// - */replayer/resume*: expects an ignition::msgs::Empty request message,
+//                       resuming a paused log playback.
+// - */get_scene*: expects an ignition::msgs::SceneRequest request message
+//                 as sent by the visualizer to retrieve the whole simulation
+//                 scene. In this case, the first scene message found in the
+//                 log is returned.
 class Replayer {
  public:
-  explicit Replayer(const std::string& logfile)
-      : logfile_{logfile}, player_{logfile} {}
+  // Constructs a replayer for the given @p logfile.
+  // @param[in] logfle Path to the record log file.
+  // @throws std::runtime_error if @p logfile is not a valid log file.
+  explicit Replayer(const std::string& logfile) : player_{logfile} {
+    DELPHYNE_VALIDATE(log_.Open(logfile, std::ios::in), std::runtime_error,
+                      "Cannot open provided " + logfile + " log file.");
+  }
 
-  // Advertises the play/resume services and controls the flow of the logfile's
-  // playback.
+  // Advertises the play/resume services and controls the flow of the
+  // logfile's playback.
   int Run() {
-    // Advertises services.
-    if (!node_.Advertise(kPauseServiceName, &Replayer::PauseServiceCallback,
-                         this)) {
-      ignerr << "Error advertising service [" << kPauseServiceName << "]"
-                << std::endl;
+    // Setup all services.
+    if (!SetupSceneServices()) {
+      ignerr << "Cannot provide scene services." << std::endl;
       return 1;
     }
-    if (!node_.Advertise(kResumeServiceName, &Replayer::ResumeServiceCallback,
-                         this)) {
-      ignerr << "Error advertising service [" << kResumeServiceName << "]"
-             << std::endl;
+    if (!SetupPlaybackServices()) {
+      ignerr << "Cannot provide playback services." << std::endl;
       return 1;
     }
-
     // Register all topics to be played-back.
-    const int64_t addTopicResult = player_.AddTopic(std::regex(".*"));
-    if (addTopicResult == 0) {
+    const int64_t topics_add_result = player_.AddTopic(std::regex(".*"));
+    if (topics_add_result == 0) {
       ignerr << "No topics to play back" << std::endl;
       return 1;
-    } else if (addTopicResult < 0) {
-      ignerr << "Failed to advertise topics: " << addTopicResult << std::endl;
+    }
+    if (topics_add_result < 0) {
+      ignerr << "Failed to advertise topics: "
+             << topics_add_result << std::endl;
       return 1;
     }
-
     // Begins playback.
     handle_ = player_.Start();
     if (!handle_) {
@@ -68,8 +80,29 @@ class Replayer {
   }
 
  private:
+  // Sets up playback related services for the visualizer to use.
+  bool SetupPlaybackServices() {
+    constexpr const char* const kPauseServiceName = "/replayer/pause";
+    constexpr const char* const kResumeServiceName = "/replayer/resume";
+
+    // Advertises pause and resume services.
+    if (!node_.Advertise(kPauseServiceName, &Replayer::OnPauseRequestCallback,
+                         this)) {
+      ignerr << "Error advertising service [" << kPauseServiceName << "]"
+                << std::endl;
+      return false;
+    }
+    if (!node_.Advertise(kResumeServiceName, &Replayer::OnResumeRequestCallback,
+                         this)) {
+      ignerr << "Error advertising service [" << kResumeServiceName << "]"
+             << std::endl;
+      return false;
+    }
+    return true;
+  }
+
   // Pause service's handler.
-  void PauseServiceCallback(const ignition::msgs::Empty& _req) {
+  void OnPauseRequestCallback(const ignition::msgs::Empty& _req) {
     if (handle_->IsPaused()) {
       ignerr << "Playback was already paused." << std::endl;
     } else {
@@ -79,7 +112,7 @@ class Replayer {
   }
 
   // Resume service's handler.
-  void ResumeServiceCallback(const ignition::msgs::Empty& _req) {
+  void OnResumeRequestCallback(const ignition::msgs::Empty& _req) {
     if (!handle_->IsPaused()) {
       ignerr << "Playback was already running." << std::endl;
     } else {
@@ -88,31 +121,69 @@ class Replayer {
     }
   }
 
+  // Sets up scene related services for the visualizer to use.
+  bool SetupSceneServices() {
+    using ignition::transport::log::Batch;
+    using ignition::transport::log::Message;
+    using ignition::transport::log::TopicList;
+    constexpr const char* const kSceneTopicName = "/scene";
+    constexpr const char* const kSceneRequestServiceName = "/get_scene";
+    // Retrieves first Scene message from the log.
+    Batch scene_messages_batch =
+        log_.QueryMessages(TopicList(std::set<std::string>{kSceneTopicName}));
+    if (scene_messages_batch.begin() == scene_messages_batch.end()) {
+      ignwarn << "No scene messages found in the log." << std::endl;
+      return false;
+    }
+    Batch::iterator it = scene_messages_batch.begin();
+    if (!first_scene_message_.ParseFromString(it->Data())) {
+      ignwarn << "Messages in " << kSceneTopicName << " are not "
+              << "scene messages." << std::endl;
+      return false;
+    }
+    // Advertises the scene request service.
+    if (!node_.Advertise(kSceneRequestServiceName,
+                         &Replayer::OnSceneRequestCallback, this)) {
+      ignwarn << "Error advertising service "
+              << "[" << kSceneRequestServiceName << "]"
+              << std::endl;
+      return false;
+    }
+    return true;
+  }
+
+  // Callback for the scene request service.
+  bool OnSceneRequestCallback(const ignition::msgs::SceneRequest& request,
+                              // Because of ign-transport API,
+                              // NOLINTNEXTLINE(runtime/references)
+                              ignition::msgs::Boolean& response) {
+    // Replies to the caller with the first Scene message found in logs.
+    node_.Request(request.response_topic(), first_scene_message_);
+    return true;
+  }
+
+  // First scene message found in the log, if any.
+  ignition::msgs::Scene first_scene_message_;
+
   // An ignition-transport node to attend services requests.
   ignition::transport::Node node_;
 
-  // Pause service's name.
-  static constexpr const char* const kPauseServiceName = "/replayer/pause";
+  // Log object wrapping the given logfile.
+  ignition::transport::log::Log log_;
 
-  // Resume service's name.
-  static constexpr const char* const kResumeServiceName = "/replayer/resume";
-
-  // Logfile path passed as argument to the constructor.
-  const std::string logfile_;
-
-  // Playback object in charge of replaying the logfile.
+  // Playback object in charge of replaying the logs.
   ignition::transport::log::Playback player_;
 
-  // player_'s handle pointer.
+  // Player_'s object handle.
   ignition::transport::log::PlaybackHandlePtr handle_;
 };
 
-int main(int argc, char* argv[]) {
+int main(int argc, char** argv) {
   ignition::common::Console::SetVerbosity(3);
 
   if (argc < 2) {
     ignerr << "No logfile was provided.\n"
-           << "Usage: " << argv[0] << " <path-to-logfile.db>" << std::endl;
+           << "Usage: " << argv[0] << " <path-to-logfile>" << std::endl;
     return 1;
   }
 
@@ -122,7 +193,6 @@ int main(int argc, char* argv[]) {
 }
 
 }  // namespace
-
 }  // namespace delphyne
 
 int main(int argc, char* argv[]) { return delphyne::main(argc, argv); }

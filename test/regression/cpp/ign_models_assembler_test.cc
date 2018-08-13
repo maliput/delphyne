@@ -40,7 +40,7 @@ GTEST_TEST(IgnModelsAssemblerTest, CalcAssembledModelVTest) {
                         drake::systems::AbstractValue::Make(input_states));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      models_assembler.AllocateOutput(*context);
+      models_assembler.AllocateOutput();
   models_assembler.CalcOutput(*context, output.get());
 
   const double kOutputPortIndex{0};

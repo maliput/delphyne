@@ -7,8 +7,8 @@
 #include <drake/common/eigen_types.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/systems/framework/context.h>
-#include <drake/systems/framework/input_port_descriptor.h>
-#include <drake/systems/framework/output_port_value.h>
+#include <drake/systems/framework/input_port.h>
+#include <drake/systems/framework/output_port.h>
 #include <drake/systems/framework/value.h>
 #include <drake/systems/rendering/pose_vector.h>
 
@@ -24,11 +24,11 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
 
   const drake::geometry::FrameId frame0 =
       drake::geometry::FrameId::get_new_id();
-  const drake::systems::InputPortDescriptor<double>& input_pose_port0 =
+  const drake::systems::InputPort<double>& input_pose_port0 =
       frame_pose_aggregator.DeclareInput(frame0);
   const drake::geometry::FrameId frame1 =
       drake::geometry::FrameId::get_new_id();
-  const drake::systems::InputPortDescriptor<double>& input_pose_port1 =
+  const drake::systems::InputPort<double>& input_pose_port1 =
       frame_pose_aggregator.DeclareInput(frame1);
 
   std::unique_ptr<drake::systems::Context<double>> context =
@@ -47,7 +47,7 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
   context->FixInputPort(input_pose_port1.get_index(), input_pose1->Clone());
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      frame_pose_aggregator.AllocateOutput(*context);
+      frame_pose_aggregator.AllocateOutput();
   frame_pose_aggregator.CalcOutput(*context, output.get());
 
   const drake::systems::AbstractValue* output_value = output->get_data(0);

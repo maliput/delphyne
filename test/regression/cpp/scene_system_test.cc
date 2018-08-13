@@ -54,7 +54,7 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
       drake::systems::AbstractValue::Make(updated_pose_models));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      scene_system.AllocateOutput(*context);
+      scene_system.AllocateOutput();
   scene_system.CalcOutput(*context, output.get());
 
   const double kOutputPortIndex{0};

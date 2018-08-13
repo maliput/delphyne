@@ -24,7 +24,7 @@ GTEST_TEST(LCMViewerLoadRobotToIgnModelVTranslatorSystemTest, TestTranslation) {
                         drake::systems::AbstractValue::Make(lcm_msg));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      translator.AllocateOutput(*context);
+      translator.AllocateOutput();
   translator.CalcOutput(*context, output.get());
 
   const auto& ign_msg =

@@ -32,7 +32,7 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
           drake_msg));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      translator.AllocateOutput(*context);
+      translator.AllocateOutput();
   translator.CalcOutput(*context, output.get());
 
   const auto& ign_msg =

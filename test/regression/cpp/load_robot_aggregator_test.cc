@@ -50,7 +50,7 @@ GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
       drake::systems::AbstractValue::Make(load_robot_generators));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      aggregator.AllocateOutput(*context);
+      aggregator.AllocateOutput();
   aggregator.CalcOutput(*context, output.get());
 
   const auto& aggregated_load_robot =

@@ -21,7 +21,7 @@ class IgnModelsAssembler : public drake::systems::LeafSystem<double> {
 
   /// Returns the input descriptor for models. This port expects an
   /// ignition::msgs::Model_V message, containing the models to be assembled.
-  const drake::systems::InputPortDescriptor<double>& get_models_input_port()
+  const drake::systems::InputPort<double>& get_models_input_port()
       const {
     return get_input_port(models_input_port_index_);
   }
@@ -31,7 +31,7 @@ class IgnModelsAssembler : public drake::systems::LeafSystem<double> {
   /// Returns the input port descriptor for model states. This port expects a
   /// drake::systems::rendering::PoseBundle<double>, containing all models
   /// states.
-  const drake::systems::InputPortDescriptor<double>& get_states_input_port()
+  const drake::systems::InputPort<double>& get_states_input_port()
       const {
     return get_input_port(states_input_port_index_);
   }

@@ -103,7 +103,7 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
       diagram_->GetSubsystemContext(*scene_system_, simulator_->get_context());
 
   std::unique_ptr<SystemOutput<T>> output =
-      scene_system_->AllocateOutput(scene_context);
+      scene_system_->AllocateOutput();
   scene_system_->CalcOutput(scene_context, output.get());
 
   scene_msg->CopyFrom(
@@ -137,12 +137,12 @@ int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<AgentBase<T>> agent) {
   drake::systems::Diagram<double>* diagram =
       builder_->AddSystem(std::move(bundle->diagram));
 
-  drake::systems::rendering::PoseVelocityInputPortDescriptors<double> ports =
+  drake::systems::rendering::PoseVelocityInputPorts<double> ports =
       aggregator_->AddSinglePoseAndVelocityInput(agent->name(), id);
   builder_->Connect(diagram->get_output_port(bundle->outputs["pose"]),
-                    ports.pose_descriptor);
+                    ports.pose_input_port);
   builder_->Connect(diagram->get_output_port(bundle->outputs["velocity"]),
-                    ports.velocity_descriptor);
+                    ports.velocity_input_port);
   builder_->Connect(aggregator_->get_output_port(0),
                     diagram->get_input_port(bundle->inputs["traffic_poses"]));
 
@@ -464,8 +464,7 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
       has_started(), std::runtime_error,
       "Cannot get poses for a simulation that has not yet started");
   const auto& context = simulator_->get_context();
-  std::unique_ptr<SystemOutput<T>> system_output =
-      diagram_->AllocateOutput(context);
+  std::unique_ptr<SystemOutput<T>> system_output = diagram_->AllocateOutput();
   diagram_->CalcOutput(context, system_output.get());
   DELPHYNE_VALIDATE(system_output->get_num_ports() == 1, std::runtime_error,
                     "System output has too many ports");

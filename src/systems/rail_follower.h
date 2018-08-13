@@ -116,7 +116,7 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
 
   /// Getter methods for input and output ports.
   /// @{
-  const drake::systems::InputPortDescriptor<T>& command_input() const;
+  const drake::systems::InputPort<T>& command_input() const;
   const drake::systems::OutputPort<T>& state_output() const;
   const drake::systems::OutputPort<T>& simple_car_state_output() const;
   const drake::systems::OutputPort<T>& lane_state_output() const;

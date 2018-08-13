@@ -49,7 +49,7 @@ inline std::string ResolveFrameName(const std::string& root,
 // them.
 template <typename T, typename std::enable_if<std::is_same<T, double>::value,
                                               int>::type = 0>
-const drake::systems::InputPortDescriptor<T>& WirePriusGeometry(
+const drake::systems::InputPort<T>& WirePriusGeometry(
     const std::string& frame_root,
     const drake::Isometry3<T>& initial_world_to_car_transform,
     drake::systems::DiagramBuilder<T>* builder,

@@ -28,7 +28,7 @@ namespace delphyne {
 /// the user asks for a new one.  This differs from drake's ConstantVectorSource
 /// in that it is thread-safe with respect to changes to the ConstantVector.
 ///
-/// @tparam T must be a valid Eigin ScalarType
+/// @tparam T must be a valid Eigen ScalarType
 template <typename T>
 class VectorSource final : public drake::systems::LeafSystem<T> {
  public:

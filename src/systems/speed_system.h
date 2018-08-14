@@ -11,8 +11,8 @@ namespace delphyne {
 
 /// The SpeedSystem implements a very simple speed controller, taking as an
 /// input the current frame velocity (from an InputPort) and the desired speed
-/// (set as an abstract state value of this class), and producing an
-/// acceleration on an OutputPort to reach that speed.
+/// (from a second InputPort), and producing an acceleration on an OutputPort
+/// to reach that speed.
 template<typename T>
 class SpeedSystem final : public drake::systems::LeafSystem<T> {
  public:

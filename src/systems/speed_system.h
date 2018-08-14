@@ -42,11 +42,11 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
     return this->get_output_port(accel_output_port_index_);
   }
 
-  const drake::systems::InputPortDescriptor<T>& feedback_input() const {
+  const drake::systems::InputPort<T>& feedback_input() const {
     return this->get_input_port(speed_feedback_input_port_index_);
   }
 
-  const drake::systems::InputPortDescriptor<T>& command_input() const {
+  const drake::systems::InputPort<T>& command_input() const {
     return this->get_input_port(command_input_port_index_);
   }
 

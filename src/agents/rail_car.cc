@@ -33,6 +33,7 @@
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
 #include "systems/speed_system.h"
+#include "systems/vector_source.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -130,7 +131,7 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   rail_follower_system->set_name(name_ + "_system");
 
   vel_setter_ = builder.template AddSystem(
-      std::make_unique<delphyne::ConstantVectorSettable<double>>(-1));
+      std::make_unique<delphyne::VectorSource<double>>(-1));
 
   delphyne::SpeedSystem<double>* speed_system = builder.AddSystem(
       std::make_unique<delphyne::SpeedSystem<double>>());

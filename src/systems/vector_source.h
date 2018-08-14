@@ -15,7 +15,7 @@
 
 namespace delphyne {
 
-/// The ConstantVectorSettable is a drake system to continually set an output
+/// The VectorSource is a drake system to continually set an output
 /// port to a fixed value until the user decides to change it via the `Set`
 /// API.  At that point, the value will be (safely) updated to the new value,
 /// and the ConstantVectorSettable will continue outputting that value until
@@ -24,21 +24,21 @@ namespace delphyne {
 ///
 /// @tparam T must be a valid Eigin ScalarType
 template <typename T>
-class ConstantVectorSettable final : public drake::systems::LeafSystem<T> {
+class VectorSource final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(ConstantVectorSettable)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(VectorSource)
 
-  explicit ConstantVectorSettable(T defaultval) {
+  explicit VectorSource(T defaultval) {
     output_port_index_ =
         this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
-                                      &ConstantVectorSettable::CalcOutputValue)
+                                      &VectorSource::CalcOutputValue)
             .get_index();
     this->DeclareAbstractState(
         drake::systems::AbstractValue::Make<T>(T{defaultval}));
     val_ = defaultval;
   }
 
-  ~ConstantVectorSettable() override {}
+  ~VectorSource() override {}
 
   /// Returns the value stored in @p context.
   T Get(const drake::systems::Context<T>& context) const {

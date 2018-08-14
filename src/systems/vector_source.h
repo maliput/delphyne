@@ -15,6 +15,12 @@
 
 namespace delphyne {
 
+// TODO(clalancette): We should allow VectorSource to be an N-vector,
+// rather than just the 1-vector it is now.  @stonier's idea here was
+// to take a map of strings to indices in the constructor.  The Set()
+// method would then take a string and a value, look up the index based
+// on the string, and set it to that value.
+
 /// The VectorSource is a drake system to continually set an output
 /// port to a fixed value until the user decides to change it via the `Set`
 /// API.  At that point, the value will be (safely) updated to the new value,

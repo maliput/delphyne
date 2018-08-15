@@ -71,6 +71,7 @@ SimulatorRunner::SimulatorRunner(
     std::string logfile_name)
     : time_step_(time_step),
       simulator_(std::move(sim)),
+      clock_(kClockTopic),
       realtime_rate_(realtime_rate),
       paused_(paused) {
   DELPHYNE_VALIDATE(realtime_rate >= 0.0, std::invalid_argument,
@@ -300,6 +301,10 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 void SimulatorRunner::StepSimulationBy(double time_step) {
   simulator_->StepBy(time_step);
 
+  const std::chrono::duration<double> sim_time(
+      simulator_->GetCurrentSimulationTime());
+  clock_.SetTime(
+      std::chrono::duration_cast<std::chrono::nanoseconds>(sim_time));
   stats_.StepExecuted(simulator_->GetCurrentSimulationTime());
 
   // Return if running at full speed
@@ -492,6 +497,7 @@ void SimulatorRunner::StartLogging(const std::string& filename) {
     sanitized_filename = GenerateDefaultLogFilename();
   }
   std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
+  logger_.Sync(&clock_);
   logger_.Start(sanitized_filename);
   logger_.CaptureMeshes(*scene);
 }

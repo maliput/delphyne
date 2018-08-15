@@ -30,6 +30,14 @@ class DataLogger {
 
   ~DataLogger();
 
+  /// Synchronizes data logging with the given @p clock.
+  /// @throws std::runtime_error if clock is nullptr.
+  /// @throws std::runtime_error if the logger is running already
+  ///                            (i.e. is_logging() is true).
+  /// @throws std::runtime_error if it fails to synchronize with the
+  ///                            given @p clock.
+  void Sync(const ignition::transport::Clock* clock);
+
   /// Starts data logging, to be bundled into @p filename (plus the '.dz'
   /// extension).
   ///
@@ -86,7 +94,8 @@ class DataLogger {
   std::string tmppath_{""};
   // @brief Path to logging archive.
   std::string logpath_{""};
-  // @brief A recorder of ignition transport topics.
+  // @brief A recorder of ignition transport topics, synchronized
+  // with the simulation time.
   ignition::transport::log::Recorder topic_recorder_;
   // @brief A bundled package to log meshes into.
   std::unique_ptr<utility::BundledPackage> package_{nullptr};

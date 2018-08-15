@@ -326,6 +326,9 @@ class SimulatorRunner {
   // @brief The topic used to publish world stats.
   static constexpr char const* kWorldStatsTopic = "/world_stats";
 
+  // @brief The topic used to publish clock to.
+  static constexpr char const* kClockTopic = "/clock";
+
   // @brief The service used when receiving a scene request.
   static constexpr char const* kSceneRequestServiceName = "/get_scene";
 
@@ -446,6 +449,9 @@ class SimulatorRunner {
 
   // @brief An Ignition Transport publisher for sending world stats.
   ignition::transport::Node::Publisher world_stats_pub_;
+
+  // @brief An Ignition Transport Clock to distribute the simulated clock.
+  ignition::transport::NetworkClock clock_;
 
   // @brief A vector that holds all the registered callbacks that need to be
   // triggered on each simulation step.

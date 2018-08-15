@@ -133,16 +133,17 @@ class Replayer {
   // Step service's handler.
   void OnStepRequestCallback(const ignition::msgs::Time& _req) {
     if (!handle_->IsPaused()) {
-      ignerr << "Playback must be first paused in order to get stepped."
-             << std::endl;
+      ignerr << "Playback must be paused to step." << std::endl;
     } else {
       const std::chrono::nanoseconds totalNanos{
          std::chrono::duration_cast<std::chrono::nanoseconds>(
                std::chrono::seconds(static_cast<int>(_req.sec()))) +
           std::chrono::nanoseconds(static_cast<int>(_req.nsec()))};
+      const std::chrono::milliseconds totalMillis{
+         std::chrono::duration_cast<std::chrono::milliseconds>(totalNanos)};
+      igndbg << "Stepping playback for " << totalMillis.count()
+             << " milliseconds." << std::endl;
       handle_->Step(totalNanos);
-      ignmsg << "Stepping playback for " << totalNanos.count() << " nanoseconds."
-             << std::endl;
     }
   }
 

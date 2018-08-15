@@ -285,7 +285,7 @@ void AutomotiveSimulator<T>::Build() {
   // The translated Model_V message is then published.
   auto model_v_publisher =
       builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          "visualizer/scene_update");
+          "visualizer/scene_update", kSceneUpdatesPublishRateHz);
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
@@ -427,6 +427,9 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
       *diagram_, max_step_size, &simulator_->get_mutable_context());
   simulator_->get_mutable_integrator()->set_fixed_step_mode(true);
   simulator_->Initialize();
+
+  // Enable caching support.
+  simulator_->get_mutable_context().EnableCaching();
 
   // Retrieve SceneGraph query object for later use.
   const drake::systems::OutputPort<T>& scene_query_port =

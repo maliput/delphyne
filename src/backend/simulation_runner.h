@@ -113,8 +113,9 @@ class SimulatorRunner {
  public:
   // @brief On agent collision callback function type.
   // @see AutomotiveSimulator::GetCollisions()
-  using CollisionCallback =
-      std::function<void(const std::vector<std::pair<int, int>>&)>;
+  using CollisionCallback = std::function<void(
+      const std::vector<std::pair<delphyne::AgentBase<double>*,
+                                  delphyne::AgentBase<double>*>>&)>;
 
   /// @brief Default constructor.
   ///
@@ -285,8 +286,8 @@ class SimulatorRunner {
   void DisableCollisions() { collisions_enabled_ = false; }
 
   /// @brief Returns the current simulation time in seconds.
-  double get_current_simulation_time() const {
-    return simulator_->get_current_simulation_time();
+  double GetCurrentSimulationTime() const {
+    return simulator_->GetCurrentSimulationTime();
   }
 
   const delphyne::AutomotiveSimulator<double>& GetSimulator() const {

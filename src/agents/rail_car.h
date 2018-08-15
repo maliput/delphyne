@@ -16,9 +16,12 @@
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
+#include <drake/systems/primitives/constant_vector_source.h>
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
+#include "systems/speed_system.h"
+#include "systems/vector_source.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -65,6 +68,12 @@ class RailCar : public delphyne::Agent {
 
   std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
+  ///
+  /// @brief Change the speed of this agent.
+  ///
+  /// @param new_speed_mps[in] The new speed for the agent in meters/second
+  void SetSpeed(double new_speed_mps);
+
  private:
   // Container for the agent's initial configuration.
   //
@@ -89,6 +98,8 @@ class RailCar : public delphyne::Agent {
           speed(speed),
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
+
+  mutable delphyne::VectorSource<double>* vel_setter_;
 
   const drake::maliput::api::RoadGeometry& road_geometry_;
 };

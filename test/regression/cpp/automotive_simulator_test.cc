@@ -169,20 +169,6 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 TEST_F(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   EXPECT_NE(nullptr, simulator->get_builder());
-
-  auto agent_bob =
-      std::make_unique<delphyne::SimpleCar>("bob", 0.0, 0.0, 0.0, 0.0);
-  const int agent_bob_id = simulator->AddAgent(std::move(agent_bob));
-  EXPECT_EQ(simulator->GetAgentById(agent_bob_id).name(), "bob");
-
-  auto agent_alice =
-      std::make_unique<delphyne::SimpleCar>("alice", 0.0, 0.0, 0.0, 0.0);
-  const int agent_alice_id = simulator->AddAgent(std::move(agent_alice));
-  EXPECT_EQ(simulator->GetAgentById(agent_alice_id).name(), "alice");
-
-  // Verifies that passing an unknown agent ID is an error.
-  const int agent_x_id = -1;
-  EXPECT_THROW(simulator->GetAgentById(agent_x_id), std::runtime_error);
 }
 
 // Covers simple-car, Start and StepBy
@@ -192,9 +178,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   auto agent = std::make_unique<delphyne::SimpleCar>("bob", 0.0, 0.0, 0.0, 0.0);
-  const int id = simulator->AddAgent(std::move(agent));
-
-  EXPECT_EQ(id, 0);
+  simulator->AddAgent(std::move(agent));
 
   // Finish all initialization, so that we can test the post-init state.
   simulator->Start(kRealtimeFactor);
@@ -219,7 +203,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(
       kStateTopicName);
 
-  // Shortly after starting, we should have not have moved much.
+  // Shortly after starting, we should not have moved much.
   const int kStateMessagesCount{1};
   EXPECT_TRUE(ign_monitor.do_until(
       kStateMessagesCount, kTimeoutMs,
@@ -250,8 +234,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
 
   auto agent =
       std::make_unique<delphyne::SimpleCar>("bob", kX, kY, kHeading, kVelocity);
-  const int id = simulator->AddAgent(std::move(agent));
-  EXPECT_EQ(id, 0);
+  simulator->AddAgent(std::move(agent));
 
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
@@ -318,8 +301,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
                                                     0.0,   // heading
                                                     10.0,  // velocity
                                                     *road_geometry);
-  const int id_mobil = simulator->AddAgent(std::move(mobil));
-  EXPECT_EQ(0, id_mobil);
+  simulator->AddAgent(std::move(mobil));
 
   auto decoy_1 = std::make_unique<delphyne::RailCar>(
       "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
@@ -329,8 +311,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
       0.0,   // speed (m)
       0.0,   // nominal_speed (m/s)
       *road_geometry);
-  const int id_decoy1 = simulator->AddAgent(std::move(decoy_1));
-  EXPECT_EQ(1, id_decoy1);
+  simulator->AddAgent(std::move(decoy_1));
 
   auto decoy_2 = std::make_unique<delphyne::RailCar>(
       "decoy2", *(road_geometry->junction(0)->segment(0)->lane(0)),
@@ -340,8 +321,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
       0.0,   // speed (m/s)
       0.0,   // nominal_speed (m/s)
       *road_geometry);
-  const int id_decoy2 = simulator->AddAgent(std::move(decoy_2));
-  EXPECT_EQ(2, id_decoy2);
+  simulator->AddAgent(std::move(decoy_2));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -365,7 +345,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
 
   // Expect the SimpleCar to start steering to the left; y value increases.
   const double mobil_y =
-      draw_message.models(id_mobil).link(0).pose().position().y();
+      draw_message.models(0).link(0).pose().position().y();
   EXPECT_GE(mobil_y, -2.);
 }
 
@@ -373,17 +353,6 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   simulator->SetRoadGeometry(CreateDragway("TestDragway", 1));
 
-  //  std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
-  //  Eigen::Quaternion<double> zero_heading(
-  //      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
-  //  std::vector<Eigen::Quaternion<double>> orientations(5, zero_heading);
-  //  std::vector<Eigen::Vector3d> translations{
-  //      Eigen::Vector3d(0.0, 0.00, 0.00), Eigen::Vector3d(10.0, 0.00, 0.00),
-  //      Eigen::Vector3d(30.0, 0.00, 0.00), Eigen::Vector3d(60.0, 0.00, 0.00),
-  //      Eigen::Vector3d(100.0, 0.00, 0.00)};
-  //  drake::automotive::AgentTrajectory trajectory =
-  //      drake::automotive::AgentTrajectory::Make(times, orientations,
-  //                                               translations);
   const double kPoseXTolerance{1e-6};
   const double kTolerance{1e-8};
 
@@ -397,9 +366,7 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
       std::make_unique<delphyne::TrajectoryAgent>("alice", times, headings,
                                                   translations);
 
-  const int id = simulator->AddAgent(std::move(alice));
-
-  EXPECT_EQ(0, id);
+  simulator->AddAgent(std::move(alice));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -421,10 +388,10 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
 
   EXPECT_EQ(GetLinkCount(draw_message), GetPriusLinkCount());
 
-  auto alice_model = draw_message.models(id);
+  auto alice_model = draw_message.models(0);
 
   // Checks the car ids
-  EXPECT_EQ(alice_model.id(), id);
+  EXPECT_EQ(alice_model.id(), 0);
 
   auto link = alice_model.link(0);
 
@@ -496,9 +463,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
       0.0,       // speed
       0.0,       // nominal_speed
       *road_geometry);
-  const int id = simulator->AddAgent(std::move(agent));
-
-  EXPECT_GE(id, 0);
+  simulator->AddAgent(std::move(agent));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -659,8 +624,8 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
       0.0,   // nominal_speed
       *road_geometry);
 
-  int alice_id = simulator->AddAgent(std::move(alice));
-  int bob_id = simulator->AddAgent(std::move(bob));
+  simulator->AddAgent(std::move(alice));
+  simulator->AddAgent(std::move(bob));
 
   EXPECT_NO_THROW(simulator->Start());
 
@@ -676,8 +641,8 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   const drake::systems::rendering::PoseBundle<double> poses =
       simulator->GetCurrentPoses();
   ASSERT_EQ(poses.get_num_poses(), 2);
-  ASSERT_EQ(poses.get_model_instance_id(kAliceIndex), alice_id);
-  ASSERT_EQ(poses.get_model_instance_id(kBobIndex), bob_id);
+  ASSERT_EQ(poses.get_model_instance_id(kAliceIndex), 0);
+  ASSERT_EQ(poses.get_model_instance_id(kBobIndex), 1);
   EXPECT_FALSE(poses.get_velocity(kAliceIndex).get_value().isZero());
   EXPECT_TRUE(poses.get_velocity(kBobIndex).get_value().isZero());
 }
@@ -773,7 +738,7 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   auto agent_bob = std::make_unique<delphyne::SimpleCar>(
       "bob", agent_bob_geo_position.x(), agent_bob_geo_position.y(),
       kHeadingEast, kCruiseSpeed);
-  simulator->AddAgent(std::move(agent_bob));  // Unused agent `Bob` id.
+  simulator->AddAgent(std::move(agent_bob));
 
   // Configures agent `Alice`.
   const drake::maliput::api::LanePosition agent_alice_lane_position{
@@ -783,7 +748,7 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   auto agent_alice = std::make_unique<delphyne::SimpleCar>(
       "alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
       kHeadingWest, kCruiseSpeed);
-  const int agent_alice_id = simulator->AddAgent(std::move(agent_alice));
+  delphyne::AgentBase<double>* alice_ptr = simulator->AddAgent(std::move(agent_alice));
 
   // Configures agent `Smith`.
   const drake::maliput::api::LanePosition agent_smith_lane_position{
@@ -793,14 +758,14 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   auto agent_smith = std::make_unique<delphyne::SimpleCar>(
       "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
       kHeadingEast + kHeadingDeviation, kCruiseSpeed);
-  const int agent_smith_id = simulator->AddAgent(std::move(agent_smith));
+  delphyne::AgentBase<double>* smith_ptr = simulator->AddAgent(std::move(agent_smith));
 
   // Finishes initialization and starts the simulation.
   simulator->Start();
 
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
-  std::vector<std::pair<int, int>> agent_pairs_in_collision =
+  std::vector<std::pair<delphyne::AgentBase<double>*, delphyne::AgentBase<double>*>> agent_pairs_in_collision =
       simulator->GetCollisions();
   EXPECT_EQ(agent_pairs_in_collision.size(), 0);
 
@@ -812,14 +777,13 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   // agents are the expected ones.
   agent_pairs_in_collision = simulator->GetCollisions();
   EXPECT_EQ(agent_pairs_in_collision.size(), 1);
-  const int first_colliding_agent_id = agent_pairs_in_collision[0].first;
-  const int second_colliding_agent_id = agent_pairs_in_collision[0].second;
+
+  delphyne::AgentBase<double>* coll1_ptr = agent_pairs_in_collision[0].first;
+  delphyne::AgentBase<double>* coll2_ptr = agent_pairs_in_collision[0].second;
   // Cannot make any assumption regarding pair order, see
   // delphyne::AutomotiveSimulator::GetCollisions().
-  EXPECT_TRUE((first_colliding_agent_id == agent_alice_id &&
-               second_colliding_agent_id == agent_smith_id) ||
-              (first_colliding_agent_id == agent_smith_id &&
-               second_colliding_agent_id == agent_alice_id));
+  EXPECT_TRUE((coll1_ptr == alice_ptr && coll2_ptr == smith_ptr) ||
+              (coll1_ptr == smith_ptr && coll2_ptr == alice_ptr));
 }
 
 //////////////////////////////////////////////////

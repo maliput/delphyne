@@ -112,12 +112,9 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
   return std::move(scene_msg);
 }
 
-// TODO(jwnimmer-tri): Modify the various vehicle model systems to be more
-// uniform so common code from the following AddFooCar() methods can be moved
-// into a shared method.
-
 template <typename T>
-int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<AgentBase<T>> agent) {
+delphyne::AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
+    std::unique_ptr<AgentBase<T>> agent) {
   /*********************
    * Checks
    *********************/
@@ -167,7 +164,8 @@ int AutomotiveSimulator<T>::AddAgent(std::unique_ptr<AgentBase<T>> agent) {
 
   // save a handle to it
   agents_[id] = std::move(agent);
-  return id;
+
+  return agents_[id].get();
 }
 
 template <typename T>
@@ -178,22 +176,6 @@ const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
   road_geometry_ = std::move(road_geometry);
   GenerateAndLoadRoadNetworkUrdf();
   return road_geometry_.get();
-}
-
-template <typename T>
-const delphyne::AgentBase<T>&
-AutomotiveSimulator<T>::GetAgentById(int agent_id) const {
-  DELPHYNE_VALIDATE(agents_.count(agent_id) != 0, std::runtime_error,
-                    "No agent found with the given ID.");
-  return *agents_.at(agent_id);
-}
-
-template <typename T>
-delphyne::AgentBase<T>* AutomotiveSimulator<T>::GetMutableAgentById(
-    int agent_id) {
-  DELPHYNE_VALIDATE(agents_.count(agent_id) != 0, std::runtime_error,
-                    "No agent found with the given ID.");
-  return agents_[agent_id].get();
 }
 
 template <typename T>
@@ -240,8 +222,8 @@ struct IsSourceOf {
 }  // namespace
 
 template <typename T>
-const std::vector<std::pair<int, int>> AutomotiveSimulator<T>::GetCollisions()
-    const {
+const std::vector<std::pair<delphyne::AgentBase<T>*, delphyne::AgentBase<T>*>>
+AutomotiveSimulator<T>::GetCollisions() {
   DELPHYNE_VALIDATE(has_started(), std::runtime_error,
                     "Can only get collisions on a running simulation");
   using drake::geometry::GeometryId;
@@ -249,7 +231,8 @@ const std::vector<std::pair<int, int>> AutomotiveSimulator<T>::GetCollisions()
   using drake::geometry::PenetrationAsPointPair;
   const std::vector<PenetrationAsPointPair<T>> collisions =
       scene_query_->GetValue<QueryObject<T>>().ComputePointPairPenetration();
-  std::vector<std::pair<int, int>> agents_colliding;
+  std::vector<std::pair<delphyne::AgentBase<T>*, delphyne::AgentBase<T>*>>
+      agents_colliding;
   for (const auto& collision : collisions) {
     const auto it_A = std::find_if(agents_.begin(), agents_.end(),
                                    IsSourceOf<T, GeometryId>(collision.id_A));
@@ -259,7 +242,8 @@ const std::vector<std::pair<int, int>> AutomotiveSimulator<T>::GetCollisions()
                                    IsSourceOf<T, GeometryId>(collision.id_B));
     DELPHYNE_VALIDATE(it_B != agents_.end(), std::runtime_error,
                       "Could not find second agent in list of agents");
-    agents_colliding.emplace_back(it_A->first, it_B->first);
+    agents_colliding.emplace_back(agents_[it_A->first].get(),
+                                  agents_[it_B->first].get());
   }
   return agents_colliding;
 }
@@ -447,7 +431,7 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 }
 
 template <typename T>
-double AutomotiveSimulator<T>::get_current_simulation_time() const {
+double AutomotiveSimulator<T>::GetCurrentSimulationTime() const {
   return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
 }
 
@@ -475,6 +459,11 @@ PoseBundle<T> AutomotiveSimulator<T>::GetCurrentPoses() const {
   const PoseBundle<T>& pose_bundle =
       abstract_value->GetValueOrThrow<PoseBundle<T>>();
   return pose_bundle;
+}
+
+template <typename T>
+drake::systems::Context<T>* AutomotiveSimulator<T>::GetMutableContext() {
+  return &simulator_->get_mutable_context();
 }
 
 template class AutomotiveSimulator<double>;

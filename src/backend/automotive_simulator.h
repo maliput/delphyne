@@ -78,25 +78,8 @@ class AutomotiveSimulator {
    * @param[in] agent The user provided agent to add to the simulation.
    * @return A simulator generated unique id for the agent.
    */
-  int AddAgent(std::unique_ptr<delphyne::AgentBase<T>> agent);
-
-  /// Returns an immutable reference to the agent with the
-  /// given @p agent_id.
-  ///
-  /// @param[in] agent_id The ID of the agent, as returned
-  ///                     by AddAgent().
-  /// @throw std::runtime_error if no agent with given ID
-  ///                           is known to to the simulator.
-  const delphyne::AgentBase<T>& GetAgentById(int agent_id) const;
-
-  /// Returns an mutable reference to the agent with the
-  /// given @p agent_id.
-  ///
-  /// @param[in] agent_id The ID of the agent, as returned
-  ///                     by AddAgent().
-  /// @throw std::runtime_error if no agent with given ID
-  ///                           is known to to the simulator.
-  delphyne::AgentBase<T>* GetMutableAgentById(int agent_id);
+  delphyne::AgentBase<T>* AddAgent(
+      std::unique_ptr<delphyne::AgentBase<T>> agent);
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -113,7 +96,7 @@ class AutomotiveSimulator {
   /// Returns the System containing the entire AutomotiveSimulator diagram.
   ///
   /// @pre Build() has been called.
-  const drake::systems::System<T>& GetDiagram() const { return *diagram_; }
+  const drake::systems::System<T>* GetDiagram() const { return diagram_.get(); }
 
   /// Returns the current poses of all vehicles in the simulation.
   ///
@@ -128,7 +111,8 @@ class AutomotiveSimulator {
   ///          order.
   /// @pre Start() has been called.
   /// @throw std::runtime_error if any of the preconditions is not met.
-  const std::vector<std::pair<int, int>> GetCollisions() const;
+  const std::vector<std::pair<delphyne::AgentBase<T>*, delphyne::AgentBase<T>*>>
+  GetCollisions();
 
   /// Calls Build() on the diagram (if it has not been build already) and
   /// initializes the Simulator.  No further changes to the diagram may occur
@@ -148,7 +132,9 @@ class AutomotiveSimulator {
 
   /// Returns the current simulation time in seconds.
   /// @see documentation of Simulator::Context::get_time.
-  double get_current_simulation_time() const;
+  double GetCurrentSimulationTime() const;
+
+  drake::systems::Context<T>* GetMutableContext();
 
  private:
   // The rate at which the scene is published over ignition transport to

@@ -22,6 +22,7 @@
 #include <drake/automotive/maliput/api/segment.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/framework/context.h>
+#include <drake/systems/primitives/constant_vector_source.h>
 
 // public headers
 #include "delphyne/macros.h"
@@ -31,6 +32,8 @@
 #include "systems/rail_follower.h"
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
+#include "systems/speed_system.h"
+#include "systems/vector_source.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -127,6 +130,21 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
           context_numeric_parameters));
   rail_follower_system->set_name(name_ + "_system");
 
+  vel_setter_ = builder.template AddSystem(
+      std::make_unique<delphyne::VectorSource<double>>(-1));
+
+  delphyne::SpeedSystem<double>* speed_system = builder.AddSystem(
+      std::make_unique<delphyne::SpeedSystem<double>>());
+
+  builder.Connect(speed_system->acceleration_output(),
+                  rail_follower_system->command_input());
+
+  builder.Connect(rail_follower_system->velocity_output(),
+                  speed_system->feedback_input());
+
+  builder.Connect(vel_setter_->output(),
+                  speed_system->command_input());
+
   /*********************
    * Diagram Outputs
    *********************/
@@ -135,6 +153,10 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   builder.ExportVelocityOutput(rail_follower_system->velocity_output());
 
   return std::move(builder.Build());
+}
+
+void RailCar::SetSpeed(double new_speed_mps) {
+  vel_setter_->Set(new_speed_mps);
 }
 
 }  // namespace delphyne

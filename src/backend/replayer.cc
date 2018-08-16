@@ -29,7 +29,7 @@ namespace {
 //                      pausing a running log playback.
 // - */replayer/resume*: expects an ignition::msgs::Empty request message,
 //                       resuming a paused log playback.
-// - */replayer/step*: expects an ignition::msgs::Time request message,
+// - */replayer/step*: expects an ignition::msgs::Duration request message,
 //                       stepping a log playback by a given time.
 // - */get_scene*: expects an ignition::msgs::SceneRequest request message
 //                 as sent by the visualizer to retrieve the whole simulation
@@ -111,7 +111,7 @@ class Replayer {
   }
 
   // Pause service's handler.
-  void OnPauseRequestCallback(const ignition::msgs::Empty& _req) {
+  void OnPauseRequestCallback(const ignition::msgs::Empty& request) {
     if (handle_->IsPaused()) {
       ignerr << "Playback was already paused." << std::endl;
     } else {
@@ -121,7 +121,7 @@ class Replayer {
   }
 
   // Resume service's handler.
-  void OnResumeRequestCallback(const ignition::msgs::Empty& _req) {
+  void OnResumeRequestCallback(const ignition::msgs::Empty& request) {
     if (!handle_->IsPaused()) {
       ignerr << "Playback was already running." << std::endl;
     } else {
@@ -131,19 +131,19 @@ class Replayer {
   }
 
   // Step service's handler.
-  void OnStepRequestCallback(const ignition::msgs::Time& _req) {
+  void OnStepRequestCallback(const ignition::msgs::Duration& step_duration) {
     if (!handle_->IsPaused()) {
       ignerr << "Playback must be paused to step." << std::endl;
     } else {
-      const std::chrono::nanoseconds totalNanos{
+      const std::chrono::nanoseconds total_nanos{
          std::chrono::duration_cast<std::chrono::nanoseconds>(
-               std::chrono::seconds(static_cast<int>(_req.sec()))) +
-          std::chrono::nanoseconds(static_cast<int>(_req.nsec()))};
-      const std::chrono::milliseconds totalMillis{
-         std::chrono::duration_cast<std::chrono::milliseconds>(totalNanos)};
-      igndbg << "Stepping playback for " << totalMillis.count()
+               std::chrono::seconds(step_duration.sec())) +
+          std::chrono::nanoseconds(step_duration.nsec())};
+      const std::chrono::milliseconds total_millis{
+         std::chrono::duration_cast<std::chrono::milliseconds>(total_nanos)};
+      igndbg << "Stepping playback for " << total_millis.count()
              << " milliseconds." << std::endl;
-      handle_->Step(totalNanos);
+      handle_->Step(total_nanos);
     }
   }
 

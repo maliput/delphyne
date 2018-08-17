@@ -48,15 +48,6 @@ class Replayer {
   // Advertises the play/resume services and controls the flow of the
   // logfile's playback.
   int Run() {
-    // Setup all services.
-    if (!SetupSceneServices()) {
-      ignerr << "Cannot provide scene services." << std::endl;
-      return 1;
-    }
-    if (!SetupPlaybackServices()) {
-      ignerr << "Cannot provide playback services." << std::endl;
-      return 1;
-    }
     // Register all topics to be played-back.
     const int64_t topics_add_result = player_.AddTopic(std::regex(".*"));
     if (topics_add_result == 0) {
@@ -72,6 +63,15 @@ class Replayer {
     handle_ = player_.Start();
     if (!handle_) {
       ignerr << "Failed to start playback" << std::endl;
+      return 1;
+    }
+    // Setup all services.
+    if (!SetupSceneServices()) {
+      ignerr << "Cannot provide scene services." << std::endl;
+      return 1;
+    }
+    if (!SetupPlaybackServices()) {
+      ignerr << "Cannot provide playback services." << std::endl;
       return 1;
     }
 

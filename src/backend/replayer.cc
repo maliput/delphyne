@@ -29,8 +29,11 @@ namespace {
 //                      pausing a running log playback.
 // - */replayer/resume*: expects an ignition::msgs::Empty request message,
 //                       resuming a paused log playback.
+// - */replayer/seek*: expects an ignition::msgs::Duration request message,
+//                     establishing the playback time at the given time offset
+//                     with respect to the playback start time
 // - */replayer/step*: expects an ignition::msgs::Duration request message,
-//                       stepping a log playback by a given time.
+//                     stepping a log playback by a given time.
 // - */get_scene*: expects an ignition::msgs::SceneRequest request message
 //                 as sent by the visualizer to retrieve the whole simulation
 //                 scene. In this case, the first scene message found in the
@@ -86,6 +89,7 @@ class Replayer {
   bool SetupPlaybackServices() {
     constexpr const char* const kPauseServiceName = "/replayer/pause";
     constexpr const char* const kResumeServiceName = "/replayer/resume";
+    constexpr const char* const kSeekServiceName = "/replayer/seek";
     constexpr const char* const kStepServiceName = "/replayer/step";
 
     // Advertises pause and resume services.
@@ -104,6 +108,12 @@ class Replayer {
     if (!node_.Advertise(kStepServiceName, &Replayer::OnStepRequestCallback,
                          this)) {
       ignerr << "Error advertising service [" << kStepServiceName << "]"
+             << std::endl;
+      return false;
+    }
+    if (!node_.Advertise(kSeekServiceName, &Replayer::OnSeekRequestCallback,
+                         this)) {
+      ignerr << "Error advertising service [" << kSeekServiceName << "]"
              << std::endl;
       return false;
     }
@@ -145,6 +155,18 @@ class Replayer {
              << " milliseconds." << std::endl;
       handle_->Step(total_nanos);
     }
+  }
+
+  // Seek service's handler.
+  void OnSeekRequestCallback(const ignition::msgs::Duration& seek_duration) {
+    using seconds = std::chrono::duration<double>;
+    const std::chrono::nanoseconds total_nanos{
+        std::chrono::seconds(seek_duration.sec()) +
+        std::chrono::nanoseconds(seek_duration.nsec())};
+    const seconds total_secs{total_nanos};
+    ignmsg << "Establishing playback time to " << total_secs.count()
+           << " seconds." << std::endl;
+    handle_->Seek(total_nanos);
   }
 
   // Sets up scene related services for the visualizer to use.

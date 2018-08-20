@@ -1,7 +1,9 @@
 // Copyright 2017 Toyota Research Institute
 
+#include <chrono>
 #include <regex>
 #include <string>
+#include <thread>
 
 #include <ignition/common/Console.hh>
 
@@ -17,13 +19,28 @@
 
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/scene_request.pb.h"
+#include "delphyne/protobuf/playback_status.pb.h"
 
 namespace delphyne {
 namespace {
 
+// Populates @p dst time based on given @p src timestamp,
+// converting one representation to the other.
+void ChronoToIgnTime(const std::chrono::nanoseconds& src,
+                     ignition::msgs::Time* dst) {
+  DELPHYNE_DEMAND(dst != nullptr);
+  std::chrono::seconds src_in_seconds =
+      std::chrono::duration_cast<std::chrono::seconds>(src);
+  dst->set_sec(std::floor(src_in_seconds.count()));
+  dst->set_nsec((src - src_in_seconds).count());
+}
+
 // A helper class that bundles ignition-transport log's playback functionality
 // with a service-based API to control it.
 //
+// The advertised topics are:
+// - */replayer/status*: an ignition::msgs::PlaybackStatus message published at
+//                       a fixed rate to track playback state.
 // The advertised services are:
 // - */replayer/pause*: expects an ignition::msgs::Empty request message,
 //                      pausing a running log playback.
@@ -48,8 +65,7 @@ class Replayer {
                       "Cannot open provided " + logfile + " log file.");
   }
 
-  // Advertises the play/resume services and controls the flow of the
-  // logfile's playback.
+  // Runs playback, advertising topics and services for status and control.
   int Run() {
     // Register all topics to be played-back.
     const int64_t topics_add_result = player_.AddTopic(std::regex(".*"));
@@ -68,7 +84,7 @@ class Replayer {
       ignerr << "Failed to start playback" << std::endl;
       return 1;
     }
-    // Setup all services.
+    // Sets up all playback-specific topics and services.
     if (!SetupSceneServices()) {
       ignerr << "Cannot provide scene services." << std::endl;
       return 1;
@@ -78,13 +94,50 @@ class Replayer {
       return 1;
     }
 
-    // Waits until the player stops on its own.
-    ignmsg << "Playing all messages in the log file." << std::endl;
-    handle_->WaitUntilFinished();
+    using ignition::transport::Node;
+    Node::Publisher status_pub = SetupPlaybackStatusPublication();
+    if (!status_pub) {
+      ignerr << "Cannot provide playback status." << std::endl;
+      return 1;
+    }
+    // Fills up playback status message with immutable fields first.
+    ignition::msgs::PlaybackStatus msg;
+    ChronoToIgnTime(handle_->StartTime(), msg.mutable_start_time());
+    ChronoToIgnTime(handle_->EndTime(), msg.mutable_end_time());
+    // Loops until playback is over, publishing status periodically
+    // at the given rate.
+    const std::chrono::milliseconds kStatusUpdatePeriod{15};  // Roughly 60Hz.
+    std::chrono::time_point<std::chrono::steady_clock>
+        next_status_update_time = (std::chrono::steady_clock::now()
+                                   + kStatusUpdatePeriod);
+    while (!handle_->Finished()) {
+      // Updates playback status and publishes it.
+      ChronoToIgnTime(handle_->CurrentTime(),
+                      msg.mutable_current_time());
+      msg.set_paused(handle_->IsPaused());
+      status_pub.Publish(msg);
+      // Waits until the given time point.
+      std::this_thread::sleep_until(next_status_update_time);
+      next_status_update_time = (std::chrono::steady_clock::now()
+                                 + kStatusUpdatePeriod);
+    }
     return 0;
   }
 
  private:
+  // Sets up playback status publication for the visualizer to use.
+  ignition::transport::Node::Publisher SetupPlaybackStatusPublication() {
+    constexpr const char* const kStatusTopicName = "/replayer/status";
+    using ignition::transport::Node;
+    Node::Publisher pub =
+        node_.Advertise<ignition::msgs::PlaybackStatus>(kStatusTopicName);
+    if (!pub) {
+      ignerr << "Error advertising topic [" << kStatusTopicName << "]"
+             << std::endl;
+    }
+    return pub;
+  }
+
   // Sets up playback related services for the visualizer to use.
   bool SetupPlaybackServices() {
     constexpr const char* const kPauseServiceName = "/replayer/pause";

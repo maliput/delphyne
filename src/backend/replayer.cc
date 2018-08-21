@@ -29,6 +29,8 @@ namespace {
 //                      pausing a running log playback.
 // - */replayer/resume*: expects an ignition::msgs::Empty request message,
 //                       resuming a paused log playback.
+// - */replayer/step*: expects an ignition::msgs::Duration request message,
+//                       stepping a log playback by a given time.
 // - */get_scene*: expects an ignition::msgs::SceneRequest request message
 //                 as sent by the visualizer to retrieve the whole simulation
 //                 scene. In this case, the first scene message found in the
@@ -46,15 +48,6 @@ class Replayer {
   // Advertises the play/resume services and controls the flow of the
   // logfile's playback.
   int Run() {
-    // Setup all services.
-    if (!SetupSceneServices()) {
-      ignerr << "Cannot provide scene services." << std::endl;
-      return 1;
-    }
-    if (!SetupPlaybackServices()) {
-      ignerr << "Cannot provide playback services." << std::endl;
-      return 1;
-    }
     // Register all topics to be played-back.
     const int64_t topics_add_result = player_.AddTopic(std::regex(".*"));
     if (topics_add_result == 0) {
@@ -72,6 +65,15 @@ class Replayer {
       ignerr << "Failed to start playback" << std::endl;
       return 1;
     }
+    // Setup all services.
+    if (!SetupSceneServices()) {
+      ignerr << "Cannot provide scene services." << std::endl;
+      return 1;
+    }
+    if (!SetupPlaybackServices()) {
+      ignerr << "Cannot provide playback services." << std::endl;
+      return 1;
+    }
 
     // Waits until the player stops on its own.
     ignmsg << "Playing all messages in the log file." << std::endl;
@@ -84,6 +86,7 @@ class Replayer {
   bool SetupPlaybackServices() {
     constexpr const char* const kPauseServiceName = "/replayer/pause";
     constexpr const char* const kResumeServiceName = "/replayer/resume";
+    constexpr const char* const kStepServiceName = "/replayer/step";
 
     // Advertises pause and resume services.
     if (!node_.Advertise(kPauseServiceName, &Replayer::OnPauseRequestCallback,
@@ -98,11 +101,17 @@ class Replayer {
              << std::endl;
       return false;
     }
+    if (!node_.Advertise(kStepServiceName, &Replayer::OnStepRequestCallback,
+                         this)) {
+      ignerr << "Error advertising service [" << kStepServiceName << "]"
+             << std::endl;
+      return false;
+    }
     return true;
   }
 
   // Pause service's handler.
-  void OnPauseRequestCallback(const ignition::msgs::Empty& _req) {
+  void OnPauseRequestCallback(const ignition::msgs::Empty& request) {
     if (handle_->IsPaused()) {
       ignerr << "Playback was already paused." << std::endl;
     } else {
@@ -112,12 +121,29 @@ class Replayer {
   }
 
   // Resume service's handler.
-  void OnResumeRequestCallback(const ignition::msgs::Empty& _req) {
+  void OnResumeRequestCallback(const ignition::msgs::Empty& request) {
     if (!handle_->IsPaused()) {
       ignerr << "Playback was already running." << std::endl;
     } else {
       handle_->Resume();
       ignmsg << "Playback is now running." << std::endl;
+    }
+  }
+
+  // Step service's handler.
+  void OnStepRequestCallback(const ignition::msgs::Duration& step_duration) {
+    if (!handle_->IsPaused()) {
+      ignerr << "Playback must be paused to step." << std::endl;
+    } else {
+      const std::chrono::nanoseconds total_nanos{
+         std::chrono::duration_cast<std::chrono::nanoseconds>(
+               std::chrono::seconds(step_duration.sec())) +
+          std::chrono::nanoseconds(step_duration.nsec())};
+      const std::chrono::milliseconds total_millis{
+         std::chrono::duration_cast<std::chrono::milliseconds>(total_nanos)};
+      igndbg << "Stepping playback for " << total_millis.count()
+             << " milliseconds." << std::endl;
+      handle_->Step(total_nanos);
     }
   }
 

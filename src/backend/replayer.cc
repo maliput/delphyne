@@ -176,21 +176,21 @@ class Replayer {
 
   // Pause service's handler.
   void OnPauseRequestCallback(const ignition::msgs::Empty& request) {
-    if (handle_->IsPaused()) {
-      ignerr << "Playback was already paused." << std::endl;
-    } else {
+    if (!handle_->IsPaused()) {
       handle_->Pause();
       ignmsg << "Playback is now paused." << std::endl;
+    } else {
+      igndbg << "Playback was already paused." << std::endl;
     }
   }
 
   // Resume service's handler.
   void OnResumeRequestCallback(const ignition::msgs::Empty& request) {
-    if (!handle_->IsPaused()) {
-      ignerr << "Playback was already running." << std::endl;
-    } else {
+    if (handle_->IsPaused()) {
       handle_->Resume();
       ignmsg << "Playback is now running." << std::endl;
+    } else {
+      igndbg << "Playback was already running." << std::endl;
     }
   }
 

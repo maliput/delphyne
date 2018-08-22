@@ -4,7 +4,9 @@
 
 add_library(utility
   package.cc
-  resources.cc
+  resources/inspection.cc
+  resources/meshes.cc
+  resources/resources.cc
 )
 
 set_target_properties(utility PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-utility)

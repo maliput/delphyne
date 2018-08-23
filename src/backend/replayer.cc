@@ -18,8 +18,9 @@
 #include <ignition/transport/log/QueryOptions.hh>
 
 #include "delphyne/macros.h"
-#include "delphyne/protobuf/scene_request.pb.h"
 #include "delphyne/protobuf/playback_status.pb.h"
+#include "delphyne/protobuf/scene_request.pb.h"
+
 
 namespace delphyne {
 namespace {

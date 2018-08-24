@@ -17,7 +17,8 @@ bool IsAbsolutePath(const std::string& path) {
 }
 
 bool IsValidFilepath(const std::string& path) {
-  return !(ignition::common::EndsWith(path, "/") ||
+  return !(path.empty() ||
+           ignition::common::EndsWith(path, "/")  ||
            ignition::common::EndsWith(path, "/.") ||
            ignition::common::EndsWith(path, "/.."));
 }

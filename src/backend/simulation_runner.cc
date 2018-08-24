@@ -487,7 +487,7 @@ void SimulatorRunner::StartLogging() {
 void SimulatorRunner::StartLogging(const std::string& filename) {
   std::string sanitized_filename = filename;
   if (!IsValidFilepath(filename)) {
-    ignerr << "The given log filename is ill-formed. "
+    ignmsg << "The given log filename is ill-formed. "
            << "Logging to default location." << std::endl;
     sanitized_filename = GenerateDefaultLogFilename();
   }

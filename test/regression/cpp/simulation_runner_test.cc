@@ -23,7 +23,7 @@
 
 namespace delphyne {
 
-class SimulationRunnerTest : public ::testing::Test {
+class SimulationRunnerTest : public test::TestWithFiles {
  protected:
   void SetUp() override {
     auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
@@ -253,6 +253,37 @@ TEST_F(SimulationRunnerTest, TestLoggingToCustomPath) {
   EXPECT_EQ(sim_runner_->GetLogFilename(), filename);
 
   sim_runner_->StopLogging();
+
+  // Checks that logging has been stopped.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+}
+
+// @brief Asserts that logs can be saved with a default filename if it's not
+// explicitly provided or defined with an envvar.
+TEST_F(SimulationRunnerTest, TestLoggingForNoGivenFilename) {
+  sim_runner_->Start();
+
+  // Simulation should not log by default.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  const std::string filename = "test_2.log";
+
+  // Set environmental variable to define the logfile path
+  setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
+
+  // Pass an empty string as filename so that system recognizes it as invalid
+  // and sets the default name instead.
+  sim_runner_->StartLogging("");
+
+  // Unset the variable for sanity, it would persist for the rest of the test
+  // otherwise.
+  unsetenv("DELPHYNE_LOGS_PATH");
+
+  // Checks that logging has been started.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  sim_runner_->StopLogging();
+
 
   // Checks that logging has been stopped.
   EXPECT_FALSE(sim_runner_->IsLogging());

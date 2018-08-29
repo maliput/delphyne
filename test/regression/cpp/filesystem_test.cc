@@ -68,7 +68,7 @@ TEST(FileSystemTest, WalkDirectory) {
   };
 
   // Make sure the walked_paths are alpha-sorted.
-  sort(walked_paths.begin(), walked_paths.end());
+  std::sort(walked_paths.begin(), walked_paths.end());
 
   EXPECT_THROW(WalkDirectory("not-a-directory", walkfn, kRecursive),
                std::runtime_error);

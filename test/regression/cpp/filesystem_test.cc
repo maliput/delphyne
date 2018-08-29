@@ -2,6 +2,7 @@
 
 #include "common/filesystem.h"
 
+#include <algorithm>
 #include <vector>
 #include <utility>
 
@@ -49,14 +50,14 @@ TEST(FileSystemTest, WalkDirectory) {
 
   const std::string testdir = test::MakeTemporaryDirectory("/tmp/XXXXXX");
   const std::vector<std::string> first_expected_paths{
-    ignition::common::joinPaths(testdir, "var"),
-    ignition::common::joinPaths(testdir, "etc")};
+    ignition::common::joinPaths(testdir, "etc"),
+    ignition::common::joinPaths(testdir, "var")};
   const std::vector<std::string> all_expected_paths{
+    ignition::common::joinPaths(testdir, "etc"),
+    ignition::common::joinPaths(testdir, "etc/init"),
     ignition::common::joinPaths(testdir, "var"),
     ignition::common::joinPaths(testdir, "var/log"),
-    ignition::common::joinPaths(testdir, "var/log/stuff"),
-    ignition::common::joinPaths(testdir, "etc"),
-    ignition::common::joinPaths(testdir, "etc/init")};
+    ignition::common::joinPaths(testdir, "var/log/stuff")};
   for (const std::string& path : all_expected_paths) {
     ignition::common::createDirectories(path);
   }
@@ -65,6 +66,9 @@ TEST(FileSystemTest, WalkDirectory) {
   DirectoryWalkFn walkfn = [&walked_paths] (const std::string& path) {
     walked_paths.push_back(path);
   };
+
+  // Make sure the walked_paths are alpha-sorted.
+  std::sort(walked_paths.begin(), walked_paths.end());
 
   EXPECT_THROW(WalkDirectory("not-a-directory", walkfn, kRecursive),
                std::runtime_error);

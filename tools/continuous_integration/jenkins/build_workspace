@@ -88,5 +88,10 @@ popd # workspace
 # Make sure to remove both 'delphyne' and 'delphyne-gui' from 'delphyne.repos'
 # since vcs will not have the proper credentials to access them.
 sed -e '/^ *delphyne/d' workspace/delphyne_gui/delphyne.repos > deps.repos
+
+# As of 2018-08-24, clone bundles on bitbucket.org/ignitionrobotics no longer
+# work (I don't know why).  For now, disable cloning for mercurial using clone
+# bundles, which is slightly less efficient but works.
 echo -e "[ui]\nclonebundles = false\n" > ~/.hgrc
+
 vcs import workspace < deps.repos

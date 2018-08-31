@@ -25,6 +25,7 @@ TEST(FileSystemTest, CheckForValidFilenames) {
   EXPECT_TRUE(IsValidFilepath("/tmp/test"));
   EXPECT_FALSE(IsValidFilepath("/tmp/test/."));
   EXPECT_FALSE(IsValidFilepath("/tmp/.."));
+  EXPECT_FALSE(IsValidFilepath(""));
 }
 
 TEST(FileSystemTest, ExtractDirectoryname) {

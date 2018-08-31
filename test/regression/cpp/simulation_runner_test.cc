@@ -23,12 +23,18 @@
 
 namespace delphyne {
 
-class SimulationRunnerTest : public ::testing::Test {
+class SimulationRunnerTest : public test::TestWithFiles {
  protected:
   void SetUp() override {
     auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
     sim_runner_ =
         std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
+    // Set environmental variable to define the logfile path
+    setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
+  }
+
+  void TearDown() override {
+    unsetenv("DELPHYNE_LOGS_PATH");
   }
 
   // Callback method for handlig SceneRequest service calls
@@ -258,6 +264,33 @@ TEST_F(SimulationRunnerTest, TestLoggingToCustomPath) {
   EXPECT_FALSE(sim_runner_->IsLogging());
 }
 
+// @brief Asserts that logs can be saved with a default filename if it's not
+// explicitly provided or defined with an envvar.
+TEST_F(SimulationRunnerTest, TestLoggingForNoGivenFilename) {
+  sim_runner_->Start();
+
+  // Simulation should not log by default.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  // Pass an empty string as filename so that system recognizes it as invalid
+  // and sets the default name instead.
+  sim_runner_->StartLogging("");
+
+  // Checks that logging has been started.
+  EXPECT_TRUE(sim_runner_->IsLogging());
+
+  // Store full path to logfile before stopping.
+  const std::string filepath{sim_runner_->GetLogFilename()};
+
+  sim_runner_->StopLogging();
+
+  // Checks that logging has been stopped.
+  EXPECT_FALSE(sim_runner_->IsLogging());
+
+  // Checks that the logfile exists in memory.
+  EXPECT_TRUE(ignition::common::exists(filepath));
+}
+
 // @brief Asserts that simulation does not log by default, and logging can be
 // started and stopped.
 TEST_F(SimulationRunnerTest, TestStartStopLogging) {
@@ -272,7 +305,7 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   EXPECT_TRUE(sim_runner_->IsLogging());
 
   EXPECT_NE(std::string::npos,
-    sim_runner_->GetLogFilename().find(".delphyne/logs"));
+    sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
 
   sim_runner_->StopLogging();
 
@@ -289,7 +322,7 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   std::time_t now = std::time(nullptr);
   std::tm tm = *std::localtime(&now);
   std::stringstream logPath;
-  logPath << ".delphyne/logs/" << std::put_time(&tm, "%FT%H%M");
+  logPath << "/tmp/XXXXXX/logs/" << std::put_time(&tm, "%FT%H%M");
 
   EXPECT_NE(std::string::npos,
     sim_runner_->GetLogFilename().find(logPath.str()));

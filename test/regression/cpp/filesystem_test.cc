@@ -2,9 +2,9 @@
 
 #include "common/filesystem.h"
 
-#include <algorithm>
-#include <vector>
+#include <set>
 #include <utility>
+#include <vector>
 
 #include <gtest/gtest.h>
 
@@ -49,10 +49,10 @@ TEST(FileSystemTest, WalkDirectory) {
   constexpr const bool kNotRecursive = false;
 
   const std::string testdir = test::MakeTemporaryDirectory("/tmp/XXXXXX");
-  const std::vector<std::string> first_expected_paths{
+  const std::set<std::string> first_expected_paths{
     ignition::common::joinPaths(testdir, "etc"),
     ignition::common::joinPaths(testdir, "var")};
-  const std::vector<std::string> all_expected_paths{
+  const std::set<std::string> all_expected_paths{
     ignition::common::joinPaths(testdir, "etc"),
     ignition::common::joinPaths(testdir, "etc/init"),
     ignition::common::joinPaths(testdir, "var"),
@@ -62,30 +62,21 @@ TEST(FileSystemTest, WalkDirectory) {
     ignition::common::createDirectories(path);
   }
 
-  std::vector<std::string> walked_paths{};
+  std::set<std::string> walked_paths{};
   DirectoryWalkFn walkfn = [&walked_paths] (const std::string& path) {
-    walked_paths.push_back(path);
+    walked_paths.insert(path);
   };
-
-  // Make sure the walked_paths are alpha-sorted.
-  std::sort(walked_paths.begin(), walked_paths.end());
 
   EXPECT_THROW(WalkDirectory("not-a-directory", walkfn, kRecursive),
                std::runtime_error);
 
   WalkDirectory(testdir, walkfn, kRecursive);
-  ASSERT_EQ(all_expected_paths.size(), walked_paths.size());
-  for (size_t i = 0; i < all_expected_paths.size(); ++i) {
-    EXPECT_EQ(all_expected_paths[i], walked_paths[i]);
-  }
+  EXPECT_EQ(all_expected_paths, walked_paths);
 
   walked_paths.clear();
 
   WalkDirectory(testdir, walkfn, kNotRecursive);
-  ASSERT_EQ(first_expected_paths.size(), walked_paths.size());
-  for (size_t i = 0; i < first_expected_paths.size(); ++i) {
-    EXPECT_EQ(first_expected_paths[i], walked_paths[i]);
-  }
+  EXPECT_EQ(first_expected_paths, walked_paths);
 
   ignition::common::removeAll(testdir);
 }

@@ -71,14 +71,12 @@ TEST(FileSystemTest, WalkDirectory) {
                std::runtime_error);
 
   WalkDirectory(testdir, walkfn, kRecursive);
-
-  EXPECT_TRUE(all_expected_paths == walked_paths);
+  EXPECT_EQ(all_expected_paths, walked_paths);
 
   walked_paths.clear();
 
   WalkDirectory(testdir, walkfn, kNotRecursive);
-
-  EXPECT_TRUE(first_expected_paths == walked_paths);
+  EXPECT_EQ(first_expected_paths, walked_paths);
 
   ignition::common::removeAll(testdir);
 }

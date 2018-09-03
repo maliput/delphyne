@@ -13,8 +13,8 @@
 
 #include "common/filesystem.h"
 
-#include "delphyne/utility/resources/resources.h"
 #include "delphyne/utility/resources/meshes.h"
+#include "delphyne/utility/resources/resources.h"
 
 namespace delphyne {
 namespace utility {

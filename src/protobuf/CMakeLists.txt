@@ -12,6 +12,7 @@ set(PROTO_MESSAGES
   agent_state.proto
   agent_state_v.proto
   automotive_driving_command.proto
+  playback_status.proto
   rpy_angles.proto
   scene_request.proto
   simulation_in_message.proto

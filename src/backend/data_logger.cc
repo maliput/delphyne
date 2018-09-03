@@ -111,6 +111,17 @@ DataLogger::~DataLogger() {
   }
 }
 
+void DataLogger::Sync(const ignition::transport::Clock* clock) {
+  DELPHYNE_VALIDATE(clock != nullptr, std::runtime_error,
+                    "Given clock is null.");
+  DELPHYNE_VALIDATE(!is_logging(), std::runtime_error,
+                    "Cannot synchronize logs if already running.");
+  using ignition::transport::log::RecorderError;
+  const RecorderError result = topic_recorder_.Sync(clock);
+  DELPHYNE_VALIDATE(result == RecorderError::SUCCESS, std::runtime_error,
+                    "Failed to synchronize topic recordings.");
+}
+
 void DataLogger::Start(const std::string& filename) {
   DELPHYNE_VALIDATE(!is_logging(), std::runtime_error,
                     "Cannot start logging, already running.");

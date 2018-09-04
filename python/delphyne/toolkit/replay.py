@@ -56,7 +56,7 @@ def parse_arguments():
 ##############################################################################
 
 
-VISUALIZER_LAYOUT = "layout_with_teleop.config"
+VISUALIZER_LAYOUT = "layout_for_playback.config"
 
 
 def main():

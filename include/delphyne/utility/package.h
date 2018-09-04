@@ -20,7 +20,7 @@
 #include <ignition/common/URI.hh>
 
 #include "delphyne/macros.h"
-#include "delphyne/utility/resources.h"
+#include "delphyne/utility/resources/inspection.h"
 
 /*****************************************************************************
 ** Namespaces

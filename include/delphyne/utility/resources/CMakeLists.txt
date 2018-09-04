@@ -5,9 +5,9 @@
 # Files
 install(
   FILES
-    package.h
+    inspection.h
+    meshes.h
+    resources.h
   DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/utility
+    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/utility/resources
 )
-
-add_subdirectory(resources)

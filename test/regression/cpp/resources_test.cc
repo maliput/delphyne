@@ -22,6 +22,10 @@ class ResourceInspectionTest : public test::TestWithFiles {
     // Setup environment to point to the temporary directory.
     setenv("DELPHYNE_PACKAGE_PATH", tmpdir().c_str(), 1);
   }
+
+  void DoTearDown() override {
+    unsetenv("DELPHYNE_PACKAGE_PATH");
+  }
 };
 
 TEST_F(ResourceInspectionTest, ColladaMeshInspection) {

@@ -91,6 +91,44 @@ TEST_F(ResourceInspectionTest, OBJMeshInspection) {
   EXPECT_EQ(path_to_mtllib, path_to_dep);
 }
 
+TEST_F(ResourceInspectionTest, MTLMaterialInspection) {
+  const std::string path_to_material_file =
+      ignition::common::joinPaths(tmpdir(), "demo.mtl");
+  std::ofstream material_fs(path_to_material_file);
+  material_fs << "newmtl demo"
+              << "Ka 0.588 0.588 0.588"
+              << "Kd 1 1 1"
+              << "Ks 0.9 0.9 0.9"
+              << "illum 2"
+              << "Ns 14.9285"
+              << "map_Kd green_grass.jpg"
+              << "map_bump"
+              << "bump"
+              << "map_opacity"
+              << "map_d"
+              << "refl"
+              << "map_kS"
+              << "map_kA"
+              << "map_Ns";
+  material_fs.flush();
+  material_fs.close();
+
+  const ignition::common::URI material_uri(
+      "file://" + path_to_material_file);
+  const ResourceInspector* resource_inspector =
+      ResourceInspector::Instance();
+  ASSERT_TRUE(resource_inspector != nullptr);
+  const std::vector<ignition::common::URI> dep_uris =
+      resource_inspector->GetDependencies(material_uri);
+  ASSERT_EQ(dep_uris.size(), 1);
+  EXPECT_EQ(dep_uris[0].Scheme(), "file");
+  const std::string path_to_dep =
+      "/" + dep_uris[0].Path().Str();
+  const std::string path_to_map =
+      ignition::common::joinPaths(tmpdir(), "green_grass.jpg");
+  EXPECT_EQ(path_to_map, path_to_dep);
+}
+
 }  // namespace
 }  // namespace utility
 }  // namespace delphyne

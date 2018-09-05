@@ -44,13 +44,14 @@ def launch_interactive_simulation(simulator_runner,
     except RuntimeError as error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
+        if simulator_runner.is_logging():
+            print("Simulation has been logged in {}".format(
+                simulator_runner.get_log_filename()))
+            simulator_runner.stop_logging()
         if simulator_runner.is_interactive_loop_running():
             simulator_runner.stop()
         print("Simulation ended. I'm happy, you should be too.")
         print_simulation_stats(simulator_runner)
-        if simulator_runner.is_logging():
-            print("Simulation has been logged in {}".format(
-                simulator_runner.get_log_filename()))
         # This is needed to avoid a possible deadlock. See
         # SimulatorRunner class description.
         time.sleep(0.5)

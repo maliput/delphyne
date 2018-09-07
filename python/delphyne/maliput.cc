@@ -15,6 +15,7 @@
 
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/utility/generate_obj.h>
 
 // public headers
 #include "delphyne/maliput/find_lane.h"
@@ -25,6 +26,8 @@
 *****************************************************************************/
 
 namespace py = pybind11;
+
+using drake::maliput::utility::ObjFeatures;
 
 namespace {
 
@@ -59,6 +62,24 @@ PYBIND11_MODULE(maliput, m) {
 
   m.def("create_on_ramp", &delphyne::maliput::CreateOnRamp,
         "Create the exemplar highway on-ramp");
+
+  py::class_<ObjFeatures>(m, "ObjFeatures")
+      .def(py::init<>())
+      .def_readwrite("max_grid_unit", &ObjFeatures::max_grid_unit)
+      .def_readwrite("min_grid_resolution", &ObjFeatures::min_grid_resolution)
+      .def_readwrite("draw_elevation_bounds",
+                     &ObjFeatures::draw_elevation_bounds)
+      .def_readwrite("draw_stripes", &ObjFeatures::draw_stripes)
+      .def_readwrite("draw_arrows", &ObjFeatures::draw_arrows)
+      .def_readwrite("draw_lane_haze", &ObjFeatures::draw_lane_haze)
+      .def_readwrite("draw_branch_points", &ObjFeatures::draw_branch_points)
+      .def_readwrite("stripe_width", &ObjFeatures::stripe_width)
+      .def_readwrite("stripe_elevation", &ObjFeatures::stripe_elevation)
+      .def_readwrite("arrow_elevation", &ObjFeatures::arrow_elevation)
+      .def_readwrite("lane_haze_elevation", &ObjFeatures::lane_haze_elevation)
+      .def_readwrite("branch_point_elevation",
+                     &ObjFeatures::branch_point_elevation)
+      .def_readwrite("branch_point_height", &ObjFeatures::branch_point_height);
 }
 
 /*****************************************************************************

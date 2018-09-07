@@ -67,11 +67,18 @@ def main():
               .format(os.path.abspath(filename)))
         quit()
 
+    features = maliput.ObjFeatures()
+    features.draw_arrows = True
+    features.draw_elevation_bounds = False
+    features.draw_stripes = True
+    features.draw_lane_haze = False
+    features.draw_branch_points = False
+
     # The road geometry
     road_geometry = simulator.set_road_geometry(
         maliput.create_multilane_from_file(
             file_path=filename
-        )
+        ), features
     )
 
     # Setup railcar 1

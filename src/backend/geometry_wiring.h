@@ -93,7 +93,8 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   // car chassis frame as its origin.
   auto car_bounding_box = std::make_unique<GeometryInstance>(
       Isometry3<T>::Identity(),
-      std::make_unique<Box>(kPriusCarLength, kPriusCarWidth, kPriusCarHeight));
+      std::make_unique<Box>(kPriusCarLength, kPriusCarWidth, kPriusCarHeight),
+      "prius_bounding_box");
 
   geometry_ids->insert(scene_graph->RegisterGeometry(
       source_id, car_chassis_frame_id, std::move(car_bounding_box)));

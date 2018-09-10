@@ -30,8 +30,6 @@ namespace utility {
 *****************************************************************************/
 
 /// A Resource representation of an OBJ mesh file.
-// TODO(hidmic): Consider using a parser instead of
-//               plain regular expressions.
 class OBJFile : public GenericResource {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(OBJFile);
@@ -54,6 +52,19 @@ class ColladaFile : public GenericResource {
   /// @param uri Identifier of the Collada mesh.
   explicit ColladaFile(const ignition::common::URI& uri);
 };
+
+/// A Resource representation of an MTL material file as
+/// found in OBJ files.
+class MTLFile : public GenericResource {
+ public:
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(MTLFile);
+
+  /// Constructs representation for the MTL material
+  /// file associated with the given @p uri.
+  /// @param uri Identifier of the MTL material.
+  explicit MTLFile(const ignition::common::URI& uri);
+};
+
 
 /*****************************************************************************
 ** Trailers

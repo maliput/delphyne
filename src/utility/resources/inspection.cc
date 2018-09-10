@@ -27,6 +27,7 @@ ResourceInspector* ResourceInspector::Instance() {
 ResourceInspector::ResourceInspector() {
   AssociateExtension("obj", ResourceSubtype<OBJFile>::Instance());
   AssociateExtension("dae", ResourceSubtype<ColladaFile>::Instance());
+  AssociateExtension("mtl", ResourceSubtype<MTLFile>::Instance());
 }
 
 void ResourceInspector::AssociateExtension(const std::string& extension,

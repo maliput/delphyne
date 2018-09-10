@@ -33,5 +33,9 @@ ColladaFile::ColladaFile(const ignition::common::URI& uri)
     : GenericResource(uri, MakePathRegex("\\.(jpg|png)")) {
 }
 
+MTLFile::MTLFile(const ignition::common::URI& uri)
+    : GenericResource(uri, MakePathRegex("\\.(jpg|png)")) {
+}
+
 }  // namespace utility
 }  // namespace delphyne

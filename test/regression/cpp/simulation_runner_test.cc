@@ -33,9 +33,7 @@ class SimulationRunnerTest : public test::TestWithFiles {
     setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
   }
 
-  void TearDown() override {
-    unsetenv("DELPHYNE_LOGS_PATH");
-  }
+  void TearDown() override { unsetenv("DELPHYNE_LOGS_PATH"); }
 
   // Callback method for handlig SceneRequest service calls
   void SceneRequestCallback(const ignition::msgs::Scene& request) {
@@ -305,7 +303,7 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   EXPECT_TRUE(sim_runner_->IsLogging());
 
   EXPECT_NE(std::string::npos,
-    sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
+            sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
 
   sim_runner_->StopLogging();
 
@@ -325,7 +323,7 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   logPath << "/tmp/XXXXXX/logs/" << std::put_time(&tm, "%FT%H%M");
 
   EXPECT_NE(std::string::npos,
-    sim_runner_->GetLogFilename().find(logPath.str()));
+            sim_runner_->GetLogFilename().find(logPath.str()));
 }
 
 // @brief Checks that RunSyncFor executes the simulation for the expected

@@ -51,20 +51,20 @@ TEST(FileSystemTest, WalkDirectory) {
 
   const std::string testdir = test::MakeTemporaryDirectory("/tmp/XXXXXX");
   const std::set<std::string> first_expected_paths{
-    ignition::common::joinPaths(testdir, "etc"),
-    ignition::common::joinPaths(testdir, "var")};
+      ignition::common::joinPaths(testdir, "etc"),
+      ignition::common::joinPaths(testdir, "var")};
   const std::set<std::string> all_expected_paths{
-    ignition::common::joinPaths(testdir, "etc"),
-    ignition::common::joinPaths(testdir, "etc/init"),
-    ignition::common::joinPaths(testdir, "var"),
-    ignition::common::joinPaths(testdir, "var/log"),
-    ignition::common::joinPaths(testdir, "var/log/stuff")};
+      ignition::common::joinPaths(testdir, "etc"),
+      ignition::common::joinPaths(testdir, "etc/init"),
+      ignition::common::joinPaths(testdir, "var"),
+      ignition::common::joinPaths(testdir, "var/log"),
+      ignition::common::joinPaths(testdir, "var/log/stuff")};
   for (const std::string& path : all_expected_paths) {
     ignition::common::createDirectories(path);
   }
 
   std::set<std::string> walked_paths{};
-  DirectoryWalkFn walkfn = [&walked_paths] (const std::string& path) {
+  DirectoryWalkFn walkfn = [&walked_paths](const std::string& path) {
     walked_paths.insert(path);
   };
 

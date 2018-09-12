@@ -13,7 +13,7 @@ namespace delphyne {
 /// input the current frame velocity (from an InputPort) and the desired speed
 /// (from a second InputPort), and producing an acceleration on an OutputPort
 /// to reach that speed.
-template<typename T>
+template <typename T>
 class SpeedSystem final : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SpeedSystem)
@@ -26,8 +26,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
             .get_index();
 
     command_input_port_index_ =
-        this->DeclareVectorInputPort(
-                drake::systems::BasicVector<T>(1))
+        this->DeclareVectorInputPort(drake::systems::BasicVector<T>(1))
             .get_index();
 
     accel_output_port_index_ =
@@ -51,9 +50,8 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
   }
 
  protected:
-  void CalcOutputAcceleration(
-      const drake::systems::Context<T>& context,
-      drake::systems::BasicVector<T>* output) const {
+  void CalcOutputAcceleration(const drake::systems::Context<T>& context,
+                              drake::systems::BasicVector<T>* output) const {
     const drake::systems::rendering::FrameVelocity<T>* feedback_input =
         this->template EvalVectorInput<
             drake::systems::rendering::FrameVelocity>(

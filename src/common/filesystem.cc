@@ -12,13 +12,10 @@
 
 namespace delphyne {
 
-bool IsAbsolutePath(const std::string& path) {
-  return path.front() == '/';
-}
+bool IsAbsolutePath(const std::string& path) { return path.front() == '/'; }
 
 bool IsValidFilepath(const std::string& path) {
-  return !(path.empty() ||
-           ignition::common::EndsWith(path, "/")  ||
+  return !(path.empty() || ignition::common::EndsWith(path, "/") ||
            ignition::common::EndsWith(path, "/.") ||
            ignition::common::EndsWith(path, "/.."));
 }
@@ -42,12 +39,10 @@ std::pair<std::string, std::string> SplitExtension(const std::string& path) {
   return std::make_pair(path, "");
 }
 
-void WalkDirectory(const std::string& dirpath,
-                   const DirectoryWalkFn& walkfn,
+void WalkDirectory(const std::string& dirpath, const DirectoryWalkFn& walkfn,
                    bool recursive) {
-  DELPHYNE_VALIDATE(ignition::common::isDirectory(dirpath),
-                    std::runtime_error, dirpath +
-                    " is not a directory path.");
+  DELPHYNE_VALIDATE(ignition::common::isDirectory(dirpath), std::runtime_error,
+                    dirpath + " is not a directory path.");
   using ignition::common::DirIter;
   for (DirIter it(dirpath); it != DirIter(); ++it) {
     const std::string path = *it;

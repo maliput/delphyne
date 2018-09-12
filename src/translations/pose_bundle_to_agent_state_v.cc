@@ -7,8 +7,8 @@
 #include <drake/common/eigen_types.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
-#include "delphyne/protobuf/agent_state_v.pb.h"
 #include "delphyne/protobuf/agent_state.pb.h"
+#include "delphyne/protobuf/agent_state_v.pb.h"
 #include "translations/drake_to_ign.h"
 
 namespace delphyne {
@@ -18,7 +18,6 @@ const unsigned int kPoseBundleVectorSize{0};
 void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const drake::systems::rendering::PoseBundle<double>& drake_message,
     ignition::msgs::AgentState_V* ign_message, int64_t time_ms) const {
-
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
@@ -29,8 +28,7 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     // Gets the agent's orientation in the form of a vector of euler angles
     // following the x-y-z convention (roll-pitch-yaw).
     // The indexes of 0, 1 and 2 represent the x, y and z axis, respectively.
-    const Eigen::Vector3d euler_rotation =
-        pose.rotation().eulerAngles(0, 1, 2);
+    const Eigen::Vector3d euler_rotation = pose.rotation().eulerAngles(0, 1, 2);
 
     // Calculates car's velocity.
     const drake::multibody::SpatialVelocity<double>& spatial_velocity =

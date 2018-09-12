@@ -70,15 +70,13 @@ class IDMController : public systems::LeafSystem<T> {
   /// RoadPositionStrategy::kCache.
   IDMController(const maliput::api::RoadGeometry& road,
                 ScanStrategy path_or_branches,
-                RoadPositionStrategy road_position_strategy,
-                double period_sec);
+                RoadPositionStrategy road_position_strategy, double period_sec);
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
   explicit IDMController(const IDMController<U>& other)
       : IDMController<T>(other.road_, other.path_or_branches_,
-                         other.road_position_strategy_,
-                         other.period_sec_) {}
+                         other.road_position_strategy_, other.period_sec_) {}
 
   ~IDMController() override;
 
@@ -112,7 +110,8 @@ class IDMController : public systems::LeafSystem<T> {
 
  private:
   // Allow different specializations to access each other's private data.
-  template <typename> friend class IDMController;
+  template <typename>
+  friend class IDMController;
 
   // Converts @p pose into RoadPosition.
   const maliput::api::RoadPosition GetRoadPosition(

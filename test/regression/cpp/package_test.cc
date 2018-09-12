@@ -3,8 +3,8 @@
 #include "delphyne/utility/package.h"
 
 #include <fstream>
-#include <string>
 #include <sstream>
+#include <string>
 
 #include <gtest/gtest.h>
 
@@ -80,8 +80,7 @@ TEST_F(PackageTest, UsingBundledPackage) {
 // Checks that adding resources to a bundled package works as expected.
 TEST_F(PackageTest, AddingToBundledPackage) {
   using ignition::common::joinPaths;
-  const std::string path_to_new_resource =
-      joinPaths(tmpdir(), "new_stuff");
+  const std::string path_to_new_resource = joinPaths(tmpdir(), "new_stuff");
   std::fstream new_resource(path_to_new_resource, std::ios::out);
   new_resource << "dummy";
   new_resource.flush();
@@ -96,8 +95,7 @@ TEST_F(PackageTest, AddingToBundledPackage) {
   EXPECT_TRUE(resolved_uri.Valid());
   EXPECT_EQ(resolved_uri.Scheme(), "file");
 
-  const std::string resolved_path =
-      "/" + resolved_uri.Path().Str();
+  const std::string resolved_path = "/" + resolved_uri.Path().Str();
   std::fstream packaged_resource(resolved_path);
   std::string content = "";
   packaged_resource >> content;

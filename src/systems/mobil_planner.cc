@@ -56,8 +56,8 @@ MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
   // a caching sceme once #4364 lands, preventing the need to use abstract
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
-    this->DeclareAbstractState(systems::AbstractValue::Make<RoadPosition>(
-        RoadPosition()));
+    this->DeclareAbstractState(
+        systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }
@@ -68,14 +68,12 @@ const systems::InputPort<T>& MOBILPlanner<T>::ego_pose_input() const {
 }
 
 template <typename T>
-const systems::InputPort<T>& MOBILPlanner<T>::ego_velocity_input()
-    const {
+const systems::InputPort<T>& MOBILPlanner<T>::ego_velocity_input() const {
   return systems::System<T>::get_input_port(ego_velocity_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& MOBILPlanner<T>::ego_acceleration_input()
-    const {
+const systems::InputPort<T>& MOBILPlanner<T>::ego_acceleration_input() const {
   return systems::System<T>::get_input_port(ego_acceleration_index_);
 }
 
@@ -127,8 +125,8 @@ void MOBILPlanner<T>::CalcLaneDirection(const systems::Context<T>& context,
   }
 
   ImplCalcLaneDirection(*ego_pose, *ego_velocity, *traffic_poses,
-                        *ego_accel_command, idm_params, mobil_params,
-                        ego_rp, lane_direction);
+                        *ego_accel_command, idm_params, mobil_params, ego_rp,
+                        lane_direction);
 }
 
 template <typename T>
@@ -136,8 +134,7 @@ void MOBILPlanner<T>::ImplCalcLaneDirection(
     const PoseVector<T>& ego_pose, const FrameVelocity<T>& ego_velocity,
     const PoseBundle<T>& traffic_poses, const BasicVector<T>& ego_accel_command,
     const IdmPlannerParameters<T>& idm_params,
-    const MobilPlannerParameters<T>& mobil_params,
-    const RoadPosition& ego_rp,
+    const MobilPlannerParameters<T>& mobil_params, const RoadPosition& ego_rp,
     LaneDirection* lane_direction) const {
   DRAKE_DEMAND(idm_params.IsValid());
   DRAKE_DEMAND(mobil_params.IsValid());
@@ -207,8 +204,7 @@ const std::pair<T, T> MOBILPlanner<T>::ComputeIncentives(
     const ClosestPoses left_closest_poses =
         TrafficPoseSelector<T>::FindClosestPair(
             lanes.first, ego_pose, traffic_poses,
-            idm_params.scan_ahead_distance(),
-            ScanStrategy::kPath);
+            idm_params.scan_ahead_distance(), ScanStrategy::kPath);
     ComputeIncentiveOutOfLane(idm_params, mobil_params, left_closest_poses,
                               ego_closest_pose, ego_acceleration,
                               trailing_delta_accel_this, &incentives.first);
@@ -218,8 +214,7 @@ const std::pair<T, T> MOBILPlanner<T>::ComputeIncentives(
     const ClosestPoses right_closest_poses =
         TrafficPoseSelector<T>::FindClosestPair(
             lanes.second, ego_pose, traffic_poses,
-            idm_params.scan_ahead_distance(),
-            ScanStrategy::kPath);
+            idm_params.scan_ahead_distance(), ScanStrategy::kPath);
     ComputeIncentiveOutOfLane(idm_params, mobil_params, right_closest_poses,
                               ego_closest_pose, ego_acceleration,
                               trailing_delta_accel_this, &incentives.second);

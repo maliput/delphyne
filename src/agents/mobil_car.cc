@@ -13,7 +13,6 @@
 #include <string>
 #include <utility>
 
-
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/pure_pursuit_controller.h>
 #include <drake/common/eigen_types.h>

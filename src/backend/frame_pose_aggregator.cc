@@ -19,8 +19,8 @@ FramePoseAggregator<T>::FramePoseAggregator(
 }
 
 template <typename T>
-const drake::systems::InputPort<T>&
-FramePoseAggregator<T>::DeclareInput(const drake::geometry::FrameId& frame_id) {
+const drake::systems::InputPort<T>& FramePoseAggregator<T>::DeclareInput(
+    const drake::geometry::FrameId& frame_id) {
   // Make sure no other input was declared with the same frame ID.
   DELPHYNE_VALIDATE(std::find(frame_ids_.begin(), frame_ids_.end(), frame_id) ==
                         frame_ids_.end(),

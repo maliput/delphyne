@@ -20,8 +20,7 @@ using DirectoryWalkFn = std::function<void(const std::string& path)>;
 ///                      or not.
 /// @throws std::runtime_error if @p dirpath does not refer to an
 ///                            existing directory.
-void WalkDirectory(const std::string& dirpath,
-                   const DirectoryWalkFn& walkfn,
+void WalkDirectory(const std::string& dirpath, const DirectoryWalkFn& walkfn,
                    bool recursive);
 
 /// Checks whether the given @p path is absolute or not.
@@ -47,6 +46,5 @@ std::string Dirname(const std::string& path);
 /// @param[in] path The path to split.
 /// @returns A (base path, extension) tuple.
 std::pair<std::string, std::string> SplitExtension(const std::string& path);
-
 
 }  // namespace delphyne

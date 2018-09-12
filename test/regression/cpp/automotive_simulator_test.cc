@@ -200,8 +200,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCar) {
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"/agents/state"};
-  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(
-      kStateTopicName);
+  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
 
   // Shortly after starting, we should not have moved much.
   const int kStateMessagesCount{1};
@@ -239,8 +238,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"agents/state"};
-  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(
-      kStateTopicName);
+  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
 
   simulator->Start(kRealtimeFactor);
 
@@ -248,7 +246,6 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   EXPECT_TRUE(ign_monitor.do_until(
       kStateMessagesCount, kTimeoutMs,
       [this, &simulator]() { simulator->StepBy(kSmallTimeStep); }));
-
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
@@ -269,8 +266,10 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   EXPECT_EQ(state_message.orientation().pitch(), 0.0);
   EXPECT_NEAR(state_message.orientation().yaw(), kHeading, kAccuracy);
 
-  EXPECT_NEAR(state_message.linear_velocity().x(), kVelocity * cos(kHeading), kAccuracy);
-  EXPECT_NEAR(state_message.linear_velocity().y(), kVelocity * sin(kHeading), kAccuracy);
+  EXPECT_NEAR(state_message.linear_velocity().x(), kVelocity * cos(kHeading),
+              kAccuracy);
+  EXPECT_NEAR(state_message.linear_velocity().y(), kVelocity * sin(kHeading),
+              kAccuracy);
   EXPECT_EQ(state_message.linear_velocity().z(), 0.0);
 
   EXPECT_EQ(state_message.angular_velocity().x(), 0.0);
@@ -344,8 +343,7 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   EXPECT_EQ(GetLinkCount(draw_message), 3 * GetPriusLinkCount());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
-  const double mobil_y =
-      draw_message.models(0).link(0).pose().position().y();
+  const double mobil_y = draw_message.models(0).link(0).pose().position().y();
   EXPECT_GE(mobil_y, -2.);
 }
 
@@ -748,7 +746,8 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   auto agent_alice = std::make_unique<delphyne::SimpleCar>(
       "alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
       kHeadingWest, kCruiseSpeed);
-  delphyne::AgentBase<double>* alice_ptr = simulator->AddAgent(std::move(agent_alice));
+  delphyne::AgentBase<double>* alice_ptr =
+      simulator->AddAgent(std::move(agent_alice));
 
   // Configures agent `Smith`.
   const drake::maliput::api::LanePosition agent_smith_lane_position{
@@ -758,15 +757,17 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   auto agent_smith = std::make_unique<delphyne::SimpleCar>(
       "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
       kHeadingEast + kHeadingDeviation, kCruiseSpeed);
-  delphyne::AgentBase<double>* smith_ptr = simulator->AddAgent(std::move(agent_smith));
+  delphyne::AgentBase<double>* smith_ptr =
+      simulator->AddAgent(std::move(agent_smith));
 
   // Finishes initialization and starts the simulation.
   simulator->Start();
 
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
-  std::vector<std::pair<delphyne::AgentBase<double>*, delphyne::AgentBase<double>*>> agent_pairs_in_collision =
-      simulator->GetCollisions();
+  std::vector<
+      std::pair<delphyne::AgentBase<double>*, delphyne::AgentBase<double>*>>
+      agent_pairs_in_collision = simulator->GetCollisions();
   EXPECT_EQ(agent_pairs_in_collision.size(), 0);
 
   // Simulates forward in time.

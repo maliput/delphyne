@@ -21,7 +21,6 @@
 #include "delphyne/protobuf/playback_status.pb.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 
-
 namespace delphyne {
 namespace {
 
@@ -75,8 +74,8 @@ class Replayer {
       return 1;
     }
     if (topics_add_result < 0) {
-      ignerr << "Failed to advertise topics: "
-             << topics_add_result << std::endl;
+      ignerr << "Failed to advertise topics: " << topics_add_result
+             << std::endl;
       return 1;
     }
     // Begins playback.
@@ -108,19 +107,17 @@ class Replayer {
     // Loops until playback is over, publishing status periodically
     // at the given rate.
     const std::chrono::milliseconds kStatusUpdatePeriod{15};  // Roughly 60Hz.
-    std::chrono::time_point<std::chrono::steady_clock>
-        next_status_update_time = (std::chrono::steady_clock::now()
-                                   + kStatusUpdatePeriod);
+    std::chrono::time_point<std::chrono::steady_clock> next_status_update_time =
+        (std::chrono::steady_clock::now() + kStatusUpdatePeriod);
     while (!handle_->Finished()) {
       // Updates playback status and publishes it.
-      ChronoToIgnTime(handle_->CurrentTime(),
-                      msg.mutable_current_time());
+      ChronoToIgnTime(handle_->CurrentTime(), msg.mutable_current_time());
       msg.set_paused(handle_->IsPaused());
       status_pub.Publish(msg);
       // Waits until the given time point.
       std::this_thread::sleep_until(next_status_update_time);
-      next_status_update_time = (std::chrono::steady_clock::now()
-                                 + kStatusUpdatePeriod);
+      next_status_update_time =
+          (std::chrono::steady_clock::now() + kStatusUpdatePeriod);
     }
     return 0;
   }
@@ -150,7 +147,7 @@ class Replayer {
     if (!node_.Advertise(kPauseServiceName, &Replayer::OnPauseRequestCallback,
                          this)) {
       ignerr << "Error advertising service [" << kPauseServiceName << "]"
-                << std::endl;
+             << std::endl;
       return false;
     }
     if (!node_.Advertise(kResumeServiceName, &Replayer::OnResumeRequestCallback,
@@ -200,11 +197,11 @@ class Replayer {
       ignerr << "Playback must be paused to step." << std::endl;
     } else {
       const std::chrono::nanoseconds total_nanos{
-         std::chrono::duration_cast<std::chrono::nanoseconds>(
-               std::chrono::seconds(step_duration.sec())) +
+          std::chrono::duration_cast<std::chrono::nanoseconds>(
+              std::chrono::seconds(step_duration.sec())) +
           std::chrono::nanoseconds(step_duration.nsec())};
       const std::chrono::milliseconds total_millis{
-         std::chrono::duration_cast<std::chrono::milliseconds>(total_nanos)};
+          std::chrono::duration_cast<std::chrono::milliseconds>(total_nanos)};
       igndbg << "Stepping playback for " << total_millis.count()
              << " milliseconds." << std::endl;
       handle_->Step(total_nanos);
@@ -247,8 +244,7 @@ class Replayer {
     if (!node_.Advertise(kSceneRequestServiceName,
                          &Replayer::OnSceneRequestCallback, this)) {
       ignwarn << "Error advertising service "
-              << "[" << kSceneRequestServiceName << "]"
-              << std::endl;
+              << "[" << kSceneRequestServiceName << "]" << std::endl;
       return false;
     }
     return true;

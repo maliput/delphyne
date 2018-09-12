@@ -465,8 +465,7 @@ namespace {
 std::string GenerateDefaultLogFilename() {
   std::stringstream filename{};
   // Get environmental variable.
-  const char* delphyne_logs_prefix =
-      std::getenv("DELPHYNE_LOGS_PREFIX");
+  const char* delphyne_logs_prefix = std::getenv("DELPHYNE_LOGS_PREFIX");
   if (delphyne_logs_prefix == NULL) {
     igndbg << "Unable to get DELPHYNE_LOGS_PREFIX"
            << " environment variable." << std::endl;

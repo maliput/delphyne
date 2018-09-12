@@ -25,8 +25,7 @@ class ZipTest : public test::TestWithFiles {
     const std::string path_to_nested_dir =
         joinPaths(initial_path_, "deeply/nested/dir/");
     ignition::common::createDirectories(path_to_nested_dir);
-    std::ofstream nested_file_fs(joinPaths(
-        path_to_nested_dir, "nested.txt"));
+    std::ofstream nested_file_fs(joinPaths(path_to_nested_dir, "nested.txt"));
     nested_file_fs << "dummy content";
     std::ofstream file_fs(joinPaths(initial_path_, "test.txt"));
     file_fs << "more dummy content";
@@ -35,17 +34,14 @@ class ZipTest : public test::TestWithFiles {
 
   bool Zip(const std::string& source_path,
            const std::string& destination_path) {
-    const std::string command =
-        "cd " + source_path + "; zip -r " +
-        destination_path + " * 1>/dev/null 2>&1";
+    const std::string command = "cd " + source_path + "; zip -r " +
+                                destination_path + " * 1>/dev/null 2>&1";
     return (std::system(command.c_str()) == 0);
   }
 
-  bool Unzip(const std::string& archive_path,
-             const std::string& extract_path) {
-    const std::string command =
-        "unzip -o -q " + archive_path + " -d " +
-        extract_path + " 1>/dev/null 2>&1";
+  bool Unzip(const std::string& archive_path, const std::string& extract_path) {
+    const std::string command = "unzip -o -q " + archive_path + " -d " +
+                                extract_path + " 1>/dev/null 2>&1";
     return (std::system(command.c_str()) == 0);
   }
 
@@ -71,7 +67,6 @@ TEST_F(ZipTest, Decompression) {
   UnzipDirectory(archive_path_, final_path_);
   EXPECT_FALSE(Diff(initial_path_, final_path_));
 }
-
 
 }  // namespace
 }  // namespace delphyne

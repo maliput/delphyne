@@ -51,8 +51,8 @@ IDMController<T>::IDMController(const RoadGeometry& road,
   // a caching sceme once #4364 lands, preventing the need to use abstract
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
-    this->DeclareAbstractState(systems::AbstractValue::Make<RoadPosition>(
-        RoadPosition()));
+    this->DeclareAbstractState(
+        systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }
@@ -61,14 +61,12 @@ template <typename T>
 IDMController<T>::~IDMController() {}
 
 template <typename T>
-const systems::InputPort<T>& IDMController<T>::ego_pose_input()
-    const {
+const systems::InputPort<T>& IDMController<T>::ego_pose_input() const {
   return systems::System<T>::get_input_port(ego_pose_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& IDMController<T>::ego_velocity_input()
-    const {
+const systems::InputPort<T>& IDMController<T>::ego_velocity_input() const {
   return systems::System<T>::get_input_port(ego_velocity_index_);
 }
 
@@ -119,8 +117,7 @@ template <typename T>
 void IDMController<T>::ImplCalcAcceleration(
     const PoseVector<T>& ego_pose, const FrameVelocity<T>& ego_velocity,
     const PoseBundle<T>& traffic_poses,
-    const IdmPlannerParameters<T>& idm_params,
-    const RoadPosition& ego_rp,
+    const IdmPlannerParameters<T>& idm_params, const RoadPosition& ego_rp,
     systems::BasicVector<T>* command) const {
   using std::abs;
   using std::max;

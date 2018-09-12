@@ -100,25 +100,19 @@ PYBIND11_MODULE(simulation, m) {
       .def("unpause_simulation", &SimulatorRunner::UnpauseSimulation)
       .def("request_simulation_step_execution",
            &SimulatorRunner::RequestSimulationStepExecution)
-      .def("get_simulator",
-           &SimulatorRunner::GetSimulator,
+      .def("get_simulator", &SimulatorRunner::GetSimulator,
            py::return_value_policy::reference_internal)
-      .def("get_mutable_simulator",
-           &SimulatorRunner::GetMutableSimulator,
+      .def("get_mutable_simulator", &SimulatorRunner::GetMutableSimulator,
            py::return_value_policy::reference_internal)
       .def("get_stats", &SimulatorRunner::get_stats,
            py::return_value_policy::reference)
-      .def("is_logging",
-           &SimulatorRunner::IsLogging)
+      .def("is_logging", &SimulatorRunner::IsLogging)
       .def("start_logging",
-           (void (SimulatorRunner::*)(void))&SimulatorRunner::StartLogging)
-      .def("start_logging",
-          (void (SimulatorRunner::*)(const std::string&))
-          &SimulatorRunner::StartLogging)
-      .def("stop_logging",
-           &SimulatorRunner::StopLogging)
-      .def("get_log_filename",
-           &SimulatorRunner::GetLogFilename);
+           (void (SimulatorRunner::*)(void)) & SimulatorRunner::StartLogging)
+      .def("start_logging", (void (SimulatorRunner::*)(const std::string&)) &
+                                SimulatorRunner::StartLogging)
+      .def("stop_logging", &SimulatorRunner::StopLogging)
+      .def("get_log_filename", &SimulatorRunner::GetLogFilename);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(
@@ -128,9 +122,19 @@ PYBIND11_MODULE(simulation, m) {
       .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions,
            py::return_value_policy::reference_internal)
       .def("start", &AutomotiveSimulator<double>::Start)
-      .def("set_road_geometry", &AutomotiveSimulator<double>::SetRoadGeometry,
+      .def("set_road_geometry",
+           py::overload_cast<
+               std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
+               &AutomotiveSimulator<double>::SetRoadGeometry),
            "Transfer a road geometry to the control of the simulator",
            py::arg("road_geometry"))
+      .def("set_road_geometry",
+           py::overload_cast<
+               std::unique_ptr<const drake::maliput::api::RoadGeometry>,
+               const drake::maliput::utility::ObjFeatures&>(
+               &AutomotiveSimulator<double>::SetRoadGeometry),
+           "Transfer a road geometry to the control of the simulator",
+           py::arg("road_geometry"), py::arg("features"))
       .def("get_current_simulation_time",
            &AutomotiveSimulator<double>::GetCurrentSimulationTime)
       .def("get_mutable_context",

@@ -15,6 +15,7 @@
 #include <drake/automotive/idm_controller.h>
 #include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/utility/generate_obj.h>
 #include <drake/automotive/maliput_railcar.h>
 #include <drake/automotive/mobil_planner.h>
 #include <drake/automotive/pure_pursuit_controller.h>
@@ -84,8 +85,21 @@ class AutomotiveSimulator {
   /// Sets the RoadGeometry for this simulation.
   ///
   /// @pre Start() has NOT been called.
+  ///
+  /// @param road_geometry The road geometry to use for the simulation.
   const drake::maliput::api::RoadGeometry* SetRoadGeometry(
       std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry);
+
+  /// Sets the RoadGeometry for this simulation.
+  ///
+  /// @pre Start() has NOT been called.
+  ///
+  /// @param road_geometry The road geometry to use for the simulation.
+  /// @param features The road features that will be shown in the simulation.
+  /// @see documentation of drake::maliput::utility::ObjFeatures
+  const drake::maliput::api::RoadGeometry* SetRoadGeometry(
+      std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
+      const drake::maliput::utility::ObjFeatures& features);
 
   /// Builds the Diagram.  No further changes to the diagram may occur after
   /// this has been called.
@@ -154,7 +168,10 @@ class AutomotiveSimulator {
   // Generates the URDF model of the road network and loads it into the
   // `RigidBodyTree`. Member variable `road_` must be set prior to calling this
   // method.
-  void GenerateAndLoadRoadNetworkUrdf();
+  // @param features The road features that will be shown in the simulation.
+  // @see documentation of drake::maliput::utility::ObjFeatures
+  void GenerateAndLoadRoadNetworkUrdf(
+      const drake::maliput::utility::ObjFeatures& features);
 
   // Fixes the scene geometry aggregator input port. This is performed on the
   // context, not the system itself, so this function requires the simulator to

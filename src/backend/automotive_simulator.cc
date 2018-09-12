@@ -102,8 +102,7 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
   const drake::systems::Context<T>& scene_context =
       diagram_->GetSubsystemContext(*scene_system_, simulator_->get_context());
 
-  std::unique_ptr<SystemOutput<T>> output =
-      scene_system_->AllocateOutput();
+  std::unique_ptr<SystemOutput<T>> output = scene_system_->AllocateOutput();
   scene_system_->CalcOutput(scene_context, output.get());
 
   scene_msg->CopyFrom(
@@ -171,21 +170,38 @@ delphyne::AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
 template <typename T>
 const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
     std::unique_ptr<const RoadGeometry> road_geometry) {
+  drake::maliput::utility::ObjFeatures features;
+  // Max distance between rendered vertices (in s- or r-dimension), in meters.
+  features.max_grid_unit = 1.0;
+  // Min number of vertices (in s- or r-dimension).
+  features.min_grid_resolution = 5.0;
+  features.draw_elevation_bounds = false;
+  features.draw_stripes = true;
+  features.draw_arrows = false;
+  features.draw_lane_haze = false;
+  features.draw_branch_points = false;
+  return SetRoadGeometry(std::move(road_geometry), features);
+}
+
+template <typename T>
+const RoadGeometry* AutomotiveSimulator<T>::SetRoadGeometry(
+    std::unique_ptr<const RoadGeometry> road_geometry,
+    const drake::maliput::utility::ObjFeatures& features) {
   DELPHYNE_VALIDATE(!has_started(), std::runtime_error,
                     "Cannot set a road geometry on a running simulation");
   road_geometry_ = std::move(road_geometry);
-  GenerateAndLoadRoadNetworkUrdf();
+  GenerateAndLoadRoadNetworkUrdf(features);
   return road_geometry_.get();
 }
 
 template <typename T>
-void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf() {
+void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf(
+    const drake::maliput::utility::ObjFeatures& features) {
   std::string filename = road_geometry_->id().string();
   std::transform(filename.begin(), filename.end(), filename.begin(),
                  [](char ch) { return ch == ' ' ? '_' : ch; });
-  drake::maliput::utility::GenerateUrdfFile(
-      road_geometry_.get(), "/tmp", filename,
-      drake::maliput::utility::ObjFeatures());
+  drake::maliput::utility::GenerateUrdfFile(road_geometry_.get(), "/tmp",
+                                            filename, features);
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());

@@ -41,7 +41,7 @@ class Type {
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(Type);
 
   // Forward declaration.
-  template <typename ...Args>
+  template <typename... Args>
   class ConstructibleWith;
 
   virtual ~Type() = default;
@@ -57,7 +57,7 @@ class Type {
 /// @tparam Args Parameters type pack that may be used for
 ///              construction of a derived type.
 template <class Base>
-template <typename ...Args>
+template <typename... Args>
 class Type<Base>::ConstructibleWith : public virtual Type<Base> {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(ConstructibleWith);
@@ -81,11 +81,12 @@ class Type<Base>::ConstructibleWith : public virtual Type<Base> {
 template <class Derived, class Base>
 class Subtype : public virtual Type<Base> {
   static_assert(std::is_base_of<Base, Derived>::value, "Not a derived type.");
+
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(Subtype);
 
   // Forward declaration.
-  template <typename ...Args>
+  template <typename... Args>
   class ConstructibleWith;
 
   virtual ~Subtype() = default;
@@ -101,12 +102,13 @@ class Subtype : public virtual Type<Base> {
 ///              Derived instance. Said instance must be
 ///              constructible from the provided types.
 template <class Derived, class Base>
-template <typename ...Args>
+template <typename... Args>
 class Subtype<Derived, Base>::ConstructibleWith
     : public Type<Base>::template ConstructibleWith<Args...>,
       public Subtype<Derived, Base> {
   static_assert(std::is_constructible<Derived, Args...>::value,
                 "Not constructible from given argument types.");
+
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(ConstructibleWith);
 
@@ -162,17 +164,16 @@ class Resource {
 };
 
 /// Type class for a Resource that can be instantiated from a string.
-using ResourceType =
-    typename internal::Type<Resource>::
-    template ConstructibleWith<const ignition::common::URI&>;
+using ResourceType = typename internal::Type<
+    Resource>::template ConstructibleWith<const ignition::common::URI&>;
 
 /// Type class for a Resource subtype that can be instantiated
 /// from a string.
 /// @tparam Derived A Resource subclass.
 template <typename Derived>
 using ResourceSubtype =
-    typename internal::Subtype<Derived, Resource>::
-    template ConstructibleWith<const ignition::common::URI&>;
+    typename internal::Subtype<Derived, Resource>::template ConstructibleWith<
+        const ignition::common::URI&>;
 
 /// A simple generic Resource implementation, providing
 /// introspection through heavy regex usage.

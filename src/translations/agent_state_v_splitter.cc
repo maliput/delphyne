@@ -46,8 +46,7 @@ void AgentState_v_Splitter<T>::DoSplit(
           ->template GetValue<ignition::msgs::AgentState_V>();
 
   // Assigns the state returned by the agent_index to the output.
-  auto& mutable_state =
-      output->GetMutableValue<ignition::msgs::AgentState>();
+  auto& mutable_state = output->GetMutableValue<ignition::msgs::AgentState>();
   if (simple_car_state_v.states_size() > agent_index) {
     mutable_state = simple_car_state_v.states(agent_index);
   }

@@ -64,8 +64,8 @@ class ResourceInspector {
   ///            class documentation).
   /// @returns The URIs of the dependencies, if any, or an empty vector if
   ///          the resource type is unknown (see AssociateExtension()).
-  std::vector<ignition::common::URI>
-  GetDependencies(const ignition::common::URI& uri) const;
+  std::vector<ignition::common::URI> GetDependencies(
+      const ignition::common::URI& uri) const;
 
  private:
   // Default constructor.

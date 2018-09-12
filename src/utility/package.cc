@@ -39,12 +39,11 @@ SystemPackage::SystemPackage() {
                     "DELPHYNE_PACKAGE_PATH environment "
                     "variable is not set");
   package_paths_.reserve(paths.size());
-  std::copy(paths.begin(), paths.end(),
-            std::back_inserter(package_paths_));
+  std::copy(paths.begin(), paths.end(), std::back_inserter(package_paths_));
 }
 
-ignition::common::URI
-SystemPackage::DoResolve(const ignition::common::URI& uri) const {
+ignition::common::URI SystemPackage::DoResolve(
+    const ignition::common::URI& uri) const {
   const std::string uri_scheme = uri.Scheme();
   if (uri_scheme == "file") {
     if (!ignition::common::exists("/" + uri.Path().Str())) {
@@ -53,9 +52,9 @@ SystemPackage::DoResolve(const ignition::common::URI& uri) const {
     return uri;
   }
   if (uri_scheme == "package") {
-    using ignition::common::SystemPaths;;
-    const std::string path = SystemPaths::LocateLocalFile(
-        uri.Path().Str(), package_paths_);
+    using ignition::common::SystemPaths;
+    const std::string path =
+        SystemPaths::LocateLocalFile(uri.Path().Str(), package_paths_);
     if (path.empty()) {
       return ignition::common::URI();
     }
@@ -66,13 +65,12 @@ SystemPackage::DoResolve(const ignition::common::URI& uri) const {
   return uri;
 }
 
-BundledPackage::BundledPackage(const std::string& path)
-    : path_(path) {}
+BundledPackage::BundledPackage(const std::string& path) : path_(path) {}
 
 std::string BundledPackage::ResolveToInternalPath(
     const ignition::common::URI& uri) const {
-  return ignition::common::absPath(ignition::common::joinPaths(
-      path_, uri.Scheme(), uri.Path().Str()));
+  return ignition::common::absPath(
+      ignition::common::joinPaths(path_, uri.Scheme(), uri.Path().Str()));
 }
 
 void BundledPackage::DoAdd(const ignition::common::URI& uri) {
@@ -99,8 +97,8 @@ void BundledPackage::DoAdd(const ignition::common::URI& uri) {
                     std::runtime_error, "Failed to add to package.");
 }
 
-ignition::common::URI
-BundledPackage::DoResolve(const ignition::common::URI& uri) const {
+ignition::common::URI BundledPackage::DoResolve(
+    const ignition::common::URI& uri) const {
   std::string internal_path = ResolveToInternalPath(uri);
   if (ignition::common::exists(internal_path)) {
     return ignition::common::URI("file://" + internal_path);

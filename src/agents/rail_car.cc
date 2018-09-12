@@ -133,8 +133,8 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   vel_setter_ = builder.template AddSystem(
       std::make_unique<delphyne::VectorSource<double>>(-1));
 
-  delphyne::SpeedSystem<double>* speed_system = builder.AddSystem(
-      std::make_unique<delphyne::SpeedSystem<double>>());
+  delphyne::SpeedSystem<double>* speed_system =
+      builder.AddSystem(std::make_unique<delphyne::SpeedSystem<double>>());
 
   builder.Connect(speed_system->acceleration_output(),
                   rail_follower_system->command_input());
@@ -142,8 +142,7 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   builder.Connect(rail_follower_system->velocity_output(),
                   speed_system->feedback_input());
 
-  builder.Connect(vel_setter_->output(),
-                  speed_system->command_input());
+  builder.Connect(vel_setter_->output(), speed_system->command_input());
 
   /*********************
    * Diagram Outputs

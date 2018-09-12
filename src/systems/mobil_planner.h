@@ -100,8 +100,7 @@ class MOBILPlanner : public systems::LeafSystem<T> {
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
   MOBILPlanner(const maliput::api::RoadGeometry& road, bool initial_with_s,
-               RoadPositionStrategy road_position_strategy,
-               double period_sec);
+               RoadPositionStrategy road_position_strategy, double period_sec);
 
   /// See the class description for details on the following input ports.
   /// @{

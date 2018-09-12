@@ -19,23 +19,19 @@ std::regex MakePathRegex(const std::string& suffix) {
   std::stringstream regex_builder{};
   regex_builder << kRawPathRegex << suffix;
   return std::regex(regex_builder.str(),
-                    std::regex::extended |
-                    std::regex::nosubs);
+                    std::regex::extended | std::regex::nosubs);
 }
 
 }  // namespace
 
 OBJFile::OBJFile(const ignition::common::URI& uri)
-    : GenericResource(uri, MakePathRegex("\\.mtl")) {
-}
+    : GenericResource(uri, MakePathRegex("\\.mtl")) {}
 
 ColladaFile::ColladaFile(const ignition::common::URI& uri)
-    : GenericResource(uri, MakePathRegex("\\.(jpg|png)")) {
-}
+    : GenericResource(uri, MakePathRegex("\\.(jpg|png)")) {}
 
 MTLFile::MTLFile(const ignition::common::URI& uri)
-    : GenericResource(uri, MakePathRegex("\\.(jpg|png)")) {
-}
+    : GenericResource(uri, MakePathRegex("\\.(jpg|png)")) {}
 
 }  // namespace utility
 }  // namespace delphyne

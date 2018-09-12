@@ -36,8 +36,7 @@ std::string Resource::Path() const {
 
 GenericResource::GenericResource(const ignition::common::URI& uri,
                                  const std::regex& dependency_pattern)
-    : Resource(uri), dependency_pattern_(dependency_pattern) {
-}
+    : Resource(uri), dependency_pattern_(dependency_pattern) {}
 
 std::vector<ignition::common::URI> GenericResource::GetDependencies() const {
   std::ifstream fs(Path());
@@ -45,9 +44,10 @@ std::vector<ignition::common::URI> GenericResource::GetDependencies() const {
   for (std::string line; std::getline(fs, line);) {
     std::smatch match{};
     if (std::regex_search(line, match, dependency_pattern_)) {
-      dependencies.push_back(ignition::common::URI(
-          Uri().Scheme() + "://" + ignition::common::joinPaths(
-              Dirname(Uri().Path().Str()), match.str())));
+      dependencies.push_back(
+          ignition::common::URI(Uri().Scheme() + "://" +
+                                ignition::common::joinPaths(
+                                    Dirname(Uri().Path().Str()), match.str())));
     }
   }
   return dependencies;

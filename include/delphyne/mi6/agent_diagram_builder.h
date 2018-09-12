@@ -111,8 +111,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// systems that require the traffic poses coming from outside the
   /// diagram. This connects them to the pass through system that
   /// makes that diagram input port available to multiple systems.
-  void ConnectTrafficPosesTo(
-      const drake::systems::InputPort<T>& destination) {
+  void ConnectTrafficPosesTo(const drake::systems::InputPort<T>& destination) {
     this->Connect(traffic_poses_->get_output_port(), destination);
   }
 

@@ -119,8 +119,7 @@ RailFollower<T>::RailFollower(
 }
 
 template <typename T>
-const drake::systems::InputPort<T>& RailFollower<T>::command_input()
-    const {
+const drake::systems::InputPort<T>& RailFollower<T>::command_input() const {
   return this->get_input_port(command_input_port_index_);
 }
 

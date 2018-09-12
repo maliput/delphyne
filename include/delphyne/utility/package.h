@@ -9,9 +9,8 @@
 
 #pragma once
 
-
-#include <iostream>
 #include <cstring>
+#include <iostream>
 
 #include <memory>
 #include <string>
@@ -75,8 +74,8 @@ class Package {
 
  private:
   // @see Resolve(const ignition::common::URI&)
-  virtual ignition::common::URI
-  DoResolve(const ignition::common::URI& uri) const = 0;
+  virtual ignition::common::URI DoResolve(
+      const ignition::common::URI& uri) const = 0;
 };
 
 /// A Package subclass that leverages a Delphyne system installation.
@@ -94,8 +93,8 @@ class SystemPackage : public Package {
   SystemPackage();
 
  private:
-  ignition::common::URI
-  DoResolve(const ignition::common::URI& uri) const override;
+  ignition::common::URI DoResolve(
+      const ignition::common::URI& uri) const override;
 
   // List of paths that can contain resources (e.g. meshes).
   // The content of this variable is populated with the value of the
@@ -117,9 +116,7 @@ class BundledPackage : public Package {
 
   /// Adds @b local resource referred by @p uri_or_path.
   /// @see Add(const ignition::common::URI&, const std::string&)
-  void Add(const std::string& uri_or_path) {
-    this->Add(ToURI(uri_or_path));
-  }
+  void Add(const std::string& uri_or_path) { this->Add(ToURI(uri_or_path)); }
 
   /// Adds @b local resource referred by @p uri.
   /// @param[in] uri Identifier of the resource to be added.
@@ -153,8 +150,8 @@ class BundledPackage : public Package {
   // @see Add(const ignition::common::URI&)
   virtual void DoAdd(const ignition::common::URI& uri);
 
-  ignition::common::URI
-  DoResolve(const ignition::common::URI& uri) const override;
+  ignition::common::URI DoResolve(
+      const ignition::common::URI& uri) const override;
 
   // Package bundle root path.
   std::string path_{};

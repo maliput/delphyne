@@ -43,8 +43,7 @@ std::string ResolveLogPath(const std::string& filename) {
   // Skip path build if filename is an absolute path.
   if (!IsAbsolutePath(filename)) {
     // Get environmental variables.
-    const char* delphyne_logs_path =
-        std::getenv("DELPHYNE_LOGS_PATH");
+    const char* delphyne_logs_path = std::getenv("DELPHYNE_LOGS_PATH");
     if (delphyne_logs_path == NULL) {
       // In case DELPHYNE_LOGS_PATH isn't available.
       igndbg << "Unable to get DELPHYNE_LOGS_PATH "
@@ -77,12 +76,13 @@ std::string ResolveLogPath(const std::string& filename) {
 // at the time of the call. It's on caller behalf to avoid TOCTTOU
 // races if necessary.
 // @see ResolveLogPath
-std::pair<std::string, std::string>
-GenerateLogPaths(const std::string& filename) {
+std::pair<std::string, std::string> GenerateLogPaths(
+    const std::string& filename) {
   // Gets full path based on the given filename.
   const std::string logpath = ResolveLogPath(filename);
   // Splits extension from log path.
-  std::string basepath{""}; std::string extension{""};
+  std::string basepath{""};
+  std::string extension{""};
   std::tie(basepath, extension) = SplitExtension(logpath);
   if (extension.empty()) {
     extension = "log";
@@ -99,8 +99,7 @@ GenerateLogPaths(const std::string& filename) {
     unique_tmppath = basepath + std::to_string(counter++);
     unique_logpath = unique_tmppath + "." + extension;
   }
-  return std::make_pair(std::move(unique_logpath),
-                        std::move(unique_tmppath));
+  return std::make_pair(std::move(unique_logpath), std::move(unique_tmppath));
 }
 
 }  // namespace
@@ -128,9 +127,9 @@ void DataLogger::Start(const std::string& filename) {
   std::string logpath = "";
   std::string tmppath = "";
   std::tie(logpath, tmppath) = GenerateLogPaths(filename);
-  DELPHYNE_VALIDATE(
-      ignition::common::createDirectories(tmppath), std::runtime_error,
-      "Cannot setup internal temporary directory structure");
+  DELPHYNE_VALIDATE(ignition::common::createDirectories(tmppath),
+                    std::runtime_error,
+                    "Cannot setup internal temporary directory structure");
   DELPHYNE_VALIDATE(
       StartTopicRecording(ignition::common::joinPaths(tmppath, "topic.db")),
       std::runtime_error, "Could not start logging topic messages.");
@@ -176,7 +175,7 @@ void find_proto_messages(const google::protobuf::Message& msg,
         }
       } else {
         const Message& field_msg =
-          reflection->GetMessage(msg, field_descriptor);
+            reflection->GetMessage(msg, field_descriptor);
         find_proto_messages(field_msg, type, output);
       }
     }
@@ -204,10 +203,9 @@ void find_proto_messages(const google::protobuf::Message& msg,
       witness_msg.GetDescriptor();
   std::vector<const google::protobuf::Message*> messages;
   find_proto_messages(msg, message_type, std::back_inserter(messages));
-  std::transform(messages.begin(), messages.end(),
-                 output, [](const google::protobuf::Message* msg) {
-                   const MsgType* typed_msg =
-                       dynamic_cast<const MsgType*>(msg);
+  std::transform(messages.begin(), messages.end(), output,
+                 [](const google::protobuf::Message* msg) {
+                   const MsgType* typed_msg = dynamic_cast<const MsgType*>(msg);
                    DELPHYNE_DEMAND(typed_msg != nullptr);
                    return typed_msg;
                  });
@@ -234,17 +232,15 @@ bool DataLogger::StartTopicRecording(const std::string& logpath) {
   return true;
 }
 
-void DataLogger::StopTopicRecording() {
-  topic_recorder_.Stop();
-}
+void DataLogger::StopTopicRecording() { topic_recorder_.Stop(); }
 
 void DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
   DELPHYNE_VALIDATE(is_logging(), std::runtime_error,
                     "Cannot capture meshes if not logging.");
   // Look up all meshes in the scene.
   std::vector<const ignition::msgs::MeshGeom*> mesh_msgs{};
-  find_proto_messages<ignition::msgs::MeshGeom>(
-      scene_msg, std::back_inserter(mesh_msgs));
+  find_proto_messages<ignition::msgs::MeshGeom>(scene_msg,
+                                                std::back_inserter(mesh_msgs));
   // Logs all meshes.
   for (const ignition::msgs::MeshGeom* msg : mesh_msgs) {
     if (!msg->has_filename()) {

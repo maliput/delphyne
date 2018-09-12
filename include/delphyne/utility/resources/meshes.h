@@ -65,7 +65,6 @@ class MTLFile : public GenericResource {
   explicit MTLFile(const ignition::common::URI& uri);
 };
 
-
 /*****************************************************************************
 ** Trailers
 *****************************************************************************/

@@ -53,8 +53,7 @@ PYBIND11_MODULE(agents, m) {
            "Construct and configure a rail car", py::arg("name"),
            py::arg("lane"), py::arg("direction_of_travel"),
            py::arg("longitudinal_position"), py::arg("lateral_offset"),
-           py::arg("speed"), py::arg("nominal_speed"),
-           py::arg("road_geometry"))
+           py::arg("speed"), py::arg("nominal_speed"), py::arg("road_geometry"))
       .def("set_speed", &delphyne::RailCar::SetSpeed);
 
   py::class_<delphyne::SimpleCar, delphyne::Agent>(m, "SimpleCar")

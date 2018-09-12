@@ -56,8 +56,7 @@ bool IsWithinDriveableBounds(const Lane* lane,
       r > r_bounds.max() + linear_tolerance) {
     return false;
   }
-  const HBounds h_bounds =
-      lane->elevation_bounds(s, r);
+  const HBounds h_bounds = lane->elevation_bounds(s, r);
   const double h = ExtractDoubleOrThrow(lane_position.h());
   return (h >= h_bounds.min() - linear_tolerance &&
           h <= h_bounds.max() + linear_tolerance);
@@ -69,8 +68,7 @@ bool IsWithinDriveableBounds(const Lane* lane,
 // Optionally (i.e. if not nullptr), the corresponding @p nearest_lane_position
 // is returned.
 template <typename T>
-bool IsWithinLaneBounds(const Lane* lane,
-                        const GeoPositionT<T>& geo_position,
+bool IsWithinLaneBounds(const Lane* lane, const GeoPositionT<T>& geo_position,
                         double linear_tolerance,
                         LanePositionT<T>* nearest_lane_position) {
   T distance{};
@@ -97,8 +95,8 @@ template <typename T>
 bool IsWithinLaneBounds(const Lane* lane, const LanePositionT<T>& lane_position,
                         double linear_tolerance) {
   if (IsWithinDriveableBounds(lane, lane_position, linear_tolerance)) {
-    const RBounds r_bounds = lane->lane_bounds(
-        ExtractDoubleOrThrow(lane_position.s()));
+    const RBounds r_bounds =
+        lane->lane_bounds(ExtractDoubleOrThrow(lane_position.s()));
     return (lane_position.r() >= r_bounds.min() - linear_tolerance ||
             lane_position.r() <= r_bounds.max() + linear_tolerance);
   }
@@ -115,7 +113,6 @@ bool IsWithinLaneBounds(const Lane* lane,
       lane->segment()->junction()->road_geometry()->linear_tolerance();
   return IsWithinLaneBounds(lane, lane_position, linear_tolerance);
 }
-
 
 // Given a @p lane_end, returns the LaneEnd corresponding to the
 // exit-point of an ongoing lane. If the LaneEnd corresponds to a default
@@ -136,8 +133,8 @@ LaneEnd GetDefaultOrFirstOngoingLaneEndAhead(const LaneEnd& lane_end) {
   // The LaneEnd of the found successor lane corresponds to the traversal end;
   // need to reverse this to get the opposite end (i.e. the one connected to the
   // branch point).
-  branch->end = (branch->end == LaneEnd::kStart) ?
-                LaneEnd::kFinish : LaneEnd::kStart;
+  branch->end =
+      (branch->end == LaneEnd::kStart) ? LaneEnd::kFinish : LaneEnd::kStart;
   return *branch;
 }
 
@@ -146,9 +143,8 @@ LaneEnd GetDefaultOrFirstOngoingLaneEndAhead(const LaneEnd& lane_end) {
 // coordinates), and the @p side of the car (ahead or behind) that traffic is
 // being observed.
 template <typename T>
-LaneEnd FindLaneEnd(
-    const Lane* lane, const LanePositionT<T>& lane_position,
-    const Quaternion<T>& rotation, AheadOrBehind side) {
+LaneEnd FindLaneEnd(const Lane* lane, const LanePositionT<T>& lane_position,
+                    const Quaternion<T>& rotation, AheadOrBehind side) {
   // Get the vehicle's heading with respect to the current lane; use it to
   // determine if the vehicle is facing towards or against the lane's
   // canonical direction.
@@ -159,9 +155,9 @@ LaneEnd FindLaneEnd(
   // difference between them, then -π/2 ≤ θ ≤ π/2 iff q₀.q₁ ≥ √2/2.
   const T rotations_dotp = rotation.dot(lane_rotation);
   // True if one or the other, but not both.
-  const bool positive_s_direction = (side == AheadOrBehind::kAhead) ^
-                                    (rotations_dotp < std::sqrt(2.) / 2.);
-  return {lane, (positive_s_direction)? LaneEnd::kFinish : LaneEnd::kStart};
+  const bool positive_s_direction =
+      (side == AheadOrBehind::kAhead) ^ (rotations_dotp < std::sqrt(2.) / 2.);
+  return {lane, (positive_s_direction) ? LaneEnd::kFinish : LaneEnd::kStart};
 }
 
 // Returns a RoadOdometry that contains an infinite `s` position, zero `r` and
@@ -182,8 +178,8 @@ RoadOdometry<T> MakeInfiniteOdometry(const LaneEnd& lane_end_ahead,
     infinite_position = -infinite_position;
   }
   autodiffxd_make_coherent(witness_state, &infinite_position);
-  const LanePositionT<T> lane_position(
-      infinite_position, zero_position, zero_position);
+  const LanePositionT<T> lane_position(infinite_position, zero_position,
+                                       zero_position);
   FrameVelocity<T> frame_velocity;
   auto velocity = frame_velocity.get_mutable_value();
   for (int i = 0; i < frame_velocity.kSize; ++i)
@@ -248,10 +244,10 @@ ClosestPose<T> FindSingleClosestInDefaultPath(
         GeoPositionT<T>::FromXyz(traffic_isometry.translation()));
   }
 
-  const LaneEnd ego_lane_end_ahead = FindLaneEnd(
-      ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
-  const T ego_lane_progress = CalcLaneProgress(
-      ego_lane_end_ahead, ego_lane_position);
+  const LaneEnd ego_lane_end_ahead =
+      FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
+  const T ego_lane_progress =
+      CalcLaneProgress(ego_lane_end_ahead, ego_lane_position);
 
   ClosestPose<T> result;
   result.odometry = MakeInfiniteOdometry(ego_lane_end_ahead, ego_pose);
@@ -301,9 +297,9 @@ ClosestPose<T> FindSingleClosestInDefaultPath(
       if (traffic_distance < scan_distance &&
           result.distance > traffic_distance) {
         // Update the result and incremental distance with the new candidate.
-        result.odometry = RoadOdometry<T>(
-            next_lane_end_ahead.lane, traffic_lane_position,
-            traffic_poses.get_velocity(i));
+        result.odometry =
+            RoadOdometry<T>(next_lane_end_ahead.lane, traffic_lane_position,
+                            traffic_poses.get_velocity(i));
         result.distance = traffic_distance;
       }
     }
@@ -320,7 +316,6 @@ ClosestPose<T> FindSingleClosestInDefaultPath(
   }
   return result;
 }
-
 
 // Extracts the vehicle's `s`-direction velocity based on its current @p lane,
 // @p lane_position and @p velocity.
@@ -368,8 +363,8 @@ ClosestPose<T> FindSingleClosestInBranches(
       GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
   const LanePositionT<T> ego_lane_position =
       ego_lane->ToLanePositionT<T>(ego_geo_position, nullptr, nullptr);
-  const LaneEnd ego_lane_end_ahead = FindLaneEnd(
-      ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
+  const LaneEnd ego_lane_end_ahead =
+      FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
 
   ClosestPose<T> result;
   result.odometry = MakeInfiniteOdometry(ego_lane_end_ahead, ego_pose);
@@ -382,10 +377,8 @@ ClosestPose<T> FindSingleClosestInBranches(
     const Isometry3<T>& traffic_isometry = traffic_poses.get_pose(i);
     const GeoPositionT<T> traffic_geo_position =
         GeoPositionT<T>::FromXyz(traffic_isometry.translation());
-    const RoadPosition traffic_road_position =
-        road_geometry->ToRoadPosition(
-            traffic_geo_position.MakeDouble(),
-            nullptr, nullptr, nullptr);
+    const RoadPosition traffic_road_position = road_geometry->ToRoadPosition(
+        traffic_geo_position.MakeDouble(), nullptr, nullptr, nullptr);
     const Lane* traffic_lane = traffic_road_position.lane;
     // TODO(jadecastro) Supply a valid hint.
     if (!traffic_lane) continue;
@@ -393,21 +386,19 @@ ClosestPose<T> FindSingleClosestInBranches(
     // TODO(jadecastro) RoadGeometry::ToRoadPositionT() doesn't yet exist, so
     // for now, just call Lane::ToLanePositionT.
     const LanePositionT<T> traffic_lane_position =
-        traffic_lane->ToLanePositionT<T>(
-            traffic_geo_position, nullptr, nullptr);
+        traffic_lane->ToLanePositionT<T>(traffic_geo_position, nullptr,
+                                         nullptr);
 
     // Get this traffic vehicle's velocity and travel direction in the lane it
     // is occupying.
     const T traffic_lane_sigma_v = CalcSigmaVelocity(
-        traffic_lane, traffic_lane_position,
-        traffic_poses.get_velocity(i));
+        traffic_lane, traffic_lane_position, traffic_poses.get_velocity(i));
 
     LaneEnd traffic_lane_end_ahead = FindLaneEnd(
         traffic_lane, traffic_lane_position,
-        Quaternion<T>(traffic_isometry.rotation()),
-        AheadOrBehind::kAhead);
-    const T traffic_lane_progress = CalcLaneProgress(
-        traffic_lane_end_ahead, traffic_lane_position);
+        Quaternion<T>(traffic_isometry.rotation()), AheadOrBehind::kAhead);
+    const T traffic_lane_progress =
+        CalcLaneProgress(traffic_lane_end_ahead, traffic_lane_position);
 
     // Determine if any of the traffic cars eventually lead to a branch within a
     // speed- and branch-dependent influence distance horizon.
@@ -427,9 +418,9 @@ ClosestPose<T> FindSingleClosestInBranches(
       // TODO(jadecastro) Use the actual velocity from the ego car, ensuring
       // that distance_to_scan is negative if the ego is moving away from the
       // branch point.
-      const T distance_to_scan = min(
-          scan_distance, abs(traffic_lane_sigma_v / T(kEgoSigmaVelocity))
-          * ego_distance_to_branch);
+      const T distance_to_scan =
+          min(scan_distance, abs(traffic_lane_sigma_v / T(kEgoSigmaVelocity)) *
+                                 ego_distance_to_branch);
 
       T effective_headway = MakeInfiniteDistance(ego_pose);
       LaneEnd next_traffic_lane_end_ahead = traffic_lane_end_ahead;
@@ -475,18 +466,17 @@ ClosestPose<T> FindSingleClosestInBranches(
 // second entry is the LaneEnd describing the branch.
 template <typename T>
 std::vector<LaneEndDistance<T>> FindConfluentBranches(
-    const Lane* ego_lane, const PoseVector<T>& ego_pose,
-    const T& scan_distance, const AheadOrBehind side) {
+    const Lane* ego_lane, const PoseVector<T>& ego_pose, const T& scan_distance,
+    const AheadOrBehind side) {
   DRAKE_DEMAND(ego_lane != nullptr);  // The ego car must be in a lane.
   const GeoPositionT<T> ego_geo_position =
       GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
   const LanePositionT<T> ego_lane_position =
       ego_lane->ToLanePositionT<T>(ego_geo_position, nullptr, nullptr);
-  const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position,
-                                                 ego_pose.get_rotation(),
-                                                 side);
-  const T ego_lane_progress = CalcLaneProgress(ego_lane_end_ahead,
-                                               ego_lane_position);
+  const LaneEnd ego_lane_end_ahead =
+      FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
+  const T ego_lane_progress =
+      CalcLaneProgress(ego_lane_end_ahead, ego_lane_position);
 
   // N.B. ego_s is negated to recover the remaining distance to the end of the
   // lane  when `distance_scanned` is incremented by the ego car's lane length.
@@ -519,18 +509,17 @@ std::vector<LaneEndDistance<T>> FindConfluentBranches(
 
 template <typename T>
 std::map<AheadOrBehind, const ClosestPose<T>>
-    TrafficPoseSelector<T>::FindClosestPair(
-        const Lane* lane, const PoseVector<T>& ego_pose,
-        const PoseBundle<T>& traffic_poses, const T& scan_distance,
-        ScanStrategy path_or_branches) {
-  return {
-    {AheadOrBehind::kAhead, FindSingleClosestPose(
-        lane, ego_pose, traffic_poses, scan_distance,
-        AheadOrBehind::kAhead, path_or_branches)},
-    {AheadOrBehind::kBehind, FindSingleClosestPose(
-        lane, ego_pose, traffic_poses, scan_distance,
-        AheadOrBehind::kBehind, path_or_branches)}
-  };
+TrafficPoseSelector<T>::FindClosestPair(const Lane* lane,
+                                        const PoseVector<T>& ego_pose,
+                                        const PoseBundle<T>& traffic_poses,
+                                        const T& scan_distance,
+                                        ScanStrategy path_or_branches) {
+  return {{AheadOrBehind::kAhead,
+           FindSingleClosestPose(lane, ego_pose, traffic_poses, scan_distance,
+                                 AheadOrBehind::kAhead, path_or_branches)},
+          {AheadOrBehind::kBehind,
+           FindSingleClosestPose(lane, ego_pose, traffic_poses, scan_distance,
+                                 AheadOrBehind::kBehind, path_or_branches)}};
 }
 
 template <typename T>

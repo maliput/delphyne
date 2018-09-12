@@ -13,7 +13,6 @@
 
 namespace delphyne {
 
-
 /// @brief A class for simulation data logging.
 /// This class mainly logs all ignition transport topics traffic,
 /// but it can also log scene mesh geometries.

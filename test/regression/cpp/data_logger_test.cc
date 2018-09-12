@@ -25,8 +25,7 @@ class DataLoggerTest : public test::TestWithFiles {
   void DoSetUp() override {
     auto package = std::make_unique<utility::BundledPackage>(
         ignition::common::joinPaths(tmpdir(), "base"));
-    path_to_mesh_mtl_ =
-        ignition::common::joinPaths(tmpdir(), "quad.mtl");
+    path_to_mesh_mtl_ = ignition::common::joinPaths(tmpdir(), "quad.mtl");
     std::fstream matfs(path_to_mesh_mtl_, std::ios::out);
     matfs << "newmtl material0\n"
           << "Ka 1.000000 1.000000 1.000000\n"
@@ -36,8 +35,7 @@ class DataLoggerTest : public test::TestWithFiles {
           << "illum 1\n"
           << "Ns 0.000000";
     matfs.close();
-    path_to_mesh_ =
-        ignition::common::joinPaths(tmpdir(), "quad.obj");
+    path_to_mesh_ = ignition::common::joinPaths(tmpdir(), "quad.obj");
     std::ofstream meshfs(path_to_mesh_);
     meshfs << "# quad.obj\n"
            << "v 0.000000 0.000000 0.000000\n"
@@ -79,9 +77,7 @@ class DataLoggerTest : public test::TestWithFiles {
     return scene_msg;
   }
 
-  void DoTearDown() override {
-    logger_.reset();
-  }
+  void DoTearDown() override { logger_.reset(); }
 
   std::string path_to_mesh_{""};
   std::string path_to_mesh_mtl_{""};
@@ -93,9 +89,8 @@ class DataLoggerTest : public test::TestWithFiles {
 TEST_F(DataLoggerTest, LoggingPreconditions) {
   // Checks that trying to capture meshes on a logger
   // that has not been started fails.
-  EXPECT_THROW(logger_->CaptureMeshes(
-      ignition::msgs::Scene()),
-      std::runtime_error);
+  EXPECT_THROW(logger_->CaptureMeshes(ignition::msgs::Scene()),
+               std::runtime_error);
   // Checks that trying to stop a logger that has not
   // been started fails.
   EXPECT_THROW(logger_->Stop(), std::runtime_error);
@@ -140,7 +135,7 @@ TEST_F(DataLoggerTest, LoggingWorkflow) {
   EXPECT_TRUE(ignition::common::isDirectory(bundled_package_path));
   utility::BundledPackage package(bundled_package_path);
   EXPECT_TRUE(package.Resolve(path_to_mesh_).Valid());
-  EXPECT_TRUE(package.Resolve(path_to_mesh_mtl_).Valid());  
+  EXPECT_TRUE(package.Resolve(path_to_mesh_mtl_).Valid());
 }
 
 }  // namespace

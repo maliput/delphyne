@@ -95,6 +95,10 @@ def get_delphyne_resource_root():
     return get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
 
 
+def get_delphyne_resource(path):
+    """Resolve the path against delphyne resources root location."""
+    return os.path.join(get_delphyne_resource_root(), path)
+
 ##############################################################################
 # Agents
 ##############################################################################

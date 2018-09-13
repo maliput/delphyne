@@ -12,8 +12,6 @@ The city demo.
 
 from __future__ import print_function
 
-import itertools
-import math
 import os.path
 import random
 
@@ -29,81 +27,6 @@ from . import helpers
 ##############################################################################
 # Supporting Classes & Methods
 ##############################################################################
-
-
-def get_all_junctions(road):
-    """
-    A generator to retrieve all junctions found in the given `road`.
-    """
-    # TODO(hidmic): Code below sporadically segfaults. Check junction
-    #               count using RoadGeometry's num_junctions() method
-    #               once it is exposed.
-    for i in itertools.count(0):
-        junction = road.junction(i)
-        if junction is None:
-            break
-        yield junction
-
-
-def get_all_segments(road):
-    """
-    A generator to retrieve all segments found in the given `road`.
-    """
-    for junction in get_all_junctions(road):
-        # TODO(hidmic): Code below sporadically segfaults. Check for
-        #               segment count using Junction's num_segments()
-        #               method once it is exposed.
-        for i in range(2):
-            segment = junction.segment(i)
-            if segment is None:
-                break
-            yield segment
-
-
-def get_all_lanes(road):
-    """
-    A generator to retrieve all lanes found in the given `road`.
-    """
-    for segment in get_all_segments(road):
-        # TODO(hidmic): Check for lane count using Segment's
-        #               num_lanes() method once it is exposed.
-        yield segment.lane(0)
-
-
-def get_lane_length(lane):
-    """
-    Returns the given `lane` total length.
-    """
-    # TODO(hidmic): Just query the Lane directly when the length() method
-    #               gets exposed through Python bindings.
-    gpstart0 = lane.ToGeoPosition(maliput.LanePosition(s=0., r=0., h=0.))
-    gpstart1 = lane.ToGeoPosition(maliput.LanePosition(s=0.1, r=0., h=0.))
-    x, y, z = 10e6 * (gpstart1.xyz() - gpstart0.xyz()) + gpstart0.xyz()
-    lpend = lane.ToLanePosition(maliput.GeoPosition(x, y, z),
-                                maliput.GeoPosition(0., 0., 0.),
-                                0.)
-    return lpend.srh()[0]
-
-
-def get_lane_heading(lane, s_position):
-    """
-    Returns the `lane` heading at the given `s_position`
-    along the centerline (i.e. r = h = 0).
-    """
-    # TODO(hidmic): Just query the Lane directly when the GetOrientation()
-    #               method gets exposed through Python bindings.
-    s_position_behind = s_position - 0.1
-    if s_position_behind < 0.:
-        s_position, s_position_behind = \
-            s_position_behind, s_position
-    x0_position, y0_position, _ = lane.ToGeoPosition(
-        maliput.LanePosition(s=s_position_behind, r=0., h=0.)
-    ).xyz()
-    x1_position, y1_position, _ = lane.ToGeoPosition(
-        maliput.LanePosition(s=s_position, r=0., h=0.)
-    ).xyz()
-    return math.atan2(y1_position - y0_position,
-                      x1_position - x0_position)
 
 
 def parse_arguments():
@@ -137,8 +60,9 @@ def main():
 
     simulator = simulation.AutomotiveSimulator()
 
-    filename = "{0}/roads/little_city.yaml".format(
-        utilities.get_delphyne_resource_root())
+    filename = utilities.get_delphyne_resource(
+        "roads/little_city.yaml"
+    )
 
     if not os.path.isfile(filename):
         print("Required file {} not found."

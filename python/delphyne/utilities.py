@@ -95,6 +95,10 @@ def get_delphyne_resource_root():
     return get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
 
 
+def get_delphyne_resource(path):
+    """Resolve the path against delphyne resources root location."""
+    return os.path.join(get_delphyne_resource_root(), path)
+
 ##############################################################################
 # Agents
 ##############################################################################
@@ -110,6 +114,7 @@ def get_delphyne_resource_root():
 # -   success : return a handle to the agent
 #
 # TODO(daniel.stonier) exception handling and return handles to the agent
+
 
 def add_simple_car(simulator, name, position_x, position_y):
     """Adds a simple car to the simulation."""

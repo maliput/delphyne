@@ -7,6 +7,7 @@
 
 install(
   PROGRAMS
+    delphyne-city
     delphyne-crash
     delphyne-dragway
     delphyne-gazoo

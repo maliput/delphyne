@@ -5,6 +5,7 @@
 install(
   FILES
     __init__.py
+    city.py
     crash.py
     dragway.py
     helpers.py

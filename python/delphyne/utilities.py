@@ -115,6 +115,7 @@ def get_delphyne_resource(path):
 #
 # TODO(daniel.stonier) exception handling and return handles to the agent
 
+
 def add_simple_car(simulator, name, position_x, position_y):
     """Adds a simple car to the simulation."""
     agent = agents.SimpleCar(

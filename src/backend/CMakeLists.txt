@@ -28,6 +28,7 @@ target_link_libraries(
     protobuf_messages
     public_headers
     utility
+    visualization
     drake::drake
     ignition-common2::ignition-common2
     ignition-transport5::core

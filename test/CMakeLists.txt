@@ -33,6 +33,7 @@ macro(delphyne_build_tests)
         backend
         translations
         protobuf
+        visualization
         drake::drake
         ignition-common2::ignition-common2
         ignition-transport5::ignition-transport5

@@ -58,17 +58,21 @@ def launch_interactive_simulation(simulator_runner,
         launch_manager.kill()
 
 
-def launch_visualizer(launcher_manager, layout_filename, bundle_path=None):
+def launch_visualizer(launcher_manager, layout_filename=None,
+                      plugin_injection=None, bundle_path=None):
     """
     Launches the project's visualizer with a given layout and using the
     given bundled package, if any.
     """
     ign_visualizer = "visualizer"
     ign_visualizer_args = []
-    layout_key = "--layout="
-    layout_path = os.path.join(get_delphyne_resource_root(),
-                               "layouts", layout_filename)
-    ign_visualizer_args.append(layout_key + layout_path)
+    if layout_filename:
+        layout_key = "--layout="
+        layout_path = os.path.join(get_delphyne_resource_root(),
+                                   "layouts", layout_filename)
+        ign_visualizer_args.append(layout_key + layout_path)
+    if plugin_injection:
+        ign_visualizer_args.append("--inject-plugin=" + plugin_injection)
     if bundle_path:
         ign_visualizer_args.append("--package=" + bundle_path)
     launcher_manager.launch([ign_visualizer] + ign_visualizer_args)

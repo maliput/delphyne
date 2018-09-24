@@ -124,7 +124,9 @@ def main():
             if not args.bare:
                 launch_visualizer(
                     launch_manager, bundle_path=bundle_path,
-                    plugin_injection="PlaybackWidget@RenderWidget"
+                    # Injects PlaybackWidget below RenderWidget
+                    # if the former is not present in the layout.
+                    plugin_injection="RenderWidget/PlaybackWidget"
                 )
                 launch_manager.wait(float("Inf"))
         except RuntimeError as error_msg:

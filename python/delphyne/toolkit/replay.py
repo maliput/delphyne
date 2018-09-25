@@ -100,9 +100,6 @@ def parse_arguments():
 ##############################################################################
 
 
-VISUALIZER_LAYOUT = "layout_for_playback.config"
-
-
 def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
@@ -126,7 +123,10 @@ def main():
             launch_manager.launch([replayer, topic_log_path])
             if not args.bare:
                 launch_visualizer(
-                    launch_manager, VISUALIZER_LAYOUT, bundle_path
+                    launch_manager, bundle_path=bundle_path,
+                    # Injects PlaybackWidget below RenderWidget
+                    # if the former is not present in the layout.
+                    plugin_injection="RenderWidget/PlaybackWidget"
                 )
                 launch_manager.wait(float("Inf"))
         except RuntimeError as error_msg:

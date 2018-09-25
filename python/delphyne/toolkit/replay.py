@@ -85,9 +85,18 @@ def parse_arguments():
         epilog=delphyne.cmdline.create_argparse_epilog(),
         formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('log_file', nargs='?',
-                        help='Path to simulation log file.')
+                        help="Path to simulation log file.")
     parser.add_argument('-l', '--latest-log-file', action='store_true',
                         help="Use latest simulation log file.")
+    default_search_paths = ['.']
+    if 'HOME' in os.environ:
+        default_search_paths.append(
+            os.path.join(os.environ['HOME'], '.delphyne', 'logs')
+        )
+    parser.add_argument('-p', '--search-path', action='append',
+                        default=default_search_paths,
+                        help=("Search paths to look for latest log file"
+                              " (default: '.' and $HOME/.delphyne/logs)."))
     parser.add_argument(
         '-b', '--bare', action='store_true', default=False,
         help="If true, replay without visualization (default: False)."
@@ -105,11 +114,18 @@ def main():
     args = parse_arguments()
 
     if not args.log_file and args.latest_log_file:
-        args.log_file = next(
-            itertools.ifilter(is_log_file, sorted(
-                os.listdir('.'), key=os.path.getmtime, reverse=True
-            )), None
-        )
+        search_paths = [
+            path for path in args.search_path if os.path.isdir(path)
+        ]
+        found_paths = [
+            os.path.join(root_path, relative_path)
+            for root_path in search_paths
+            for relative_path in os.listdir(root_path)
+        ]
+        found_files = [path for path in found_paths if os.path.isfile(path)]
+        args.log_file = next(itertools.ifilter(is_log_file, sorted(
+            found_files, key=os.path.getmtime, reverse=True
+        )), None)
 
     if not is_log_file(args.log_file):
         print("No valid log file to replay.")

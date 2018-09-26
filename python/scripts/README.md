@@ -33,3 +33,5 @@ delphyne-replay /tmp/test.log
 ```
 
 You should be able to see the same simulation being reproduced.
+
+For further reference on logging support, check [the Delphyne Guide](https://docs.google.com/document/d/1tQ9vDp084pMuHjYmtScLB3F1tdr4iP9w7_OTcoSM1zQ/view#heading=h.yv2cdz8gs3l9).

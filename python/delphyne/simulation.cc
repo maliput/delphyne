@@ -121,6 +121,12 @@ PYBIND11_MODULE(simulation, m) {
            py::return_value_policy::reference_internal)
       .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions,
            py::return_value_policy::reference_internal)
+      .def("get_agent_by_name",
+           &AutomotiveSimulator<double>::GetAgentByName,
+           py::return_value_policy::reference_internal)
+      .def("get_mutable_agent_by_name",
+           &AutomotiveSimulator<double>::GetMutableAgentByName,
+           py::return_value_policy::reference_internal)
       .def("start", &AutomotiveSimulator<double>::Start)
       .def("set_road_geometry",
            py::overload_cast<

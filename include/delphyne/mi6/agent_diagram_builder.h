@@ -10,6 +10,7 @@
 #include <memory>
 #include <stdexcept>
 #include <string>
+#include <utility>
 
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/framework_common.h>  // OutputPortIndex
@@ -53,7 +54,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
         this->AddSystem(std::make_unique<drake::systems::PassThrough<double>>(
             drake::systems::Value<
                 drake::systems::rendering::PoseBundle<double>>(0)));
-    inputs_["traffic_poses"] =
+    inputs_mapping_["traffic_poses"] =
         this->ExportInput(traffic_poses_->get_input_port());
   }
 
@@ -67,10 +68,10 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// than once before building.
   void ExportStateOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(
-        outputs_.count("state") == 0, std::runtime_error,
+        outputs_mapping_.count("state") == 0, std::runtime_error,
         "A state output port has already been exported and this diagram "
         "enforces that there can be only one.");
-    outputs_["state"] = this->ExportOutput(output);
+    outputs_mapping_["state"] = this->ExportOutput(output);
   }
 
   /// @brief Export the specified pose output port.
@@ -83,10 +84,10 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// than once before building.
   void ExportPoseOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(
-        outputs_.count("pose") == 0, std::runtime_error,
+        outputs_mapping_.count("pose") == 0, std::runtime_error,
         "A pose output port has already been exported and this diagram "
         "enforces that there can be only one.");
-    outputs_["pose"] = this->ExportOutput(output);
+    outputs_mapping_["pose"] = this->ExportOutput(output);
   }
 
   /// @brief Export the specified velocity output port.
@@ -99,10 +100,10 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// than once before building.
   void ExportVelocityOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(
-        outputs_.count("velocity") == 0, std::runtime_error,
+        outputs_mapping_.count("velocity") == 0, std::runtime_error,
         "A velocity output port has already been exported and this diagram "
         "enforces that there can be only one.");
-    outputs_["velocity"] = this->ExportOutput(output);
+    outputs_mapping_["velocity"] = this->ExportOutput(output);
   }
 
   /// @brief Connect the input traffic poses port to internal systems.
@@ -120,28 +121,28 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
     // Check that all indices have been set
     //   inputs: "traffic_poses"
     //   outputs: "state", "pose", "velocity"
-    DELPHYNE_VALIDATE(outputs_.count("state") == 1, std::runtime_error,
+    DELPHYNE_VALIDATE(outputs_mapping_.count("state") != 0, std::runtime_error,
                       "A state output port has not been exported (see "
                       "AgentDiagramBuilder::ExportStateOutput)");
-    DELPHYNE_VALIDATE(outputs_.count("pose") == 1, std::runtime_error,
+    DELPHYNE_VALIDATE(outputs_mapping_.count("pose") != 0, std::runtime_error,
                       "A pose output port has not been exported (see "
                       "AgentDiagramBuilder::ExportPoseOutput)");
-    DELPHYNE_VALIDATE(outputs_.count("velocity") == 1, std::runtime_error,
-                      "A velocity output port has not been exported (see "
-                      "AgentDiagramBuilder::ExportPoseOutput)");
-    auto bundle = std::make_unique<DiagramBundle<T>>();
-    bundle->diagram = drake::systems::DiagramBuilder<T>::Build();
-    bundle->diagram->set_name(name_);
-    bundle->outputs = outputs_;
-    bundle->inputs = inputs_;
-    return bundle;
+    DELPHYNE_VALIDATE(
+        outputs_mapping_.count("velocity") != 0, std::runtime_error,
+        "A velocity output port has not been exported (see "
+        "AgentDiagramBuilder::ExportPoseOutput)");
+    auto diagram = std::make_unique<DiagramBundle<T>>(this);
+    diagram->set_name(name_);
+    diagram->set_input_names(inputs_mapping_);
+    diagram->set_output_names(outputs_mapping_);
+    return std::move(diagram);
   }
 
  private:
   const std::string name_;
   drake::systems::PassThrough<double>* traffic_poses_;
-  std::map<std::string, drake::systems::OutputPortIndex> outputs_;
-  std::map<std::string, drake::systems::InputPortIndex> inputs_;
+  std::map<std::string, drake::systems::InputPortIndex> inputs_mapping_{};
+  std::map<std::string, drake::systems::OutputPortIndex> outputs_mapping_{};
 };
 
 /*****************************************************************************

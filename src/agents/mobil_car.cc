@@ -52,8 +52,8 @@ MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
                                drake::Vector3<double>::UnitZ());
 }
 
-std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
-  DiagramBuilder builder(name_);
+std::unique_ptr<Agent::Diagram> MobilCar::BuildDiagram() const {
+  DiagramBuilder builder(this->name());
 
   /******************************************
    * Initial Context Variables
@@ -75,30 +75,30 @@ std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
           road_geometry_, initial_parameters_.direction_of_travel,
           RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
-  mobil_planner->set_name(name_ + "_mobil_planner");
+  mobil_planner->set_name(this->name() + "_mobil_planner");
 
   IDMController<double>* idm_controller =
       builder.AddSystem(std::make_unique<IDMController<double>>(
           road_geometry_, ScanStrategy::kBranches,
           RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
-  idm_controller->set_name(name_ + "_idm_controller");
+  idm_controller->set_name(this->name() + "_idm_controller");
 
   delphyne::PurePursuitController<double>* pursuit = builder.AddSystem(
       std::make_unique<delphyne::PurePursuitController<double>>());
-  pursuit->set_name(name_ + "_pure_pursuit_controller");
+  pursuit->set_name(this->name() + "_pure_pursuit_controller");
 
   typedef SimpleCar2<double> SimpleCarSystem;
   SimpleCarSystem* simple_car_system =
       builder.AddSystem(std::make_unique<SimpleCarSystem>(
           context_continuous_state, context_numeric_parameters));
-  simple_car_system->set_name(name_ + "_simple_car");
+  simple_car_system->set_name(this->name() + "_simple_car");
 
   drake::systems::Multiplexer<double>* mux =
       builder.AddSystem<drake::systems::Multiplexer<double>>(
           std::make_unique<drake::systems::Multiplexer<double>>(
               DrivingCommand<double>()));
-  mux->set_name(name_ + "_mux");
+  mux->set_name(this->name() + "_mux");
 
   /*********************
    * Diagram Wiring
@@ -135,7 +135,7 @@ std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
   builder.ExportPoseOutput(simple_car_system->pose_output());
   builder.ExportVelocityOutput(simple_car_system->velocity_output());
 
-  return std::move(builder.Build());
+  return builder.Build();
 }
 
 }  // namespace delphyne

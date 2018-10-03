@@ -39,8 +39,8 @@ SimpleCar::SimpleCar(const std::string& name, double x, double y,
                                drake::Vector3<double>::UnitZ()));
 }
 
-std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
-  DiagramBuilder builder(name_);
+std::unique_ptr<Agent::Diagram> SimpleCar::BuildDiagram() const {
+  DiagramBuilder builder(this->name());
 
   /*********************
    * Context
@@ -61,7 +61,7 @@ std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
   SimpleCarSystem* simple_car_system =
       builder.AddSystem(std::make_unique<SimpleCarSystem>(
           context_continuous_state, context_numeric_parameters));
-  simple_car_system->set_name(name_);
+  simple_car_system->set_name(this->name() + "_system");
 
   /*********************
    * Teleop Systems
@@ -89,7 +89,7 @@ std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
   builder.ExportPoseOutput(simple_car_system->pose_output());
   builder.ExportVelocityOutput(simple_car_system->velocity_output());
 
-  return std::move(builder.Build());
+  return builder.Build();
 }
 
 /*****************************************************************************

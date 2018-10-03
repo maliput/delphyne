@@ -4,20 +4,10 @@
 
 #include <memory>
 
-//#include <chrono>
-//#include <condition_variable>
-//#include <functional>
-//#include <map>
-//#include <mutex>
-//#include <stdexcept>
-//#include <string>
-//#include <thread>
-
-#include "systems/lane_direction.h"
-
 #include <gtest/gtest.h>
 
 #include "helpers.h"
+#include "systems/lane_direction.h"
 #include "systems/simple_car.h"
 #include "test/test_config.h"
 

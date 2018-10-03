@@ -97,8 +97,8 @@ RailCar::RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
       "RoadGeometry.");
 }
 
-std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
-  DiagramBuilder builder(name_);
+std::unique_ptr<Agent::Diagram> RailCar::BuildDiagram() const {
+  DiagramBuilder builder(name());
 
   /******************************************
    * Initial Context Variables
@@ -129,7 +129,7 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
       builder.AddSystem(std::make_unique<RailFollower<double>>(
           lane_direction, context_continuous_state,
           context_numeric_parameters));
-  rail_follower_system->set_name(name_ + "_system");
+  rail_follower_system->set_name(name() + "_system");
 
   vel_setter_ = builder.template AddSystem(
       std::make_unique<delphyne::VectorSource<double>>(-1));
@@ -152,10 +152,12 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   builder.ExportPoseOutput(rail_follower_system->pose_output());
   builder.ExportVelocityOutput(rail_follower_system->velocity_output());
 
-  return std::move(builder.Build());
+  return builder.Build();
 }
 
 void RailCar::SetSpeed(double new_speed_mps) {
+  DELPHYNE_VALIDATE(vel_setter_ != nullptr, std::runtime_error,
+                    "This rail car is not a part of a simulation!");
   vel_setter_->Set(new_speed_mps);
 }
 

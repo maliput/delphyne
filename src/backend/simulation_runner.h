@@ -114,8 +114,7 @@ class SimulatorRunner {
   // @brief On agent collision callback function type.
   // @see AutomotiveSimulator::GetCollisions()
   using CollisionCallback = std::function<void(
-      const std::vector<std::pair<delphyne::AgentBase<double>*,
-                                  delphyne::AgentBase<double>*>>&)>;
+      const std::vector<AgentBasePair<double>>&)>;
 
   /// @brief Default constructor.
   ///

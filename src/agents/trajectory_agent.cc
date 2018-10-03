@@ -68,8 +68,8 @@ TrajectoryAgent::TrajectoryAgent(
       initial_car_pose_velocity.rotation();
 }
 
-std::unique_ptr<Agent::DiagramBundle> TrajectoryAgent::BuildDiagram() const {
-  DiagramBuilder builder(name_);
+std::unique_ptr<Agent::Diagram> TrajectoryAgent::BuildDiagram() const {
+  DiagramBuilder builder(this->name());
 
   /******************************************
    * Trajectory Follower System
@@ -81,7 +81,7 @@ std::unique_ptr<Agent::DiagramBundle> TrajectoryAgent::BuildDiagram() const {
   typedef drake::automotive::TrajectoryFollower<double> TrajectoryFollower;
   TrajectoryFollower* trajectory_follower_system = builder.AddSystem(
       std::make_unique<TrajectoryFollower>(*trajectory_, sampling_time));
-  trajectory_follower_system->set_name(name_);
+  trajectory_follower_system->set_name(this->name() + "_system");
 
   /*********************
    * Diagram Outputs
@@ -90,7 +90,7 @@ std::unique_ptr<Agent::DiagramBundle> TrajectoryAgent::BuildDiagram() const {
   builder.ExportPoseOutput(trajectory_follower_system->pose_output());
   builder.ExportVelocityOutput(trajectory_follower_system->velocity_output());
 
-  return std::move(builder.Build());
+  return builder.Build();
 }
 
 /*****************************************************************************

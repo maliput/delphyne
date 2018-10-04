@@ -31,6 +31,7 @@
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "helpers.h"
 #include "test/test_config.h"
+#include "visualization/simple_prius_vis.h"
 
 using drake::automotive::PriusVis;
 using drake::automotive::DrivingCommand;
@@ -55,7 +56,7 @@ struct LinkInfo {
 };
 
 // Returns the Prius link count.
-int GetPriusLinkCount() { return PriusVis<double>(0, "").num_poses(); }
+int GetPriusLinkCount() { return SimplePriusVis<double>(0, "").num_poses(); }
 
 // Returns the number of links present in the ignition::msgs::Model_V message
 // passed as a parameter.
@@ -135,22 +136,11 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 
   const std::vector<LinkInfo> expected_load{
       LinkInfo("chassis_floor", 0, 1),
-      LinkInfo("front_axle", 0, 1),
-      LinkInfo("left_tie_rod_arm", 0, 2),
-      LinkInfo("left_hub", 0, 1),
-      LinkInfo("tie_rod", 0, 1),
-      LinkInfo("left_wheel", 0, 3),
-      LinkInfo("right_tie_rod_arm", 0, 2),
-      LinkInfo("right_hub", 0, 1),
-      LinkInfo("right_wheel", 0, 3),
-      LinkInfo("rear_axle", 0, 1),
-      LinkInfo("left_wheel_rear", 0, 3),
-      LinkInfo("right_wheel_rear", 0, 3),
       LinkInfo("body", 0, 1),
-      LinkInfo("front_lidar_link", 0, 1),
-      LinkInfo("top_lidar_link", 0, 1),
-      LinkInfo("rear_right_lidar_link", 0, 1),
-      LinkInfo("rear_left_lidar_link", 0, 1),
+      LinkInfo("left_wheel", 0, 1),
+      LinkInfo("right_wheel", 0, 1),
+      LinkInfo("left_wheel_rear", 0, 1),
+      LinkInfo("right_wheel_rear", 0, 1),
       LinkInfo("world", 0, 0),
       LinkInfo("surface", 0, 1)};
 

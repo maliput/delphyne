@@ -37,6 +37,7 @@
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 #include "translations/pose_bundle_to_agent_state_v.h"
+#include "visualization/simple_prius_vis.h"
 
 namespace delphyne {
 
@@ -149,8 +150,7 @@ delphyne::AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
   // We'll need a means of having the agents report what visual they have and
   // hooking that up. Also wondering why visuals are in the drake diagram?
   car_vis_applicator_->AddCarVis(
-      std::make_unique<drake::automotive::PriusVis<double>>(id, agent->name()));
-
+      std::make_unique<SimplePriusVis<double>>(id, agent->name()));
   /*********************
    * Agent Geometry
    *********************/

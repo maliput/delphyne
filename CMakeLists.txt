@@ -118,6 +118,7 @@ message(STATUS "\n----------------------------------------\n")
 add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(python)
+add_subdirectory(media)
 
 ##############################################################################
 # Tests

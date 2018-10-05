@@ -8,11 +8,11 @@
 #include <utility>
 #include <vector>
 
-#include "drake/automotive/maliput/api/junction.h"
-#include "drake/automotive/maliput/api/segment.h"
-#include "drake/common/cond.h"
-#include "drake/common/drake_assert.h"
-#include "drake/math/saturate.h"
+#include <drake/automotive/maliput/api/junction.h>
+#include <drake/automotive/maliput/api/segment.h>
+#include <drake/common/cond.h>
+#include <drake/common/drake_assert.h>
+#include <drake/math/saturate.h>
 
 namespace drake {
 

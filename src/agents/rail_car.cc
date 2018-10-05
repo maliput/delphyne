@@ -14,8 +14,6 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/gen/simple_car_state_translator.h>
-#include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/junction.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
@@ -28,7 +26,10 @@
 #include "delphyne/macros.h"
 #include "delphyne/maliput/find_lane.h"
 
+#include "gen/simple_car_state_translator.h"
+
 // private headers
+#include "systems/lane_direction.h"
 #include "systems/rail_follower.h"
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"

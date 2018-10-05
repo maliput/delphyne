@@ -7,7 +7,6 @@
 #include <limits>
 #include <utility>
 
-#include <drake/automotive/calc_smooth_acceleration.h>
 #include <drake/common/cond.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/double_overloads.h>
@@ -16,6 +15,8 @@
 #include <drake/systems/framework/vector_base.h>
 
 #include <Eigen/Geometry>
+
+#include "systems/calc_smooth_acceleration.h"
 
 namespace drake {
 

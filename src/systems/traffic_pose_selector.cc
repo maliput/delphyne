@@ -8,14 +8,14 @@
 #include <utility>
 #include <vector>
 
-#include "drake/automotive/maliput/api/branch_point.h"
-#include "drake/automotive/maliput/api/junction.h"
-#include "drake/automotive/maliput/api/segment.h"
-#include "drake/common/autodiffxd_make_coherent.h"
-#include "drake/common/default_scalars.h"
-#include "drake/common/drake_assert.h"
-#include "drake/common/drake_optional.h"
-#include "drake/common/extract_double.h"
+#include <drake/automotive/maliput/api/branch_point.h>
+#include <drake/automotive/maliput/api/junction.h>
+#include <drake/automotive/maliput/api/segment.h>
+#include <drake/common/autodiffxd_make_coherent.h>
+#include <drake/common/default_scalars.h>
+#include <drake/common/drake_assert.h>
+#include <drake/common/drake_optional.h>
+#include <drake/common/extract_double.h>
 
 namespace drake {
 namespace automotive {

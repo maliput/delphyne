@@ -14,7 +14,6 @@
 #include <utility>
 
 #include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/pure_pursuit_controller.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/primitives/multiplexer.h>
 
@@ -27,6 +26,7 @@
 // private headers
 #include "systems/idm_controller.h"
 #include "systems/mobil_planner.h"
+#include "systems/pure_pursuit_controller.h"
 #include "systems/simple_car.h"
 
 /*****************************************************************************

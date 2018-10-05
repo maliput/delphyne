@@ -10,17 +10,8 @@
 
 #include <drake/automotive/car_vis_applicator.h>
 #include <drake/automotive/curve2.h>
-#include <drake/automotive/gen/maliput_railcar_state.h>
-#include <drake/automotive/gen/trajectory_car_state.h>
-#include <drake/automotive/idm_controller.h>
-#include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/utility/generate_obj.h>
-#include <drake/automotive/maliput_railcar.h>
-#include <drake/automotive/mobil_planner.h>
-#include <drake/automotive/pure_pursuit_controller.h>
-#include <drake/automotive/simple_car.h>
-#include <drake/automotive/trajectory_car.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/multibody/rigid_body_tree.h>
@@ -35,6 +26,8 @@
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
+
+#include "systems/lane_direction.h"
 
 // private headers
 #include "backend/ign_publisher_system.h"

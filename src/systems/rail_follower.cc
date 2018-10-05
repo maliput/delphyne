@@ -13,7 +13,6 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/calc_smooth_acceleration.h>
 #include <drake/automotive/maliput/api/branch_point.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/lane_data.h>
@@ -27,6 +26,7 @@
 
 #include <Eigen/Geometry>
 
+#include "systems/calc_smooth_acceleration.h"
 #include "systems/rail_follower_params.h"
 #include "systems/rail_follower_state.h"
 

@@ -4,13 +4,14 @@
 
 #include <memory>
 
-#include <drake/automotive/gen/driving_command.h>
-#include <drake/automotive/gen/simple_car_params.h>
-#include <drake/automotive/gen/simple_car_state.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
+
+#include "gen/driving_command.h"
+#include "gen/simple_car_params.h"
+#include "gen/simple_car_state.h"
 
 namespace drake {
 namespace automotive {

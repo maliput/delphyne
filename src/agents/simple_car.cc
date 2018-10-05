@@ -12,10 +12,9 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/gen/simple_car_state.h>
-#include <drake/automotive/gen/simple_car_state_translator.h>
-
 #include "backend/ign_subscriber_system.h"
+#include "gen/simple_car_state.h"
+#include "gen/simple_car_state_translator.h"
 #include "translations/ign_driving_command_to_drake.h"
 
 /*****************************************************************************

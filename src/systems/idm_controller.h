@@ -7,16 +7,16 @@
 
 #include <Eigen/Geometry>
 
-#include "drake/automotive/calc_ongoing_road_position.h"
-#include "drake/automotive/gen/idm_planner_parameters.h"
-#include "drake/automotive/idm_planner.h"
-#include "drake/automotive/maliput/api/lane_data.h"
-#include "drake/automotive/maliput/api/road_geometry.h"
-#include "drake/common/drake_copyable.h"
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/rendering/pose_bundle.h"
-#include "drake/systems/rendering/pose_vector.h"
+#include <drake/automotive/maliput/api/lane_data.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/common/drake_copyable.h>
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/rendering/pose_bundle.h>
+#include <drake/systems/rendering/pose_vector.h>
 
+#include "gen/idm_planner_parameters.h"
+#include "systems/calc_ongoing_road_position.h"
+#include "systems/idm_planner.h"
 #include "systems/traffic_pose_selector.h"
 
 namespace drake {

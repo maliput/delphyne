@@ -11,7 +11,6 @@
 #include <string>
 #include <thread>
 
-#include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/automotive/prius_vis.h>
@@ -30,6 +29,7 @@
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "helpers.h"
+#include "systems/lane_direction.h"
 #include "test/test_config.h"
 #include "visualization/simple_prius_vis.h"
 
@@ -37,7 +37,6 @@ using drake::automotive::PriusVis;
 using drake::automotive::DrivingCommand;
 using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarState;
-using drake::automotive::MaliputRailcarParams;
 using drake::automotive::PriusVis;
 
 namespace delphyne {

@@ -13,7 +13,7 @@
 //#include <string>
 //#include <thread>
 
-#include <drake/automotive/lane_direction.h>
+#include "systems/lane_direction.h"
 
 #include <gtest/gtest.h>
 

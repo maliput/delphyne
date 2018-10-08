@@ -239,6 +239,8 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 
   // 2. Steps the simulator (if needed). Note that the simulator will sleep
   // here if needed to adjust to the real-time rate.
+
+  // Determines whether the simulation should be running or not.
   bool running = !paused_ || steps_requested_ > 0;
   if (running) {
     StepSimulationBy(time_step_);
@@ -285,7 +287,9 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
         agents_in_collision = simulator_->GetCollisions();
     if (!agents_in_collision.empty()) {
       // Pauses simulation if necessary.
-      PauseSimulation();
+      if (!IsSimulationPaused()) {
+        PauseSimulation();
+      }
       // Calls all registered collision callbacks, if any.
       if (!collision_callbacks.empty()) {
         // 1. Acquires the lock to the python interpreter.

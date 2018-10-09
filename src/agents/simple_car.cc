@@ -45,8 +45,8 @@ std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
   /*********************
    * Context
    *********************/
-  typedef drake::automotive::SimpleCarState<double> ContextContinuousState;
-  typedef drake::automotive::SimpleCarParams<double> ContextNumericParameters;
+  typedef SimpleCarState<double> ContextContinuousState;
+  typedef SimpleCarParams<double> ContextNumericParameters;
   ContextContinuousState context_continuous_state;
   context_continuous_state.set_x(initial_parameters_.x);
   context_continuous_state.set_y(initial_parameters_.y);
@@ -57,7 +57,7 @@ std::unique_ptr<Agent::DiagramBundle> SimpleCar::BuildDiagram() const {
   /*********************
    * Simple Car System
    *********************/
-  typedef drake::automotive::SimpleCar2<double> SimpleCarSystem;
+  typedef SimpleCar2<double> SimpleCarSystem;
   SimpleCarSystem* simple_car_system =
       builder.AddSystem(std::make_unique<SimpleCarSystem>(
           context_continuous_state, context_numeric_parameters));

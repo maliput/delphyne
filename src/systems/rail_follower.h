@@ -95,8 +95,7 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   ///
   /// @param initial_lane_direction The initial lane and direction of travel.
   ///
-  explicit RailFollower(
-      const drake::automotive::LaneDirection& initial_lane_direction);
+  explicit RailFollower(const LaneDirection& initial_lane_direction);
 
   /// Constructor that initialises all variables in the system that will be
   /// placed on the context. This includes the continuous state, parameters
@@ -106,7 +105,7 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   /// travel.
   /// @param[in] initial_context_state The continuous state variables
   /// @param[in] initial_context_parameters The parameters
-  RailFollower(const drake::automotive::LaneDirection& initial_lane_direction,
+  RailFollower(const LaneDirection& initial_lane_direction,
                const RailFollowerState<T>& initial_context_state,
                const RailFollowerParams<T>& initial_context_parameters);
 
@@ -140,15 +139,14 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
       const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
       drake::systems::State<T>* state) const override;
 
-  void CalcSimpleCarStateOutput(
-      const drake::systems::Context<T>& context,
-      drake::automotive::SimpleCarState<T>* output) const;
+  void CalcSimpleCarStateOutput(const drake::systems::Context<T>& context,
+                                SimpleCarState<T>* output) const;
 
   void CalcStateOutput(const drake::systems::Context<T>& context,
                        RailFollowerState<T>* output) const;
 
   void CalcLaneOutput(const drake::systems::Context<T>& context,
-                      drake::automotive::LaneDirection* output) const;
+                      LaneDirection* output) const;
 
   void CalcPose(const drake::systems::Context<T>& context,
                 drake::systems::rendering::PoseVector<T>* pose) const;
@@ -156,11 +154,11 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   void CalcVelocity(const drake::systems::Context<T>& context,
                     drake::systems::rendering::FrameVelocity<T>* pose) const;
 
-  void ImplCalcTimeDerivatives(
-      const RailFollowerParams<T>& params, const RailFollowerState<T>& state,
-      const drake::automotive::LaneDirection& lane_direction,
-      const drake::systems::BasicVector<T>& input,
-      RailFollowerState<T>* rates) const;
+  void ImplCalcTimeDerivatives(const RailFollowerParams<T>& params,
+                               const RailFollowerState<T>& state,
+                               const LaneDirection& lane_direction,
+                               const drake::systems::BasicVector<T>& input,
+                               RailFollowerState<T>* rates) const;
 
   void ImplCalcTimeDerivativesDouble(const RailFollowerParams<double>& params,
                                      const RailFollowerState<double>& state,
@@ -169,7 +167,7 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   // Calculates the vehicle's `r` coordinate based on whether it's traveling
   // with or against `s` in the current lane relative to the initial lane.
   T CalcR(const RailFollowerParams<T>& params,
-          const drake::automotive::LaneDirection& lane_direction) const;
+          const LaneDirection& lane_direction) const;
 
   /****************************************
    * Context Accessors
@@ -180,13 +178,13 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   const RailFollowerParams<T>& get_rail_follower_parameters(
       const drake::systems::Context<T>& context) const;
 
-  const drake::automotive::LaneDirection& get_lane_direction(
+  const LaneDirection& get_lane_direction(
       const drake::systems::Context<T>& context) const;
 
   /********************
    * Initial Values
    *******************/
-  const drake::automotive::LaneDirection initial_lane_direction_{};
+  const LaneDirection initial_lane_direction_{};
 
   /********************
    * System Indices

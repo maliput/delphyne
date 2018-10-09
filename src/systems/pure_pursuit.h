@@ -10,8 +10,7 @@
 #include "gen/simple_car_params.h"
 #include "systems/lane_direction.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// PurePursuit computes the required steering angle to achieve a goal point on
 /// an continuous planar path.  The path represents as the set of `r = 0`
@@ -54,15 +53,14 @@ class PurePursuit {
   static T Evaluate(const PurePursuitParams<T>& pp_params,
                     const SimpleCarParams<T>& car_params,
                     const LaneDirection& lane_direction,
-                    const systems::rendering::PoseVector<T>& pose);
+                    const drake::systems::rendering::PoseVector<T>& pose);
 
   /// Computes the goal point at a distance `s_lookahead` from the closest
   /// position on the curve in the intended direction of travel, and `with_s`
   /// and `pose` are the direction of travel and PoseVector for the ego vehicle.
-  static const maliput::api::GeoPositionT<T> ComputeGoalPoint(
+  static const drake::maliput::api::GeoPositionT<T> ComputeGoalPoint(
       const T& s_lookahead, const LaneDirection& lane_direction,
-      const systems::rendering::PoseVector<T>& pose);
+      const drake::systems::rendering::PoseVector<T>& pose);
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

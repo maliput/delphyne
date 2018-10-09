@@ -8,19 +8,18 @@
 #include <drake/common/autodiff.h>
 #include <drake/common/symbolic.h>
 
-#include "systems/pose_selector.h"
+#include "systems/traffic_pose_selector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
-using maliput::api::GeoPositionT;
-using maliput::api::LaneEnd;
-using maliput::api::LaneEndSet;
-using maliput::api::LanePositionT;
-using maliput::api::RoadGeometry;
-using maliput::api::RoadPosition;
-using systems::rendering::FrameVelocity;
-using systems::rendering::PoseVector;
+using drake::maliput::api::GeoPositionT;
+using drake::maliput::api::LaneEnd;
+using drake::maliput::api::LaneEndSet;
+using drake::maliput::api::LanePositionT;
+using drake::maliput::api::RoadGeometry;
+using drake::maliput::api::RoadPosition;
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseVector;
 
 template <typename T>
 void CalcOngoingRoadPosition(const PoseVector<T>& pose,
@@ -46,7 +45,8 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose,
 
   // Check the ongoing lanes at the end corresponding to the direction the car
   // is moving.
-  const T s_dot = PoseSelector<T>::GetSigmaVelocity({rp->lane, lp, velocity});
+  const T s_dot =
+      TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lp, velocity});
   for (const auto end : {LaneEnd::kStart, LaneEnd::kFinish}) {
     // Check only the relevant lane end.  If s_dot == 0, check both ends
     // (velocity isn't informative).
@@ -71,14 +71,13 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose,
 
 // These instantiations must match the API documentation in
 // calc_ongoing_road_position.h.
-template void CalcOngoingRoadPosition(const PoseVector<AutoDiffXd>& pose,
-                                      const FrameVelocity<AutoDiffXd>& velocity,
-                                      const RoadGeometry& road,
-                                      RoadPosition* rp);
+template void CalcOngoingRoadPosition(
+    const PoseVector<drake::AutoDiffXd>& pose,
+    const FrameVelocity<drake::AutoDiffXd>& velocity, const RoadGeometry& road,
+    RoadPosition* rp);
 template void CalcOngoingRoadPosition(const PoseVector<double>& pose,
                                       const FrameVelocity<double>& velocity,
                                       const RoadGeometry& road,
                                       RoadPosition* rp);
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

@@ -9,24 +9,22 @@
 
 #include "systems/pure_pursuit.h"
 
-namespace drake {
+namespace delphyne {
 
-using systems::BasicVector;
-using systems::rendering::PoseVector;
-
-namespace automotive {
+using drake::systems::BasicVector;
+using drake::systems::rendering::PoseVector;
 
 static constexpr int kPpParamsIndex{0};
 static constexpr int kCarParamsIndex{1};
 
 template <typename T>
 PurePursuitController<T>::PurePursuitController()
-    : systems::LeafSystem<T>(
-          systems::SystemTypeTag<automotive::PurePursuitController>{}),
+    : drake::systems::LeafSystem<T>(
+          drake::systems::SystemTypeTag<::delphyne::PurePursuitController>{}),
       lane_index_{this->DeclareAbstractInputPort().get_index()},
-      ego_pose_index_{
-          this->DeclareInputPort(systems::kVectorValued, PoseVector<T>::kSize)
-              .get_index()},
+      ego_pose_index_{this->DeclareInputPort(drake::systems::kVectorValued,
+                                             PoseVector<T>::kSize)
+                          .get_index()},
       steering_command_index_{
           this->DeclareVectorOutputPort(
                   BasicVector<T>(1),
@@ -40,25 +38,27 @@ template <typename T>
 PurePursuitController<T>::~PurePursuitController() {}
 
 template <typename T>
-const systems::InputPort<T>& PurePursuitController<T>::lane_input() const {
-  return systems::System<T>::get_input_port(lane_index_);
+const drake::systems::InputPort<T>& PurePursuitController<T>::lane_input()
+    const {
+  return drake::systems::System<T>::get_input_port(lane_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& PurePursuitController<T>::ego_pose_input() const {
-  return systems::System<T>::get_input_port(ego_pose_index_);
+const drake::systems::InputPort<T>& PurePursuitController<T>::ego_pose_input()
+    const {
+  return drake::systems::System<T>::get_input_port(ego_pose_index_);
 }
 
 template <typename T>
-const systems::OutputPort<T>&
+const drake::systems::OutputPort<T>&
 PurePursuitController<T>::steering_command_output() const {
-  return systems::System<T>::get_output_port(steering_command_index_);
+  return drake::systems::System<T>::get_output_port(steering_command_index_);
 }
 
 template <typename T>
 void PurePursuitController<T>::OutputSteeringCommand(
-    const systems::Context<T>& context,
-    systems::BasicVector<T>* steering_output) const {
+    const drake::systems::Context<T>& context,
+    drake::systems::BasicVector<T>* steering_output) const {
   // Obtain the parameters.
   const PurePursuitParams<T>& pp_params =
       this->template GetNumericParameter<PurePursuitParams>(context,
@@ -96,10 +96,9 @@ void PurePursuitController<T>::CalcSteeringCommand(
       PurePursuit<T>::Evaluate(pp_params, car_params, lane_direction, ego_pose);
 }
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne
 
 // These instantiations must match the API documentation in
 // pure_pursuit_controller.h.
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS(
-    class ::drake::automotive::PurePursuitController)
+    class ::delphyne::PurePursuitController)

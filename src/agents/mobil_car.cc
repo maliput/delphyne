@@ -58,8 +58,8 @@ std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
   /******************************************
    * Initial Context Variables
    ******************************************/
-  typedef drake::automotive::SimpleCarState<double> ContextContinuousState;
-  typedef drake::automotive::SimpleCarParams<double> ContextNumericParameters;
+  typedef delphyne::SimpleCarState<double> ContextContinuousState;
+  typedef delphyne::SimpleCarParams<double> ContextNumericParameters;
   ContextContinuousState context_continuous_state;
   context_continuous_state.set_x(initial_parameters_.x);
   context_continuous_state.set_y(initial_parameters_.y);
@@ -70,25 +70,25 @@ std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
   /*********************
    * Instantiate Systems
    *********************/
-  drake::automotive::MOBILPlanner<double>* mobil_planner = builder.AddSystem(
-      std::make_unique<drake::automotive::MOBILPlanner<double>>(
+  delphyne::MOBILPlanner<double>* mobil_planner =
+      builder.AddSystem(std::make_unique<delphyne::MOBILPlanner<double>>(
           road_geometry_, initial_parameters_.direction_of_travel,
-          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+          RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
   mobil_planner->set_name(name_ + "_mobil_planner");
 
-  drake::automotive::IDMController<double>* idm_controller = builder.AddSystem(
-      std::make_unique<drake::automotive::IDMController<double>>(
-          road_geometry_, drake::automotive::ScanStrategy::kBranches,
-          drake::automotive::RoadPositionStrategy::kExhaustiveSearch,
+  IDMController<double>* idm_controller =
+      builder.AddSystem(std::make_unique<IDMController<double>>(
+          road_geometry_, ScanStrategy::kBranches,
+          RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
   idm_controller->set_name(name_ + "_idm_controller");
 
-  drake::automotive::PurePursuitController<double>* pursuit = builder.AddSystem(
-      std::make_unique<drake::automotive::PurePursuitController<double>>());
+  delphyne::PurePursuitController<double>* pursuit = builder.AddSystem(
+      std::make_unique<delphyne::PurePursuitController<double>>());
   pursuit->set_name(name_ + "_pure_pursuit_controller");
 
-  typedef drake::automotive::SimpleCar2<double> SimpleCarSystem;
+  typedef SimpleCar2<double> SimpleCarSystem;
   SimpleCarSystem* simple_car_system =
       builder.AddSystem(std::make_unique<SimpleCarSystem>(
           context_continuous_state, context_numeric_parameters));
@@ -97,7 +97,7 @@ std::unique_ptr<Agent::DiagramBundle> MobilCar::BuildDiagram() const {
   drake::systems::Multiplexer<double>* mux =
       builder.AddSystem<drake::systems::Multiplexer<double>>(
           std::make_unique<drake::systems::Multiplexer<double>>(
-              drake::automotive::DrivingCommand<double>()));
+              DrivingCommand<double>()));
   mux->set_name(name_ + "_mux");
 
   /*********************

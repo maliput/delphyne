@@ -8,14 +8,14 @@
 
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/framework/scalar_conversion_traits.h>
 #include <drake/systems/rendering/pose_vector.h>
 
 #include "gen/pure_pursuit_params.h"
 #include "gen/simple_car_params.h"
 #include "systems/lane_direction.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// PurePursuitController implements a pure pursuit controller.  See PurePursuit
 /// for details on the approach.
@@ -38,7 +38,7 @@ namespace automotive {
 ///
 /// @ingroup automotive_controllers
 template <typename T>
-class PurePursuitController : public systems::LeafSystem<T> {
+class PurePursuitController : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(PurePursuitController)
 
@@ -53,19 +53,19 @@ class PurePursuitController : public systems::LeafSystem<T> {
   ~PurePursuitController() override;
 
   /// Returns the port to the individual input/output ports.
-  const systems::InputPort<T>& lane_input() const;
-  const systems::InputPort<T>& ego_pose_input() const;
-  const systems::OutputPort<T>& steering_command_output() const;
+  const drake::systems::InputPort<T>& lane_input() const;
+  const drake::systems::InputPort<T>& ego_pose_input() const;
+  const drake::systems::OutputPort<T>& steering_command_output() const;
 
  private:
-  void OutputSteeringCommand(const systems::Context<T>& context,
-                             systems::BasicVector<T>* output) const;
+  void OutputSteeringCommand(const drake::systems::Context<T>& context,
+                             drake::systems::BasicVector<T>* output) const;
 
-  void CalcSteeringCommand(const PurePursuitParams<T>& pp_params,
-                           const SimpleCarParams<T>& car_params,
-                           const LaneDirection& lane_direction,
-                           const systems::rendering::PoseVector<T>& ego_pose,
-                           systems::BasicVector<T>* command) const;
+  void CalcSteeringCommand(
+      const PurePursuitParams<T>& pp_params,
+      const SimpleCarParams<T>& car_params, const LaneDirection& lane_direction,
+      const drake::systems::rendering::PoseVector<T>& ego_pose,
+      drake::systems::BasicVector<T>* command) const;
 
   // Indices for the input / output ports.
   const int lane_index_{};
@@ -73,15 +73,15 @@ class PurePursuitController : public systems::LeafSystem<T> {
   const int steering_command_index_{};
 };
 
-}  // namespace automotive
+}  // namespace delphyne
 
+namespace drake {
 namespace systems {
 namespace scalar_conversion {
 // Disables symbolic support, because maliput's LanePositionT <-> GeoPositionT
 // conversion (used in pure_pursuit.cc) is not symbolic-supported.
 template <>
-struct Traits<automotive::PurePursuitController> : public NonSymbolicTraits {};
+struct Traits<::delphyne::PurePursuitController> : public NonSymbolicTraits {};
 }  // namespace scalar_conversion
 }  // namespace systems
-
 }  // namespace drake

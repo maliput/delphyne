@@ -12,8 +12,7 @@
 #include <drake/common/drake_assert.h>
 #include <drake/common/extract_double.h>
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 template <typename T>
 const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params,
@@ -40,9 +39,9 @@ const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params,
   const T& closing_term =
       ego_velocity * target_distance_dot / (2 * sqrt(a * b));
   const T& too_close_term = s_0 + ego_velocity * time_headway;
-  const T& accel_interaction =
-      cond(target_distance < std::numeric_limits<T>::infinity(),
-           pow((closing_term + too_close_term) / target_distance, 2.), T(0.));
+  const T& accel_interaction = drake::cond(
+      target_distance < std::numeric_limits<T>::infinity(),
+      pow((closing_term + too_close_term) / target_distance, 2.), T(0.));
 
   // Compute the free-road acceleration term.
   const T accel_free_road = pow(max(T(0.), ego_velocity) / v_ref, delta);
@@ -51,9 +50,8 @@ const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params,
   return a * (1. - accel_free_road - accel_interaction);
 }
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne
 
 // These instantiations must match the API documentation in idm_planner.h.
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::drake::automotive::IdmPlanner)
+    class ::delphyne::IdmPlanner)

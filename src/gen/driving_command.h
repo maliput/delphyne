@@ -18,8 +18,7 @@
 #include "drake/common/symbolic.h"
 #include "drake/systems/framework/basic_vector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Describes the row indices of a DrivingCommand.
 struct DrivingCommandIndices {
@@ -55,10 +54,11 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, symbolic::Expression>::value>::type
+  typename std::enable_if<
+      std::is_same<U, drake::symbolic::Expression>::value>::type
   SetToNamedVariables() {
-    this->set_steering_angle(symbolic::Variable("steering_angle"));
-    this->set_acceleration(symbolic::Variable("acceleration"));
+    this->set_steering_angle(drake::symbolic::Variable("steering_angle"));
+    this->set_acceleration(drake::symbolic::Variable("acceleration"));
   }
 
   DrivingCommand<T>* DoClone() const final { return new DrivingCommand; }
@@ -98,5 +98,4 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   }
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

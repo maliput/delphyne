@@ -18,8 +18,7 @@
 #include "drake/common/symbolic.h"
 #include "drake/systems/framework/basic_vector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Describes the row indices of a IdmPlannerParameters.
 struct IdmPlannerParametersIndices {
@@ -76,17 +75,20 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, symbolic::Expression>::value>::type
+  typename std::enable_if<
+      std::is_same<U, drake::symbolic::Expression>::value>::type
   SetToNamedVariables() {
-    this->set_v_ref(symbolic::Variable("v_ref"));
-    this->set_a(symbolic::Variable("a"));
-    this->set_b(symbolic::Variable("b"));
-    this->set_s_0(symbolic::Variable("s_0"));
-    this->set_time_headway(symbolic::Variable("time_headway"));
-    this->set_delta(symbolic::Variable("delta"));
-    this->set_bloat_diameter(symbolic::Variable("bloat_diameter"));
-    this->set_distance_lower_limit(symbolic::Variable("distance_lower_limit"));
-    this->set_scan_ahead_distance(symbolic::Variable("scan_ahead_distance"));
+    this->set_v_ref(drake::symbolic::Variable("v_ref"));
+    this->set_a(drake::symbolic::Variable("a"));
+    this->set_b(drake::symbolic::Variable("b"));
+    this->set_s_0(drake::symbolic::Variable("s_0"));
+    this->set_time_headway(drake::symbolic::Variable("time_headway"));
+    this->set_delta(drake::symbolic::Variable("delta"));
+    this->set_bloat_diameter(drake::symbolic::Variable("bloat_diameter"));
+    this->set_distance_lower_limit(
+        drake::symbolic::Variable("distance_lower_limit"));
+    this->set_scan_ahead_distance(
+        drake::symbolic::Variable("scan_ahead_distance"));
   }
 
   IdmPlannerParameters<T>* DoClone() const final {
@@ -203,5 +205,4 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   }
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

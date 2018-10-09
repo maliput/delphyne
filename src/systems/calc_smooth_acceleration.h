@@ -2,8 +2,7 @@
 
 #pragma once
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Computes and returns an acceleration command that results in a smooth
 /// acceleration profile. It is smooth in the sense that it looks pleasant and
@@ -24,5 +23,4 @@ T calc_smooth_acceleration(const T& desired_acceleration, const T& max_velocity,
                            const T& velocity_limit_kp,
                            const T& current_velocity);
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

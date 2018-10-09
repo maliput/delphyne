@@ -13,13 +13,12 @@
 #include <drake/math/roll_pitch_yaw.h>
 #include <drake/math/saturate.h>
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
-using maliput::api::GeoPositionT;
-using maliput::api::Lane;
-using maliput::api::LanePositionT;
-using systems::rendering::PoseVector;
+using drake::maliput::api::GeoPositionT;
+using drake::maliput::api::Lane;
+using drake::maliput::api::LanePositionT;
+using drake::systems::rendering::PoseVector;
 
 template <typename T>
 T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params,
@@ -39,7 +38,8 @@ T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params,
 
   const T x = pose.get_translation().translation().x();
   const T y = pose.get_translation().translation().y();
-  const T heading = math::RollPitchYaw<T>(pose.get_rotation()).yaw_angle();
+  const T heading =
+      drake::math::RollPitchYaw<T>(pose.get_rotation()).yaw_angle();
 
   const T delta_r = -(goal_position.x() - x) * sin(heading) +
                     (goal_position.y() - y) * cos(heading);
@@ -64,14 +64,13 @@ const GeoPositionT<T> PurePursuit<T>::ComputeGoalPoint(
                                nullptr, nullptr);
   const T s_new =
       with_s ? position.s() + s_lookahead : position.s() - s_lookahead;
-  const T s_goal = math::saturate(s_new, T(0.), T(lane->length()));
+  const T s_goal = drake::math::saturate(s_new, T(0.), T(lane->length()));
   // TODO(jadecastro): Add support for locating goal points in ongoing lanes.
   return lane->ToGeoPositionT<T>({s_goal, 0. * position.r(), position.h()});
 }
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne
 
 // These instantiations must match the API documentation in pure_pursuit.h.
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS(
-    class ::drake::automotive::PurePursuit)
+    class delphyne::PurePursuit)

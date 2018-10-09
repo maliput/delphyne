@@ -18,8 +18,7 @@
 #include "drake/common/symbolic.h"
 #include "drake/systems/framework/basic_vector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Describes the row indices of a SimpleCarState.
 struct SimpleCarStateIndices {
@@ -61,12 +60,13 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, symbolic::Expression>::value>::type
+  typename std::enable_if<
+      std::is_same<U, drake::symbolic::Expression>::value>::type
   SetToNamedVariables() {
-    this->set_x(symbolic::Variable("x"));
-    this->set_y(symbolic::Variable("y"));
-    this->set_heading(symbolic::Variable("heading"));
-    this->set_velocity(symbolic::Variable("velocity"));
+    this->set_x(drake::symbolic::Variable("x"));
+    this->set_y(drake::symbolic::Variable("y"));
+    this->set_heading(drake::symbolic::Variable("heading"));
+    this->set_velocity(drake::symbolic::Variable("velocity"));
   }
 
   SimpleCarState<T>* DoClone() const final { return new SimpleCarState; }
@@ -106,5 +106,4 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   }
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

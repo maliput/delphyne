@@ -37,7 +37,7 @@ namespace delphyne {
 //                         -----------
 //
 struct AgentDiagramBuilderTest : public ::testing::Test {
-  using SimpleCarSystem = drake::automotive::SimpleCar2<double>;
+  using SimpleCarSystem = SimpleCar2<double>;
 
   AgentDiagramBuilderTest()
       : builder("foo"),

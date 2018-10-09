@@ -7,8 +7,7 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Given a PoseVector @p pose, find a car's current RoadGeometry via a search
 /// of immediate ongoing lanes, starting with the current one.  Uses the
@@ -28,9 +27,9 @@ namespace automotive {
 // ExtractDoubleOrThrow()).
 template <typename T>
 void CalcOngoingRoadPosition(
-    const systems::rendering::PoseVector<T>& pose,
-    const systems::rendering::FrameVelocity<T>& velocity,
-    const maliput::api::RoadGeometry& road, maliput::api::RoadPosition* rp);
+    const drake::systems::rendering::PoseVector<T>& pose,
+    const drake::systems::rendering::FrameVelocity<T>& velocity,
+    const drake::maliput::api::RoadGeometry& road,
+    drake::maliput::api::RoadPosition* rp);
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

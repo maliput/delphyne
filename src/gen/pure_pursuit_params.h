@@ -18,8 +18,7 @@
 #include "drake/common/symbolic.h"
 #include "drake/systems/framework/basic_vector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Describes the row indices of a PurePursuitParams.
 struct PurePursuitParamsIndices {
@@ -52,9 +51,10 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, symbolic::Expression>::value>::type
+  typename std::enable_if<
+      std::is_same<U, drake::symbolic::Expression>::value>::type
   SetToNamedVariables() {
-    this->set_s_lookahead(symbolic::Variable("s_lookahead"));
+    this->set_s_lookahead(drake::symbolic::Variable("s_lookahead"));
   }
 
   PurePursuitParams<T>* DoClone() const final { return new PurePursuitParams; }
@@ -91,5 +91,4 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   }
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

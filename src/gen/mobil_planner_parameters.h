@@ -18,8 +18,7 @@
 #include "drake/common/symbolic.h"
 #include "drake/systems/framework/basic_vector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Describes the row indices of a MobilPlannerParameters.
 struct MobilPlannerParametersIndices {
@@ -59,11 +58,12 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, symbolic::Expression>::value>::type
+  typename std::enable_if<
+      std::is_same<U, drake::symbolic::Expression>::value>::type
   SetToNamedVariables() {
-    this->set_p(symbolic::Variable("p"));
-    this->set_threshold(symbolic::Variable("threshold"));
-    this->set_max_deceleration(symbolic::Variable("max_deceleration"));
+    this->set_p(drake::symbolic::Variable("p"));
+    this->set_threshold(drake::symbolic::Variable("threshold"));
+    this->set_max_deceleration(drake::symbolic::Variable("max_deceleration"));
   }
 
   MobilPlannerParameters<T>* DoClone() const final {
@@ -125,5 +125,4 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   }
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

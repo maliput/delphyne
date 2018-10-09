@@ -13,8 +13,7 @@
 
 #include "gen/simple_car_state.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /**
  * Translates between LCM message objects and VectorBase objects for the
@@ -34,5 +33,4 @@ class SimpleCarStateTranslator final
                  std::vector<uint8_t>* lcm_message_bytes) const final;
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

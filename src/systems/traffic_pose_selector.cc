@@ -17,24 +17,30 @@
 #include <drake/common/drake_optional.h>
 #include <drake/common/extract_double.h>
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
-using maliput::api::GeoPosition;
-using maliput::api::GeoPositionT;
-using maliput::api::HBounds;
-using maliput::api::Lane;
-using maliput::api::LaneEnd;
-using maliput::api::LaneEndSet;
-using maliput::api::LanePosition;
-using maliput::api::LanePositionT;
-using maliput::api::RBounds;
-using maliput::api::RoadGeometry;
-using maliput::api::RoadPosition;
-using maliput::api::Rotation;
-using systems::rendering::FrameVelocity;
-using systems::rendering::PoseBundle;
-using systems::rendering::PoseVector;
+using drake::maliput::api::GeoPosition;
+using drake::maliput::api::GeoPositionT;
+using drake::maliput::api::HBounds;
+using drake::maliput::api::Lane;
+using drake::maliput::api::LaneEnd;
+using drake::maliput::api::LaneEndSet;
+using drake::maliput::api::LanePosition;
+using drake::maliput::api::LanePositionT;
+using drake::maliput::api::RBounds;
+using drake::maliput::api::RoadGeometry;
+using drake::maliput::api::RoadPosition;
+using drake::maliput::api::Rotation;
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseBundle;
+using drake::systems::rendering::PoseVector;
+using drake::optional;
+using drake::Quaternion;
+using drake::Vector3;
+
+using delphyne::AheadOrBehind;
+using delphyne::RoadOdometry;
+using delphyne::ClosestPose;
 
 namespace {
 
@@ -46,18 +52,18 @@ template <typename T>
 bool IsWithinDriveableBounds(const Lane* lane,
                              const LanePositionT<T>& lane_position,
                              const double linear_tolerance) {
-  const double s = ExtractDoubleOrThrow(lane_position.s());
+  const double s = drake::ExtractDoubleOrThrow(lane_position.s());
   if (s < -linear_tolerance || s > lane->length() + linear_tolerance) {
     return false;
   }
-  const double r = ExtractDoubleOrThrow(lane_position.r());
+  const double r = drake::ExtractDoubleOrThrow(lane_position.r());
   const RBounds r_bounds = lane->driveable_bounds(s);
   if (r < r_bounds.min() - linear_tolerance ||
       r > r_bounds.max() + linear_tolerance) {
     return false;
   }
   const HBounds h_bounds = lane->elevation_bounds(s, r);
-  const double h = ExtractDoubleOrThrow(lane_position.h());
+  const double h = drake::ExtractDoubleOrThrow(lane_position.h());
   return (h >= h_bounds.min() - linear_tolerance &&
           h <= h_bounds.max() + linear_tolerance);
 }
@@ -76,7 +82,7 @@ bool IsWithinLaneBounds(const Lane* lane, const GeoPositionT<T>& geo_position,
       lane->ToLanePositionT<T>(geo_position, nullptr, &distance);
   if (distance < linear_tolerance) {
     const RBounds r_bounds =
-        lane->lane_bounds(ExtractDoubleOrThrow(lane_position.s()));
+        lane->lane_bounds(drake::ExtractDoubleOrThrow(lane_position.s()));
     if (lane_position.r() >= r_bounds.min() - linear_tolerance &&
         lane_position.r() <= r_bounds.max() + linear_tolerance) {
       if (nearest_lane_position != nullptr) {
@@ -96,7 +102,7 @@ bool IsWithinLaneBounds(const Lane* lane, const LanePositionT<T>& lane_position,
                         double linear_tolerance) {
   if (IsWithinDriveableBounds(lane, lane_position, linear_tolerance)) {
     const RBounds r_bounds =
-        lane->lane_bounds(ExtractDoubleOrThrow(lane_position.s()));
+        lane->lane_bounds(drake::ExtractDoubleOrThrow(lane_position.s()));
     return (lane_position.r() >= r_bounds.min() - linear_tolerance ||
             lane_position.r() <= r_bounds.max() + linear_tolerance);
   }
@@ -172,18 +178,18 @@ RoadOdometry<T> MakeInfiniteOdometry(const LaneEnd& lane_end_ahead,
   const T witness_state = pose.get_isometry().translation().x();
 
   T zero_position(0.);
-  autodiffxd_make_coherent(witness_state, &zero_position);
+  drake::autodiffxd_make_coherent(witness_state, &zero_position);
   T infinite_position = std::numeric_limits<T>::infinity();
   if (lane_end_ahead.end == LaneEnd::kStart) {
     infinite_position = -infinite_position;
   }
-  autodiffxd_make_coherent(witness_state, &infinite_position);
+  drake::autodiffxd_make_coherent(witness_state, &infinite_position);
   const LanePositionT<T> lane_position(infinite_position, zero_position,
                                        zero_position);
   FrameVelocity<T> frame_velocity;
   auto velocity = frame_velocity.get_mutable_value();
   for (int i = 0; i < frame_velocity.kSize; ++i)
-    autodiffxd_make_coherent(witness_state, &velocity(i));
+    drake::autodiffxd_make_coherent(witness_state, &velocity(i));
   // TODO(jadecastro) Consider moving the above autodiffxd_make_coherent() step
   // to BasicVector().
   return {lane_end_ahead.lane, lane_position, frame_velocity};
@@ -194,8 +200,8 @@ RoadOdometry<T> MakeInfiniteOdometry(const LaneEnd& lane_end_ahead,
 template <typename T>
 T MakeInfiniteDistance(const PoseVector<T>& pose) {
   T infinite_distance = std::numeric_limits<T>::infinity();
-  autodiffxd_make_coherent(pose.get_isometry().translation().x(),
-                           &infinite_distance);
+  drake::autodiffxd_make_coherent(pose.get_isometry().translation().x(),
+                                  &infinite_distance);
   return infinite_distance;
 }
 
@@ -239,7 +245,7 @@ ClosestPose<T> FindSingleClosestInDefaultPath(
   std::vector<GeoPositionT<T>> traffic_geo_positions;
   traffic_geo_positions.reserve(traffic_poses.get_num_poses());
   for (int i = 0; i < traffic_poses.get_num_poses(); ++i) {
-    const Isometry3<T>& traffic_isometry = traffic_poses.get_pose(i);
+    const drake::Isometry3<T>& traffic_isometry = traffic_poses.get_pose(i);
     traffic_geo_positions.push_back(
         GeoPositionT<T>::FromXyz(traffic_isometry.translation()));
   }
@@ -342,7 +348,7 @@ static constexpr double kEgoSigmaVelocity{1.};
 // A container consisting of a maliput::api::LaneEnd and a distance along the
 // s-coordinate to that end.
 template <typename T>
-using LaneEndDistance = std::pair<const T, const maliput::api::LaneEnd>;
+using LaneEndDistance = std::pair<const T, const drake::maliput::api::LaneEnd>;
 
 // Returns the closest pose to the ego car given a `lane`, the ego vehicle's
 // pose `ego_pose`, a PoseBundle of `traffic_poses`, the AheadOrBehind specifier
@@ -374,7 +380,7 @@ ClosestPose<T> FindSingleClosestInBranches(
       ego_lane->segment()->junction()->road_geometry();
 
   for (int i = 0; i < traffic_poses.get_num_poses(); ++i) {
-    const Isometry3<T>& traffic_isometry = traffic_poses.get_pose(i);
+    const drake::Isometry3<T>& traffic_isometry = traffic_poses.get_pose(i);
     const GeoPositionT<T> traffic_geo_position =
         GeoPositionT<T>::FromXyz(traffic_isometry.translation());
     const RoadPosition traffic_road_position = road_geometry->ToRoadPosition(
@@ -559,9 +565,9 @@ T TrafficPoseSelector<T>::GetSigmaVelocity(
                            road_odometry.vel);
 }
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne
 
-// These instantiations must match the API documentation in pose_selector.h.
+// These instantiations must match the API documentation in
+// traffic_pose_selector.h.
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS(
-    class ::drake::automotive::TrafficPoseSelector)
+    class ::delphyne::TrafficPoseSelector)

@@ -15,12 +15,12 @@ namespace delphyne {
 /// driving command messages.
 class IgnDrivingCommandToDrake
     : public IgnToDrake<ignition::msgs::AutomotiveDrivingCommand,
-                        drake::automotive::DrivingCommand<double>> {
+                        DrivingCommand<double>> {
  protected:
   // @brief @see IgnToDrake::DoIgnToDrakeTranslation.
   void DoIgnToDrakeTranslation(
       const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-      drake::automotive::DrivingCommand<double>* drake_message) const override;
+      DrivingCommand<double>* drake_message) const override;
 };
 
 }  // namespace delphyne

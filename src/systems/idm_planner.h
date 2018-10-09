@@ -6,8 +6,7 @@
 
 #include "gen/idm_planner_parameters.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// IdmPlanner implements the IDM (Intelligent Driver Model) equation governing
 /// longitudinal accelerations of a vehicle in single-lane traffic [1, 2].  It
@@ -54,5 +53,4 @@ class IdmPlanner {
                           const T& target_distance_dot);
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

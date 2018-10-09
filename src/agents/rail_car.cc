@@ -123,8 +123,8 @@ std::unique_ptr<Agent::DiagramBundle> RailCar::BuildDiagram() const {
   // indicate where in the road network it is and whether it is desired to
   // travel against the flow the lane's nominal direction (traffic flow).
   // Probably preferable to not use this at all and specify things separately.
-  drake::automotive::LaneDirection lane_direction(
-      &(initial_parameters_.lane), initial_parameters_.direction_of_travel);
+  LaneDirection lane_direction(&(initial_parameters_.lane),
+                               initial_parameters_.direction_of_travel);
   RailFollower<double>* rail_follower_system =
       builder.AddSystem(std::make_unique<RailFollower<double>>(
           lane_direction, context_continuous_state,

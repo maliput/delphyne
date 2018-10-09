@@ -18,8 +18,7 @@
 #include "drake/common/symbolic.h"
 #include "drake/systems/framework/basic_vector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// Describes the row indices of a SimpleCarParams.
 struct SimpleCarParamsIndices {
@@ -67,15 +66,16 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, symbolic::Expression>::value>::type
+  typename std::enable_if<
+      std::is_same<U, drake::symbolic::Expression>::value>::type
   SetToNamedVariables() {
-    this->set_wheelbase(symbolic::Variable("wheelbase"));
-    this->set_track(symbolic::Variable("track"));
+    this->set_wheelbase(drake::symbolic::Variable("wheelbase"));
+    this->set_track(drake::symbolic::Variable("track"));
     this->set_max_abs_steering_angle(
-        symbolic::Variable("max_abs_steering_angle"));
-    this->set_max_velocity(symbolic::Variable("max_velocity"));
-    this->set_max_acceleration(symbolic::Variable("max_acceleration"));
-    this->set_velocity_limit_kp(symbolic::Variable("velocity_limit_kp"));
+        drake::symbolic::Variable("max_abs_steering_angle"));
+    this->set_max_velocity(drake::symbolic::Variable("max_velocity"));
+    this->set_max_acceleration(drake::symbolic::Variable("max_acceleration"));
+    this->set_velocity_limit_kp(drake::symbolic::Variable("velocity_limit_kp"));
   }
 
   SimpleCarParams<T>* DoClone() const final { return new SimpleCarParams; }
@@ -168,5 +168,4 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   }
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

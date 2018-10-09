@@ -19,8 +19,7 @@
 #include "systems/idm_planner.h"
 #include "systems/traffic_pose_selector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// IDMController implements the IDM (Intelligent Driver Model) planner,
 /// computed based only on the nearest car ahead.  See IdmPlanner and
@@ -54,7 +53,7 @@ namespace automotive {
 ///
 /// @ingroup automotive_controllers
 template <typename T>
-class IDMController : public systems::LeafSystem<T> {
+class IDMController : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(IDMController)
 
@@ -68,7 +67,7 @@ class IDMController : public systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  IDMController(const maliput::api::RoadGeometry& road,
+  IDMController(const drake::maliput::api::RoadGeometry& road,
                 ScanStrategy path_or_branches,
                 RoadPositionStrategy road_position_strategy, double period_sec);
 
@@ -82,31 +81,31 @@ class IDMController : public systems::LeafSystem<T> {
 
   /// See the class description for details on the following input ports.
   /// @{
-  const systems::InputPort<T>& ego_pose_input() const;
-  const systems::InputPort<T>& ego_velocity_input() const;
-  const systems::InputPort<T>& traffic_input() const;
-  const systems::OutputPort<T>& acceleration_output() const;
+  const drake::systems::InputPort<T>& ego_pose_input() const;
+  const drake::systems::InputPort<T>& ego_velocity_input() const;
+  const drake::systems::InputPort<T>& traffic_input() const;
+  const drake::systems::OutputPort<T>& acceleration_output() const;
   /// @}
 
  protected:
-  const maliput::api::RoadGeometry& road() const { return road_; }
+  const drake::maliput::api::RoadGeometry& road() const { return road_; }
   int ego_pose_index() const { return ego_pose_index_; }
   int ego_velocity_index() const { return ego_velocity_index_; }
   int traffic_index() const { return traffic_index_; }
   int acceleration_index() const { return acceleration_index_; }
 
   void ImplCalcAcceleration(
-      const systems::rendering::PoseVector<T>& ego_pose,
-      const systems::rendering::FrameVelocity<T>& ego_velocity,
-      const systems::rendering::PoseBundle<T>& traffic_poses,
+      const drake::systems::rendering::PoseVector<T>& ego_pose,
+      const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
+      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const IdmPlannerParameters<T>& idm_params,
-      const maliput::api::RoadPosition& ego_rp,
-      systems::BasicVector<T>* command) const;
+      const drake::maliput::api::RoadPosition& ego_rp,
+      drake::systems::BasicVector<T>* command) const;
 
   void DoCalcUnrestrictedUpdate(
-      const systems::Context<T>& context,
-      const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
-      systems::State<T>* state) const override;
+      const drake::systems::Context<T>& context,
+      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+      drake::systems::State<T>* state) const override;
 
  private:
   // Allow different specializations to access each other's private data.
@@ -114,13 +113,13 @@ class IDMController : public systems::LeafSystem<T> {
   friend class IDMController;
 
   // Converts @p pose into RoadPosition.
-  const maliput::api::RoadPosition GetRoadPosition(
-      const Isometry3<T>& pose) const;
+  const drake::maliput::api::RoadPosition GetRoadPosition(
+      const drake::Isometry3<T>& pose) const;
 
-  void CalcAcceleration(const systems::Context<T>& context,
-                        systems::BasicVector<T>* accel_output) const;
+  void CalcAcceleration(const drake::systems::Context<T>& context,
+                        drake::systems::BasicVector<T>* accel_output) const;
 
-  const maliput::api::RoadGeometry& road_;
+  const drake::maliput::api::RoadGeometry& road_;
   const ScanStrategy path_or_branches_{};
   const RoadPositionStrategy road_position_strategy_{};
   const double period_sec_{};
@@ -132,14 +131,14 @@ class IDMController : public systems::LeafSystem<T> {
   const int acceleration_index_{};
 };
 
-}  // namespace automotive
+}  // namespace delphyne
 
+namespace drake {
 namespace systems {
 namespace scalar_conversion {
 // Disable symbolic support, because we use ExtractDoubleOrThrow.
 template <>
-struct Traits<automotive::IDMController> : public NonSymbolicTraits {};
+struct Traits<::delphyne::IDMController> : public NonSymbolicTraits {};
 }  // namespace scalar_conversion
 }  // namespace systems
-
 }  // namespace drake

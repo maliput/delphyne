@@ -9,10 +9,11 @@
 #include <drake/common/cond.h>
 #include <drake/common/symbolic.h>
 
-namespace drake {
-using symbolic::Expression;
+namespace delphyne {
 
-namespace automotive {
+using drake::AutoDiffXd;
+using drake::symbolic::Expression;
+using drake::cond;
 
 template <typename T>
 T calc_smooth_acceleration(const T& desired_acceleration, const T& max_velocity,
@@ -60,5 +61,4 @@ template Expression calc_smooth_acceleration<Expression>(
     const Expression& desired_acceleration, const Expression& current_velocity,
     const Expression& max_velocity, const Expression& velocity_limit_kp);
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

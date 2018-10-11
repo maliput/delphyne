@@ -239,11 +239,14 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 
   // 2. Steps the simulator (if needed). Note that the simulator will sleep
   // here if needed to adjust to the real-time rate.
-  if (!paused_) {
+
+  // Determines whether the simulation should be running or not.
+  bool running = !paused_ || steps_requested_ > 0;
+  if (running) {
     StepSimulationBy(time_step_);
-  } else if (steps_requested_ > 0) {
-    StepSimulationBy(time_step_);
-    steps_requested_--;
+    if (steps_requested_ > 0) {
+      steps_requested_--;
+    }
   }
 
   // A copy of the python callbacks so we can process them in a thread-safe
@@ -277,14 +280,16 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
 
   // Computes collisions iff collisions are enabled and simulation
   // is not paused.
-  if (collisions_enabled_ && !paused_) {
+  if (collisions_enabled_ && running) {
     // Computes collisions between agents.
     const std::vector<
         std::pair<delphyne::AgentBase<double>*, delphyne::AgentBase<double>*>>
         agents_in_collision = simulator_->GetCollisions();
     if (!agents_in_collision.empty()) {
       // Pauses simulation if necessary.
-      PauseSimulation();
+      if (!IsSimulationPaused()) {
+        PauseSimulation();
+      }
       // Calls all registered collision callbacks, if any.
       if (!collision_callbacks.empty()) {
         // 1. Acquires the lock to the python interpreter.

@@ -61,13 +61,12 @@ def add_collision_callback(_, method):
     return _method_wrapper
 
 
-def on_agent_collision(runner, agents_in_collision):
+def on_agent_collision(_, agents_in_collision):
     """
-    Callback on for collision between agents in simulation,
-    stopping the runner if *any* collision is detected.
+    Callback on collision between agents in simulation.
 
-    :param runner: Current simulation runner.
-    :type runner: :class:`delphyne.simulation.SimulatorRunner`
+    :param _: Current simulation runner, unused.
+    :type _: :class:`delphyne.simulation.SimulatorRunner`
     :param agents_in_collision: List of agents (e.g. cars) currently
                                 in collision.
     :type agents_in_collision: list[tuple[:class:`delphyne.agents.AgentBase`,
@@ -78,9 +77,7 @@ def on_agent_collision(runner, agents_in_collision):
         print("{} and {} have crashed.".format(
             agent1.name(), agent2.name()
         ))
-    print("Simulation stopped.")
-    runner.stop()
-
+    print("Simulation paused.")
 
 ##############################################################################
 # Main

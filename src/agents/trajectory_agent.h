@@ -13,9 +13,8 @@
 #include <string>
 #include <vector>
 
-#include <drake/automotive/trajectory.h>
-
 #include "delphyne/mi6/agent_base.h"
+#include "systems/trajectory.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -38,7 +37,7 @@ class TrajectoryAgent : public delphyne::Agent {
 
  private:
   const double initial_time_{};
-  std::unique_ptr<drake::automotive::Trajectory> trajectory_{};
+  std::unique_ptr<Trajectory> trajectory_{};
 };
 
 /*****************************************************************************

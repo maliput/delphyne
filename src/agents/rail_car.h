@@ -12,7 +12,6 @@
 #include <memory>
 #include <string>
 
-#include <drake/automotive/gen/maliput_railcar_state.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
@@ -20,6 +19,7 @@
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
+#include "gen/maliput_railcar_state.h"
 #include "systems/speed_system.h"
 #include "systems/vector_source.h"
 

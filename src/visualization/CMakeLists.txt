@@ -3,6 +3,9 @@
 ##############################################################################
 
 add_library(visualization
+  car_vis.cc
+  car_vis_applicator.cc
+  prius_vis.cc
   simple_prius_vis.cc
 )
 set_target_properties(visualization PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-visualization)

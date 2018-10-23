@@ -12,11 +12,11 @@
 
 #include <Eigen/Core>
 
-#include "drake/common/drake_bool.h"
-#include "drake/common/dummy_value.h"
-#include "drake/common/never_destroyed.h"
-#include "drake/common/symbolic.h"
-#include "drake/systems/framework/basic_vector.h"
+#include <drake/common/drake_bool.h>
+#include <drake/common/dummy_value.h>
+#include <drake/common/never_destroyed.h>
+#include <drake/common/symbolic.h>
+#include <drake/systems/framework/basic_vector.h>
 
 namespace delphyne {
 

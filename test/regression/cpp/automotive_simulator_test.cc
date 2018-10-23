@@ -13,8 +13,6 @@
 
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/dragway/road_geometry.h>
-#include <drake/automotive/prius_vis.h>
-#include <drake/automotive/trajectory.h>
 #include <drake/common/find_resource.h>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/diagram_context.h>
@@ -30,10 +28,10 @@
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "helpers.h"
 #include "systems/lane_direction.h"
+#include "systems/trajectory.h"
 #include "test/test_config.h"
+#include "visualization/prius_vis.h"
 #include "visualization/simple_prius_vis.h"
-
-using drake::automotive::MaliputRailcarState;
 
 namespace delphyne {
 
@@ -130,14 +128,10 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
   std::unique_ptr<ignition::msgs::Scene> scene = simulator->GetScene();
 
   const std::vector<LinkInfo> expected_load{
-      LinkInfo("chassis_floor", 0, 1),
-      LinkInfo("body", 0, 1),
-      LinkInfo("left_wheel", 0, 1),
-      LinkInfo("right_wheel", 0, 1),
-      LinkInfo("left_wheel_rear", 0, 1),
-      LinkInfo("right_wheel_rear", 0, 1),
-      LinkInfo("world", 0, 0),
-      LinkInfo("surface", 0, 1)};
+      LinkInfo("chassis_floor", 0, 1),   LinkInfo("body", 0, 1),
+      LinkInfo("left_wheel", 0, 1),      LinkInfo("right_wheel", 0, 1),
+      LinkInfo("left_wheel_rear", 0, 1), LinkInfo("right_wheel_rear", 0, 1),
+      LinkInfo("world", 0, 0),           LinkInfo("surface", 0, 1)};
 
   for (int i = 0; i < scene->model_size(); i++) {
     auto model = scene->model(i);

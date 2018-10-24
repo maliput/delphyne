@@ -6,7 +6,7 @@ namespace delphyne {
 
 void IgnDrivingCommandToDrake::DoIgnToDrakeTranslation(
     const ignition::msgs::AutomotiveDrivingCommand& ign_message,
-    drake::automotive::DrivingCommand<double>* drake_message) const {
+    DrivingCommand<double>* drake_message) const {
   DELPHYNE_VALIDATE(drake_message != nullptr, std::invalid_argument,
                     "Drake message pointer must not be null");
 

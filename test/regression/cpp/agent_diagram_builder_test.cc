@@ -13,7 +13,7 @@
 //#include <string>
 //#include <thread>
 
-#include <drake/automotive/lane_direction.h>
+#include "systems/lane_direction.h"
 
 #include <gtest/gtest.h>
 
@@ -37,7 +37,7 @@ namespace delphyne {
 //                         -----------
 //
 struct AgentDiagramBuilderTest : public ::testing::Test {
-  using SimpleCarSystem = drake::automotive::SimpleCar2<double>;
+  using SimpleCarSystem = SimpleCar2<double>;
 
   AgentDiagramBuilderTest()
       : builder("foo"),

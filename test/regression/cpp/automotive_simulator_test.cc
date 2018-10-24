@@ -11,7 +11,6 @@
 #include <string>
 #include <thread>
 
-#include <drake/automotive/lane_direction.h>
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/automotive/prius_vis.h>
@@ -30,15 +29,11 @@
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "helpers.h"
+#include "systems/lane_direction.h"
 #include "test/test_config.h"
 #include "visualization/simple_prius_vis.h"
 
-using drake::automotive::PriusVis;
-using drake::automotive::DrivingCommand;
-using drake::automotive::LaneDirection;
 using drake::automotive::MaliputRailcarState;
-using drake::automotive::MaliputRailcarParams;
-using drake::automotive::PriusVis;
 
 namespace delphyne {
 
@@ -387,7 +382,7 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
   EXPECT_EQ(link.name(), "chassis_floor");
 
   EXPECT_NEAR(link.pose().position().x(),
-              // PriusVis<double>::kVisOffset + 30.00 won't work
+              // Simple PriusVis<double>::kVisOffset + 30.00 won't work
               // because the trajectory agent is splining it's
               // way along.
               31.409479141235352, kPoseXTolerance);
@@ -476,7 +471,7 @@ TEST_F(AutomotiveSimulatorTest, TestMaliputRailcar) {
   // The following tolerance was determined empirically.
   const double kPoseXTolerance{1e-4};
   EXPECT_NEAR(GetXPosition(draw_message, k_offset),
-              PriusVis<double>::kVisOffset, kPoseXTolerance);
+              SimplePriusVis<double>::kVisOffset, kPoseXTolerance);
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and

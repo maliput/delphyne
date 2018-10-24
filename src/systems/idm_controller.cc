@@ -7,22 +7,21 @@
 #include <utility>
 #include <vector>
 
-#include "drake/common/default_scalars.h"
-#include "drake/common/drake_assert.h"
+#include <drake/common/default_scalars.h>
+#include <drake/common/drake_assert.h>
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
-using maliput::api::GeoPosition;
-using maliput::api::GeoPositionT;
-using maliput::api::Lane;
-using maliput::api::LanePosition;
-using maliput::api::LanePositionT;
-using maliput::api::RoadGeometry;
-using maliput::api::RoadPosition;
-using systems::rendering::FrameVelocity;
-using systems::rendering::PoseBundle;
-using systems::rendering::PoseVector;
+using drake::maliput::api::GeoPosition;
+using drake::maliput::api::GeoPositionT;
+using drake::maliput::api::Lane;
+using drake::maliput::api::LanePosition;
+using drake::maliput::api::LanePositionT;
+using drake::maliput::api::RoadGeometry;
+using drake::maliput::api::RoadPosition;
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseBundle;
+using drake::systems::rendering::PoseVector;
 
 static constexpr int kIdmParamsIndex{0};
 
@@ -31,8 +30,8 @@ IDMController<T>::IDMController(const RoadGeometry& road,
                                 ScanStrategy path_or_branches,
                                 RoadPositionStrategy road_position_strategy,
                                 double period_sec)
-    : systems::LeafSystem<T>(
-          systems::SystemTypeTag<automotive::IDMController>{}),
+    : drake::systems::LeafSystem<T>(
+          drake::systems::SystemTypeTag<IDMController>{}),
       road_(road),
       path_or_branches_(path_or_branches),
       road_position_strategy_(road_position_strategy),
@@ -43,7 +42,7 @@ IDMController<T>::IDMController(const RoadGeometry& road,
           this->DeclareVectorInputPort(FrameVelocity<T>()).get_index()),
       traffic_index_(this->DeclareAbstractInputPort().get_index()),
       acceleration_index_(
-          this->DeclareVectorOutputPort(systems::BasicVector<T>(1),
+          this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
                                         &IDMController::CalcAcceleration)
               .get_index()) {
   this->DeclareNumericParameter(IdmPlannerParameters<T>());
@@ -52,7 +51,7 @@ IDMController<T>::IDMController(const RoadGeometry& road,
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
     this->DeclareAbstractState(
-        systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
+        drake::systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }
@@ -61,29 +60,31 @@ template <typename T>
 IDMController<T>::~IDMController() {}
 
 template <typename T>
-const systems::InputPort<T>& IDMController<T>::ego_pose_input() const {
-  return systems::System<T>::get_input_port(ego_pose_index_);
+const drake::systems::InputPort<T>& IDMController<T>::ego_pose_input() const {
+  return drake::systems::System<T>::get_input_port(ego_pose_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& IDMController<T>::ego_velocity_input() const {
-  return systems::System<T>::get_input_port(ego_velocity_index_);
+const drake::systems::InputPort<T>& IDMController<T>::ego_velocity_input()
+    const {
+  return drake::systems::System<T>::get_input_port(ego_velocity_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& IDMController<T>::traffic_input() const {
-  return systems::System<T>::get_input_port(traffic_index_);
+const drake::systems::InputPort<T>& IDMController<T>::traffic_input() const {
+  return drake::systems::System<T>::get_input_port(traffic_index_);
 }
 
 template <typename T>
-const systems::OutputPort<T>& IDMController<T>::acceleration_output() const {
-  return systems::System<T>::get_output_port(acceleration_index_);
+const drake::systems::OutputPort<T>& IDMController<T>::acceleration_output()
+    const {
+  return drake::systems::System<T>::get_output_port(acceleration_index_);
 }
 
 template <typename T>
 void IDMController<T>::CalcAcceleration(
-    const systems::Context<T>& context,
-    systems::BasicVector<T>* accel_output) const {
+    const drake::systems::Context<T>& context,
+    drake::systems::BasicVector<T>* accel_output) const {
   // Obtain the parameters.
   const IdmPlannerParameters<T>& idm_params =
       this->template GetNumericParameter<IdmPlannerParameters>(context,
@@ -118,7 +119,7 @@ void IDMController<T>::ImplCalcAcceleration(
     const PoseVector<T>& ego_pose, const FrameVelocity<T>& ego_velocity,
     const PoseBundle<T>& traffic_poses,
     const IdmPlannerParameters<T>& idm_params, const RoadPosition& ego_rp,
-    systems::BasicVector<T>* command) const {
+    drake::systems::BasicVector<T>* command) const {
   using std::abs;
   using std::max;
 
@@ -163,9 +164,9 @@ void IDMController<T>::ImplCalcAcceleration(
 
 template <typename T>
 void IDMController<T>::DoCalcUnrestrictedUpdate(
-    const systems::Context<T>& context,
-    const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
-    systems::State<T>* state) const {
+    const drake::systems::Context<T>& context,
+    const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+    drake::systems::State<T>* state) const {
   DRAKE_ASSERT(context.get_num_abstract_states() == 1);
 
   // Obtain the input and state data.
@@ -184,9 +185,8 @@ void IDMController<T>::DoCalcUnrestrictedUpdate(
   CalcOngoingRoadPosition(*ego_pose, *ego_velocity, road_, &rp);
 }
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne
 
 // These instantiations must match the API documentation in idm_controller.h.
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_NONSYMBOLIC_SCALARS(
-    class ::drake::automotive::IDMController)
+    class ::delphyne::IDMController)

@@ -4,16 +4,16 @@
 
 #include <memory>
 
-#include <drake/automotive/gen/driving_command.h>
-#include <drake/automotive/gen/simple_car_params.h>
-#include <drake/automotive/gen/simple_car_state.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 
-namespace drake {
-namespace automotive {
+#include "gen/driving_command.h"
+#include "gen/simple_car_params.h"
+#include "gen/simple_car_state.h"
+
+namespace delphyne {
 
 /// SimpleCar models an idealized response to driving commands, neglecting all
 /// physics. Note that SimpleCar can move forward, stop, turn left, and turn
@@ -51,7 +51,7 @@ namespace automotive {
 ///
 /// @ingroup automotive_plants
 template <typename T>
-class SimpleCar2 final : public systems::LeafSystem<T> {
+class SimpleCar2 final : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar2)
 
@@ -74,31 +74,32 @@ class SimpleCar2 final : public systems::LeafSystem<T> {
 
   // System<T> overrides
   void DoCalcTimeDerivatives(
-      const systems::Context<T>& context,
-      systems::ContinuousState<T>* derivatives) const override;
+      const drake::systems::Context<T>& context,
+      drake::systems::ContinuousState<T>* derivatives) const override;
 
-  const systems::OutputPort<T>& state_output() const;
-  const systems::OutputPort<T>& pose_output() const;
-  const systems::OutputPort<T>& velocity_output() const;
+  const drake::systems::OutputPort<T>& state_output() const;
+  const drake::systems::OutputPort<T>& pose_output() const;
+  const drake::systems::OutputPort<T>& velocity_output() const;
 
  private:
-  void CalcStateOutput(const systems::Context<T>&, SimpleCarState<T>*) const;
-  void CalcPose(const systems::Context<T>&,
-                systems::rendering::PoseVector<T>*) const;
-  void CalcVelocity(const systems::Context<T>&,
-                    systems::rendering::FrameVelocity<T>*) const;
+  void CalcStateOutput(const drake::systems::Context<T>&,
+                       SimpleCarState<T>*) const;
+  void CalcPose(const drake::systems::Context<T>&,
+                drake::systems::rendering::PoseVector<T>*) const;
+  void CalcVelocity(const drake::systems::Context<T>&,
+                    drake::systems::rendering::FrameVelocity<T>*) const;
 
   void ImplCalcTimeDerivatives(const SimpleCarParams<T>& params,
                                const SimpleCarState<T>& state,
                                const DrivingCommand<T>& input,
                                SimpleCarState<T>* rates) const;
 
-  void CalcSteeringAngleConstraint(const systems::Context<T>&,
-                                   VectorX<T>*) const;
-  void CalcAccelerationConstraint(const systems::Context<T>&,
-                                  VectorX<T>*) const;
-  void CalcVelocityConstraint(const systems::Context<T>&, VectorX<T>*) const;
+  void CalcSteeringAngleConstraint(const drake::systems::Context<T>&,
+                                   drake::VectorX<T>*) const;
+  void CalcAccelerationConstraint(const drake::systems::Context<T>&,
+                                  drake::VectorX<T>*) const;
+  void CalcVelocityConstraint(const drake::systems::Context<T>&,
+                              drake::VectorX<T>*) const;
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

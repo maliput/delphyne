@@ -10,10 +10,10 @@
 namespace delphyne {
 
 DrakeDrivingCommandToIgn::DrakeDrivingCommandToIgn()
-    : DrakeToIgn(drake::automotive::DrivingCommandIndices::kNumCoordinates) {}
+    : DrakeToIgn(DrivingCommandIndices::kNumCoordinates) {}
 
 void DrakeDrivingCommandToIgn::DoDrakeToIgnTranslation(
-    const drake::automotive::DrivingCommand<double>& drake_message,
+    const DrivingCommand<double>& drake_message,
     ignition::msgs::AutomotiveDrivingCommand* ign_message,
     int64_t time_ms) const {
   DELPHYNE_VALIDATE(ign_message != nullptr, std::invalid_argument,

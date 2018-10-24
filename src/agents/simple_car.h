@@ -12,9 +12,8 @@
 #include <memory>
 #include <string>
 
-#include <drake/automotive/gen/simple_car_state.h>
-
 #include "delphyne/mi6/agent_base.h"
+#include "gen/simple_car_state.h"
 #include "systems/simple_car.h"
 
 /*****************************************************************************

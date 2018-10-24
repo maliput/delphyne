@@ -9,23 +9,22 @@
 
 #include <Eigen/Geometry>
 
-#include "drake/automotive/calc_ongoing_road_position.h"
-#include "drake/automotive/gen/idm_planner_parameters.h"
-#include "drake/automotive/gen/mobil_planner_parameters.h"
-#include "drake/automotive/idm_planner.h"
-#include "drake/automotive/lane_direction.h"
-#include "drake/automotive/maliput/api/lane.h"
-#include "drake/automotive/maliput/api/road_geometry.h"
-#include "drake/automotive/road_odometry.h"
-#include "drake/common/drake_copyable.h"
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/rendering/pose_bundle.h"
-#include "drake/systems/rendering/pose_vector.h"
+#include <drake/automotive/maliput/api/lane.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/common/drake_copyable.h>
+#include <drake/systems/framework/leaf_system.h>
+#include <drake/systems/rendering/pose_bundle.h>
+#include <drake/systems/rendering/pose_vector.h>
 
+#include "gen/idm_planner_parameters.h"
+#include "gen/mobil_planner_parameters.h"
+#include "systems/calc_ongoing_road_position.h"
+#include "systems/idm_planner.h"
+#include "systems/lane_direction.h"
+#include "systems/road_odometry.h"
 #include "systems/traffic_pose_selector.h"
 
-namespace drake {
-namespace automotive {
+namespace delphyne {
 
 /// MOBIL (Minimizing Overall Braking Induced by Lane Changes) [1] is a planner
 /// that minimizes braking requirement for the ego car while also minimizing
@@ -85,7 +84,7 @@ namespace automotive {
 ///     Transportation Research Board, v1999, 2007, pp 86-94.
 ///     http://trrjournalonline.trb.org/doi/abs/10.3141/1999-10.
 template <typename T>
-class MOBILPlanner : public systems::LeafSystem<T> {
+class MOBILPlanner : public drake::systems::LeafSystem<T> {
  public:
   typedef typename std::map<AheadOrBehind, const ClosestPose<T>> ClosestPoses;
 
@@ -99,28 +98,29 @@ class MOBILPlanner : public systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  MOBILPlanner(const maliput::api::RoadGeometry& road, bool initial_with_s,
-               RoadPositionStrategy road_position_strategy, double period_sec);
+  MOBILPlanner(const drake::maliput::api::RoadGeometry& road,
+               bool initial_with_s, RoadPositionStrategy road_position_strategy,
+               double period_sec);
 
   /// See the class description for details on the following input ports.
   /// @{
-  const systems::InputPort<T>& ego_pose_input() const;
-  const systems::InputPort<T>& ego_velocity_input() const;
-  const systems::InputPort<T>& ego_acceleration_input() const;
-  const systems::InputPort<T>& traffic_input() const;
-  const systems::OutputPort<T>& lane_output() const;
+  const drake::systems::InputPort<T>& ego_pose_input() const;
+  const drake::systems::InputPort<T>& ego_velocity_input() const;
+  const drake::systems::InputPort<T>& ego_acceleration_input() const;
+  const drake::systems::InputPort<T>& traffic_input() const;
+  const drake::systems::OutputPort<T>& lane_output() const;
   /// @}
 
   /// Getters to mutable named-vector references associated with MobilPlanner's
   /// Parameters groups.
   /// @{
   inline IdmPlannerParameters<T>& get_mutable_idm_params(
-      systems::Context<T>* context) const {
+      drake::systems::Context<T>* context) const {
     return this->template GetMutableNumericParameter<IdmPlannerParameters>(
         context, kIdmParamsIndex);
   }
   inline MobilPlannerParameters<T>& get_mutable_mobil_params(
-      systems::Context<T>* context) const {
+      drake::systems::Context<T>* context) const {
     return this->template GetMutableNumericParameter<MobilPlannerParameters>(
         context, kMobilParamsIndex);
   }
@@ -128,23 +128,23 @@ class MOBILPlanner : public systems::LeafSystem<T> {
 
  protected:
   void DoCalcUnrestrictedUpdate(
-      const systems::Context<T>& context,
-      const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
-      systems::State<T>* state) const override;
+      const drake::systems::Context<T>& context,
+      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+      drake::systems::State<T>* state) const override;
 
  private:
-  void CalcLaneDirection(const systems::Context<T>& context,
+  void CalcLaneDirection(const drake::systems::Context<T>& context,
                          LaneDirection* lane_direction) const;
 
   // Performs the calculations for the lane_output() port.
   void ImplCalcLaneDirection(
-      const systems::rendering::PoseVector<T>& ego_pose,
-      const systems::rendering::FrameVelocity<T>& ego_velocity,
-      const systems::rendering::PoseBundle<T>& traffic_poses,
-      const systems::BasicVector<T>& ego_accel_command,
+      const drake::systems::rendering::PoseVector<T>& ego_pose,
+      const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
+      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
+      const drake::systems::BasicVector<T>& ego_accel_command,
       const IdmPlannerParameters<T>& idm_params,
       const MobilPlannerParameters<T>& mobil_params,
-      const maliput::api::RoadPosition& ego_rp,
+      const drake::maliput::api::RoadPosition& ego_rp,
       LaneDirection* lane_direction) const;
 
   // Computes a pair of incentive measures for the provided neighboring lanes.
@@ -153,13 +153,14 @@ class MOBILPlanner : public systems::LeafSystem<T> {
   // for these lanes are returned as the first and second elements in the return
   // value.
   const std::pair<T, T> ComputeIncentives(
-      const std::pair<const maliput::api::Lane*, const maliput::api::Lane*>
+      const std::pair<const drake::maliput::api::Lane*,
+                      const drake::maliput::api::Lane*>
           lanes,
       const IdmPlannerParameters<T>& idm_params,
       const MobilPlannerParameters<T>& mobil_params,
       const ClosestPose<T>& ego_closest_pose,
-      const systems::rendering::PoseVector<T>& ego_pose,
-      const systems::rendering::PoseBundle<T>& traffic_poses,
+      const drake::systems::rendering::PoseVector<T>& ego_pose,
+      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const T& ego_acceleration) const;
 
   // Computes a pair of incentive measures that consider the leading and
@@ -184,7 +185,7 @@ class MOBILPlanner : public systems::LeafSystem<T> {
   static constexpr int kMobilParamsIndex{1};
   static constexpr double kDefaultLargeAccel{1e6};  // m/s^2
 
-  const maliput::api::RoadGeometry& road_;
+  const drake::maliput::api::RoadGeometry& road_;
   const bool with_s_{true};
   const RoadPositionStrategy road_position_strategy_{};
 
@@ -196,5 +197,4 @@ class MOBILPlanner : public systems::LeafSystem<T> {
   const int lane_index_{};
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

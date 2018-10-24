@@ -7,7 +7,6 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/gen/driving_command.h>
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/leaf_system.h>
@@ -18,6 +17,7 @@
 
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/automotive_driving_command.pb.h"
+#include "gen/driving_command.h"
 
 namespace delphyne {
 

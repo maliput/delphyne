@@ -7,7 +7,6 @@
 #include <limits>
 #include <utility>
 
-#include <drake/automotive/calc_smooth_acceleration.h>
 #include <drake/common/cond.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/double_overloads.h>
@@ -17,19 +16,19 @@
 
 #include <Eigen/Geometry>
 
-namespace drake {
+#include "systems/calc_smooth_acceleration.h"
 
-using systems::rendering::FrameVelocity;
-using systems::rendering::PoseVector;
+namespace delphyne {
 
-namespace automotive {
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseVector;
 
 namespace {  // Local helper function.
 
 // Obtain our continuous state from a context.
 template <typename T>
-const SimpleCarState<T>& get_state(const systems::Context<T>& context) {
-  const systems::VectorBase<T>& context_state =
+const SimpleCarState<T>& get_state(const drake::systems::Context<T>& context) {
+  const drake::systems::VectorBase<T>& context_state =
       context.get_continuous_state_vector();
   const SimpleCarState<T>* const state =
       dynamic_cast<const SimpleCarState<T>*>(&context_state);
@@ -40,7 +39,7 @@ const SimpleCarState<T>& get_state(const systems::Context<T>& context) {
 // Obtain our input from a context.
 template <typename T>
 const DrivingCommand<T>& get_input(const SimpleCar2<T>* simple_car,
-                                   const systems::Context<T>& context) {
+                                   const drake::systems::Context<T>& context) {
   const DrivingCommand<T>* const input =
       simple_car->template EvalVectorInput<DrivingCommand>(context, 0);
   DRAKE_DEMAND(input);
@@ -49,7 +48,8 @@ const DrivingCommand<T>& get_input(const SimpleCar2<T>* simple_car,
 
 // Obtain our parameters from a context.
 template <typename T>
-const SimpleCarParams<T>& get_params(const systems::Context<T>& context) {
+const SimpleCarParams<T>& get_params(
+    const drake::systems::Context<T>& context) {
   const SimpleCarParams<T>& params =
       dynamic_cast<const SimpleCarParams<T>&>(context.get_numeric_parameter(0));
   return params;
@@ -60,7 +60,8 @@ const SimpleCarParams<T>& get_params(const systems::Context<T>& context) {
 template <typename T>
 SimpleCar2<T>::SimpleCar2(const SimpleCarState<T>& initial_context_state,
                           const SimpleCarParams<T>& initial_context_parameters)
-    : systems::LeafSystem<T>(systems::SystemTypeTag<automotive::SimpleCar2>{}) {
+    : drake::systems::LeafSystem<T>(
+          drake::systems::SystemTypeTag<SimpleCar2>{}) {
   this->DeclareVectorInputPort(DrivingCommand<T>());
   this->DeclareVectorOutputPort(&SimpleCar2::CalcStateOutput);
   this->DeclareVectorOutputPort(&SimpleCar2::CalcPose);
@@ -81,22 +82,22 @@ template <typename U>
 SimpleCar2<T>::SimpleCar2(const SimpleCar2<U>&) : SimpleCar2() {}
 
 template <typename T>
-const systems::OutputPort<T>& SimpleCar2<T>::state_output() const {
+const drake::systems::OutputPort<T>& SimpleCar2<T>::state_output() const {
   return this->get_output_port(0);
 }
 
 template <typename T>
-const systems::OutputPort<T>& SimpleCar2<T>::pose_output() const {
+const drake::systems::OutputPort<T>& SimpleCar2<T>::pose_output() const {
   return this->get_output_port(1);
 }
 
 template <typename T>
-const systems::OutputPort<T>& SimpleCar2<T>::velocity_output() const {
+const drake::systems::OutputPort<T>& SimpleCar2<T>::velocity_output() const {
   return this->get_output_port(2);
 }
 
 template <typename T>
-void SimpleCar2<T>::CalcStateOutput(const systems::Context<T>& context,
+void SimpleCar2<T>::CalcStateOutput(const drake::systems::Context<T>& context,
                                     SimpleCarState<T>* output) const {
   const SimpleCarState<T>& state = get_state(context);
   output->set_value(state.get_value());
@@ -107,19 +108,19 @@ void SimpleCar2<T>::CalcStateOutput(const systems::Context<T>& context,
 }
 
 template <typename T>
-void SimpleCar2<T>::CalcPose(const systems::Context<T>& context,
+void SimpleCar2<T>::CalcPose(const drake::systems::Context<T>& context,
                              PoseVector<T>* pose) const {
   const SimpleCarState<T>& state = get_state(context);
   pose->set_translation(Eigen::Translation<T, 3>(state.x(), state.y(), 0));
-  const Vector3<T> z_axis{0.0, 0.0, 1.0};
+  const drake::Vector3<T> z_axis{0.0, 0.0, 1.0};
   const Eigen::AngleAxis<T> rotation(state.heading(), z_axis);
   pose->set_rotation(Eigen::Quaternion<T>(rotation));
 }
 
 template <typename T>
 void SimpleCar2<T>::CalcVelocity(
-    const systems::Context<T>& context,
-    systems::rendering::FrameVelocity<T>* velocity) const {
+    const drake::systems::Context<T>& context,
+    drake::systems::rendering::FrameVelocity<T>* velocity) const {
   using std::cos;
   using std::max;
   using std::sin;
@@ -128,7 +129,7 @@ void SimpleCar2<T>::CalcVelocity(
   const T nonneg_velocity = max(T(0), state.velocity());
 
   // Convert the state derivatives into a spatial velocity.
-  multibody::SpatialVelocity<T> output;
+  drake::multibody::SpatialVelocity<T> output;
   output.translational().x() = nonneg_velocity * cos(state.heading());
   output.translational().y() = nonneg_velocity * sin(state.heading());
   output.translational().z() = T(0);
@@ -143,8 +144,8 @@ void SimpleCar2<T>::CalcVelocity(
 
 template <typename T>
 void SimpleCar2<T>::DoCalcTimeDerivatives(
-    const systems::Context<T>& context,
-    systems::ContinuousState<T>* derivatives) const {
+    const drake::systems::Context<T>& context,
+    drake::systems::ContinuousState<T>* derivatives) const {
   // Obtain the parameters.
   const SimpleCarParams<T>& params =
       this->template GetNumericParameter<SimpleCarParams>(context, 0);
@@ -159,7 +160,7 @@ void SimpleCar2<T>::DoCalcTimeDerivatives(
 
   // Obtain the result structure.
   DRAKE_ASSERT(derivatives != nullptr);
-  systems::VectorBase<T>& vector_derivatives =
+  drake::systems::VectorBase<T>& vector_derivatives =
       derivatives->get_mutable_vector();
   SimpleCarState<T>* const rates =
       dynamic_cast<SimpleCarState<T>*>(&vector_derivatives);
@@ -189,9 +190,9 @@ void SimpleCar2<T>::ImplCalcTimeDerivatives(const SimpleCarParams<T>& params,
                                params.velocity_limit_kp(), state.velocity());
 
   // Determine steering.
-  const T saturated_steering_angle =
-      math::saturate(input.steering_angle(), -params.max_abs_steering_angle(),
-                     params.max_abs_steering_angle());
+  const T saturated_steering_angle = drake::math::saturate(
+      input.steering_angle(), -params.max_abs_steering_angle(),
+      params.max_abs_steering_angle());
   const T curvature = tan(saturated_steering_angle) / params.wheelbase();
 
   // Don't allow small negative velocities to affect position or heading.
@@ -207,38 +208,38 @@ void SimpleCar2<T>::ImplCalcTimeDerivatives(const SimpleCarParams<T>& params,
 // params.max_abs_steering_angle + input.steering_angle ≥ 0.
 template <typename T>
 void SimpleCar2<T>::CalcSteeringAngleConstraint(
-    const systems::Context<T>& context, VectorX<T>* value) const {
+    const drake::systems::Context<T>& context, drake::VectorX<T>* value) const {
   const DrivingCommand<T>& input = get_input(this, context);
   const SimpleCarParams<T>& params = get_params(context);
-  *value = Vector2<T>(params.max_abs_steering_angle() - input.steering_angle(),
-                      params.max_abs_steering_angle() + input.steering_angle());
+  *value = drake::Vector2<T>(
+      params.max_abs_steering_angle() - input.steering_angle(),
+      params.max_abs_steering_angle() + input.steering_angle());
 }
 
 // params.max_acceleration - input.acceleration ≥ 0,
 // params.max_acceleration + input.acceleration ≥ 0.
 template <typename T>
 void SimpleCar2<T>::CalcAccelerationConstraint(
-    const systems::Context<T>& context, VectorX<T>* value) const {
+    const drake::systems::Context<T>& context, drake::VectorX<T>* value) const {
   const DrivingCommand<T>& input = get_input(this, context);
   const SimpleCarParams<T>& params = get_params(context);
-  *value = Vector2<T>(params.max_acceleration() - input.acceleration(),
-                      params.max_acceleration() + input.acceleration());
+  *value = drake::Vector2<T>(params.max_acceleration() - input.acceleration(),
+                             params.max_acceleration() + input.acceleration());
 }
 
 // params.max_velocity - state.velocity ≥ 0,
 // state.velocity ≥ 0.
 template <typename T>
-void SimpleCar2<T>::CalcVelocityConstraint(const systems::Context<T>& context,
-                                           VectorX<T>* value) const {
+void SimpleCar2<T>::CalcVelocityConstraint(
+    const drake::systems::Context<T>& context, drake::VectorX<T>* value) const {
   const SimpleCarState<T>& state = get_state(context);
   const SimpleCarParams<T>& params = get_params(context);
-  *value =
-      Vector2<T>(params.max_velocity() - state.velocity(), state.velocity());
+  *value = drake::Vector2<T>(params.max_velocity() - state.velocity(),
+                             state.velocity());
 }
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne
 
 // These instantiations must match the API documentation in simple_car.h.
 DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::drake::automotive::SimpleCar2)
+    class ::delphyne::SimpleCar2)

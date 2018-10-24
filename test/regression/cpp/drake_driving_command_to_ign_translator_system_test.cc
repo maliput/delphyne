@@ -17,7 +17,7 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   const double kTheta{0.12};
   const double kAcceleration{15.7};
 
-  drake::automotive::DrivingCommand<double> drake_msg;
+  DrivingCommand<double> drake_msg;
   drake_msg.set_steering_angle(kTheta);
   drake_msg.set_acceleration(kAcceleration);
 

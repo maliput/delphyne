@@ -29,8 +29,7 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   translator.CalcOutput(*context, output.get());
 
   const auto* vector = output->get_vector_data(kPortIndex);
-  const auto drake_msg =
-      dynamic_cast<const drake::automotive::DrivingCommand<double>*>(vector);
+  const auto drake_msg = dynamic_cast<const DrivingCommand<double>*>(vector);
 
   EXPECT_EQ(drake_msg->steering_angle(), kTheta);
   EXPECT_EQ(drake_msg->acceleration(), kAcceleration);

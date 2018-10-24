@@ -8,17 +8,17 @@
 
 #include <Eigen/Geometry>
 
-#include "drake/automotive/lane_direction.h"
-#include "drake/automotive/maliput/api/lane.h"
-#include "drake/automotive/maliput/api/lane_data.h"
-#include "drake/automotive/maliput/api/road_geometry.h"
-#include "drake/automotive/road_odometry.h"
-#include "drake/common/drake_copyable.h"
-#include "drake/systems/rendering/pose_bundle.h"
-#include "drake/systems/rendering/pose_vector.h"
+#include <drake/automotive/maliput/api/lane.h>
+#include <drake/automotive/maliput/api/lane_data.h>
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/common/drake_copyable.h>
+#include <drake/systems/rendering/pose_bundle.h>
+#include <drake/systems/rendering/pose_vector.h>
 
-namespace drake {
-namespace automotive {
+#include "systems/lane_direction.h"
+#include "systems/road_odometry.h"
+
+namespace delphyne {
 
 /// ClosestPose bundles together the RoadOdometry of a particular target along
 /// with its distance measure relative to the ego vehicle. Its intended use is
@@ -114,9 +114,9 @@ class TrafficPoseSelector {
   /// The RoadGeometry from which @p lane is drawn is required to have default
   /// branches set for all branches in the road network.
   static std::map<AheadOrBehind, const ClosestPose<T>> FindClosestPair(
-      const maliput::api::Lane* lane,
-      const systems::rendering::PoseVector<T>& ego_pose,
-      const systems::rendering::PoseBundle<T>& traffic_poses,
+      const drake::maliput::api::Lane* lane,
+      const drake::systems::rendering::PoseVector<T>& ego_pose,
+      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const T& scan_distance, ScanStrategy path_or_branches);
 
   /// Same as TrafficPoseSelector::FindClosestPair() except that it returns a
@@ -133,9 +133,9 @@ class TrafficPoseSelector {
   /// RoadOdometry within ClosestPose will contain an `s`-value of
   /// `std::numeric_limits<double>::infinity()`.
   static ClosestPose<T> FindSingleClosestPose(
-      const maliput::api::Lane* lane,
-      const systems::rendering::PoseVector<T>& ego_pose,
-      const systems::rendering::PoseBundle<T>& traffic_poses,
+      const drake::maliput::api::Lane* lane,
+      const drake::systems::rendering::PoseVector<T>& ego_pose,
+      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const T& scan_distance, const AheadOrBehind side,
       ScanStrategy path_or_branches);
 
@@ -153,5 +153,4 @@ class TrafficPoseSelector {
   static T GetSigmaVelocity(const RoadOdometry<T>& road_odometry);
 };
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

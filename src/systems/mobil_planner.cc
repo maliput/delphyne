@@ -8,26 +8,24 @@
 #include <utility>
 #include <vector>
 
-#include "drake/automotive/maliput/api/junction.h"
-#include "drake/automotive/maliput/api/segment.h"
-#include "drake/common/cond.h"
-#include "drake/common/drake_assert.h"
-#include "drake/math/saturate.h"
+#include <drake/automotive/maliput/api/junction.h>
+#include <drake/automotive/maliput/api/segment.h>
+#include <drake/common/cond.h>
+#include <drake/common/drake_assert.h>
+#include <drake/math/saturate.h>
 
-namespace drake {
+namespace delphyne {
 
-using maliput::api::GeoPosition;
-using maliput::api::Lane;
-using maliput::api::LanePosition;
-using maliput::api::RoadGeometry;
-using maliput::api::RoadPosition;
-using math::saturate;
-using systems::BasicVector;
-using systems::rendering::FrameVelocity;
-using systems::rendering::PoseBundle;
-using systems::rendering::PoseVector;
-
-namespace automotive {
+using drake::maliput::api::GeoPosition;
+using drake::maliput::api::Lane;
+using drake::maliput::api::LanePosition;
+using drake::maliput::api::RoadGeometry;
+using drake::maliput::api::RoadPosition;
+using drake::math::saturate;
+using drake::systems::BasicVector;
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseBundle;
+using drake::systems::rendering::PoseVector;
 
 template <typename T>
 MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
@@ -57,39 +55,42 @@ MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
     this->DeclareAbstractState(
-        systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
+        drake::systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }
 
 template <typename T>
-const systems::InputPort<T>& MOBILPlanner<T>::ego_pose_input() const {
-  return systems::System<T>::get_input_port(ego_pose_index_);
+const drake::systems::InputPort<T>& MOBILPlanner<T>::ego_pose_input() const {
+  return drake::systems::System<T>::get_input_port(ego_pose_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& MOBILPlanner<T>::ego_velocity_input() const {
-  return systems::System<T>::get_input_port(ego_velocity_index_);
+const drake::systems::InputPort<T>& MOBILPlanner<T>::ego_velocity_input()
+    const {
+  return drake::systems::System<T>::get_input_port(ego_velocity_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& MOBILPlanner<T>::ego_acceleration_input() const {
-  return systems::System<T>::get_input_port(ego_acceleration_index_);
+const drake::systems::InputPort<T>& MOBILPlanner<T>::ego_acceleration_input()
+    const {
+  return drake::systems::System<T>::get_input_port(ego_acceleration_index_);
 }
 
 template <typename T>
-const systems::InputPort<T>& MOBILPlanner<T>::traffic_input() const {
-  return systems::System<T>::get_input_port(traffic_index_);
+const drake::systems::InputPort<T>& MOBILPlanner<T>::traffic_input() const {
+  return drake::systems::System<T>::get_input_port(traffic_index_);
 }
 
 template <typename T>
-const systems::OutputPort<T>& MOBILPlanner<T>::lane_output() const {
-  return systems::System<T>::get_output_port(lane_index_);
+const drake::systems::OutputPort<T>& MOBILPlanner<T>::lane_output() const {
+  return drake::systems::System<T>::get_output_port(lane_index_);
 }
 
 template <typename T>
-void MOBILPlanner<T>::CalcLaneDirection(const systems::Context<T>& context,
-                                        LaneDirection* lane_direction) const {
+void MOBILPlanner<T>::CalcLaneDirection(
+    const drake::systems::Context<T>& context,
+    LaneDirection* lane_direction) const {
   // Obtain the parameters.
   const IdmPlannerParameters<T>& idm_params =
       this->template GetNumericParameter<IdmPlannerParameters>(context,
@@ -271,13 +272,13 @@ const T MOBILPlanner<T>::EvaluateIdm(
   // prevent the IDM equation from producing near-singular solutions.
   // TODO(jadecastro): Move this to IdmPlanner::Evaluate().
   const T net_distance =
-      cond(headway_distance >= T(0.),
-           saturate(headway_distance - idm_params.bloat_diameter(),
-                    idm_params.distance_lower_limit(),
-                    std::numeric_limits<T>::infinity()),
-           saturate(headway_distance + idm_params.bloat_diameter(),
-                    -std::numeric_limits<T>::infinity(),
-                    -idm_params.distance_lower_limit()));
+      drake::cond(headway_distance >= T(0.),
+                  saturate(headway_distance - idm_params.bloat_diameter(),
+                           idm_params.distance_lower_limit(),
+                           std::numeric_limits<T>::infinity()),
+                  saturate(headway_distance + idm_params.bloat_diameter(),
+                           -std::numeric_limits<T>::infinity(),
+                           -idm_params.distance_lower_limit()));
   DRAKE_DEMAND(std::abs(net_distance) >= idm_params.distance_lower_limit());
 
   const RoadOdometry<T> trailing_car_odometry(
@@ -302,9 +303,9 @@ const T MOBILPlanner<T>::EvaluateIdm(
 
 template <typename T>
 void MOBILPlanner<T>::DoCalcUnrestrictedUpdate(
-    const systems::Context<T>& context,
-    const std::vector<const systems::UnrestrictedUpdateEvent<T>*>&,
-    systems::State<T>* state) const {
+    const drake::systems::Context<T>& context,
+    const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+    drake::systems::State<T>* state) const {
   DRAKE_ASSERT(context.get_num_abstract_states() == 1);
 
   // Obtain the input and state data.
@@ -326,5 +327,4 @@ void MOBILPlanner<T>::DoCalcUnrestrictedUpdate(
 // These instantiations must match the API documentation in mobil_planner.h.
 template class MOBILPlanner<double>;
 
-}  // namespace automotive
-}  // namespace drake
+}  // namespace delphyne

@@ -8,8 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/car_vis_applicator.h>
-#include <drake/automotive/curve2.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/utility/generate_obj.h>
 #include <drake/common/drake_copyable.h>
@@ -26,8 +24,9 @@
 
 // public headers
 #include "delphyne/mi6/agent_base.h"
-
+#include "systems/curve2.h"
 #include "systems/lane_direction.h"
+#include "visualization/car_vis_applicator.h"
 
 // private headers
 #include "backend/ign_publisher_system.h"
@@ -196,7 +195,7 @@ class AutomotiveSimulator {
   // Takes the poses of the vehicles and outputs the poses of the visual
   // elements that make up the visualization of the vehicles. For a system-level
   // architecture diagram, see #5541.
-  drake::automotive::CarVisApplicator<T>* car_vis_applicator_{};
+  CarVisApplicator<T>* car_vis_applicator_{};
 
   // Aggregates multiple lcmt_viewer_load_robot messages into a single one
   // containing all models in the scene.

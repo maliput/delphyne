@@ -1,13 +1,6 @@
-/**
- * @file src/visualization/simple_prius_vis.cc
- *
- * Copyright 2018 Toyota Research Institute
- */
-/*****************************************************************************
-** Includes
-*****************************************************************************/
+// Copyright 2018 Toyota Research Institute
 
-#include "visualization/simple_prius_vis.h"
+#include "visualization/prius_vis.h"
 
 #include <Eigen/Geometry>
 
@@ -26,25 +19,25 @@
 using std::unique_ptr;
 using std::vector;
 
-namespace delphyne {
-
 using drake::multibody::joints::kRollPitchYaw;
 using drake::systems::rendering::PoseBundle;
+using drake::Isometry3;
 using drake::Vector3;
 using drake::VectorX;
 
+namespace delphyne {
 template <typename T>
-constexpr double SimplePriusVis<T>::kVisOffset;
+constexpr double PriusVis<T>::kVisOffset;
 
 template <typename T>
-SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
+PriusVis<T>::PriusVis(int id, const std::string& name)
     : CarVis<T>(id, name), tree_(new RigidBodyTree<T>()) {
   const char* delphyne_resource_root = std::getenv("DELPHYNE_RESOURCE_ROOT");
 
   DELPHYNE_DEMAND(delphyne_resource_root != NULL);
 
   std::stringstream sdf_filename;
-  sdf_filename << delphyne_resource_root << "/media/prius/simple_prius.sdf";
+  sdf_filename << delphyne_resource_root << "/media/prius/prius_with_lidar.sdf";
 
   drake::parsers::sdf::AddModelInstancesFromSdfFileToWorld(
       sdf_filename.str(), kRollPitchYaw, tree_.get());
@@ -70,12 +63,13 @@ SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
 }
 
 template <typename T>
-const vector<lcmt_viewer_link_data>& SimplePriusVis<T>::GetVisElements() const {
+const vector<drake::lcmt_viewer_link_data>& PriusVis<T>::GetVisElements()
+    const {
   return vis_elements_;
 }
 
 template <typename T>
-drake::systems::rendering::PoseBundle<T> SimplePriusVis<T>::CalcPoses(
+drake::systems::rendering::PoseBundle<T> PriusVis<T>::CalcPoses(
     const Isometry3<T>& X_WM) const {
   // Computes X_MV, the transform from the visualization's frame to the model's
   // frame. The 'V' in the variable name stands for "visualization". This is
@@ -118,6 +112,6 @@ drake::systems::rendering::PoseBundle<T> SimplePriusVis<T>::CalcPoses(
 
 // These instantiations must match the API documentation in
 // prius_vis.h.
-template class SimplePriusVis<double>;
+template class PriusVis<double>;
 
 }  // namespace delphyne

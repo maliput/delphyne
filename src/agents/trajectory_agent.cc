@@ -14,12 +14,13 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/trajectory.h>
-#include <drake/automotive/trajectory_follower.h>
 #include <drake/common/eigen_types.h>
 
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+
+#include "systems/trajectory.h"
+#include "systems/trajectory_follower.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -55,13 +56,12 @@ TrajectoryAgent::TrajectoryAgent(
     eigen_translations.push_back(eigen_translation);
   }
 
-  trajectory_ = std::make_unique<drake::automotive::Trajectory>(
-      drake::automotive::Trajectory::Make(times, eigen_orientations,
-                                          eigen_translations));
+  trajectory_ = std::make_unique<Trajectory>(
+      Trajectory::Make(times, eigen_orientations, eigen_translations));
 
   // TODO(daniel.stonier) stop using this, make use of an initial value on
   // the pose output
-  const drake::automotive::PoseVelocity initial_car_pose_velocity =
+  const PoseVelocity initial_car_pose_velocity =
       trajectory_->value(times.front());
   initial_world_pose_ =
       drake::Translation3<double>(initial_car_pose_velocity.translation()) *
@@ -78,7 +78,7 @@ std::unique_ptr<Agent::DiagramBundle> TrajectoryAgent::BuildDiagram() const {
   // than arbitrarily choosing it's own update rate.
   double sampling_time = 0.01;
 
-  typedef drake::automotive::TrajectoryFollower<double> TrajectoryFollower;
+  typedef TrajectoryFollower<double> TrajectoryFollower;
   TrajectoryFollower* trajectory_follower_system = builder.AddSystem(
       std::make_unique<TrajectoryFollower>(*trajectory_, sampling_time));
   trajectory_follower_system->set_name(name_);

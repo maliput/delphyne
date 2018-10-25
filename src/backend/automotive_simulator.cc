@@ -9,7 +9,6 @@
 #include <vector>
 
 #include <drake/automotive/maliput/utility/generate_urdf.h>
-#include <drake/automotive/prius_vis.h>
 #include <drake/common/drake_throw.h>
 #include <drake/common/eigen_types.h>
 #include <drake/common/text_logging.h>
@@ -37,6 +36,7 @@
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 #include "translations/pose_bundle_to_agent_state_v.h"
+#include "visualization/prius_vis.h"
 #include "visualization/simple_prius_vis.h"
 
 namespace delphyne {
@@ -66,8 +66,7 @@ AutomotiveSimulator<T>::AutomotiveSimulator() {
           ->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();
   aggregator_->set_name("pose_aggregator");
 
-  car_vis_applicator_ =
-      builder_->template AddSystem<drake::automotive::CarVisApplicator<T>>();
+  car_vis_applicator_ = builder_->template AddSystem<CarVisApplicator<T>>();
   car_vis_applicator_->set_name("car_vis_applicator");
 
   scene_graph_ = builder_->template AddSystem<drake::geometry::SceneGraph<T>>();

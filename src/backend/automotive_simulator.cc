@@ -48,6 +48,9 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::SystemOutput;
 
 template <typename T>
+constexpr double AutomotiveSimulator<T>::kSceneTreePublishRateHz;
+
+template <typename T>
 AutomotiveSimulator<T>::AutomotiveSimulator() {
 // Avoid the many & varied 'info' level logging messages coming from drake.
 //
@@ -112,35 +115,33 @@ std::unique_ptr<ignition::msgs::Scene> AutomotiveSimulator<T>::GetScene() {
 }
 
 template <typename T>
-delphyne::AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
+AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
     std::unique_ptr<AgentBase<T>> agent) {
   /*********************
    * Checks
    *********************/
   DELPHYNE_VALIDATE(!has_started(), std::runtime_error,
                     "Cannot add an agent to a running simulation");
-  CheckNameUniqueness(agent->name());
 
-  /*********************
-   * Unique ID
-   *********************/
-  int id = unique_system_id_++;
+  const std::string& name = agent->name();
+  DELPHYNE_VALIDATE(agents_.count(name) == 0, std::runtime_error,
+                    "An agent named \"" + name + "\" already exists.");
 
   /*********************
    * Agent Diagram
    *********************/
-  std::unique_ptr<DiagramBundle<T>> bundle = agent->BuildDiagram();
-  drake::systems::Diagram<double>* diagram =
-      builder_->AddSystem(std::move(bundle->diagram));
+  const int id = unique_system_id_++;
+
+  DiagramBundle<T>* agent_diagram = agent->BuildInto(builder_.get());
 
   drake::systems::rendering::PoseVelocityInputPorts<double> ports =
-      aggregator_->AddSinglePoseAndVelocityInput(agent->name(), id);
-  builder_->Connect(diagram->get_output_port(bundle->outputs["pose"]),
+      aggregator_->AddSinglePoseAndVelocityInput(name, id);
+  builder_->Connect(agent_diagram->get_output_port("pose"),
                     ports.pose_input_port);
-  builder_->Connect(diagram->get_output_port(bundle->outputs["velocity"]),
+  builder_->Connect(agent_diagram->get_output_port("velocity"),
                     ports.velocity_input_port);
   builder_->Connect(aggregator_->get_output_port(0),
-                    diagram->get_input_port(bundle->inputs["traffic_poses"]));
+                    agent_diagram->get_input_port("traffic_poses"));
 
   /*********************
    * Agent Visuals
@@ -149,21 +150,21 @@ delphyne::AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
   // We'll need a means of having the agents report what visual they have and
   // hooking that up. Also wondering why visuals are in the drake diagram?
   car_vis_applicator_->AddCarVis(
-      std::make_unique<SimplePriusVis<double>>(id, agent->name()));
+      std::make_unique<SimplePriusVis<double>>(id, name));
+
   /*********************
    * Agent Geometry
    *********************/
   // Wires up the Prius geometry.
   builder_->Connect(
-      diagram->get_output_port(bundle->outputs["pose"]),
-      WirePriusGeometry(agent->name(), agent->initial_world_pose(),
+      agent_diagram->get_output_port("pose"),
+      WirePriusGeometry(name, agent->initial_world_pose(),
                         builder_.get(), scene_graph_,
                         &(agent->mutable_geometry_ids())));
 
   // save a handle to it
-  agents_[id] = std::move(agent);
-
-  return agents_[id].get();
+  agents_[name] = std::move(agent);
+  return agents_[name].get();
 }
 
 template <typename T>
@@ -206,6 +207,22 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf(
       urdf_filepath, drake::multibody::joints::kFixed, tree_.get());
 }
 
+template <typename T>
+const delphyne::AgentBase<T>&
+AutomotiveSimulator<T>::GetAgentByName(const std::string& name) const {
+  DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
+                    "No agent found with the given name.");
+  return *agents_.at(name);
+}
+
+template <typename T>
+delphyne::AgentBase<T>*
+AutomotiveSimulator<T>::GetMutableAgentByName(const std::string& name) {
+  DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
+                    "No agent found with the given name.");
+  return agents_[name].get();
+}
+
 namespace {
 
 // A helper functor to check for a given object source (e.g. a GeometryId)
@@ -226,8 +243,9 @@ struct IsSourceOf {
   // Checks whether the given (agent ID, agent) pair is the source of the
   // associated `object`.
   bool operator()(
-      const std::pair<const int, std::unique_ptr<AgentBase<T>>>& id_agent) {
-    return id_agent.second->is_source_of(object);
+      const std::pair<const std::string,
+      std::unique_ptr<AgentBase<T>>>& name_agent) {
+    return name_agent.second->is_source_of(object);
   }
 
   // Associated object to check the source of.
@@ -237,8 +255,7 @@ struct IsSourceOf {
 }  // namespace
 
 template <typename T>
-const std::vector<std::pair<delphyne::AgentBase<T>*, delphyne::AgentBase<T>*>>
-AutomotiveSimulator<T>::GetCollisions() {
+std::vector<AgentBasePair<T>> AutomotiveSimulator<T>::GetCollisions() const {
   DELPHYNE_VALIDATE(has_started(), std::runtime_error,
                     "Can only get collisions on a running simulation");
   using drake::geometry::GeometryId;
@@ -246,8 +263,7 @@ AutomotiveSimulator<T>::GetCollisions() {
   using drake::geometry::PenetrationAsPointPair;
   const std::vector<PenetrationAsPointPair<T>> collisions =
       scene_query_->GetValue<QueryObject<T>>().ComputePointPairPenetration();
-  std::vector<std::pair<delphyne::AgentBase<T>*, delphyne::AgentBase<T>*>>
-      agents_colliding;
+  std::vector<AgentBasePair<T>> agents_in_collision;
   for (const auto& collision : collisions) {
     const auto it_A = std::find_if(agents_.begin(), agents_.end(),
                                    IsSourceOf<T, GeometryId>(collision.id_A));
@@ -257,10 +273,9 @@ AutomotiveSimulator<T>::GetCollisions() {
                                    IsSourceOf<T, GeometryId>(collision.id_B));
     DELPHYNE_VALIDATE(it_B != agents_.end(), std::runtime_error,
                       "Could not find second agent in list of agents");
-    agents_colliding.emplace_back(agents_[it_A->first].get(),
-                                  agents_[it_B->first].get());
+    agents_in_collision.emplace_back(it_A->second.get(), it_B->second.get());
   }
-  return agents_colliding;
+  return agents_in_collision;
 }
 
 template <typename T>
@@ -427,8 +442,14 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   simulator_->get_mutable_integrator()->set_fixed_step_mode(true);
   simulator_->Initialize();
 
+  // Inject context into agents.
+  drake::systems::Context<T>& context =
+      simulator_->get_mutable_context();
+  for (auto& name_agent : agents_) {
+    name_agent.second->GrabContextFrom(*diagram_, &context);
+  }
   // Enable caching support.
-  simulator_->get_mutable_context().EnableCaching();
+  context.EnableCaching();
 
   // Retrieve SceneGraph query object for later use.
   const drake::systems::OutputPort<T>& scene_query_port =
@@ -448,16 +469,6 @@ void AutomotiveSimulator<T>::StepBy(const T& time_step) {
 template <typename T>
 double AutomotiveSimulator<T>::GetCurrentSimulationTime() const {
   return drake::ExtractDoubleOrThrow(simulator_->get_context().get_time());
-}
-
-template <typename T>
-void AutomotiveSimulator<T>::CheckNameUniqueness(const std::string& name) {
-  for (const auto& agent : agents_) {
-    DELPHYNE_VALIDATE(agent.second->name() != name, std::runtime_error,
-                      "An agent named \"" + name +
-                          "\" already exists. It has id " +
-                          std::to_string(agent.first) + ".");
-  }
 }
 
 template <typename T>

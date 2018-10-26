@@ -148,6 +148,19 @@ TEST_F(AutomotiveSimulatorTest, TestGetScene) {
 TEST_F(AutomotiveSimulatorTest, BasicTest) {
   auto simulator = std::make_unique<AutomotiveSimulator<double>>();
   EXPECT_NE(nullptr, simulator->get_builder());
+
+  auto agent_bob =
+      std::make_unique<delphyne::SimpleCar>("bob", 0.0, 0.0, 0.0, 0.0);
+  simulator->AddAgent(std::move(agent_bob));
+  EXPECT_EQ(simulator->GetAgentByName("bob").name(), "bob");
+
+  auto agent_alice =
+      std::make_unique<delphyne::SimpleCar>("alice", 0.0, 0.0, 0.0, 0.0);
+  simulator->AddAgent(std::move(agent_alice));
+  EXPECT_EQ(simulator->GetAgentByName("alice").name(), "alice");
+
+  // Verifies that passing an unknown agent ID is an error.
+  EXPECT_THROW(simulator->GetAgentByName("agent_x"), std::runtime_error);
 }
 
 // Covers simple-car, Start and StepBy
@@ -272,34 +285,35 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // +---->  +s, +x  | MOBIL Car |   | Decoy 1 |
   // ---------------------------------------------------------------
 
-  auto mobil = std::make_unique<delphyne::MobilCar>("MOBIL0",
-                                                    true,  // lane_direction,
-                                                    2.0,   // x
-                                                    -2.0,  // y
-                                                    0.0,   // heading
-                                                    10.0,  // velocity
-                                                    *road_geometry);
-  simulator->AddAgent(std::move(mobil));
+  simulator->AddAgent(
+      std::make_unique<delphyne::MobilCar>(
+          "MOBIL0",
+          true,  // lane_direction,
+          2.0,   // x
+          -2.0,  // y
+          0.0,   // heading
+          10.0,  // velocity
+          *road_geometry));
+  
+  simulator->AddAgent(
+      std::make_unique<delphyne::RailCar>(
+          "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
+          true,  // lane_direction,
+          6.0,   // position (m)
+          0.0,   // offset (m)
+          0.0,   // speed (m)
+          0.0,   // nominal_speed (m/s)
+          *road_geometry));
 
-  auto decoy_1 = std::make_unique<delphyne::RailCar>(
-      "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
-      true,  // lane_direction,
-      6.0,   // position (m)
-      0.0,   // offset (m)
-      0.0,   // speed (m)
-      0.0,   // nominal_speed (m/s)
-      *road_geometry);
-  simulator->AddAgent(std::move(decoy_1));
-
-  auto decoy_2 = std::make_unique<delphyne::RailCar>(
-      "decoy2", *(road_geometry->junction(0)->segment(0)->lane(0)),
-      true,  // lane_direction,
-      20.0,  // position (m)
-      0.0,   // offset (m)
-      0.0,   // speed (m/s)
-      0.0,   // nominal_speed (m/s)
-      *road_geometry);
-  simulator->AddAgent(std::move(decoy_2));
+  simulator->AddAgent(
+      std::make_unique<delphyne::RailCar>(
+          "decoy2", *(road_geometry->junction(0)->segment(0)->lane(0)),
+          true,  // lane_direction,
+          20.0,  // position (m)
+          0.0,   // offset (m)
+          0.0,   // speed (m/s)
+          0.0,   // nominal_speed (m/s)
+          *road_geometry));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -339,11 +353,10 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
       {0.0, 0.0, 0.0},  {10.0, 0.0, 0.0},  {30.0, 0.0, 0.0},
       {60.0, 0.0, 0.0}, {100.0, 0.0, 0.0},
   };
-  std::unique_ptr<delphyne::TrajectoryAgent> alice =
-      std::make_unique<delphyne::TrajectoryAgent>("alice", times, headings,
-                                                  translations);
 
-  simulator->AddAgent(std::move(alice));
+  simulator->AddAgent(
+      std::make_unique<delphyne::TrajectoryAgent>(
+          "alice", times, headings, translations));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -533,7 +546,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   EXPECT_NO_THROW(simulator->AddAgent(std::move(agent1)));
   EXPECT_RUNTIME_THROW(
       simulator->AddAgent(std::move(agent2)),
-      "An agent named \"Model1\" already exists. It has id 0.");
+      "An agent named \"Model1\" already exists.");
 
   auto agent_1 = std::make_unique<delphyne::RailCar>(
       "FOO", *(road_geometry->junction(0)->segment(0)->lane(0)),
@@ -564,7 +577,7 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
       5.0,   // nominal_speed
       *road_geometry);
   EXPECT_RUNTIME_THROW(simulator->AddAgent(std::move(agent_3)),
-                       "An agent named \"alice\" already exists. It has id 2.");
+                       "An agent named \"alice\" already exists.");
 }
 
 // Verifies that the velocity outputs of the rail cars are connected to
@@ -583,26 +596,25 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 
   const double kR{0.5};
 
-  auto alice = std::make_unique<delphyne::RailCar>(
-      "alice", *(road_geometry->junction(0)->segment(0)->lane(0)),
-      true,  // lane_direction,
-      5.0,   // position
-      kR,    // offset
-      1.0,   // speed
-      5.0,   // nominal_speed
-      *road_geometry);
+  auto alice = simulator->AddAgent(
+      std::make_unique<delphyne::RailCar>(
+          "alice", *(road_geometry->junction(0)->segment(0)->lane(0)),
+          true,  // lane_direction,
+          5.0,   // position
+          kR,    // offset
+          1.0,   // speed
+          5.0,   // nominal_speed
+          *road_geometry));
 
-  auto bob = std::make_unique<delphyne::RailCar>(
-      "bob", *(road_geometry->junction(0)->segment(0)->lane(0)),
-      true,  // lane_direction,
-      0.0,   // position
-      kR,    // offset
-      0.0,   // speed
-      0.0,   // nominal_speed
-      *road_geometry);
-
-  simulator->AddAgent(std::move(alice));
-  simulator->AddAgent(std::move(bob));
+  auto bob = simulator->AddAgent(
+      std::make_unique<delphyne::RailCar>(
+          "bob", *(road_geometry->junction(0)->segment(0)->lane(0)),
+          true,  // lane_direction,
+          0.0,   // position
+          kR,    // offset
+          0.0,   // speed
+          0.0,   // nominal_speed
+          *road_geometry));
 
   EXPECT_NO_THROW(simulator->Start());
 
@@ -618,8 +630,11 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
   const drake::systems::rendering::PoseBundle<double> poses =
       simulator->GetCurrentPoses();
   ASSERT_EQ(poses.get_num_poses(), 2);
+
   ASSERT_EQ(poses.get_model_instance_id(kAliceIndex), 0);
   ASSERT_EQ(poses.get_model_instance_id(kBobIndex), 1);
+  ASSERT_EQ(poses.get_name(kAliceIndex), alice->name());
+  ASSERT_EQ(poses.get_name(kBobIndex), bob->name());
   EXPECT_FALSE(poses.get_velocity(kAliceIndex).get_value().isZero());
   EXPECT_TRUE(poses.get_velocity(kBobIndex).get_value().isZero());
 }
@@ -722,32 +737,31 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
       second_lane->length(), kZeroROffset, kZeroHOffset};
   const drake::maliput::api::GeoPosition agent_alice_geo_position =
       second_lane->ToGeoPosition(agent_alice_lane_position);
-  auto agent_alice = std::make_unique<delphyne::SimpleCar>(
-      "alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
-      kHeadingWest, kCruiseSpeed);
-  delphyne::AgentBase<double>* alice_ptr =
-      simulator->AddAgent(std::move(agent_alice));
+
+  auto agent_alice = simulator->AddAgent(
+      std::make_unique<delphyne::SimpleCar>(
+          "alice", agent_alice_geo_position.x(),
+          agent_alice_geo_position.y(),
+          kHeadingWest, kCruiseSpeed));
 
   // Configures agent `Smith`.
   const drake::maliput::api::LanePosition agent_smith_lane_position{
       kZeroSOffset, kZeroROffset, kZeroHOffset};
   const drake::maliput::api::GeoPosition agent_smith_geo_position =
       first_lane->ToGeoPosition(agent_smith_lane_position);
-  auto agent_smith = std::make_unique<delphyne::SimpleCar>(
-      "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
-      kHeadingEast + kHeadingDeviation, kCruiseSpeed);
-  delphyne::AgentBase<double>* smith_ptr =
-      simulator->AddAgent(std::move(agent_smith));
+  auto agent_smith =
+      simulator->AddAgent(std::make_unique<delphyne::SimpleCar>(
+          "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
+          kHeadingEast + kHeadingDeviation, kCruiseSpeed));
 
   // Finishes initialization and starts the simulation.
   simulator->Start();
 
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
-  std::vector<
-      std::pair<delphyne::AgentBase<double>*, delphyne::AgentBase<double>*>>
-      agent_pairs_in_collision = simulator->GetCollisions();
-  EXPECT_EQ(agent_pairs_in_collision.size(), 0);
+  std::vector<AgentBasePair<double>>
+      agents_in_collision = simulator->GetCollisions();
+  EXPECT_EQ(agents_in_collision.size(), 0);
 
   // Simulates forward in time.
   const double kTimeToCollision{5.};  // in sec
@@ -755,15 +769,18 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
 
   // Checks that there was a collision and that the colliding
   // agents are the expected ones.
-  agent_pairs_in_collision = simulator->GetCollisions();
-  EXPECT_EQ(agent_pairs_in_collision.size(), 1);
+  agents_in_collision = simulator->GetCollisions();
+  EXPECT_EQ(agents_in_collision.size(), 1);
 
-  delphyne::AgentBase<double>* coll1_ptr = agent_pairs_in_collision[0].first;
-  delphyne::AgentBase<double>* coll2_ptr = agent_pairs_in_collision[0].second;
+  const AgentBasePair<double>& colliding_agents = agents_in_collision.front();
+  const AgentBase<double>* first_colliding_agent = colliding_agents.first;
+  const AgentBase<double>* second_colliding_agent = colliding_agents.second;
   // Cannot make any assumption regarding pair order, see
   // delphyne::AutomotiveSimulator::GetCollisions().
-  EXPECT_TRUE((coll1_ptr == alice_ptr && coll2_ptr == smith_ptr) ||
-              (coll1_ptr == smith_ptr && coll2_ptr == alice_ptr));
+  EXPECT_TRUE((first_colliding_agent == agent_alice &&
+               second_colliding_agent == agent_smith) ||
+              (first_colliding_agent == agent_smith &&
+               second_colliding_agent == agent_alice));
 }
 
 //////////////////////////////////////////////////

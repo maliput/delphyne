@@ -27,12 +27,10 @@ namespace delphyne {
 *****************************************************************************/
 
 /// @brief A very simple vehicle agent that can be teleoperated.
-class SimpleCar : public delphyne::Agent {
+class SimpleCar : public Agent {
  public:
   SimpleCar(const std::string& name, double x, double y, double heading,
             double speed);
-
-  std::unique_ptr<DiagramBundle> BuildDiagram() const;
 
  private:
   // Container for the agent's initial configuration.
@@ -48,6 +46,8 @@ class SimpleCar : public delphyne::Agent {
     Parameters(double x, double y, double heading, double speed)
         : x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
+
+  std::unique_ptr<Diagram> BuildDiagram() const override;
 };
 
 /*****************************************************************************

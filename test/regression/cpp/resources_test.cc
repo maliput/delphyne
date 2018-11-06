@@ -10,7 +10,7 @@
 #include <ignition/common/Filesystem.hh>
 #include <ignition/common/URI.hh>
 
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 namespace utility {

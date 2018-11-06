@@ -38,7 +38,7 @@ macro(delphyne_build_tests)
         ignition-common2::ignition-common2
         ignition-transport5::ignition-transport5
         ignition-msgs2::ignition-msgs2
-        test_helpers
+        test_utilities
         gtest_main
         gtest
         pthread

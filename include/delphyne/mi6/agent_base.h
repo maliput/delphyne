@@ -11,15 +11,15 @@
 #include <string>
 
 #include <drake/common/eigen_types.h>
+#include <drake/geometry/geometry_ids.h>
+#include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/context.h>
-#include <drake/systems/framework/output_port.h>
 #include <drake/systems/framework/diagram_builder.h>
+#include <drake/systems/framework/output_port.h>
 #include <drake/systems/framework/value.h>
 #include <drake/systems/framework/vector_base.h>
-#include <drake/systems/framework/basic_vector.h>
-#include <drake/systems/rendering/pose_vector.h>
 #include <drake/systems/rendering/frame_velocity.h>
-#include <drake/geometry/geometry_ids.h>
+#include <drake/systems/rendering/pose_vector.h>
 
 #include "delphyne/macros.h"
 #include "delphyne/mi6/agent_diagram_builder.h"

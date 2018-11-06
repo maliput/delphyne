@@ -70,8 +70,8 @@ std::unique_ptr<Agent::Diagram> MobilCar::BuildDiagram() const {
   /*********************
    * Instantiate Systems
    *********************/
-  delphyne::MOBILPlanner<double>* mobil_planner =
-      builder.AddSystem(std::make_unique<delphyne::MOBILPlanner<double>>(
+  delphyne::MobilPlanner<double>* mobil_planner =
+      builder.AddSystem(std::make_unique<delphyne::MobilPlanner<double>>(
           road_geometry_, initial_parameters_.direction_of_travel,
           RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));

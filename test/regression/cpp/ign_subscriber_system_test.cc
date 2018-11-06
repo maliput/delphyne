@@ -13,7 +13,7 @@
 #include <ignition/msgs.hh>
 
 #include "delphyne/macros.h"
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 

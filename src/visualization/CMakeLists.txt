@@ -3,6 +3,7 @@
 ##############################################################################
 
 add_library(visualization
+  box_car_vis.cc
   car_vis.cc
   car_vis_applicator.cc
   prius_vis.cc

@@ -12,7 +12,7 @@
 
 #include <ignition/msgs.hh>
 
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 namespace {

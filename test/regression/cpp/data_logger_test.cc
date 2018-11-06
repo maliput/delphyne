@@ -15,7 +15,7 @@
 
 #include "common/compression.h"
 #include "delphyne/utility/package.h"
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 namespace {

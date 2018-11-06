@@ -28,7 +28,7 @@ using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
 
 template <typename T>
-MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
+MobilPlanner<T>::MobilPlanner(const RoadGeometry& road, bool initial_with_s,
                               RoadPositionStrategy road_position_strategy,
                               double period_sec)
     : road_(road),
@@ -42,7 +42,7 @@ MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
           this->DeclareVectorInputPort(BasicVector<T>(1)).get_index()},
       traffic_index_{this->DeclareAbstractInputPort().get_index()},
       lane_index_{
-          this->DeclareAbstractOutputPort(&MOBILPlanner::CalcLaneDirection)
+          this->DeclareAbstractOutputPort(&MobilPlanner::CalcLaneDirection)
               .get_index()} {
   // Validate the provided RoadGeometry.
   DRAKE_DEMAND(road_.num_junctions() > 0);
@@ -61,34 +61,34 @@ MOBILPlanner<T>::MOBILPlanner(const RoadGeometry& road, bool initial_with_s,
 }
 
 template <typename T>
-const drake::systems::InputPort<T>& MOBILPlanner<T>::ego_pose_input() const {
+const drake::systems::InputPort<T>& MobilPlanner<T>::ego_pose_input() const {
   return drake::systems::System<T>::get_input_port(ego_pose_index_);
 }
 
 template <typename T>
-const drake::systems::InputPort<T>& MOBILPlanner<T>::ego_velocity_input()
+const drake::systems::InputPort<T>& MobilPlanner<T>::ego_velocity_input()
     const {
   return drake::systems::System<T>::get_input_port(ego_velocity_index_);
 }
 
 template <typename T>
-const drake::systems::InputPort<T>& MOBILPlanner<T>::ego_acceleration_input()
+const drake::systems::InputPort<T>& MobilPlanner<T>::ego_acceleration_input()
     const {
   return drake::systems::System<T>::get_input_port(ego_acceleration_index_);
 }
 
 template <typename T>
-const drake::systems::InputPort<T>& MOBILPlanner<T>::traffic_input() const {
+const drake::systems::InputPort<T>& MobilPlanner<T>::traffic_input() const {
   return drake::systems::System<T>::get_input_port(traffic_index_);
 }
 
 template <typename T>
-const drake::systems::OutputPort<T>& MOBILPlanner<T>::lane_output() const {
+const drake::systems::OutputPort<T>& MobilPlanner<T>::lane_output() const {
   return drake::systems::System<T>::get_output_port(lane_index_);
 }
 
 template <typename T>
-void MOBILPlanner<T>::CalcLaneDirection(
+void MobilPlanner<T>::CalcLaneDirection(
     const drake::systems::Context<T>& context,
     LaneDirection* lane_direction) const {
   // Obtain the parameters.
@@ -131,7 +131,7 @@ void MOBILPlanner<T>::CalcLaneDirection(
 }
 
 template <typename T>
-void MOBILPlanner<T>::ImplCalcLaneDirection(
+void MobilPlanner<T>::ImplCalcLaneDirection(
     const PoseVector<T>& ego_pose, const FrameVelocity<T>& ego_velocity,
     const PoseBundle<T>& traffic_poses, const BasicVector<T>& ego_accel_command,
     const IdmPlannerParameters<T>& idm_params,
@@ -170,7 +170,7 @@ void MOBILPlanner<T>::ImplCalcLaneDirection(
 }
 
 template <typename T>
-const std::pair<T, T> MOBILPlanner<T>::ComputeIncentives(
+const std::pair<T, T> MobilPlanner<T>::ComputeIncentives(
     const std::pair<const Lane*, const Lane*> lanes,
     const IdmPlannerParameters<T>& idm_params,
     const MobilPlannerParameters<T>& mobil_params,
@@ -224,7 +224,7 @@ const std::pair<T, T> MOBILPlanner<T>::ComputeIncentives(
 }
 
 template <typename T>
-void MOBILPlanner<T>::ComputeIncentiveOutOfLane(
+void MobilPlanner<T>::ComputeIncentiveOutOfLane(
     const IdmPlannerParameters<T>& idm_params,
     const MobilPlannerParameters<T>& mobil_params,
     const ClosestPoses& closest_poses, const ClosestPose<T>& ego_closest_pose,
@@ -260,7 +260,7 @@ void MOBILPlanner<T>::ComputeIncentiveOutOfLane(
 }
 
 template <typename T>
-const T MOBILPlanner<T>::EvaluateIdm(
+const T MobilPlanner<T>::EvaluateIdm(
     const IdmPlannerParameters<T>& idm_params,
     const ClosestPose<T>& trailing_closest_pose,
     const ClosestPose<T>& leading_closest_pose) const {
@@ -302,7 +302,7 @@ const T MOBILPlanner<T>::EvaluateIdm(
 }
 
 template <typename T>
-void MOBILPlanner<T>::DoCalcUnrestrictedUpdate(
+void MobilPlanner<T>::DoCalcUnrestrictedUpdate(
     const drake::systems::Context<T>& context,
     const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
     drake::systems::State<T>* state) const {
@@ -325,6 +325,6 @@ void MOBILPlanner<T>::DoCalcUnrestrictedUpdate(
 }
 
 // These instantiations must match the API documentation in mobil_planner.h.
-template class MOBILPlanner<double>;
+template class MobilPlanner<double>;
 
 }  // namespace delphyne

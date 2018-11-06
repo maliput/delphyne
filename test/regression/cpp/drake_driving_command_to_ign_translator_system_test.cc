@@ -6,7 +6,7 @@
 
 #include <gtest/gtest.h>
 
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 #include "translations/drake_driving_command_to_ign.h"
 
 namespace delphyne {

@@ -1,6 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 #include <cstdlib>
 #include <exception>

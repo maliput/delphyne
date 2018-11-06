@@ -158,9 +158,8 @@ AgentBase<T>* AutomotiveSimulator<T>::AddAgent(
   // Wires up the Prius geometry.
   builder_->Connect(
       agent_diagram->get_output_port("pose"),
-      WirePriusGeometry(name, agent->initial_world_pose(),
-                        builder_.get(), scene_graph_,
-                        &(agent->mutable_geometry_ids())));
+      WirePriusGeometry(name, agent->initial_world_pose(), builder_.get(),
+                        scene_graph_, &(agent->mutable_geometry_ids())));
 
   // save a handle to it
   agents_[name] = std::move(agent);
@@ -208,16 +207,16 @@ void AutomotiveSimulator<T>::GenerateAndLoadRoadNetworkUrdf(
 }
 
 template <typename T>
-const delphyne::AgentBase<T>&
-AutomotiveSimulator<T>::GetAgentByName(const std::string& name) const {
+const delphyne::AgentBase<T>& AutomotiveSimulator<T>::GetAgentByName(
+    const std::string& name) const {
   DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
                     "No agent found with the given name.");
   return *agents_.at(name);
 }
 
 template <typename T>
-delphyne::AgentBase<T>*
-AutomotiveSimulator<T>::GetMutableAgentByName(const std::string& name) {
+delphyne::AgentBase<T>* AutomotiveSimulator<T>::GetMutableAgentByName(
+    const std::string& name) {
   DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
                     "No agent found with the given name.");
   return agents_[name].get();
@@ -242,9 +241,8 @@ struct IsSourceOf {
 
   // Checks whether the given (agent ID, agent) pair is the source of the
   // associated `object`.
-  bool operator()(
-      const std::pair<const std::string,
-      std::unique_ptr<AgentBase<T>>>& name_agent) {
+  bool operator()(const std::pair<const std::string,
+                                  std::unique_ptr<AgentBase<T>>>& name_agent) {
     return name_agent.second->is_source_of(object);
   }
 
@@ -443,8 +441,7 @@ void AutomotiveSimulator<T>::Start(double realtime_rate) {
   simulator_->Initialize();
 
   // Inject context into agents.
-  drake::systems::Context<T>& context =
-      simulator_->get_mutable_context();
+  drake::systems::Context<T>& context = simulator_->get_mutable_context();
   for (auto& name_agent : agents_) {
     name_agent.second->GrabContextFrom(*diagram_, &context);
   }

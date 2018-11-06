@@ -84,11 +84,11 @@ namespace delphyne {
 ///     Transportation Research Board, v1999, 2007, pp 86-94.
 ///     http://trrjournalonline.trb.org/doi/abs/10.3141/1999-10.
 template <typename T>
-class MOBILPlanner : public drake::systems::LeafSystem<T> {
+class MobilPlanner : public drake::systems::LeafSystem<T> {
  public:
   typedef typename std::map<AheadOrBehind, const ClosestPose<T>> ClosestPoses;
 
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MOBILPlanner)
+  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilPlanner)
 
   /// A constructor that initializes the MOBIL planner.
   /// @param road The pre-defined RoadGeometry.
@@ -98,7 +98,7 @@ class MOBILPlanner : public drake::systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  MOBILPlanner(const drake::maliput::api::RoadGeometry& road,
+  MobilPlanner(const drake::maliput::api::RoadGeometry& road,
                bool initial_with_s, RoadPositionStrategy road_position_strategy,
                double period_sec);
 

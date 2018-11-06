@@ -282,9 +282,9 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   // is not paused.
   if (collisions_enabled_ && running) {
     // Computes collisions between agents.
-    const std::vector<AgentBasePair<double>> agents_in_collision =
+    const std::vector<AgentBaseCollision<double>> agent_collisions =
         simulator_->GetCollisions();
-    if (!agents_in_collision.empty()) {
+    if (!agent_collisions.empty()) {
       // Pauses simulation if necessary.
       if (!IsSimulationPaused()) {
         PauseSimulation();
@@ -295,7 +295,7 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
         pybind11::gil_scoped_acquire acquire;
         // 2. Calls all collision callbacks.
         for (CollisionCallback callback : collision_callbacks) {
-          callback(agents_in_collision);
+          callback(agent_collisions);
         }
       }
     }

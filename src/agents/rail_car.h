@@ -14,11 +14,12 @@
 
 #include <drake/automotive/maliput/api/lane.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 
 // public headers
+#include "delphyne/macros.h"
 #include "delphyne/mi6/agent_base.h"
+#include "delphyne/mi6/agent_base_blueprint.h"
 #include "gen/maliput_railcar_state.h"
 #include "systems/speed_system.h"
 #include "systems/vector_source.h"
@@ -37,38 +38,64 @@ namespace delphyne {
 ///
 /// The underlying road network has a reference line for each lane which
 /// is utilised by this agent as a railroad track.
-///
-/// Initial position is specified in the lane longitudinal co-ordinate
-/// (how far along the track) and the agent will follow
-/// this track exactly - the only variance it is permitted is the speed
-/// with which it follows the track.
 class RailCar : public Agent {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
 
-  /// @brief Default constructor
+  /// Rail car constructor.
   ///
-  /// @param name[in] Unique name for the agent.
-  /// @param lane[in] The lane to start in.
-  /// @param direction_of_travel[in] Designates whether the car will travel
-  ///            with or against the flow specified by the lane's rules
-  /// @param longitudinal_position[in] Initial position on the lane's track
-  ///            (maliput lane coordinate, 's' (m)).
-  /// @param lateral_offset[in] The offset perpendicular to the centre road
-  ///            line (maliput lane coordinate 'r' (m)).
-  /// @param speed[in] The actual initial speed.
-  /// @param nominal_speed[in] The desired cruising speed.
-  RailCar(const std::string& name, const drake::maliput::api::Lane& lane,
-          bool direction_of_travel,
-          double longitudinal_position,  // s
-          double lateral_offset,         // r
-          double speed, double nominal_speed,
-          const drake::maliput::api::RoadGeometry& road_geometry);
+  /// @param diagram The Diagram representation of the rail car agent.
+  /// @param speed_setter The speed setting system associated to the
+  ///                     rail car agent.
+  explicit RailCar(Agent::Diagram* diagram,
+                   VectorSource<double>* speed_setter);
 
-  /// @brief Change the speed of this agent.
+  /// Sets the speed of this agent.
   ///
-  /// @param new_speed_mps[in] The new speed for the agent in meters/second
+  /// @param new_speed_mps The new speed for the agent,
+  ///                      in meters per second.
   void SetSpeed(double new_speed_mps);
+
+ private:
+  // A source to set car speed, in meters per second.
+  VectorSource<double>* speed_setter_;
+};
+
+
+/// @brief An agent that follows roads as if they were railroad tracks.
+///
+/// The underlying road network has a reference line for each lane which
+/// is utilised by this agent as a railroad track.
+///
+/// Initial position is specified in the lane longitudinal co-ordinate (how far
+/// along the track) and the agent will follow this track exactly - the only
+/// variance it is permitted is the speed with which it follows the track.
+class RailCarBlueprint : public AgentBlueprint {
+ public:
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarBlueprint)
+
+  /// Constructs a blueprint to build a RailCar into a simulation.
+  ///
+  /// @param name Unique name for the agent.
+  /// @param lane The lane to start in.
+  /// @param direction_of_travel Designates whether the car will travel
+  ///            with or against the flow specified by the lane's rules
+  /// @param longitudinal_position Initial position on the lane's track
+  ///            (maliput lane coordinate, 's' (m)).
+  /// @param lateral_offset The offset perpendicular to the centre road
+  ///            line (maliput lane coordinate 'r' (m)).
+  /// @param speed The actual initial speed.
+  /// @param nominal_speed The desired cruising speed.
+  explicit RailCarBlueprint(const std::string& name,
+                            const drake::maliput::api::Lane& lane,
+                            bool direction_of_travel,
+                            double longitudinal_position,  // s
+                            double lateral_offset,         // r
+                            double speed, double nominal_speed);
+
+  std::unique_ptr<RailCar> BuildInto(
+      const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<double>* builder) const;
 
  private:
   // Container for the agent's initial configuration.
@@ -83,7 +110,8 @@ class RailCar : public Agent {
     double offset{0.0};              // lateral position in lane (m)
     double speed{0.0};          // speed in direction of the lane s-axis (m/s)
     double nominal_speed{0.0};  // nominal cruising speed (m/s)
-    Parameters(const drake::maliput::api::Lane& lane, bool direction_of_travel,
+    Parameters(const drake::maliput::api::Lane& lane,
+               bool direction_of_travel,
                double position,  // s
                double offset,    // r
                double speed, double nominal_speed)
@@ -95,11 +123,13 @@ class RailCar : public Agent {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Diagram> BuildDiagram() const override;
-
-  mutable delphyne::VectorSource<double>* vel_setter_;
-  const drake::maliput::api::RoadGeometry& road_geometry_;
+  std::unique_ptr<AgentBase<double>> DoBuildInto(
+      const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<double>* builder) const override {
+    return BuildInto(road_geometry, builder);
+  }
 };
+
 
 /*****************************************************************************
 ** Trailers

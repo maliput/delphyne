@@ -13,7 +13,8 @@
 #include <string>
 #include <vector>
 
-#include "delphyne/mi6/agent_base.h"
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include "delphyne/mi6/agent_base_blueprint.h"
 #include "systems/trajectory.h"
 
 /*****************************************************************************
@@ -27,16 +28,20 @@ namespace delphyne {
  *****************************************************************************/
 
 /// @brief Trajectory following agents
-class TrajectoryAgent : public Agent {
+class TrajectoryAgentBlueprint : public SimpleAgentBlueprint {
  public:
-  TrajectoryAgent(const std::string& name, const std::vector<double>& times,
-                  const std::vector<double>& headings,
-                  const std::vector<std::vector<double>>& translations);
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryAgentBlueprint)
+
+  TrajectoryAgentBlueprint(
+      const std::string& name,
+      const std::vector<double>& times,
+      const std::vector<double>& headings,
+      const std::vector<std::vector<double>>& translations);
 
  private:
-  std::unique_ptr<Diagram> BuildDiagram() const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(
+      const drake::maliput::api::RoadGeometry* road_geometry) const override;
 
-  const double initial_time_{};
   std::unique_ptr<Trajectory> trajectory_{};
 };
 

@@ -29,7 +29,7 @@ from . import launcher
 
 
 @contextmanager
-def launch_interactive_simulation(simulator_runner,
+def launch_interactive_simulation(simulation_runner,
                                   layout="layout_with_teleop.config"):
     """Defines a context manager function used to hande the execution of an
     interactive simulation. An interactive simulation launches the delphyne
@@ -44,14 +44,14 @@ def launch_interactive_simulation(simulator_runner,
     except RuntimeError as error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
-        if simulator_runner.is_logging():
+        if simulation_runner.is_logging():
             print("Simulation has been logged in {}".format(
-                simulator_runner.get_log_filename()))
-            simulator_runner.stop_logging()
-        if simulator_runner.is_interactive_loop_running():
-            simulator_runner.stop()
+                simulation_runner.get_log_filename()))
+            simulation_runner.stop_logging()
+        if simulation_runner.is_interactive_loop_running():
+            simulation_runner.stop()
         print("Simulation ended. I'm happy, you should be too.")
-        print_simulation_stats(simulator_runner)
+        print_simulation_stats(simulation_runner)
         # This is needed to avoid a possible deadlock. See
         # SimulatorRunner class description.
         time.sleep(0.5)
@@ -120,15 +120,16 @@ def get_delphyne_resource(path):
 # TODO(daniel.stonier) exception handling and return handles to the agent
 
 
-def add_simple_car(simulator, name, position_x, position_y):
+def add_simple_car(simulation_builder, name, position_x, position_y):
     """Adds a simple car to the simulation."""
-    agent = agents.SimpleCar(
+    agent_blueprint = agents.SimpleCarBlueprint(
         name=name,
         x=position_x,  # scene x-coordinate (m)
         y=position_y,  # scene y-coordinate (m)
         heading=0.0,   # heading (radians)
-        speed=0.0)     # speed in the direction of travel (m/s)
-    simulator.add_agent(agent)
+        speed=0.0      # speed in the direction of travel (m/s)
+    )
+    return simulation_builder.add_agent_blueprint(agent_blueprint)
 
 
 # pylint: disable=too-many-arguments
@@ -205,11 +206,11 @@ def emplace(method):
     return _do_emplace
 
 
-def print_simulation_stats(simulator_runner):
+def print_simulation_stats(simulation_runner):
     """Get the interactive simulation statistics and print them on standard
     output.
     """
-    stats = simulator_runner.get_stats()
+    stats = simulation_runner.get_stats()
     print("= Simulation stats ==========================")
     print("  Simulation runs: {}".format(stats.total_runs()))
     print("  Simulation steps: {}".format(stats.total_executed_steps()))

@@ -21,33 +21,20 @@ using drake::lcmt_viewer_geometry_data;
 // @brief Checks that LCM viewer load robot messages on the input port of the
 // system are correctly aggregated into a new load robot message.
 GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
-  using LoadRobotGenerator = std::function<lcmt_viewer_load_robot()>;
-  std::vector<LoadRobotGenerator> load_robot_generators;
-
-  // Two generators will return a load robot message based on an original
-  // template message, modified slightly by each.
+  // Two load robot messages will be aggregated.
   lcmt_viewer_load_robot original = test::BuildPreloadedLoadRobotMsg();
 
-  // The first generator does not modify the original message.
-  load_robot_generators.push_back([&original]() { return original; });
-
-  // The second generator changes the robot_num field (the id of each model).
-  load_robot_generators.push_back([&original]() {
-    lcmt_viewer_load_robot modified = original;
-    for (lcmt_viewer_link_data& link : modified.link) {
-      // robot_num is replaced with a value opposite to the original one.
-      link.robot_num = -link.robot_num;
-    }
-    return modified;
-  });
-
-  const LoadRobotAggregator aggregator;
+  // The second messages is a slight variation on the first one:
+  // it changes the robot_num field (i.e. the id of each model).
+  lcmt_viewer_load_robot modified = original;
+  for (lcmt_viewer_link_data& link : modified.link) {
+    // robot_num is replaced with a value opposite to the original one.
+    link.robot_num = -link.robot_num;
+  }
+  
+  const LoadRobotAggregator aggregator({original, modified});
   std::unique_ptr<drake::systems::Context<double>> context =
       aggregator.AllocateContext();
-
-  context->FixInputPort(
-      LoadRobotAggregator::kPortIndex,
-      drake::systems::AbstractValue::Make(load_robot_generators));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
       aggregator.AllocateOutput();

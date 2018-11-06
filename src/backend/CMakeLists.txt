@@ -5,13 +5,14 @@
 include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 
 add_library(backend
-  automotive_simulator.cc
   frame_pose_aggregator.cc
   ign_models_assembler.cc
   data_logger.cc
   interactive_simulation_stats.cc
   load_robot_aggregator.cc
   scene_system.cc
+  simulation.cc
+  simulation_builder.cc
   simulation_run_stats.cc
   simulation_runner.cc  # needs python
 )

@@ -90,10 +90,10 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.SimulationBuilder()
 
     if args.road_type == "dragway":
-        simulator.set_road_geometry(
+        builder.set_road_geometry(
             maliput.create_dragway(
                 name="Demo Dragway",
                 num_lanes=args.lanes,
@@ -104,10 +104,10 @@ def main():
             )
         )
     elif args.road_type == "onramp":
-        simulator.set_road_geometry(maliput.create_on_ramp())
+        builder.set_road_geometry(maliput.create_on_ramp())
     elif args.road_type == "multilane":
         try:
-            simulator.set_road_geometry(
+            builder.set_road_geometry(
                 maliput.create_multilane_from_file(
                     file_path=args.filename
                 )
@@ -120,8 +120,8 @@ def main():
     else:
         raise RuntimeError("Option {} not recognized".format(args.road_type))
 
-    runner = simulation.SimulatorRunner(
-        simulator=simulator,
+    runner = simulation.SimulationRunner(
+        simulation=builder.build(),
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,

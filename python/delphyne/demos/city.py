@@ -58,7 +58,8 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = simulation.AutomotiveSimulator()
+    # The simulation builder
+    builder = simulation.SimulationBuilder()
 
     filename = utilities.get_delphyne_resource(
         "roads/little_city.yaml"
@@ -71,7 +72,7 @@ def main():
         quit()
 
     # The road geometry
-    road = simulator.set_road_geometry(
+    road = builder.set_road_geometry(
         maliput_helpers.create_multilane_from_file(
             file_path=filename
         )
@@ -110,13 +111,13 @@ def main():
     for n in range(args.num_rail_cars):
         lane, lane_position = rail_car_lane_positions[n]
         utilities.add_rail_car(
-            simulator,
+            builder,
             name='rail{}'.format(n),
             lane=lane,
             position=lane_position.srh()[0],
             offset=0.0,  # m
-            speed=railcar_speed,
-            road_geometry=road)
+            speed=railcar_speed
+        )
 
     # Sets up all MOBIL cars.
     mobilcar_speed = 4.0  # (m/s)
@@ -128,15 +129,17 @@ def main():
         heading = geo_orientation.rpy().yaw_angle()
 
         utilities.add_mobil_car(
-            simulator, name="mobil" + str(m),
+            builder,
+            name="mobil" + str(m),
             scene_x=x_position,
             scene_y=y_position,
             heading=heading,
             speed=mobilcar_speed,
-            road_geometry=road)
+            road_geometry=road
+        )
 
-    runner = simulation.SimulatorRunner(
-        simulator=simulator,
+    runner = simulation.SimulationRunner(
+        simulation=builder.build(),
         time_step=0.01,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,

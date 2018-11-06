@@ -98,8 +98,8 @@ class TimeMonitor(object):
     A class to monitor the time on every callback and perform an action after
     ten seconds have elapsed.
     '''
-    def __init__(self, simulator, agent):
-        self.simulator = simulator
+    def __init__(self, simulation, agent):
+        self.simulation = simulation
         self.agent = agent
         self.changed_speed = False
 
@@ -109,7 +109,7 @@ class TimeMonitor(object):
         to see if the elapsed simulator_time is greater than 10 seconds, and
         once it is, it changes the speed of the agent.
         '''
-        if self.simulator.get_current_simulation_time() >= 10.0 \
+        if self.simulation.get_current_time() >= 10.0 \
            and not self.changed_speed:
             self.agent.set_speed(20.0)
             self.changed_speed = True
@@ -124,9 +124,7 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    stats = SimulationStats()
-
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.SimulationBuilder()
 
     filename = "{0}/roads/circuit.yaml".format(
         utilities.get_delphyne_resource_root())
@@ -138,34 +136,36 @@ def main():
         quit()
 
     # The road geometry
-    road_geometry = simulator.set_road_geometry(
+    road_geometry = builder.set_road_geometry(
         maliput.create_multilane_from_file(
             file_path=filename
         )
     )
 
     utilities.add_simple_car(
-        simulator,
+        builder,
         name=str(0),
         position_x=0.0,
-        position_y=0.0)
+        position_y=0.0
+    )
 
     # Setup railcar
     railcar_speed = 4.0  # (m/s)
     railcar_s = 0.0      # (m)
     robot_id = 1
     lane_1 = road_geometry.junction(2).segment(0).lane(0)
-    myagent = utilities.add_rail_car(
-        simulator,
-        name=str(robot_id),
-        lane=lane_1,
-        position=railcar_s,
-        offset=0.0,
-        speed=railcar_speed,
-        road_geometry=road_geometry)
+    railcar_agent = builder.add_agent(
+        RailCarBlueprint(
+            name=str(robot_id),
+            lane=lane_1,
+            position=railcar_s,
+            offset=0.0,
+            speed=railcar_speed
+        )
+    )
 
     runner = simulation.SimulatorRunner(
-        simulator=simulator,
+        simulation=builder.build(),
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,
@@ -173,8 +173,10 @@ def main():
         logfile_name=args.logfile_name
     )
 
-    monitor = TimeMonitor(simulator, myagent)
+    running_simulation = runner.get_simulation()
+    monitor = TimeMonitor(running_simulation, railcar_agent)
 
+    stats = simulation.SimulationStats()
     with utilities.launch_interactive_simulation(runner) as launcher:
         # Add a callback to record and print statistics
         runner.add_step_callback(stats.record_tick)

@@ -125,17 +125,17 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.SimulationBuilder()
 
     utilities.add_simple_car(
-        simulator,
+        builder,
         name=str(0),
         position_x=0.0,
         position_y=0.0)
 
     simulation_time_step_secs = 0.001
     runner = simulation.SimulatorRunner(
-        simulator,
+        simulation=builder.build(),
         time_step=simulation_time_step_secs
     )
 

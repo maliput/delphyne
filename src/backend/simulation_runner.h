@@ -16,7 +16,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include "backend/automotive_simulator.h"
+#include "backend/simulation.h"
 #include "backend/data_logger.h"
 #include "backend/interactive_simulation_stats.h"
 
@@ -109,16 +109,18 @@ void WaitForShutdown();
 ///   is to add a sleep after calling `stop()` from the Python side, so the
 ///   processor is yielded and the RunThread can finish its current (and last)
 ///   loop before exiting the while.
-class SimulatorRunner {
+class SimulationRunner {
  public:
+  using AgentCollision = AgentBaseCollision<double>;
+
   // @brief On agent collision callback function type.
-  // @see AutomotiveSimulator::GetCollisions()
+  // @see Simulation::GetCollisions()
   using CollisionCallback =
-      std::function<void(const std::vector<AgentBaseCollision<double>>&)>;
+      std::function<void(const std::vector<AgentCollision>&)>;
 
   /// @brief Default constructor.
   ///
-  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @param[in] sim A pointer to a simulation. Note that we take ownership of
   /// the simulation.
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
@@ -132,14 +134,15 @@ class SimulatorRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-                  double time_step, double realtime_rate, bool paused, bool log,
+  SimulationRunner(std::unique_ptr<Simulation> sim,
+                  double time_step, double realtime_rate,
+                  bool paused, bool log,
                   std::string logfile_name);
 
-  /// @brief Simplified constructor that starts the simulator at a real-time
+  /// @brief Simplified constructor that runs the simulation at a real-time
   /// rate of 1.0.
   ///
-  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @param[in] sim A pointer to a simulation. Note that we take ownership of
   /// the simulation.
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
@@ -149,13 +152,13 @@ class SimulatorRunner {
   /// simulator in paused mode.
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
-  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+  SimulationRunner(std::unique_ptr<Simulation> sim,
                   double time_step, bool paused, bool log);
 
-  /// @brief Simplified constructor that starts the simulator at a real-time
+  /// @brief Simplified constructor that runs the simulation at a real-time
   /// rate of 1.0.
   ///
-  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @param[in] sim A pointer to a simulation. Note that we take ownership of
   /// the simulation.
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
@@ -166,14 +169,14 @@ class SimulatorRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+  SimulationRunner(std::unique_ptr<Simulation> sim,
                   double time_step, bool paused, bool log,
                   std::string logfile_name);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false, and log = true.
   ///
-  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @param[in] sim A pointer to a simulation. Note that we take ownership of
   /// the simulation.
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
@@ -181,22 +184,21 @@ class SimulatorRunner {
   ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+  SimulationRunner(std::unique_ptr<Simulation> sim,
                   double time_step, double realtime_rate);
 
-  /// @brief Simplified constructor that starts the simulator with
+  /// @brief Simplified constructor that runs the simulation with
   /// _paused = false, a real-time rate of 1.0, and log = true.
   ///
-  /// @param[in] sim A pointer to a simulator. Note that we take ownership of
+  /// @param[in] sim A pointer to a simulation. Note that we take ownership of
   /// the simulation.
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
-  SimulatorRunner(std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
-                  double time_step);
+  SimulationRunner(std::unique_ptr<Simulation> sim, double time_step);
 
   /// @brief Default destructor.
-  virtual ~SimulatorRunner();
+  virtual ~SimulationRunner();
 
   /// @brief Adds a python callback to be invoked on each simulation step. It is
   /// important to note that the simulation step will be effectively blocked
@@ -286,19 +288,17 @@ class SimulatorRunner {
 
   /// @brief Returns the current simulation time in seconds.
   double GetCurrentSimulationTime() const {
-    return simulator_->GetCurrentSimulationTime();
+    return drake::ExtractDoubleOrThrow(simulation_->GetCurrentTime());
   }
 
-  const delphyne::AutomotiveSimulator<double>& GetSimulator() const {
-    return *simulator_;
-  }
+  /// @brief Returns a reference to the simulation being run
+  const Simulation& GetSimulation() const { return *simulation_; }
 
-  delphyne::AutomotiveSimulator<double>* GetMutableSimulator() {
-    return simulator_.get();
-  }
+  /// @brief Returns a mutable reference to the simulation being run
+  Simulation* GetMutableSimulation() { return simulation_.get(); }
 
   /// @brief Returns the collected interactive simulation statistics
-  const InteractiveSimulationStats& get_stats() const { return stats_; }
+  const InteractiveSimulationStats& GetStats() const { return stats_; }
 
   /// @brief Returns the logging state. True indicates that logging is enabled.
   bool IsLogging() const { return logger_.is_logging(); }
@@ -422,8 +422,8 @@ class SimulatorRunner {
   // @brief Whether the main loop has been started or not.
   std::atomic<bool> interactive_loop_running_{false};
 
-  // @brief A pointer to the Drake simulator.
-  std::unique_ptr<delphyne::AutomotiveSimulator<double>> simulator_;
+  // @brief A pointer to the simulation being run.
+  std::unique_ptr<Simulation> simulation_;
 
   // @brief Whether an external step was requested or not.
   unsigned int steps_requested_{0u};

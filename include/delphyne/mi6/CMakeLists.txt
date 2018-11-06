@@ -21,6 +21,7 @@ target_link_libraries(mi6
 install(
   FILES
     agent_base.h
+    agent_base_blueprint.h
     agent_diagram_builder.h
     diagram_bundle.h
   DESTINATION

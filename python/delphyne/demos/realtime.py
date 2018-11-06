@@ -88,15 +88,17 @@ def main():
     # loop.
     initial_steps = int(args.realtime_rate * 12000)
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.SimulationBuilder()
+
     utilities.add_simple_car(
-        simulator,
+        builder,
         name=str(0),
         position_x=0.0,
-        position_y=0.0)
+        position_y=0.0
+    )
 
-    runner = simulation.SimulatorRunner(
-        simulator=simulator,
+    runner = simulation.SimulationRunner(
+        simulation=builder.build(),
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,

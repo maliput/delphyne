@@ -3,14 +3,14 @@
 #include <cmath>
 #include <memory>
 
-#include <gmock/gmock.h>
+#include <gtest/gmock.h>
 #include <gtest/gtest.h>
 
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/system_constraint.h>
 
-#include "eigen_matrix_compare.h"
-#include "scalar_conversion.h"
+#include "test_utilities/eigen_matrix_compare.h"
+#include "test_utilities/scalar_conversion.h"
 
 #include "gen/simple_car_state.h"
 

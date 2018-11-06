@@ -11,7 +11,7 @@
 #include <drake/common/extract_double.h>
 #include <drake/math/rotation_matrix.h>
 
-#include "eigen_matrix_compare.h"
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {

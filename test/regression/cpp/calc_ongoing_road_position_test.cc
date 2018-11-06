@@ -6,7 +6,7 @@
 #include <drake/automotive/multilane_onramp_merge.h>
 #include <drake/common/autodiff.h>
 
-#include "eigen_matrix_compare.h"
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 

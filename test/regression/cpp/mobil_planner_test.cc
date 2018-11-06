@@ -7,7 +7,7 @@
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 
-#include "eigen_matrix_compare.h"
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace test_p {

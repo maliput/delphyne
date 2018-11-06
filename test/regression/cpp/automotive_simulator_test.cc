@@ -26,10 +26,10 @@
 #include "agents/trajectory_agent.h"
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
-#include "helpers.h"
 #include "systems/lane_direction.h"
 #include "systems/trajectory.h"
 #include "test/test_config.h"
+#include "test_utilities/helpers.h"
 #include "visualization/prius_vis.h"
 #include "visualization/simple_prius_vis.h"
 
@@ -286,34 +286,31 @@ TEST_F(AutomotiveSimulatorTest, TestMobilControlledSimpleCar) {
   // ---------------------------------------------------------------
 
   simulator->AddAgent(
-      std::make_unique<delphyne::MobilCar>(
-          "MOBIL0",
-          true,  // lane_direction,
-          2.0,   // x
-          -2.0,  // y
-          0.0,   // heading
-          10.0,  // velocity
-          *road_geometry));
-  
-  simulator->AddAgent(
-      std::make_unique<delphyne::RailCar>(
-          "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
-          true,  // lane_direction,
-          6.0,   // position (m)
-          0.0,   // offset (m)
-          0.0,   // speed (m)
-          0.0,   // nominal_speed (m/s)
-          *road_geometry));
+      std::make_unique<delphyne::MobilCar>("MOBIL0",
+                                           true,  // lane_direction,
+                                           2.0,   // x
+                                           -2.0,  // y
+                                           0.0,   // heading
+                                           10.0,  // velocity
+                                           *road_geometry));
 
-  simulator->AddAgent(
-      std::make_unique<delphyne::RailCar>(
-          "decoy2", *(road_geometry->junction(0)->segment(0)->lane(0)),
-          true,  // lane_direction,
-          20.0,  // position (m)
-          0.0,   // offset (m)
-          0.0,   // speed (m/s)
-          0.0,   // nominal_speed (m/s)
-          *road_geometry));
+  simulator->AddAgent(std::make_unique<delphyne::RailCar>(
+      "decoy1", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      6.0,   // position (m)
+      0.0,   // offset (m)
+      0.0,   // speed (m)
+      0.0,   // nominal_speed (m/s)
+      *road_geometry));
+
+  simulator->AddAgent(std::make_unique<delphyne::RailCar>(
+      "decoy2", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      20.0,  // position (m)
+      0.0,   // offset (m)
+      0.0,   // speed (m/s)
+      0.0,   // nominal_speed (m/s)
+      *road_geometry));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -354,9 +351,8 @@ TEST_F(AutomotiveSimulatorTest, TestTrajectoryAgent) {
       {60.0, 0.0, 0.0}, {100.0, 0.0, 0.0},
   };
 
-  simulator->AddAgent(
-      std::make_unique<delphyne::TrajectoryAgent>(
-          "alice", times, headings, translations));
+  simulator->AddAgent(std::make_unique<delphyne::TrajectoryAgent>(
+      "alice", times, headings, translations));
 
   // Setup an ignition transport topic monitor to listen to
   // ignition::msgs::Model_V messages being published to
@@ -544,9 +540,8 @@ TEST_F(AutomotiveSimulatorTest, TestDuplicateVehicleNameException) {
   auto agent2 =
       std::make_unique<delphyne::SimpleCar>("Model1", 0.0, 0.0, 0.0, 0.0);
   EXPECT_NO_THROW(simulator->AddAgent(std::move(agent1)));
-  EXPECT_RUNTIME_THROW(
-      simulator->AddAgent(std::move(agent2)),
-      "An agent named \"Model1\" already exists.");
+  EXPECT_RUNTIME_THROW(simulator->AddAgent(std::move(agent2)),
+                       "An agent named \"Model1\" already exists.");
 
   auto agent_1 = std::make_unique<delphyne::RailCar>(
       "FOO", *(road_geometry->junction(0)->segment(0)->lane(0)),
@@ -596,25 +591,23 @@ TEST_F(AutomotiveSimulatorTest, TestRailcarVelocityOutput) {
 
   const double kR{0.5};
 
-  auto alice = simulator->AddAgent(
-      std::make_unique<delphyne::RailCar>(
-          "alice", *(road_geometry->junction(0)->segment(0)->lane(0)),
-          true,  // lane_direction,
-          5.0,   // position
-          kR,    // offset
-          1.0,   // speed
-          5.0,   // nominal_speed
-          *road_geometry));
+  auto alice = simulator->AddAgent(std::make_unique<delphyne::RailCar>(
+      "alice", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      5.0,   // position
+      kR,    // offset
+      1.0,   // speed
+      5.0,   // nominal_speed
+      *road_geometry));
 
-  auto bob = simulator->AddAgent(
-      std::make_unique<delphyne::RailCar>(
-          "bob", *(road_geometry->junction(0)->segment(0)->lane(0)),
-          true,  // lane_direction,
-          0.0,   // position
-          kR,    // offset
-          0.0,   // speed
-          0.0,   // nominal_speed
-          *road_geometry));
+  auto bob = simulator->AddAgent(std::make_unique<delphyne::RailCar>(
+      "bob", *(road_geometry->junction(0)->segment(0)->lane(0)),
+      true,  // lane_direction,
+      0.0,   // position
+      kR,    // offset
+      0.0,   // speed
+      0.0,   // nominal_speed
+      *road_geometry));
 
   EXPECT_NO_THROW(simulator->Start());
 
@@ -738,29 +731,26 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
   const drake::maliput::api::GeoPosition agent_alice_geo_position =
       second_lane->ToGeoPosition(agent_alice_lane_position);
 
-  auto agent_alice = simulator->AddAgent(
-      std::make_unique<delphyne::SimpleCar>(
-          "alice", agent_alice_geo_position.x(),
-          agent_alice_geo_position.y(),
-          kHeadingWest, kCruiseSpeed));
+  auto agent_alice = simulator->AddAgent(std::make_unique<delphyne::SimpleCar>(
+      "alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
+      kHeadingWest, kCruiseSpeed));
 
   // Configures agent `Smith`.
   const drake::maliput::api::LanePosition agent_smith_lane_position{
       kZeroSOffset, kZeroROffset, kZeroHOffset};
   const drake::maliput::api::GeoPosition agent_smith_geo_position =
       first_lane->ToGeoPosition(agent_smith_lane_position);
-  auto agent_smith =
-      simulator->AddAgent(std::make_unique<delphyne::SimpleCar>(
-          "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
-          kHeadingEast + kHeadingDeviation, kCruiseSpeed));
+  auto agent_smith = simulator->AddAgent(std::make_unique<delphyne::SimpleCar>(
+      "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
+      kHeadingEast + kHeadingDeviation, kCruiseSpeed));
 
   // Finishes initialization and starts the simulation.
   simulator->Start();
 
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
-  std::vector<AgentBasePair<double>>
-      agents_in_collision = simulator->GetCollisions();
+  std::vector<AgentBasePair<double>> agents_in_collision =
+      simulator->GetCollisions();
   EXPECT_EQ(agents_in_collision.size(), 0);
 
   // Simulates forward in time.

@@ -56,8 +56,7 @@ class NamedPortSystem : public Base {
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(NamedPortSystem);
 
   template <typename... Args>
-  explicit NamedPortSystem(Args... args) :
-      Base(std::forward<Args>(args)...) { }
+  explicit NamedPortSystem(Args... args) : Base(std::forward<Args>(args)...) {}
 
   void set_input_names(
       std::map<std::string, drake::systems::InputPortIndex> inputs_mapping) {
@@ -69,30 +68,28 @@ class NamedPortSystem : public Base {
     outputs_mapping_ = outputs_mapping;
   }
 
-  const drake::systems::InputPort<T>&
-  get_input_port(int port_index) const {
+  const drake::systems::InputPort<T>& get_input_port(int port_index) const {
     // Caveat: `System::get_input_port` is not virtual.
     return Base::get_input_port(port_index);
   }
 
-  const drake::systems::InputPort<T>&
-  get_input_port(const std::string& port_name) const {
+  const drake::systems::InputPort<T>& get_input_port(
+      const std::string& port_name) const {
     DELPHYNE_VALIDATE(inputs_mapping_.count(port_name) != 0, std::runtime_error,
                       "Input port \"" + port_name + "\" could not be found.");
     return get_input_port(inputs_mapping_.at(port_name));
   }
 
-  const drake::systems::OutputPort<T>&
-  get_output_port(int port_index) const {
+  const drake::systems::OutputPort<T>& get_output_port(int port_index) const {
     // Caveat: `System::get_output_port` is not virtual.
     return Base::get_output_port(port_index);
   }
 
-  const drake::systems::OutputPort<T>&
-  get_output_port(const std::string& port_name) const {
-    DELPHYNE_VALIDATE(
-        outputs_mapping_.count(port_name) != 0, std::runtime_error,
-        "Output port \"" + port_name + "\" could not be found.");
+  const drake::systems::OutputPort<T>& get_output_port(
+      const std::string& port_name) const {
+    DELPHYNE_VALIDATE(outputs_mapping_.count(port_name) != 0,
+                      std::runtime_error,
+                      "Output port \"" + port_name + "\" could not be found.");
     return this->get_output_port(outputs_mapping_.at(port_name));
   }
 
@@ -104,8 +101,8 @@ class NamedPortSystem : public Base {
 }  // namespace detail
 
 template <typename T>
-class DiagramBundle :
-      public detail::NamedPortSystem<drake::systems::Diagram<T>, T> {
+class DiagramBundle
+    : public detail::NamedPortSystem<drake::systems::Diagram<T>, T> {
  public:
   explicit DiagramBundle(drake::systems::DiagramBuilder<T>* builder) {
     builder->BuildInto(this);

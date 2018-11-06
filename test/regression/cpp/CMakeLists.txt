@@ -6,17 +6,19 @@
 set(TEST_TYPE UNIT)
 
 # ----------------------------------------
-# Helper library.
-add_library(test_helpers helpers.cc)
+# Helper test library.
+file(GLOB SOURCES "test_utilities/*.cc") 
+
+add_library(test_utilities ${SOURCES})
 
 target_include_directories(
-  test_helpers
+  test_utilities
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
-target_link_libraries(test_helpers
+target_link_libraries(test_utilities
   gtest
   gtest_main
   public_headers

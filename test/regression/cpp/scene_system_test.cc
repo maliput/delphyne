@@ -10,7 +10,7 @@
 
 #include <gtest/gtest.h>
 
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 

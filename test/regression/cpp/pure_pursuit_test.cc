@@ -5,7 +5,7 @@
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/automotive/maliput/multilane/builder.h>
 
-#include "eigen_matrix_compare.h"
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {

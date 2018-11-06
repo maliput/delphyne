@@ -19,7 +19,7 @@
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/scene_request.pb.h"
-#include "helpers.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 

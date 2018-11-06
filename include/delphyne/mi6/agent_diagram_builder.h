@@ -127,10 +127,10 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
     DELPHYNE_VALIDATE(outputs_mapping_.count("pose") != 0, std::runtime_error,
                       "A pose output port has not been exported (see "
                       "AgentDiagramBuilder::ExportPoseOutput)");
-    DELPHYNE_VALIDATE(
-        outputs_mapping_.count("velocity") != 0, std::runtime_error,
-        "A velocity output port has not been exported (see "
-        "AgentDiagramBuilder::ExportPoseOutput)");
+    DELPHYNE_VALIDATE(outputs_mapping_.count("velocity") != 0,
+                      std::runtime_error,
+                      "A velocity output port has not been exported (see "
+                      "AgentDiagramBuilder::ExportPoseOutput)");
     auto diagram = std::make_unique<DiagramBundle<T>>(this);
     diagram->set_name(name_);
     diagram->set_input_names(inputs_mapping_);

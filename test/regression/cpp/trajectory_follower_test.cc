@@ -7,7 +7,7 @@
 #include "drake/common/extract_double.h"
 #include "drake/systems/analysis/simulator.h"
 
-#include "scalar_conversion.h"
+#include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
 namespace {

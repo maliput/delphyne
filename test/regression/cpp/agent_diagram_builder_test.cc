@@ -6,10 +6,10 @@
 
 #include <gtest/gtest.h>
 
-#include "helpers.h"
 #include "systems/lane_direction.h"
 #include "systems/simple_car.h"
 #include "test/test_config.h"
+#include "test_utilities/helpers.h"
 
 namespace delphyne {
 

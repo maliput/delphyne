@@ -11,7 +11,7 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
-#include "eigen_matrix_compare.h"
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 

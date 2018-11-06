@@ -8,8 +8,8 @@
 #include "drake/common/autodiff.h"
 #include "drake/common/extract_double.h"
 
-#include "autodiff_test_utilities.h"
-#include "eigen_matrix_compare.h"
+#include "test_utilities/autodiff_test_utilities.h"
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {

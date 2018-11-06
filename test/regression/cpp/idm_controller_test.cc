@@ -8,8 +8,8 @@
 
 #include "drake/automotive/monolane_onramp_merge.h"
 
-#include "eigen_matrix_compare.h"
-#include "scalar_conversion.h"
+#include "test_utilities/eigen_matrix_compare.h"
+#include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
 

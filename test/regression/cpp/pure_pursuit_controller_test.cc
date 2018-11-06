@@ -7,7 +7,7 @@
 
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 
-#include "scalar_conversion.h"
+#include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
 namespace {

@@ -36,6 +36,8 @@ target_link_libraries(test_utilities
 set(SOURCES
   agent_diagram_builder_test.cc
   automotive_simulator_test.cc
+  bicycle_car_test.cc  
+  box_car_vis_test.cc
   calc_ongoing_road_position_test.cc
   calc_smooth_acceleration_test.cc
   car_vis_applicator_test.cc  
@@ -43,6 +45,8 @@ set(SOURCES
   compression_test.cc
   data_logger_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
+  driving_command_mux_test.cc
+  dynamic_bicycle_car_test.cc  
   filesystem_test.cc
   frame_pose_aggregator_test.cc
   idm_controller_test.cc
@@ -62,7 +66,9 @@ set(SOURCES
   pure_pursuit_controller_test.cc
   pure_pursuit_test.cc
   resources_test.cc
+  road_path_test.cc
   simple_car_test.cc
+  simple_powertrain_test.cc
   scene_system_test.cc
   simulation_run_stats_test.cc
   simulation_runner_test.cc

@@ -253,7 +253,8 @@ struct IsSourceOf {
 }  // namespace
 
 template <typename T>
-std::vector<AgentBasePair<T>> AutomotiveSimulator<T>::GetCollisions() const {
+std::vector<AgentBaseCollision<T>>
+AutomotiveSimulator<T>::GetCollisions() const {
   DELPHYNE_VALIDATE(has_started(), std::runtime_error,
                     "Can only get collisions on a running simulation");
   using drake::geometry::GeometryId;
@@ -261,7 +262,7 @@ std::vector<AgentBasePair<T>> AutomotiveSimulator<T>::GetCollisions() const {
   using drake::geometry::PenetrationAsPointPair;
   const std::vector<PenetrationAsPointPair<T>> collisions =
       scene_query_->GetValue<QueryObject<T>>().ComputePointPairPenetration();
-  std::vector<AgentBasePair<T>> agents_in_collision;
+  std::vector<AgentBaseCollision<T>> agent_collisions;
   for (const auto& collision : collisions) {
     const auto it_A = std::find_if(agents_.begin(), agents_.end(),
                                    IsSourceOf<T, GeometryId>(collision.id_A));
@@ -271,9 +272,11 @@ std::vector<AgentBasePair<T>> AutomotiveSimulator<T>::GetCollisions() const {
                                    IsSourceOf<T, GeometryId>(collision.id_B));
     DELPHYNE_VALIDATE(it_B != agents_.end(), std::runtime_error,
                       "Could not find second agent in list of agents");
-    agents_in_collision.emplace_back(it_A->second.get(), it_B->second.get());
+    agent_collisions.emplace_back(std::make_pair(it_A->second.get(),
+                                                 it_B->second.get()),
+                                  collision.p_WCa);
   }
-  return agents_in_collision;
+  return agent_collisions;
 }
 
 template <typename T>

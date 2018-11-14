@@ -43,7 +43,7 @@ in collision course.
     return parser.parse_args()
 
 
-def on_agent_collision(_, agents_in_collision):
+def on_agent_collision(_, agent_collisions):
     """
     Callback on collision between agents in simulation.
 
@@ -55,23 +55,24 @@ def on_agent_collision(_, agents_in_collision):
                                           :class:`delphyne.agents.AgentBase`]]
     """
     print("Collisions have been detected!")
-    for agent1, agent2 in agents_in_collision:
-        print("{} and {} have crashed!.".format(
-            agent1.name(), agent2.name()
+    for collision in agent_collisions:
+        agent1, agent2 = collision.agents
+        print("\n{} and {} have crashed at {}!".format(
+            agent1.name(), agent2.name(), collision.location
+        ))
+        agent1_velocity = agent1.get_velocity()
+        print("--> {} was going at {} m/s and hit {}.".format(
+            agent1.name(), np.linalg.norm(agent1_velocity[3:]), agent2.name()
         ))
         agent1_pose = agent1.get_pose()
-        agent1_velocity = agent1.get_velocity()
-        print("{} was going at {} m/s and hit {} at {}.".format(
-            agent1.name(), np.linalg.norm(agent1_velocity[3:]),
-            agent2.name(), agent1_pose.translation()
+        print("    It now rests at {}.".format(agent1_pose.translation()))
+        agent2_velocity = agent2.get_velocity()
+        print("--> {} was going at {} m/s and hit {}.".format(
+            agent2.name(), np.linalg.norm(agent2_velocity[3:]), agent1.name()
         ))
         agent2_pose = agent2.get_pose()
-        agent2_velocity = agent2.get_velocity()
-        print("{} was going at {} m/s and hit {} at {}.".format(
-            agent2.name(), np.linalg.norm(agent2_velocity[3:]),
-            agent1.name(), agent2_pose.translation()
-        ))
-    print("Simulation paused.")
+        print("    It now rests at {}.".format(agent2_pose.translation()))
+    print("\nSimulation paused.")
 
 
 ##############################################################################

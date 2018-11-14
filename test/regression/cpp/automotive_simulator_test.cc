@@ -749,9 +749,9 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
 
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
-  std::vector<AgentBasePair<double>> agents_in_collision =
+  std::vector<AgentBaseCollision<double>> agent_collisions =
       simulator->GetCollisions();
-  EXPECT_EQ(agents_in_collision.size(), 0);
+  EXPECT_EQ(agent_collisions.size(), 0);
 
   // Simulates forward in time.
   const double kTimeToCollision{5.};  // in sec
@@ -759,18 +759,16 @@ TEST_F(AutomotiveSimulatorTest, TestGetCollisions) {
 
   // Checks that there was a collision and that the colliding
   // agents are the expected ones.
-  agents_in_collision = simulator->GetCollisions();
-  EXPECT_EQ(agents_in_collision.size(), 1);
+  agent_collisions = simulator->GetCollisions();
+  EXPECT_EQ(agent_collisions.size(), 1);
+  const AgentBaseCollision<double>& collision = agent_collisions.front();
 
-  const AgentBasePair<double>& colliding_agents = agents_in_collision.front();
-  const AgentBase<double>* first_colliding_agent = colliding_agents.first;
-  const AgentBase<double>* second_colliding_agent = colliding_agents.second;
   // Cannot make any assumption regarding pair order, see
   // delphyne::AutomotiveSimulator::GetCollisions().
-  EXPECT_TRUE((first_colliding_agent == agent_alice &&
-               second_colliding_agent == agent_smith) ||
-              (first_colliding_agent == agent_smith &&
-               second_colliding_agent == agent_alice));
+  EXPECT_TRUE((collision.agents.first == agent_alice &&
+               collision.agents.second == agent_smith) ||
+              (collision.agents.first == agent_smith &&
+               collision.agents.second == agent_alice));
 }
 
 //////////////////////////////////////////////////

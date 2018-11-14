@@ -9,6 +9,7 @@
 
 #include <memory>
 
+#include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
@@ -25,6 +26,7 @@
 
 namespace py = pybind11;
 
+using delphyne::AgentBaseCollision;
 using delphyne::AutomotiveSimulator;
 using delphyne::SimulatorRunner;
 using delphyne::InteractiveSimulationStats;
@@ -113,6 +115,10 @@ PYBIND11_MODULE(simulation, m) {
                                 SimulatorRunner::StartLogging)
       .def("stop_logging", &SimulatorRunner::StopLogging)
       .def("get_log_filename", &SimulatorRunner::GetLogFilename);
+
+  py::class_<AgentBaseCollision<double>>(m, "AgentCollision")
+      .def_readonly("agents", &AgentBaseCollision<double>::agents)
+      .def_readonly("location", &AgentBaseCollision<double>::location);
 
   py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
       .def(py::init(

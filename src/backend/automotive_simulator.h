@@ -40,7 +40,15 @@
 namespace delphyne {
 
 template <typename T>
-using AgentBasePair = std::pair<AgentBase<T>*, AgentBase<T>*>;
+struct AgentBaseCollision {
+  AgentBaseCollision(const std::pair<AgentBase<T>*, AgentBase<T>*> agents_in,
+                     const drake::Vector3<T>& location_in)
+      : agents(agents_in), location(location_in) {
+  }
+
+  const std::pair<AgentBase<T>*, AgentBase<T>*> agents;
+  const drake::Vector3<T> location;
+};
 
 /// AutomotiveSimulator is a helper class for constructing and running
 /// automotive-related simulations.
@@ -124,7 +132,9 @@ class AutomotiveSimulator {
   /// @pre Start() has been called.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
 
-  /// Returns all agent pairs that are currently in collision.
+  /// Returns all agent collision i.e. all agent pairs that are currently
+  /// in collision along with the location of that collision expressed in
+  /// the world frame.
   ///
   /// @remarks The order in which collision pairs are returned may
   ///          vary with the collision detection backend used and thus
@@ -132,7 +142,7 @@ class AutomotiveSimulator {
   ///          order.
   /// @pre Start() has been called.
   /// @throw std::runtime_error if any of the preconditions is not met.
-  std::vector<AgentBasePair<T>> GetCollisions() const;
+  std::vector<AgentBaseCollision<T>> GetCollisions() const;
 
   /// Calls Build() on the diagram (if it has not been build already) and
   /// initializes the Simulator.  No further changes to the diagram may occur

@@ -8,7 +8,7 @@
 import time
 import unittest
 from delphyne.simulation import (
-    SimulationBuilder,
+    AgentSimulationBuilder,
     SimulationRunner
 )
 from delphyne.agents import SimpleCarBlueprint
@@ -33,7 +33,7 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Initialize callback flag.
         self.callback_called = False
         # Sets up a simulation.
-        builder = SimulationBuilder()
+        builder = AgentSimulationBuilder()
         # Adds a prius car to the simulation.
         builder.add_agent(SimpleCarBlueprint(
             "simple-car", 0.0, 0.0, 0.0, 0.0

@@ -56,7 +56,7 @@ def main():
 
     mobil_cars_num = args.num_cars
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     filename = "{0}/roads/circuit.yaml".format(
         utilities.get_delphyne_resource_root())
@@ -135,8 +135,7 @@ def main():
             scene_x=-10.0 + x_offset * (1 + i / 3),
             scene_y=0.0 + y_offset * (i % 3),
             heading=0.0,
-            speed=velocity_base * i,
-            road_geometry=road_geometry
+            speed=velocity_base * i
         )
 
     runner = simulation.SimulationRunner(

@@ -90,7 +90,7 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     if args.road_type == "dragway":
         builder.set_road_geometry(

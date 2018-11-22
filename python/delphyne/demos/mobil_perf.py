@@ -41,7 +41,7 @@ def curved_lanes(args):
     Sets up a simulation with `args.num_cars` MOBIL cars on a few
     lanes of a curved (arc) road.
     """
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     # Loads Multilane road.
     road = builder.set_road_geometry(
@@ -64,7 +64,6 @@ def curved_lanes(args):
             scene_y=R0 - R * math.cos(theta),  # m
             heading=theta,  # rads
             speed=1.0,  # m/s
-            road_geometry=road
         )
 
     # Adds the N*T rail cars to the multilane.
@@ -89,7 +88,7 @@ def straight_lanes(args):
     lanes of a straight road.
     """
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     # Loads Multilane road.
     road = builder.set_road_geometry(
@@ -108,7 +107,6 @@ def straight_lanes(args):
             scene_y=4. * (i % 3),  # m
             heading=0.0,  # rads
             speed=1.0,  # m/s
-            road_geometry=road
         )
 
     # Adds the N*T rail cars to the multilane.
@@ -132,7 +130,7 @@ def dragway(args):
     Sets up a simulation with `args.num_cars` MOBIL cars on a dragway
     road with four (4) lanes.
     """
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     road = builder.set_road_geometry(
         maliput.create_dragway(
@@ -153,7 +151,6 @@ def dragway(args):
             scene_y=-5.5 + 3.7 * (i % 4),  # m
             heading=0.0,  # rads
             speed=1.0,  # m/s
-            road_geometry=road
         )
 
     # Adds the N*T rail cars to the multilane.

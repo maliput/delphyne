@@ -61,24 +61,12 @@ class AgentBase {
 
   virtual ~AgentBase() = default;
 
-  const AgentBaseBlueprint<T>& GetBlueprint() const {
-    DELPHYNE_VALIDATE(blueprint_ != nullptr, std::runtime_error,
-                      "No blueprint was specified for this agent");
-    return *blueprint_;
-  }
-
-  void SetBlueprint(std::unique_ptr<AgentBaseBlueprint<T>> blueprint) {
-    DELPHYNE_VALIDATE(blueprint != nullptr, std::runtime_error,
-                      "Invalid null blueprint was given");
-    blueprint_ = std::move(blueprint);
-  }
-
   /// Resets this agent's Context to @p context.
   /// @param context A reference to the agent's Diagram
   ///                representation Context, owned by the
   ///                simulation.
   /// @throws std::runtime_error if @p context is nullptr.
-  void ResetContext(drake::systems::Context<T>* context) {
+  void SetContext(drake::systems::Context<T>* context) {
     DELPHYNE_VALIDATE(context != nullptr, std::runtime_error,
                       "Invalid null context given");
     context_ = context;
@@ -97,14 +85,12 @@ class AgentBase {
   /// Gets a reference to the agent's Diagram representation.
   const Diagram& GetDiagram() const { return *diagram_; }
 
-  /// Gets a mutable reference to the agent's Diagram representation.
-  Diagram* GetMutableDiagram() { return diagram_; }
-
   /// Gets the agent pose in the simulation.
   /// @throws std::runtime_error if this agent lacks Context.
   drake::Isometry3<T> GetPose() const {
+    constexpr const char * const kPosePortName = "pose";
     const drake::systems::OutputPort<T>& pose_output_port =
-        GetDiagram().get_output_port("pose");
+        GetDiagram().get_output_port(kPosePortName);
     std::unique_ptr<drake::systems::AbstractValue> port_value =
         pose_output_port.Allocate();
     pose_output_port.Calc(GetContext(), port_value.get());
@@ -125,8 +111,9 @@ class AgentBase {
   /// Gets the agent twist in the simulation.
   /// @throws std::runtime_error if this agent lacks Context.
   drake::TwistVector<T> GetVelocity() const {
+    constexpr const char * const kVelocityPortName = "velocity";
     const drake::systems::OutputPort<T>& vel_output_port =
-        GetDiagram().get_output_port("velocity");
+        GetDiagram().get_output_port(kVelocityPortName);
     std::unique_ptr<drake::systems::AbstractValue> port_value =
         vel_output_port.Allocate();
     vel_output_port.Calc(GetContext(), port_value.get());
@@ -152,11 +139,6 @@ class AgentBase {
     return geometry_ids_;
   }
 
-  /// Gets a mutable reference to the agent's geometry IDs.
-  std::set<drake::geometry::GeometryId>* GetMutableGeometryIDs() {
-    return &geometry_ids_;
-  }
-
   /// Checks whether this agent is the source of the given
   /// @p geometry_id (i.e. has registered the geometry associated
   /// with that id) or not.
@@ -166,18 +148,18 @@ class AgentBase {
   }
 
  private:
+  // Give the associated blueprint access to the agent internals.
+  friend AgentBaseBlueprint<T>;
+
   // A reference to this agent's Diagram representation in simulation.
-  Diagram* diagram_{};
+  Diagram* diagram_{nullptr};
 
   // A reference to this agent's Context in simulation.
-  drake::systems::Context<T>* context_{};
+  drake::systems::Context<T>* context_{nullptr};
 
   // The set of geometry IDs registered for this agent's
   // collision geometries.
   std::set<drake::geometry::GeometryId> geometry_ids_{};
-
-  // The blueprint for this agent.
-  std::unique_ptr<AgentBaseBlueprint<T>> blueprint_;
 };
 
 /*****************************************************************************

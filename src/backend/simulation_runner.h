@@ -16,7 +16,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include "backend/simulation.h"
+#include "backend/agent_simulation.h"
 #include "backend/data_logger.h"
 #include "backend/interactive_simulation_stats.h"
 
@@ -114,7 +114,7 @@ class SimulationRunner {
   using AgentCollision = AgentBaseCollision<double>;
 
   // @brief On agent collision callback function type.
-  // @see Simulation::GetCollisions()
+  // @see AgentSimulation::GetCollisions()
   using CollisionCallback =
       std::function<void(const std::vector<AgentCollision>&)>;
 
@@ -134,7 +134,7 @@ class SimulationRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulationRunner(std::unique_ptr<Simulation> sim,
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
                   double time_step, double realtime_rate,
                   bool paused, bool log,
                   std::string logfile_name);
@@ -152,7 +152,7 @@ class SimulationRunner {
   /// simulator in paused mode.
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
-  SimulationRunner(std::unique_ptr<Simulation> sim,
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
                   double time_step, bool paused, bool log);
 
   /// @brief Simplified constructor that runs the simulation at a real-time
@@ -169,7 +169,7 @@ class SimulationRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulationRunner(std::unique_ptr<Simulation> sim,
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
                   double time_step, bool paused, bool log,
                   std::string logfile_name);
 
@@ -184,7 +184,7 @@ class SimulationRunner {
   ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-  SimulationRunner(std::unique_ptr<Simulation> sim,
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
                   double time_step, double realtime_rate);
 
   /// @brief Simplified constructor that runs the simulation with
@@ -195,7 +195,7 @@ class SimulationRunner {
   ///
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
-  SimulationRunner(std::unique_ptr<Simulation> sim, double time_step);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step);
 
   /// @brief Default destructor.
   virtual ~SimulationRunner();
@@ -292,10 +292,10 @@ class SimulationRunner {
   }
 
   /// @brief Returns a reference to the simulation being run
-  const Simulation& GetSimulation() const { return *simulation_; }
+  const AgentSimulation& GetSimulation() const { return *simulation_; }
 
   /// @brief Returns a mutable reference to the simulation being run
-  Simulation* GetMutableSimulation() { return simulation_.get(); }
+  AgentSimulation* GetMutableSimulation() { return simulation_.get(); }
 
   /// @brief Returns the collected interactive simulation statistics
   const InteractiveSimulationStats& GetStats() const { return stats_; }
@@ -423,7 +423,7 @@ class SimulationRunner {
   std::atomic<bool> interactive_loop_running_{false};
 
   // @brief A pointer to the simulation being run.
-  std::unique_ptr<Simulation> simulation_;
+  std::unique_ptr<AgentSimulation> simulation_;
 
   // @brief Whether an external step was requested or not.
   unsigned int steps_requested_{0u};

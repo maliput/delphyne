@@ -66,7 +66,7 @@ void WaitForShutdown() {
 }
 
 SimulationRunner::SimulationRunner(
-    std::unique_ptr<Simulation> sim,
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, double realtime_rate, bool paused, bool log,
     std::string logfile_name)
     : time_step_(time_step),
@@ -117,24 +117,24 @@ SimulationRunner::SimulationRunner(
 }
 
 SimulationRunner::SimulationRunner(
-    std::unique_ptr<Simulation> sim,
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, bool paused, bool log)
     : SimulationRunner(std::move(sim), time_step, 1.0, paused, log, "") {}
 
 SimulationRunner::SimulationRunner(
-    std::unique_ptr<Simulation> sim,
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, bool paused, bool log, std::string logfile_name)
     : SimulationRunner(std::move(sim), time_step, 1.0, paused, log,
                       logfile_name) {}
 
 SimulationRunner::SimulationRunner(
-    std::unique_ptr<Simulation> sim,
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, double realtime_rate)
     : SimulationRunner(std::move(sim), time_step, realtime_rate, false, false,
                       "") {}
 
 SimulationRunner::SimulationRunner(
-    std::unique_ptr<Simulation> sim,
+    std::unique_ptr<AgentSimulation> sim,
     double time_step)
     : SimulationRunner(std::move(sim), time_step, 1.0, false, false, "") {}
 
@@ -423,7 +423,8 @@ void SimulationRunner::ProcessSceneRequest(
     const ignition::msgs::SceneRequest& msg) {
   // Sets the string from the scene request as
   // the topic name where the scene will be published
-  const std::unique_ptr<ignition::msgs::Scene> scene = simulation_->GetScene();
+  const std::unique_ptr<ignition::msgs::Scene> scene =
+      simulation_->GetVisualScene();
   const std::string topic_name = msg.response_topic();
 
   node_.Request(topic_name, *scene);
@@ -499,7 +500,8 @@ void SimulationRunner::StartLogging(const std::string& filename) {
            << "Logging to default location: " << sanitized_filename
            << std::endl;
   }
-  std::unique_ptr<ignition::msgs::Scene> scene = simulation_->GetScene();
+  std::unique_ptr<ignition::msgs::Scene> scene =
+      simulation_->GetVisualScene();
   logger_.Sync(&clock_);
   logger_.Start(sanitized_filename);
   logger_.CaptureMeshes(*scene);

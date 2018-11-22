@@ -125,7 +125,7 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     utilities.add_simple_car(
         builder,

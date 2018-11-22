@@ -33,18 +33,18 @@
 #include "visualization/simple_prius_vis.h"
 
 // private headers
+#include "backend/agent_simulation.h"
 #include "backend/geometry_wiring.h"
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/load_robot_aggregator.h"
 #include "backend/scene_system.h"
-#include "backend/simulation.h"
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
 
 namespace delphyne {
 
-/// A builder for simulations.
+/// A builder for agent-based simulations.
 ///
 /// For a system-level architecture diagram, see #5541.
 ///
@@ -53,9 +53,11 @@ namespace delphyne {
 /// Instantiated templates for the following types are provided:
 /// - double
 template <typename T>
-class SimulationBaseBuilder {
+class AgentSimulationBaseBuilder {
  public:
-  SimulationBaseBuilder();
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(AgentSimulationBaseBuilder)
+
+  AgentSimulationBaseBuilder();
 
   /// Sets the RoadGeometry for this simulation.
   ///
@@ -74,32 +76,30 @@ class SimulationBaseBuilder {
 
   /// Constructs a Blueprint in-place and uses it to build and
   /// take ownership of an agent, which is to be wired into the
-  /// simulation. Blueprint ownership is transferred to the built
-  /// agent.
+  /// simulation.
   ///
   /// @param args Blueprint constructor arguments.
-  /// @returns A bare pointer to the built AgentBase<T> instance,
-  ///          which will remain valid for the lifetime of the
-  ///          simulation instance built by this builder.
+  /// @returns A bare pointer to the added AgentBaseBlueprint<T>
+  ///          instance, which will remain valid for the lifetime
+  ///          of this simulation builder.
   /// @throws std::runtime_error if another agent with the same
   ///                            name has been wired already.
   /// @tparam Blueprint An AgentBaseBlueprint<T> subclass.
   /// @tparam BlueprintArgs Blueprint constructor arguments types.
   template<class Blueprint, typename... BlueprintArgs>
-  auto AddAgent(BlueprintArgs&&... args) {
+  Blueprint* AddAgent(BlueprintArgs&&... args) {
     return AddAgent(std::make_unique<Blueprint>(
         std::forward<BlueprintArgs>(args)...));
   }
 
   /// Constructs a Blueprint in-place and uses it to build and
   /// take ownership of an agent, which is to be wired into the
-  /// simulation. Blueprint ownership is transferred to the built
-  /// agent.
+  /// simulation.
   ///
   /// @param args Blueprint constructor arguments.
-  /// @returns A bare pointer to the built AgentBase<T> instance,
-  ///          which will remain valid for the lifetime of the
-  ///          simulation instance built by this builder.
+  /// @returns A bare pointer to the added AgentBaseBlueprint<T>
+  ///          instance, which will remain valid for the lifetime
+  ///          of this simulation builder.
   /// @throws std::runtime_error if another agent with the same
   ///                            name has been wired already.
   /// @tparam Blueprint An AgentBaseBlueprint subclass, to be
@@ -107,7 +107,7 @@ class SimulationBaseBuilder {
   /// @tparam BlueprintArgs Blueprint constructor arguments types.
   template<template <typename U> class BaseBlueprint,
            typename... BlueprintArgs>
-  auto AddAgent(BlueprintArgs&&... args) {
+  BaseBlueprint<T>* AddAgent(BlueprintArgs&&... args) {
     return AddAgent(std::make_unique<BaseBlueprint<T>>(
         std::forward<BlueprintArgs>(args)...));
   }
@@ -117,29 +117,31 @@ class SimulationBaseBuilder {
   /// ownership is transferred to the built agent.
   ///
   /// @param blueprint The agent blueprint to be used.
-  /// @returns A bare pointer to the built AgentBase<T> instance,
-  ///          which will remain valid for the lifetime of the
-  ///          simulation instance built by this builder.
+  /// @returns A bare pointer to the added AgentBaseBlueprint<T>
+  ///          instance, which will remain valid for the lifetime
+  ///          of this simulation builder.
   /// @throws std::runtime_error if blueprint is nullptr.
   /// @throws std::runtime_error if another agent with the same
   ///                            name has been wired already.
   /// @tparam Blueprint An AgentBaseBlueprint<T> subclass.
   template <class Blueprint>
-  auto AddAgent(std::unique_ptr<Blueprint> blueprint) {
+  Blueprint* AddAgent(std::unique_ptr<Blueprint> blueprint) {
     static_assert(std::is_base_of<AgentBaseBlueprint<T>, Blueprint>::value,
                   "Blueprint class is not an AgentBaseBlueprint subclass");
     DELPHYNE_VALIDATE(blueprint != nullptr, std::runtime_error,
                       "Invalid null blueprint was given");
-    auto agent = blueprint->BuildInto(road_geometry_.get(), builder_.get());
-    agent->SetBlueprint(std::move(blueprint));
 
+    // Builds and validates the agent.
+    std::unique_ptr<AgentBase<T>> agent =
+        blueprint->BuildInto(road_geometry_.get(), builder_.get());
     const int agent_id = agent_id_sequence_++;
     const std::string& agent_name = agent->name();
     DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
                       "An agent named \"" + agent_name + "\" already exists.");
 
     // Wires up the agent's ports.
-    typename AgentBase<T>::Diagram* agent_diagram = agent->GetMutableDiagram();
+    typename AgentBase<T>::Diagram* agent_diagram =
+        blueprint->GetMutableDiagram(agent.get());
     drake::systems::rendering::PoseVelocityInputPorts<double> ports =
         aggregator_->AddSinglePoseAndVelocityInput(agent_name, agent_id);
     builder_->Connect(agent_diagram->get_output_port("pose"),
@@ -161,12 +163,14 @@ class SimulationBaseBuilder {
     builder_->Connect(
         agent_diagram->get_output_port("pose"),
         WirePriusGeometry(
-            agent_name, agent->GetBlueprint().GetInitialWorldPose(),
-            builder_.get(), scene_graph_, agent->GetMutableGeometryIDs()));
+            agent_name, blueprint->GetInitialWorldPose(),
+            builder_.get(), scene_graph_,
+            blueprint->GetMutableGeometryIDs(agent.get())));
 
-    auto agent_ref = agent.get();
     agents_[agent_name] = std::move(agent);
-    return agent_ref;
+    Blueprint* blueprint_ref = blueprint.get();
+    blueprints_.push_back(std::move(blueprint));
+    return blueprint_ref;
   }
 
   /// Builds the simulation.
@@ -174,10 +178,11 @@ class SimulationBaseBuilder {
   /// Construction of the simulation's Diagram representation is completed
   /// and a Simulator is built and initialized with it. All agents' ownership
   /// is transferred to the simulation instance.
-  /// @returns Ownership of the SimulationBase instance just built.
-  std::unique_ptr<SimulationBase<T>> Build();
+  /// @returns Ownership of the AgentSimulationBase instance just built.
+  std::unique_ptr<AgentSimulationBase<T>> Build();
 
-  /// Resets the builder internal state.
+  /// Resets the builder internal state, leaving it ready for
+  /// another building procedure.
   void Reset();
 
   /// Sets the target real-time rate for the simulation to be built.
@@ -254,16 +259,20 @@ class SimulationBaseBuilder {
   // The collection of all agents for the simulation to be built,
   // indexed by name.
   std::map<std::string, std::unique_ptr<AgentBase<T>>> agents_{};
+  // The collection of all agent blueprints used for this simulation,
+  // in order of execution.
+  std::vector<std::unique_ptr<AgentBaseBlueprint<T>>> blueprints_{};
 
   // The geometry of the road for the simulation to be built.
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_{nullptr};
+  std::unique_ptr<
+    const drake::maliput::api::RoadGeometry> road_geometry_{nullptr};
 
   // The world tree representation for the simulation to be built.
   std::unique_ptr<RigidBodyTree<T>> world_tree_{nullptr};
 };
 
-using SimulationBuilder = SimulationBaseBuilder<double>;
-using AutoDiffSimulationBuilder = SimulationBaseBuilder<AutoDiff>;
-using SymbolicSimulationBuilder = SimulationBaseBuilder<Symbolic>;
+using AgentSimulationBuilder = AgentSimulationBaseBuilder<double>;
+using AutoDiffAgentSimulationBuilder = AgentSimulationBaseBuilder<AutoDiff>;
+using SymbolicAgentSimulationBuilder = AgentSimulationBaseBuilder<Symbolic>;
 
 }  // namespace delphyne

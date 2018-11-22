@@ -93,10 +93,6 @@ class RailCarBlueprint : public AgentBlueprint {
                             double lateral_offset,         // r
                             double speed, double nominal_speed);
 
-  std::unique_ptr<RailCar> BuildInto(
-      const drake::maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder) const;
-
  private:
   // Container for the agent's initial configuration.
   //
@@ -123,11 +119,9 @@ class RailCarBlueprint : public AgentBlueprint {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<AgentBase<double>> DoBuildInto(
+  std::unique_ptr<Agent> DoBuildInto(
       const drake::maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder) const override {
-    return BuildInto(road_geometry, builder);
-  }
+      drake::systems::DiagramBuilder<double>* builder) const override;
 };
 
 

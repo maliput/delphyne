@@ -88,7 +88,7 @@ def main():
     # loop.
     initial_steps = int(args.realtime_rate * 12000)
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     utilities.add_simple_car(
         builder,

@@ -39,7 +39,7 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     dragway = builder.set_road_geometry(
         maliput.create_dragway(
@@ -71,7 +71,6 @@ def main():
         scene_y=-0.5*3.7,
         heading=0.0,
         speed=1.0,
-        road_geometry=dragway
     )
 
     car_id += 1

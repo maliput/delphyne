@@ -98,8 +98,8 @@ class TimeMonitor(object):
     A class to monitor the time on every callback and perform an action after
     ten seconds have elapsed.
     '''
-    def __init__(self, simulation, agent):
-        self.simulation = simulation
+    def __init__(self, sim, agent):
+        self.simulation = sim
         self.agent = agent
         self.changed_speed = False
 
@@ -124,7 +124,7 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     filename = "{0}/roads/circuit.yaml".format(
         utilities.get_delphyne_resource_root())
@@ -142,9 +142,10 @@ def main():
         )
     )
 
+    simple_car_name = "simple0"
     utilities.add_simple_car(
         builder,
-        name=str(0),
+        name=simple_car_name,
         position_x=0.0,
         position_y=0.0
     )
@@ -152,16 +153,15 @@ def main():
     # Setup railcar
     railcar_speed = 4.0  # (m/s)
     railcar_s = 0.0      # (m)
-    robot_id = 1
+    rail_car_name = "rail0"
     lane_1 = road_geometry.junction(2).segment(0).lane(0)
-    railcar_agent = builder.add_agent(
-        RailCarBlueprint(
-            name=str(robot_id),
-            lane=lane_1,
-            position=railcar_s,
-            offset=0.0,
-            speed=railcar_speed
-        )
+    utilities.add_rail_car(
+        builder,
+        name=rail_car_name,
+        lane=lane_1,
+        position=railcar_s,
+        offset=0.0,
+        speed=railcar_speed
     )
 
     runner = simulation.SimulatorRunner(
@@ -174,7 +174,8 @@ def main():
     )
 
     running_simulation = runner.get_simulation()
-    monitor = TimeMonitor(running_simulation, railcar_agent)
+    rail_car = running_simulation.get_agent_by_name(rail_car_name)
+    monitor = TimeMonitor(running_simulation, rail_car)
 
     stats = simulation.SimulationStats()
     with utilities.launch_interactive_simulation(runner) as launcher:

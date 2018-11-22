@@ -15,8 +15,8 @@
 #include <ignition/transport.hh>
 
 #include "agents/simple_car.h"
-#include "backend/simulation.h"
-#include "backend/simulation_builder.h"
+#include "backend/agent_simulation.h"
+#include "backend/agent_simulation_builder.h"
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/scene_request.pb.h"
@@ -28,7 +28,7 @@ class SimulationRunnerTest : public test::TestWithFiles {
  protected:
   void SetUp() override {
     sim_runner_ = std::make_unique<SimulationRunner>(
-        SimulationBuilder().Build(), kTimeStep);
+        AgentSimulationBuilder().Build(), kTimeStep);
     // Set environmental variable to define the logfile path
     setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
   }

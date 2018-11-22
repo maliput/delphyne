@@ -59,7 +59,7 @@ def main():
     args = parse_arguments()
 
     # The simulation builder
-    builder = simulation.SimulationBuilder()
+    builder = simulation.AgentSimulationBuilder()
 
     filename = utilities.get_delphyne_resource(
         "roads/little_city.yaml"
@@ -135,7 +135,6 @@ def main():
             scene_y=y_position,
             heading=heading,
             speed=mobilcar_speed,
-            road_geometry=road
         )
 
     runner = simulation.SimulationRunner(

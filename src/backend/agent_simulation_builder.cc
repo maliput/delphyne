@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "backend/simulation_builder.h"
+#include "backend/agent_simulation_builder.h"
 
 #include <algorithm>
 #include <functional>
@@ -39,22 +39,27 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::SystemOutput;
 
 template <typename T>
-constexpr double SimulationBaseBuilder<T>::kSceneTreePublishRateHz;
+constexpr double
+AgentSimulationBaseBuilder<T>::kSceneTreePublishRateHz;
 
 template <typename T>
-constexpr const char* SimulationBaseBuilder<T>::kSceneTreeTopicName;
+constexpr const char*
+AgentSimulationBaseBuilder<T>::kSceneTreeTopicName;
 
 template <typename T>
-constexpr double SimulationBaseBuilder<T>::kSceneUpdatesPublishRateHz;
+constexpr double
+AgentSimulationBaseBuilder<T>::kSceneUpdatesPublishRateHz;
 
 template <typename T>
-constexpr const char* SimulationBaseBuilder<T>::kSceneUpdatesTopicName;
+constexpr const char*
+AgentSimulationBaseBuilder<T>::kSceneUpdatesTopicName;
 
 template <typename T>
-constexpr const char* SimulationBaseBuilder<T>::kAggregatedAgentsStateTopicName;
+constexpr const char*
+AgentSimulationBaseBuilder<T>::kAggregatedAgentsStateTopicName;
 
 template <typename T>
-SimulationBaseBuilder<T>::SimulationBaseBuilder() {
+AgentSimulationBaseBuilder<T>::AgentSimulationBaseBuilder() {
 #ifdef HAVE_SPDLOG
   // Avoid the many & varied 'info' level logging messages coming from drake.
   //
@@ -70,7 +75,7 @@ SimulationBaseBuilder<T>::SimulationBaseBuilder() {
 }
 
 template <typename T>
-void SimulationBaseBuilder<T>::Reset() {
+void AgentSimulationBaseBuilder<T>::Reset() {
   // Resets Diagram builder.
   builder_ = std::make_unique<drake::systems::DiagramBuilder<T>>();
 
@@ -96,7 +101,7 @@ void SimulationBaseBuilder<T>::Reset() {
 
 template <typename T>
 const drake::maliput::api::RoadGeometry*
-SimulationBaseBuilder<T>::SetRoadGeometry(
+AgentSimulationBaseBuilder<T>::SetRoadGeometry(
     std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry) {
   drake::maliput::utility::ObjFeatures features;
   // Max distance between rendered vertices (in s- or r-dimension), in meters.
@@ -113,7 +118,7 @@ SimulationBaseBuilder<T>::SetRoadGeometry(
 
 template <typename T>
 const drake::maliput::api::RoadGeometry*
-SimulationBaseBuilder<T>::SetRoadGeometry(
+AgentSimulationBaseBuilder<T>::SetRoadGeometry(
     std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
     const drake::maliput::utility::ObjFeatures& features) {
   auto tree = std::make_unique<RigidBodyTree<T>>();
@@ -131,7 +136,7 @@ SimulationBaseBuilder<T>::SetRoadGeometry(
 }
 
 template <typename T>
-SceneSystem* SimulationBaseBuilder<T>::AddScenePublishers() {
+SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // Adds a translation system that takes the output of a CarVisApplicator
   // and creates an lcmt_viewer_draw message containing the latest poses of
   // the visual elements.
@@ -211,7 +216,7 @@ SceneSystem* SimulationBaseBuilder<T>::AddScenePublishers() {
 }
 
 template <typename T>
-void SimulationBaseBuilder<T>::AddAgentStatePublishers() {
+void AgentSimulationBaseBuilder<T>::AddAgentStatePublishers() {
   // Adds a PoseBundle to AgentState vector translation system.
   auto pose_bundle_to_agent_state_v =
       builder_->template AddSystem<PoseBundleToAgentState_V>();
@@ -252,7 +257,7 @@ void SimulationBaseBuilder<T>::AddAgentStatePublishers() {
 }
 
 template <typename T>
-std::unique_ptr<SimulationBase<T>> SimulationBaseBuilder<T>::Build() {
+std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   // Exposes all agents' state for inspection.
   AddAgentStatePublishers();
 
@@ -279,19 +284,19 @@ std::unique_ptr<SimulationBase<T>> SimulationBaseBuilder<T>::Build() {
     drake::systems::Context<T>& agent_context =
         diagram->GetMutableSubsystemContext(
             agent->GetDiagram(), &context);
-    agent->ResetContext(&agent_context);
+    agent->SetContext(&agent_context);
   }
 
   // Enables caching support for the entire simulation.
   context.EnableCaching();
 
   // Yields simulation instance.
-  return std::make_unique<SimulationBase<T>>(
+  return std::make_unique<AgentSimulationBase<T>>(
       std::move(simulator), std::move(diagram),
       std::move(agents_), std::move(road_geometry_),
       scene_graph_, scene_system);
 }
 
-template class SimulationBaseBuilder<double>;
+template class AgentSimulationBaseBuilder<double>;
 
 }  // namespace delphyne

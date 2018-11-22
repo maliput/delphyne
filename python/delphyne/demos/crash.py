@@ -14,14 +14,11 @@ from __future__ import print_function
 import math
 import numpy as np
 
-from delphyne.agents import SimpleCarBlueprint
 from delphyne.simulation import (
-    SimulationBuilder,
+    AgentSimulationBuilder,
     SimulationRunner
 )
-from delphyne.utilities import (
-    launch_interactive_simulation
-)
+import delphyne.utilities as utilities
 
 from . import helpers
 
@@ -83,46 +80,42 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    builder = SimulationBuilder()
+    builder = AgentSimulationBuilder()
 
-    builder.add_agent(
-        SimpleCarBlueprint(
-            name="racer0",
-            x=0.0,  # scene x-coordinate (m)
-            y=-50.0,  # scene y-coordinate (m)
-            heading=math.pi/2,    # heading (radians)
-            speed=5.0     # speed in the direction of travel (m/s)
-        )
+    utilities.add_simple_car(
+        builder,
+        name="racer0",
+        position_x=0.0,  # scene x-coordinate (m)
+        position_y=-50.0,  # scene y-coordinate (m)
+        heading=math.pi/2,    # heading (radians)
+        speed=5.0     # speed in the direction of travel (m/s)
     )
 
-    builder.add_agent(
-        SimpleCarBlueprint(
-            name="racer1",
-            x=-50.0,  # scene x-coordinate (m)
-            y=0.0,     # scene y-coordinate (m)
-            heading=0.0,    # heading (radians)
-            speed=5.1     # speed in the direction of travel (m/s)
-        )
+    utilities.add_simple_car(
+        builder,
+        name="racer1",
+        position_x=-50.0,  # scene x-coordinate (m)
+        position_y=0.0,     # scene y-coordinate (m)
+        heading=0.0,    # heading (radians)
+        speed=5.1     # speed in the direction of travel (m/s)
     )
 
-    builder.add_agent(
-        SimpleCarBlueprint(
-            name="racer2",
-            x=0.0,  # scene x-coordinate (m)
-            y=50.0,  # scene y-coordinate (m)
-            heading=-math.pi/2,    # heading (radians)
-            speed=5.0     # speed in the direction of travel (m/s)
-        )
+    utilities.add_simple_car(
+        builder,
+        name="racer2",
+        position_x=0.0,  # scene x-coordinate (m)
+        position_y=50.0,  # scene y-coordinate (m)
+        heading=-math.pi/2,    # heading (radians)
+        speed=5.0     # speed in the direction of travel (m/s)
     )
 
-    builder.add_agent(
-        SimpleCarBlueprint(
-            name="racer3",
-            x=50.0,  # scene x-coordinate (m)
-            y=0.0,     # scene y-coordinate (m)
-            heading=math.pi,    # heading (radians)
-            speed=5.1     # speed in the direction of travel (m/s)
-        )
+    utilities.add_simple_car(
+        builder,
+        name="racer3",
+        position_x=50.0,  # scene x-coordinate (m)
+        position_y=0.0,     # scene y-coordinate (m)
+        heading=math.pi,    # heading (radians)
+        speed=5.1     # speed in the direction of travel (m/s)
     )
 
     runner = SimulationRunner(
@@ -133,7 +126,7 @@ def main():
         log=args.log,
         logfile_name=args.logfile_name)
 
-    with launch_interactive_simulation(runner):
+    with utilities.launch_interactive_simulation(runner):
         # Adds a callback to check for agent collisions.
         runner.add_collision_callback(
             lambda agents_in_collision: on_agent_collision(

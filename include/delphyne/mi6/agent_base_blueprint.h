@@ -34,7 +34,7 @@ namespace delphyne {
 template <typename T>
 class AgentBase;
 
-/// The abstract blueprint class for agents in Delphyne!
+/// The abstract blueprint class for agents in Delphyne.
 ///
 /// This is the abstract class that all Delphyne agent blueprints must
 /// inherit from. Concrete implementations are required to implement the
@@ -96,7 +96,20 @@ class AgentBaseBlueprint {
     return initial_world_pose_;
   }
 
-  /// Sets the initial world pose for the agent.
+  // Gets a mutable reference to the @p agent Diagram representation.
+  typename AgentBase<T>::Diagram*
+  GetMutableDiagram(AgentBase<T>* agent) const {
+    return agent->diagram_;
+  }
+
+  // Gets a mutable reference to the @p agent geometry IDs.
+  std::set<drake::geometry::GeometryId>*
+  GetMutableGeometryIDs(AgentBase<T>* agent) const {
+    return &agent->geometry_ids_;
+  }
+
+ protected:
+  // Sets the initial world pose for the agent.
   void SetInitialWorldPose(const drake::Isometry3<T>& pose) {
     initial_world_pose_ = pose;
   }

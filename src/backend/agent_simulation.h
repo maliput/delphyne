@@ -56,7 +56,8 @@ using AgentCollision = AgentBaseCollision<double>;
 using AutoDiffAgentCollision = AgentBaseCollision<AutoDiff>;
 using SymbolicAgentCollision = AgentBaseCollision<Symbolic>;
 
-/// A runnable simulation
+/// A runnable agent-based simulation, using Drake's system framework
+/// as its backbone.
 ///
 /// @tparam T must be a valid Eigen ScalarType.
 ///
@@ -65,23 +66,56 @@ using SymbolicAgentCollision = AgentBaseCollision<Symbolic>;
 ///
 /// These are already available to link against in the containing library.
 template <typename T>
-class SimulationBase {
+class AgentSimulationBase {
  public:
-  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SimulationBase)
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(AgentSimulationBase)
 
   /// Constructs a simulation.
-  /// @param simulator
-  /// @param diagram
-  /// @param agents
-  /// @param road_geometry
-  /// @param scene_graph
-  /// @param scene_system
-  explicit SimulationBase(
+  /// @param simulator the Simulator instance to advance this simulation.
+  /// @param diagram the Diagram representation of this simulation.
+  /// @param agents all the Agents associated with this simulation.
+  /// @param road_geometry the RoadGeometry associated with this simulation.
+  /// @param scene_graph a reference to the SceneGraph in this simulation,
+  ///                    for all sorts of geometrical queries.
+  /// @param scene_system a reference to the scene composing system in this
+  ///                     simulation
+  explicit AgentSimulationBase(
       std::unique_ptr<drake::systems::Simulator<T>> simulator,
       std::unique_ptr<drake::systems::Diagram<T>> diagram,
       std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
       std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
       drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
+
+  /// Returns a reference to the `name`d agent of the given type.
+  ///
+  /// @param[in] name The name of the agent.
+  /// @throws std::runtime_error if no agent with the given `name`
+  ///                            is known by the simulator.
+  /// @throws std::bad_cast if the agent was found but it is not of
+  ///                       the expected type.
+  /// @tparam AgentType An AgentBase<T> subclass.
+  template<class AgentType>
+  const AgentType& GetAgentByName(const std::string& name) {
+    static_assert(std::is_base_of<AgentBase<T>, AgentType>::value,
+                  "Expected type is not an agent type.");
+    return dynamic_cast<const AgentType&>(GetAgentByName(name));
+  }
+
+  /// Returns a reference to the `name`d agent of the given type.
+  ///
+  /// @param[in] name The name of the agent.
+  /// @throws std::runtime_error if no agent with the given `name`
+  ///                            is known by the simulator.
+  /// @throws std::bad_cast if the agent was found but it is not of
+  ///                       the expected type.
+  /// @tparam AgentBaseType An AgentBase subclass, to be specialized
+  ///                       for T.
+  template<template <typename U> class AgentBaseType>
+  const AgentBaseType<T>& GetAgentByName(const std::string& name) {
+    static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value,
+                  "Expected type is not an agent type.");
+    return dynamic_cast<const AgentBaseType<T>&>(GetAgentByName(name));
+  }
 
   /// Returns a reference to the `name`d agent.
   ///
@@ -90,6 +124,39 @@ class SimulationBase {
   ///                           is known by the simulator.
   const AgentBase<T>& GetAgentByName(const std::string& name) const;
 
+  /// Returns a mutable reference to the `name`d agent of the given
+  /// type.
+  ///
+  /// @param[in] name The name of the agent.
+  /// @returns a pointer to the agent or nullptr if it is not of
+  ///          the expected type.
+  /// @throws std::runtime_error if no agent with the given `name`
+  ///                            is known by the simulator.
+  /// @tparam AgentType An AgentBase<T> subclass.
+  template<class AgentType>
+  AgentType* GetMutableAgentByName(const std::string& name) {
+    static_assert(std::is_base_of<AgentBase<T>, AgentType>::value,
+                  "Expected type is not an agent type.");
+    return dynamic_cast<AgentType*>(GetMutableAgentByName(name));
+  }
+
+  /// Returns a mutable reference to the `name`d agent of the given
+  /// type.
+  ///
+  /// @param[in] name The name of the agent.
+  /// @returns a pointer to the agent or nullptr if it is not of
+  ///          the expected type.
+  /// @throws std::runtime_error if no agent with the given `name`
+  ///                            is known by the simulator.
+  /// @tparam AgentBaseType An AgentBase subclass, to be specialized
+  ///                       for T.
+  template<template <typename U> class AgentBaseType>
+  AgentBaseType<T>* GetMutableAgentByName(const std::string& name) {
+    static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value,
+                  "Expected type is not an agent type.");
+    return dynamic_cast<AgentBaseType<T>*>(GetMutableAgentByName(name));
+  }
+
   /// Returns a mutable reference to the `name`d agent.
   ///
   /// @param[in] name The name of the agent.
@@ -97,8 +164,8 @@ class SimulationBase {
   ///                           is known by the simulator.
   AgentBase<T>* GetMutableAgentByName(const std::string& name);
 
-  /// Returns the simulation scene.
-  std::unique_ptr<ignition::msgs::Scene> GetScene();
+  /// Returns the simulation scene, full of visuals.
+  std::unique_ptr<ignition::msgs::Scene> GetVisualScene();
 
   /// Returns the current poses of all agents in the simulation.
   drake::systems::rendering::PoseBundle<T> GetCurrentPoses() const;
@@ -135,18 +202,15 @@ class SimulationBase {
   /// Gets a reference to the simulation diagram representation.
   const drake::systems::Diagram<T>& GetDiagram() const { return *diagram_; }
 
-  /// Gets a mutable reference to the simulation diagram representation.
-  drake::systems::Diagram<T>* GetMutableDiagram() { return diagram_.get(); }
-
   /// Gets a reference to the simulation context.
   const drake::systems::Context<T>& GetContext() const {
     return simulator_->get_context();
-  };
+  }
 
   /// Gets a mutable reference to the simulation context.
   drake::systems::Context<T>* GetMutableContext() {
     return &simulator_->get_mutable_context();
-  };
+  }
 
  private:
   // The simulator to advance this simulation in time.
@@ -167,8 +231,8 @@ class SimulationBase {
   std::unique_ptr<drake::systems::AbstractValue> scene_query_;
 };
 
-using Simulation = SimulationBase<double>;
-using AutoDiffSimulation = SimulationBase<AutoDiff>;
-using SymbolicSimulation = SimulationBase<Symbolic>;
+using AgentSimulation = AgentSimulationBase<double>;
+using AutoDiffAgentSimulation = AgentSimulationBase<AutoDiff>;
+using SymbolicAgentSimulation = AgentSimulationBase<Symbolic>;
 
 }  // namespace delphyne

@@ -1,6 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "backend/simulation.h"
+#include "backend/agent_simulation.h"
 
 #include <algorithm>
 #include <functional>
@@ -24,7 +24,7 @@
 namespace delphyne {
 
 template <typename T>
-SimulationBase<T>::SimulationBase(
+AgentSimulationBase<T>::AgentSimulationBase(
     std::unique_ptr<drake::systems::Simulator<T>> simulator,
     std::unique_ptr<drake::systems::Diagram<T>> diagram,
     std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
@@ -53,7 +53,8 @@ SimulationBase<T>::SimulationBase(
 }
 
 template <typename T>
-std::unique_ptr<ignition::msgs::Scene> SimulationBase<T>::GetScene() {
+std::unique_ptr<ignition::msgs::Scene>
+AgentSimulationBase<T>::GetVisualScene() {
   auto scene_message = std::make_unique<ignition::msgs::Scene>();
 
   // The scene is the output of the scene system. We could use
@@ -76,7 +77,7 @@ std::unique_ptr<ignition::msgs::Scene> SimulationBase<T>::GetScene() {
 
 template <typename T>
 const delphyne::AgentBase<T>&
-SimulationBase<T>::GetAgentByName(const std::string& name) const {
+AgentSimulationBase<T>::GetAgentByName(const std::string& name) const {
   DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
                     "No agent found with the given name.");
   return *agents_.at(name);
@@ -84,7 +85,7 @@ SimulationBase<T>::GetAgentByName(const std::string& name) const {
 
 template <typename T>
 delphyne::AgentBase<T>*
-SimulationBase<T>::GetMutableAgentByName(const std::string& name) {
+AgentSimulationBase<T>::GetMutableAgentByName(const std::string& name) {
   DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
                     "No agent found with the given name.");
   return agents_[name].get();
@@ -123,7 +124,7 @@ struct IsSourceOf {
 
 template <typename T>
 std::vector<AgentBaseCollision<T>>
-SimulationBase<T>::GetCollisions() const {
+AgentSimulationBase<T>::GetCollisions() const {
   using drake::geometry::GeometryId;
   using drake::geometry::QueryObject;
   using drake::geometry::PenetrationAsPointPair;
@@ -147,13 +148,13 @@ SimulationBase<T>::GetCollisions() const {
 }
 
 template <typename T>
-void SimulationBase<T>::StepBy(const T& time_step) {
+void AgentSimulationBase<T>::StepBy(const T& time_step) {
   simulator_->StepTo(GetCurrentTime() + time_step);
 }
 
 template <typename T>
 drake::systems::rendering::PoseBundle<T>
-SimulationBase<T>::GetCurrentPoses() const {
+AgentSimulationBase<T>::GetCurrentPoses() const {
   using drake::systems::AbstractValue;
   using drake::systems::SystemOutput;
   using drake::systems::rendering::PoseBundle;
@@ -163,6 +164,6 @@ SimulationBase<T>::GetCurrentPoses() const {
   return abstract_value->GetValueOrThrow<PoseBundle<T>>();
 }
 
-template class SimulationBase<double>;
+template class AgentSimulationBase<double>;
 
 }  // namespace delphyne

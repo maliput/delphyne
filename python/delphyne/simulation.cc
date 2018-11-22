@@ -15,9 +15,9 @@
 #include <pybind11/stl.h>
 
 // private headers
+#include "backend/agent_simulation.h"
+#include "backend/agent_simulation_builder.h"
 #include "backend/interactive_simulation_stats.h"
-#include "backend/simulation.h"
-#include "backend/simulation_builder.h"
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
 
@@ -27,11 +27,11 @@
 
 namespace py = pybind11;
 
-using delphyne::AgentCollision;
 using delphyne::AgentBlueprint;
+using delphyne::AgentCollision;
+using delphyne::AgentSimulation;
+using delphyne::AgentSimulationBuilder;
 using delphyne::InteractiveSimulationStats;
-using delphyne::Simulation;
-using delphyne::SimulationBuilder;
 using delphyne::SimulationRunner;
 
 namespace {
@@ -57,18 +57,18 @@ PYBIND11_MODULE(simulation, m) {
            &InteractiveSimulationStats::get_current_realtime_rate);
 
   py::class_<SimulationRunner>(m, "SimulationRunner")
-      .def(py::init<std::unique_ptr<Simulation>, double>(),
+      .def(py::init<std::unique_ptr<AgentSimulation>, double>(),
            "Load the simulation and initialise it to run"
            "at the specified time step.",
            py::arg("simulation"), py::arg("time_step"))
-      .def(py::init<std::unique_ptr<Simulation>, double, bool,
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool,
                     bool>(),
            "Load the simulation and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled.",
            py::arg("simulation"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"))
-      .def(py::init<std::unique_ptr<Simulation>, double, bool,
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool,
                     bool, std::string>(),
            "Load the simulation and initialise it to run"
            "at the specified time step and whether you wish"
@@ -76,13 +76,13 @@ PYBIND11_MODULE(simulation, m) {
            "allowing you to also set a custom logfile name.",
            py::arg("simulation"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"), py::arg("logfile_name"))
-      .def(py::init<std::unique_ptr<Simulation>, double,
+      .def(py::init<std::unique_ptr<AgentSimulation>, double,
                     double>(),
            "Load the simulation and initialise it to run"
            "at the specified time step and realtime rate.",
            py::arg("simulation"), py::arg("time_step"),
            py::arg("realtime_rate"))
-      .def(py::init<std::unique_ptr<Simulation>, double,
+      .def(py::init<std::unique_ptr<AgentSimulation>, double,
                     double, bool, bool, std::string>(),
            "Load the simulation and initialise time step, realtime rate"
            "and whether you wish the simulation to start paused and with "
@@ -127,49 +127,51 @@ PYBIND11_MODULE(simulation, m) {
       .def_readonly("agents", &AgentCollision::agents)
       .def_readonly("location", &AgentCollision::location);
 
-  py::class_<SimulationBuilder>(m, "SimulationBuilder")
-      .def(py::init([](void) { return std::make_unique<SimulationBuilder>(); }))
+  py::class_<AgentSimulationBuilder>(m, "AgentSimulationBuilder")
+      .def(py::init([](void) {
+            return std::make_unique<AgentSimulationBuilder>();
+          }))
       .def("add_agent",
-           [](SimulationBuilder* self,
+           [](AgentSimulationBuilder* self,
               std::unique_ptr<AgentBlueprint> blueprint) {
              return self->AddAgent(std::move(blueprint));
            }, py::return_value_policy::reference_internal)
       .def("set_road_geometry",
            py::overload_cast<
              std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
-                 &SimulationBuilder::SetRoadGeometry),
+                 &AgentSimulationBuilder::SetRoadGeometry),
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"))
       .def("set_road_geometry",
            py::overload_cast<
              std::unique_ptr<const drake::maliput::api::RoadGeometry>,
              const drake::maliput::utility::ObjFeatures&>(
-                 &SimulationBuilder::SetRoadGeometry),
+                 &AgentSimulationBuilder::SetRoadGeometry),
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"), py::arg("features"))
-      .def("build", &SimulationBuilder::Build);
+      .def("build", &AgentSimulationBuilder::Build);
 
-  py::class_<Simulation>(m, "Simulation")
-      .def("get_collisions", &Simulation::GetCollisions,
+  py::class_<AgentSimulation>(m, "AgentSimulation")
+      .def("get_collisions", &AgentSimulation::GetCollisions,
            py::return_value_policy::reference_internal)
-      .def("get_agent_by_name", &Simulation::GetAgentByName,
-           py::return_value_policy::reference_internal)
+      .def("get_agent_by_name",
+           [] (AgentSimulation* self, const std::string& name) {
+             return self->GetAgentByName(name);
+           }, py::return_value_policy::reference_internal)
       .def("get_mutable_agent_by_name",
-           &Simulation::GetMutableAgentByName,
-           py::return_value_policy::reference_internal)
+           [] (AgentSimulation* self, const std::string& name) {
+             return self->GetMutableAgentByName(name);
+           }, py::return_value_policy::reference_internal)
       .def("get_diagram",
-           &Simulation::GetDiagram,
-           py::return_value_policy::reference_internal)
-      .def("get_mutable_diagram",
-           &Simulation::GetMutableDiagram,
+           &AgentSimulation::GetDiagram,
            py::return_value_policy::reference_internal)
       .def("get_context",
-           &Simulation::GetContext,
+           &AgentSimulation::GetContext,
            py::return_value_policy::reference_internal)
       .def("get_mutable_context",
-           &Simulation::GetMutableContext,
+           &AgentSimulation::GetMutableContext,
            py::return_value_policy::reference_internal)
-      .def("get_current_time", &Simulation::GetCurrentTime);
+      .def("get_current_time", &AgentSimulation::GetCurrentTime);
 }
 
 /*****************************************************************************

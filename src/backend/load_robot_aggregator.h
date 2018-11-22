@@ -2,6 +2,8 @@
 
 #pragma once
 
+#include <vector>
+
 #include "drake/lcmt_viewer_load_robot.hpp"
 #include "drake/systems/framework/leaf_system.h"
 

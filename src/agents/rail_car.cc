@@ -81,7 +81,7 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       initial_car_geo_position.xyz()) * initial_car_orientation.quat());
 }
 
-std::unique_ptr<RailCar> RailCarBlueprint::BuildInto(
+std::unique_ptr<Agent> RailCarBlueprint::DoBuildInto(
     const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
@@ -136,25 +136,29 @@ std::unique_ptr<RailCar> RailCarBlueprint::BuildInto(
   auto speed_setter = agent_diagram_builder.template AddSystem(
       std::make_unique<delphyne::VectorSource<double>>(-1));
 
-  delphyne::SpeedSystem<double>* speed_system =
-      agent_diagram_builder.AddSystem(std::make_unique<delphyne::SpeedSystem<double>>());
+  SpeedSystem<double>* speed_system =
+      agent_diagram_builder.AddSystem<SpeedSystem>();
 
   agent_diagram_builder.Connect(speed_system->acceleration_output(),
-                  rail_follower_system->command_input());
+                                rail_follower_system->command_input());
 
   agent_diagram_builder.Connect(rail_follower_system->velocity_output(),
-                  speed_system->feedback_input());
+                                speed_system->feedback_input());
 
-  agent_diagram_builder.Connect(speed_setter->output(), speed_system->command_input());
+  agent_diagram_builder.Connect(speed_setter->output(),
+                                speed_system->command_input());
 
   /*********************
    * Diagram Outputs
    *********************/
-  agent_diagram_builder.ExportStateOutput(rail_follower_system->simple_car_state_output());
+  agent_diagram_builder.ExportStateOutput(
+      rail_follower_system->simple_car_state_output());
   agent_diagram_builder.ExportPoseOutput(rail_follower_system->pose_output());
-  agent_diagram_builder.ExportVelocityOutput(rail_follower_system->velocity_output());
+  agent_diagram_builder.ExportVelocityOutput(
+      rail_follower_system->velocity_output());
 
-  Agent::Diagram* agent_diagram = builder->AddSystem(agent_diagram_builder.Build());
+  Agent::Diagram* agent_diagram =
+      builder->AddSystem(agent_diagram_builder.Build());
   return std::make_unique<RailCar>(agent_diagram, speed_setter);
 }
 

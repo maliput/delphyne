@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -48,8 +56,29 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
     this->set_s_lookahead(15.0);
   }
 
-  /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  PurePursuitParams(const PurePursuitParams& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  PurePursuitParams(PurePursuitParams&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  PurePursuitParams& operator=(const PurePursuitParams& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  PurePursuitParams& operator=(PurePursuitParams&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
+  /// Create a drake::symbolic::Variable for each element with the known
+  /// variable
+  /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
   typename std::enable_if<
       std::is_same<U, drake::symbolic::Expression>::value>::type
@@ -64,9 +93,22 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   /// distance along the s-direction to place the reference point
   /// @note @c s_lookahead is expressed in units of m.
   /// @note @c s_lookahead has a limited domain of [0.0, +Inf].
-  const T& s_lookahead() const { return this->GetAtIndex(K::kSLookahead); }
+  const T& s_lookahead() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kSLookahead);
+  }
+  /// Setter that matches s_lookahead().
   void set_s_lookahead(const T& s_lookahead) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kSLookahead, s_lookahead);
+  }
+  /// Fluent setter that matches s_lookahead().
+  /// Returns a copy of `this` with s_lookahead set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  PurePursuitParams<T> with_s_lookahead(const T& s_lookahead) const {
+    PurePursuitParams<T> result(*this);
+    result.set_s_lookahead(s_lookahead);
+    return result;
   }
   //@}
 
@@ -76,9 +118,9 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(s_lookahead());
     result = result && (s_lookahead() >= T(0.0));
     return result;
@@ -89,6 +131,17 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
     value->resize(1);
     (*value)[0] = s_lookahead() - T(0.0);
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The PurePursuitParams vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

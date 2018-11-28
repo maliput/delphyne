@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -55,6 +63,26 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
     this->set_max_deceleration(4.0);
   }
 
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  MobilPlannerParameters(const MobilPlannerParameters& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  MobilPlannerParameters(MobilPlannerParameters&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  MobilPlannerParameters& operator=(const MobilPlannerParameters& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  MobilPlannerParameters& operator=(MobilPlannerParameters&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
@@ -76,23 +104,60 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   /// politeness)
   /// @note @c p is expressed in units of dimensionless.
   /// @note @c p has a limited domain of [0.0, 1.0].
-  const T& p() const { return this->GetAtIndex(K::kP); }
+  const T& p() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kP);
+  }
+  /// Setter that matches p().
   void set_p(const T& p) { this->SetAtIndex(K::kP, p); }
+  /// Fluent setter that matches p().
+  /// Returns a copy of `this` with p set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  MobilPlannerParameters<T> with_p(const T& p) const {
+    MobilPlannerParameters<T> result(*this);
+    result.set_p(p);
+    return result;
+  }
   /// acceleration threshold for changing lanes (Delta_a_th)
   /// @note @c threshold is expressed in units of m/s^2.
   /// @note @c threshold has a limited domain of [0.0, +Inf].
-  const T& threshold() const { return this->GetAtIndex(K::kThreshold); }
+  const T& threshold() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kThreshold);
+  }
+  /// Setter that matches threshold().
   void set_threshold(const T& threshold) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kThreshold, threshold);
+  }
+  /// Fluent setter that matches threshold().
+  /// Returns a copy of `this` with threshold set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  MobilPlannerParameters<T> with_threshold(const T& threshold) const {
+    MobilPlannerParameters<T> result(*this);
+    result.set_threshold(threshold);
+    return result;
   }
   /// maximum safe deceleration (b_safe)
   /// @note @c max_deceleration is expressed in units of m/s^2.
   /// @note @c max_deceleration has a limited domain of [0.0, +Inf].
   const T& max_deceleration() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kMaxDeceleration);
   }
+  /// Setter that matches max_deceleration().
   void set_max_deceleration(const T& max_deceleration) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kMaxDeceleration, max_deceleration);
+  }
+  /// Fluent setter that matches max_deceleration().
+  /// Returns a copy of `this` with max_deceleration set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  MobilPlannerParameters<T> with_max_deceleration(
+      const T& max_deceleration) const {
+    MobilPlannerParameters<T> result(*this);
+    result.set_max_deceleration(max_deceleration);
+    return result;
   }
   //@}
 
@@ -102,9 +167,9 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(p());
     result = result && (p() >= T(0.0));
     result = result && (p() <= T(1.0));
@@ -123,6 +188,17 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
     (*value)[2] = threshold() - T(0.0);
     (*value)[3] = max_deceleration() - T(0.0);
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The MobilPlannerParameters vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

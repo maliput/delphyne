@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -64,6 +72,26 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
     this->set_yawDt_LC(0.0);
   }
 
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  DynamicBicycleCarState(const DynamicBicycleCarState& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  DynamicBicycleCarState(DynamicBicycleCarState&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  DynamicBicycleCarState& operator=(const DynamicBicycleCarState& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  DynamicBicycleCarState& operator=(DynamicBicycleCarState&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
   /// Create a drake::symbolic::Variable for each element with the known
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
@@ -87,33 +115,117 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
   //@{
   /// Lx measure of the location of Cp from Lo.
   /// @note @c p_LoCp_x is expressed in units of m.
-  const T& p_LoCp_x() const { return this->GetAtIndex(K::kPLocpX); }
+  const T& p_LoCp_x() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPLocpX);
+  }
+  /// Setter that matches p_LoCp_x().
   void set_p_LoCp_x(const T& p_LoCp_x) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kPLocpX, p_LoCp_x);
+  }
+  /// Fluent setter that matches p_LoCp_x().
+  /// Returns a copy of `this` with p_LoCp_x set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarState<T> with_p_LoCp_x(const T& p_LoCp_x) const {
+    DynamicBicycleCarState<T> result(*this);
+    result.set_p_LoCp_x(p_LoCp_x);
+    return result;
   }
   /// Ly measure of the location of Cp from Lo.
   /// @note @c p_LoCp_y is expressed in units of m.
-  const T& p_LoCp_y() const { return this->GetAtIndex(K::kPLocpY); }
+  const T& p_LoCp_y() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPLocpY);
+  }
+  /// Setter that matches p_LoCp_y().
   void set_p_LoCp_y(const T& p_LoCp_y) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kPLocpY, p_LoCp_y);
+  }
+  /// Fluent setter that matches p_LoCp_y().
+  /// Returns a copy of `this` with p_LoCp_y set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarState<T> with_p_LoCp_y(const T& p_LoCp_y) const {
+    DynamicBicycleCarState<T> result(*this);
+    result.set_p_LoCp_y(p_LoCp_y);
+    return result;
   }
   /// Yaw angle from Lx to Cx with positive Lz sense.
   /// @note @c yaw_LC is expressed in units of rad.
-  const T& yaw_LC() const { return this->GetAtIndex(K::kYawLc); }
-  void set_yaw_LC(const T& yaw_LC) { this->SetAtIndex(K::kYawLc, yaw_LC); }
+  const T& yaw_LC() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kYawLc);
+  }
+  /// Setter that matches yaw_LC().
+  void set_yaw_LC(const T& yaw_LC) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kYawLc, yaw_LC);
+  }
+  /// Fluent setter that matches yaw_LC().
+  /// Returns a copy of `this` with yaw_LC set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarState<T> with_yaw_LC(const T& yaw_LC) const {
+    DynamicBicycleCarState<T> result(*this);
+    result.set_yaw_LC(yaw_LC);
+    return result;
+  }
   /// Cx measure of Cp's velocity in L.
   /// @note @c v_LCp_x is expressed in units of m/s.
-  const T& v_LCp_x() const { return this->GetAtIndex(K::kVLcpX); }
-  void set_v_LCp_x(const T& v_LCp_x) { this->SetAtIndex(K::kVLcpX, v_LCp_x); }
+  const T& v_LCp_x() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kVLcpX);
+  }
+  /// Setter that matches v_LCp_x().
+  void set_v_LCp_x(const T& v_LCp_x) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kVLcpX, v_LCp_x);
+  }
+  /// Fluent setter that matches v_LCp_x().
+  /// Returns a copy of `this` with v_LCp_x set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarState<T> with_v_LCp_x(const T& v_LCp_x) const {
+    DynamicBicycleCarState<T> result(*this);
+    result.set_v_LCp_x(v_LCp_x);
+    return result;
+  }
   /// Cy measure of Cp's velocity in L.
   /// @note @c v_LCp_y is expressed in units of m/s.
-  const T& v_LCp_y() const { return this->GetAtIndex(K::kVLcpY); }
-  void set_v_LCp_y(const T& v_LCp_y) { this->SetAtIndex(K::kVLcpY, v_LCp_y); }
+  const T& v_LCp_y() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kVLcpY);
+  }
+  /// Setter that matches v_LCp_y().
+  void set_v_LCp_y(const T& v_LCp_y) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kVLcpY, v_LCp_y);
+  }
+  /// Fluent setter that matches v_LCp_y().
+  /// Returns a copy of `this` with v_LCp_y set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarState<T> with_v_LCp_y(const T& v_LCp_y) const {
+    DynamicBicycleCarState<T> result(*this);
+    result.set_v_LCp_y(v_LCp_y);
+    return result;
+  }
   /// C's angular velocity in frame L.
   /// @note @c yawDt_LC is expressed in units of rad/s.
-  const T& yawDt_LC() const { return this->GetAtIndex(K::kYawdtLc); }
+  const T& yawDt_LC() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kYawdtLc);
+  }
+  /// Setter that matches yawDt_LC().
   void set_yawDt_LC(const T& yawDt_LC) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kYawdtLc, yawDt_LC);
+  }
+  /// Fluent setter that matches yawDt_LC().
+  /// Returns a copy of `this` with yawDt_LC set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarState<T> with_yawDt_LC(const T& yawDt_LC) const {
+    DynamicBicycleCarState<T> result(*this);
+    result.set_yawDt_LC(yawDt_LC);
+    return result;
   }
   //@}
 
@@ -123,9 +235,9 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(p_LoCp_x());
     result = result && !isnan(p_LoCp_y());
     result = result && !isnan(yaw_LC());
@@ -134,6 +246,17 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
     result = result && !isnan(yawDt_LC());
     return result;
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The DynamicBicycleCarState vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

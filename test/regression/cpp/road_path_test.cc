@@ -9,8 +9,7 @@
 #include <drake/automotive/maliput/api/lane_data.h>
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/dragway/road_geometry.h>
-#include <drake/automotive/maliput/monolane/builder.h>
-#include <drake/automotive/monolane_onramp_merge.h>
+#include <drake/automotive/maliput/multilane/builder.h>
 
 #include "test_utilities/eigen_matrix_compare.h"
 
@@ -18,15 +17,25 @@ namespace delphyne {
 namespace {
 
 using drake::maliput::api::GeoPosition;
+using drake::maliput::api::HBounds;
 using drake::maliput::api::JunctionId;
 using drake::maliput::api::Lane;
 using drake::maliput::api::LaneEnd;
 using drake::maliput::api::LanePosition;
 using drake::maliput::api::RoadGeometry;
-using drake::maliput::monolane::Builder;
-using drake::maliput::monolane::Connection;
-using drake::maliput::monolane::Endpoint;
-using drake::maliput::monolane::EndpointZ;
+
+using drake::maliput::multilane::ArcOffset;
+using drake::maliput::multilane::Builder;
+using drake::maliput::multilane::BuilderFactory;
+using drake::maliput::multilane::ComputationPolicy;
+using drake::maliput::multilane::Direction;
+using drake::maliput::multilane::Endpoint;
+using drake::maliput::multilane::EndpointZ;
+using drake::maliput::multilane::LaneLayout;
+using drake::maliput::multilane::LineOffset;
+using drake::maliput::multilane::EndReference;
+using drake::maliput::multilane::StartReference;
+
 using drake::Vector3;
 
 // The length of the straight lane segment.
@@ -42,35 +51,43 @@ const EndpointZ kEndZ{0, 0, 0, 0};  // Specifies zero elevation/super-elevation.
 
 // Build a road with two lanes in series.
 std::unique_ptr<const RoadGeometry> MakeTwoLaneRoad(bool is_opposing) {
-  Builder builder(drake::maliput::api::RBounds(-2, 2), /* lane_bounds */
-                  drake::maliput::api::RBounds(-4, 4), /* driveable_bounds */
-                  drake::maliput::api::HBounds(0, 5),  /* elevation bounds */
-                  0.01,                                /* linear tolerance */
-                  M_PI_2 / 180.0);                     /* angular_tolerance */
-  builder.Connect("0_fwd",                             /* id */
-                  Endpoint({0, 0, 0}, kEndZ),          /* start */
-                  kStraightRoadLength,                 /* length */
-                  kEndZ);                              /* z_end */
+  auto builder = BuilderFactory().Make(
+      4. /* lane width */, HBounds(0., 5.), 0.01 /* linear tolerance */,
+      M_PI_2 / 180.0 /* angular tolerance */, 1. /* scale length*/,
+      ComputationPolicy::kPreferAccuracy /* accuracy */);
+  const LaneLayout lane_layout(2. /* left shoulder */, 2. /* right shoulder */,
+                               1 /* number of lanes */, 0 /* reference lane*/,
+                               0. /* reference r0 */);
+
+  builder->Connect(
+      "0_fwd", lane_layout,
+      StartReference().at(Endpoint({0, 0, 0}, kEndZ), Direction::kForward),
+      LineOffset(kStraightRoadLength),
+      EndReference().z_at(kEndZ, Direction::kForward));
 
   if (is_opposing) {
     // Construct a curved segment that is directionally opposite the straight
     // lane.
-    builder.Connect("1_rev", /* id */
-                    Endpoint({kStraightRoadLength + kCurvedRoadRadius,
-                              kCurvedRoadRadius, 1.5 * M_PI},
-                             kEndZ),                        /* start */
-                    {kCurvedRoadRadius, -kCurvedRoadTheta}, /* arc */
-                    kEndZ);                                 /* z_end */
+    builder->Connect(
+        "1_rev", lane_layout,
+        StartReference().at(Endpoint({kStraightRoadLength + kCurvedRoadRadius,
+                                      kCurvedRoadRadius, 1.5 * M_PI},
+                                     kEndZ),
+                            Direction::kForward),
+        ArcOffset(kCurvedRoadRadius, -kCurvedRoadTheta),
+        EndReference().z_at(kEndZ, Direction::kForward));
   } else {
     // Construct a curved segment that is directionally confluent with the
     // straight lane.
-    builder.Connect("1_fwd",                                      /* id */
-                    Endpoint({kStraightRoadLength, 0, 0}, kEndZ), /* start */
-                    {kCurvedRoadRadius, kCurvedRoadTheta},        /* arc */
-                    kEndZ);                                       /* z_end */
+    builder->Connect(
+        "1_fwd", lane_layout,
+        StartReference().at(Endpoint({kStraightRoadLength, 0, 0}, kEndZ),
+                            Direction::kForward),
+        ArcOffset(kCurvedRoadRadius, kCurvedRoadTheta),
+        EndReference().z_at(kEndZ, Direction::kForward));
   }
 
-  return builder.Build(
+  return builder->Build(
       drake::maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
 }
 

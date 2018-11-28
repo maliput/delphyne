@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -73,6 +81,26 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
     this->set_gravity(9.81);
   }
 
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  DynamicBicycleCarParams(const DynamicBicycleCarParams& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  DynamicBicycleCarParams(DynamicBicycleCarParams&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  DynamicBicycleCarParams& operator=(const DynamicBicycleCarParams& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  DynamicBicycleCarParams& operator=(DynamicBicycleCarParams&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
   /// Create a drake::symbolic::Variable for each element with the known
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
@@ -100,54 +128,183 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
   /// Mass of X1 vehicle.
   /// @note @c mass is expressed in units of kg.
   /// @note @c mass has a limited domain of [0.0, +Inf].
-  const T& mass() const { return this->GetAtIndex(K::kMass); }
-  void set_mass(const T& mass) { this->SetAtIndex(K::kMass, mass); }
+  const T& mass() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kMass);
+  }
+  /// Setter that matches mass().
+  void set_mass(const T& mass) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kMass, mass);
+  }
+  /// Fluent setter that matches mass().
+  /// Returns a copy of `this` with mass set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_mass(const T& mass) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_mass(mass);
+    return result;
+  }
   /// moment of inertia.
   /// @note @c izz is expressed in units of kgm^2.
   /// @note @c izz has a limited domain of [0.0, +Inf].
-  const T& izz() const { return this->GetAtIndex(K::kIzz); }
-  void set_izz(const T& izz) { this->SetAtIndex(K::kIzz, izz); }
+  const T& izz() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kIzz);
+  }
+  /// Setter that matches izz().
+  void set_izz(const T& izz) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kIzz, izz);
+  }
+  /// Fluent setter that matches izz().
+  /// Returns a copy of `this` with izz set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_izz(const T& izz) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_izz(izz);
+    return result;
+  }
   /// Front cornering stiffness.
   /// @note @c c_alpha_f is expressed in units of N/rad.
   /// @note @c c_alpha_f has a limited domain of [0.0, +Inf].
-  const T& c_alpha_f() const { return this->GetAtIndex(K::kCAlphaF); }
+  const T& c_alpha_f() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kCAlphaF);
+  }
+  /// Setter that matches c_alpha_f().
   void set_c_alpha_f(const T& c_alpha_f) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kCAlphaF, c_alpha_f);
+  }
+  /// Fluent setter that matches c_alpha_f().
+  /// Returns a copy of `this` with c_alpha_f set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_c_alpha_f(const T& c_alpha_f) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_c_alpha_f(c_alpha_f);
+    return result;
   }
   /// Rear cornering stiffness.
   /// @note @c c_alpha_r is expressed in units of N/rad.
   /// @note @c c_alpha_r has a limited domain of [0.0, +Inf].
-  const T& c_alpha_r() const { return this->GetAtIndex(K::kCAlphaR); }
+  const T& c_alpha_r() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kCAlphaR);
+  }
+  /// Setter that matches c_alpha_r().
   void set_c_alpha_r(const T& c_alpha_r) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kCAlphaR, c_alpha_r);
+  }
+  /// Fluent setter that matches c_alpha_r().
+  /// Returns a copy of `this` with c_alpha_r set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_c_alpha_r(const T& c_alpha_r) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_c_alpha_r(c_alpha_r);
+    return result;
   }
   /// Coefficient of friction between tire and road surface.
   /// @note @c mu is expressed in units of dimensionless.
   /// @note @c mu has a limited domain of [0.0, +Inf].
-  const T& mu() const { return this->GetAtIndex(K::kMu); }
-  void set_mu(const T& mu) { this->SetAtIndex(K::kMu, mu); }
+  const T& mu() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kMu);
+  }
+  /// Setter that matches mu().
+  void set_mu(const T& mu) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kMu, mu);
+  }
+  /// Fluent setter that matches mu().
+  /// Returns a copy of `this` with mu set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_mu(const T& mu) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_mu(mu);
+    return result;
+  }
   /// Distance from control point to front axle (referred to as 'a' in Bobier).
   /// @note @c Lf is expressed in units of m.
   /// @note @c Lf has a limited domain of [0.0, +Inf].
-  const T& Lf() const { return this->GetAtIndex(K::kLf); }
-  void set_Lf(const T& Lf) { this->SetAtIndex(K::kLf, Lf); }
+  const T& Lf() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kLf);
+  }
+  /// Setter that matches Lf().
+  void set_Lf(const T& Lf) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kLf, Lf);
+  }
+  /// Fluent setter that matches Lf().
+  /// Returns a copy of `this` with Lf set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_Lf(const T& Lf) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_Lf(Lf);
+    return result;
+  }
   /// Distance from rear axle to control point (referred to as 'b' in Bobier).
   /// @note @c Lb is expressed in units of m.
   /// @note @c Lb has a limited domain of [0.0, +Inf].
-  const T& Lb() const { return this->GetAtIndex(K::kLb); }
-  void set_Lb(const T& Lb) { this->SetAtIndex(K::kLb, Lb); }
+  const T& Lb() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kLb);
+  }
+  /// Setter that matches Lb().
+  void set_Lb(const T& Lb) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kLb, Lb);
+  }
+  /// Fluent setter that matches Lb().
+  /// Returns a copy of `this` with Lb set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_Lb(const T& Lb) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_Lb(Lb);
+    return result;
+  }
   /// Height of vehicle's control point Cp.
   /// @note @c p_LoCp_z is expressed in units of m.
   /// @note @c p_LoCp_z has a limited domain of [0.0, +Inf].
-  const T& p_LoCp_z() const { return this->GetAtIndex(K::kPLocpZ); }
+  const T& p_LoCp_z() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPLocpZ);
+  }
+  /// Setter that matches p_LoCp_z().
   void set_p_LoCp_z(const T& p_LoCp_z) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kPLocpZ, p_LoCp_z);
+  }
+  /// Fluent setter that matches p_LoCp_z().
+  /// Returns a copy of `this` with p_LoCp_z set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_p_LoCp_z(const T& p_LoCp_z) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_p_LoCp_z(p_LoCp_z);
+    return result;
   }
   /// An approximate value for gravitational acceleration.
   /// @note @c gravity is expressed in units of m/s^2.
   /// @note @c gravity has a limited domain of [0.0, +Inf].
-  const T& gravity() const { return this->GetAtIndex(K::kGravity); }
-  void set_gravity(const T& gravity) { this->SetAtIndex(K::kGravity, gravity); }
+  const T& gravity() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kGravity);
+  }
+  /// Setter that matches gravity().
+  void set_gravity(const T& gravity) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kGravity, gravity);
+  }
+  /// Fluent setter that matches gravity().
+  /// Returns a copy of `this` with gravity set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarParams<T> with_gravity(const T& gravity) const {
+    DynamicBicycleCarParams<T> result(*this);
+    result.set_gravity(gravity);
+    return result;
+  }
   //@}
 
   /// See DynamicBicycleCarParamsIndices::GetCoordinateNames().
@@ -156,9 +313,9 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(mass());
     result = result && (mass() >= T(0.0));
     result = result && !isnan(izz());
@@ -193,6 +350,17 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
     (*value)[7] = p_LoCp_z() - T(0.0);
     (*value)[8] = gravity() - T(0.0);
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The DynamicBicycleCarParams vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

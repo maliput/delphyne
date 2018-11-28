@@ -41,7 +41,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
       : topic_name_(topic_name) {
     DELPHYNE_VALIDATE(publish_rate > 0.0, std::invalid_argument,
                       "Invalid publish rate (must be > 0.0)");
-    this->DeclareAbstractInputPort();
+    this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                                   drake::systems::Value<IGN_TYPE>());
     const double kPublishTimeOffset{0.};
     const drake::systems::PublishEvent<double> publish_event(
         drake::systems::Event<double>::TriggerType::kPeriodic,
@@ -60,7 +61,8 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   ///                       be publishing to.
   explicit IgnPublisherSystem(const std::string& topic_name)
       : topic_name_(topic_name) {
-    this->DeclareAbstractInputPort();
+    this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                                   drake::systems::Value<IGN_TYPE>());
     const drake::systems::PublishEvent<double> publish_event(
         drake::systems::Event<double>::TriggerType::kPerStep,
         std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this,
@@ -83,14 +85,10 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
                          const drake::systems::PublishEvent<double>& event) {
     // Retrieves the input value from the sole input port.
     const int kPortIndex = 0;
-    const drake::systems::AbstractValue* input_message =
-        EvalAbstractInput(context, kPortIndex);
-    // Verifies that the input value is valid.
-    DELPHYNE_VALIDATE(input_message != nullptr, std::runtime_error,
-                      "Failed to get input from system");
     // Publishes the message onto the specified
     // ignition transport topic.
-    publisher_.Publish(input_message->GetValue<IGN_TYPE>());
+    publisher_.Publish(
+        *this->template EvalInputValue<IGN_TYPE>(context, kPortIndex));
   }
 
   // The topic on which to publish ignition transport messages.

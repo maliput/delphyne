@@ -43,8 +43,7 @@ template <typename T>
 struct AgentBaseCollision {
   AgentBaseCollision(const std::pair<AgentBase<T>*, AgentBase<T>*> agents_in,
                      const drake::Vector3<T>& location_in)
-      : agents(agents_in), location(location_in) {
-  }
+      : agents(agents_in), location(location_in) {}
 
   const std::pair<AgentBase<T>*, AgentBase<T>*> agents;
   const drake::Vector3<T> location;

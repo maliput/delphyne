@@ -40,7 +40,10 @@ IDMController<T>::IDMController(const RoadGeometry& road,
           this->DeclareVectorInputPort(PoseVector<T>()).get_index()),
       ego_velocity_index_(
           this->DeclareVectorInputPort(FrameVelocity<T>()).get_index()),
-      traffic_index_(this->DeclareAbstractInputPort().get_index()),
+      traffic_index_(
+          this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                                         drake::systems::Value<PoseBundle<T>>())
+              .get_index()),
       acceleration_index_(
           this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
                                         &IDMController::CalcAcceleration)

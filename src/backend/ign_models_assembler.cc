@@ -10,8 +10,16 @@
 namespace delphyne {
 
 IgnModelsAssembler::IgnModelsAssembler() {
-  models_input_port_index_ = DeclareAbstractInputPort().get_index();
-  states_input_port_index_ = DeclareAbstractInputPort().get_index();
+  models_input_port_index_ =
+      DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                               drake::systems::Value<ignition::msgs::Model_V>())
+          .get_index();
+  states_input_port_index_ =
+      DeclareAbstractInputPort(
+          drake::systems::kUseDefaultName,
+          drake::systems::Value<
+              drake::systems::rendering::PoseBundle<double>>())
+          .get_index();
 
   DeclareAbstractOutputPort(&IgnModelsAssembler::CalcAssembledIgnModelVMessage);
 }
@@ -23,35 +31,36 @@ void IgnModelsAssembler::CalcAssembledIgnModelVMessage(
   output_models->Clear();
 
   // Retrieves models and states inputs.
-  const ignition::msgs::Model_V& input_models =
-      EvalAbstractInput(context, models_input_port_index_)
-          ->template GetValue<ignition::msgs::Model_V>();
+  const ignition::msgs::Model_V* input_models =
+      this->template EvalInputValue<ignition::msgs::Model_V>(
+          context, models_input_port_index_);
 
-  const drake::systems::rendering::PoseBundle<double>& input_states =
-      EvalAbstractInput(context, states_input_port_index_)
-          ->template GetValue<drake::systems::rendering::PoseBundle<double>>();
+  const drake::systems::rendering::PoseBundle<double>* input_states =
+      this->template EvalInputValue<
+          drake::systems::rendering::PoseBundle<double>>(
+          context, states_input_port_index_);
 
   // Copies timestamp from input to output.
   output_models->mutable_header()->mutable_stamp()->CopyFrom(
-      input_models.header().stamp());
+      input_models->header().stamp());
 
   // Reverses the pose bundle index to model ID mapping
   // for convenience.
   std::map<int, int> index_per_model_id;
-  for (int i = 0; i < input_states.get_num_poses(); ++i) {
-    const int id = input_states.get_model_instance_id(i);
+  for (int i = 0; i < input_states->get_num_poses(); ++i) {
+    const int id = input_states->get_model_instance_id(i);
     index_per_model_id[id] = i;
   }
 
   // Iterates over input models, copying them over to the output while
   // stamping the model based on the model ID to pose mapping.
-  for (const ignition::msgs::Model& input_model : input_models.models()) {
+  for (const ignition::msgs::Model& input_model : input_models->models()) {
     const int index = index_per_model_id[input_model.id()];
     ignition::msgs::Model* output_model = output_models->add_models();
     output_model->CopyFrom(input_model);
-    output_model->set_name(input_states.get_name(index));
+    output_model->set_name(input_states->get_name(index));
     ignition::msgs::Pose* ign_pose = output_model->mutable_pose();
-    const drake::Isometry3<double>& pose = input_states.get_pose(index);
+    const drake::Isometry3<double>& pose = input_states->get_pose(index);
     const drake::Vector3<double>& position = pose.translation();
     ign_pose->mutable_position()->set_x(position.x());
     ign_pose->mutable_position()->set_y(position.y());

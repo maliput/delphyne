@@ -7,7 +7,7 @@ set(TEST_TYPE UNIT)
 
 # ----------------------------------------
 # Helper test library.
-file(GLOB SOURCES "test_utilities/*.cc") 
+file(GLOB SOURCES "test_utilities/*.cc")
 
 add_library(test_utilities ${SOURCES})
 
@@ -36,17 +36,17 @@ target_link_libraries(test_utilities
 set(SOURCES
   agent_diagram_builder_test.cc
   automotive_simulator_test.cc
-  bicycle_car_test.cc  
+  bicycle_car_test.cc
   box_car_vis_test.cc
   calc_ongoing_road_position_test.cc
   calc_smooth_acceleration_test.cc
-  car_vis_applicator_test.cc  
-  curve2_test.cc  
+  car_vis_applicator_test.cc
+  curve2_test.cc
   compression_test.cc
   data_logger_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
   driving_command_mux_test.cc
-  dynamic_bicycle_car_test.cc  
+  dynamic_bicycle_car_test.cc
   filesystem_test.cc
   frame_pose_aggregator_test.cc
   idm_controller_test.cc

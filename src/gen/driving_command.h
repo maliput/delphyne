@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -51,6 +59,26 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
     this->set_acceleration(0.0);
   }
 
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  DrivingCommand(const DrivingCommand& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  DrivingCommand(DrivingCommand&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  DrivingCommand& operator=(const DrivingCommand& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  DrivingCommand& operator=(DrivingCommand&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
@@ -72,14 +100,36 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
     return this->GetAtIndex(K::kSteeringAngle);
   }
   void set_steering_angle(const T& steering_angle) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kSteeringAngle, steering_angle);
+  }
+  /// Fluent setter that matches steering_angle().
+  /// Returns a copy of `this` with steering_angle set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DrivingCommand<T> with_steering_angle(const T& steering_angle) const {
+    DrivingCommand<T> result(*this);
+    result.set_steering_angle(steering_angle);
+    return result;
   }
   /// The signed acceleration, positive means speed up; negative means slow
   /// down, but should not move in reverse.
   /// @note @c acceleration is expressed in units of m/s^2.
-  const T& acceleration() const { return this->GetAtIndex(K::kAcceleration); }
+  const T& acceleration() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kAcceleration);
+  }
+  // Setter that matches acceleration().
   void set_acceleration(const T& acceleration) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kAcceleration, acceleration);
+  }
+  /// Fluent setter that matches acceleration().
+  /// Returns a copy of `this` with acceleration set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DrivingCommand<T> with_acceleration(const T& acceleration) const {
+    DrivingCommand<T> result(*this);
+    result.set_acceleration(acceleration);
+    return result;
   }
   //@}
 
@@ -89,13 +139,24 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(steering_angle());
     result = result && !isnan(acceleration());
     return result;
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The DrivingCommand vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

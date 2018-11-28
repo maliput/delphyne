@@ -37,7 +37,7 @@ namespace delphyne {
 /// (how far along the track) and the agent will follow
 /// this track exactly - the only variance it is permitted is the speed
 /// with which it follows the track.
-class MobilCarBlueprint : public SimpleAgentBlueprint {
+class MobilCarBlueprint : public BasicAgentBlueprint {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilCarBlueprint)
 

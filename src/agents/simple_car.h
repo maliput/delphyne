@@ -26,7 +26,7 @@ namespace delphyne {
 *****************************************************************************/
 
 /// @brief A very simple vehicle agent that can be teleoperated.
-class SimpleCarBlueprint : public SimpleAgentBlueprint {
+class SimpleCarBlueprint : public BasicAgentBlueprint {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCarBlueprint)
 

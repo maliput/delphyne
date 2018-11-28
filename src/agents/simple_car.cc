@@ -30,7 +30,7 @@ namespace delphyne {
 
 SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x,
                                        double y, double heading, double speed)
-    : SimpleAgentBlueprint(name, drake::Isometry3<double>(
+    : BasicAgentBlueprint(name, drake::Isometry3<double>(
           drake::Translation3<double>(x, y, 0.0) *
           drake::AngleAxis<double>(heading, drake::Vector3<double>::UnitZ()))),
       initial_parameters_(x, y, heading, speed) {

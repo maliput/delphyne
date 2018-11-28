@@ -28,7 +28,7 @@ namespace delphyne {
  *****************************************************************************/
 
 /// @brief Trajectory following agents
-class TrajectoryAgentBlueprint : public SimpleAgentBlueprint {
+class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryAgentBlueprint)
 

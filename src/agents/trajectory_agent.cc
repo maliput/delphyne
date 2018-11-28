@@ -37,7 +37,7 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
     const std::string& name, const std::vector<double>& times,
     const std::vector<double>& headings,
     const std::vector<std::vector<double>>& translations)
-    : SimpleAgentBlueprint(name) {
+    : BasicAgentBlueprint(name) {
   std::vector<Eigen::Quaternion<double>> eigen_orientations;
   for (const double& heading : headings) {
     Eigen::Quaternion<double> orientation(

@@ -134,9 +134,9 @@ class AgentBaseBlueprint {
 /// Instantiated templates for the following types are provided:
 /// - double
 template <typename T>
-class SimpleAgentBaseBlueprint : public AgentBaseBlueprint<T> {
+class BasicAgentBaseBlueprint : public AgentBaseBlueprint<T> {
  public:
-  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleAgentBaseBlueprint)
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(BasicAgentBaseBlueprint)
 
   using AgentBaseBlueprint<T>::AgentBaseBlueprint;
 
@@ -166,8 +166,8 @@ using AgentBlueprint = AgentBaseBlueprint<double>;
 using AutoDiffAgentBlueprint = AgentBaseBlueprint<AutoDiff>;
 using SymbolicAgentBlueprint = AgentBaseBlueprint<Symbolic>;
 
-using SimpleAgentBlueprint = SimpleAgentBaseBlueprint<double>;
-using SimpleAutoDiffAgentBlueprint = SimpleAgentBaseBlueprint<AutoDiff>;
-using SimpleSymbolicAgentBlueprint = SimpleAgentBaseBlueprint<Symbolic>;
+using BasicAgentBlueprint = BasicAgentBaseBlueprint<double>;
+using BasicAutoDiffAgentBlueprint = BasicAgentBaseBlueprint<AutoDiff>;
+using BasicSymbolicAgentBlueprint = BasicAgentBaseBlueprint<Symbolic>;
 
 }  // namespace delphyne

@@ -53,7 +53,8 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
                  !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
                  void>::type* = 0) {
     // Abstract input port.
-    DeclareAbstractInputPort();
+    DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                             drake::systems::Value<DRAKE_TYPE>());
 
     // Output port (abstract for all ignition types).
     DeclareAbstractOutputPort(&DrakeToIgn::CalcIgnMessage);
@@ -323,12 +324,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
       !std::is_base_of<drake::systems::VectorBase<double>, T>::value,
       const DRAKE_TYPE&>::type
   ReadInputPort(const drake::systems::Context<double>& context) const {
-    const drake::systems::AbstractValue* input =
-        EvalAbstractInput(context, kPortIndex);
-    DELPHYNE_VALIDATE(input != nullptr, std::runtime_error,
-                      "Could not get abstract input from system");
-
-    return input->GetValue<DRAKE_TYPE>();
+    return *this->template EvalInputValue<DRAKE_TYPE>(context, kPortIndex);
   }
 };
 

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -72,8 +80,29 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
     this->set_scan_ahead_distance(100.0);
   }
 
-  /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  IdmPlannerParameters(const IdmPlannerParameters& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  IdmPlannerParameters(IdmPlannerParameters&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  IdmPlannerParameters& operator=(const IdmPlannerParameters& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  IdmPlannerParameters& operator=(IdmPlannerParameters&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
+  /// Create a drake::symbolic::Variable for each element with the known
+  /// variable
+  /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
   typename std::enable_if<
       std::is_same<U, drake::symbolic::Expression>::value>::type
@@ -100,63 +129,186 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   /// desired velocity in free traffic
   /// @note @c v_ref is expressed in units of m/s.
   /// @note @c v_ref has a limited domain of [0.0, +Inf].
-  const T& v_ref() const { return this->GetAtIndex(K::kVRef); }
-  void set_v_ref(const T& v_ref) { this->SetAtIndex(K::kVRef, v_ref); }
+  const T& v_ref() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kVRef);
+  }
+  /// Setter that matches v_ref().
+  void set_v_ref(const T& v_ref) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kVRef, v_ref);
+  }
+  /// Fluent setter that matches v_ref().
+  /// Returns a copy of `this` with v_ref set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_v_ref(const T& v_ref) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_v_ref(v_ref);
+    return result;
+  }
   /// max acceleration
   /// @note @c a is expressed in units of m/s^2.
   /// @note @c a has a limited domain of [0.0, +Inf].
-  const T& a() const { return this->GetAtIndex(K::kA); }
-  void set_a(const T& a) { this->SetAtIndex(K::kA, a); }
+  const T& a() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kA);
+  }
+  /// Setter that matches a().
+  void set_a(const T& a) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kA, a);
+  }
+  /// Fluent setter that matches a().
+  /// Returns a copy of `this` with a set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_a(const T& a) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_a(a);
+    return result;
+  }
   /// comfortable braking deceleration
   /// @note @c b is expressed in units of m/s^2.
   /// @note @c b has a limited domain of [0.0, +Inf].
-  const T& b() const { return this->GetAtIndex(K::kB); }
-  void set_b(const T& b) { this->SetAtIndex(K::kB, b); }
+  const T& b() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kB);
+  }
+  /// Setter that matches b().
+  void set_b(const T& b) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kB, b);
+  }
+  /// Fluent setter that matches b().
+  /// Returns a copy of `this` with b set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_b(const T& b) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_b(b);
+    return result;
+  }
   /// minimum desired net distance
   /// @note @c s_0 is expressed in units of m.
   /// @note @c s_0 has a limited domain of [0.0, +Inf].
-  const T& s_0() const { return this->GetAtIndex(K::kS0); }
-  void set_s_0(const T& s_0) { this->SetAtIndex(K::kS0, s_0); }
+  const T& s_0() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kS0);
+  }
+  /// Setter that matches s_0().
+  void set_s_0(const T& s_0) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kS0, s_0);
+  }
+  /// Fluent setter that matches s_0().
+  /// Returns a copy of `this` with s_0 set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_s_0(const T& s_0) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_s_0(s_0);
+    return result;
+  }
   /// desired time headway to vehicle in front
   /// @note @c time_headway is expressed in units of s.
   /// @note @c time_headway has a limited domain of [0.0, +Inf].
-  const T& time_headway() const { return this->GetAtIndex(K::kTimeHeadway); }
+  const T& time_headway() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kTimeHeadway);
+  }
+  /// Setter that matches time_headway().
   void set_time_headway(const T& time_headway) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kTimeHeadway, time_headway);
+  }
+  /// Fluent setter that matches time_headway().
+  /// Returns a copy of `this` with time_headway set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_time_headway(const T& time_headway) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_time_headway(time_headway);
+    return result;
   }
   /// free-road exponent
   /// @note @c delta is expressed in units of dimensionless.
   /// @note @c delta has a limited domain of [0.0, +Inf].
-  const T& delta() const { return this->GetAtIndex(K::kDelta); }
-  void set_delta(const T& delta) { this->SetAtIndex(K::kDelta, delta); }
+  const T& delta() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kDelta);
+  }
+  /// Setter that matches delta().
+  void set_delta(const T& delta) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kDelta, delta);
+  }
+  /// Fluent setter that matches delta().
+  /// Returns a copy of `this` with delta set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_delta(const T& delta) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_delta(delta);
+    return result;
+  }
   /// diameter of circle about the vehicle's pose that encloses its physical
   /// footprint
   /// @note @c bloat_diameter is expressed in units of m.
   /// @note @c bloat_diameter has a limited domain of [0.0, +Inf].
   const T& bloat_diameter() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kBloatDiameter);
   }
+  /// Setter that matches bloat_diameter().
   void set_bloat_diameter(const T& bloat_diameter) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kBloatDiameter, bloat_diameter);
+  }
+  /// Fluent setter that matches bloat_diameter().
+  /// Returns a copy of `this` with bloat_diameter set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_bloat_diameter(const T& bloat_diameter) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_bloat_diameter(bloat_diameter);
+    return result;
   }
   /// lower saturation bound on net distance to prevent near-singular IDM
   /// solutions
   /// @note @c distance_lower_limit is expressed in units of m.
   /// @note @c distance_lower_limit has a limited domain of [0.0, +Inf].
   const T& distance_lower_limit() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kDistanceLowerLimit);
   }
+  /// Setter that matches distance_lower_limit().
   void set_distance_lower_limit(const T& distance_lower_limit) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kDistanceLowerLimit, distance_lower_limit);
+  }
+  /// Fluent setter that matches distance_lower_limit().
+  /// Returns a copy of `this` with distance_lower_limit set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_distance_lower_limit(
+      const T& distance_lower_limit) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_distance_lower_limit(distance_lower_limit);
+    return result;
   }
   /// distance to scan ahead on road for a leading vehicle
   /// @note @c scan_ahead_distance is expressed in units of m.
   /// @note @c scan_ahead_distance has a limited domain of [0.0, +Inf].
   const T& scan_ahead_distance() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kScanAheadDistance);
   }
+  /// Setter that matches scan_ahead_distance().
   void set_scan_ahead_distance(const T& scan_ahead_distance) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kScanAheadDistance, scan_ahead_distance);
+  }
+  /// Fluent setter that matches scan_ahead_distance().
+  /// Returns a copy of `this` with scan_ahead_distance set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  IdmPlannerParameters<T> with_scan_ahead_distance(
+      const T& scan_ahead_distance) const {
+    IdmPlannerParameters<T> result(*this);
+    result.set_scan_ahead_distance(scan_ahead_distance);
+    return result;
   }
   //@}
 
@@ -166,9 +318,9 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(v_ref());
     result = result && (v_ref() >= T(0.0));
     result = result && !isnan(a());
@@ -203,6 +355,17 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
     (*value)[7] = distance_lower_limit() - T(0.0);
     (*value)[8] = scan_ahead_distance() - T(0.0);
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The IdmPlannerParameters vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

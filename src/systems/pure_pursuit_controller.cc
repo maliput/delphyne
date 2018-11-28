@@ -21,7 +21,10 @@ template <typename T>
 PurePursuitController<T>::PurePursuitController()
     : drake::systems::LeafSystem<T>(
           drake::systems::SystemTypeTag<::delphyne::PurePursuitController>{}),
-      lane_index_{this->DeclareAbstractInputPort().get_index()},
+      lane_index_{
+          this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                                         drake::systems::Value<LaneDirection>())
+              .get_index()},
       ego_pose_index_{this->DeclareInputPort(drake::systems::kVectorValued,
                                              PoseVector<T>::kSize)
                           .get_index()},

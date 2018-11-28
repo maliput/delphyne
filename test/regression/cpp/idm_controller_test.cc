@@ -6,8 +6,6 @@
 #include "drake/common/eigen_types.h"
 #include "drake/multibody/multibody_tree/math/spatial_velocity.h"
 
-#include "drake/automotive/monolane_onramp_merge.h"
-
 #include "test_utilities/eigen_matrix_compare.h"
 #include "test_utilities/scalar_conversion.h"
 

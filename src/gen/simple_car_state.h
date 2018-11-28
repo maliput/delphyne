@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -57,8 +65,29 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
     this->set_velocity(0.0);
   }
 
-  /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  SimpleCarState(const SimpleCarState& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  SimpleCarState(SimpleCarState&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  SimpleCarState& operator=(const SimpleCarState& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  SimpleCarState& operator=(SimpleCarState&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
+  /// Create a drake::symbolic::Variable for each element with the known
+  /// variable
+  /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
   typename std::enable_if<
       std::is_same<U, drake::symbolic::Expression>::value>::type
@@ -74,18 +103,76 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   /// @name Getters and Setters
   //@{
   /// x
-  const T& x() const { return this->GetAtIndex(K::kX); }
-  void set_x(const T& x) { this->SetAtIndex(K::kX, x); }
+  const T& x() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kX);
+  }
+  /// Setter that matches x().
+  void set_x(const T& x) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kX, x);
+  }
+  /// Fluent setter that matches x().
+  /// Returns a copy of `this` with x set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarState<T> with_x(const T& x) const {
+    SimpleCarState<T> result(*this);
+    result.set_x(x);
+    return result;
+  }
   /// y
-  const T& y() const { return this->GetAtIndex(K::kY); }
-  void set_y(const T& y) { this->SetAtIndex(K::kY, y); }
+  const T& y() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kY);
+  }
+  /// Setter that matches y().
+  void set_y(const T& y) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kY, y);
+  }
+  /// Fluent setter that matches y().
+  /// Returns a copy of `this` with y set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarState<T> with_y(const T& y) const {
+    SimpleCarState<T> result(*this);
+    result.set_y(y);
+    return result;
+  }
   /// heading
-  const T& heading() const { return this->GetAtIndex(K::kHeading); }
-  void set_heading(const T& heading) { this->SetAtIndex(K::kHeading, heading); }
+  const T& heading() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kHeading);
+  }
+  /// Setter that matches heading().
+  void set_heading(const T& heading) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kHeading, heading);
+  }
+  /// Fluent setter that matches heading().
+  /// Returns a copy of `this` with heading set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarState<T> with_heading(const T& heading) const {
+    SimpleCarState<T> result(*this);
+    result.set_heading(heading);
+    return result;
+  }
   /// velocity
-  const T& velocity() const { return this->GetAtIndex(K::kVelocity); }
+  const T& velocity() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kVelocity);
+  }
+  /// Setter that matches velocity().
   void set_velocity(const T& velocity) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kVelocity, velocity);
+  }
+  /// Fluent setter that matches velocity().
+  /// Returns a copy of `this` with velocity set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarState<T> with_velocity(const T& velocity) const {
+    SimpleCarState<T> result(*this);
+    result.set_velocity(velocity);
+    return result;
   }
   //@}
 
@@ -95,15 +182,26 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(x());
     result = result && !isnan(y());
     result = result && !isnan(heading());
     result = result && !isnan(velocity());
     return result;
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The SimpleCarState vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

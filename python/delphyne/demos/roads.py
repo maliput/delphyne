@@ -33,7 +33,7 @@ def parse_arguments():
 Load one of the various types of maliput road networks
 into an empty (free of agents) simulation. For the time
 being the following road network types are supported:
-dragway, onramp, monolane and multilane.
+dragway, onramp, and multilane.
 
 This demo uses the subcommand style, where each road
 type can handle different parameters. To get help on each
@@ -45,8 +45,6 @@ Some examples:
 
 $ {0} dragway --length=200 --shoulder-width=2.5
 $ {0} onramp
-$ {0} monolane
---filename='./install/share/delphyne/roads/double_ring.yaml'
 $ {0} multilane
 --filename='./install/share/delphyne/roads/circuit.yaml'
         """.format(os.path.basename(sys.argv[0]))
@@ -75,12 +73,6 @@ $ {0} multilane
 
     # Onramp subcommand
     subparsers.add_parser("onramp")
-
-    # Monolane subcommand
-    monolane_parser = subparsers.add_parser("monolane")
-    monolane_parser.add_argument("--filename",
-                                 help="monolane file path",
-                                 required=True)
 
     # Multilane subcommand
     multilane_parser = subparsers.add_parser("multilane")
@@ -113,20 +105,13 @@ def main():
         )
     elif args.road_type == "onramp":
         simulator.set_road_geometry(maliput.create_on_ramp())
-    elif args.road_type in ["monolane", "multilane"]:
+    elif args.road_type == "multilane":
         try:
-            if args.road_type == "monolane":
-                simulator.set_road_geometry(
-                    maliput.create_monolane_from_file(
-                        file_path=args.filename
-                    )
+            simulator.set_road_geometry(
+                maliput.create_multilane_from_file(
+                    file_path=args.filename
                 )
-            else:
-                simulator.set_road_geometry(
-                    maliput.create_multilane_from_file(
-                        file_path=args.filename
-                    )
-                )
+            )
         except RuntimeError, error:
             print("There was an error trying to load the road network:")
             print(str(error))

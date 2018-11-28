@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -51,8 +59,29 @@ class MaliputRailcarState final : public drake::systems::BasicVector<T> {
     this->set_speed(0.0);
   }
 
-  /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  MaliputRailcarState(const MaliputRailcarState& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  MaliputRailcarState(MaliputRailcarState&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  MaliputRailcarState& operator=(const MaliputRailcarState& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  MaliputRailcarState& operator=(MaliputRailcarState&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
+  /// Create a drake::symbolic::Variable for each element with the known
+  /// variable
+  /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
   typename std::enable_if<
       std::is_same<U, drake::symbolic::Expression>::value>::type
@@ -68,11 +97,41 @@ class MaliputRailcarState final : public drake::systems::BasicVector<T> {
   /// @name Getters and Setters
   //@{
   /// The s-coordinate of the vehicle in a `Lane`-frame.
-  const T& s() const { return this->GetAtIndex(K::kS); }
-  void set_s(const T& s) { this->SetAtIndex(K::kS, s); }
+  const T& s() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kS);
+  }
+  /// Setter that matches s().
+  void set_s(const T& s) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kS, s);
+  }
+  /// Fluent setter that matches s().
+  /// Returns a copy of `this` with s set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  MaliputRailcarState<T> with_s(const T& s) const {
+    MaliputRailcarState<T> result(*this);
+    result.set_s(s);
+    return result;
+  }
   /// The speed of the vehicle in physical space.
-  const T& speed() const { return this->GetAtIndex(K::kSpeed); }
-  void set_speed(const T& speed) { this->SetAtIndex(K::kSpeed, speed); }
+  const T& speed() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kSpeed);
+  }
+  /// Setter that matches speed().
+  void set_speed(const T& speed) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kSpeed, speed);
+  }
+  /// Fluent setter that matches speed().
+  /// Returns a copy of `this` with speed set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  MaliputRailcarState<T> with_speed(const T& speed) const {
+    MaliputRailcarState<T> result(*this);
+    result.set_speed(speed);
+    return result;
+  }
   //@}
 
   /// See MaliputRailcarStateIndices::GetCoordinateNames().
@@ -81,13 +140,24 @@ class MaliputRailcarState final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(s());
     result = result && !isnan(speed());
     return result;
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The MaliputRailcarState vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

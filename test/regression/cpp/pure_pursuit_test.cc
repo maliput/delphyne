@@ -23,6 +23,7 @@ using drake::maliput::api::GeoPosition;
 using drake::maliput::api::RoadGeometryId;
 using drake::maliput::multilane::ArcOffset;
 using drake::maliput::multilane::Builder;
+using drake::maliput::multilane::GroupFactory;
 using drake::maliput::multilane::Direction;
 using drake::maliput::multilane::Endpoint;
 using drake::maliput::multilane::EndpointZ;
@@ -51,7 +52,8 @@ class PurePursuitTest : public ::testing::Test {
     const Endpoint kStartEndpoint{{0., 0., 0.}, kFlat};
     const double kScaleLength{1.0};
     Builder builder(4. /* lane width */, {0., 5.}, 0.01, 0.01 * M_PI,
-                    kScaleLength, ComputationPolicy::kPreferSpeed);
+                    kScaleLength, ComputationPolicy::kPreferSpeed,
+                    std::make_unique<GroupFactory>());
     builder.Connect("0", kLaneLayout,
                     StartReference().at(kStartEndpoint, Direction::kForward),
                     kCounterClockwiseArc,
@@ -258,7 +260,7 @@ TEST_F(PurePursuitTest, ComputeGoalPoint) {
   EXPECT_EQ(0., goal_position.z());
 }
 // TODO(jadecastro): Test with curved lanes once
-// monolane::Lane::ToRoadPosition() is implemented.
+// multilane::Lane::ToRoadPosition() is implemented.
 
 }  // namespace
 }  // namespace delphyne

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -63,8 +71,29 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
     this->set_sy(0.0);
   }
 
-  /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  BicycleCarState(const BicycleCarState& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  BicycleCarState(BicycleCarState&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  BicycleCarState& operator=(const BicycleCarState& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  BicycleCarState& operator=(BicycleCarState&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
+  /// Create a drake::symbolic::Variable for each element with the known
+  /// variable
+  /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
   typename std::enable_if<
       std::is_same<U, drake::symbolic::Expression>::value>::type
@@ -82,23 +111,113 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
   /// @name Getters and Setters
   //@{
   /// yaw angle
-  const T& Psi() const { return this->GetAtIndex(K::kPsi); }
-  void set_Psi(const T& Psi) { this->SetAtIndex(K::kPsi, Psi); }
+  const T& Psi() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPsi);
+  }
+  /// Setter that matches Psi().
+  void set_Psi(const T& Psi) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kPsi, Psi);
+  }
+  /// Fluent setter that matches Psi().
+  /// Returns a copy of `this` with Psi set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  BicycleCarState<T> with_Psi(const T& Psi) const {
+    BicycleCarState<T> result(*this);
+    result.set_Psi(Psi);
+    return result;
+  }
   /// yaw angular rate
-  const T& Psi_dot() const { return this->GetAtIndex(K::kPsiDot); }
-  void set_Psi_dot(const T& Psi_dot) { this->SetAtIndex(K::kPsiDot, Psi_dot); }
+  const T& Psi_dot() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kPsiDot);
+  }
+  /// Setter that matches Psi_dot().
+  void set_Psi_dot(const T& Psi_dot) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kPsiDot, Psi_dot);
+  }
+  /// Fluent setter that matches Psi_dot().
+  /// Returns a copy of `this` with Psi_dot set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  BicycleCarState<T> with_Psi_dot(const T& Psi_dot) const {
+    BicycleCarState<T> result(*this);
+    result.set_Psi_dot(Psi_dot);
+    return result;
+  }
   /// slip angle at the center of mass
-  const T& beta() const { return this->GetAtIndex(K::kBeta); }
-  void set_beta(const T& beta) { this->SetAtIndex(K::kBeta, beta); }
+  const T& beta() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kBeta);
+  }
+  /// Setter that matches beta().
+  void set_beta(const T& beta) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kBeta, beta);
+  }
+  /// Fluent setter that matches beta().
+  /// Returns a copy of `this` with beta set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  BicycleCarState<T> with_beta(const T& beta) const {
+    BicycleCarState<T> result(*this);
+    result.set_beta(beta);
+    return result;
+  }
   /// velocity magnitude
-  const T& vel() const { return this->GetAtIndex(K::kVel); }
-  void set_vel(const T& vel) { this->SetAtIndex(K::kVel, vel); }
+  const T& vel() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kVel);
+  }
+  /// Setter that matches vel().
+  void set_vel(const T& vel) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kVel, vel);
+  }
+  /// Fluent setter that matches vel().
+  /// Returns a copy of `this` with vel set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  BicycleCarState<T> with_vel(const T& vel) const {
+    BicycleCarState<T> result(*this);
+    result.set_vel(vel);
+    return result;
+  }
   /// x-position at the center of mass
-  const T& sx() const { return this->GetAtIndex(K::kSx); }
-  void set_sx(const T& sx) { this->SetAtIndex(K::kSx, sx); }
+  const T& sx() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kSx);
+  }
+  /// Setter that matches sx().
+  void set_sx(const T& sx) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kSx, sx);
+  }
+  /// Fluent setter that matches sx().
+  /// Returns a copy of `this` with sx set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  BicycleCarState<T> with_sx(const T& sx) const {
+    BicycleCarState<T> result(*this);
+    result.set_sx(sx);
+    return result;
+  }
   /// y-position at the center of mass
-  const T& sy() const { return this->GetAtIndex(K::kSy); }
-  void set_sy(const T& sy) { this->SetAtIndex(K::kSy, sy); }
+  const T& sy() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kSy);
+  }
+  /// Setter that matches sy().
+  void set_sy(const T& sy) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kSy, sy);
+  }
+  /// Fluent setter that matches sy().
+  /// Returns a copy of `this` with sy set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  BicycleCarState<T> with_sy(const T& sy) const {
+    BicycleCarState<T> result(*this);
+    result.set_sy(sy);
+    return result;
+  }
   //@}
 
   /// See BicycleCarStateIndices::GetCoordinateNames().
@@ -107,9 +226,9 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(Psi());
     result = result && !isnan(Psi_dot());
     result = result && !isnan(beta());
@@ -118,6 +237,17 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
     result = result && !isnan(sy());
     return result;
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The BicycleCarState vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

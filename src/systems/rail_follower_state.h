@@ -14,6 +14,7 @@
 #include <array>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <drake/common/symbolic_variable.h>
@@ -21,6 +22,13 @@
 
 // public headers
 #include "delphyne/types.h"
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 /*****************************************************************************
 ** Namespaces
@@ -60,6 +68,26 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
     this->set_speed(kDefaults[kSpeed]);
   }
 
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  RailFollowerState(const RailFollowerState& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  RailFollowerState(RailFollowerState&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  RailFollowerState& operator=(const RailFollowerState& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  RailFollowerState& operator=(RailFollowerState&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T ==  delphyne::Symbolic.
   template <typename U = T>
@@ -74,11 +102,41 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
   /// @name Getters and Setters
   //@{
   /// The longitudinal position along the current rail (m).
-  const T& s() const { return this->GetAtIndex(kS); }
-  void set_s(const T& s) { this->SetAtIndex(kS, s); }
+  const T& s() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(kS);
+  }
+  /// Setter that matches s().
+  void set_s(const T& s) {
+    ThrowIfEmpty();
+    this->SetAtIndex(kS, s);
+  }
+  /// Fluent setter that matches s().
+  /// Returns a copy of `this` with s set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  RailFollowerState<T> with_s(const T& s) const {
+    RailFollowerState<T> result(*this);
+    result.set_s(s);
+    return result;
+  }
   /// The speed of the vehicle in physical space (not nec. rail speed) (m/s).
-  const T& speed() const { return this->GetAtIndex(kSpeed); }
-  void set_speed(const T& speed) { this->SetAtIndex(kSpeed, speed); }
+  const T& speed() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(kSpeed);
+  }
+  /// Setter that matches speed().
+  void set_speed(const T& speed) {
+    ThrowIfEmpty();
+    this->SetAtIndex(kSpeed, speed);
+  }
+  /// Fluent setter that matches speed().
+  /// Returns a copy of `this` with speed set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  RailFollowerState<T> with_speed(const T& speed) const {
+    RailFollowerState<T> result(*this);
+    result.set_speed(speed);
+    return result;
+  }
   //@}
 
   /// @brief Verbose string representation.
@@ -94,12 +152,21 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::Bool<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    auto result = (T(0) == T(0));
+    drake::boolean<T> result{true};
     result = result && !isnan(s());
     result = result && !isnan(speed());
     return result;
+  }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The RailFollowerState vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
   }
 };
 
@@ -108,3 +175,5 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
 *****************************************************************************/
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

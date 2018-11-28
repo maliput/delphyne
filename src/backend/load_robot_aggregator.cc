@@ -9,8 +9,12 @@
 
 namespace delphyne {
 
+using LoadRobotGenerator = std::function<drake::lcmt_viewer_load_robot()>;
+
 LoadRobotAggregator::LoadRobotAggregator() {
-  DeclareAbstractInputPort();
+  DeclareAbstractInputPort(
+      drake::systems::kUseDefaultName,
+      drake::systems::Value<std::vector<LoadRobotGenerator>>());
   DeclareAbstractOutputPort(&LoadRobotAggregator::CalcAggregatedLoadRobot);
 }
 
@@ -20,18 +24,15 @@ void LoadRobotAggregator::CalcAggregatedLoadRobot(
   DELPHYNE_VALIDATE(load_robot_message != nullptr, std::invalid_argument,
                     "Load robot message pointer must not be null");
 
-  using LoadRobotGenerator = std::function<drake::lcmt_viewer_load_robot()>;
-
-  const drake::systems::AbstractValue* load_robot_generators_input =
-      EvalAbstractInput(context, kPortIndex);
-  const auto& load_robot_generators =
-      load_robot_generators_input->GetValue<std::vector<LoadRobotGenerator>>();
+  const std::vector<LoadRobotGenerator>* load_robot_generators =
+      this->template EvalInputValue<std::vector<LoadRobotGenerator>>(
+          context, kPortIndex);
 
   // Clears state from the previous call.
   // @see DeclareAbstractOutputPort
   load_robot_message->link.clear();
 
-  for (const auto& load_robot_generator : load_robot_generators) {
+  for (const auto& load_robot_generator : *load_robot_generators) {
     for (const drake::lcmt_viewer_link_data& link :
          load_robot_generator().link) {
       load_robot_message->link.push_back(link);

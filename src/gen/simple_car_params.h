@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -63,8 +71,29 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
     this->set_velocity_limit_kp(10.0);
   }
 
-  /// Create a symbolic::Variable for each element with the known variable
-  /// name.  This is only available for T == symbolic::Expression.
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  SimpleCarParams(const SimpleCarParams& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  SimpleCarParams(SimpleCarParams&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  SimpleCarParams& operator=(const SimpleCarParams& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  SimpleCarParams& operator=(SimpleCarParams&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
+  /// Create a drake::symbolic::Variable for each element with the known
+  /// variable
+  /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
   typename std::enable_if<
       std::is_same<U, drake::symbolic::Expression>::value>::type
@@ -85,50 +114,125 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   /// The distance between the front and rear axles of the vehicle.
   /// @note @c wheelbase is expressed in units of m.
   /// @note @c wheelbase has a limited domain of [0.0, +Inf].
-  const T& wheelbase() const { return this->GetAtIndex(K::kWheelbase); }
+  const T& wheelbase() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kWheelbase);
+  }
+  /// Setter that matches wheelbase().
   void set_wheelbase(const T& wheelbase) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kWheelbase, wheelbase);
+  }
+  /// Fluent setter that matches wheelbase().
+  /// Returns a copy of `this` with wheelbase set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarParams<T> with_wheelbase(const T& wheelbase) const {
+    SimpleCarParams<T> result(*this);
+    result.set_wheelbase(wheelbase);
+    return result;
   }
   /// The distance between the center of two wheels on the same axle.
   /// @note @c track is expressed in units of m.
   /// @note @c track has a limited domain of [0.0, +Inf].
-  const T& track() const { return this->GetAtIndex(K::kTrack); }
-  void set_track(const T& track) { this->SetAtIndex(K::kTrack, track); }
+  const T& track() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kTrack);
+  }
+  /// Setter that matches track().
+  void set_track(const T& track) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kTrack, track);
+  }
+  /// Fluent setter that matches track().
+  /// Returns a copy of `this` with track set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarParams<T> with_track(const T& track) const {
+    SimpleCarParams<T> result(*this);
+    result.set_track(track);
+    return result;
+  }
   /// The limit on the driving_command.steering angle input (the desired
   /// steering angle of a virtual center wheel); this element is applied
   /// symmetrically to both left- and right-turn limits.
   /// @note @c max_abs_steering_angle is expressed in units of rad.
   /// @note @c max_abs_steering_angle has a limited domain of [0.0, +Inf].
   const T& max_abs_steering_angle() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kMaxAbsSteeringAngle);
   }
+  /// Setter that matches max_abs_steering_angle().
   void set_max_abs_steering_angle(const T& max_abs_steering_angle) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kMaxAbsSteeringAngle, max_abs_steering_angle);
+  }
+  /// Fluent setter that matches max_abs_steering_angle().
+  /// Returns a copy of `this` with max_abs_steering_angle set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarParams<T> with_max_abs_steering_angle(
+      const T& max_abs_steering_angle) const {
+    SimpleCarParams<T> result(*this);
+    result.set_max_abs_steering_angle(max_abs_steering_angle);
+    return result;
   }
   /// The limit on the car's forward speed.
   /// @note @c max_velocity is expressed in units of m/s.
   /// @note @c max_velocity has a limited domain of [0.0, +Inf].
-  const T& max_velocity() const { return this->GetAtIndex(K::kMaxVelocity); }
+  const T& max_velocity() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kMaxVelocity);
+  }
+  /// Setter that matches max_velocity().
   void set_max_velocity(const T& max_velocity) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kMaxVelocity, max_velocity);
+  }
+  /// Fluent setter that matches max_velocity().
+  /// Returns a copy of `this` with max_velocity set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarParams<T> with_max_velocity(const T& max_velocity) const {
+    SimpleCarParams<T> result(*this);
+    result.set_max_velocity(max_velocity);
+    return result;
   }
   /// The limit on the car's acceleration and deceleration.
   /// @note @c max_acceleration is expressed in units of m/s^2.
   /// @note @c max_acceleration has a limited domain of [0.0, +Inf].
   const T& max_acceleration() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kMaxAcceleration);
   }
+  /// Setter that matches max_acceleration().
   void set_max_acceleration(const T& max_acceleration) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kMaxAcceleration, max_acceleration);
+  }
+  /// Fluent setter that matches max_acceleration().
+  /// Returns a copy of `this` with max_acceleration set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarParams<T> with_max_acceleration(const T& max_acceleration) const {
+    SimpleCarParams<T> result(*this);
+    result.set_max_acceleration(max_acceleration);
+    return result;
   }
   /// The smoothing constant for min/max velocity limits.
   /// @note @c velocity_limit_kp is expressed in units of Hz.
   /// @note @c velocity_limit_kp has a limited domain of [0.0, +Inf].
   const T& velocity_limit_kp() const {
+    ThrowIfEmpty();
     return this->GetAtIndex(K::kVelocityLimitKp);
   }
+  /// Setter that matches velocity_limit_kp().
   void set_velocity_limit_kp(const T& velocity_limit_kp) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kVelocityLimitKp, velocity_limit_kp);
+  }
+  /// Fluent setter that matches velocity_limit_kp().
+  /// Returns a copy of `this` with velocity_limit_kp set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  SimpleCarParams<T> with_velocity_limit_kp(const T& velocity_limit_kp) const {
+    SimpleCarParams<T> result(*this);
+    result.set_velocity_limit_kp(velocity_limit_kp);
+    return result;
   }
   //@}
 
@@ -138,9 +242,9 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(wheelbase());
     result = result && (wheelbase() >= T(0.0));
     result = result && !isnan(track());
@@ -166,6 +270,17 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
     (*value)[4] = max_acceleration() - T(0.0);
     (*value)[5] = velocity_limit_kp() - T(0.0);
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The SimpleCarParams vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

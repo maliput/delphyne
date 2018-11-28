@@ -26,7 +26,8 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
  public:
   IgnToDrake() {
     // Input port (abstract for all ignition types).
-    DeclareAbstractInputPort();
+    DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                             drake::systems::Value<IGN_TYPE>());
 
     // Output port (vector or abstract, depending on DRAKE_TYPE).
     InitOutputPort();
@@ -108,15 +109,11 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
                       "Drake message pointer must not be null");
 
     // Retrieves the ignition message from the input port.
-    const drake::systems::AbstractValue* input =
-        EvalAbstractInput(context, kPortIndex);
-    DELPHYNE_VALIDATE(input != nullptr, std::runtime_error,
-                      "Could not get abstract input from system");
-
-    const IGN_TYPE& ign_message = input->GetValue<IGN_TYPE>();
+    const IGN_TYPE* ign_message =
+        this->template EvalInputValue<IGN_TYPE>(context, kPortIndex);
 
     // And then translates to Drake.
-    DoIgnToDrakeTranslation(ign_message, drake_message);
+    DoIgnToDrakeTranslation(*ign_message, drake_message);
   }
 };
 

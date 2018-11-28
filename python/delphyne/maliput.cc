@@ -57,9 +57,6 @@ PYBIND11_MODULE(maliput, m) {
       "create_multilane_from_file", &delphyne::maliput::CreateMultilaneFromFile,
       "Load a multilane road geometry from file (yaml)", py::arg("file_path"));
 
-  m.def("create_monolane_from_file", &delphyne::maliput::CreateMonolaneFromFile,
-        "Load a monolane road geometry from file (yaml)", py::arg("file_path"));
-
   m.def("create_on_ramp", &delphyne::maliput::CreateOnRamp,
         "Create the exemplar highway on-ramp");
 

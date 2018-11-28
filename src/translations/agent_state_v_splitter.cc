@@ -18,7 +18,9 @@ template <typename T>
 AgentState_v_Splitter<T>::AgentState_v_Splitter(int num_agents) {
   DELPHYNE_VALIDATE(num_agents > 0, std::invalid_argument,
                     "There must be at least 1 agent.");
-  this->DeclareAbstractInputPort();
+  this->DeclareAbstractInputPort(
+      drake::systems::kUseDefaultName,
+      drake::systems::Value<ignition::msgs::AgentState_V>());
 
   auto do_alloc = std::bind(&AgentState_v_Splitter<T>::DoAlloc, this);
   using std::placeholders::_1;
@@ -41,14 +43,13 @@ void AgentState_v_Splitter<T>::DoSplit(
     const drake::systems::Context<T>& context,
     drake::systems::AbstractValue* output, int agent_index) const {
   // Evaluates input.
-  const ignition::msgs::AgentState_V& simple_car_state_v =
-      this->EvalAbstractInput(context, 0)
-          ->template GetValue<ignition::msgs::AgentState_V>();
+  const ignition::msgs::AgentState_V* simple_car_state_v =
+      this->template EvalInputValue<ignition::msgs::AgentState_V>(context, 0);
 
   // Assigns the state returned by the agent_index to the output.
   auto& mutable_state = output->GetMutableValue<ignition::msgs::AgentState>();
-  if (simple_car_state_v.states_size() > agent_index) {
-    mutable_state = simple_car_state_v.states(agent_index);
+  if (simple_car_state_v->states_size() > agent_index) {
+    mutable_state = simple_car_state_v->states(agent_index);
   }
 }
 

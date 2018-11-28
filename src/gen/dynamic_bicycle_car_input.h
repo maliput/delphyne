@@ -8,6 +8,7 @@
 #include <cmath>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <Eigen/Core>
@@ -17,6 +18,13 @@
 #include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+// TODO(jwnimmer-tri) Elevate this to drake/common.
+#if __has_cpp_attribute(nodiscard)
+#define DRAKE_VECTOR_GEN_NODISCARD [[nodiscard]]  // NOLINT(whitespace/braces)
+#else
+#define DRAKE_VECTOR_GEN_NODISCARD
+#endif
 
 namespace delphyne {
 
@@ -52,6 +60,26 @@ class DynamicBicycleCarInput final : public drake::systems::BasicVector<T> {
     this->set_f_Cp_x(0.0);
   }
 
+  // Note: It's safe to implement copy and move because this class is final.
+
+  /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
+  /// MoveAssignable
+  //@{
+  DynamicBicycleCarInput(const DynamicBicycleCarInput& other)
+      : drake::systems::BasicVector<T>(other.values()) {}
+  DynamicBicycleCarInput(DynamicBicycleCarInput&& other) noexcept
+      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  DynamicBicycleCarInput& operator=(const DynamicBicycleCarInput& other) {
+    this->values() = other.values();
+    return *this;
+  }
+  DynamicBicycleCarInput& operator=(DynamicBicycleCarInput&& other) noexcept {
+    this->values() = std::move(other.values());
+    other.values().resize(0);
+    return *this;
+  }
+  //@}
+
   /// Create a drake::symbolic::Variable for each element with the known
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
@@ -71,14 +99,42 @@ class DynamicBicycleCarInput final : public drake::systems::BasicVector<T> {
   //@{
   /// Steer angle from Cx to Dx with positive Cz sense.
   /// @note @c steer_CD is expressed in units of rad.
-  const T& steer_CD() const { return this->GetAtIndex(K::kSteerCd); }
+  const T& steer_CD() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kSteerCd);
+  }
+  /// Setter that matches steer_CD().
   void set_steer_CD(const T& steer_CD) {
+    ThrowIfEmpty();
     this->SetAtIndex(K::kSteerCd, steer_CD);
+  }
+  /// Fluent setter that matches steer_CD().
+  /// Returns a copy of `this` with steer_CD set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarInput<T> with_steer_CD(const T& steer_CD) const {
+    DynamicBicycleCarInput<T> result(*this);
+    result.set_steer_CD(steer_CD);
+    return result;
   }
   /// The Cx measure of the Longitudinal force on body C at Cp.
   /// @note @c f_Cp_x is expressed in units of N.
-  const T& f_Cp_x() const { return this->GetAtIndex(K::kFCpX); }
-  void set_f_Cp_x(const T& f_Cp_x) { this->SetAtIndex(K::kFCpX, f_Cp_x); }
+  const T& f_Cp_x() const {
+    ThrowIfEmpty();
+    return this->GetAtIndex(K::kFCpX);
+  }
+  /// Setter that matches f_Cp_x().
+  void set_f_Cp_x(const T& f_Cp_x) {
+    ThrowIfEmpty();
+    this->SetAtIndex(K::kFCpX, f_Cp_x);
+  }
+  /// Fluent setter that matches f_Cp_x().
+  /// Returns a copy of `this` with f_Cp_x set to a new value.
+  DRAKE_VECTOR_GEN_NODISCARD
+  DynamicBicycleCarInput<T> with_f_Cp_x(const T& f_Cp_x) const {
+    DynamicBicycleCarInput<T> result(*this);
+    result.set_f_Cp_x(f_Cp_x);
+    return result;
+  }
   //@}
 
   /// See DynamicBicycleCarInputIndices::GetCoordinateNames().
@@ -87,13 +143,24 @@ class DynamicBicycleCarInput final : public drake::systems::BasicVector<T> {
   }
 
   /// Returns whether the current values of this vector are well-formed.
-  drake::scalar_predicate_t<T> IsValid() const {
+  drake::boolean<T> IsValid() const {
     using std::isnan;
-    drake::scalar_predicate_t<T> result{true};
+    drake::boolean<T> result{true};
     result = result && !isnan(steer_CD());
     result = result && !isnan(f_Cp_x());
     return result;
   }
+
+ private:
+  void ThrowIfEmpty() const {
+    if (this->values().size() == 0) {
+      throw std::out_of_range(
+          "The DynamicBicycleCarInput vector has been moved-from; "
+          "accessor methods may no longer be used");
+    }
+  }
 };
 
 }  // namespace delphyne
+
+#undef DRAKE_VECTOR_GEN_NODISCARD

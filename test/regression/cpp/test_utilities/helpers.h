@@ -2,6 +2,7 @@
 
 #pragma once
 
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <mutex>
@@ -163,6 +164,8 @@ class IgnMonitor {
     node_.Subscribe(topic_name, &IgnMonitor::OnTopicMessage, this);
   }
 
+  ~IgnMonitor() { accepting_msgs_ = false; }
+
   // Returns the last received message.
   IGN_TYPE get_last_message() const {
     std::lock_guard<std::mutex> guard(mutex_);
@@ -214,6 +217,9 @@ class IgnMonitor {
   //
   // @param message Message received.
   void OnTopicMessage(const IGN_TYPE& message) {
+    if (!accepting_msgs_) {
+      return;
+    }
     std::lock_guard<std::mutex> guard(mutex_);
     last_message_ = message;
     message_count_++;
@@ -230,6 +236,12 @@ class IgnMonitor {
   mutable std::mutex mutex_{};
   // Condition variable for state blocking checks.
   mutable std::condition_variable cv_{};
+  // TODO(clalancette): I've seen situations where the OnTopicMessage callback
+  // can happen *after* the destructor for this class has been caleed, leading
+  // to hilarious results.  This seems like a bug in ign-transport, but until
+  // we track that down and fix it, just ignore messages that come in after the
+  // destructor is called.
+  std::atomic<bool> accepting_msgs_{true};
 };
 
 // Makes and returns a temporary directory out of a @p template_path,

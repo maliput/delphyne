@@ -248,6 +248,10 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   // precision loss. Hence, a small tolerance is allowed when comparing the
   // values from the AgentState with the expected values. Unused values are
   // expected to be zero.
+  // TODO(clalancette): During the upgrade to drake
+  // commit 26deccd2bc66cddb5ea5d9da9732b70437cb6ab6, we had to change the
+  // accuracy from 1e-15 to 0.05 to make the tests pass.  We should investigate
+  // why and see if we can make that smaller again.
   const double kAccuracy = 0.05;
 
   EXPECT_NEAR(state_message.position().x(), kX, kAccuracy);

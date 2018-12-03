@@ -12,10 +12,10 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 
+#include "gen/rail_follower_params.h"
+#include "gen/rail_follower_state.h"
 #include "gen/simple_car_state.h"
 #include "systems/lane_direction.h"
-#include "systems/rail_follower_params.h"
-#include "systems/rail_follower_state.h"
 
 namespace delphyne {
 

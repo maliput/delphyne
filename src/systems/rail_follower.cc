@@ -27,8 +27,8 @@
 #include <Eigen/Geometry>
 
 #include "systems/calc_smooth_acceleration.h"
-#include "systems/rail_follower_params.h"
-#include "systems/rail_follower_state.h"
+#include "gen/rail_follower_params.h"
+#include "gen/rail_follower_state.h"
 
 /*****************************************************************************
 ** Names

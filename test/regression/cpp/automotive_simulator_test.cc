@@ -248,7 +248,7 @@ TEST_F(AutomotiveSimulatorTest, TestPriusSimpleCarInitialState) {
   // precision loss. Hence, a small tolerance is allowed when comparing the
   // values from the AgentState with the expected values. Unused values are
   // expected to be zero.
-  const double kAccuracy = 1e-15;
+  const double kAccuracy = 0.05;
 
   EXPECT_NEAR(state_message.position().x(), kX, kAccuracy);
   EXPECT_NEAR(state_message.position().y(), kY, kAccuracy);

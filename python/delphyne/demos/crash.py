@@ -44,7 +44,7 @@ def on_agent_collision(_, agent_collisions):
     Callback on collision between agents in simulation.
 
     :param _: Current simulation runner, unused.
-    :type _: :class:`delphyne.simulation.SimulatorRunner`
+    :type _: :class:`delphyne.simulation.SimulationRunner`
     :param agents_in_collision: List of agents (e.g. cars) currently
                                 in collision.
     :type agents_in_collision: list[tuple[:class:`delphyne.agents.AgentBase`,

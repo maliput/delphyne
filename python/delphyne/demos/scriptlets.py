@@ -4,7 +4,7 @@
 #
 
 """This is a minimal example of starting an automotive simulation using a
-python binding to the C++ `SimulatorRunner` class.
+python binding to the C++ `SimulationRunner` class.
 
 Note that this is not a configurable demo, it will just create a sample
 simulation with a prius car that can be driven around and road tests
@@ -164,7 +164,7 @@ def main():
         speed=railcar_speed
     )
 
-    runner = simulation.SimulatorRunner(
+    runner = simulation.SimulationRunner(
         simulation=builder.build(),
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,

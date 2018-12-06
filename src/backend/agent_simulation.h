@@ -120,7 +120,7 @@ class AgentSimulationBase {
   /// Returns a reference to the `name`d agent.
   ///
   /// @param[in] name The name of the agent.
-  /// @throw std::runtime_error if no agent with the given `name`
+  /// @throws std::runtime_error if no agent with the given `name`
   ///                           is known by the simulator.
   const AgentBase<T>& GetAgentByName(const std::string& name) const;
 
@@ -160,7 +160,7 @@ class AgentSimulationBase {
   /// Returns a mutable reference to the `name`d agent.
   ///
   /// @param[in] name The name of the agent.
-  /// @throw std::runtime_error if no agent with the given `name`
+  /// @throws std::runtime_error if no agent with the given `name`
   ///                           is known by the simulator.
   AgentBase<T>* GetMutableAgentByName(const std::string& name);
 

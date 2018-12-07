@@ -123,7 +123,9 @@ def get_delphyne_resource(path):
 # pylint: disable=too-many-arguments
 def add_simple_car(builder, name, position_x, position_y, heading=0.0,
                    speed=0.0):
-    """Adds a simple car to the simulation."""
+    """
+    Adds a simple car to the simulation and returns its blueprint.
+    """
     return builder.add_agent(
         agents.SimpleCarBlueprint(
             name=name,
@@ -137,8 +139,11 @@ def add_simple_car(builder, name, position_x, position_y, heading=0.0,
 
 # pylint: disable=too-many-arguments
 def add_mobil_car(builder, name, scene_x, scene_y, heading, speed):
-    """Adds a lane changing (MOBIL) car to the simulation."""
-    builder.add_agent(
+    """
+    Adds a lane changing (MOBIL) car to the simulation and returns
+    its blueprint.
+    """
+    return builder.add_agent(
         agents.MobilCarBlueprint(
             name=name,                 # unique name
             direction_of_travel=True,  # with or against the lane s-direction
@@ -152,7 +157,10 @@ def add_mobil_car(builder, name, scene_x, scene_y, heading, speed):
 
 # pylint: disable=too-many-arguments
 def add_rail_car(builder, name, lane, position, offset, speed):
-    """Adds a centre-line following rail car to the simulation."""
+    """
+    Adds a centre-line following rail car to the simulation and
+    returns its blueprint.
+    """
     return builder.add_agent(
         agents.RailCarBlueprint(
             name=name,                       # unique name
@@ -170,7 +178,7 @@ def add_rail_car(builder, name, lane, position, offset, speed):
 # pylint: disable=too-many-arguments
 def add_trajectory_agent(builder, name, times, headings, waypoints):
     """
-    Adds a trajectory agent to the simulation.
+    Adds a trajectory agent to the simulation and returns its blueprint.
     The trajectory is a time parameterised curve that is constructed
     from lists of knot points defined by times, headings and translations.
     Args:
@@ -182,7 +190,7 @@ def add_trajectory_agent(builder, name, times, headings, waypoints):
     An example waypoints argument:
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    builder.add_agent(
+    return builder.add_agent(
         agents.TrajectoryAgent(
             name,
             times,       # timings (sec)

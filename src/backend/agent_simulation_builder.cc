@@ -108,6 +108,9 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
   features.max_grid_unit = 1.0;
   // Min number of vertices (in s- or r-dimension).
   features.min_grid_resolution = 5.0;
+  // Using the standard linear tolerance, which gives great results most of
+  // the time.
+  features.simplify_mesh_threshold = 0.01;
   features.draw_elevation_bounds = false;
   features.draw_stripes = true;
   features.draw_arrows = false;

@@ -174,7 +174,7 @@ def main():
     )
 
     running_simulation = runner.get_simulation()
-    rail_car = running_simulation.get_agent_by_name(rail_car_name)
+    rail_car = running_simulation.get_mutable_agent_by_name(rail_car_name)
     monitor = TimeMonitor(running_simulation, rail_car)
 
     stats = SimulationStats()

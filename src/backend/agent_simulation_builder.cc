@@ -116,6 +116,51 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
   return SetRoadGeometry(std::move(road_geometry), features);
 }
 
+// TODO(hidmic): Figure out why this is necessary, as SceneGraph ID duplication
+// ensues otherwise. There seems to be a (very) subtle issue when linking the
+// template class that keeps the atomic sequence of FrameIds.
+template <typename T>
+void
+AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
+  // Builds and validates the agent.
+  std::unique_ptr<AgentBase<T>> agent =
+      blueprint->BuildInto(road_geometry_.get(), builder_.get());
+  const int agent_id = agent_id_sequence_++;
+  const std::string& agent_name = agent->name();
+  DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
+                    "An agent named \"" + agent_name + "\" already exists.");
+
+  // Wires up the agent's ports.
+  typename AgentBase<T>::Diagram* agent_diagram =
+      blueprint->GetMutableDiagram(agent.get());
+  drake::systems::rendering::PoseVelocityInputPorts<double> ports =
+      aggregator_->AddSinglePoseAndVelocityInput(agent_name, agent_id);
+  builder_->Connect(agent_diagram->get_output_port("pose"),
+                    ports.pose_input_port);
+  builder_->Connect(agent_diagram->get_output_port("velocity"),
+                    ports.velocity_input_port);
+  builder_->Connect(aggregator_->get_output_port(0),
+                    agent_diagram->get_input_port("traffic_poses"));
+
+  // Registers and wires up a Prius geometry for both visuals and collision
+  // geometries.
+
+  // TODO(daniel.stonier) this just enforces ... 'everything is a Prius'.
+  // We'll need a means of having the agents report what visual they have and
+  // hooking that up. Also wondering why visuals are in the drake diagram?
+  car_vis_applicator_->AddCarVis(
+      std::make_unique<SimplePriusVis<T>>(agent_id, agent_name));
+
+  builder_->Connect(
+      agent_diagram->get_output_port("pose"),
+      WirePriusGeometry(
+          agent_name, blueprint->GetInitialWorldPose(),
+          builder_.get(), scene_graph_,
+          blueprint->GetMutableGeometryIDs(agent.get())));
+
+  agents_[agent_name] = std::move(agent);
+}
+
 template <typename T>
 const drake::maliput::api::RoadGeometry*
 AgentSimulationBaseBuilder<T>::SetRoadGeometry(

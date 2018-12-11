@@ -132,7 +132,7 @@ class AgentBase {
   }
 
   /// Gets the agent name.
-  const std::string& name() const { return diagram_->get_name(); }
+  const std::string& name() const { return GetDiagram().get_name(); }
 
   /// Gets a reference to the agent's geometry IDs.
   const std::set<drake::geometry::GeometryId>& GetGeometryIDs() const {

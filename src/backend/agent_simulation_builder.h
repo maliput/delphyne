@@ -130,45 +130,8 @@ class AgentSimulationBaseBuilder {
                   "Blueprint class is not an AgentBaseBlueprint subclass");
     DELPHYNE_VALIDATE(blueprint != nullptr, std::runtime_error,
                       "Invalid null blueprint was given");
-
-    // Builds and validates the agent.
-    std::unique_ptr<AgentBase<T>> agent =
-        blueprint->BuildInto(road_geometry_.get(), builder_.get());
-    const int agent_id = agent_id_sequence_++;
-    const std::string& agent_name = agent->name();
-    DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
-                      "An agent named \"" + agent_name + "\" already exists.");
-
-    // Wires up the agent's ports.
-    typename AgentBase<T>::Diagram* agent_diagram =
-        blueprint->GetMutableDiagram(agent.get());
-    drake::systems::rendering::PoseVelocityInputPorts<double> ports =
-        aggregator_->AddSinglePoseAndVelocityInput(agent_name, agent_id);
-    builder_->Connect(agent_diagram->get_output_port("pose"),
-                      ports.pose_input_port);
-    builder_->Connect(agent_diagram->get_output_port("velocity"),
-                      ports.velocity_input_port);
-    builder_->Connect(aggregator_->get_output_port(0),
-                      agent_diagram->get_input_port("traffic_poses"));
-
-    // Registers and wires up a Prius geometry for both visuals and collision
-    // geometries.
-
-    // TODO(daniel.stonier) this just enforces ... 'everything is a prius'.
-    // We'll need a means of having the agents report what visual they have and
-    // hooking that up. Also wondering why visuals are in the drake diagram?
-    car_vis_applicator_->AddCarVis(
-        std::make_unique<SimplePriusVis<T>>(agent_id, agent_name));
-
-    builder_->Connect(
-        agent_diagram->get_output_port("pose"),
-        WirePriusGeometry(
-            agent_name, blueprint->GetInitialWorldPose(),
-            builder_.get(), scene_graph_,
-            blueprint->GetMutableGeometryIDs(agent.get())));
-
-    agents_[agent_name] = std::move(agent);
     Blueprint* blueprint_ref = blueprint.get();
+    DoAddAgent(blueprint_ref);
     blueprints_.push_back(std::move(blueprint));
     return blueprint_ref;
   }
@@ -225,6 +188,9 @@ class AgentSimulationBaseBuilder {
   // The name of the ignition transport topic over which agents' states are
   // published.
   static constexpr const char* kAggregatedAgentsStateTopicName{"agents/state"};
+
+  // Adds a generic agent to the simulation. See AddAgent() overloads.
+  void DoAddAgent(AgentBaseBlueprint<T>* blueprint);
 
   // Adds scene publishing systems for the simulation to
   // be built and returns the scene publisher system.

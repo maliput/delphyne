@@ -191,7 +191,7 @@ def add_trajectory_agent(builder, name, times, headings, waypoints):
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
     return builder.add_agent(
-        agents.TrajectoryAgent(
+        agents.TrajectoryAgentBlueprint(
             name,
             times,       # timings (sec)
             headings,    # list of headings (radians)

@@ -177,7 +177,7 @@ def main():
     rail_car = running_simulation.get_agent_by_name(rail_car_name)
     monitor = TimeMonitor(running_simulation, rail_car)
 
-    stats = simulation.SimulationStats()
+    stats = SimulationStats()
     with utilities.launch_interactive_simulation(runner) as launcher:
         # Add a callback to record and print statistics
         runner.add_step_callback(stats.record_tick)

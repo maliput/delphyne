@@ -1,6 +1,6 @@
 #!/usr/bin/env groovy
 
-node('delphyne_linux_bionic_unprovisioned') {
+node('delphyne-linux-bionic-unprovisioned') {
   try {
     stage('checkout') {
       checkout scm

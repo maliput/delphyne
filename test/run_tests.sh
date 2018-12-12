@@ -15,6 +15,7 @@ then
   DELPHYNE_BUILD_DIR=$DELPHYNE_SOURCE_DIR/build/delphyne
   DELPHYNE_INSTALL_DIR=$DELPHYNE_SOURCE_DIR/install
   export DELPHYNE_RESOURCE_ROOT=$DELPHYNE_INSTALL_DIR/share/delphyne
+  export LD_LIBRARY_PATH=$DELPHYNE_INSTALL_DIR/lib
 else
   # If `-jenkins` was NOT defined, it assumes the
   # following conventions about the workspace:

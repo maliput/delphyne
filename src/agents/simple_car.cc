@@ -16,6 +16,7 @@
 #include "gen/simple_car_state.h"
 #include "gen/simple_car_state_translator.h"
 #include "translations/ign_driving_command_to_drake.h"
+#include "systems/simple_car.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -27,20 +28,19 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-SimpleCar::SimpleCar(const std::string& name, double x, double y,
-                     double heading, double speed)
-    : delphyne::Agent(name), initial_parameters_(x, y, heading, speed) {
-  // TODO(daniel.stonier) stop using this, make use of an initial value on
-  // the pose output
-  initial_world_pose_ = drake::Isometry3<double>(
-      drake::Translation3<double>(initial_parameters_.x, initial_parameters_.y,
-                                  0.0) *
-      drake::AngleAxis<double>(initial_parameters_.heading,
-                               drake::Vector3<double>::UnitZ()));
+SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x,
+                                       double y, double heading, double speed)
+    : BasicAgentBlueprint(name, drake::Isometry3<double>(
+          drake::Translation3<double>(x, y, 0.0) *
+          drake::AngleAxis<double>(heading, drake::Vector3<double>::UnitZ()))),
+      initial_parameters_(x, y, heading, speed) {
 }
 
-std::unique_ptr<Agent::Diagram> SimpleCar::BuildDiagram() const {
-  DiagramBuilder builder(this->name());
+std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
+    const drake::maliput::api::RoadGeometry* road_geometry) const {
+  drake::unused(road_geometry);
+
+  AgentBlueprint::DiagramBuilder builder(this->name());
 
   /*********************
    * Context

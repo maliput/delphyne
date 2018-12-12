@@ -8,10 +8,10 @@
 import time
 import unittest
 from delphyne.simulation import (
-    AutomotiveSimulator,
-    SimulatorRunner
+    AgentSimulationBuilder,
+    SimulationRunner
 )
-from delphyne.agents import SimpleCar
+from delphyne.agents import SimpleCarBlueprint
 
 
 class TestSimulationRunnerPy(unittest.TestCase):
@@ -25,7 +25,6 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Call parent class' init method.
         super(TestSimulationRunnerPy, self).__init__(*args, **kwargs)
         # Initialize class variables.
-        self.simulator = AutomotiveSimulator()
         self.runner = None
         self.callback_called = False
 
@@ -33,12 +32,16 @@ class TestSimulationRunnerPy(unittest.TestCase):
         """Initializes variables before running each test case."""
         # Initialize callback flag.
         self.callback_called = False
-        # Add a prius car to the simulation.
-        agent = SimpleCar("simple-car", 0.0, 0.0, 0.0, 0.0)
-        self.simulator.add_agent(agent)
-        # Creates a simulator runner.
-        self.runner = SimulatorRunner(
-            self.simulator, self.SIMULATION_STEP)
+        # Sets up a simulation.
+        builder = AgentSimulationBuilder()
+        # Adds a prius car to the simulation.
+        builder.add_agent(SimpleCarBlueprint(
+            "simple-car", 0.0, 0.0, 0.0, 0.0
+        ))
+        # Build the simulation and binds it to the
+        # simulation runner.
+        self.runner = SimulationRunner(
+            builder.build(), self.SIMULATION_STEP)
         # Register a step callback.
         self.runner.add_step_callback(self.callback_test)
 

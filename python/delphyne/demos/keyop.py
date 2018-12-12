@@ -74,7 +74,7 @@ class KeyboardHandler(object):
 
 
 def demo_callback(runner, launcher, keyboard_handler, time_step_seconds):
-    """Callback function invoqued by the SimulatorRunner
+    """Callback function invoqued by the SimulationRunner
     at every time step.
     """
     if keyboard_handler.key_hit():
@@ -90,7 +90,7 @@ def demo_callback(runner, launcher, keyboard_handler, time_step_seconds):
             runner.stop()
             print("Quitting simulation.")
             # This is needed to avoid a possible deadlock.
-            # See SimulatorRunner class description.
+            # See SimulationRunner class description.
             time.sleep(0.5)
             launcher.terminate()
         elif key == 's':
@@ -125,17 +125,17 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.AgentSimulationBuilder()
 
     utilities.add_simple_car(
-        simulator,
+        builder,
         name=str(0),
         position_x=0.0,
         position_y=0.0)
 
     simulation_time_step_secs = 0.001
-    runner = simulation.SimulatorRunner(
-        simulator,
+    runner = simulation.SimulationRunner(
+        simulation=builder.build(),
         time_step=simulation_time_step_secs
     )
 

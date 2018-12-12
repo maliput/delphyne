@@ -30,6 +30,7 @@ set_target_properties(agent_bindings PROPERTIES OUTPUT_NAME agents)
 target_link_libraries(agent_bindings
   PRIVATE
     agents
+    backend
     pybind11::module
     ${PYTHON_LIBRARIES}
 )

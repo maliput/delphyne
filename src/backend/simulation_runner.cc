@@ -65,12 +65,12 @@ void WaitForShutdown() {
   g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
-SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+SimulationRunner::SimulationRunner(
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, double realtime_rate, bool paused, bool log,
     std::string logfile_name)
     : time_step_(time_step),
-      simulator_(std::move(sim)),
+      simulation_(std::move(sim)),
       clock_(kClockTopic),
       realtime_rate_(realtime_rate),
       paused_(paused) {
@@ -78,7 +78,7 @@ SimulatorRunner::SimulatorRunner(
                     "Realtime rate must be >= 0.0");
 
   // Advertises the service for controlling the simulation.
-  node_.Advertise(kControlService, &SimulatorRunner::OnWorldControl, this);
+  node_.Advertise(kControlService, &SimulationRunner::OnWorldControl, this);
 
   // Advertise the topic for publishing notifications.
   notifications_pub_ =
@@ -90,7 +90,7 @@ SimulatorRunner::SimulatorRunner(
 
   // Advertise the service for receiving scene requests from the frontend
   if (!node_.Advertise(kSceneRequestServiceName,
-                       &SimulatorRunner::OnSceneRequest, this)) {
+                       &SimulationRunner::OnSceneRequest, this)) {
     ignerr << "Error advertising service [" << kSceneRequestServiceName << "]"
            << std::endl;
   }
@@ -99,7 +99,7 @@ SimulatorRunner::SimulatorRunner(
   // subsequent `gil_scoped_acquire` calls. If the gil_scoped_acquire is
   // attempted to be called before having initialized the internals.tstate,
   // it would end up into a segmentation fault. This initialization should
-  // only occur if the SimulatorRunner class is instantiated from within a
+  // only occur if the SimulationRunner class is instantiated from within a
   // python script, which is checked in the if statement.
   // In comment below, a similar approach to the one used here is suggested:
   // https://github.com/pybind/pybind11/issues/1360#issuecomment-385988887
@@ -107,38 +107,38 @@ SimulatorRunner::SimulatorRunner(
     pybind11::detail::get_internals();
   }
 
-  // Tell the simulator to run steps as fast as possible, as are handling the
+  // Tell the simulation to run steps as fast as possible, as are handling the
   // sleep (if required) between steps.
-  simulator_->Start(0.);
+  simulation_->SetRealTimeRate(0.);
 
   if (log) {
     StartLogging(logfile_name);
   }
 }
 
-SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+SimulationRunner::SimulationRunner(
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, bool paused, bool log)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, paused, log, "") {}
+    : SimulationRunner(std::move(sim), time_step, 1.0, paused, log, "") {}
 
-SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+SimulationRunner::SimulationRunner(
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, bool paused, bool log, std::string logfile_name)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, paused, log,
+    : SimulationRunner(std::move(sim), time_step, 1.0, paused, log,
                       logfile_name) {}
 
-SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+SimulationRunner::SimulationRunner(
+    std::unique_ptr<AgentSimulation> sim,
     double time_step, double realtime_rate)
-    : SimulatorRunner(std::move(sim), time_step, realtime_rate, false, false,
+    : SimulationRunner(std::move(sim), time_step, realtime_rate, false, false,
                       "") {}
 
-SimulatorRunner::SimulatorRunner(
-    std::unique_ptr<delphyne::AutomotiveSimulator<double>> sim,
+SimulationRunner::SimulationRunner(
+    std::unique_ptr<AgentSimulation> sim,
     double time_step)
-    : SimulatorRunner(std::move(sim), time_step, 1.0, false, false, "") {}
+    : SimulationRunner(std::move(sim), time_step, 1.0, false, false, "") {}
 
-SimulatorRunner::~SimulatorRunner() {
+SimulationRunner::~SimulationRunner() {
   // In case the simulation thread was running and the client code didn't
   // call the Stop() method.
   interactive_loop_running_ = false;
@@ -148,13 +148,13 @@ SimulatorRunner::~SimulatorRunner() {
   StopLogging();
 }
 
-void SimulatorRunner::PauseSimulation() {
+void SimulationRunner::PauseSimulation() {
   DELPHYNE_VALIDATE(!paused_, std::runtime_error,
                     "Cannot pause already paused simulation");
   paused_ = true;
 }
 
-void SimulatorRunner::UnpauseSimulation() {
+void SimulationRunner::UnpauseSimulation() {
   DELPHYNE_VALIDATE(paused_, std::runtime_error,
                     "Cannot unpause already running simulation");
 
@@ -166,21 +166,21 @@ void SimulatorRunner::UnpauseSimulation() {
   paused_ = false;
 }
 
-void SimulatorRunner::AddStepCallback(std::function<void()> callable) {
+void SimulationRunner::AddStepCallback(std::function<void()> callable) {
   std::lock_guard<std::mutex> lock(mutex_);
   step_callbacks_.push_back(callable);
 }
 
-void SimulatorRunner::AddCollisionCallback(CollisionCallback callable) {
+void SimulationRunner::AddCollisionCallback(CollisionCallback callable) {
   std::lock_guard<std::mutex> lock(mutex_);
   collision_callbacks_.push_back(callable);
 }
 
-void SimulatorRunner::Start() {
+void SimulationRunner::Start() {
   this->RunAsyncFor(std::numeric_limits<double>::infinity(), [] {});
 }
 
-void SimulatorRunner::Stop() {
+void SimulationRunner::Stop() {
   DELPHYNE_VALIDATE(interactive_loop_running_, std::runtime_error,
                     "Cannot stop a simulation that is not running");
 
@@ -192,7 +192,7 @@ void SimulatorRunner::Stop() {
   StopLogging();
 }
 
-void SimulatorRunner::RunAsyncFor(double duration,
+void SimulationRunner::RunAsyncFor(double duration,
                                   std::function<void()> callback) {
   DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error,
                     "Cannot run a simulation that is already running");
@@ -202,14 +202,14 @@ void SimulatorRunner::RunAsyncFor(double duration,
   });
 }
 
-void SimulatorRunner::RunSyncFor(double duration) {
+void SimulationRunner::RunSyncFor(double duration) {
   DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error,
                     "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
   this->RunInteractiveSimulationLoopFor(duration, [] {});
 }
 
-void SimulatorRunner::RunInteractiveSimulationLoopFor(
+void SimulationRunner::RunInteractiveSimulationLoopFor(
     double duration, std::function<void()> callback) {
   DELPHYNE_VALIDATE(duration >= 0.0, std::invalid_argument,
                     "Duration must be >= 0.0");
@@ -218,10 +218,10 @@ void SimulatorRunner::RunInteractiveSimulationLoopFor(
 
   SetupNewRunStats();
 
-  const double sim_end = simulator_->GetCurrentSimulationTime() + duration;
+  const double sim_end = simulation_->GetCurrentTime() + duration;
 
   while (interactive_loop_running_ &&
-         (simulator_->GetCurrentSimulationTime() < sim_end)) {
+         (simulation_->GetCurrentTime() < sim_end)) {
     RunInteractiveSimulationLoopStep();
   }
 
@@ -230,14 +230,14 @@ void SimulatorRunner::RunInteractiveSimulationLoopFor(
   callback();
 }
 
-void SimulatorRunner::RunInteractiveSimulationLoopStep() {
+void SimulationRunner::RunInteractiveSimulationLoopStep() {
   // 1. Processes incoming messages (requests).
   {
     std::lock_guard<std::mutex> lock(mutex_);
     ProcessIncomingMessages();
   }
 
-  // 2. Steps the simulator (if needed). Note that the simulator will sleep
+  // 2. Steps the simulation (if needed). Note that the simulation will sleep
   // here if needed to adjust to the real-time rate.
 
   // Determines whether the simulation should be running or not.
@@ -282,8 +282,8 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   // is not paused.
   if (collisions_enabled_ && running) {
     // Computes collisions between agents.
-    const std::vector<AgentBaseCollision<double>> agent_collisions =
-        simulator_->GetCollisions();
+    const std::vector<AgentCollision> agent_collisions =
+        simulation_->GetCollisions();
     if (!agent_collisions.empty()) {
       // Pauses simulation if necessary.
       if (!IsSimulationPaused()) {
@@ -302,14 +302,13 @@ void SimulatorRunner::RunInteractiveSimulationLoopStep() {
   }
 }
 
-void SimulatorRunner::StepSimulationBy(double time_step) {
-  simulator_->StepBy(time_step);
+void SimulationRunner::StepSimulationBy(double time_step) {
+  simulation_->StepBy(time_step);
 
-  const std::chrono::duration<double> sim_time(
-      simulator_->GetCurrentSimulationTime());
+  const std::chrono::duration<double> sim_time(simulation_->GetCurrentTime());
   clock_.SetTime(
       std::chrono::duration_cast<std::chrono::nanoseconds>(sim_time));
-  stats_.StepExecuted(simulator_->GetCurrentSimulationTime());
+  stats_.StepExecuted(simulation_->GetCurrentTime());
 
   // Return if running at full speed
   if (realtime_rate_ == 0) {
@@ -323,12 +322,12 @@ void SimulatorRunner::StepSimulationBy(double time_step) {
   }
 }
 
-void SimulatorRunner::SetupNewRunStats() {
-  stats_.NewRunStartingAt(simulator_->GetCurrentSimulationTime(),
+void SimulationRunner::SetupNewRunStats() {
+  stats_.NewRunStartingAt(simulation_->GetCurrentTime(),
                           realtime_rate_);
 }
 
-void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {
+void SimulationRunner::RequestSimulationStepExecution(unsigned int steps) {
   DELPHYNE_VALIDATE(steps > 0, std::invalid_argument, "Steps must be > 0");
   DELPHYNE_VALIDATE(interactive_loop_running_, std::runtime_error,
                     "Cannot step a simulation that is not yet running");
@@ -340,14 +339,14 @@ void SimulatorRunner::RequestSimulationStepExecution(unsigned int steps) {
   steps_requested_ = steps;
 }
 
-void SimulatorRunner::SetRealtimeRate(double realtime_rate) {
+void SimulationRunner::SetRealtimeRate(double realtime_rate) {
   DELPHYNE_VALIDATE(realtime_rate >= 0.0, std::invalid_argument,
                     "Realtime rate must be >= 0.0");
   realtime_rate_ = realtime_rate;
   SetupNewRunStats();
 }
 
-void SimulatorRunner::ProcessIncomingMessages() {
+void SimulationRunner::ProcessIncomingMessages() {
   while (!incoming_msgs_.empty()) {
     const ignition::msgs::SimulationInMessage next_msg = incoming_msgs_.front();
     incoming_msgs_.pop();
@@ -371,7 +370,7 @@ void SimulatorRunner::ProcessIncomingMessages() {
   }
 }
 
-void SimulatorRunner::SendOutgoingMessages() {
+void SimulationRunner::SendOutgoingMessages() {
   while (!outgoing_msgs_.empty()) {
     const ignition::msgs::WorldControl next_msg = outgoing_msgs_.front();
     outgoing_msgs_.pop();
@@ -381,7 +380,7 @@ void SimulatorRunner::SendOutgoingMessages() {
   }
 }
 
-void SimulatorRunner::SendWorldStats() {
+void SimulationRunner::SendWorldStats() {
   // Check if it's time to update the world stats.
   const auto now = std::chrono::steady_clock::now();
   const auto elapsed = now - last_world_stats_update_;
@@ -403,7 +402,7 @@ void SimulatorRunner::SendWorldStats() {
   world_stats_pub_.Publish(msg);
 }
 
-void SimulatorRunner::ProcessWorldControlMessage(
+void SimulationRunner::ProcessWorldControlMessage(
     const ignition::msgs::WorldControl& msg) {
   if (msg.has_pause()) {
     if (msg.pause()) {
@@ -420,17 +419,18 @@ void SimulatorRunner::ProcessWorldControlMessage(
   }
 }
 
-void SimulatorRunner::ProcessSceneRequest(
+void SimulationRunner::ProcessSceneRequest(
     const ignition::msgs::SceneRequest& msg) {
   // Sets the string from the scene request as
   // the topic name where the scene will be published
-  const std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
+  const std::unique_ptr<ignition::msgs::Scene> scene =
+      simulation_->GetVisualScene();
   const std::string topic_name = msg.response_topic();
 
   node_.Request(topic_name, *scene);
 }
 
-bool SimulatorRunner::OnWorldControl(
+bool SimulationRunner::OnWorldControl(
     const ignition::msgs::WorldControl& request,
     ignition::msgs::Boolean& response) {
   // Fill the new message.
@@ -446,7 +446,7 @@ bool SimulatorRunner::OnWorldControl(
   return true;
 }
 
-bool SimulatorRunner::OnSceneRequest(
+bool SimulationRunner::OnSceneRequest(
     const ignition::msgs::SceneRequest& request,
     ignition::msgs::Boolean& response) {
   // Fill the new message.
@@ -488,11 +488,11 @@ std::string GenerateDefaultLogFilename() {
 
 }  // namespace
 
-void SimulatorRunner::StartLogging() {
+void SimulationRunner::StartLogging() {
   StartLogging(GenerateDefaultLogFilename());
 }
 
-void SimulatorRunner::StartLogging(const std::string& filename) {
+void SimulationRunner::StartLogging(const std::string& filename) {
   std::string sanitized_filename = filename;
   if (!IsValidFilepath(filename)) {
     sanitized_filename = GenerateDefaultLogFilename();
@@ -500,19 +500,20 @@ void SimulatorRunner::StartLogging(const std::string& filename) {
            << "Logging to default location: " << sanitized_filename
            << std::endl;
   }
-  std::unique_ptr<ignition::msgs::Scene> scene = simulator_->GetScene();
+  std::unique_ptr<ignition::msgs::Scene> scene =
+      simulation_->GetVisualScene();
   logger_.Sync(&clock_);
   logger_.Start(sanitized_filename);
   logger_.CaptureMeshes(*scene);
 }
 
-void SimulatorRunner::StopLogging() {
+void SimulationRunner::StopLogging() {
   if (logger_.is_logging()) {
     logger_.Stop();
   }
 }
 
-std::string SimulatorRunner::GetLogFilename() const {
+std::string SimulationRunner::GetLogFilename() const {
   return logger_.logpath();
 }
 

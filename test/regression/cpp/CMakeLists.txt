@@ -35,7 +35,7 @@ target_link_libraries(test_utilities
 
 set(SOURCES
   agent_diagram_builder_test.cc
-  automotive_simulator_test.cc
+  agent_simulation_builder_test.cc
   bicycle_car_test.cc
   box_car_vis_test.cc
   calc_ongoing_road_position_test.cc

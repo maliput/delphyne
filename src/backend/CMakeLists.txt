@@ -5,7 +5,8 @@
 include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 
 add_library(backend
-  automotive_simulator.cc
+  agent_simulation.cc
+  agent_simulation_builder.cc
   frame_pose_aggregator.cc
   ign_models_assembler.cc
   data_logger.cc

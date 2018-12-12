@@ -56,7 +56,7 @@ def main():
 
     mobil_cars_num = args.num_cars
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.AgentSimulationBuilder()
 
     filename = "{0}/roads/circuit.yaml".format(
         utilities.get_delphyne_resource_root())
@@ -75,7 +75,7 @@ def main():
     features.draw_branch_points = False
 
     # The road geometry
-    road_geometry = simulator.set_road_geometry(
+    road_geometry = builder.set_road_geometry(
         maliput.create_multilane_from_file(
             file_path=filename
         ), features
@@ -87,13 +87,13 @@ def main():
     robot_id = 1
     lane_1 = road_geometry.junction(2).segment(0).lane(0)
     utilities.add_rail_car(
-        simulator,
+        builder,
         name=str(robot_id),
         lane=lane_1,
         position=railcar_s,
         offset=0.0,
-        speed=railcar_speed,
-        road_geometry=road_geometry)
+        speed=railcar_speed
+    )
 
     # Setup railcar 2
     railcar_speed = 8.0  # (m/s)
@@ -101,13 +101,13 @@ def main():
     robot_id += 1
     lane_2 = road_geometry.junction(2).segment(0).lane(1)
     utilities.add_rail_car(
-        simulator,
+        builder,
         name=str(robot_id),
         lane=lane_2,
         position=railcar_s,
         offset=0.0,
-        speed=railcar_speed,
-        road_geometry=road_geometry)
+        speed=railcar_speed
+    )
 
     # Setup railcar 3
     railcar_speed = 7.0  # (m/s)
@@ -115,13 +115,13 @@ def main():
     robot_id += 1
     lane_3 = road_geometry.junction(2).segment(0).lane(2)
     utilities.add_rail_car(
-        simulator,
+        builder,
         name=str(robot_id),
         lane=lane_3,
         position=railcar_s,
         offset=0.0,
-        speed=railcar_speed,
-        road_geometry=road_geometry)
+        speed=railcar_speed
+    )
 
     # Setup MOBIL cars.
     for i in range(mobil_cars_num):
@@ -130,16 +130,16 @@ def main():
         velocity_base = 2.0  # (m/s)
         robot_id += 1
         utilities.add_mobil_car(
-            simulator=simulator,
+            builder,
             name=str(robot_id),
             scene_x=-10.0 + x_offset * (1 + i / 3),
             scene_y=0.0 + y_offset * (i % 3),
             heading=0.0,
-            speed=velocity_base * i,
-            road_geometry=road_geometry)
+            speed=velocity_base * i
+        )
 
-    runner = simulation.SimulatorRunner(
-        simulator=simulator,
+    runner = simulation.SimulationRunner(
+        simulation=builder.build(),
         time_step=0.015,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,

@@ -14,15 +14,11 @@ from __future__ import print_function
 import math
 import numpy as np
 
-from delphyne.agents import SimpleCar
 from delphyne.simulation import (
-    AutomotiveSimulator,
-    SimulatorRunner
+    AgentSimulationBuilder,
+    SimulationRunner
 )
-from delphyne.utilities import (
-    launch_interactive_simulation
-)
-
+import delphyne.utilities as utilities
 
 from . import helpers
 
@@ -48,7 +44,7 @@ def on_agent_collision(_, agent_collisions):
     Callback on collision between agents in simulation.
 
     :param _: Current simulation runner, unused.
-    :type _: :class:`delphyne.simulation.SimulatorRunner`
+    :type _: :class:`delphyne.simulation.SimulationRunner`
     :param agents_in_collision: List of agents (e.g. cars) currently
                                 in collision.
     :type agents_in_collision: list[tuple[:class:`delphyne.agents.AgentBase`,
@@ -84,48 +80,53 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = AutomotiveSimulator()
+    builder = AgentSimulationBuilder()
 
-    agent = SimpleCar(
+    utilities.add_simple_car(
+        builder,
         name="racer0",
-        x=0.0,  # scene x-coordinate (m)
-        y=-50.0,  # scene y-coordinate (m)
+        position_x=0.0,  # scene x-coordinate (m)
+        position_y=-50.0,  # scene y-coordinate (m)
         heading=math.pi/2,    # heading (radians)
-        speed=5.0)     # speed in the direction of travel (m/s)
-    simulator.add_agent(agent)
+        speed=5.0     # speed in the direction of travel (m/s)
+    )
 
-    agent = SimpleCar(
+    utilities.add_simple_car(
+        builder,
         name="racer1",
-        x=-50.0,  # scene x-coordinate (m)
-        y=0.0,     # scene y-coordinate (m)
+        position_x=-50.0,  # scene x-coordinate (m)
+        position_y=0.0,     # scene y-coordinate (m)
         heading=0.0,    # heading (radians)
-        speed=5.1)     # speed in the direction of travel (m/s)
-    simulator.add_agent(agent)
+        speed=5.1     # speed in the direction of travel (m/s)
+    )
 
-    agent = SimpleCar(
+    utilities.add_simple_car(
+        builder,
         name="racer2",
-        x=0.0,  # scene x-coordinate (m)
-        y=50.0,  # scene y-coordinate (m)
+        position_x=0.0,  # scene x-coordinate (m)
+        position_y=50.0,  # scene y-coordinate (m)
         heading=-math.pi/2,    # heading (radians)
-        speed=5.0)     # speed in the direction of travel (m/s)
-    simulator.add_agent(agent)
+        speed=5.0     # speed in the direction of travel (m/s)
+    )
 
-    agent = SimpleCar(
+    utilities.add_simple_car(
+        builder,
         name="racer3",
-        x=50.0,  # scene x-coordinate (m)
-        y=0.0,     # scene y-coordinate (m)
+        position_x=50.0,  # scene x-coordinate (m)
+        position_y=0.0,     # scene y-coordinate (m)
         heading=math.pi,    # heading (radians)
-        speed=5.1)     # speed in the direction of travel (m/s)
-    simulator.add_agent(agent)
+        speed=5.1     # speed in the direction of travel (m/s)
+    )
 
-    runner = SimulatorRunner(simulator,
-                             time_step=0.001,  # (secs)
-                             realtime_rate=args.realtime_rate,
-                             paused=args.paused,
-                             log=args.log,
-                             logfile_name=args.logfile_name)
+    runner = SimulationRunner(
+        simulation=builder.build(),
+        time_step=0.001,  # (secs)
+        realtime_rate=args.realtime_rate,
+        paused=args.paused,
+        log=args.log,
+        logfile_name=args.logfile_name)
 
-    with launch_interactive_simulation(runner):
+    with utilities.launch_interactive_simulation(runner):
         # Adds a callback to check for agent collisions.
         runner.add_collision_callback(
             lambda agents_in_collision: on_agent_collision(

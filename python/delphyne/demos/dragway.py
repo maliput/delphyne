@@ -39,9 +39,9 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.AgentSimulationBuilder()
 
-    dragway = simulator.set_road_geometry(
+    dragway = builder.set_road_geometry(
         maliput.create_dragway(
             name="Automotive Demo Dragway",
             num_lanes=4,
@@ -57,30 +57,31 @@ def main():
     simple_car_position_y = 1.5 * 3.7
     car_id = 0
     utilities.add_simple_car(
-        simulator,
+        builder,
         name=str(car_id),
         position_x=simple_car_position_x,
-        position_y=simple_car_position_y)
+        position_y=simple_car_position_y
+    )
 
     car_id += 1
     utilities.add_mobil_car(
-        simulator,
+        builder,
         name=str(car_id),
         scene_x=0.0,
         scene_y=-0.5*3.7,
         heading=0.0,
         speed=1.0,
-        road_geometry=dragway)
+    )
 
     car_id += 1
     utilities.add_rail_car(
-        simulator,
+        builder,
         name=str(car_id),
         lane=dragway.junction(0).segment(0).lane(1),
         position=0.0,
         offset=0.0,
-        speed=3.0,
-        road_geometry=dragway)
+        speed=3.0
+    )
 
     car_id += 1
     times = [0.0, 5.0, 10.0, 15.0, 20.0]
@@ -93,14 +94,15 @@ def main():
         [100.0, -5.55, 0.0]
     ]
     utilities.add_trajectory_agent(
-        simulator,
+        builder,
         str(car_id),
         times,
         headings,
-        waypoints)
+        waypoints
+    )
 
-    runner = simulation.SimulatorRunner(
-        simulator=simulator,
+    runner = simulation.SimulationRunner(
+        simulation=builder.build(),
         time_step=0.001,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,

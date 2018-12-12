@@ -21,7 +21,9 @@ target_link_libraries(mi6
 install(
   FILES
     agent_base.h
+    agent_base_blueprint.h
     agent_diagram_builder.h
+    agent_simulation.h
     diagram_bundle.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}${PROJECT_MAJOR_VERSION}/${PROJECT_NAME}/mi6

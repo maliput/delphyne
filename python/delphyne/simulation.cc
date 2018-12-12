@@ -14,8 +14,11 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+// public headers
+#include "delphyne/mi6/agent_simulation.h"
+
 // private headers
-#include "backend/automotive_simulator.h"
+#include "backend/agent_simulation_builder.h"
 #include "backend/interactive_simulation_stats.h"
 #include "backend/simulation_run_stats.h"
 #include "backend/simulation_runner.h"
@@ -26,10 +29,12 @@
 
 namespace py = pybind11;
 
-using delphyne::AgentBaseCollision;
-using delphyne::AutomotiveSimulator;
-using delphyne::SimulatorRunner;
+using delphyne::AgentBlueprint;
+using delphyne::AgentCollision;
+using delphyne::AgentSimulation;
+using delphyne::AgentSimulationBuilder;
 using delphyne::InteractiveSimulationStats;
+using delphyne::SimulationRunner;
 
 namespace {
 
@@ -53,104 +58,122 @@ PYBIND11_MODULE(simulation, m) {
       .def("get_current_realtime_rate",
            &InteractiveSimulationStats::get_current_realtime_rate);
 
-  py::class_<SimulatorRunner>(m, "SimulatorRunner")
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double>(),
-           "Load the simulator and initialise it to run"
+  py::class_<SimulationRunner>(m, "SimulationRunner")
+      .def(py::init<std::unique_ptr<AgentSimulation>, double>(),
+           "Load the simulation and initialise it to run"
            "at the specified time step.",
-           py::arg("simulator"), py::arg("time_step"))
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, bool,
+           py::arg("simulation"), py::arg("time_step"))
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool,
                     bool>(),
-           "Load the simulator and initialise it to run"
+           "Load the simulation and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled.",
-           py::arg("simulator"), py::arg("time_step"), py::arg("paused"),
+           py::arg("simulation"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"))
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double, bool,
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool,
                     bool, std::string>(),
-           "Load the simulator and initialise it to run"
+           "Load the simulation and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled,"
            "allowing you to also set a custom logfile name.",
-           py::arg("simulator"), py::arg("time_step"), py::arg("paused"),
+           py::arg("simulation"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"), py::arg("logfile_name"))
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
+      .def(py::init<std::unique_ptr<AgentSimulation>, double,
                     double>(),
-           "Load the simulator and initialise it to run"
+           "Load the simulation and initialise it to run"
            "at the specified time step and realtime rate.",
-           py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"))
-      .def(py::init<std::unique_ptr<AutomotiveSimulator<double>>, double,
+           py::arg("simulation"), py::arg("time_step"),
+           py::arg("realtime_rate"))
+      .def(py::init<std::unique_ptr<AgentSimulation>, double,
                     double, bool, bool, std::string>(),
-           "Load the simulator and initialise time step, realtime rate"
+           "Load the simulation and initialise time step, realtime rate"
            "and whether you wish the simulation to start paused and with "
            "logging enabled.",
-           py::arg("simulator"), py::arg("time_step"), py::arg("realtime_rate"),
-           py::arg("paused"), py::arg("log"), py::arg("logfile_name"))
-      .def("set_realtime_rate", &SimulatorRunner::SetRealtimeRate)
-      .def("get_realtime_rate", &SimulatorRunner::GetRealtimeRate)
-      .def("start", &SimulatorRunner::Start)
-      .def("stop", &SimulatorRunner::Stop)
-      .def("run_async_for", &SimulatorRunner::RunAsyncFor)
-      .def("run_sync_for", &SimulatorRunner::RunSyncFor)
+           py::arg("simulation"), py::arg("time_step"),
+           py::arg("realtime_rate"), py::arg("paused"), py::arg("log"),
+           py::arg("logfile_name"))
+      .def("set_realtime_rate", &SimulationRunner::SetRealtimeRate)
+      .def("get_realtime_rate", &SimulationRunner::GetRealtimeRate)
+      .def("start", &SimulationRunner::Start)
+      .def("stop", &SimulationRunner::Stop)
+      .def("run_async_for", &SimulationRunner::RunAsyncFor)
+      .def("run_sync_for", &SimulationRunner::RunSyncFor)
       .def("is_interactive_loop_running",
-           &SimulatorRunner::IsInteractiveLoopRunning)
-      .def("add_step_callback", &SimulatorRunner::AddStepCallback)
-      .def("add_collision_callback", &SimulatorRunner::AddCollisionCallback)
-      .def("enable_collisions", &SimulatorRunner::EnableCollisions)
-      .def("disable_collisions", &SimulatorRunner::DisableCollisions)
-      .def("is_simulation_paused", &SimulatorRunner::IsSimulationPaused)
-      .def("pause_simulation", &SimulatorRunner::PauseSimulation)
-      .def("unpause_simulation", &SimulatorRunner::UnpauseSimulation)
+           &SimulationRunner::IsInteractiveLoopRunning)
+      .def("add_step_callback", &SimulationRunner::AddStepCallback)
+      .def("add_collision_callback", &SimulationRunner::AddCollisionCallback)
+      .def("enable_collisions", &SimulationRunner::EnableCollisions)
+      .def("disable_collisions", &SimulationRunner::DisableCollisions)
+      .def("is_simulation_paused", &SimulationRunner::IsSimulationPaused)
+      .def("pause_simulation", &SimulationRunner::PauseSimulation)
+      .def("unpause_simulation", &SimulationRunner::UnpauseSimulation)
       .def("request_simulation_step_execution",
-           &SimulatorRunner::RequestSimulationStepExecution)
-      .def("get_simulator", &SimulatorRunner::GetSimulator,
+           &SimulationRunner::RequestSimulationStepExecution)
+      .def("get_simulation", &SimulationRunner::GetSimulation,
            py::return_value_policy::reference_internal)
-      .def("get_mutable_simulator", &SimulatorRunner::GetMutableSimulator,
+      .def("get_mutable_simulation", &SimulationRunner::GetMutableSimulation,
            py::return_value_policy::reference_internal)
-      .def("get_stats", &SimulatorRunner::get_stats,
+      .def("get_stats", &SimulationRunner::GetStats,
            py::return_value_policy::reference)
-      .def("is_logging", &SimulatorRunner::IsLogging)
+      .def("is_logging", &SimulationRunner::IsLogging)
       .def("start_logging",
-           (void (SimulatorRunner::*)(void)) & SimulatorRunner::StartLogging)
-      .def("start_logging", (void (SimulatorRunner::*)(const std::string&)) &
-                                SimulatorRunner::StartLogging)
-      .def("stop_logging", &SimulatorRunner::StopLogging)
-      .def("get_log_filename", &SimulatorRunner::GetLogFilename);
+           (void (SimulationRunner::*)(void))
+           &SimulationRunner::StartLogging)
+      .def("start_logging",
+           (void (SimulationRunner::*)(const std::string&))
+           &SimulationRunner::StartLogging)
+      .def("stop_logging", &SimulationRunner::StopLogging)
+      .def("get_log_filename", &SimulationRunner::GetLogFilename);
 
-  py::class_<AgentBaseCollision<double>>(m, "AgentCollision")
-      .def_readonly("agents", &AgentBaseCollision<double>::agents)
-      .def_readonly("location", &AgentBaseCollision<double>::location);
+  py::class_<AgentCollision>(m, "AgentCollision")
+      .def_readonly("agents", &AgentCollision::agents)
+      .def_readonly("location", &AgentCollision::location);
 
-  py::class_<AutomotiveSimulator<double>>(m, "AutomotiveSimulator")
-      .def(py::init(
-          [](void) { return std::make_unique<AutomotiveSimulator<double>>(); }))
-      .def("add_agent", &AutomotiveSimulator<double>::AddAgent,
-           py::return_value_policy::reference_internal)
-      .def("get_collisions", &AutomotiveSimulator<double>::GetCollisions,
-           py::return_value_policy::reference_internal)
-      .def("get_agent_by_name", &AutomotiveSimulator<double>::GetAgentByName,
-           py::return_value_policy::reference_internal)
-      .def("get_mutable_agent_by_name",
-           &AutomotiveSimulator<double>::GetMutableAgentByName,
-           py::return_value_policy::reference_internal)
-      .def("start", &AutomotiveSimulator<double>::Start)
+  py::class_<AgentSimulationBuilder>(m, "AgentSimulationBuilder")
+      .def(py::init([](void) {
+            return std::make_unique<AgentSimulationBuilder>();
+          }))
+      .def("add_agent",
+           [](AgentSimulationBuilder* self,
+              std::unique_ptr<AgentBlueprint> blueprint) {
+             return self->AddAgent(std::move(blueprint));
+           }, py::return_value_policy::reference_internal)
       .def("set_road_geometry",
            py::overload_cast<
-               std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
-               &AutomotiveSimulator<double>::SetRoadGeometry),
-           "Transfer a road geometry to the control of the simulator",
+             std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
+                 &AgentSimulationBuilder::SetRoadGeometry),
+           "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"))
       .def("set_road_geometry",
            py::overload_cast<
-               std::unique_ptr<const drake::maliput::api::RoadGeometry>,
-               const drake::maliput::utility::ObjFeatures&>(
-               &AutomotiveSimulator<double>::SetRoadGeometry),
-           "Transfer a road geometry to the control of the simulator",
+             std::unique_ptr<const drake::maliput::api::RoadGeometry>,
+             const drake::maliput::utility::ObjFeatures&>(
+                 &AgentSimulationBuilder::SetRoadGeometry),
+           "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"), py::arg("features"))
-      .def("get_current_simulation_time",
-           &AutomotiveSimulator<double>::GetCurrentSimulationTime)
+      .def("build", &AgentSimulationBuilder::Build);
+
+  py::class_<AgentSimulation>(m, "AgentSimulation")
+      .def("get_collisions", &AgentSimulation::GetCollisions,
+           py::return_value_policy::reference_internal)
+      .def("get_agent_by_name",
+           [] (AgentSimulation* self, const std::string& name) {
+             return &self->GetAgentByName(name);
+           }, py::return_value_policy::reference_internal)
+      .def("get_mutable_agent_by_name",
+           [] (AgentSimulation* self, const std::string& name) {
+             return self->GetMutableAgentByName(name);
+           }, py::return_value_policy::reference_internal)
+      .def("get_diagram",
+           &AgentSimulation::GetDiagram,
+           py::return_value_policy::reference_internal)
+      .def("get_context",
+           &AgentSimulation::GetContext,
+           py::return_value_policy::reference_internal)
       .def("get_mutable_context",
-           &AutomotiveSimulator<double>::GetMutableContext,
-           py::return_value_policy::reference_internal);
+           &AgentSimulation::GetMutableContext,
+           py::return_value_policy::reference_internal)
+      .def("get_current_time", &AgentSimulation::GetCurrentTime);
 }
 
 /*****************************************************************************

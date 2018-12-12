@@ -41,10 +41,10 @@ def curved_lanes(args):
     Sets up a simulation with `args.num_cars` MOBIL cars on a few
     lanes of a curved (arc) road.
     """
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.AgentSimulationBuilder()
 
     # Loads Multilane road.
-    road = simulator.set_road_geometry(
+    road = builder.set_road_geometry(
         maliput.create_multilane_from_file(
             "{0}/roads/curved_lanes.yaml".format(
                 utilities.get_delphyne_resource_root()
@@ -59,26 +59,26 @@ def curved_lanes(args):
         # For a 6m distance between cars.
         theta = (12./R0) * (i / 3)  # rads
         utilities.add_mobil_car(
-            simulator, name="mobil" + str(i),
+            builder, name="mobil" + str(i),
             scene_x=R * math.sin(theta),  # m
             scene_y=R0 - R * math.cos(theta),  # m
             heading=theta,  # rads
             speed=1.0,  # m/s
-            road_geometry=road)
+        )
 
     # Adds the N*T rail cars to the multilane.
     road_segment = road.junction(0).segment(0)
     num_traffic = int(args.traffic_density * args.num_cars)
     for i in range(num_traffic):
         utilities.add_rail_car(
-            simulator, name="rail " + str(i),
+            builder, name="rail " + str(i),
             lane=road_segment.lane(i % 3),
             position=12. * (i / 3) + 6.,  # m
             offset=0.,  # m
-            speed=1.0,  # m/s
-            road_geometry=road)
+            speed=1.0  # m/s
+        )
 
-    return simulator
+    return builder.build()
 
 
 @benchmark
@@ -88,10 +88,10 @@ def straight_lanes(args):
     lanes of a straight road.
     """
 
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.AgentSimulationBuilder()
 
     # Loads Multilane road.
-    road = simulator.set_road_geometry(
+    road = builder.set_road_geometry(
         maliput.create_multilane_from_file(
             file_path="{0}/roads/straight_lanes.yaml".format(
                 utilities.get_delphyne_resource_root()
@@ -102,26 +102,26 @@ def straight_lanes(args):
     # Adds the N MOBIL cars to the multilane.
     for i in range(args.num_cars):
         utilities.add_mobil_car(
-            simulator, name="mobil" + str(i),
+            builder, name="mobil" + str(i),
             scene_x=12. * (i / 3),  # m
             scene_y=4. * (i % 3),  # m
             heading=0.0,  # rads
             speed=1.0,  # m/s
-            road_geometry=road)
+        )
 
     # Adds the N*T rail cars to the multilane.
     road_segment = road.junction(0).segment(0)
     num_traffic = int(args.traffic_density * args.num_cars)
     for i in range(num_traffic):
         utilities.add_rail_car(
-            simulator, name="rail " + str(i),
+            builder, name="rail " + str(i),
             lane=road_segment.lane(i % 3),
             position=12. * (i / 3) + 6.,  # m
             offset=0.,  # m
-            speed=1.0,  # m/s
-            road_geometry=road)
+            speed=1.0   # m/s
+        )
 
-    return simulator
+    return builder.build()
 
 
 @benchmark
@@ -130,9 +130,9 @@ def dragway(args):
     Sets up a simulation with `args.num_cars` MOBIL cars on a dragway
     road with four (4) lanes.
     """
-    simulator = simulation.AutomotiveSimulator()
+    builder = simulation.AgentSimulationBuilder()
 
-    road = simulator.set_road_geometry(
+    road = builder.set_road_geometry(
         maliput.create_dragway(
             name="dragway",
             num_lanes=4,
@@ -146,26 +146,26 @@ def dragway(args):
     # Adds the N MOBIL cars to the dragway.
     for i in range(args.num_cars):
         utilities.add_mobil_car(
-            simulator, name="mobil" + str(i),
+            builder, name="mobil" + str(i),
             scene_x=12.0 * (i / 4),  # m
             scene_y=-5.5 + 3.7 * (i % 4),  # m
             heading=0.0,  # rads
             speed=1.0,  # m/s
-            road_geometry=road)
+        )
 
     # Adds the N*T rail cars to the multilane.
     road_segment = road.junction(0).segment(0)
     num_traffic = int(args.traffic_density * args.num_cars)
     for i in range(num_traffic):
         utilities.add_rail_car(
-            simulator, name="rail " + str(i),
+            builder, name="rail " + str(i),
             lane=road_segment.lane(i % 4),
             position=12. * (i / 4) + 6.,  # m
             offset=0.,  # m
-            speed=1.0,  # m/s
-            road_geometry=road)
+            speed=1.0   # m/s
+        )
 
-    return simulator
+    return builder.build()
 
 
 def parse_arguments():
@@ -200,10 +200,10 @@ def main():
     """Keeping pylint entertained."""
     args = parse_arguments()
 
-    simulator = benchmark.register[args.benchmark](args)
+    benchmark_simulation = benchmark.register[args.benchmark](args)
 
-    runner = simulation.SimulatorRunner(
-        simulator=simulator,
+    runner = simulation.SimulationRunner(
+        benchmark_simulation,
         time_step=0.01,  # (secs)
         realtime_rate=args.realtime_rate,
         paused=args.paused,

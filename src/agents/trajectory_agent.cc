@@ -33,14 +33,11 @@ namespace delphyne {
  *****************************************************************************/
 
 // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
-TrajectoryAgent::TrajectoryAgent(
+TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
     const std::string& name, const std::vector<double>& times,
     const std::vector<double>& headings,
     const std::vector<std::vector<double>>& translations)
-    : delphyne::Agent(name) {
-  Eigen::Quaternion<double> zero_heading(
-      Eigen::AngleAxis<double>(0.0, Eigen::Vector3d::UnitZ()));
-
+    : BasicAgentBlueprint(name) {
   std::vector<Eigen::Quaternion<double>> eigen_orientations;
   for (const double& heading : headings) {
     Eigen::Quaternion<double> orientation(
@@ -63,13 +60,18 @@ TrajectoryAgent::TrajectoryAgent(
   // the pose output
   const PoseVelocity initial_car_pose_velocity =
       trajectory_->value(times.front());
-  initial_world_pose_ =
-      drake::Translation3<double>(initial_car_pose_velocity.translation()) *
-      initial_car_pose_velocity.rotation();
+
+  SetInitialWorldPose(
+      drake::Translation3<double>(
+          initial_car_pose_velocity.translation())
+      * initial_car_pose_velocity.rotation());
 }
 
-std::unique_ptr<Agent::Diagram> TrajectoryAgent::BuildDiagram() const {
-  DiagramBuilder builder(this->name());
+std::unique_ptr<Agent::Diagram>
+TrajectoryAgentBlueprint::DoBuildDiagram(
+    const drake::maliput::api::RoadGeometry* road_geometry) const {
+  drake::unused(road_geometry);
+  AgentBlueprint::DiagramBuilder builder(this->name());
 
   /******************************************
    * Trajectory Follower System

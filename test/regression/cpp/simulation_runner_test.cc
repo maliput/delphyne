@@ -15,9 +15,10 @@
 #include <ignition/transport.hh>
 
 #include "agents/simple_car.h"
-#include "backend/automotive_simulator.h"
+#include "backend/agent_simulation_builder.h"
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
+#include "delphyne/mi6/agent_simulation.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 #include "test_utilities/helpers.h"
 
@@ -26,9 +27,8 @@ namespace delphyne {
 class SimulationRunnerTest : public test::TestWithFiles {
  protected:
   void SetUp() override {
-    auto simulator = std::make_unique<delphyne::AutomotiveSimulator<double>>();
-    sim_runner_ =
-        std::make_unique<SimulatorRunner>(std::move(simulator), kTimeStep);
+    sim_runner_ = std::make_unique<SimulationRunner>(
+        AgentSimulationBuilder().Build(), kTimeStep);
     // Set environmental variable to define the logfile path
     setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
   }
@@ -58,7 +58,7 @@ class SimulationRunnerTest : public test::TestWithFiles {
 
   bool callback_called_{false};
 
-  std::unique_ptr<SimulatorRunner> sim_runner_;
+  std::unique_ptr<SimulationRunner> sim_runner_;
 
   ignition::transport::Node node_;
 };
@@ -95,7 +95,7 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
   std::chrono::microseconds min_simulation_time(9500);
   std::chrono::microseconds max_simulation_time(10500);
 
-  const InteractiveSimulationStats& stats = sim_runner_->get_stats();
+  const InteractiveSimulationStats& stats = sim_runner_->GetStats();
 
   EXPECT_GE(duration, min_simulation_time);
   EXPECT_LE(duration, max_simulation_time);
@@ -116,15 +116,15 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulatorRunner::kSceneRequestServiceName, scene_request_msg,
-                timeout, response, result);
+  node_.Request(SimulationRunner::kSceneRequestServiceName,
+                scene_request_msg, timeout, response, result);
 
   EXPECT_TRUE(result);
   EXPECT_FALSE(callback_called_);
 
   sim_runner_->RunSyncFor(kTimeStep);
 
-  const InteractiveSimulationStats& stats = sim_runner_->get_stats();
+  const InteractiveSimulationStats& stats = sim_runner_->GetStats();
   EXPECT_EQ(1, stats.TotalExecutedSteps());
 
   EXPECT_TRUE(callback_called_);
@@ -147,8 +147,8 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulatorRunner::kSceneRequestServiceName, scene_request_msg,
-                timeout, response, result);
+  node_.Request(SimulationRunner::kSceneRequestServiceName,
+                scene_request_msg, timeout, response, result);
   EXPECT_TRUE(result);
 
   // Wait until the currently running step of the loop finishes.

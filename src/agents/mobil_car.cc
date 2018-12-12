@@ -39,21 +39,20 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-MobilCar::MobilCar(const std::string& name, bool direction_of_travel, double x,
-                   double y, double heading, double speed,
-                   const drake::maliput::api::RoadGeometry& road_geometry)
-    : delphyne::Agent(name),
-      initial_parameters_(direction_of_travel, x, y, heading, speed),
-      road_geometry_(road_geometry) {
-  initial_world_pose_ =
-      drake::Translation3<double>(initial_parameters_.x, initial_parameters_.y,
-                                  0.) *
-      drake::AngleAxis<double>(initial_parameters_.heading,
-                               drake::Vector3<double>::UnitZ());
-}
+MobilCarBlueprint::MobilCarBlueprint(
+    const std::string& name, bool direction_of_travel,
+    double x, double y, double heading, double speed)
+    : BasicAgentBlueprint(name, drake::Isometry3<double>(
+          drake::Translation3<double>(x, y, 0.0) *
+          drake::AngleAxis<double>(heading, drake::Vector3<double>::UnitZ()))),
+      initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
-std::unique_ptr<Agent::Diagram> MobilCar::BuildDiagram() const {
-  DiagramBuilder builder(this->name());
+std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
+    const drake::maliput::api::RoadGeometry* road_geometry) const {
+  DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
+                    "MOBIL cars require a road geometry to run, make "
+                    "sure the simulation was setup with one.");
+  AgentBlueprint::DiagramBuilder builder(this->name());
 
   /******************************************
    * Initial Context Variables
@@ -72,14 +71,14 @@ std::unique_ptr<Agent::Diagram> MobilCar::BuildDiagram() const {
    *********************/
   delphyne::MobilPlanner<double>* mobil_planner =
       builder.AddSystem(std::make_unique<delphyne::MobilPlanner<double>>(
-          road_geometry_, initial_parameters_.direction_of_travel,
+          *road_geometry, initial_parameters_.direction_of_travel,
           RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
   mobil_planner->set_name(this->name() + "_mobil_planner");
 
   IDMController<double>* idm_controller =
       builder.AddSystem(std::make_unique<IDMController<double>>(
-          road_geometry_, ScanStrategy::kBranches,
+          *road_geometry, ScanStrategy::kBranches,
           RoadPositionStrategy::kExhaustiveSearch,
           0. /* time period (unused) */));
   idm_controller->set_name(this->name() + "_idm_controller");

@@ -29,7 +29,7 @@ from . import launcher
 
 
 @contextmanager
-def launch_interactive_simulation(simulator_runner,
+def launch_interactive_simulation(simulation_runner,
                                   layout="layout_with_teleop.config"):
     """Defines a context manager function used to hande the execution of an
     interactive simulation. An interactive simulation launches the delphyne
@@ -44,14 +44,14 @@ def launch_interactive_simulation(simulator_runner,
     except RuntimeError as error_msg:
         sys.stderr.write("ERROR: {}".format(error_msg))
     finally:
-        if simulator_runner.is_logging():
+        if simulation_runner.is_logging():
             print("Simulation has been logged in {}".format(
-                simulator_runner.get_log_filename()))
-            simulator_runner.stop_logging()
-        if simulator_runner.is_interactive_loop_running():
-            simulator_runner.stop()
+                simulation_runner.get_log_filename()))
+            simulation_runner.stop_logging()
+        if simulation_runner.is_interactive_loop_running():
+            simulation_runner.stop()
         print("Simulation ended. I'm happy, you should be too.")
-        print_simulation_stats(simulator_runner)
+        print_simulation_stats(simulation_runner)
         # This is needed to avoid a possible deadlock. See
         # SimulatorRunner class description.
         time.sleep(0.5)
@@ -120,56 +120,69 @@ def get_delphyne_resource(path):
 # TODO(daniel.stonier) exception handling and return handles to the agent
 
 
-def add_simple_car(simulator, name, position_x, position_y):
-    """Adds a simple car to the simulation."""
-    agent = agents.SimpleCar(
-        name=name,
-        x=position_x,  # scene x-coordinate (m)
-        y=position_y,  # scene y-coordinate (m)
-        heading=0.0,   # heading (radians)
-        speed=0.0)     # speed in the direction of travel (m/s)
-    simulator.add_agent(agent)
-
-
 # pylint: disable=too-many-arguments
-def add_mobil_car(simulator, name, scene_x, scene_y,
-                  heading, speed, road_geometry):
-    """Adds a lane changing (MOBIL) car to the simulation."""
-    agent = agents.MobilCar(
-        name=name,                 # unique name
-        direction_of_travel=True,  # with or against the lane s-direction
-        x=scene_x,                 # scene x-coordinate (m)
-        y=scene_y,                 # scene y-coordinate (m)
-        heading=heading,           # heading (radians)
-        speed=speed,               # the s-direction (m/s)
-        road_geometry=road_geometry)  # maliput road geometry
-    simulator.add_agent(agent)
-
-
-# pylint: disable=too-many-arguments
-def add_rail_car(simulator, name, lane, position, offset,
-                 speed, road_geometry):
-    """Adds a centre-line following rail car to the simulation."""
-    agent = agents.RailCar(
-        name=name,                       # unique name
-        lane=lane,                       # lane
-        direction_of_travel=True,        # direction_of_travel
-        longitudinal_position=position,  # lane s-coordinate (m)
-        lateral_offset=offset,           # lane r-coordinate (m)
-        speed=speed,                     # initial speed in s-direction (m/s)
-        nominal_speed=20.0,              # nominal_speed (m/s)
-        road_geometry=road_geometry)     # maliput road geometry
-    return simulator.add_agent(agent)
-
-
-# pylint: disable=too-many-arguments
-def add_trajectory_agent(simulator, name, times, headings, waypoints):
+def add_simple_car(builder, name, position_x, position_y, heading=0.0,
+                   speed=0.0):
     """
-    Adds a trajectory agent to the simulation.
+    Adds a simple car to the simulation and returns its blueprint.
+    """
+    return builder.add_agent(
+        agents.SimpleCarBlueprint(
+            name=name,
+            x=position_x,  # scene x-coordinate (m)
+            y=position_y,  # scene y-coordinate (m)
+            heading=heading,   # heading (radians)
+            speed=speed      # speed in the direction of travel (m/s)
+        )
+    )
+
+
+# pylint: disable=too-many-arguments
+def add_mobil_car(builder, name, scene_x, scene_y, heading, speed):
+    """
+    Adds a lane changing (MOBIL) car to the simulation and returns
+    its blueprint.
+    """
+    return builder.add_agent(
+        agents.MobilCarBlueprint(
+            name=name,                 # unique name
+            direction_of_travel=True,  # with or against the lane s-direction
+            x=scene_x,                 # scene x-coordinate (m)
+            y=scene_y,                 # scene y-coordinate (m)
+            heading=heading,           # heading (radians)
+            speed=speed                # the s-direction (m/s)
+        )
+    )
+
+
+# pylint: disable=too-many-arguments
+def add_rail_car(builder, name, lane, position, offset, speed):
+    """
+    Adds a centre-line following rail car to the simulation and
+    returns its blueprint.
+    """
+    return builder.add_agent(
+        agents.RailCarBlueprint(
+            name=name,                       # unique name
+            lane=lane,                       # lane
+            direction_of_travel=True,        # direction_of_travel
+            longitudinal_position=position,  # lane s-coordinate (m)
+            lateral_offset=offset,           # lane r-coordinate (m)
+            speed=speed,                     # initial speed in
+                                             # s-direction (m/s)
+            nominal_speed=20.0               # nominal_speed (m/s)
+        )
+    )
+
+
+# pylint: disable=too-many-arguments
+def add_trajectory_agent(builder, name, times, headings, waypoints):
+    """
+    Adds a trajectory agent to the simulation and returns its blueprint.
     The trajectory is a time parameterised curve that is constructed
     from lists of knot points defined by times, headings and translations.
     Args:
-        simulator: the automotive simulator object
+        builder: the agent simulation builder object
         name: name of the agent
         times: list of times defining the trajectory (floats)
         headings: list of yaw headings defining the trajectory (floats)
@@ -177,12 +190,14 @@ def add_trajectory_agent(simulator, name, times, headings, waypoints):
     An example waypoints argument:
         waypoints = [[0.0, 0.0, 0.0], [1.25, 0.0, 0.0]]
     """
-    agent = agents.TrajectoryAgent(
-        name,
-        times,       # timings (sec)
-        headings,    # list of headings (radians)
-        waypoints)   # list of x-y-z-tuples (m, m, m)
-    simulator.add_agent(agent)
+    return builder.add_agent(
+        agents.TrajectoryAgentBlueprint(
+            name,
+            times,       # timings (sec)
+            headings,    # list of headings (radians)
+            waypoints   # list of x-y-z-tuples (m, m, m)
+        )
+    )
 
 ##############################################################################
 # Other
@@ -205,11 +220,11 @@ def emplace(method):
     return _do_emplace
 
 
-def print_simulation_stats(simulator_runner):
+def print_simulation_stats(simulation_runner):
     """Get the interactive simulation statistics and print them on standard
     output.
     """
-    stats = simulator_runner.get_stats()
+    stats = simulation_runner.get_stats()
     print("= Simulation stats ==========================")
     print("  Simulation runs: {}".format(stats.total_runs()))
     print("  Simulation steps: {}".format(stats.total_executed_steps()))

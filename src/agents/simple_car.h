@@ -12,9 +12,8 @@
 #include <memory>
 #include <string>
 
-#include "delphyne/mi6/agent_base.h"
-#include "gen/simple_car_state.h"
-#include "systems/simple_car.h"
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include "delphyne/mi6/agent_base_blueprint.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -27,10 +26,12 @@ namespace delphyne {
 *****************************************************************************/
 
 /// @brief A very simple vehicle agent that can be teleoperated.
-class SimpleCar : public Agent {
+class SimpleCarBlueprint : public BasicAgentBlueprint {
  public:
-  SimpleCar(const std::string& name, double x, double y, double heading,
-            double speed);
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCarBlueprint)
+
+  explicit SimpleCarBlueprint(const std::string& name, double x,
+                              double y, double heading, double speed);
 
  private:
   // Container for the agent's initial configuration.
@@ -47,7 +48,8 @@ class SimpleCar : public Agent {
         : x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Diagram> BuildDiagram() const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(
+      const drake::maliput::api::RoadGeometry* road_geometry) const override;
 };
 
 /*****************************************************************************

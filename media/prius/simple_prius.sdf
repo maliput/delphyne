@@ -1,7 +1,7 @@
+<?xml version='1.0' ?>
 <!-- Note: this is a fork + simplification of
 https://github.com/RobotLocomotion/drake/blob/master/automotive/models/prius/prius.sdf
 -->
-<?xml version='1.0' ?>
 <sdf version="1.6">
   <model name="prius_1">
     <pose>0 0 0 0 0 0</pose>

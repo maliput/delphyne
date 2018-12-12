@@ -26,6 +26,7 @@
 // public headers
 #include "delphyne/mi6/agent_base.h"
 #include "delphyne/mi6/agent_base_blueprint.h"
+#include "delphyne/mi6/agent_simulation.h"
 #include "systems/curve2.h"
 #include "systems/lane_direction.h"
 #include "visualization/car_vis_applicator.h"
@@ -33,7 +34,6 @@
 #include "visualization/simple_prius_vis.h"
 
 // private headers
-#include "backend/agent_simulation.h"
 #include "backend/geometry_wiring.h"
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"

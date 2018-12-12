@@ -1,6 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "backend/agent_simulation.h"
+#include "delphyne/mi6/agent_simulation.h"
 
 #include <algorithm>
 #include <functional>
@@ -16,6 +16,8 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/framework/system_output.h>
+
+#include "backend/scene_system.h"
 
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/agent_state.pb.h"

@@ -52,7 +52,7 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
                                    double longitudinal_position,  // s
                                    double lateral_offset,         // r
                                    double speed, double nominal_speed)
-    : AgentBlueprint(name), initial_parameters_(
+    : TypedAgentBlueprint<RailCar>(name), initial_parameters_(
           lane, direction_of_travel, longitudinal_position,
           lateral_offset, speed, nominal_speed) {
   /*********************
@@ -81,7 +81,7 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       initial_car_geo_position.xyz()) * initial_car_orientation.quat());
 }
 
-std::unique_ptr<Agent> RailCarBlueprint::DoBuildInto(
+std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
     const drake::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,

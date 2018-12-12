@@ -14,8 +14,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+// public headers
+#include "delphyne/mi6/agent_simulation.h"
+
 // private headers
-#include "backend/agent_simulation.h"
 #include "backend/agent_simulation_builder.h"
 #include "backend/interactive_simulation_stats.h"
 #include "backend/simulation_run_stats.h"
@@ -156,7 +158,7 @@ PYBIND11_MODULE(simulation, m) {
            py::return_value_policy::reference_internal)
       .def("get_agent_by_name",
            [] (AgentSimulation* self, const std::string& name) {
-             return self->GetAgentByName(name);
+             return &self->GetAgentByName(name);
            }, py::return_value_policy::reference_internal)
       .def("get_mutable_agent_by_name",
            [] (AgentSimulation* self, const std::string& name) {

@@ -15,10 +15,10 @@
 #include <ignition/transport.hh>
 
 #include "agents/simple_car.h"
-#include "backend/agent_simulation.h"
 #include "backend/agent_simulation_builder.h"
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
+#include "delphyne/mi6/agent_simulation.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 #include "test_utilities/helpers.h"
 

@@ -155,7 +155,7 @@ def main():
     railcar_s = 0.0      # (m)
     rail_car_name = "rail0"
     lane_1 = road_geometry.junction(2).segment(0).lane(0)
-    utilities.add_rail_car(
+    rail_car_blueprint = utilities.add_rail_car(
         builder,
         name=rail_car_name,
         lane=lane_1,
@@ -174,7 +174,7 @@ def main():
     )
 
     running_simulation = runner.get_simulation()
-    rail_car = running_simulation.get_mutable_agent_by_name(rail_car_name)
+    rail_car = rail_car_blueprint.get_mutable_agent(running_simulation)
     monitor = TimeMonitor(running_simulation, rail_car)
 
     stats = SimulationStats()

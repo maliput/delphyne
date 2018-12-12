@@ -70,7 +70,7 @@ class RailCar : public Agent {
 /// Initial position is specified in the lane longitudinal co-ordinate (how far
 /// along the track) and the agent will follow this track exactly - the only
 /// variance it is permitted is the speed with which it follows the track.
-class RailCarBlueprint : public AgentBlueprint {
+class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarBlueprint)
 
@@ -119,7 +119,7 @@ class RailCarBlueprint : public AgentBlueprint {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent> DoBuildInto(
+  std::unique_ptr<RailCar> DoBuildAgentInto(
       const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder) const override;
 };

@@ -17,6 +17,7 @@
 #include "delphyne/macros.h"
 #include "delphyne/mi6/agent_base.h"
 #include "delphyne/mi6/agent_diagram_builder.h"
+#include "delphyne/mi6/agent_simulation.h"
 #include "delphyne/mi6/diagram_bundle.h"
 #include "delphyne/types.h"
 
@@ -34,6 +35,10 @@ namespace delphyne {
 template <typename T>
 class AgentBase;
 
+// Forward declaration
+template <typename T>
+class AgentSimulationBase;
+
 /// The abstract blueprint class for agents in Delphyne.
 ///
 /// This is the abstract class that all Delphyne agent blueprints must
@@ -41,10 +46,7 @@ class AgentBase;
 /// DoBuildInto() method, to build each agent sensor-planner-control systems
 /// into a a simulation's diagram.
 ///
-/// @tparam One of double, delphyne::AutoDiff or delphyne::Symbolic.
-///
-/// Instantiated templates for the following types are provided:
-/// - double
+/// @tparam T One of double, delphyne::AutoDiff or delphyne::Symbolic.
 template <typename T>
 class AgentBaseBlueprint {
  public:
@@ -74,6 +76,26 @@ class AgentBaseBlueprint {
   }
 
   virtual ~AgentBaseBlueprint() = default;
+
+  /// Returns a reference to the agent associated with this blueprint
+  /// inside the given @p simulation
+  ///
+  /// @param[in] simulation Simulation instance where the agent lives.
+  /// @see AgentSimulationBase<T>::GetAgentByName()
+  virtual
+  const AgentBase<T>&
+  GetAgent(const AgentSimulationBase<T>& simulation) const {
+    return simulation.GetAgentByName(this->name());
+  }
+
+  /// Returns a mutable reference to the agent associated with this blueprint
+  /// inside the given @p simulation
+  ///
+  /// @param[in] simulation Simulation instance where the agent lives.
+  /// @see AgentSimulationBase<T>::GetMutableAgentByName()
+  virtual AgentBase<T>* GetMutableAgent(AgentSimulationBase<T>* simulation) {
+    return simulation->GetMutableAgentByName(this->name());
+  }
 
   /// Builds the agen Agent's Diagram representation into the given
   /// @p builder of the containing simulation Diagram.
@@ -127,24 +149,62 @@ class AgentBaseBlueprint {
   drake::Isometry3<T> initial_world_pose_{};
 };
 
-/// A simplified abstract blueprint for agents.
+/// An abstract but typed blueprint class for agents in Delphyne.
 ///
-/// @tparam One of double, delphyne::AutoDiff or delphyne::Symbolic.
+/// Concrete implementations are required to implement the DoBuildAgentInto()
+/// method, yielding ownership of a constructed agent of type @p A.
 ///
-/// Instantiated templates for the following types are provided:
-/// - double
-template <typename T>
-class BasicAgentBaseBlueprint : public AgentBaseBlueprint<T> {
+/// @tparam T One of double, delphyne::AutoDiff or delphyne::Symbolic.
+/// @tparam A An AgentBase<T> derived class.
+template <typename T, class A>
+class TypedAgentBaseBlueprint : public AgentBaseBlueprint<T> {
  public:
-  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(BasicAgentBaseBlueprint)
+  static_assert(std::is_base_of<AgentBase<T>, A>::value,
+                "Class is not an AgentBase derived class.");
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(TypedAgentBaseBlueprint)
 
   using AgentBaseBlueprint<T>::AgentBaseBlueprint;
+
+  // Leveraging return type covariance support for references.
+  const A& GetAgent(const AgentSimulationBase<T>& simulation) const override {
+    return dynamic_cast<const A&>(AgentBaseBlueprint<T>::GetAgent(simulation));
+  }
+
+  // Leveraging return type covariance support for pointers.
+  A* GetMutableAgent(AgentSimulationBase<T>* simulation) override {
+    return dynamic_cast<A*>(AgentBaseBlueprint<T>::GetMutableAgent(simulation));
+  }
 
  private:
   std::unique_ptr<AgentBase<T>> DoBuildInto(
       const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<T>* builder) const final {
+    return DoBuildAgentInto(road_geometry, builder);
+  }
+
+  // DoBuildInto() variation to cope with the lack of support
+  // for type covariance when dealing with smart pointers.
+  virtual std::unique_ptr<A> DoBuildAgentInto(
+      const drake::maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<T>* builder) const = 0;
+};
+
+/// A simplified abstract and typed blueprint for agents.
+///
+/// @tparam T One of double, delphyne::AutoDiff or delphyne::Symbolic.
+/// @tparam A An AgentBase<T> derived class.
+template <typename T, class A>
+class BasicTypedAgentBaseBlueprint : public TypedAgentBaseBlueprint<T, A> {
+ public:
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(BasicTypedAgentBaseBlueprint)
+
+  using TypedAgentBaseBlueprint<T, A>::TypedAgentBaseBlueprint;
+
+ private:
+  std::unique_ptr<A> DoBuildAgentInto(
+      const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<T>* builder) const override {
-    return std::make_unique<AgentBase<T>>(
+    return std::make_unique<A>(
         builder->AddSystem(DoBuildDiagram(road_geometry)));
   }
 
@@ -166,8 +226,28 @@ using AgentBlueprint = AgentBaseBlueprint<double>;
 using AutoDiffAgentBlueprint = AgentBaseBlueprint<AutoDiff>;
 using SymbolicAgentBlueprint = AgentBaseBlueprint<Symbolic>;
 
-using BasicAgentBlueprint = BasicAgentBaseBlueprint<double>;
-using BasicAutoDiffAgentBlueprint = BasicAgentBaseBlueprint<AutoDiff>;
-using BasicSymbolicAgentBlueprint = BasicAgentBaseBlueprint<Symbolic>;
+template <class A>
+using TypedAgentBlueprint = TypedAgentBaseBlueprint<double, A>;
+template <class A>
+using AutoDiffTypedAgentBlueprint = TypedAgentBaseBlueprint<AutoDiff, A>;
+template <class A>
+using SymbolicTypedAgentBlueprint = TypedAgentBaseBlueprint<Symbolic, A>;
+
+template <class A>
+using BasicTypedAgentBlueprint =
+    BasicTypedAgentBaseBlueprint<double, A>;
+template <class A>
+using BasicAutoDiffTypedAgentBlueprint =
+    BasicTypedAgentBaseBlueprint<AutoDiff, A>;
+template <class A>
+using BasicSymbolicTypedAgentBlueprint =
+    BasicTypedAgentBaseBlueprint<Symbolic, A>;
+
+using BasicAgentBlueprint =
+    BasicTypedAgentBaseBlueprint<double, AgentBase<double>>;
+using BasicAutoDiffAgentBlueprint =
+    BasicTypedAgentBaseBlueprint<AutoDiff, AgentBase<AutoDiff>>;
+using BasicSymbolicAgentBlueprint =
+    BasicTypedAgentBaseBlueprint<Symbolic, AgentBase<Symbolic>>;
 
 }  // namespace delphyne

@@ -18,20 +18,18 @@
 #include <ignition/msgs.hh>
 
 // public headers
-#include "delphyne/mi6/agent_base.h"
-#include "systems/curve2.h"
-#include "systems/lane_direction.h"
-#include "visualization/car_vis_applicator.h"
-
-// private headers
-#include "backend/ign_publisher_system.h"
-#include "backend/ign_subscriber_system.h"
-#include "backend/load_robot_aggregator.h"
-#include "backend/scene_system.h"
 #include "delphyne/macros.h"
+#include "delphyne/mi6/agent_base.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
 
 namespace delphyne {
+
+// Forward declaration
+template <typename T>
+class AgentBase;
+
+// Forward declaration.
+class SceneSystem;
 
 /// A collision between any two AgentBase instances, along
 /// with the global coordinates of the point-of-collision.
@@ -101,7 +99,7 @@ class AgentSimulationBase {
     return dynamic_cast<const AgentType&>(GetAgentByName(name));
   }
 
-  /// Returns a reference to the `name`d agent of the given type.
+  /// Returns a mutable reference to the `name`d agent of the given type.
   ///
   /// @param[in] name The name of the agent.
   /// @throws std::runtime_error if no agent with the given `name`

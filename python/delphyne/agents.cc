@@ -21,6 +21,7 @@
 #include "agents/trajectory_agent.h"
 #include "delphyne/mi6/agent_base.h"
 #include "delphyne/mi6/agent_base_blueprint.h"
+#include "delphyne/mi6/agent_simulation.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -31,6 +32,8 @@ namespace py = pybind11;
 using delphyne::Agent;
 using delphyne::RailCar;
 using delphyne::AgentBlueprint;
+using delphyne::AgentSimulation;
+using delphyne::BasicAgentBlueprint;
 using delphyne::SimpleCarBlueprint;
 using delphyne::RailCarBlueprint;
 using delphyne::MobilCarBlueprint;
@@ -56,8 +59,12 @@ PYBIND11_MODULE(agents, m) {
       .def("set_speed", &RailCar::SetSpeed);
 
   py::class_<AgentBlueprint>(m, "AgentBlueprint")
-      .def("get_initial_world_pose",
-           &AgentBlueprint::GetInitialWorldPose);
+      .def("get_agent",
+           [](AgentBlueprint* self, const AgentSimulation& simulation) {
+             return &self->GetAgent(simulation);
+           })
+      .def("get_mutable_agent", &AgentBlueprint::GetMutableAgent)
+      .def("get_initial_world_pose", &AgentBlueprint::GetInitialWorldPose);
 
   py::class_<SimpleCarBlueprint, AgentBlueprint>(m, "SimpleCarBlueprint")
       .def(py::init<const std::string&, double, double, double, double>(),

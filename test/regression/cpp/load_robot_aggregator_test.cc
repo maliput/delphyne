@@ -31,7 +31,7 @@ GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
     // robot_num is replaced with a value opposite to the original one.
     link.robot_num = -link.robot_num;
   }
-  
+
   const LoadRobotAggregator aggregator({original, modified});
   std::unique_ptr<drake::systems::Context<double>> context =
       aggregator.AllocateContext();

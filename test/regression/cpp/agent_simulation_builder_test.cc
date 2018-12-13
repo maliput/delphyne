@@ -126,8 +126,8 @@ TEST_F(AgentSimulationTest, TestGetVisualScene) {
 
   AgentSimulationBuilder builder;
   builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  builder.AddAgent<SimpleCarBlueprint>(
-      "bob", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading,
+                                       kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   std::unique_ptr<ignition::msgs::Scene> scene = simulation->GetVisualScene();
@@ -157,10 +157,10 @@ TEST_F(AgentSimulationTest, BasicTest) {
   constexpr double kZeroSpeed{0.0};
 
   AgentSimulationBuilder builder;
-  builder.AddAgent<SimpleCarBlueprint>(
-      "bob", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
-  builder.AddAgent<SimpleCarBlueprint>(
-      "alice", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading,
+                                       kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("alice", kZeroX, kZeroY, kZeroHeading,
+                                       kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   // Verifies that agents are present in the simulation.
@@ -181,8 +181,8 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCar) {
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
   builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  builder.AddAgent<SimpleCarBlueprint>(
-      "bob", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading,
+                                       kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   // Simulate an external system sending a driving command to the car at
@@ -208,9 +208,7 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCar) {
   const int kStateMessagesCount{1};
   EXPECT_TRUE(ign_monitor.do_until(
       kStateMessagesCount, kTimeoutMs,
-      [this, &simulation]() {
-        simulation->StepBy(kSmallTimeStep);
-      }));
+      [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
@@ -247,9 +245,7 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCarInitialState) {
   const int kStateMessagesCount{1};
   EXPECT_TRUE(ign_monitor.do_until(
       kStateMessagesCount, kTimeoutMs,
-      [this, &simulation]() {
-        simulation->StepBy(kSmallTimeStep);
-      }));
+      [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
@@ -302,31 +298,26 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   // +---->  +s, +x  | MOBIL Car |   | Decoy 1 |
   // ---------------------------------------------------------------
 
-  builder.AddAgent<MobilCarBlueprint>(
-      "MOBIL0",
-      true,  // lane_direction,
-      2.0,   // x
-      -2.0,  // y
-      0.0,   // heading
-      10.0);  // velocity
+  builder.AddAgent<MobilCarBlueprint>("MOBIL0",
+                                      true,   // lane_direction,
+                                      2.0,    // x
+                                      -2.0,   // y
+                                      0.0,    // heading
+                                      10.0);  // velocity
 
-  builder.AddAgent<RailCarBlueprint>(
-      "decoy1",
-      first_lane,
-      true,    // lane_direction,
-      6.0,     // position (m)
-      0.0,     // offset (m)
-      0.0,     // speed (m)
-      0.0);   // nominal_speed (m/s)
+  builder.AddAgent<RailCarBlueprint>("decoy1", first_lane,
+                                     true,  // lane_direction,
+                                     6.0,   // position (m)
+                                     0.0,   // offset (m)
+                                     0.0,   // speed (m)
+                                     0.0);  // nominal_speed (m/s)
 
-  builder.AddAgent<RailCarBlueprint>(
-      "decoy2",
-      first_lane,
-      true,  // lane_direction,
-      20.0,  // position (m)
-      0.0,   // offset (m)
-      0.0,   // speed (m/s)
-      0.0);   // nominal_speed (m/s)
+  builder.AddAgent<RailCarBlueprint>("decoy2", first_lane,
+                                     true,  // lane_direction,
+                                     20.0,  // position (m)
+                                     0.0,   // offset (m)
+                                     0.0,   // speed (m/s)
+                                     0.0);  // nominal_speed (m/s)
 
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
@@ -365,8 +356,8 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
       {0.0, 0.0, 0.0},  {10.0, 0.0, 0.0},  {30.0, 0.0, 0.0},
       {60.0, 0.0, 0.0}, {100.0, 0.0, 0.0},
   };
-  builder.AddAgent<TrajectoryAgentBlueprint>(
-      "alice", times, headings, translations);
+  builder.AddAgent<TrajectoryAgentBlueprint>("alice", times, headings,
+                                             translations);
 
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
@@ -417,33 +408,31 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
   const drake::maliput::api::Lane& first_lane =
       *(road_geometry->junction(0)->segment(0)->lane(0));
 
-  EXPECT_ARGUMENT_THROW({
-      builder.AddAgent<RailCarBlueprint>(
-          "foo",
-          first_lane,
-          true,  // lane_direction,
-          0.0,   // position
-          0.5,    // offset
-          0.0,   // speed
-          0.0);   // nominal_speed
-    },
-    "Rail cars need a road geometry to drive on, make sure "
-    "the simulation is built with one.");
+  EXPECT_ARGUMENT_THROW(
+      {
+        builder.AddAgent<RailCarBlueprint>("foo", first_lane,
+                                           true,  // lane_direction,
+                                           0.0,   // position
+                                           0.5,   // offset
+                                           0.0,   // speed
+                                           0.0);  // nominal_speed
+      },
+      "Rail cars need a road geometry to drive on, make sure "
+      "the simulation is built with one.");
 
   builder.SetRoadGeometry(CreateDragway("AnotherTestDragway", 2));
 
-  EXPECT_ARGUMENT_THROW({
-      builder.AddAgent<RailCarBlueprint>(
-          "foo",
-          first_lane,
-          true,  // lane_direction,
-          0.0,   // position
-          0.5,    // offset
-          0.0,   // speed
-          0.0);   // nominal_speed
-    },
-    "The provided initial lane is not on the same road "
-    "geometry as that used by the simulation");
+  EXPECT_ARGUMENT_THROW(
+      {
+        builder.AddAgent<RailCarBlueprint>("foo", first_lane,
+                                           true,  // lane_direction,
+                                           0.0,   // position
+                                           0.5,   // offset
+                                           0.0,   // speed
+                                           0.0);  // nominal_speed
+      },
+      "The provided initial lane is not on the same road "
+      "geometry as that used by the simulation");
 }
 
 // Covers railcar behavior.
@@ -455,14 +444,12 @@ TEST_F(AgentSimulationTest, TestMaliputRailcar) {
   const drake::maliput::api::Lane& lane =
       *(road_geometry->junction(0)->segment(0)->lane(0));
   const double k_offset{0.5};
-  builder.AddAgent<RailCarBlueprint>(
-      "railcar",
-      lane,
-      true,      // lane_direction,
-      0.0,       // position
-      k_offset,  // offset
-      0.0,       // speed
-      0.0);     // nominal_speed
+  builder.AddAgent<RailCarBlueprint>("railcar", lane,
+                                     true,      // lane_direction,
+                                     0.0,       // position
+                                     k_offset,  // offset
+                                     0.0,       // speed
+                                     0.0);      // nominal_speed
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   // Setup an ignition transport topic monitor to listen to
@@ -545,42 +532,35 @@ TEST_F(AgentSimulationTest, TestDuplicateVehicleNameException) {
       builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
 
   EXPECT_NO_THROW(
-      builder.AddAgent<SimpleCarBlueprint>(
-          "Model1", 0.0, 0.0, 0.0, 0.0));
+      builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0));
   EXPECT_RUNTIME_THROW(
-      builder.AddAgent<SimpleCarBlueprint>(
-          "Model1", 0.0, 0.0, 0.0, 0.0),
+      builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0),
       "An agent named \"Model1\" already exists.");
 
   const drake::maliput::api::Lane& lane =
       *(road_geometry->junction(0)->segment(0)->lane(0));
 
-  EXPECT_NO_THROW(
-      builder.AddAgent<RailCarBlueprint>(
-          "FOO", lane,
-          true,  // lane_direction,
-          0.0,   // position
-          0.0,   // offset
-          0.0,   // speed
-          5.0));  // nominal_speed
+  EXPECT_NO_THROW(builder.AddAgent<RailCarBlueprint>("FOO", lane,
+                                                     true,   // lane_direction,
+                                                     0.0,    // position
+                                                     0.0,    // offset
+                                                     0.0,    // speed
+                                                     5.0));  // nominal_speed
 
-  EXPECT_NO_THROW(
-      builder.AddAgent<RailCarBlueprint>(
-          "alice", lane,
-          true,   // lane_direction,
-          0.0,    // position
-          0.0,    // offset
-          0.0,    // speed
-          5.0));  // nominal_speed
+  EXPECT_NO_THROW(builder.AddAgent<RailCarBlueprint>("alice", lane,
+                                                     true,   // lane_direction,
+                                                     0.0,    // position
+                                                     0.0,    // offset
+                                                     0.0,    // speed
+                                                     5.0));  // nominal_speed
 
   EXPECT_RUNTIME_THROW(
-      builder.AddAgent<RailCarBlueprint>(
-          "alice", lane,
-          true,   // lane_direction,
-          0.0,    // position
-          0.0,    // offset
-          0.0,    // speed
-          5.0),  // nominal_speed
+      builder.AddAgent<RailCarBlueprint>("alice", lane,
+                                         true,  // lane_direction,
+                                         0.0,   // position
+                                         0.0,   // offset
+                                         0.0,   // speed
+                                         5.0),  // nominal_speed
       "An agent named \"alice\" already exists.");
 }
 
@@ -603,21 +583,19 @@ TEST_F(AgentSimulationTest, TestRailcarVelocityOutput) {
 
   const double kR{0.5};
 
-  builder.AddAgent<RailCarBlueprint>(
-      "alice", lane,
-      true,   // lane_direction,
-      5.0,    // position
-      kR,     // offset
-      1.0,    // speed
-      5.0);  // nominal_speed
+  builder.AddAgent<RailCarBlueprint>("alice", lane,
+                                     true,  // lane_direction,
+                                     5.0,   // position
+                                     kR,    // offset
+                                     1.0,   // speed
+                                     5.0);  // nominal_speed
 
-  builder.AddAgent<RailCarBlueprint>(
-      "bob", lane,
-      true,   // lane_direction,
-      0.0,    // position
-      kR,     // offset
-      0.0,    // speed
-      0.0);  // nominal_speed
+  builder.AddAgent<RailCarBlueprint>("bob", lane,
+                                     true,  // lane_direction,
+                                     0.0,   // position
+                                     kR,    // offset
+                                     0.0,   // speed
+                                     0.0);  // nominal_speed
 
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
@@ -648,10 +626,8 @@ TEST_F(AgentSimulationTest, TestRailcarVelocityOutput) {
 TEST_F(AgentSimulationTest, TestBuild) {
   AgentSimulationBuilder builder;
   builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  builder.AddAgent<SimpleCarBlueprint>(
-      "Model1", 0.0, 0.0, 0.0, 0.0);
-  builder.AddAgent<SimpleCarBlueprint>(
-      "Model2", 0.0, 0.0, 0.0, 0.0);
+  builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0);
+  builder.AddAgent<SimpleCarBlueprint>("Model2", 0.0, 0.0, 0.0, 0.0);
   EXPECT_NO_THROW(builder.Build());
 }
 
@@ -706,9 +682,9 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
       kCarDistance, kZeroROffset, kZeroHOffset};
   const drake::maliput::api::GeoPosition agent_bob_geo_position =
       first_lane->ToGeoPosition(agent_bob_lane_position);
-  builder.AddAgent<SimpleCarBlueprint>(
-      "bob", agent_bob_geo_position.x(), agent_bob_geo_position.y(),
-      kHeadingEast, kCruiseSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", agent_bob_geo_position.x(),
+                                       agent_bob_geo_position.y(), kHeadingEast,
+                                       kCruiseSpeed);
 
   // Configures agent `Alice`.
   const drake::maliput::api::LanePosition agent_alice_lane_position{
@@ -716,9 +692,9 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
   const drake::maliput::api::GeoPosition agent_alice_geo_position =
       second_lane->ToGeoPosition(agent_alice_lane_position);
 
-  builder.AddAgent<SimpleCarBlueprint>(
-      "alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
-      kHeadingWest, kCruiseSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("alice", agent_alice_geo_position.x(),
+                                       agent_alice_geo_position.y(),
+                                       kHeadingWest, kCruiseSpeed);
 
   // Configures agent `Smith`.
   const drake::maliput::api::LanePosition agent_smith_lane_position{

@@ -53,8 +53,7 @@ class AgentBase {
   /// @param diagram A reference to the Diagram representation
   ///                for the agent, owned by the simulation.
   /// @throws std::runtime_error if @p diagram is nullptr.
-  explicit AgentBase(Diagram* diagram)
-      : diagram_(diagram), context_(nullptr) {
+  explicit AgentBase(Diagram* diagram) : diagram_(diagram), context_(nullptr) {
     DELPHYNE_VALIDATE(diagram != nullptr, std::runtime_error,
                       "Invalid null diagram representation given");
   }
@@ -88,7 +87,7 @@ class AgentBase {
   /// Gets the agent pose in the simulation.
   /// @throws std::runtime_error if this agent lacks Context.
   drake::Isometry3<T> GetPose() const {
-    constexpr const char * const kPosePortName = "pose";
+    constexpr const char* const kPosePortName = "pose";
     const drake::systems::OutputPort<T>& pose_output_port =
         GetDiagram().get_output_port(kPosePortName);
     std::unique_ptr<drake::systems::AbstractValue> port_value =
@@ -111,7 +110,7 @@ class AgentBase {
   /// Gets the agent twist in the simulation.
   /// @throws std::runtime_error if this agent lacks Context.
   drake::TwistVector<T> GetVelocity() const {
-    constexpr const char * const kVelocityPortName = "velocity";
+    constexpr const char* const kVelocityPortName = "velocity";
     const drake::systems::OutputPort<T>& vel_output_port =
         GetDiagram().get_output_port(kVelocityPortName);
     std::unique_ptr<drake::systems::AbstractValue> port_value =

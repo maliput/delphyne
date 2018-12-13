@@ -63,8 +63,7 @@ class AgentBaseBlueprint {
   /// @param initial_world_pose The initial pose of the agent.
   explicit AgentBaseBlueprint(const std::string& name,
                               const drake::Isometry3<T>& initial_world_pose)
-      : name_(name), initial_world_pose_(initial_world_pose) {
-  }
+      : name_(name), initial_world_pose_(initial_world_pose) {}
 
   /// Constructs a blueprint for an agent with the given name and
   /// located at the origin.
@@ -72,8 +71,7 @@ class AgentBaseBlueprint {
   /// @param name The name for the agent, must be unique in any
   ///             given simulation.
   explicit AgentBaseBlueprint(const std::string& name)
-      : AgentBaseBlueprint(name, drake::Isometry3<T>::Identity()) {
-  }
+      : AgentBaseBlueprint(name, drake::Isometry3<T>::Identity()) {}
 
   virtual ~AgentBaseBlueprint() = default;
 
@@ -82,9 +80,8 @@ class AgentBaseBlueprint {
   ///
   /// @param[in] simulation Simulation instance where the agent lives.
   /// @see AgentSimulationBase<T>::GetAgentByName()
-  virtual
-  const AgentBase<T>&
-  GetAgent(const AgentSimulationBase<T>& simulation) const {
+  virtual const AgentBase<T>& GetAgent(
+      const AgentSimulationBase<T>& simulation) const {
     return simulation.GetAgentByName(this->name());
   }
 
@@ -119,14 +116,13 @@ class AgentBaseBlueprint {
   }
 
   // Gets a mutable reference to the @p agent Diagram representation.
-  typename AgentBase<T>::Diagram*
-  GetMutableDiagram(AgentBase<T>* agent) const {
+  typename AgentBase<T>::Diagram* GetMutableDiagram(AgentBase<T>* agent) const {
     return agent->diagram_;
   }
 
   // Gets a mutable reference to the @p agent geometry IDs.
-  std::set<drake::geometry::GeometryId>*
-  GetMutableGeometryIDs(AgentBase<T>* agent) const {
+  std::set<drake::geometry::GeometryId>* GetMutableGeometryIDs(
+      AgentBase<T>* agent) const {
     return &agent->geometry_ids_;
   }
 
@@ -217,7 +213,6 @@ class BasicTypedAgentBaseBlueprint : public TypedAgentBaseBlueprint<T, A> {
       const drake::maliput::api::RoadGeometry* road_geometry) const = 0;
 };
 
-
 /*****************************************************************************
 ** Typedefs
 *****************************************************************************/
@@ -234,8 +229,7 @@ template <class A>
 using SymbolicTypedAgentBlueprint = TypedAgentBaseBlueprint<Symbolic, A>;
 
 template <class A>
-using BasicTypedAgentBlueprint =
-    BasicTypedAgentBaseBlueprint<double, A>;
+using BasicTypedAgentBlueprint = BasicTypedAgentBaseBlueprint<double, A>;
 template <class A>
 using BasicAutoDiffTypedAgentBlueprint =
     BasicTypedAgentBaseBlueprint<AutoDiff, A>;

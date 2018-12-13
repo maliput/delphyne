@@ -116,8 +116,8 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulationRunner::kSceneRequestServiceName,
-                scene_request_msg, timeout, response, result);
+  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg,
+                timeout, response, result);
 
   EXPECT_TRUE(result);
   EXPECT_FALSE(callback_called_);
@@ -147,8 +147,8 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulationRunner::kSceneRequestServiceName,
-                scene_request_msg, timeout, response, result);
+  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg,
+                timeout, response, result);
   EXPECT_TRUE(result);
 
   // Wait until the currently running step of the loop finishes.

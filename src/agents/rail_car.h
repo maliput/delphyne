@@ -47,8 +47,7 @@ class RailCar : public Agent {
   /// @param diagram The Diagram representation of the rail car agent.
   /// @param speed_setter The speed setting system associated to the
   ///                     rail car agent.
-  explicit RailCar(Agent::Diagram* diagram,
-                   VectorSource<double>* speed_setter);
+  explicit RailCar(Agent::Diagram* diagram, VectorSource<double>* speed_setter);
 
   /// Sets the speed of this agent.
   ///
@@ -60,7 +59,6 @@ class RailCar : public Agent {
   // A source to set car speed, in meters per second.
   VectorSource<double>* speed_setter_;
 };
-
 
 /// @brief An agent that follows roads as if they were railroad tracks.
 ///
@@ -106,8 +104,7 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
     double offset{0.0};              // lateral position in lane (m)
     double speed{0.0};          // speed in direction of the lane s-axis (m/s)
     double nominal_speed{0.0};  // nominal cruising speed (m/s)
-    Parameters(const drake::maliput::api::Lane& lane,
-               bool direction_of_travel,
+    Parameters(const drake::maliput::api::Lane& lane, bool direction_of_travel,
                double position,  // s
                double offset,    // r
                double speed, double nominal_speed)
@@ -123,7 +120,6 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
       const drake::maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder) const override;
 };
-
 
 /*****************************************************************************
 ** Trailers

@@ -39,24 +39,20 @@ using drake::systems::RungeKutta2Integrator;
 using drake::systems::SystemOutput;
 
 template <typename T>
-constexpr double
-AgentSimulationBaseBuilder<T>::kSceneTreePublishRateHz;
+constexpr double AgentSimulationBaseBuilder<T>::kSceneTreePublishRateHz;
+
+template <typename T>
+constexpr const char* AgentSimulationBaseBuilder<T>::kSceneTreeTopicName;
+
+template <typename T>
+constexpr double AgentSimulationBaseBuilder<T>::kSceneUpdatesPublishRateHz;
+
+template <typename T>
+constexpr const char* AgentSimulationBaseBuilder<T>::kSceneUpdatesTopicName;
 
 template <typename T>
 constexpr const char*
-AgentSimulationBaseBuilder<T>::kSceneTreeTopicName;
-
-template <typename T>
-constexpr double
-AgentSimulationBaseBuilder<T>::kSceneUpdatesPublishRateHz;
-
-template <typename T>
-constexpr const char*
-AgentSimulationBaseBuilder<T>::kSceneUpdatesTopicName;
-
-template <typename T>
-constexpr const char*
-AgentSimulationBaseBuilder<T>::kAggregatedAgentsStateTopicName;
+    AgentSimulationBaseBuilder<T>::kAggregatedAgentsStateTopicName;
 
 template <typename T>
 AgentSimulationBaseBuilder<T>::AgentSimulationBaseBuilder() {
@@ -83,8 +79,9 @@ void AgentSimulationBaseBuilder<T>::Reset() {
   agent_id_sequence_ = 0;
 
   // Adds pose aggregator system for agents' poses.
-  aggregator_ = builder_->template AddSystem<
-    drake::systems::rendering::PoseAggregator<T>>();
+  aggregator_ =
+      builder_
+          ->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();
   aggregator_->set_name("pose_aggregator");
   builder_->ExportOutput(aggregator_->get_output_port(0));
 
@@ -123,8 +120,8 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
 // ensues otherwise. There seems to be a (very) subtle issue when linking the
 // template class that keeps the atomic sequence of FrameIds.
 template <typename T>
-void
-AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
+void AgentSimulationBaseBuilder<T>::DoAddAgent(
+    AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
   std::unique_ptr<AgentBase<T>> agent =
       blueprint->BuildInto(road_geometry_.get(), builder_.get());
@@ -156,10 +153,9 @@ AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
 
   builder_->Connect(
       agent_diagram->get_output_port("pose"),
-      WirePriusGeometry(
-          agent_name, blueprint->GetInitialWorldPose(),
-          builder_.get(), scene_graph_,
-          blueprint->GetMutableGeometryIDs(agent.get())));
+      WirePriusGeometry(agent_name, blueprint->GetInitialWorldPose(),
+                        builder_.get(), scene_graph_,
+                        blueprint->GetMutableGeometryIDs(agent.get())));
 
   agents_[agent_name] = std::move(agent);
 }
@@ -173,8 +169,8 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
   std::string filename = road_geometry->id().string();
   std::transform(filename.begin(), filename.end(), filename.begin(),
                  [](char ch) { return ch == ' ' ? '_' : ch; });
-  drake::maliput::utility::GenerateUrdfFile(
-      road_geometry.get(), "/tmp", filename, features);
+  drake::maliput::utility::GenerateUrdfFile(road_geometry.get(), "/tmp",
+                                            filename, features);
   const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
   drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
       urdf_filepath, drake::multibody::joints::kFixed, tree.get());
@@ -189,7 +185,7 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // and creates an lcmt_viewer_draw message containing the latest poses of
   // the visual elements.
   auto bundle_to_draw = builder_->template AddSystem<
-    drake::systems::rendering::PoseBundleToDrawMessage>();
+      drake::systems::rendering::PoseBundleToDrawMessage>();
   bundle_to_draw->set_name("bundle_to_draw");
 
   // The bundle of poses are translated into an LCM viewer draw message.
@@ -203,9 +199,9 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   builder_->Connect(*bundle_to_draw, *viewer_draw_translator);
 
   // The translated Model_V message is then published.
-  auto model_v_publisher = builder_->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::Model_V>
-    >(kSceneUpdatesTopicName, kSceneUpdatesPublishRateHz);
+  auto model_v_publisher =
+      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
+          kSceneUpdatesTopicName, kSceneUpdatesPublishRateHz);
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
@@ -216,7 +212,7 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // The geometry description is retrieved from multiple sources as LCM viewer
   // load robot messages, so those need to be aggregated.
   std::vector<drake::lcmt_viewer_load_robot> messages{
-    car_vis_applicator_->get_load_robot_message()};
+      car_vis_applicator_->get_load_robot_message()};
   if (world_tree_ != nullptr) {
     messages.push_back(
         drake::multibody::CreateLoadRobotMessage<T>(*world_tree_));
@@ -255,9 +251,9 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // The scene is then published over a scene topic to update the scene tree
   // widget of the visualizer. Because this information is not needed at the
   // same frequency the simulation runs at, the publishing frequency is reduced.
-  auto scene_publisher = builder_->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::Scene>
-    >(kSceneTreeTopicName, kSceneTreePublishRateHz);
+  auto scene_publisher =
+      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+          kSceneTreeTopicName, kSceneTreePublishRateHz);
   builder_->Connect(*scene_system, *scene_publisher);
 
   return scene_system;
@@ -271,8 +267,8 @@ void AgentSimulationBaseBuilder<T>::AddAgentStatePublishers() {
 
   // Adds an AgentState vector publisher system.
   auto aggregated_agents_state_publisher = builder_->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::AgentState_V>
-    >(kAggregatedAgentsStateTopicName);
+      IgnPublisherSystem<ignition::msgs::AgentState_V>>(
+      kAggregatedAgentsStateTopicName);
 
   // Wires above's systems together and with the PoseAggregator.
   builder_->Connect(aggregator_->get_output_port(0),
@@ -295,8 +291,8 @@ void AgentSimulationBaseBuilder<T>::AddAgentStatePublishers() {
       // Adds an AgentState vector publisher system for each agent
       // and wires it with the splitter.
       auto agent_state_publisher = builder_->template AddSystem<
-          IgnPublisherSystem<ignition::msgs::AgentState>
-        >("agent/" + std::to_string(i) + "/state");
+          IgnPublisherSystem<ignition::msgs::AgentState>>(
+          "agent/" + std::to_string(i) + "/state");
 
       builder_->Connect(agents_state_splitter->get_output_port(i),
                         agent_state_publisher->get_input_port(0));
@@ -330,8 +326,7 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   for (auto& name_and_agent : agents_) {
     AgentBase<T>* agent = name_and_agent.second.get();
     drake::systems::Context<T>& agent_context =
-        diagram->GetMutableSubsystemContext(
-            agent->GetDiagram(), &context);
+        diagram->GetMutableSubsystemContext(agent->GetDiagram(), &context);
     agent->SetContext(&agent_context);
   }
 
@@ -340,9 +335,8 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
 
   // Yields simulation instance.
   return std::make_unique<AgentSimulationBase<T>>(
-      std::move(simulator), std::move(diagram),
-      std::move(agents_), std::move(road_geometry_),
-      scene_graph_, scene_system);
+      std::move(simulator), std::move(diagram), std::move(agents_),
+      std::move(road_geometry_), scene_graph_, scene_system);
 }
 
 template class AgentSimulationBaseBuilder<double>;

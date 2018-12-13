@@ -62,13 +62,11 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
       trajectory_->value(times.front());
 
   SetInitialWorldPose(
-      drake::Translation3<double>(
-          initial_car_pose_velocity.translation())
-      * initial_car_pose_velocity.rotation());
+      drake::Translation3<double>(initial_car_pose_velocity.translation()) *
+      initial_car_pose_velocity.rotation());
 }
 
-std::unique_ptr<Agent::Diagram>
-TrajectoryAgentBlueprint::DoBuildDiagram(
+std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(
     const drake::maliput::api::RoadGeometry* road_geometry) const {
   drake::unused(road_geometry);
   AgentBlueprint::DiagramBuilder builder(this->name());

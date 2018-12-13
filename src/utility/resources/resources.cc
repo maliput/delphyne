@@ -46,8 +46,8 @@ std::vector<ignition::common::URI> GenericResource::GetDependencies() const {
   for (std::string line; std::getline(fs, line);) {
     std::smatch match{};
     if (std::regex_search(line, match, dependency_pattern_)) {
-      dependencies.push_back(ignition::common::URI(
-          scheme + "://" + dirpath + match.str()));
+      dependencies.push_back(
+          ignition::common::URI(scheme + "://" + dirpath + match.str()));
     }
   }
   return dependencies;

@@ -52,9 +52,9 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
                                    double longitudinal_position,  // s
                                    double lateral_offset,         // r
                                    double speed, double nominal_speed)
-    : TypedAgentBlueprint<RailCar>(name), initial_parameters_(
-          lane, direction_of_travel, longitudinal_position,
-          lateral_offset, speed, nominal_speed) {
+    : TypedAgentBlueprint<RailCar>(name),
+      initial_parameters_(lane, direction_of_travel, longitudinal_position,
+                          lateral_offset, speed, nominal_speed) {
   /*********************
    * Checks
    *********************/
@@ -77,8 +77,9 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       lane.ToGeoPosition(initial_car_lane_position);
   drake::maliput::api::Rotation initial_car_orientation =
       lane.GetOrientation(initial_car_lane_position);
-  SetInitialWorldPose(drake::Translation3<double>(
-      initial_car_geo_position.xyz()) * initial_car_orientation.quat());
+  SetInitialWorldPose(
+      drake::Translation3<double>(initial_car_geo_position.xyz()) *
+      initial_car_orientation.quat());
 }
 
 std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
@@ -90,8 +91,7 @@ std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
   const drake::maliput::api::RoadGeometry* lane_road_geometry =
       initial_parameters_.lane.segment()->junction()->road_geometry();
   DELPHYNE_VALIDATE(
-      lane_road_geometry->id() == road_geometry->id(),
-      std::invalid_argument,
+      lane_road_geometry->id() == road_geometry->id(), std::invalid_argument,
       "The provided initial lane is not on the same road geometry "
       "as that used by the simulation");
   DELPHYNE_VALIDATE(
@@ -163,8 +163,7 @@ std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
 }
 
 RailCar::RailCar(Agent::Diagram* diagram, VectorSource<double>* speed_setter)
-    : Agent(diagram), speed_setter_(speed_setter) {
-}
+    : Agent(diagram), speed_setter_(speed_setter) {}
 
 void RailCar::SetSpeed(double new_speed_mps) {
   speed_setter_->Set(new_speed_mps);

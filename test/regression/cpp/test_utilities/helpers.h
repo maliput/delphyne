@@ -164,7 +164,7 @@ class IgnMonitor {
     node_.Subscribe(topic_name, &IgnMonitor::OnTopicMessage, this);
   }
 
-  ~IgnMonitor() { accepting_msgs_ = false; }
+  ~IgnMonitor() {}
 
   // Returns the last received message.
   IGN_TYPE get_last_message() const {
@@ -217,17 +217,12 @@ class IgnMonitor {
   //
   // @param message Message received.
   void OnTopicMessage(const IGN_TYPE& message) {
-    if (!accepting_msgs_) {
-      return;
-    }
     std::lock_guard<std::mutex> guard(mutex_);
     last_message_ = message;
     message_count_++;
     cv_.notify_all();
   }
 
-  // Ignition transport node for subscription.
-  ignition::transport::Node node_{};
   // Received message count.
   int message_count_{0};
   // Last ignition message received.
@@ -236,12 +231,13 @@ class IgnMonitor {
   mutable std::mutex mutex_{};
   // Condition variable for state blocking checks.
   mutable std::condition_variable cv_{};
-  // TODO(clalancette): I've seen situations where the OnTopicMessage callback
-  // can happen *after* the destructor for this class has been caleed, leading
-  // to hilarious results.  This seems like a bug in ign-transport, but until
-  // we track that down and fix it, just ignore messages that come in after the
-  // destructor is called.
-  std::atomic<bool> accepting_msgs_{true};
+  // Ignition transport node for subscription.
+  // The ignition transport node must be declared after everything its callbacks
+  // use.  This ensures that it is constructed after everything it needs is
+  // properly setup, and destroyed before everything it needs is destroyed,
+  // avoiding a race where the callback for a subscribed topic can be called
+  // after the member variables it needs have already been destroyed.
+  ignition::transport::Node node_{};
 };
 
 // Makes and returns a temporary directory out of a @p template_path,

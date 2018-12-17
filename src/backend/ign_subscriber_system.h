@@ -173,9 +173,6 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   // The topic on which to publish ign-transport messages.
   const std::string topic_name_;
 
-  // Ignition transport node.
-  ignition::transport::Node node_;
-
   // The mutex that guards last_received_message_ and received_message_count_.
   mutable std::mutex received_message_mutex_;
 
@@ -184,6 +181,14 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
 
   // A message counter that's incremented every time the handler is called.
   int received_message_count_{0};
+
+  // Ignition transport node.
+  // The ignition transport node must be declared after everything its callbacks
+  // use.  This ensures that it is constructed after everything it needs is
+  // properly setup, and destroyed before everything it needs is destroyed,
+  // avoiding a race where the callback for a subscribed topic can be called
+  // after the member variables it needs have already been destroyed.
+  ignition::transport::Node node_;
 
   // The index of the state used to access the the message.
   static constexpr int kStateIndexMessage = 0;

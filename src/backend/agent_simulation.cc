@@ -32,9 +32,12 @@ AgentSimulationBase<T>::AgentSimulationBase(
     std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
     std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
     drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system)
-    : simulator_(std::move(simulator)), diagram_(std::move(diagram)),
-      agents_(std::move(agents)), road_geometry_(std::move(road_geometry)),
-      scene_graph_(scene_graph), scene_system_(scene_system) {
+    : simulator_(std::move(simulator)),
+      diagram_(std::move(diagram)),
+      agents_(std::move(agents)),
+      road_geometry_(std::move(road_geometry)),
+      scene_graph_(scene_graph),
+      scene_system_(scene_system) {
   DELPHYNE_VALIDATE(simulator_ != nullptr, std::runtime_error,
                     "Invalid null simulator given");
   DELPHYNE_VALIDATE(diagram_ != nullptr, std::runtime_error,
@@ -78,16 +81,16 @@ AgentSimulationBase<T>::GetVisualScene() {
 }
 
 template <typename T>
-const delphyne::AgentBase<T>&
-AgentSimulationBase<T>::GetAgentByName(const std::string& name) const {
+const delphyne::AgentBase<T>& AgentSimulationBase<T>::GetAgentByName(
+    const std::string& name) const {
   DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
                     "No agent found with the given name.");
   return *agents_.at(name);
 }
 
 template <typename T>
-delphyne::AgentBase<T>*
-AgentSimulationBase<T>::GetMutableAgentByName(const std::string& name) {
+delphyne::AgentBase<T>* AgentSimulationBase<T>::GetMutableAgentByName(
+    const std::string& name) {
   DELPHYNE_VALIDATE(agents_.count(name) == 1, std::runtime_error,
                     "No agent found with the given name.");
   return agents_[name].get();
@@ -112,9 +115,8 @@ struct IsSourceOf {
 
   // Checks whether the given (agent ID, agent) pair is the source of the
   // associated `object`.
-  bool operator()(
-      const std::pair<const std::string,
-      std::unique_ptr<AgentBase<T>>>& name_agent) {
+  bool operator()(const std::pair<const std::string,
+                                  std::unique_ptr<AgentBase<T>>>& name_agent) {
     return name_agent.second->IsSourceOf(object);
   }
 
@@ -125,8 +127,8 @@ struct IsSourceOf {
 }  // namespace
 
 template <typename T>
-std::vector<AgentBaseCollision<T>>
-AgentSimulationBase<T>::GetCollisions() const {
+std::vector<AgentBaseCollision<T>> AgentSimulationBase<T>::GetCollisions()
+    const {
   using drake::geometry::GeometryId;
   using drake::geometry::QueryObject;
   using drake::geometry::PenetrationAsPointPair;
@@ -142,9 +144,9 @@ AgentSimulationBase<T>::GetCollisions() const {
                                    IsSourceOf<T, GeometryId>(collision.id_B));
     DELPHYNE_VALIDATE(it_B != agents_.end(), std::runtime_error,
                       "Could not find second agent in list of agents");
-    agent_collisions.emplace_back(std::make_pair(it_A->second.get(),
-                                                 it_B->second.get()),
-                                  collision.p_WCa);
+    agent_collisions.emplace_back(
+        std::make_pair(it_A->second.get(), it_B->second.get()),
+        collision.p_WCa);
   }
   return agent_collisions;
 }

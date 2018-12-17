@@ -30,8 +30,8 @@ class SimpleCarBlueprint : public BasicAgentBlueprint {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCarBlueprint)
 
-  explicit SimpleCarBlueprint(const std::string& name, double x,
-                              double y, double heading, double speed);
+  explicit SimpleCarBlueprint(const std::string& name, double x, double y,
+                              double heading, double speed);
 
  private:
   // Container for the agent's initial configuration.

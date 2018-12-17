@@ -134,10 +134,9 @@ class SimulationRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
-                  double time_step, double realtime_rate,
-                  bool paused, bool log,
-                  std::string logfile_name);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
+                   double realtime_rate, bool paused, bool log,
+                   std::string logfile_name);
 
   /// @brief Simplified constructor that runs the simulation at a real-time
   /// rate of 1.0.
@@ -152,8 +151,8 @@ class SimulationRunner {
   /// simulator in paused mode.
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
-                  double time_step, bool paused, bool log);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
+                   bool paused, bool log);
 
   /// @brief Simplified constructor that runs the simulation at a real-time
   /// rate of 1.0.
@@ -169,9 +168,8 @@ class SimulationRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
-                  double time_step, bool paused, bool log,
-                  std::string logfile_name);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
+                   bool paused, bool log, std::string logfile_name);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false, and log = true.
@@ -184,8 +182,8 @@ class SimulationRunner {
   ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim,
-                  double time_step, double realtime_rate);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
+                   double realtime_rate);
 
   /// @brief Simplified constructor that runs the simulation with
   /// _paused = false, a real-time rate of 1.0, and log = true.

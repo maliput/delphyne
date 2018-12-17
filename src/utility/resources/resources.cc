@@ -31,7 +31,7 @@ std::string Resource::Path() const {
                     "Failed to resolve " + Uri().Str() + ".");
   DELPHYNE_VALIDATE(resolved_uri.Scheme() == "file", std::runtime_error,
                     "Resource is not in the file system.");
-  return "/" + resolved_uri.Path().Str();
+  return resolved_uri.Path().Str();
 }
 
 GenericResource::GenericResource(const ignition::common::URI& uri,
@@ -41,13 +41,13 @@ GenericResource::GenericResource(const ignition::common::URI& uri,
 std::vector<ignition::common::URI> GenericResource::GetDependencies() const {
   std::ifstream fs(Path());
   std::vector<ignition::common::URI> dependencies;
+  const std::string scheme = Uri().Scheme();
+  const std::string dirpath = Dirname(Uri().Path().Str());
   for (std::string line; std::getline(fs, line);) {
     std::smatch match{};
     if (std::regex_search(line, match, dependency_pattern_)) {
       dependencies.push_back(
-          ignition::common::URI(Uri().Scheme() + "://" +
-                                ignition::common::joinPaths(
-                                    Dirname(Uri().Path().Str()), match.str())));
+          ignition::common::URI(scheme + "://" + dirpath + match.str()));
     }
   }
   return dependencies;

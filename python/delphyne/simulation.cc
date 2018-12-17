@@ -63,29 +63,27 @@ PYBIND11_MODULE(simulation, m) {
            "Load the simulation and initialise it to run"
            "at the specified time step.",
            py::arg("simulation"), py::arg("time_step"))
-      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool,
-                    bool>(),
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool, bool>(),
            "Load the simulation and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled.",
            py::arg("simulation"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"))
-      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool,
-                    bool, std::string>(),
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, bool, bool,
+                    std::string>(),
            "Load the simulation and initialise it to run"
            "at the specified time step and whether you wish"
            "the simulation to start paused and with logging enabled,"
            "allowing you to also set a custom logfile name.",
            py::arg("simulation"), py::arg("time_step"), py::arg("paused"),
            py::arg("log"), py::arg("logfile_name"))
-      .def(py::init<std::unique_ptr<AgentSimulation>, double,
-                    double>(),
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, double>(),
            "Load the simulation and initialise it to run"
            "at the specified time step and realtime rate.",
            py::arg("simulation"), py::arg("time_step"),
            py::arg("realtime_rate"))
-      .def(py::init<std::unique_ptr<AgentSimulation>, double,
-                    double, bool, bool, std::string>(),
+      .def(py::init<std::unique_ptr<AgentSimulation>, double, double, bool,
+                    bool, std::string>(),
            "Load the simulation and initialise time step, realtime rate"
            "and whether you wish the simulation to start paused and with "
            "logging enabled.",
@@ -117,11 +115,9 @@ PYBIND11_MODULE(simulation, m) {
            py::return_value_policy::reference)
       .def("is_logging", &SimulationRunner::IsLogging)
       .def("start_logging",
-           (void (SimulationRunner::*)(void))
-           &SimulationRunner::StartLogging)
-      .def("start_logging",
-           (void (SimulationRunner::*)(const std::string&))
-           &SimulationRunner::StartLogging)
+           (void (SimulationRunner::*)(void)) & SimulationRunner::StartLogging)
+      .def("start_logging", (void (SimulationRunner::*)(const std::string&)) &
+                                SimulationRunner::StartLogging)
       .def("stop_logging", &SimulationRunner::StopLogging)
       .def("get_log_filename", &SimulationRunner::GetLogFilename);
 
@@ -130,25 +126,25 @@ PYBIND11_MODULE(simulation, m) {
       .def_readonly("location", &AgentCollision::location);
 
   py::class_<AgentSimulationBuilder>(m, "AgentSimulationBuilder")
-      .def(py::init([](void) {
-            return std::make_unique<AgentSimulationBuilder>();
-          }))
+      .def(py::init(
+          [](void) { return std::make_unique<AgentSimulationBuilder>(); }))
       .def("add_agent",
            [](AgentSimulationBuilder* self,
               std::unique_ptr<AgentBlueprint> blueprint) {
              return self->AddAgent(std::move(blueprint));
-           }, py::return_value_policy::reference_internal)
+           },
+           py::return_value_policy::reference_internal)
       .def("set_road_geometry",
            py::overload_cast<
-             std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
-                 &AgentSimulationBuilder::SetRoadGeometry),
+               std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
+               &AgentSimulationBuilder::SetRoadGeometry),
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"))
       .def("set_road_geometry",
            py::overload_cast<
-             std::unique_ptr<const drake::maliput::api::RoadGeometry>,
-             const drake::maliput::utility::ObjFeatures&>(
-                 &AgentSimulationBuilder::SetRoadGeometry),
+               std::unique_ptr<const drake::maliput::api::RoadGeometry>,
+               const drake::maliput::utility::ObjFeatures&>(
+               &AgentSimulationBuilder::SetRoadGeometry),
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"), py::arg("features"))
       .def("build", &AgentSimulationBuilder::Build);
@@ -157,21 +153,20 @@ PYBIND11_MODULE(simulation, m) {
       .def("get_collisions", &AgentSimulation::GetCollisions,
            py::return_value_policy::reference_internal)
       .def("get_agent_by_name",
-           [] (AgentSimulation* self, const std::string& name) {
+           [](AgentSimulation* self, const std::string& name) {
              return &self->GetAgentByName(name);
-           }, py::return_value_policy::reference_internal)
+           },
+           py::return_value_policy::reference_internal)
       .def("get_mutable_agent_by_name",
-           [] (AgentSimulation* self, const std::string& name) {
+           [](AgentSimulation* self, const std::string& name) {
              return self->GetMutableAgentByName(name);
-           }, py::return_value_policy::reference_internal)
-      .def("get_diagram",
-           &AgentSimulation::GetDiagram,
+           },
            py::return_value_policy::reference_internal)
-      .def("get_context",
-           &AgentSimulation::GetContext,
+      .def("get_diagram", &AgentSimulation::GetDiagram,
            py::return_value_policy::reference_internal)
-      .def("get_mutable_context",
-           &AgentSimulation::GetMutableContext,
+      .def("get_context", &AgentSimulation::GetContext,
+           py::return_value_policy::reference_internal)
+      .def("get_mutable_context", &AgentSimulation::GetMutableContext,
            py::return_value_policy::reference_internal)
       .def("get_current_time", &AgentSimulation::GetCurrentTime);
 }

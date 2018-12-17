@@ -46,7 +46,7 @@ ignition::common::URI SystemPackage::DoResolve(
     const ignition::common::URI& uri) const {
   const std::string uri_scheme = uri.Scheme();
   if (uri_scheme == "file") {
-    if (!ignition::common::exists("/" + uri.Path().Str())) {
+    if (!ignition::common::exists(uri.Path().Str())) {
       return ignition::common::URI();
     }
     return uri;
@@ -81,7 +81,7 @@ void BundledPackage::DoAdd(const ignition::common::URI& uri) {
                     uri.Str() + " resource cannot not be found.");
   DELPHYNE_VALIDATE(resolved_uri.Scheme() == "file", std::runtime_error,
                     uri.Str() + " is not a local resource.");
-  const std::string path = "/" + resolved_uri.Path().Str();
+  const std::string path = resolved_uri.Path().Str();
   const std::string internal_path = ResolveToInternalPath(uri);
   DELPHYNE_VALIDATE(!ignition::common::exists(internal_path),
                     std::runtime_error, uri.Str() + " already exists.");

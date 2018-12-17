@@ -15,8 +15,8 @@
 #include "backend/ign_subscriber_system.h"
 #include "gen/simple_car_state.h"
 #include "gen/simple_car_state_translator.h"
-#include "translations/ign_driving_command_to_drake.h"
 #include "systems/simple_car.h"
+#include "translations/ign_driving_command_to_drake.h"
 
 /*****************************************************************************
  ** Namespaces
@@ -30,11 +30,12 @@ namespace delphyne {
 
 SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x,
                                        double y, double heading, double speed)
-    : BasicAgentBlueprint(name, drake::Isometry3<double>(
-          drake::Translation3<double>(x, y, 0.0) *
-          drake::AngleAxis<double>(heading, drake::Vector3<double>::UnitZ()))),
-      initial_parameters_(x, y, heading, speed) {
-}
+    : BasicAgentBlueprint(
+          name, drake::Isometry3<double>(
+                    drake::Translation3<double>(x, y, 0.0) *
+                    drake::AngleAxis<double>(heading,
+                                             drake::Vector3<double>::UnitZ()))),
+      initial_parameters_(x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
     const drake::maliput::api::RoadGeometry* road_geometry) const {

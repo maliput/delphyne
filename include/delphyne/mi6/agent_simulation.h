@@ -42,8 +42,7 @@ template <typename T>
 struct AgentBaseCollision {
   AgentBaseCollision(const std::pair<AgentBase<T>*, AgentBase<T>*> agents_in,
                      const drake::Vector3<T>& location_in)
-      : agents(agents_in), location(location_in) {
-  }
+      : agents(agents_in), location(location_in) {}
 
   const std::pair<AgentBase<T>*, AgentBase<T>*> agents;  ///< Pair of agents in
                                                          ///  in collision.
@@ -92,7 +91,7 @@ class AgentSimulationBase {
   /// @throws std::bad_cast if the agent was found but it is not of
   ///                       the expected type.
   /// @tparam AgentType An AgentBase<T> subclass.
-  template<class AgentType>
+  template <class AgentType>
   const AgentType& GetAgentByName(const std::string& name) {
     static_assert(std::is_base_of<AgentBase<T>, AgentType>::value,
                   "Expected type is not an agent type.");
@@ -108,7 +107,7 @@ class AgentSimulationBase {
   ///                       the expected type.
   /// @tparam AgentBaseType An AgentBase subclass, to be specialized
   ///                       for T.
-  template<template <typename U> class AgentBaseType>
+  template <template <typename U> class AgentBaseType>
   const AgentBaseType<T>& GetAgentByName(const std::string& name) {
     static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value,
                   "Expected type is not an agent type.");
@@ -131,7 +130,7 @@ class AgentSimulationBase {
   /// @throws std::runtime_error if no agent with the given `name`
   ///                            is known by the simulator.
   /// @tparam AgentType An AgentBase<T> subclass.
-  template<class AgentType>
+  template <class AgentType>
   AgentType* GetMutableAgentByName(const std::string& name) {
     static_assert(std::is_base_of<AgentBase<T>, AgentType>::value,
                   "Expected type is not an agent type.");
@@ -148,7 +147,7 @@ class AgentSimulationBase {
   ///                            is known by the simulator.
   /// @tparam AgentBaseType An AgentBase subclass, to be specialized
   ///                       for T.
-  template<template <typename U> class AgentBaseType>
+  template <template <typename U> class AgentBaseType>
   AgentBaseType<T>* GetMutableAgentByName(const std::string& name) {
     static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value,
                   "Expected type is not an agent type.");
@@ -193,9 +192,7 @@ class AgentSimulationBase {
 
   /// Returns the current simulation time in seconds.
   /// @see Simulator::Context::get_time.
-  const T& GetCurrentTime() const {
-    return GetContext().get_time();
-  }
+  const T& GetCurrentTime() const { return GetContext().get_time(); }
 
   /// Gets a reference to the simulation diagram representation.
   const drake::systems::Diagram<T>& GetDiagram() const { return *diagram_; }

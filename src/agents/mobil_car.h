@@ -61,10 +61,13 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
     double heading{0.0};
     double offset{0.0};
     double speed{0.0};
-    Parameters(bool direction_of_travel, double x,
-               double y, double heading, double speed)
+    Parameters(bool direction_of_travel, double x, double y, double heading,
+               double speed)
         : direction_of_travel(direction_of_travel),
-          x(x), y(y), heading(heading), speed(speed) {}
+          x(x),
+          y(y),
+          heading(heading),
+          speed(speed) {}
   } initial_parameters_;
 
   std::unique_ptr<Agent::Diagram> DoBuildDiagram(

@@ -5,9 +5,9 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
-#include <type_traits>
 
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/utility/generate_obj.h>
@@ -86,10 +86,10 @@ class AgentSimulationBaseBuilder {
   ///                            name has been wired already.
   /// @tparam Blueprint An AgentBaseBlueprint<T> subclass.
   /// @tparam BlueprintArgs Blueprint constructor arguments types.
-  template<class Blueprint, typename... BlueprintArgs>
+  template <class Blueprint, typename... BlueprintArgs>
   Blueprint* AddAgent(BlueprintArgs&&... args) {
-    return AddAgent(std::make_unique<Blueprint>(
-        std::forward<BlueprintArgs>(args)...));
+    return AddAgent(
+        std::make_unique<Blueprint>(std::forward<BlueprintArgs>(args)...));
   }
 
   /// Constructs a Blueprint in-place and uses it to build and
@@ -105,8 +105,8 @@ class AgentSimulationBaseBuilder {
   /// @tparam Blueprint An AgentBaseBlueprint subclass, to be
   ///                   specialized for T.
   /// @tparam BlueprintArgs Blueprint constructor arguments types.
-  template<template <typename U> class BaseBlueprint,
-           typename... BlueprintArgs>
+  template <template <typename U> class BaseBlueprint,
+            typename... BlueprintArgs>
   BaseBlueprint<T>* AddAgent(BlueprintArgs&&... args) {
     return AddAgent(std::make_unique<BaseBlueprint<T>>(
         std::forward<BlueprintArgs>(args)...));
@@ -183,7 +183,7 @@ class AgentSimulationBaseBuilder {
   // The name of the ignition transport topic over which scene updates are
   // published for rendering.
   static constexpr const char* kSceneUpdatesTopicName{
-    "visualizer/scene_update"};
+      "visualizer/scene_update"};
 
   // The name of the ignition transport topic over which agents' states are
   // published.
@@ -230,8 +230,8 @@ class AgentSimulationBaseBuilder {
   std::vector<std::unique_ptr<AgentBaseBlueprint<T>>> blueprints_{};
 
   // The geometry of the road for the simulation to be built.
-  std::unique_ptr<
-    const drake::maliput::api::RoadGeometry> road_geometry_{nullptr};
+  std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_{
+      nullptr};
 
   // The world tree representation for the simulation to be built.
   std::unique_ptr<RigidBodyTree<T>> world_tree_{nullptr};

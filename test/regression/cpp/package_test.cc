@@ -19,7 +19,7 @@ namespace {
 
 TEST(ToURITests, HandlesAbsolutePaths) {
   const ignition::common::URI uri = ToURI("/absolute/path");
-  EXPECT_EQ(uri.Str(), "file://absolute/path");
+  EXPECT_EQ(uri.Str(), "file:///absolute/path");
 }
 
 TEST(ToURITests, HandlesRelativePaths) {
@@ -53,7 +53,7 @@ class PackageTest : public test::TestWithFiles {
     const ignition::common::URI resolved_uri = package.Resolve(kResourceURI);
     EXPECT_TRUE(resolved_uri.Valid());
     EXPECT_EQ(resolved_uri.Scheme(), "file");
-    const std::string resolved_path = "/" + resolved_uri.Path().Str();
+    const std::string resolved_path = resolved_uri.Path().Str();
     EXPECT_EQ(resolved_path, path_to_resource_);
   }
 
@@ -95,7 +95,7 @@ TEST_F(PackageTest, AddingToBundledPackage) {
   EXPECT_TRUE(resolved_uri.Valid());
   EXPECT_EQ(resolved_uri.Scheme(), "file");
 
-  const std::string resolved_path = "/" + resolved_uri.Path().Str();
+  const std::string resolved_path = resolved_uri.Path().Str();
   std::fstream packaged_resource(resolved_path);
   std::string content = "";
   packaged_resource >> content;

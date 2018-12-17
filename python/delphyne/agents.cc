@@ -55,8 +55,7 @@ PYBIND11_MODULE(agents, m) {
       .def("get_pose", &Agent::GetPose)
       .def("get_velocity", &Agent::GetVelocity);
 
-  py::class_<RailCar, Agent>(m, "RailCar")
-      .def("set_speed", &RailCar::SetSpeed);
+  py::class_<RailCar, Agent>(m, "RailCar").def("set_speed", &RailCar::SetSpeed);
 
   py::class_<AgentBlueprint>(m, "AgentBlueprint")
       .def("get_agent",
@@ -85,8 +84,8 @@ PYBIND11_MODULE(agents, m) {
            py::arg("longitudinal_position"), py::arg("lateral_offset"),
            py::arg("speed"), py::arg("nominal_speed"));
 
-  py::class_<TrajectoryAgentBlueprint,
-                       AgentBlueprint>(m, "TrajectoryAgentBlueprint")
+  py::class_<TrajectoryAgentBlueprint, AgentBlueprint>(
+      m, "TrajectoryAgentBlueprint")
       .def(py::init<const std::string&, const std::vector<double>&,
                     const std::vector<double>&,
                     const std::vector<std::vector<double>>&>(),

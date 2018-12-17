@@ -65,10 +65,10 @@ void WaitForShutdown() {
   g_shutdown_cv.wait(lk, [] { return g_shutdown; });
 }
 
-SimulationRunner::SimulationRunner(
-    std::unique_ptr<AgentSimulation> sim,
-    double time_step, double realtime_rate, bool paused, bool log,
-    std::string logfile_name)
+SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim,
+                                   double time_step, double realtime_rate,
+                                   bool paused, bool log,
+                                   std::string logfile_name)
     : time_step_(time_step),
       simulation_(std::move(sim)),
       clock_(kClockTopic),
@@ -116,26 +116,23 @@ SimulationRunner::SimulationRunner(
   }
 }
 
-SimulationRunner::SimulationRunner(
-    std::unique_ptr<AgentSimulation> sim,
-    double time_step, bool paused, bool log)
+SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim,
+                                   double time_step, bool paused, bool log)
     : SimulationRunner(std::move(sim), time_step, 1.0, paused, log, "") {}
 
-SimulationRunner::SimulationRunner(
-    std::unique_ptr<AgentSimulation> sim,
-    double time_step, bool paused, bool log, std::string logfile_name)
+SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim,
+                                   double time_step, bool paused, bool log,
+                                   std::string logfile_name)
     : SimulationRunner(std::move(sim), time_step, 1.0, paused, log,
-                      logfile_name) {}
+                       logfile_name) {}
 
-SimulationRunner::SimulationRunner(
-    std::unique_ptr<AgentSimulation> sim,
-    double time_step, double realtime_rate)
+SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim,
+                                   double time_step, double realtime_rate)
     : SimulationRunner(std::move(sim), time_step, realtime_rate, false, false,
-                      "") {}
+                       "") {}
 
-SimulationRunner::SimulationRunner(
-    std::unique_ptr<AgentSimulation> sim,
-    double time_step)
+SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim,
+                                   double time_step)
     : SimulationRunner(std::move(sim), time_step, 1.0, false, false, "") {}
 
 SimulationRunner::~SimulationRunner() {
@@ -193,7 +190,7 @@ void SimulationRunner::Stop() {
 }
 
 void SimulationRunner::RunAsyncFor(double duration,
-                                  std::function<void()> callback) {
+                                   std::function<void()> callback) {
   DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error,
                     "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
@@ -323,8 +320,7 @@ void SimulationRunner::StepSimulationBy(double time_step) {
 }
 
 void SimulationRunner::SetupNewRunStats() {
-  stats_.NewRunStartingAt(simulation_->GetCurrentTime(),
-                          realtime_rate_);
+  stats_.NewRunStartingAt(simulation_->GetCurrentTime(), realtime_rate_);
 }
 
 void SimulationRunner::RequestSimulationStepExecution(unsigned int steps) {
@@ -500,8 +496,7 @@ void SimulationRunner::StartLogging(const std::string& filename) {
            << "Logging to default location: " << sanitized_filename
            << std::endl;
   }
-  std::unique_ptr<ignition::msgs::Scene> scene =
-      simulation_->GetVisualScene();
+  std::unique_ptr<ignition::msgs::Scene> scene = simulation_->GetVisualScene();
   logger_.Sync(&clock_);
   logger_.Start(sanitized_filename);
   logger_.CaptureMeshes(*scene);

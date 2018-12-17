@@ -33,8 +33,7 @@ class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryAgentBlueprint)
 
   TrajectoryAgentBlueprint(
-      const std::string& name,
-      const std::vector<double>& times,
+      const std::string& name, const std::vector<double>& times,
       const std::vector<double>& headings,
       const std::vector<std::vector<double>>& translations);
 

@@ -317,13 +317,8 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   // Simulation should now be logging.
   EXPECT_TRUE(sim_runner_->IsLogging());
 
-  std::time_t now = std::time(nullptr);
-  std::tm tm = *std::localtime(&now);
-  std::stringstream logPath;
-  logPath << "/tmp/XXXXXX/logs/" << std::put_time(&tm, "%FT%H%M");
-
   EXPECT_NE(std::string::npos,
-            sim_runner_->GetLogFilename().find(logPath.str()));
+            sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
 }
 
 // @brief Checks that RunSyncFor executes the simulation for the expected

@@ -25,7 +25,7 @@ get_key() {
 }
 
 # Install the direct delphyne dependencies.
-sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable xenial main" > /etc/apt/sources.list.d/gazebo-stable.list'
+sudo sh -c 'echo "deb http://packages.osrfoundation.org/gazebo/ubuntu-stable bionic main" > /etc/apt/sources.list.d/gazebo-stable.list'
 get_key D2486D2DD83DB69272AFE98867170598AF249743
 sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu $(lsb_release -sc) main" > /etc/apt/sources.list.d/ros-latest.list'
 get_key 421C365BD9FF1F717815A3895523BAEEB01FA116
@@ -37,11 +37,9 @@ git
 libignition-cmake-dev
 mercurial
 pkg-config
+pycodestyle
 pylint
 python-pip
 python3-vcstool
 EOF
 )
-# Install pip dependencies
-# TODO(apojomovsky) #446 Replace this by a deb install as soon as we go to 18.04
-pip install --user pycodestyle

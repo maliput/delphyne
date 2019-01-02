@@ -3,7 +3,7 @@
 set -euo pipefail
 
 JOBS=$( getconf _NPROCESSORS_ONLN )
-COMPILER_PATH="/usr/bin/g++-5"
+COMPILER_PATH="/usr/bin/g++-7"
 
 mkdir -p install
 
@@ -17,7 +17,7 @@ COMMIT_DATE="$(git log -n 1 --pretty='format:%cd' --date=format:'%Y%m%d')"
 COMMIT_DATE=$(date +%Y%m%d -d "$COMMIT_DATE + 1 day")
 popd
 
-BINARY_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-YYYYMMDD-xenial.tar.gz"
+BINARY_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-YYYYMMDD-bionic.tar.gz"
 
 VALID_URL=false
 
@@ -66,7 +66,7 @@ pushd build
 for dep in ign_cmake ign_tools ign_math ign_common ign_msgs ign_transport ign_rendering ign_gui ; do
     mkdir -p $dep
     pushd $dep
-    CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_CXX_STANDARD=11 -DCMAKE_INSTALL_PREFIX=../../install
+    CXX=$COMPILER_PATH cmake ../../workspace/$dep -DCMAKE_INSTALL_PREFIX=../../install
     make -j$JOBS VERBOSE=1 install
     popd
 done

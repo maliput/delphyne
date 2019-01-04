@@ -95,18 +95,6 @@ SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim,
            << std::endl;
   }
 
-  // The get_internals() function initializes the `internals.tstate` for
-  // subsequent `gil_scoped_acquire` calls. If the gil_scoped_acquire is
-  // attempted to be called before having initialized the internals.tstate,
-  // it would end up into a segmentation fault. This initialization should
-  // only occur if the SimulationRunner class is instantiated from within a
-  // python script, which is checked in the if statement.
-  // In comment below, a similar approach to the one used here is suggested:
-  // https://github.com/pybind/pybind11/issues/1360#issuecomment-385988887
-  if (Py_IsInitialized()) {
-    pybind11::detail::get_internals();
-  }
-
   // Tell the simulation to run steps as fast as possible, as are handling the
   // sleep (if required) between steps.
   simulation_->SetRealTimeRate(0.);
@@ -267,9 +255,6 @@ void SimulationRunner::RunInteractiveSimulationLoopStep() {
   // This if is here so that we only grab the python global
   // interpreter lock if there is at least one callback.
   if (!step_callbacks.empty()) {
-    // 1. Acquires the lock to the python interpreter.
-    pybind11::gil_scoped_acquire acquire;
-    // 2. Performs the callbacks.
     for (std::function<void()> callback : step_callbacks) {
       callback();
     }
@@ -288,9 +273,6 @@ void SimulationRunner::RunInteractiveSimulationLoopStep() {
       }
       // Calls all registered collision callbacks, if any.
       if (!collision_callbacks.empty()) {
-        // 1. Acquires the lock to the python interpreter.
-        pybind11::gil_scoped_acquire acquire;
-        // 2. Calls all collision callbacks.
         for (CollisionCallback callback : collision_callbacks) {
           callback(agent_collisions);
         }

@@ -27,8 +27,15 @@ namespace delphyne {
 class SimulationRunnerTest : public test::TestWithFiles {
  protected:
   void SetUp() override {
+    AgentSimulationBuilder builder;
+    builder.AddAgent<SimpleCarBlueprint>(
+        "moving_car", kCarX, kCarY,
+        kCarHeading, kCarSpeed);
+    builder.AddAgent<SimpleCarBlueprint>(
+        "stopped_car", kCarX + kCarsDistance,
+        kCarY, kCarHeading, kCarSpeed);
     sim_runner_ = std::make_unique<SimulationRunner>(
-        AgentSimulationBuilder().Build(), kTimeStep);
+        builder.Build(), kTimeStep);
     // Set environmental variable to define the logfile path
     setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
   }
@@ -55,7 +62,11 @@ class SimulationRunnerTest : public test::TestWithFiles {
   }
 
   const double kTimeStep{0.01};  // 10 millis
-
+  const double kCarX{0.};  // 0 meters
+  const double kCarY{0.};  // 0 meters
+  const double kCarsDistance{50.};  // 50 meters
+  const double kCarHeading{0.};  // 0 degrees
+  const double kCarSpeed{10.};  // 10 meters per sec
   bool callback_called_{false};
 
   std::unique_ptr<SimulationRunner> sim_runner_;
@@ -182,8 +193,15 @@ TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 }
 
-// TODO(hidmic): Test pause on collision when python specific bits are
-//               moved out of the SimulationRunner (#488).
+TEST_F(SimulationRunnerTest, TestPauseOnCollision) {
+  sim_runner_->EnableCollisions();
+  sim_runner_->AddCollisionCallback([this](auto) {
+      EXPECT_TRUE(sim_runner_->IsSimulationPaused());
+      sim_runner_->Stop();
+    });
+  EXPECT_FALSE(sim_runner_->IsSimulationPaused());
+  sim_runner_->RunSyncFor(kCarsDistance / kCarSpeed);
+}
 
 // @brief Asserts that the execution breaks if the runner is paused twice in
 // a row

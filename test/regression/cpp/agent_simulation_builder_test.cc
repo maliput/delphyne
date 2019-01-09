@@ -721,7 +721,7 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
   // Checks that there was a collision and that the colliding
   // agents are the expected ones.
   agent_collisions = simulation->GetCollisions();
-  EXPECT_EQ(agent_collisions.size(), 1);
+  ASSERT_EQ(agent_collisions.size(), 1);
   const AgentBaseCollision<double>& collision = agent_collisions.front();
 
   // Cannot make any assumption regarding pair order, see

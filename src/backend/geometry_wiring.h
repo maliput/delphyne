@@ -62,7 +62,9 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   using drake::geometry::SourceId;
   using drake::geometry::FrameId;
   using drake::geometry::GeometryFrame;
+  using drake::geometry::GeometryId;
   using drake::geometry::GeometryInstance;
+  using drake::geometry::ProximityProperties;
   using drake::systems::ConstantVectorSource;
   using drake::systems::rendering::PoseVector;
 
@@ -96,8 +98,11 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
       std::make_unique<Box>(kPriusCarLength, kPriusCarWidth, kPriusCarHeight),
       "prius_bounding_box");
 
-  geometry_ids->insert(scene_graph->RegisterGeometry(
-      source_id, car_chassis_frame_id, std::move(car_bounding_box)));
+  const GeometryId car_chassis_geometry_id = scene_graph->RegisterGeometry(
+      source_id, car_chassis_frame_id, std::move(car_bounding_box));
+  scene_graph->AssignRole(
+      source_id, car_chassis_geometry_id, ProximityProperties());
+  geometry_ids->insert(car_chassis_geometry_id);
 
   // Sets up a frame pose aggregator to deal with the
   // drake::systems::rendering::PoseVector to drake::geometry::FramePoseVector

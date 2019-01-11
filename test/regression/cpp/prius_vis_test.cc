@@ -47,7 +47,7 @@ GTEST_TEST(PriusVisTest, BasicTest) {
 
   // Ensures the visualization elements do not include the world.
   for (const auto& link : vis_elements) {
-    EXPECT_NE(link.name, RigidBodyTreeConstants::kWorldName);
+    EXPECT_NE(link.name, "world");
   }
 
   const lcmt_viewer_link_data& first_link_data = vis_elements.at(0);

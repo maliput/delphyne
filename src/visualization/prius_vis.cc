@@ -1,61 +1,48 @@
-// Copyright 2018 Toyota Research Institute
+// Copyright 2018-2019 Toyota Research Institute
 
 #include "visualization/prius_vis.h"
 
-#include <Eigen/Geometry>
+#include <sstream>
 
 #include <drake/common/drake_assert.h>
+#include <drake/common/eigen_types.h>
 #include <drake/common/find_resource.h>
+#include <drake/geometry/scene_graph.h>
+#include <drake/lcm/drake_mock_lcm.h>
 #include <drake/lcmt_viewer_load_robot.hpp>
-#include <drake/multibody/joints/floating_base_types.h>
-#include <drake/multibody/joints/roll_pitch_yaw_floating_joint.h>
-#include <drake/multibody/kinematics_cache.h>
-#include <drake/multibody/parsers/parser_common.h>
-#include <drake/multibody/parsers/sdf_parser.h>
-#include <drake/multibody/rigid_body_plant/create_load_robot_message.h>
+#include <drake/multibody/parsing/parser.h>
+#include <drake/multibody/plant/multibody_plant.h>
+#include <drake/multibody/tree/multibody_tree_indexes.h>
 
 #include "delphyne/macros.h"
 
-using std::unique_ptr;
-using std::vector;
-
-using drake::multibody::joints::kRollPitchYaw;
-using drake::systems::rendering::PoseBundle;
-using drake::Isometry3;
-using drake::Vector3;
-using drake::VectorX;
-
 namespace delphyne {
+
 template <typename T>
 constexpr double PriusVis<T>::kVisOffset;
 
 template <typename T>
 PriusVis<T>::PriusVis(int id, const std::string& name)
-    : CarVis<T>(id, name), tree_(new RigidBodyTree<T>()) {
+    : CarVis<T>(id, name) {
   const char* delphyne_resource_root = std::getenv("DELPHYNE_RESOURCE_ROOT");
-
   DELPHYNE_DEMAND(delphyne_resource_root != NULL);
-
   std::stringstream sdf_filename;
   sdf_filename << delphyne_resource_root << "/media/prius/prius_with_lidar.sdf";
+  plant_.RegisterAsSourceForSceneGraph(&scene_graph_);
+  drake::multibody::Parser parser(&plant_);
+  drake::multibody::ModelInstanceIndex prius_index =
+      parser.AddModelFromFile(sdf_filename.str());
+  plant_.Finalize();
 
-  drake::parsers::sdf::AddModelInstancesFromSdfFileToWorld(
-      sdf_filename.str(), kRollPitchYaw, tree_.get());
+  prius_parts_indices_ = plant_.GetBodyIndices(prius_index);
+  plant_context_ = plant_.CreateDefaultContext();
 
-  // Verifies that the model instance within tree_ meets this method's
-  // requirements. See the class description for more details.
-  DRAKE_DEMAND(tree_->get_num_model_instances() == 1);
-  const std::vector<int> base_body_indices = tree_->FindBaseBodies();
-  DRAKE_DEMAND(base_body_indices.size() == 1);
-  const RigidBody<T>& body = tree_->get_body(base_body_indices.at(0));
-  const RollPitchYawFloatingJoint* rpy_joint =
-      dynamic_cast<const RollPitchYawFloatingJoint*>(&body.getJoint());
-  DRAKE_DEMAND(rpy_joint != nullptr);
-
-  drake::lcmt_viewer_load_robot load_message =
-      drake::multibody::CreateLoadRobotMessage<T>(*tree_);
+  drake::lcm::DrakeMockLcm lcm;
+  DispatchLoadMessage(scene_graph_, &lcm);
+  auto load_message = lcm.DecodeLastPublishedMessageAs<
+    drake::lcmt_viewer_load_robot>("DRAKE_VIEWER_LOAD_ROBOT");
   for (const auto& link : load_message.link) {
-    if (link.name != RigidBodyTreeConstants::kWorldName) {
+    if (link.name != plant_.world_body().name()) {
       vis_elements_.push_back(link);
       vis_elements_.back().robot_num = id;
     }
@@ -63,14 +50,14 @@ PriusVis<T>::PriusVis(int id, const std::string& name)
 }
 
 template <typename T>
-const vector<drake::lcmt_viewer_link_data>& PriusVis<T>::GetVisElements()
-    const {
+const std::vector<drake::lcmt_viewer_link_data>&
+PriusVis<T>::GetVisElements() const {
   return vis_elements_;
 }
 
 template <typename T>
-drake::systems::rendering::PoseBundle<T> PriusVis<T>::CalcPoses(
-    const Isometry3<T>& X_WM) const {
+drake::systems::rendering::PoseBundle<T>
+PriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
   // Computes X_MV, the transform from the visualization's frame to the model's
   // frame. The 'V' in the variable name stands for "visualization". This is
   // necessary because the model frame's origin is centered at the midpoint of
@@ -78,35 +65,24 @@ drake::systems::rendering::PoseBundle<T> PriusVis<T>::CalcPoses(
   // centered in the middle of a body called "chassis_floor". The axes of the
   // two frames are parallel with each other. However, the distance between the
   // origins of the two frames is 1.40948 m along the model's x-axis.
-  const Isometry3<T> X_MV(Eigen::Translation<T, 3>(
+  const drake::Isometry3<T> X_MV(drake::Translation3<T>(
       T(1.40948) /* x offset */, T(0) /* y offset */, T(0) /* z offset */));
-  const Isometry3<T> X_WV = X_WM * X_MV;
-  const auto rotation = X_WV.linear();
-  const auto transform = X_WV.translation();
-  Vector3<T> rpy = rotation.eulerAngles(2, 1, 0);
-  VectorX<T> q = VectorX<T>::Zero(tree_->get_num_positions());
-  q(0) = transform.x();
-  q(1) = transform.y();
-  q(2) = transform.z();
-  q(3) = rpy(2);
-  q(4) = rpy(1);
-  q(5) = rpy(0);
-  const KinematicsCache<T> cache = tree_->doKinematics(q);
+  const drake::Isometry3<T> X_WV = X_WM * X_MV;
+  const drake::multibody::Body<T>& base_part =
+      plant_.get_body(prius_parts_indices_[0]);
+  plant_.SetFreeBodyPose(plant_context_.get(), base_part, X_WV);
 
-  PoseBundle<T> result(this->num_poses());
   int result_index{0};
-  for (int i = 0; i < tree_->get_num_bodies(); ++i) {
-    if (i != RigidBodyTreeConstants::kWorldBodyIndex) {
-      const RigidBody<T>& body = tree_->get_body(i);
-      const drake::Isometry3<T> X_WB =
-          tree_->CalcBodyPoseInWorldFrame(cache, body);
-      result.set_pose(result_index, X_WB);
-      result.set_name(result_index, body.get_name());
-      result.set_model_instance_id(result_index, this->id());
-      ++result_index;
-    }
+  drake::systems::rendering::PoseBundle<T> result(prius_parts_indices_.size());
+  for (const drake::multibody::BodyIndex& part_index : prius_parts_indices_) {
+    const drake::multibody::Body<T>& part = plant_.get_body(part_index);
+    const drake::Isometry3<T>& X_WB =
+        plant_.EvalBodyPoseInWorld(*plant_context_, part);
+    result.set_pose(result_index, X_WB);
+    result.set_name(result_index, part.name());
+    result.set_model_instance_id(result_index, this->id());
+    ++result_index;
   }
-  DRAKE_ASSERT(result_index == this->num_poses());
   return result;
 }
 

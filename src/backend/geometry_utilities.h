@@ -130,11 +130,10 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
 namespace detail {
 
 class SceneGraphParser final {
-public:
-  SceneGraphParser(drake::geometry::SceneGraph<double>* scene_graph) :
+ public:
+  explicit SceneGraphParser(drake::geometry::SceneGraph<double>* scene_graph) :
       scene_graph_(scene_graph),
-      plant_(), parser_(&plant_)
-  {
+      plant_(), parser_(&plant_) {
     DELPHYNE_DEMAND(scene_graph_ != nullptr);
     plant_.RegisterAsSourceForSceneGraph(scene_graph_);
   }
@@ -147,7 +146,7 @@ public:
     plant_.Finalize();
   }
 
-private:
+ private:
   drake::geometry::SceneGraph<double>* scene_graph_;
   drake::multibody::MultibodyPlant<double> plant_;
   drake::multibody::Parser parser_;

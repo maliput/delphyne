@@ -207,7 +207,8 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   std::vector<drake::lcmt_viewer_load_robot> messages{
     car_vis_applicator_->get_load_robot_message()};
   if (road_geometry_ != nullptr) {
-    messages.push_back(BuildLoadMessageForRoad(*road_geometry_, road_features_));
+    messages.push_back(BuildLoadMessageForRoad(*road_geometry_,
+                                               road_features_));
   }
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
   // messages into a single one containing all models in the scene.

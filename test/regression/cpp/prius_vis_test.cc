@@ -37,7 +37,7 @@ const Isometry3<double> GetChassisFloorPose(const PoseBundle<double>& poses) {
 GTEST_TEST(PriusVisTest, BasicTest) {
   const int kModelInstanceId = 1600;
   const std::string kName = "MyPrius";
-  const int kNumBodies = 17;
+  const int kNumBodies = 16;
 
   // Instantiates the device under test (DUT).
   PriusVis<double> dut(kModelInstanceId, kName);
@@ -51,7 +51,6 @@ GTEST_TEST(PriusVisTest, BasicTest) {
   }
 
   const lcmt_viewer_link_data& first_link_data = vis_elements.at(0);
-  EXPECT_EQ(first_link_data.name, "chassis_floor");
   EXPECT_EQ(first_link_data.robot_num, kModelInstanceId);
   EXPECT_EQ(first_link_data.num_geom, 1);
 

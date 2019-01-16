@@ -40,14 +40,6 @@ namespace delphyne {
  ****************************************************************************/
 namespace {
 
-struct LinkInfo {
-  LinkInfo(std::string name_in, int robot_num_in, int num_geom_in)
-      : name(name_in), robot_num(robot_num_in), num_geom(num_geom_in) {}
-  std::string name;
-  int robot_num{};
-  int num_geom{};
-};
-
 // Returns the Prius link count.
 int GetPriusLinkCount() { return SimplePriusVis<double>(0, "").num_poses(); }
 
@@ -85,11 +77,13 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
 // chassis floor as its first link.
 void CheckModelLinks(const ignition::msgs::Model_V& message) {
   const int link_count = GetLinkCount(message);
-
-  const ignition::msgs::Link& link = message.models(0).link(0);
-
   EXPECT_EQ(link_count, GetPriusLinkCount());
-  EXPECT_EQ(link.name(), "chassis_floor");
+  const auto& model = message.models(0);
+  EXPECT_NE(std::find_if(
+      model.link().begin(), model.link().end(),
+      [](const ignition::msgs::Link& link) {
+        return (link.name() == "chassis_floor");
+      }), model.link().end());
 }
 
 // Returns the x-position of the vehicle based on an ignition::msgs::Model_V.
@@ -132,19 +126,26 @@ TEST_F(AgentSimulationTest, TestGetVisualScene) {
 
   std::unique_ptr<ignition::msgs::Scene> scene = simulation->GetVisualScene();
 
-  const std::vector<LinkInfo> expected_load{
-      LinkInfo("chassis_floor", 0, 1),   LinkInfo("body", 0, 1),
-      LinkInfo("left_wheel", 0, 1),      LinkInfo("right_wheel", 0, 1),
-      LinkInfo("left_wheel_rear", 0, 1), LinkInfo("right_wheel_rear", 0, 1),
-      LinkInfo("world", 0, 0),           LinkInfo("surface", 0, 1)};
+  std::map<std::string, std::pair<int, int>> expected_load{
+    {"chassis_floor", {0, 1}},
+    {"body", {0, 1}},
+    {"left_wheel", {0, 1}},
+    {"right_wheel", {0, 1}},
+    {"left_wheel_rear", {0, 1}},
+    {"right_wheel_rear", {0, 1}},
+    {"surface", {1, 1}}
+  };
 
   for (int i = 0; i < scene->model_size(); i++) {
     auto model = scene->model(i);
     for (int k = 0; k < model.link_size(); k++) {
       auto link = model.link(k);
-      EXPECT_EQ(i, expected_load.at(k).robot_num);
-      EXPECT_EQ(link.name(), expected_load.at(k).name);
-      EXPECT_EQ(link.visual_size(), expected_load.at(k).num_geom);
+      std::cout << link.name() << std::endl;
+      ASSERT_TRUE(expected_load.count(link.name()) > 0);
+      int robot_num, num_geometries;
+      std::tie(robot_num, num_geometries) = expected_load[link.name()];
+      EXPECT_EQ(link.visual_size(), num_geometries);
+      EXPECT_EQ(i, robot_num);
     }
   }
 }
@@ -383,22 +384,24 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   // Checks the car ids
   EXPECT_EQ(alice_model.id(), 0);
 
-  auto link = alice_model.link(0);
+  // Look for the chassis_floor link of the first car.
+  auto it = std::find_if(
+      alice_model.link().begin(), alice_model.link().end(),
+      [](const ignition::msgs::Link& link) {
+        return (link.name() == "chassis_floor");
+      });
+  ASSERT_NE(it, alice_model.link().end());
 
-  // Checks the chassis_floor body of the first car.
-  EXPECT_EQ(link.name(), "chassis_floor");
-
-  EXPECT_NEAR(link.pose().position().x(),
-              // Simple PriusVis<double>::kVisOffset + 30.00 won't work
-              // because the trajectory agent is splining it's
-              // way along.
-              31.409479141235352, kPoseXTolerance);
-  EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
-  EXPECT_NEAR(link.pose().position().z(), 0.37832599878311157, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
-  EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
+  EXPECT_NEAR(it->pose().position().x(),
+              // Simply 30.00 won't work because the trajectory
+              // agent is splining it's way along.
+              30.0, kPoseXTolerance);
+  EXPECT_NEAR(it->pose().position().y(), 0, kTolerance);
+  EXPECT_NEAR(it->pose().position().z(), 0.37832599878311157, kTolerance);
+  EXPECT_NEAR(it->pose().orientation().w(), 1, kTolerance);
+  EXPECT_NEAR(it->pose().orientation().x(), 0, kTolerance);
+  EXPECT_NEAR(it->pose().orientation().y(), 0, kTolerance);
+  EXPECT_NEAR(it->pose().orientation().z(), 0, kTolerance);
 }
 
 TEST_F(AgentSimulationTest, TestBadRailcars) {
@@ -498,16 +501,12 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
 
   int scene_link_count = 0;
   for (const ignition::msgs::Model& model : scene->model()) {
-    if (model.name() == "world") {
-      scene_link_count += 1;
-    } else {
-      scene_link_count += model.link_size();
-    }
+    scene_link_count += model.link_size();
   }
 
-  // Checks number of links in the robot message, should be
-  // equal to the Prius link count plus world and road geometry.
-  EXPECT_EQ(scene_link_count, 2 * GetPriusLinkCount() + 2);
+  // Checks number of links in the robot message, it should be
+  // equal to twice the Prius link count plus road geometry.
+  EXPECT_EQ(scene_link_count, 2 * GetPriusLinkCount() + 1);
 
   // Takes a large step to for at least two draw messages to get
   // published, as that ensures that draw_message will not be

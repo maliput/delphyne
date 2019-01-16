@@ -37,22 +37,19 @@ SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
   sdf_filename << delphyne_resource_root << "/media/prius/simple_prius.sdf";
   plant_.RegisterAsSourceForSceneGraph(&scene_graph_);
   drake::multibody::Parser parser(&plant_);
-  drake::multibody::ModelInstanceIndex prius_index =
-      parser.AddModelFromFile(sdf_filename.str());
+  prius_index_ = parser.AddModelFromFile(sdf_filename.str());
   plant_.Finalize();
 
-  prius_parts_indices_ = plant_.GetBodyIndices(prius_index);
   plant_context_ = plant_.CreateDefaultContext();
 
   drake::lcm::DrakeMockLcm lcm;
   DispatchLoadMessage(scene_graph_, &lcm);
   auto load_message = lcm.DecodeLastPublishedMessageAs<
     drake::lcmt_viewer_load_robot>("DRAKE_VIEWER_LOAD_ROBOT");
-  for (const auto& link : load_message.link) {
-    if (link.name != plant_.world_body().name()) {
-      vis_elements_.push_back(link);
-      vis_elements_.back().robot_num = id;
-    }
+  for (auto& link : load_message.link) {
+    link.name = link.name.substr(link.name.find("::") + 2);
+    vis_elements_.push_back(link);
+    vis_elements_.back().robot_num = id;
   }
 }
 
@@ -65,30 +62,23 @@ SimplePriusVis<T>::GetVisElements() const {
 template <typename T>
 drake::systems::rendering::PoseBundle<T>
 SimplePriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
-  // Computes X_MV, the transform from the visualization's frame to the model's
-  // frame. The 'V' in the variable name stands for "visualization". This is
-  // necessary because the model frame's origin is centered at the midpoint of
-  // the vehicle's rear axle whereas the visualization frame's origin is
-  // centered in the middle of a body called "chassis_floor". The axes of the
-  // two frames are parallel with each other. However, the distance between the
-  // origins of the two frames is 1.40948 m along the model's x-axis.
-  const drake::Isometry3<T> X_MV(drake::Translation3<T>(
-      T(1.40948) /* x offset */, T(0) /* y offset */, T(0) /* z offset */));
-  const drake::Isometry3<T> X_WV = X_WM * X_MV;
-  const drake::multibody::Body<T>& base_part =
-      plant_.get_body(prius_parts_indices_[0]);
-  plant_.SetFreeBodyPose(plant_context_.get(), base_part, X_WV);
+  const drake::multibody::Body<T>& footprint =
+      plant_.GetBodyByName("footprint");
+  plant_.SetFreeBodyPose(plant_context_.get(), footprint, X_WM);
 
-  int result_index{0};
-  drake::systems::rendering::PoseBundle<T> result(prius_parts_indices_.size());
-  for (const drake::multibody::BodyIndex& part_index : prius_parts_indices_) {
-    const drake::multibody::Body<T>& part = plant_.get_body(part_index);
-    const drake::Isometry3<T>& X_WB =
+  int bundle_index = 0;
+  std::vector<drake::multibody::BodyIndex> parts_indices =
+      plant_.GetBodyIndices(prius_index_);
+  drake::systems::rendering::PoseBundle<T> result(vis_elements_.size());
+  for (drake::lcmt_viewer_link_data link_data : vis_elements_) {
+    const drake::multibody::Body<T>& part =
+        plant_.GetBodyByName(link_data.name);
+    const drake::Isometry3<T>& X_WP =
         plant_.EvalBodyPoseInWorld(*plant_context_, part);
-    result.set_pose(result_index, X_WB);
-    result.set_name(result_index, part.name());
-    result.set_model_instance_id(result_index, this->id());
-    ++result_index;
+    result.set_pose(bundle_index, X_WP);
+    result.set_name(bundle_index, part.name());
+    result.set_model_instance_id(bundle_index, this->id());
+    ++bundle_index;
   }
   return result;
 }

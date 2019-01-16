@@ -56,8 +56,8 @@ class SimplePriusVis : public CarVis<T> {
  private:
   drake::geometry::SceneGraph<T> scene_graph_{};
   drake::multibody::MultibodyPlant<T> plant_{};
+  drake::multibody::ModelInstanceIndex prius_index_{};
   std::unique_ptr<drake::systems::Context<T>> plant_context_{nullptr};
-  std::vector<drake::multibody::BodyIndex> prius_parts_indices_{};
   std::vector<drake::lcmt_viewer_link_data> vis_elements_{};
 };
 

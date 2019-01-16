@@ -76,7 +76,7 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   const T kPriusCarLength{4.6257};  // in meters.
   const T kPriusCarWidth{1.8208};   // in meters.
   const T kPriusCarHeight{1.3957};  // in meters.
-  const Translation3<T> kPriusCarToChassisTranslation(1.40948, 0., 0.69785);
+  const Translation3<T> kPriusCarToChassisTranslation(0., 0., 0.69785);
   const Quaternion<T> kPriusCarToChassisRotation{Quaternion<T>::Identity()};
 
   // Registers a source for the given scene graph.
@@ -160,8 +160,12 @@ BuildLoadMessage(const std::string& file_path) {
   parser.Finalize();
   drake::lcm::DrakeMockLcm lcm;
   DispatchLoadMessage(scene_graph, &lcm);
-  return lcm.DecodeLastPublishedMessageAs<
+  auto load_message = lcm.DecodeLastPublishedMessageAs<
     drake::lcmt_viewer_load_robot>("DRAKE_VIEWER_LOAD_ROBOT");
+  for (auto& link : load_message.link) {
+    link.name = link.name.substr(link.name.find("::") + 2);
+  }
+  return load_message;
 }
 
 }  // namespace detail

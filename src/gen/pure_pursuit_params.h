@@ -53,7 +53,7 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   /// Default constructor.  Sets all rows to their default value:
   /// @arg @c s_lookahead defaults to 15.0 m.
   PurePursuitParams() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
-    this->set_s_lookahead(15.0);
+    this->set_s_lookahead(10.0);
   }
 
   // Note: It's safe to implement copy and move because this class is final.

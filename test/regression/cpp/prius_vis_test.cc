@@ -141,16 +141,11 @@ GTEST_TEST(PriusVisTest, BasicTest) {
     }
   }
 
-  // The following tests verify that the visualization's pose is correctly
-  // offset from the model's pose. See prius_vis.cc, method CalcPoses(), for
-  // more details.
-
   // Tests the visualization's pose when the model is rotated 90 degrees about
   // its +Z axis.
   const Isometry3<double> floor_pose_identity =
       GetChassisFloorPose(origin_vis_poses);
-  EXPECT_DOUBLE_EQ(floor_pose_identity.translation().x(),
-                   PriusVis<double>::kVisOffset);
+  EXPECT_DOUBLE_EQ(floor_pose_identity.translation().x(), 0.);
 
   // Tests the visualization's pose when the model is rotated 90 degrees about
   // its +Z axis. In other words, the vehicle is facing left.
@@ -160,7 +155,7 @@ GTEST_TEST(PriusVisTest, BasicTest) {
       Eigen::Isometry3d::Identity();
   EXPECT_DOUBLE_EQ(
       GetChassisFloorPose(dut.CalcPoses(X_WM_W_90_about_z)).translation().y(),
-      PriusVis<double>::kVisOffset);
+      0.);
 
   // Tests the visualization's pose when the model is rotated 45 degrees about
   // its +Y axis. In other words, the vehicle is going down a steep hill.
@@ -171,10 +166,9 @@ GTEST_TEST(PriusVisTest, BasicTest) {
   const Isometry3<double> floor_pose_down_hill =
       GetChassisFloorPose(dut.CalcPoses(X_WM_W_45_about_y));
   EXPECT_DOUBLE_EQ(floor_pose_down_hill.translation().x(),
-                   PriusVis<double>::kVisOffset * std::cos(M_PI_4));
+                   floor_pose_identity.translation().z() * std::sin(M_PI_4));
   EXPECT_DOUBLE_EQ(floor_pose_down_hill.translation().z(),
-                   -PriusVis<double>::kVisOffset * std::cos(M_PI_4) +
-                       floor_pose_identity.translation().z());
+                   floor_pose_identity.translation().z() * std::cos(M_PI_4));
 
   // Tests the visualization's pose when the model is rotated 45 degrees about
   // its +X axis. In other words, the vehicle is leaning to its right side due
@@ -185,8 +179,7 @@ GTEST_TEST(PriusVisTest, BasicTest) {
       Eigen::Isometry3d::Identity();
   const Isometry3<double> floor_pose_severe_camber =
       GetChassisFloorPose(dut.CalcPoses(X_WM_W_45_about_x));
-  EXPECT_DOUBLE_EQ(floor_pose_severe_camber.translation().x(),
-                   PriusVis<double>::kVisOffset);
+  EXPECT_DOUBLE_EQ(floor_pose_severe_camber.translation().x(), 0.);
 }
 
 }  // namespace

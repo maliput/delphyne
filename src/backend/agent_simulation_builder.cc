@@ -66,7 +66,9 @@ AgentSimulationBaseBuilder<T>::AgentSimulationBaseBuilder() {
   // It would be preferable if drake did not spam downstream application
   // development on info channels, but that will require a discussion and
   // a large swipe at the many uses in drake.
-  drake::log()->set_level(spdlog::level::warn);
+  //
+  // Now, also avoid 'warn' level logging messages coming from drake MBT.
+  drake::log()->set_level(spdlog::level::err);
 #endif
   Reset();
 }

@@ -73,13 +73,25 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
       */);
 }
 
+// Retrieves the chassis floor link from the model message.
+const ignition::msgs::Link&
+GetChassisFloorLink(const ignition::msgs::Model& message) {
+  auto it = std::find_if(
+      message.link().begin(), message.link().end(),
+      [](const ignition::msgs::Link& link) {
+        return (link.name() == "chassis_floor");
+      });
+  DELPHYNE_DEMAND(it != message.link().end());
+  return *it;
+}
+
 // Checks the message has the expected link count and includes the
-// chassis floor as its first link.
+// chassis floor link.
 void CheckModelLinks(const ignition::msgs::Model_V& message) {
   const int link_count = GetLinkCount(message);
   EXPECT_EQ(link_count, GetPriusLinkCount());
-  const auto& model = message.models(0);
-  EXPECT_NE(std::find_if(
+  const ignition::msgs::Model& model = message.models(0);
+  ASSERT_NE(std::find_if(
       model.link().begin(), model.link().end(),
       [](const ignition::msgs::Link& link) {
         return (link.name() == "chassis_floor");
@@ -90,7 +102,7 @@ void CheckModelLinks(const ignition::msgs::Model_V& message) {
 // It also checks that the y-position of the vehicle is equal to the provided y
 // value.
 double GetXPosition(const ignition::msgs::Model_V& message, double y) {
-  const ignition::msgs::Link& link = message.models(0).link(0);
+  const ignition::msgs::Link& link = GetChassisFloorLink(message.models(0));
   EXPECT_DOUBLE_EQ(link.pose().position().y(), y);
   return link.pose().position().x();
 }
@@ -140,7 +152,6 @@ TEST_F(AgentSimulationTest, TestGetVisualScene) {
     auto model = scene->model(i);
     for (int k = 0; k < model.link_size(); k++) {
       auto link = model.link(k);
-      std::cout << link.name() << std::endl;
       ASSERT_TRUE(expected_load.count(link.name()) > 0);
       int robot_num, num_geometries;
       std::tie(robot_num, num_geometries) = expected_load[link.name()];
@@ -340,8 +351,9 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   EXPECT_EQ(GetLinkCount(draw_message), 3 * GetPriusLinkCount());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
-  const double mobil_y = draw_message.models(0).link(0).pose().position().y();
-  EXPECT_GE(mobil_y, -2.);
+  const ignition::msgs::Link& link =
+      GetChassisFloorLink(draw_message.models(0));
+  EXPECT_GE(link.pose().position().y(), -2.);
 }
 
 TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
@@ -377,7 +389,7 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
 
   const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
 
-  EXPECT_EQ(GetLinkCount(draw_message), GetPriusLinkCount());
+  CheckModelLinks(draw_message);
 
   auto alice_model = draw_message.models(0);
 
@@ -385,23 +397,18 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   EXPECT_EQ(alice_model.id(), 0);
 
   // Look for the chassis_floor link of the first car.
-  auto it = std::find_if(
-      alice_model.link().begin(), alice_model.link().end(),
-      [](const ignition::msgs::Link& link) {
-        return (link.name() == "chassis_floor");
-      });
-  ASSERT_NE(it, alice_model.link().end());
+  const ignition::msgs::Link& link = GetChassisFloorLink(alice_model);
 
-  EXPECT_NEAR(it->pose().position().x(),
+  EXPECT_NEAR(link.pose().position().x(),
               // Simply 30.00 won't work because the trajectory
               // agent is splining it's way along.
               30.0, kPoseXTolerance);
-  EXPECT_NEAR(it->pose().position().y(), 0, kTolerance);
-  EXPECT_NEAR(it->pose().position().z(), 0.37832599878311157, kTolerance);
-  EXPECT_NEAR(it->pose().orientation().w(), 1, kTolerance);
-  EXPECT_NEAR(it->pose().orientation().x(), 0, kTolerance);
-  EXPECT_NEAR(it->pose().orientation().y(), 0, kTolerance);
-  EXPECT_NEAR(it->pose().orientation().z(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().position().z(), 0.37832599878311157, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
+  EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
 }
 
 TEST_F(AgentSimulationTest, TestBadRailcars) {
@@ -473,10 +480,8 @@ TEST_F(AgentSimulationTest, TestMaliputRailcar) {
   // Verifies the acceleration is zero.
   CheckModelLinks(draw_message);
 
-  // The following tolerance was determined empirically.
-  const double kPoseXTolerance{1e-4};
-  EXPECT_NEAR(GetXPosition(draw_message, k_offset),
-              SimplePriusVis<double>::kVisOffset, kPoseXTolerance);
+  const double kPoseXTolerance{1e-8};
+  EXPECT_NEAR(GetXPosition(draw_message, k_offset), 0., kPoseXTolerance);
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and

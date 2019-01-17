@@ -31,6 +31,13 @@ constexpr double SimplePriusVis<T>::kVisOffset;
 template <typename T>
 SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
     : CarVis<T>(id, name) {
+#ifdef HAVE_SPDLOG
+  // Avoid the many & varied 'warn' level logging messages coming from drake.
+  //
+  // Note: Drake will have defined HAVE_SPDLOG if it is using that
+  // (see lib/cmake/spdlog/spdlog-config.cmake that was installed by drake).
+  drake::log()->set_level(spdlog::level::err);
+#endif
   const char* delphyne_resource_root = std::getenv("DELPHYNE_RESOURCE_ROOT");
   DELPHYNE_DEMAND(delphyne_resource_root != NULL);
   std::stringstream sdf_filename;

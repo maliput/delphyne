@@ -6,6 +6,7 @@
 // See drake/tools/lcm_vector_gen.py.
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>

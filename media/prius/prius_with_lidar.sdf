@@ -2,7 +2,7 @@
 <sdf version="1.6">
   <model name="prius_1">
     <pose>0 0 0 0 0 0</pose>
-    <link name="footprint">
+    <link name="chassis_footprint">
       <pose>0 0 0 0 0 0</pose>
     </link>
     <link name="chassis_floor">
@@ -682,8 +682,8 @@
       <child>rear_left_lidar_link</child>
       <pose>0 0 0 0 0 0</pose>
     </joint>
-    <joint name="footprint" type="fixed">
-      <parent>footprint</parent>
+    <joint name="chassis_floor_joint" type="fixed">
+      <parent>chassis_footprint</parent>
       <child>chassis_floor</child>
       <pose>0 0 0 0 0 0</pose>
     </joint>

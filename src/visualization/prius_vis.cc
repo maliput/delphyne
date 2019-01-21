@@ -63,7 +63,7 @@ template <typename T>
 drake::systems::rendering::PoseBundle<T>
 PriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
   const drake::multibody::Body<T>& footprint =
-      plant_.GetBodyByName("footprint");
+      plant_.GetBodyByName("chassis_footprint");
   plant_.SetFreeBodyPose(plant_context_.get(), footprint, X_WM);
 
   int bundle_index = 0;

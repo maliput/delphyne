@@ -7,6 +7,8 @@
 #include <string>
 #include <utility>
 
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/utility/generate_obj.h>
 #include <drake/common/eigen_types.h>
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
@@ -14,10 +16,10 @@
 #include <drake/geometry/scene_graph.h>
 #include <drake/geometry/shape_specification.h>
 #include <drake/lcm/drake_mock_lcm.h>
-#include <drake/multibody/parsing/parser.h>
-#include <drake/multibody/plant/multibody_plant.h>
+#include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
+#include <drake/systems/rendering/pose_vector.h>
 #include "backend/frame_pose_aggregator.h"
 
 namespace delphyne {
@@ -127,37 +129,9 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   return frame_pose_aggregator->DeclareInput(car_frame_id);
 }
 
-namespace detail {
-
-class SceneGraphParser final {
- public:
-  explicit SceneGraphParser(drake::geometry::SceneGraph<double>* scene_graph) :
-      scene_graph_(scene_graph),
-      plant_(), parser_(&plant_) {
-    DELPHYNE_DEMAND(scene_graph_ != nullptr);
-    plant_.RegisterAsSourceForSceneGraph(scene_graph_);
-  }
-
-  void AddModelFromFile(const std::string& file_path) {
-    parser_.AddModelFromFile(file_path);
-  }
-
-  void Finalize() {
-    plant_.Finalize();
-  }
-
- private:
-  drake::geometry::SceneGraph<double>* scene_graph_;
-  drake::multibody::MultibodyPlant<double> plant_;
-  drake::multibody::Parser parser_;
-};
-
+template <typename T>
 drake::lcmt_viewer_load_robot
-BuildLoadMessage(const std::string& file_path) {
-  drake::geometry::SceneGraph<double> scene_graph;
-  detail::SceneGraphParser parser(&scene_graph);
-  parser.AddModelFromFile(file_path);
-  parser.Finalize();
+BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
   drake::lcm::DrakeMockLcm lcm;
   DispatchLoadMessage(scene_graph, &lcm);
   auto load_message = lcm.DecodeLastPublishedMessageAs<
@@ -168,17 +142,8 @@ BuildLoadMessage(const std::string& file_path) {
   return load_message;
 }
 
-}  // namespace detail
-
 drake::lcmt_viewer_load_robot
 BuildLoadMessageForRoad(const drake::maliput::api::RoadGeometry& road_geometry,
-                        const drake::maliput::utility::ObjFeatures& features) {
-  std::string filename = road_geometry.id().string();
-  std::transform(filename.begin(), filename.end(), filename.begin(),
-                 [](char ch) { return ch == ' ' ? '_' : ch; });
-  drake::maliput::utility::GenerateUrdfFile(&road_geometry, "/tmp",
-                                            filename, features);
-  return detail::BuildLoadMessage("/tmp/" + filename + ".urdf");
-}
+                        const drake::maliput::utility::ObjFeatures& features);
 
 }  // namespace delphyne

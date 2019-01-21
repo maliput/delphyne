@@ -16,6 +16,8 @@
 
 #include "delphyne/macros.h"
 
+#include "backend/geometry_utilities.h"
+
 namespace delphyne {
 
 template <typename T>
@@ -33,6 +35,7 @@ PriusVis<T>::PriusVis(int id, const std::string& name)
 #endif
   const char* delphyne_resource_root = std::getenv("DELPHYNE_RESOURCE_ROOT");
   DELPHYNE_DEMAND(delphyne_resource_root != NULL);
+
   std::stringstream sdf_filename;
   sdf_filename << delphyne_resource_root << "/media/prius/prius_with_lidar.sdf";
   plant_.RegisterAsSourceForSceneGraph(&scene_graph_);
@@ -42,12 +45,8 @@ PriusVis<T>::PriusVis(int id, const std::string& name)
 
   plant_context_ = plant_.CreateDefaultContext();
 
-  drake::lcm::DrakeMockLcm lcm;
-  DispatchLoadMessage(scene_graph_, &lcm);
-  auto load_message = lcm.DecodeLastPublishedMessageAs<
-    drake::lcmt_viewer_load_robot>("DRAKE_VIEWER_LOAD_ROBOT");
+  auto load_message = BuildLoadMessage(scene_graph_);
   for (auto& link : load_message.link) {
-    link.name = link.name.substr(link.name.find("::") + 2);
     vis_elements_.push_back(link);
     vis_elements_.back().robot_num = id;
   }

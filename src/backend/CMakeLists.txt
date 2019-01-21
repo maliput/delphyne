@@ -8,6 +8,7 @@ add_library(backend
   agent_simulation.cc
   agent_simulation_builder.cc
   frame_pose_aggregator.cc
+  geometry_utilities.cc
   ign_models_assembler.cc
   data_logger.cc
   interactive_simulation_stats.cc

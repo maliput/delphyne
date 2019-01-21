@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/maliput/utility/generate_urdf.h>
 #include <drake/common/eigen_types.h>
 #include <drake/common/text_logging.h>
 #include <drake/multibody/joints/floating_base_types.h>

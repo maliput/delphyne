@@ -260,15 +260,17 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  // VectorBase override.
-  void CalcInequalityConstraint(drake::VectorX<T>* value) const final {
-    value->resize(6);
-    (*value)[0] = wheelbase() - T(0.0);
-    (*value)[1] = track() - T(0.0);
-    (*value)[2] = max_abs_steering_angle() - T(0.0);
-    (*value)[3] = max_velocity() - T(0.0);
-    (*value)[4] = max_acceleration() - T(0.0);
-    (*value)[5] = velocity_limit_kp() - T(0.0);
+  void GetElementBounds(Eigen::VectorXd* lower,
+                        Eigen::VectorXd* upper) const final {
+    const double kInf = std::numeric_limits<double>::infinity();
+    *lower = Eigen::Matrix<double, 6, 1>::Constant(-kInf);
+    *upper = Eigen::Matrix<double, 6, 1>::Constant(kInf);
+    (*lower)(K::kWheelbase) = 0.0;
+    (*lower)(K::kTrack) = 0.0;
+    (*lower)(K::kMaxAbsSteeringAngle) = 0.0;
+    (*lower)(K::kMaxVelocity) = 0.0;
+    (*lower)(K::kMaxAcceleration) = 0.0;
+    (*lower)(K::kVelocityLimitKp) = 0.0;
   }
 
  private:

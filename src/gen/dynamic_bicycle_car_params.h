@@ -337,19 +337,22 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  // VectorBase override.
-  void CalcInequalityConstraint(drake::VectorX<T>* value) const final {
-    value->resize(9);
-    (*value)[0] = mass() - T(0.0);
-    (*value)[1] = izz() - T(0.0);
-    (*value)[2] = c_alpha_f() - T(0.0);
-    (*value)[3] = c_alpha_r() - T(0.0);
-    (*value)[4] = mu() - T(0.0);
-    (*value)[5] = Lf() - T(0.0);
-    (*value)[6] = Lb() - T(0.0);
-    (*value)[7] = p_LoCp_z() - T(0.0);
-    (*value)[8] = gravity() - T(0.0);
+  void GetElementBounds(Eigen::VectorXd* lower,
+                        Eigen::VectorXd* upper) const final {
+    const double kInf = std::numeric_limits<double>::infinity();
+    *lower = Eigen::Matrix<double, 9, 1>::Constant(-kInf);
+    *upper = Eigen::Matrix<double, 9, 1>::Constant(kInf);
+    (*lower)(K::kMass) = 0.0;
+    (*lower)(K::kIzz) = 0.0;
+    (*lower)(K::kCAlphaF) = 0.0;
+    (*lower)(K::kCAlphaR) = 0.0;
+    (*lower)(K::kMu) = 0.0;
+    (*lower)(K::kLf) = 0.0;
+    (*lower)(K::kLb) = 0.0;
+    (*lower)(K::kPLocpZ) = 0.0;
+    (*lower)(K::kGravity) = 0.0;
   }
+
 
  private:
   void ThrowIfEmpty() const {

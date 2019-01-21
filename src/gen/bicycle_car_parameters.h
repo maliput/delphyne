@@ -258,15 +258,17 @@ class BicycleCarParameters final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  // VectorBase override.
-  void CalcInequalityConstraint(drake::VectorX<T>* value) const final {
-    value->resize(6);
-    (*value)[0] = mass() - T(0.0);
-    (*value)[1] = lf() - T(0.0);
-    (*value)[2] = lr() - T(0.0);
-    (*value)[3] = Iz() - T(0.0);
-    (*value)[4] = Cf() - T(0.0);
-    (*value)[5] = Cr() - T(0.0);
+  void GetElementBounds(Eigen::VectorXd* lower,
+                        Eigen::VectorXd* upper) const final {
+    const double kInf = std::numeric_limits<double>::infinity();
+    *lower = Eigen::Matrix<double, 6, 1>::Constant(-kInf);
+    *upper = Eigen::Matrix<double, 6, 1>::Constant(kInf);
+    (*lower)(K::kMass) = 0.0;
+    (*lower)(K::kLf) = 0.0;
+    (*lower)(K::kLr) = 0.0;
+    (*lower)(K::kIz) = 0.0;
+    (*lower)(K::kCf) = 0.0;
+    (*lower)(K::kCr) = 0.0;
   }
 
  private:

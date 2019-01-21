@@ -126,10 +126,12 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  // VectorBase override.
-  void CalcInequalityConstraint(drake::VectorX<T>* value) const final {
-    value->resize(1);
-    (*value)[0] = s_lookahead() - T(0.0);
+  void GetElementBounds(Eigen::VectorXd* lower,
+                        Eigen::VectorXd* upper) const final {
+    const double kInf = std::numeric_limits<double>::infinity();
+    *lower = Eigen::Matrix<double, 1, 1>::Constant(-kInf);
+    *upper = Eigen::Matrix<double, 1, 1>::Constant(kInf);
+    (*lower)(K::kSLookahead) = 0.0;
   }
 
  private:

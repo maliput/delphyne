@@ -5,6 +5,9 @@ https://github.com/RobotLocomotion/drake/blob/master/automotive/models/prius/pri
 <sdf version="1.6">
   <model name="prius_1">
     <pose>0 0 0 0 0 0</pose>
+    <link name="chassis_footprint">
+      <pose>0 0 0 0 0 0</pose>
+    </link>
     <link name="chassis_floor">
       <pose>0 0 0.378326 0 0 0</pose>
       <inertial>
@@ -128,7 +131,6 @@ https://github.com/RobotLocomotion/drake/blob/master/automotive/models/prius/pri
         </geometry>
       </collision>
     </link>
-
     <link name="left_wheel_rear">
       <pose>-1.40948 0.8019899999999999806732376 0.323342
         1.570796326794896557998982 0 0</pose>
@@ -246,6 +248,11 @@ https://github.com/RobotLocomotion/drake/blob/master/automotive/models/prius/pri
     <joint name="body" type="fixed">
       <parent>chassis_floor</parent>
       <child>body</child>
+      <pose>0 0 0 0 0 0</pose>
+    </joint>
+    <joint name="chassis_floor_joint" type="fixed">
+      <parent>chassis_footprint</parent>
+      <child>chassis_floor</child>
       <pose>0 0 0 0 0 0</pose>
     </joint>
   </model>

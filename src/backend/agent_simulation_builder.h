@@ -12,7 +12,6 @@
 #include <drake/automotive/maliput/api/road_geometry.h>
 #include <drake/automotive/maliput/utility/generate_obj.h>
 #include <drake/geometry/scene_graph.h>
-#include <drake/multibody/rigid_body_tree.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/diagram.h>
@@ -34,7 +33,6 @@
 #include "visualization/simple_prius_vis.h"
 
 // private headers
-#include "backend/geometry_wiring.h"
 #include "backend/ign_publisher_system.h"
 #include "backend/ign_subscriber_system.h"
 #include "backend/load_robot_aggregator.h"
@@ -231,10 +229,10 @@ class AgentSimulationBaseBuilder {
 
   // The geometry of the road for the simulation to be built.
   std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_{
-      nullptr};
+    nullptr};
 
-  // The world tree representation for the simulation to be built.
-  std::unique_ptr<RigidBodyTree<T>> world_tree_{nullptr};
+  // The features of the road for the simulation to be built.
+  drake::maliput::utility::ObjFeatures road_features_{};
 };
 
 using AgentSimulationBuilder = AgentSimulationBaseBuilder<double>;

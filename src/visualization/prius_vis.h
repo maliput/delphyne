@@ -1,4 +1,4 @@
-// Copyright 2018 Toyota Research Institute
+// Copyright 2018-2019 Toyota Research Institute
 
 #pragma once
 
@@ -7,8 +7,11 @@
 #include <vector>
 
 #include <drake/common/drake_copyable.h>
+#include <drake/geometry/scene_graph.h>
 #include <drake/lcmt_viewer_link_data.hpp>
-#include <drake/multibody/rigid_body_tree.h>
+#include <drake/multibody/plant/multibody_plant.h>
+#include <drake/multibody/tree/multibody_tree_indexes.h>
+#include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
 #include "visualization/car_vis.h"
@@ -17,9 +20,7 @@ namespace delphyne {
 
 /// PriusVis displays a visualization of a 2015 Toyota Prius. It relies on
 /// `media/prius/prius_with_lidar.sdf` and requires that this
-/// SDF file only contain one model instance that is not connected to the world
-/// (i.e., the root body of the SDF model must not be named
-/// RigidBodyTreeConstants::kWorldName).
+/// SDF file only contain one model instance that is not connected to the world.
 ///
 /// Note also that this class is included in Delphyne for completeness sake.
 /// Currently the car simulations are using SimplePriusVis.
@@ -47,8 +48,11 @@ class PriusVis : public CarVis<T> {
       const drake::Isometry3<T>& X_WM) const override;
 
  private:
-  std::unique_ptr<RigidBodyTree<T>> tree_;
-  std::vector<drake::lcmt_viewer_link_data> vis_elements_;
+  drake::geometry::SceneGraph<T> scene_graph_{};
+  drake::multibody::MultibodyPlant<T> plant_{};
+  drake::multibody::ModelInstanceIndex prius_index_{};
+  std::unique_ptr<drake::systems::Context<T>> plant_context_{nullptr};
+  std::vector<drake::lcmt_viewer_link_data> vis_elements_{};
 };
 
 }  // namespace delphyne

@@ -1,20 +1,25 @@
-// Copyright 2018 Toyota Research Institute
+// Copyright 2018-2019 Toyota Research Institute
 #pragma once
 
+#include <algorithm>
 #include <memory>
 #include <set>
 #include <string>
 #include <utility>
 
+#include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/utility/generate_obj.h>
 #include <drake/common/eigen_types.h>
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/geometry/geometry_instance.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/geometry/shape_specification.h>
+#include <drake/lcm/drake_mock_lcm.h>
+#include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
-
+#include <drake/systems/rendering/pose_vector.h>
 #include "backend/frame_pose_aggregator.h"
 
 namespace delphyne {
@@ -73,7 +78,7 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   const T kPriusCarLength{4.6257};  // in meters.
   const T kPriusCarWidth{1.8208};   // in meters.
   const T kPriusCarHeight{1.3957};  // in meters.
-  const Translation3<T> kPriusCarToChassisTranslation(1.40948, 0., 0.69785);
+  const Translation3<T> kPriusCarToChassisTranslation(0., 0., 0.69785);
   const Quaternion<T> kPriusCarToChassisRotation{Quaternion<T>::Identity()};
 
   // Registers a source for the given scene graph.
@@ -123,5 +128,18 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
 
   return frame_pose_aggregator->DeclareInput(car_frame_id);
 }
+
+template <typename T>
+drake::lcmt_viewer_load_robot
+BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
+  drake::lcm::DrakeMockLcm lcm;
+  DispatchLoadMessage(scene_graph, &lcm);
+  return lcm.DecodeLastPublishedMessageAs<
+    drake::lcmt_viewer_load_robot>("DRAKE_VIEWER_LOAD_ROBOT");
+}
+
+drake::lcmt_viewer_load_robot
+BuildLoadMessageForRoad(const drake::maliput::api::RoadGeometry& road_geometry,
+                        const drake::maliput::utility::ObjFeatures& features);
 
 }  // namespace delphyne

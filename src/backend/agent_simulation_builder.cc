@@ -8,7 +8,6 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/maliput/utility/generate_urdf.h>
 #include <drake/common/eigen_types.h>
 #include <drake/common/text_logging.h>
 #include <drake/multibody/joints/floating_base_types.h>
@@ -19,6 +18,7 @@
 #include <drake/systems/framework/system.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 
+#include "backend/geometry_utilities.h"
 #include "backend/ign_models_assembler.h"
 #include "backend/ign_publisher_system.h"
 #include "delphyne/macros.h"
@@ -65,7 +65,9 @@ AgentSimulationBaseBuilder<T>::AgentSimulationBaseBuilder() {
   // It would be preferable if drake did not spam downstream application
   // development on info channels, but that will require a discussion and
   // a large swipe at the many uses in drake.
-  drake::log()->set_level(spdlog::level::warn);
+  //
+  // Now, also avoid 'warn' level logging messages coming from drake MBT.
+  drake::log()->set_level(spdlog::level::err);
 #endif
   Reset();
 }
@@ -165,17 +167,9 @@ const drake::maliput::api::RoadGeometry*
 AgentSimulationBaseBuilder<T>::SetRoadGeometry(
     std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
     const drake::maliput::utility::ObjFeatures& features) {
-  auto tree = std::make_unique<RigidBodyTree<T>>();
-  std::string filename = road_geometry->id().string();
-  std::transform(filename.begin(), filename.end(), filename.begin(),
-                 [](char ch) { return ch == ' ' ? '_' : ch; });
-  drake::maliput::utility::GenerateUrdfFile(road_geometry.get(), "/tmp",
-                                            filename, features);
-  const std::string urdf_filepath = "/tmp/" + filename + ".urdf";
-  drake::parsers::urdf::AddModelInstanceFromUrdfFileToWorld(
-      urdf_filepath, drake::multibody::joints::kFixed, tree.get());
+  DELPHYNE_DEMAND(road_geometry != nullptr);
   road_geometry_ = std::move(road_geometry);
-  world_tree_ = std::move(tree);
+  road_features_ = features;
   return road_geometry_.get();
 }
 
@@ -212,15 +206,15 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // The geometry description is retrieved from multiple sources as LCM viewer
   // load robot messages, so those need to be aggregated.
   std::vector<drake::lcmt_viewer_load_robot> messages{
-      car_vis_applicator_->get_load_robot_message()};
-  if (world_tree_ != nullptr) {
-    messages.push_back(
-        drake::multibody::CreateLoadRobotMessage<T>(*world_tree_));
+    car_vis_applicator_->get_load_robot_message()};
+  if (road_geometry_ != nullptr) {
+    messages.push_back(BuildLoadMessageForRoad(*road_geometry_,
+                                               road_features_));
   }
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
   // messages into a single one containing all models in the scene.
   auto load_robot_aggregator =
-      builder_->template AddSystem<LoadRobotAggregator>(std::move(messages));
+      builder_->template AddSystem<LoadRobotAggregator>(messages);
 
   // The aggregated LCM viewer load robot message containing the geometry
   // description is translated into an ignition Model_V message.

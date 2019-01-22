@@ -152,7 +152,8 @@ TEST_F(AgentSimulationTest, TestGetVisualScene) {
     auto model = scene->model(i);
     for (int k = 0; k < model.link_size(); k++) {
       auto link = model.link(k);
-      ASSERT_TRUE(expected_load.count(link.name()) > 0);
+      ASSERT_TRUE(expected_load.count(link.name()) > 0)
+          << "'" << link.name() << "' is not an expected link!";
       int robot_num, num_geometries;
       std::tie(robot_num, num_geometries) = expected_load[link.name()];
       EXPECT_EQ(link.visual_size(), num_geometries);

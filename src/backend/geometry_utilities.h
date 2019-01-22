@@ -134,12 +134,8 @@ drake::lcmt_viewer_load_robot
 BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
   drake::lcm::DrakeMockLcm lcm;
   DispatchLoadMessage(scene_graph, &lcm);
-  auto load_message = lcm.DecodeLastPublishedMessageAs<
+  return lcm.DecodeLastPublishedMessageAs<
     drake::lcmt_viewer_load_robot>("DRAKE_VIEWER_LOAD_ROBOT");
-  for (auto& link : load_message.link) {
-    link.name = link.name.substr(link.name.find("::") + 2);
-  }
-  return load_message;
 }
 
 drake::lcmt_viewer_load_robot

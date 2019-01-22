@@ -52,10 +52,11 @@ SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
 
   plant_context_ = plant_.CreateDefaultContext();
 
-  auto load_message = BuildLoadMessage(scene_graph_);
-  for (auto& link : load_message.link) {
+  drake::lcmt_viewer_load_robot load_message = BuildLoadMessage(scene_graph_);
+  for (drake::lcmt_viewer_link_data& link : load_message.link) {
+    link.name = link.name.substr(link.name.rfind("::") + 2);
+    link.robot_num = id;
     vis_elements_.push_back(link);
-    vis_elements_.back().robot_num = id;
   }
 }
 
@@ -76,7 +77,7 @@ SimplePriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
   std::vector<drake::multibody::BodyIndex> parts_indices =
       plant_.GetBodyIndices(prius_index_);
   drake::systems::rendering::PoseBundle<T> result(vis_elements_.size());
-  for (drake::lcmt_viewer_link_data link_data : vis_elements_) {
+  for (const drake::lcmt_viewer_link_data& link_data : vis_elements_) {
     const drake::multibody::Body<T>& part =
         plant_.GetBodyByName(link_data.name);
     const drake::Isometry3<T>& X_WP =

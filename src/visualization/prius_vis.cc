@@ -45,10 +45,11 @@ PriusVis<T>::PriusVis(int id, const std::string& name)
 
   plant_context_ = plant_.CreateDefaultContext();
 
-  auto load_message = BuildLoadMessage(scene_graph_);
-  for (auto& link : load_message.link) {
+  drake::lcmt_viewer_load_robot load_message = BuildLoadMessage(scene_graph_);
+  for (drake::lcmt_viewer_link_data& link : load_message.link) {
+    link.name = link.name.substr(link.name.rfind("::") + 2);
+    link.robot_num = id;
     vis_elements_.push_back(link);
-    vis_elements_.back().robot_num = id;
   }
 }
 

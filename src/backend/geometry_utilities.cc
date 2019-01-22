@@ -25,7 +25,11 @@ BuildLoadMessageForRoad(const drake::maliput::api::RoadGeometry& road_geometry,
   drake::multibody::Parser parser(&plant);
   parser.AddModelFromFile("/tmp/" + filename + ".urdf");
   plant.Finalize();
-  return BuildLoadMessage(scene_graph);
+  drake::lcmt_viewer_load_robot load_message = BuildLoadMessage(scene_graph);
+  for (drake::lcmt_viewer_link_data& link : load_message.link) {
+    link.name = link.name.substr(link.name.rfind("::") + 2);
+  }
+  return load_message;
 }
 
 }  // namespace delphyne

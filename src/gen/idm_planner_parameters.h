@@ -6,6 +6,7 @@
 // See drake/tools/lcm_vector_gen.py.
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -342,18 +343,20 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  // VectorBase override.
-  void CalcInequalityConstraint(drake::VectorX<T>* value) const final {
-    value->resize(9);
-    (*value)[0] = v_ref() - T(0.0);
-    (*value)[1] = a() - T(0.0);
-    (*value)[2] = b() - T(0.0);
-    (*value)[3] = s_0() - T(0.0);
-    (*value)[4] = time_headway() - T(0.0);
-    (*value)[5] = delta() - T(0.0);
-    (*value)[6] = bloat_diameter() - T(0.0);
-    (*value)[7] = distance_lower_limit() - T(0.0);
-    (*value)[8] = scan_ahead_distance() - T(0.0);
+  void GetElementBounds(Eigen::VectorXd* lower,
+                        Eigen::VectorXd* upper) const final {
+    const double kInf = std::numeric_limits<double>::infinity();
+    *lower = Eigen::Matrix<double, 9, 1>::Constant(-kInf);
+    *upper = Eigen::Matrix<double, 9, 1>::Constant(kInf);
+    (*lower)(K::kVRef) = 0.0;
+    (*lower)(K::kA) = 0.0;
+    (*lower)(K::kB) = 0.0;
+    (*lower)(K::kS0) = 0.0;
+    (*lower)(K::kTimeHeadway) = 0.0;
+    (*lower)(K::kDelta) = 0.0;
+    (*lower)(K::kBloatDiameter) = 0.0;
+    (*lower)(K::kDistanceLowerLimit) = 0.0;
+    (*lower)(K::kScanAheadDistance) = 0.0;
   }
 
  private:

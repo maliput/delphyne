@@ -69,11 +69,14 @@ SimpleCar2<T>::SimpleCar2(const SimpleCarState<T>& initial_context_state,
   this->DeclareContinuousState(initial_context_state);
   this->DeclareNumericParameter(initial_context_parameters);
 
-  this->DeclareInequalityConstraint(&SimpleCar2::CalcSteeringAngleConstraint, 2,
+  this->DeclareInequalityConstraint(&SimpleCar2::CalcSteeringAngleConstraint,
+                                    { Eigen::Vector2d::Zero(), drake::nullopt },
                                     "steering angle limit");
-  this->DeclareInequalityConstraint(&SimpleCar2::CalcAccelerationConstraint, 2,
+  this->DeclareInequalityConstraint(&SimpleCar2::CalcAccelerationConstraint,
+                                    { Eigen::Vector2d::Zero(), drake::nullopt },
                                     "acceleration limit");
-  this->DeclareInequalityConstraint(&SimpleCar2::CalcVelocityConstraint, 2,
+  this->DeclareInequalityConstraint(&SimpleCar2::CalcVelocityConstraint,
+                                    { Eigen::Vector2d::Zero(), drake::nullopt },
                                     "velocity limit");
 }
 

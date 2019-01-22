@@ -6,6 +6,7 @@
 // See drake/tools/lcm_vector_gen.py.
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -180,13 +181,15 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  // VectorBase override.
-  void CalcInequalityConstraint(drake::VectorX<T>* value) const final {
-    value->resize(4);
-    (*value)[0] = p() - T(0.0);
-    (*value)[1] = T(1.0) - p();
-    (*value)[2] = threshold() - T(0.0);
-    (*value)[3] = max_deceleration() - T(0.0);
+  void GetElementBounds(Eigen::VectorXd* lower,
+                        Eigen::VectorXd* upper) const final {
+    const double kInf = std::numeric_limits<double>::infinity();
+    *lower = Eigen::Matrix<double, 3, 1>::Constant(-kInf);
+    *upper = Eigen::Matrix<double, 3, 1>::Constant(kInf);
+    (*lower)(K::kP) = 0.0;
+    (*upper)(K::kP) = 1.0;
+    (*lower)(K::kThreshold) = 0.0;
+    (*lower)(K::kMaxDeceleration) = 0.0;
   }
 
  private:

@@ -156,13 +156,16 @@ LaneEnd FindLaneEnd(const Lane* lane, const LanePositionT<T>& lane_position,
   // canonical direction.
   const Quaternion<double> lane_rotation =
       lane->GetOrientation(lane_position.MakeDouble()).quat();
-  // The dot product of two quaternions is the cosine of half the angle between
-  // the two rotations. Given two quaternions q₀, q₁ and letting θ be the angle
-  // difference between them, then -π/2 ≤ θ ≤ π/2 iff q₀.q₁ ≥ √2/2.
-  const T rotations_dotp = rotation.dot(lane_rotation);
+  // It is assumed that the vehicle is going in the lane's direction if
+  // the angular distance θ between their headings is -π/2 ≤ θ ≤ π/2.
+  const double angle = std::fabs(lane_rotation.angularDistance(
+      Quaternion<double>(drake::ExtractDoubleOrThrow(rotation.w()),
+                         drake::ExtractDoubleOrThrow(rotation.x()),
+                         drake::ExtractDoubleOrThrow(rotation.y()),
+                         drake::ExtractDoubleOrThrow(rotation.z()))));
   // True if one or the other, but not both.
   const bool positive_s_direction =
-      (side == AheadOrBehind::kAhead) ^ (rotations_dotp < std::sqrt(2.) / 2.);
+      (side == AheadOrBehind::kAhead) ^ (angle > M_PI / 2.);
   return {lane, (positive_s_direction) ? LaneEnd::kFinish : LaneEnd::kStart};
 }
 

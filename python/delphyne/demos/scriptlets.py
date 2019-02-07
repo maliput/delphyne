@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright 2017 Toyota Research Institute
 #
@@ -15,8 +15,6 @@ Check the other examples in this directory for more advanced uses.
 ##############################################################################
 # Imports
 ##############################################################################
-
-from __future__ import print_function
 
 import os.path
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Writes a test failure out to test file if it doesn't exist.
@@ -6,16 +6,13 @@ Writes a test failure out to test file if it doesn't exist.
 
 # Adapted from rosunit/check_test_ran.py
 
-from __future__ import print_function
 NAME="check_test_ran.py"
 
 import os
 import sys
 
 def usage():
-    print("""Usage:
-\t%s test-file.xml
-"""%(NAME), file=sys.stderr)
+    print("""Usage: \t%s test-file.xml """%(NAME))
     print(sys.argv)
     sys.exit(getattr(os, 'EX_USAGE', 1))
 

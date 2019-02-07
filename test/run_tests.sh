@@ -51,12 +51,12 @@ popd
 
 ################################### PYTHON ###################################
 
-export PYTHONPATH=$DELPHYNE_INSTALL_DIR/lib/python2.7/site-packages:$DELPHYNE_INSTALL_DIR/lib
+export PYTHONPATH=$DELPHYNE_INSTALL_DIR/lib/python3.6/site-packages:$DELPHYNE_INSTALL_DIR/lib
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$DELPHYNE_INSTALL_DIR/lib
 
 printf "\nRunning Python tests:\n"
 # TODO(apojomovsky): replace this by `python setup.py test` after #290 is set up.
-python -m unittest discover ${SCRIPT_DIR}/regression/python "*_test.py" || PYTHON_EXIT=$?
+python3 -m unittest discover ${SCRIPT_DIR}/regression/python "*_test.py" || PYTHON_EXIT=$?
 
 ################################### RESULT ###################################
 # Output results and consolidate exit result to 0, 1.

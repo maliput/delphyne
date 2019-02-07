@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright 2017 Toyota Research Institute
 #
@@ -10,7 +10,6 @@ A keyop demo.
 # Imports
 ##############################################################################
 
-from __future__ import print_function
 from select import select
 
 import atexit

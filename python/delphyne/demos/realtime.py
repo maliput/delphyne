@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright 2017 Toyota Research Institute
 #
@@ -10,8 +10,6 @@ Manipulating the rate of time at startup and in runtime.
 ##############################################################################
 # Imports
 ##############################################################################
-
-from __future__ import print_function
 
 import os
 import sys

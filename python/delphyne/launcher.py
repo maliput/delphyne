@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright 2017 Toyota Research Institute
 #
@@ -62,12 +62,14 @@ class Launcher(object):
                 stdin=self.devnull,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
+                universal_newlines=True,
                 env=command_env)
         else:
             process = subprocess.Popen(
                 command,
                 stdin=self.devnull,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                universal_newlines=True,
                 cwd=cwd,
                 env=command_env)
         flags = fcntl.fcntl(process.stdout, fcntl.F_GETFL)
@@ -78,15 +80,15 @@ class Launcher(object):
         time.sleep(0.05)
         self._poll()
         if self.returncode is not None:
-            print process.stdout.read(),
-            print "[%s] %s failed to launch" % (self.name, label)
+            print(process.stdout.read())
+            print("[%s] %s failed to launch" % (self.name, label))
             sys.exit(self.returncode or 1)
 
     def _poll(self):
         for child in self.children:
             ret = child.process.poll()
             if ret is not None:
-                print "[%s] %s exited %d" % (self.name, child.label, ret)
+                print("[%s] %s exited %d" % (self.name, child.label, ret))
                 if self.returncode is None:
                     self.returncode = ret
         return self.returncode
@@ -102,8 +104,7 @@ class Launcher(object):
             now = time.time()
             elapsed = now - start
             if elapsed > duration:
-                print "[%s] %s exited via duration elapsed" % (
-                    self.name, self.name)
+                print ("[%s] %s exited via duration elapsed" % (self.name, self.name))
                 self.returncode = 0
                 self.done = True
 
@@ -117,8 +118,7 @@ class Launcher(object):
                 if not lines:
                     continue
 
-                print '\n'.join(
-                    ["[%s] %s" % (child.label, line) for line in lines])
+                print('\n'.join(["[%s] %s" % (child.label, line) for line in lines]))
                 sys.stdout.flush()
 
     def wait(self, duration):
@@ -132,8 +132,7 @@ class Launcher(object):
             self._wait(duration)
         except KeyboardInterrupt:
             # This is considered success; we ran until the user stopped us.
-            print "[%s] %s exited via keyboard interrupt" % (
-                self.name, self.name)
+            print("[%s] %s exited via keyboard interrupt" % (self.name, self.name))
             self.returncode = 0
         assert self.returncode is not None
 

@@ -104,7 +104,8 @@ class Launcher(object):
             now = time.time()
             elapsed = now - start
             if elapsed > duration:
-                print ("[%s] %s exited via duration elapsed" % (self.name, self.name))
+                print("[%s] %s exited via duration elapsed" %
+                      (self.name, self.name))
                 self.returncode = 0
                 self.done = True
 
@@ -118,7 +119,8 @@ class Launcher(object):
                 if not lines:
                     continue
 
-                print('\n'.join(["[%s] %s" % (child.label, line) for line in lines]))
+                print('\n'.join(["[%s] %s" % (child.label, line)
+                                 for line in lines]))
                 sys.stdout.flush()
 
     def wait(self, duration):
@@ -132,7 +134,8 @@ class Launcher(object):
             self._wait(duration)
         except KeyboardInterrupt:
             # This is considered success; we ran until the user stopped us.
-            print("[%s] %s exited via keyboard interrupt" % (self.name, self.name))
+            print("[%s] %s exited via keyboard interrupt" %
+                  (self.name, self.name))
             self.returncode = 0
         assert self.returncode is not None
 

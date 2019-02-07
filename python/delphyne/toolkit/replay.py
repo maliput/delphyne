@@ -13,7 +13,6 @@ The replay tool.
 
 import argparse
 import contextlib
-import itertools
 import os
 import shutil
 import sys
@@ -121,7 +120,7 @@ def main():
             for relative_path in os.listdir(root_path)
         ]
         found_files = [path for path in found_paths if os.path.isfile(path)]
-        args.log_file = next(itertools.ifilter(is_log_file, sorted(
+        args.log_file = next(filter(is_log_file, sorted(
             found_files, key=os.path.getmtime, reverse=True
         )), None)
 

@@ -11,7 +11,7 @@ check_program_installed() {
 }
 
 check_program_installed pycodestyle
-check_program_installed pylint
+check_program_installed pylint3
 
 declare -i PEP8FAILED=0
 declare -i PYLINTFAILED=0
@@ -25,7 +25,7 @@ declare -i PYLINTFAILED=0
 grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pycodestyle ||  PEP8FAILED=1
 if [ "$PEP8FAILED" -eq "0" ]; then
   # Run pylint
-grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pylint || PYLINTFAILED=1
+grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pylint3 || PYLINTFAILED=1
 else
   echo $'\n*** PEP8 failed, not doing pylint ***'
   exit 1

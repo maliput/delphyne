@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright 2018 Toyota Research Institute
 #
@@ -8,8 +8,6 @@ The performance benchmark demo.
 ##############################################################################
 # Imports
 ##############################################################################
-
-from __future__ import print_function
 
 import math
 

@@ -38,8 +38,7 @@ libignition-cmake-dev
 mercurial
 pkg-config
 pycodestyle
-pylint
-python-pip
+pylint3
 python3-vcstool
 EOF
 )

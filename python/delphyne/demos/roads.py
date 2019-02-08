@@ -1,4 +1,4 @@
-#!/usr/bin/env python2.7
+#!/usr/bin/env python3
 #
 # Copyright 2017 Toyota Research Institute
 #
@@ -8,8 +8,6 @@ Load a simulation with one of a few sample maliput road networks.
 ##############################################################################
 # Imports
 ##############################################################################
-
-from __future__ import print_function
 
 import os
 import sys
@@ -112,7 +110,7 @@ def main():
                     file_path=args.filename
                 )
             )
-        except RuntimeError, error:
+        except RuntimeError as error:
             print("There was an error trying to load the road network:")
             print(str(error))
             print("Exiting the simulation")

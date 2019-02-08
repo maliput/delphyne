@@ -62,14 +62,18 @@ class Launcher(object):
                 stdin=self.devnull,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
-                universal_newlines=True,
+                universal_newlines=True,  # otherwise the terminal control
+                                          # characters (e.g. for colors) are
+                                          # escaped.
                 env=command_env)
         else:
             process = subprocess.Popen(
                 command,
                 stdin=self.devnull,
                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                universal_newlines=True,
+                universal_newlines=True,  # otherwise the terminal control
+                                          # characters (e.g. for colors) are
+                                          # escaped.
                 cwd=cwd,
                 env=command_env)
         flags = fcntl.fcntl(process.stdout, fcntl.F_GETFL)

@@ -281,12 +281,14 @@ void AgentSimulationBaseBuilder<T>::AddAgentStatePublishers() {
     builder_->Connect(pose_bundle_to_agent_state_v->get_output_port(0),
                       agents_state_splitter->get_input_port(0));
 
+    auto agent_it = agents_.cbegin();
     for (int i = 0; i < num_agents; ++i) {
       // Adds an AgentState vector publisher system for each agent
       // and wires it with the splitter.
       auto agent_state_publisher = builder_->template AddSystem<
           IgnPublisherSystem<ignition::msgs::AgentState>>(
-          "agent/" + std::to_string(i) + "/state");
+          "agent/" + std::get<0>(*agent_it) + "/state");
+      ++agent_it;
 
       builder_->Connect(agents_state_splitter->get_output_port(i),
                         agent_state_publisher->get_input_port(0));

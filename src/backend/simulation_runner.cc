@@ -383,9 +383,12 @@ void SimulationRunner::SendWorldStats() {
 void SimulationRunner::ProcessWorldControlMessage(
     const ignition::msgs::WorldControl& msg) {
   if (msg.has_pause()) {
-    if (msg.pause()) {
+    /* If we press the play-pause button quickly,
+    more than one play/pause message will be sent
+    so we just ignore it. */
+    if (msg.pause() && !IsSimulationPaused()) {
       PauseSimulation();
-    } else {
+    } else if (IsSimulationPaused()) {
       UnpauseSimulation();
     }
   } else if (msg.has_step() && msg.step()) {

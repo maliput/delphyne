@@ -40,7 +40,7 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     // Appends a new state to the vector.
     ignition::msgs::AgentState* current_state = ign_message->add_states();
     current_state->set_name(
-        "/agent/" + std::to_string(drake_message.get_model_instance_id(i)) +
+        "/agent/" + drake_message.get_name(i) +
         "/state");
     current_state->mutable_position()->set_x(pose.translation().x());
     current_state->mutable_position()->set_y(pose.translation().y());

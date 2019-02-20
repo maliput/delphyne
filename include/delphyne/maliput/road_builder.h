@@ -61,6 +61,13 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
 std::unique_ptr<const drake::maliput::api::RoadGeometry>
 CreateMultilaneFromFile(const std::string& file_path);
 
+/// @brief Create a malidrive from xodr source.
+///
+/// @param[in] name A name for the road geometry to be created.
+/// @param[in] file_path A string pointing to the file to be loaded.
+std::unique_ptr<const drake::maliput::api::RoadGeometry>
+CreateMalidriveFromFile(const std::string& name, const std::string& file_path);
+
 /// @brief Create a multilane on-ramp.
 std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp();
 

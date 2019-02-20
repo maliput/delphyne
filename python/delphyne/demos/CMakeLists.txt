@@ -11,6 +11,7 @@ install(
     helpers.py
     gazoo.py
     keyop.py
+    mali.py
     mobil_perf.py
     realtime.py
     roads.py

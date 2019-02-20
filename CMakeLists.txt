@@ -34,6 +34,7 @@ add_custom_target(uninstall
 message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 
 find_package(drake REQUIRED)
+find_package(malidrive REQUIRED)
 find_package(ignition-common2 REQUIRED COMPONENTS graphics)
 find_package(ignition-math5 REQUIRED)
 find_package(ignition-msgs2 REQUIRED)

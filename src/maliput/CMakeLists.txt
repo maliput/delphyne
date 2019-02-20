@@ -28,6 +28,9 @@ target_link_libraries(
   maliput_utilities
   PUBLIC
     drake::drake
+    malidrive::utility
+    malidrive::malidrive
+    malidrive::opendrive
 )
 
 install(

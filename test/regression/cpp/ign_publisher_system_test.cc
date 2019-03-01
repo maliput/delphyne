@@ -5,8 +5,8 @@
 
 #include <chrono>
 
+#include <drake/common/value.h>
 #include <drake/systems/analysis/simulator.h>
-#include <drake/systems/framework/value.h>
 
 #include <gtest/gtest.h>
 
@@ -39,7 +39,7 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
 
   // Configures context's input with the pre-loaded message.
   simulator.get_mutable_context().FixInputPort(
-      0, drake::systems::AbstractValue::Make(kIgnMsg));
+      0, drake::AbstractValue::Make(kIgnMsg));
 
   // Simulates for a small time period.
   simulator.Initialize();
@@ -72,7 +72,7 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
 
   // Configures context's input with the pre-loaded message.
   simulator.get_mutable_context().FixInputPort(
-      0, drake::systems::AbstractValue::Make(kIgnMsg));
+      0, drake::AbstractValue::Make(kIgnMsg));
 
   // Simulates enough for the expected message count to get
   // published.

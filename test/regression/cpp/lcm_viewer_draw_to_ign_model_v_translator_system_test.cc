@@ -20,7 +20,7 @@ GTEST_TEST(LCMViewerDrawToIgnModelVTranslatorSystemTest, TestTranslation) {
       translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
-                        drake::systems::AbstractValue::Make(lcm_msg));
+                        drake::AbstractValue::Make(lcm_msg));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
       translator.AllocateOutput();

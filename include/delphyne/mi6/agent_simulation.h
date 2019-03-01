@@ -223,7 +223,7 @@ class AgentSimulationBase {
   SceneSystem* scene_system_;
   // The scene query associated with the `scene_graph_` in this simulation,
   // useful for geometrical queries (e.g. collision detections).
-  std::unique_ptr<drake::systems::AbstractValue> scene_query_;
+  std::unique_ptr<drake::AbstractValue> scene_query_;
 };
 
 using AgentSimulation = AgentSimulationBase<double>;

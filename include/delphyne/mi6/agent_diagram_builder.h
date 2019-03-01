@@ -52,7 +52,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   explicit AgentDiagramBuilder(const std::string& name) : name_(name) {
     traffic_poses_ =
         this->AddSystem(std::make_unique<drake::systems::PassThrough<double>>(
-            drake::systems::Value<
+            drake::Value<
                 drake::systems::rendering::PoseBundle<double>>(0)));
     inputs_mapping_["traffic_poses"] =
         this->ExportInput(traffic_poses_->get_input_port());

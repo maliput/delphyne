@@ -27,7 +27,7 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   IgnToDrake() {
     // Input port (abstract for all ignition types).
     DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                             drake::systems::Value<IGN_TYPE>());
+                             drake::Value<IGN_TYPE>());
 
     // Output port (vector or abstract, depending on DRAKE_TYPE).
     InitOutputPort();

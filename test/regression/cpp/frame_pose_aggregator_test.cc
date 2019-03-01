@@ -5,11 +5,11 @@
 #include <memory>
 
 #include <drake/common/eigen_types.h>
+#include <drake/common/value.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/input_port.h>
 #include <drake/systems/framework/output_port.h>
-#include <drake/systems/framework/value.h>
 #include <drake/systems/rendering/pose_vector.h>
 
 #include <gtest/gtest.h>
@@ -50,7 +50,7 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
       frame_pose_aggregator.AllocateOutput();
   frame_pose_aggregator.CalcOutput(*context, output.get());
 
-  const drake::systems::AbstractValue* output_value = output->get_data(0);
+  const drake::AbstractValue* output_value = output->get_data(0);
   const auto& output_frame_pose_vector =
       output_value->GetValue<drake::geometry::FramePoseVector<double>>();
 

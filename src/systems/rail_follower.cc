@@ -18,10 +18,10 @@
 #include <drake/automotive/maliput/api/lane_data.h>
 #include <drake/common/cond.h>
 #include <drake/common/drake_assert.h>
+#include <drake/common/value.h>
 #include <drake/math/rotation_matrix.h>
 #include <drake/multibody/math/spatial_velocity.h>
 #include <drake/systems/framework/basic_vector.h>
-#include <drake/systems/framework/value.h>
 #include <drake/systems/framework/vector_base.h>
 
 #include <Eigen/Geometry>
@@ -109,7 +109,7 @@ RailFollower<T>::RailFollower(
   velocity_output_port_index_ =
       this->DeclareVectorOutputPort(&RailFollower::CalcVelocity).get_index();
   lane_direction_context_index_ = this->DeclareAbstractState(
-      drake::systems::AbstractValue::Make<LaneDirection>(
+      drake::AbstractValue::Make<LaneDirection>(
           initial_lane_direction));
   rail_follower_params_context_index_ =
       this->DeclareNumericParameter(initial_context_parameters);
@@ -417,7 +417,7 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
   const double current_length = current_lane_direction.lane->length();
 
   // Copies the present state into the new one.
-  next_state->CopyFrom(context.get_state());
+  next_state->SetFrom(context.get_state());
 
   drake::systems::ContinuousState<T>& cs =
       next_state->get_mutable_continuous_state();

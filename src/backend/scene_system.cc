@@ -16,11 +16,11 @@ using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
 SceneSystem::SceneSystem() {
   geometry_models_input_port_index_ =
       DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                               drake::systems::Value<ignition::msgs::Model_V>())
+                               drake::Value<ignition::msgs::Model_V>())
           .get_index();
   updated_pose_models_input_port_index_ =
       DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                               drake::systems::Value<ignition::msgs::Model_V>())
+                               drake::Value<ignition::msgs::Model_V>())
           .get_index();
 
   DeclareAbstractOutputPort(&SceneSystem::CalcSceneMessage);

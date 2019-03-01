@@ -42,7 +42,7 @@ MobilPlanner<T>::MobilPlanner(const RoadGeometry& road, bool initial_with_s,
           this->DeclareVectorInputPort(BasicVector<T>(1)).get_index()},
       traffic_index_{
           this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                                         drake::systems::Value<PoseBundle<T>>())
+                                         drake::Value<PoseBundle<T>>())
               .get_index()},
       lane_index_{
           this->DeclareAbstractOutputPort(&MobilPlanner::CalcLaneDirection)
@@ -58,7 +58,7 @@ MobilPlanner<T>::MobilPlanner(const RoadGeometry& road, bool initial_with_s,
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
     this->DeclareAbstractState(
-        drake::systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
+        drake::AbstractValue::Make<RoadPosition>(RoadPosition()));
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }

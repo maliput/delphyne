@@ -28,10 +28,10 @@ class AgentState_v_Splitter : public drake::systems::LeafSystem<T> {
   /// @param[in] output A pointer to an abstracted AgentState message.
   /// @param[in] agent_index The index to the desired agent in the input vector.
   void DoSplit(const drake::systems::Context<T>& context,
-               drake::systems::AbstractValue* output, int agent_index) const;
+               drake::AbstractValue* output, int agent_index) const;
 
   /// @brief Allocates an abstract value object.
-  std::unique_ptr<drake::systems::AbstractValue> DoAlloc() const;
+  std::unique_ptr<drake::AbstractValue> DoAlloc() const;
 
   /// @brief The message instance that is updated with the system's output
   /// on each simulation step.

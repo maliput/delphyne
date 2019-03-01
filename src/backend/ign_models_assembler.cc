@@ -12,12 +12,12 @@ namespace delphyne {
 IgnModelsAssembler::IgnModelsAssembler() {
   models_input_port_index_ =
       DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                               drake::systems::Value<ignition::msgs::Model_V>())
+                               drake::Value<ignition::msgs::Model_V>())
           .get_index();
   states_input_port_index_ =
       DeclareAbstractInputPort(
           drake::systems::kUseDefaultName,
-          drake::systems::Value<
+          drake::Value<
               drake::systems::rendering::PoseBundle<double>>())
           .get_index();
 

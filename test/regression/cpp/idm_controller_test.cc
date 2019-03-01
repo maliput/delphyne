@@ -102,7 +102,7 @@ class IDMControllerTest
     traffic_poses.set_velocity(kLeadIndex, lead_velocity);
     traffic_poses.set_pose(kEgoIndex, Eigen::Isometry3d(translation_ego));
     context_->FixInputPort(traffic_input_index_,
-                           drake::systems::AbstractValue::Make(traffic_poses));
+                           drake::AbstractValue::Make(traffic_poses));
   }
 
   std::unique_ptr<drake::systems::System<double>>
@@ -266,7 +266,7 @@ TEST_P(IDMControllerTest, ToAutoDiff) {
     poses.set_velocity(0, traffic_velocity);
     poses.set_pose(0, drake::Isometry3<AutoDiffXd>(translation));
     other_context->FixInputPort(traffic_input_index_,
-                                drake::systems::AbstractValue::Make(poses));
+                                drake::AbstractValue::Make(poses));
 
     const auto result =
         other_output->get_vector_data(acceleration_output_index_);

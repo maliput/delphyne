@@ -15,7 +15,6 @@
 #include <drake/automotive/multilane_onramp_merge.h>
 
 #include <malidrive/loader.h>
-#include <malidrive/road_geometry.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -62,8 +61,9 @@ CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
       file_path,
       drake::maliput::api::RoadGeometryId(name),
       kLinearTolerance, kAngularTolerance, kScaleLength,
-      malidrive::RoadGeometry::InertialToLaneMappingConfig(
-          kExplorationRadius, kMaxIntersectIterations));
+      malidrive::InertialToLaneMappingConfig(
+          kExplorationRadius, kMaxIntersectIterations),
+      malidrive::WorldToOpenDriveTransform::Identity());
 }
 
 

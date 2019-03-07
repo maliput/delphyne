@@ -33,7 +33,7 @@
 namespace delphyne {
 
 using drake::maliput::api::RoadGeometry;
-using drake::systems::AbstractValue;
+using drake::AbstractValue;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::RungeKutta2Integrator;
 using drake::systems::SystemOutput;

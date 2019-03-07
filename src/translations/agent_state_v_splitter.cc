@@ -5,8 +5,8 @@
 #include <functional>
 #include <memory>
 
-#include "drake/systems/framework/leaf_system.h"
-#include "drake/systems/framework/value.h"
+#include <drake/common/value.h>
+#include <drake/systems/framework/leaf_system.h>
 
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/agent_state.pb.h"
@@ -20,7 +20,7 @@ AgentState_v_Splitter<T>::AgentState_v_Splitter(int num_agents) {
                     "There must be at least 1 agent.");
   this->DeclareAbstractInputPort(
       drake::systems::kUseDefaultName,
-      drake::systems::Value<ignition::msgs::AgentState_V>());
+      drake::Value<ignition::msgs::AgentState_V>());
 
   auto do_alloc = std::bind(&AgentState_v_Splitter<T>::DoAlloc, this);
   using std::placeholders::_1;
@@ -33,15 +33,15 @@ AgentState_v_Splitter<T>::AgentState_v_Splitter(int num_agents) {
 }
 
 template <typename T>
-std::unique_ptr<drake::systems::AbstractValue>
+std::unique_ptr<drake::AbstractValue>
 AgentState_v_Splitter<T>::DoAlloc() const {
-  return drake::systems::AbstractValue::Make(state_);
+  return drake::AbstractValue::Make(state_);
 }
 
 template <typename T>
 void AgentState_v_Splitter<T>::DoSplit(
     const drake::systems::Context<T>& context,
-    drake::systems::AbstractValue* output, int agent_index) const {
+    drake::AbstractValue* output, int agent_index) const {
   // Evaluates input.
   const ignition::msgs::AgentState_V* simple_car_state_v =
       this->template EvalInputValue<ignition::msgs::AgentState_V>(context, 0);

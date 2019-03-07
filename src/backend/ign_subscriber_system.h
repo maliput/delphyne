@@ -38,7 +38,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
     DeclareAbstractOutputPort(
         [this]() { return this->AllocateDefaultAbstractValue(); },
         [this](const drake::systems::Context<double>& context,
-               drake::systems::AbstractValue* out) {
+               drake::AbstractValue* out) {
           this->IgnSubscriberSystem::CalcIgnMessage(context, out);
         });
 
@@ -51,18 +51,18 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
 
   ~IgnSubscriberSystem() override {}
 
-  std::unique_ptr<drake::systems::AbstractValue> AllocateDefaultAbstractValue()
+  std::unique_ptr<drake::AbstractValue> AllocateDefaultAbstractValue()
       const {
-    return std::make_unique<drake::systems::Value<IGN_TYPE>>(IGN_TYPE{});
+    return std::make_unique<drake::Value<IGN_TYPE>>(IGN_TYPE{});
   }
 
   std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
       const override {
-    std::vector<std::unique_ptr<drake::systems::AbstractValue>> abstract_values(
+    std::vector<std::unique_ptr<drake::AbstractValue>> abstract_values(
         kTotalStateValues);
     abstract_values[kStateIndexMessage] = AllocateDefaultAbstractValue();
     abstract_values[kStateIndexMessageCount] =
-        drake::systems::AbstractValue::Make<int>(0);
+        drake::AbstractValue::Make<int>(0);
     return std::make_unique<drake::systems::AbstractValues>(
         std::move(abstract_values));
   }
@@ -161,7 +161,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   }
 
   void CalcIgnMessage(const drake::systems::Context<double>& context,
-                      drake::systems::AbstractValue* output_value) const {
+                      drake::AbstractValue* output_value) const {
     DELPHYNE_VALIDATE(output_value != nullptr, std::invalid_argument,
                       "Output value pointer must not be null");
 

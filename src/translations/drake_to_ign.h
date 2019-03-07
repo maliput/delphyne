@@ -54,7 +54,7 @@ class DrakeToIgn : public drake::systems::LeafSystem<double> {
                  void>::type* = 0) {
     // Abstract input port.
     DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                             drake::systems::Value<DRAKE_TYPE>());
+                             drake::Value<DRAKE_TYPE>());
 
     // Output port (abstract for all ignition types).
     DeclareAbstractOutputPort(&DrakeToIgn::CalcIgnMessage);

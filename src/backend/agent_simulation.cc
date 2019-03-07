@@ -159,7 +159,7 @@ void AgentSimulationBase<T>::StepBy(const T& time_step) {
 template <typename T>
 drake::systems::rendering::PoseBundle<T>
 AgentSimulationBase<T>::GetCurrentPoses() const {
-  using drake::systems::AbstractValue;
+  using drake::AbstractValue;
   using drake::systems::SystemOutput;
   using drake::systems::rendering::PoseBundle;
   std::unique_ptr<SystemOutput<T>> system_output = diagram_->AllocateOutput();

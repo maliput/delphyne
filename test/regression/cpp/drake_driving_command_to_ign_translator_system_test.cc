@@ -28,7 +28,7 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   context->FixInputPort(
       kPortIndex,
       std::make_unique<
-          drake::systems::Value<drake::systems::BasicVector<double>>>(
+          drake::Value<drake::systems::BasicVector<double>>>(
           drake_msg));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =

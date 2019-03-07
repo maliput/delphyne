@@ -23,7 +23,7 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
       translator.AllocateContext();
   const int kPortIndex{0};
   context->FixInputPort(kPortIndex,
-                        drake::systems::AbstractValue::Make(ign_msg));
+                        drake::AbstractValue::Make(ign_msg));
 
   auto output = translator.AllocateOutput();
   translator.CalcOutput(*context, output.get());

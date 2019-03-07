@@ -11,11 +11,11 @@
 #include <string>
 
 #include <drake/common/eigen_types.h>
+#include <drake/common/value.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/output_port.h>
-#include <drake/systems/framework/value.h>
 #include <drake/systems/framework/vector_base.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
@@ -90,7 +90,7 @@ class AgentBase {
     constexpr const char* const kPosePortName = "pose";
     const drake::systems::OutputPort<T>& pose_output_port =
         GetDiagram().get_output_port(kPosePortName);
-    std::unique_ptr<drake::systems::AbstractValue> port_value =
+    std::unique_ptr<drake::AbstractValue> port_value =
         pose_output_port.Allocate();
     pose_output_port.Calc(GetContext(), port_value.get());
     // TODO(hidmic): figure out why type assertions fail if
@@ -113,7 +113,7 @@ class AgentBase {
     constexpr const char* const kVelocityPortName = "velocity";
     const drake::systems::OutputPort<T>& vel_output_port =
         GetDiagram().get_output_port(kVelocityPortName);
-    std::unique_ptr<drake::systems::AbstractValue> port_value =
+    std::unique_ptr<drake::AbstractValue> port_value =
         vel_output_port.Allocate();
     vel_output_port.Calc(GetContext(), port_value.get());
     // TODO(hidmic): figure out why type assertions fail if

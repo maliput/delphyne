@@ -45,7 +45,7 @@ class PurePursuitControllerTest : public ::testing::Test {
     // Set the LaneId.
     context_->FixInputPort(
         dut_->lane_input().get_index(),
-        drake::systems::AbstractValue::Make(*lane_direction_));
+        drake::AbstractValue::Make(*lane_direction_));
 
     // Set the ego car's pose.
     auto ego_pose = std::make_unique<PoseVector<double>>();
@@ -93,7 +93,7 @@ TEST_F(PurePursuitControllerTest, ToAutoDiff) {
 
     other_context->FixInputPort(
         dut_->lane_input().get_index(),
-        drake::systems::AbstractValue::Make(*lane_direction_));
+        drake::AbstractValue::Make(*lane_direction_));
     auto ego_pose = std::make_unique<PoseVector<AutoDiffXd>>();
     other_context->FixInputPort(dut_->ego_pose_input().get_index(),
                                 std::move(ego_pose));

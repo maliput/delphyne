@@ -8,8 +8,8 @@
 #include <Eigen/Geometry>
 
 #include <drake/common/drake_assert.h>
+#include <drake/common/value.h>
 #include <drake/multibody/shapes/visual_element.h>
-#include <drake/systems/framework/value.h>
 #include <drake/systems/rendering/drake_visualizer_client.h>
 
 using std::unique_ptr;
@@ -18,7 +18,7 @@ using std::vector;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
 using drake::systems::Context;
-using drake::systems::Value;
+using drake::Value;
 
 namespace delphyne {
 

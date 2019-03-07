@@ -7,9 +7,9 @@
 #include <Eigen/Dense>
 #include <gtest/gtest.h>
 
+#include <drake/common/value.h>
 #include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/math/rotation_matrix.h>
-#include <drake/systems/framework/value.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 
@@ -24,8 +24,8 @@ using std::vector;
 
 namespace delphyne {
 
-using drake::systems::AbstractValue;
-using drake::systems::Value;
+using drake::AbstractValue;
+using drake::Value;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
 
@@ -46,7 +46,7 @@ class CarVisApplicatorTest : public ::testing::Test {
     const int kPoseIndex = dut_->get_car_poses_input_port().get_index();
     context_->FixInputPort(
         kPoseIndex,
-        drake::systems::AbstractValue::Make<PoseBundle<double>>(pose_bundle));
+        drake::AbstractValue::Make<PoseBundle<double>>(pose_bundle));
   }
 
   const PoseBundle<double>& GetOutput() const {

@@ -132,7 +132,7 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     traffic_poses.set_pose(num_lanes, Eigen::Isometry3d(translation_ego));
     traffic_poses.set_velocity(num_lanes, all_velocity);
     context_->FixInputPort(traffic_input_index_,
-                           drake::systems::AbstractValue::Make(traffic_poses));
+                           drake::AbstractValue::Make(traffic_poses));
   }
 
   std::unique_ptr<drake::systems::System<double>>

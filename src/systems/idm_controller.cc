@@ -42,7 +42,7 @@ IDMController<T>::IDMController(const RoadGeometry& road,
           this->DeclareVectorInputPort(FrameVelocity<T>()).get_index()),
       traffic_index_(
           this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                                         drake::systems::Value<PoseBundle<T>>())
+                                         drake::Value<PoseBundle<T>>())
               .get_index()),
       acceleration_index_(
           this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
@@ -54,7 +54,7 @@ IDMController<T>::IDMController(const RoadGeometry& road,
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
     this->DeclareAbstractState(
-        drake::systems::AbstractValue::Make<RoadPosition>(RoadPosition()));
+        drake::AbstractValue::Make<RoadPosition>(RoadPosition()));
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }

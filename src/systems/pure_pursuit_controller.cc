@@ -23,7 +23,7 @@ PurePursuitController<T>::PurePursuitController()
           drake::systems::SystemTypeTag<::delphyne::PurePursuitController>{}),
       lane_index_{
           this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                                         drake::systems::Value<LaneDirection>())
+                                         drake::Value<LaneDirection>())
               .get_index()},
       ego_pose_index_{this->DeclareInputPort(drake::systems::kVectorValued,
                                              PoseVector<T>::kSize)

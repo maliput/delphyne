@@ -34,10 +34,10 @@ GTEST_TEST(IgnModelsAssemblerTest, CalcAssembledModelVTest) {
       models_assembler.AllocateContext();
 
   context->FixInputPort(models_assembler.get_models_input_port_index(),
-                        drake::systems::AbstractValue::Make(input_models));
+                        drake::AbstractValue::Make(input_models));
 
   context->FixInputPort(models_assembler.get_states_input_port_index(),
-                        drake::systems::AbstractValue::Make(input_states));
+                        drake::AbstractValue::Make(input_states));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output =
       models_assembler.AllocateOutput();

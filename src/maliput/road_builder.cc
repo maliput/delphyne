@@ -52,11 +52,11 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {
 std::unique_ptr<const drake::maliput::api::RoadGeometry>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
   // TODO(hidmic): consider exposing InertialToLaneMappingConfig
-  const double kLinearTolerance{2e-3};
-  const double kAngularTolerance{1e-2};
-  const double kScaleLength{1.};
-  const double kExplorationRadius{5.};
-  const int kMaxIntersectIterations{10};
+  constexpr double kLinearTolerance{2e-3};
+  constexpr double kAngularTolerance{1e-2};
+  constexpr double kScaleLength{1.};
+  constexpr double kExplorationRadius{5.};
+  constexpr int kMaxIntersectIterations{10};
   return malidrive::Load(
       file_path,
       drake::maliput::api::RoadGeometryId(name),

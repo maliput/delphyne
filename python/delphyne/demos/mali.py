@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 #
-# Copyright 2017 Toyota Research Institute
+# Copyright 2019 Toyota Research Institute
 #
 """
-The gazoo demo.
+The mali demo.
 ```
 """
 ##############################################################################

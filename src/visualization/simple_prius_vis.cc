@@ -9,7 +9,11 @@
 
 #include "visualization/simple_prius_vis.h"
 
-#include <sstream>
+#include <algorithm>
+#include <iterator>
+#include <list>
+#include <string>
+#include <vector>
 
 #include <drake/common/drake_assert.h>
 #include <drake/common/eigen_types.h>
@@ -20,6 +24,8 @@
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
+
+#include <ignition/common/SystemPaths.hh>
 
 #include "delphyne/macros.h"
 
@@ -40,14 +46,20 @@ SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
   // (see lib/cmake/spdlog/spdlog-config.cmake that was installed by drake).
   drake::log()->set_level(spdlog::level::err);
 #endif
-  const char* delphyne_resource_root = std::getenv("DELPHYNE_RESOURCE_ROOT");
-  DELPHYNE_DEMAND(delphyne_resource_root != NULL);
-
-  std::stringstream sdf_filename;
-  sdf_filename << delphyne_resource_root << "/media/prius/simple_prius.sdf";
+  using ignition::common::SystemPaths;
+  const std::list<std::string> paths =
+      SystemPaths::PathsFromEnv("DELPHYNE_RESOURCE_ROOT");
+  DELPHYNE_VALIDATE(!paths.empty(), std::runtime_error,
+                    "DELPHYNE_RESOURCE_ROOT environment "
+                    "variable is not set");
+  std::vector<std::string> resource_paths;
+  resource_paths.reserve(paths.size());
+  std::copy(paths.begin(), paths.end(), std::back_inserter(resource_paths));
+  const std::string sdf_path = SystemPaths::LocateLocalFile(
+      "media/prius/simple_prius.sdf", resource_paths);
   plant_.RegisterAsSourceForSceneGraph(&scene_graph_);
   drake::multibody::Parser parser(&plant_);
-  prius_index_ = parser.AddModelFromFile(sdf_filename.str());
+  prius_index_ = parser.AddModelFromFile(sdf_path);
   plant_.Finalize();
 
   plant_context_ = plant_.CreateDefaultContext();

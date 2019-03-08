@@ -56,8 +56,7 @@ def main():
 
     builder = simulation.AgentSimulationBuilder()
 
-    filename = "{0}/roads/circuit.yaml".format(
-        utilities.get_delphyne_resource_root())
+    filename = utilities.get_delphyne_resource('roads/circuit.yaml')
 
     if not os.path.isfile(filename):
         print("Required file {} not found."

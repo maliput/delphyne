@@ -44,8 +44,8 @@ def curved_lanes(args):
     # Loads Multilane road.
     road = builder.set_road_geometry(
         maliput.create_multilane_from_file(
-            "{0}/roads/curved_lanes.yaml".format(
-                utilities.get_delphyne_resource_root()
+            file_path=utilities.get_delphyne_resource(
+                'roads/curved_lanes.yaml'
             )
         )
     )
@@ -91,8 +91,8 @@ def straight_lanes(args):
     # Loads Multilane road.
     road = builder.set_road_geometry(
         maliput.create_multilane_from_file(
-            file_path="{0}/roads/straight_lanes.yaml".format(
-                utilities.get_delphyne_resource_root()
+            file_path=utilities.get_delphyne_resource(
+                '/roads/straight_lanes.yaml'
             )
         )
     )

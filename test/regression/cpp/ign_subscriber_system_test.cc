@@ -62,7 +62,7 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
       context->CloneState();
   subscriber_system.CalcUnrestrictedUpdate(
       *context, event_info->get_unrestricted_update_events(), tmp_state.get());
-  context->get_mutable_state().CopyFrom(*tmp_state);
+  context->get_mutable_state().SetFrom(*tmp_state);
 
   // Finally, the context containing the results of the update can be used to
   // calculate the system's output.

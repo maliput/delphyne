@@ -4,8 +4,8 @@
 
 #include <string>
 
-#include "drake/common/drake_assert.h"
-#include "drake/common/drake_copyable.h"
+#include <drake/common/drake_assert.h>
+#include <drake/common/drake_copyable.h>
 
 #if defined(__GNUC__)
 #define DELPHYNE_DEPRECATED(version) __attribute__((deprecated))

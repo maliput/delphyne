@@ -66,8 +66,9 @@ def launch_visualizer(launcher_manager, layout_filename=None,
     ign_visualizer_args = []
     if layout_filename:
         layout_key = "--layout="
-        layout_path = os.path.join(get_delphyne_resource_root(),
-                                   "layouts", layout_filename)
+        layout_path = get_delphyne_resource(
+            os.path.join("layouts", layout_filename)
+        )
         ign_visualizer_args.append(layout_key + layout_path)
     if plugin_injection:
         ign_visualizer_args.append("--inject-plugin=" + plugin_injection)
@@ -99,7 +100,11 @@ def get_delphyne_resource_root():
 
 def get_delphyne_resource(path):
     """Resolve the path against delphyne resources root location."""
-    return os.path.join(get_delphyne_resource_root(), path)
+    for root in get_delphyne_resource_root().split(':'):
+        resolved_path = os.path.join(root, path)
+        if os.path.exists(resolved_path):
+            return resolved_path
+    return ''
 
 ##############################################################################
 # Agents

@@ -19,6 +19,7 @@ target_link_libraries(visualization
   PUBLIC
     public_headers
     drake::drake
+    ignition-common2::ignition-common2
 )
 
 install(TARGETS visualization

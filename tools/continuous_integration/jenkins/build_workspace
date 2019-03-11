@@ -70,6 +70,7 @@ ssh -i "$SSH_IDENTITY_FILE" -o StrictHostKeyChecking=no "\$@"
 EOF
 chmod 0755 "$GIT_SSH_FILE"
 GIT_SSH="$GIT_SSH_FILE" git clone git@github.com:ToyotaResearchInstitute/delphyne-gui.git delphyne_gui
+git clone -b 'bmarchi/add_delphyne_repos' git@github.com:ToyotaResearchInstitute/dsim-repos-index.git repos_index
 
 if [ "$CHANGE_BRANCH" != "" ]; then
     echo "**** Checking out delphyne-gui branch $CHANGE_BRANCH ****"
@@ -87,7 +88,7 @@ popd # workspace
 
 # Make sure to remove both 'delphyne' and 'delphyne-gui' from 'delphyne.repos'
 # since vcs will not have the proper credentials to access them.
-sed -e '/^ *delphyne/d' workspace/delphyne_gui/delphyne.repos > deps.repos
+sed -e '/^ *delphyne/d' workspace/repos_index/delphyne.repos > deps.repos
 
 # As of 2018-08-24, clone bundles on bitbucket.org/ignitionrobotics no longer
 # work (I don't know why).  For now, disable cloning for mercurial using clone

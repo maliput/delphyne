@@ -52,7 +52,7 @@ git clone -b 'bmarchi/add_delphyne_repos' git@github.com:ToyotaResearchInstitute
 
 mkdir -p src
 
-vcs import src < index/delphyne.repos
+vcs import src < index/delphyne-ci.repos
 
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"

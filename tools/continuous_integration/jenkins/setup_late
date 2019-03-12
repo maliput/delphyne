@@ -12,6 +12,7 @@ set -eu
 
 export DEBIAN_FRONTEND='noninteractive'
 
+yes | sudo /opt/drake/share/drake/setup/install_prereqs
 for script in find ./src -name 'install_prereqs.sh'; do
     yes | sudo $script
 done

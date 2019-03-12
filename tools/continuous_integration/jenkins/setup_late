@@ -12,5 +12,6 @@ set -eu
 
 export DEBIAN_FRONTEND='noninteractive'
 
-yes | sudo ./workspace/delphyne_gui/tools/install_prereqs.sh
-yes | sudo ./workspace/drake/setup/ubuntu/18.04/install_prereqs.sh
+for script in find ./src -name 'install_prereqs.sh'; do
+    yes | sudo $script
+done

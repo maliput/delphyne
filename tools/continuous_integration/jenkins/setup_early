@@ -47,6 +47,44 @@ pycodestyle
 pylint3
 python3-vcstool
 python3-colcon-common-extensions
-python3-colcon-bazel
 EOF
 )
+
+# The latest available drake nightly is downloaded and installed.
+
+url_exists () {
+    echo Testing URL: $1
+    # Sends an http request against the test URL, will return false if whether the
+    # request specifically fails or if it takes more than 5 seconds to respond.
+    if curl --output /dev/null --silent --head --max-time 5 --fail "$1"; then
+        return 0
+    fi
+    return 1
+}
+
+TEMPLATE_RELEASE_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-YYYYMMDD-bionic.tar.gz"
+
+RELEASE_DATE=$(date +%Y%m%d -d "yesterday")
+RELEASE_URL="${TEMPLATE_RELEASE_URL//YYYYMMDD/$RELEASE_DATE}"
+if ! url_exists $RELEASE_URL; then
+    # In case the initial URL for downloading the binary is not valid,
+    # the script will attempt to generate new ones based on the dates of up
+    # to 5 days after the commit date.
+    NUM_ATTEMPTS=1
+    while ! url_exists $RELEASE_URL; do
+      if [ "$NUM_ATTEMPTS" -le "5" ] ; then
+        # Adds one day to the current date to test.
+        RELEASE_DATE=$(date +%Y%m%d -d "$RELEASE_DATE - 1 day")
+        # Updates binary's URL with new date.
+        RELEASE_URL="${TEMPLATE_RELEASE_URL//YYYYMMDD/$RELEASE_DATE}"
+      # If couldn't find a valid URL between the tested dates, fails.
+      else
+        echo "ERROR: Couldn't find a valid URL to download drake binaries."
+        exit 1
+      fi
+      NUM_ATTEMPTS=$((NUM_ATTEMPTS+1))
+    done
+fi
+
+# Downloads drake binary and untars it into the install directory.
+curl $RELEASE_URL | sudo tar xvz -C /opt

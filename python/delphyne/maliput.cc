@@ -60,10 +60,11 @@ PYBIND11_MODULE(maliput, m) {
   m.def("create_on_ramp", &delphyne::maliput::CreateOnRamp,
         "Create the exemplar highway on-ramp");
 
-  m.def("create_malidrive_from_file", &delphyne::maliput::CreateMalidriveFromFile,
-        "Load an OpenDrive road geometry from file (xodr)", py::arg("name"),
-        py::arg("file_path"));
-  
+  m.def("create_malidrive_from_file",
+        &delphyne::maliput::CreateMalidriveFromFile,
+        "Load an OpenDrive road geometry from file (xodr)",
+        py::arg("name"), py::arg("file_path"));
+
   py::class_<ObjFeatures>(m, "ObjFeatures")
       .def(py::init<>())
       .def_readwrite("max_grid_unit", &ObjFeatures::max_grid_unit)

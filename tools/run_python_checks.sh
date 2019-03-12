@@ -1,4 +1,8 @@
 #!/bin/bash
+SCRIPT_PATH=$(realpath ${BASH_SOURCE[0]})
+SCRIPT_DIR=$(dirname $SCRIPT_PATH)
+REPO_DIR=$SCRIPT_DIR/..
+
 export PATH=$PATH:/home/$USER/.local/bin
 
 check_program_installed() {
@@ -20,12 +24,15 @@ declare -i PYLINTFAILED=0
 #  - build/style helper scripts in ./tools
 #  - test helper scripts in test/utils
 #  - entry points in python/examples
-
+pushd $REPO_DIR
 # Run PEP 8
 grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pycodestyle ||  PEP8FAILED=1
+popd
 if [ "$PEP8FAILED" -eq "0" ]; then
+  pushd $REPO_DIR    
   # Run pylint
-grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pylint3 || PYLINTFAILED=1
+  grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pylint3 || PYLINTFAILED=1
+  popd
 else
   echo $'\n*** PEP8 failed, not doing pylint ***'
   exit 1

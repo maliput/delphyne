@@ -50,7 +50,8 @@ export GIT_SSH=$GIT_SSH_FILE
 git clone -b 'bmarchi/add_delphyne_repos' git@github.com:ToyotaResearchInstitute/dsim-repos-index.git index
 
 mkdir -p src
-vcs import src < index/delphyne-ci.repos
+# TODO(hidmic): remove force after pipeline relocation.
+vcs import --force src < index/delphyne-ci.repos
 
 unset GIT_SSH
 rm -f "$GIT_SSH_FILE"

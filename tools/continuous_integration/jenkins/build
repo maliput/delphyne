@@ -5,5 +5,5 @@ set -euo pipefail
 JOBS=$( getconf _NPROCESSORS_ONLN )
 
 colcon build \
-       --cmake-args -DCMAKE_PREFIX_PATH="/opt/drake:$CMAKE_PREFIX_PATH" \
+       --cmake-args -DCMAKE_PREFIX_PATH=/opt/drake \
        --parallel-workers $JOBS --packages-up-to delphyne-gui

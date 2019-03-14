@@ -57,8 +57,8 @@ curl $RELEASE_URL | sudo tar xvz -C /opt
 
 # Generates setup.bash for installed drake.
 sudo tee /opt/drake/setup.bash > /dev/null <<EOF
-export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:$PYTHONPATH"
-export LD_LIBRARY_PATH="/opt/drake/lib:$LD_LIBRARY_PATH"
-export CMAKE_PREFIX_PATH="/opt/drake:$CMAKE_PREFIX_PATH"
-export PATH="/opt/drake/bin:$PATH"
+export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:$${PYTHONPATH}"
+export LD_LIBRARY_PATH="/opt/drake/lib:$${LD_LIBRARY_PATH}"
+export CMAKE_PREFIX_PATH="/opt/drake:$${CMAKE_PREFIX_PATH}"
+export PATH="/opt/drake/bin:$${PATH}"
 EOF

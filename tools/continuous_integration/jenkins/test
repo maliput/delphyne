@@ -7,7 +7,9 @@ die() {
     exit 1
 }
 
-source install/setup.bash
+source /opt/drake/setup.bash
+
+source ./install/setup.bash
 
 colcon test --event-handlers=console_direct+ \
        --return-code-on-test-failure \

@@ -34,11 +34,31 @@ sudo apt-get install -y --no-install-recommends $(tr '\n' ' ' <<EOF
 awscli
 curl
 git
-libignition-cmake-dev
+libignition-gui0-dev
+libignition-rendering0-dev
+libignition-common2-dev
+libignition-tools-dev
+libignition-cmake1-dev
+libignition-math5-dev
+libignition-transport5-dev
 mercurial
 pkg-config
 pycodestyle
 pylint3
 python3-vcstool
+python3-colcon-common-extensions
 EOF
 )
+
+# Downloads drake binary and untars it into the install directory.
+RELEASE_URL="https://drake-packages.csail.mit.edu/drake/nightly/drake-latest-bionic.tar.gz"
+
+curl $RELEASE_URL | sudo tar xvz -C /opt
+
+# Generates setup.bash for installed drake.
+sudo tee /opt/drake/setup.bash > /dev/null <<EOF
+export PYTHONPATH="/opt/drake/lib/python3.6/site-packages:\${PYTHONPATH:-}"
+export LD_LIBRARY_PATH="/opt/drake/lib:\${LD_LIBRARY_PATH:-}"
+export CMAKE_PREFIX_PATH="/opt/drake:\${CMAKE_PREFIX_PATH:-}"
+export PATH="/opt/drake/bin:\${PATH:-}"
+EOF

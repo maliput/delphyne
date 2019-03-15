@@ -28,32 +28,9 @@ set -eo pipefail
 #          ign_common
 #          ...
 #
-# For the purposes of Jenkins, our workspace will look like this:
-#
-#  delphyne/
-#      backend
-#      build
-#          delphyne
-#          drake
-#          ign_cmake
-#          ign_common
-#          ...
-#      install
-#          include
-#          lib
-#          ...
-#      workspace
-#          delphyne_gui
-#          drake
-#          ign_cmake
-#          ign_common
-#          ...
 
-mkdir -p workspace
-pushd workspace
-
-# We need to checkout delphyne-gui to get access to the delphyne.repos file
-# to get all of our dependencies.  However, this is a private repository so we
+# We need to checkout dsim-repos-index to get access to the delphyne.repos file
+# to get all of our dependencies. However, this is a private repository so we
 # need the ssh keys from TRI to access this.  The below code fetches the ssh
 # keys from an S3 bucket that TRI has, and is a bash version of the code located
 # at: https://github.com/RobotLocomotion/drake-ci/blob/master/driver/configurations/aws.cmake
@@ -65,33 +42,25 @@ SSH_IDENTITY_SHA1=$( sha1sum "$SSH_IDENTITY_FILE" | cut -d' ' -f1 )
 test "$SSH_IDENTITY_SHA1" = "8de7f79df9eb18344cf0e030d2ae3b658d81263b"
 chmod 0400 "$SSH_IDENTITY_FILE"
 GIT_SSH_FILE=$( mktemp /tmp/git_ssh_XXXXXXXX )
-cat > "$GIT_SSH_FILE" <<EOF
+cat > $GIT_SSH_FILE <<EOF
 ssh -i "$SSH_IDENTITY_FILE" -o StrictHostKeyChecking=no "\$@"
 EOF
-chmod 0755 "$GIT_SSH_FILE"
-GIT_SSH="$GIT_SSH_FILE" git clone git@github.com:ToyotaResearchInstitute/delphyne-gui.git delphyne_gui
+chmod 0755 $GIT_SSH_FILE
+export GIT_SSH=$GIT_SSH_FILE
+git clone git@github.com:ToyotaResearchInstitute/dsim-repos-index.git index
 
-if [ "$CHANGE_BRANCH" != "" ]; then
-    echo "**** Checking out delphyne-gui branch $CHANGE_BRANCH ****"
-    pushd delphyne_gui
-    git checkout "$CHANGE_BRANCH" || true
-    popd
-else
-    echo "**** Using delphyne-gui branch master ****"
-fi
+mkdir -p src
+# TODO(hidmic): remove force after pipeline relocation.
+vcs import --force src < index/delphyne-ci.repos
 
+unset GIT_SSH
 rm -f "$GIT_SSH_FILE"
 rm -f "$SSH_IDENTITY_FILE"
 
-popd # workspace
+if [ "$CHANGE_BRANCH" != "" ]; then
+    echo "**** Checking out custom branch $CHANGE_BRANCH ****"
+    vcs custom --args checkout "$CHANGE_BRANCH" src || true
+else
+    echo "**** Using default branches ****"
+fi
 
-# Make sure to remove both 'delphyne' and 'delphyne-gui' from 'delphyne.repos'
-# since vcs will not have the proper credentials to access them.
-sed -e '/^ *delphyne/d' workspace/delphyne_gui/delphyne.repos > deps.repos
-
-# As of 2018-08-24, clone bundles on bitbucket.org/ignitionrobotics no longer
-# work (I don't know why).  For now, disable cloning for mercurial using clone
-# bundles, which is slightly less efficient but works.
-echo -e "[ui]\nclonebundles = false\n" > ~/.hgrc
-
-vcs import workspace < deps.repos

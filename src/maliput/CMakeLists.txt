@@ -28,9 +28,12 @@ target_link_libraries(
   maliput_utilities
   PUBLIC
     drake::drake
+    malidrive::utility
+    malidrive::malidrive
+    malidrive::opendrive
 )
 
 install(
-  TARGETS maliput_utilities
+  TARGETS maliput_utilities EXPORT ${PROJECT_NAME}-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

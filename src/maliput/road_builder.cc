@@ -14,6 +14,8 @@
 #include <drake/automotive/maliput/multilane/loader.h>
 #include <drake/automotive/multilane_onramp_merge.h>
 
+#include <malidrive/loader.h>
+
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -46,6 +48,24 @@ CreateMultilaneFromFile(const std::string& file_path) {
 std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {
   return drake::automotive::MultilaneOnrampMerge().BuildOnramp();
 }
+
+std::unique_ptr<const drake::maliput::api::RoadGeometry>
+CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
+  // TODO(hidmic): consider exposing InertialToLaneMappingConfig
+  constexpr double kLinearTolerance{2e-3};
+  constexpr double kAngularTolerance{1e-2};
+  constexpr double kScaleLength{1.};
+  constexpr double kExplorationRadius{5.};
+  constexpr int kMaxIntersectIterations{10};
+  return malidrive::Load(
+      file_path,
+      drake::maliput::api::RoadGeometryId(name),
+      kLinearTolerance, kAngularTolerance, kScaleLength,
+      malidrive::InertialToLaneMappingConfig(
+          kExplorationRadius, kMaxIntersectIterations),
+      malidrive::WorldToOpenDriveTransform::Identity());
+}
+
 
 /*****************************************************************************
  ** Trailers

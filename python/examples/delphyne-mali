@@ -1,0 +1,9 @@
+#!/usr/bin/env python3
+#
+# Copyright 2019 Toyota Research Institute
+#
+
+import delphyne.demos.mali
+
+if __name__ == "__main__":
+    delphyne.demos.mali.main()

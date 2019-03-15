@@ -34,6 +34,7 @@ add_custom_target(uninstall
 message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 
 find_package(drake REQUIRED)
+find_package(malidrive REQUIRED)
 find_package(ignition-common2 REQUIRED COMPONENTS graphics)
 find_package(ignition-math5 REQUIRED)
 find_package(ignition-msgs2 REQUIRED)
@@ -136,4 +137,14 @@ install(
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+)
+
+configure_file(
+  setup.bash.in
+  ${PROJECT_BINARY_DIR}/setup.bash
+  IMMEDIATE @ONLY
+)
+install(
+  PROGRAMS ${PROJECT_BINARY_DIR}/setup.bash
+  DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
 )

@@ -45,6 +45,9 @@ $ {0} dragway --length=200 --shoulder-width=2.5
 $ {0} onramp
 $ {0} multilane
 --filename='./install/share/delphyne/roads/circuit.yaml'
+$ {0} malidrive
+--filename='./install/share/delphyne/roads/circuit.xodr'
+--name=my_circuit
         """.format(os.path.basename(sys.argv[0]))
     )
     subparsers = parser.add_subparsers(dest="road_type")
@@ -77,6 +80,16 @@ $ {0} multilane
     multilane_parser.add_argument("--filename",
                                   help="multilane file path",
                                   required=True)
+
+    # Malidrive subcommand
+    malidrive_parser = subparsers.add_parser("malidrive")
+    malidrive_parser.add_argument("--filename",
+                                  help="malidrive file path",
+                                  required=True)
+    malidrive_parser.add_argument("--name",
+                                  help="malidrive road name",
+                                  default="maliroad")
+
     return parser.parse_args()
 
 
@@ -107,6 +120,19 @@ def main():
         try:
             builder.set_road_geometry(
                 maliput.create_multilane_from_file(
+                    file_path=args.filename
+                )
+            )
+        except RuntimeError as error:
+            print("There was an error trying to load the road network:")
+            print(str(error))
+            print("Exiting the simulation")
+            sys.exit()
+    elif args.road_type == "malidrive":
+        try:
+            builder.set_road_geometry(
+                maliput.create_malidrive_from_file(
+                    name=args.name,
                     file_path=args.filename
                 )
             )

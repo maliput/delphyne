@@ -71,7 +71,7 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   subscriber_system.CalcOutput(*context, output.get());
 
   const auto& received_message =
-      output->get_data(0)->GetValue<ignition::msgs::Model_V>();
+      output->get_data(0)->get_value<ignition::msgs::Model_V>();
 
   // Verifies the received message matches the published message.
   EXPECT_TRUE(test::CheckProtobufMsgEquality(ign_message, received_message));

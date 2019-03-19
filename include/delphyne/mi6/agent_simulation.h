@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/api/road_network.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/context.h>
@@ -81,6 +82,22 @@ class AgentSimulationBase {
       std::unique_ptr<drake::systems::Diagram<T>> diagram,
       std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
       std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
+      drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
+
+  /// Constructs a simulation.
+  /// @param simulator the Simulator instance to advance this simulation.
+  /// @param diagram the Diagram representation of this simulation.
+  /// @param agents all the Agents associated with this simulation.
+  /// @param road_network the RoadNetwork associated with this simulation.
+  /// @param scene_graph a reference to the SceneGraph in this simulation,
+  ///                    for all sorts of geometrical queries.
+  /// @param scene_system a reference to the scene composing system in this
+  ///                     simulation
+  explicit AgentSimulationBase(
+      std::unique_ptr<drake::systems::Simulator<T>> simulator,
+      std::unique_ptr<drake::systems::Diagram<T>> diagram,
+      std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
+      std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
       drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
 
   /// Returns a reference to the `name`d agent of the given type.
@@ -216,6 +233,8 @@ class AgentSimulationBase {
   std::map<std::string, std::unique_ptr<AgentBase<T>>> agents_;
   // The geometry of the road in this simulation.
   std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry_;
+  // The network of the road in this simulation.
+  std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network_;
   // The scene graph with all collision geometries in this simulation.
   drake::geometry::SceneGraph<T>* scene_graph_;
   // The system that publishes this simulation as a scene for rendering

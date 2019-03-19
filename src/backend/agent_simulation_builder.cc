@@ -173,6 +173,35 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
   return road_geometry_.get();
 }
 
+template<typename T>
+const drake::maliput::api::RoadGeometry*
+AgentSimulationBaseBuilder<T>::SetRoadGeometry(
+    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network) {
+  DELPHYNE_DEMAND(road_network != nullptr);
+  road_network = std::move(road_network);
+  return road_network->road_geometry();
+}
+
+template<typename T>
+const drake::maliput::api::RoadGeometry*
+AgentSimulationBaseBuilder<T>::SetRoadGeometry(
+    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
+    const drake::maliput::utility::ObjFeatures& features) {
+  DELPHYNE_DEMAND(road_network != nullptr);
+  road_network_ = std::move(road_network);
+  road_features_ = features;
+  return road_network->road_geometry();
+}
+
+template<typename T>
+const drake::maliput::api::RoadNetwork*
+AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network) {
+  DELPHYNE_DEMAND(road_network != nullptr);
+  road_network_ = std::move(road_network);
+  return road_network.get();
+}
+
 template <typename T>
 SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // Adds a translation system that takes the output of a CarVisApplicator
@@ -210,6 +239,10 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   if (road_geometry_ != nullptr) {
     messages.push_back(BuildLoadMessageForRoad(*road_geometry_,
                                                road_features_));
+  } else if (road_network_ != nullptr) {
+    messages.push_back(
+      BuildLoadMessageForRoad(*(road_network_->road_geometry()),
+      road_features_));
   }
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
   // messages into a single one containing all models in the scene.
@@ -330,9 +363,15 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   context.EnableCaching();
 
   // Yields simulation instance.
-  return std::make_unique<AgentSimulationBase<T>>(
+  if (road_geometry_ != nullptr) {
+    return std::make_unique<AgentSimulationBase<T>>(
       std::move(simulator), std::move(diagram), std::move(agents_),
       std::move(road_geometry_), scene_graph_, scene_system);
+  }
+
+  return std::make_unique<AgentSimulationBase<T>>(
+      std::move(simulator), std::move(diagram), std::move(agents_),
+      std::move(road_network_), scene_graph_, scene_system);
 }
 
 template class AgentSimulationBaseBuilder<double>;

@@ -45,7 +45,7 @@ GTEST_TEST(IgnModelsAssemblerTest, CalcAssembledModelVTest) {
 
   const double kOutputPortIndex{0};
   const auto& output_models =
-      output->get_data(kOutputPortIndex)->GetValue<ignition::msgs::Model_V>();
+      output->get_data(kOutputPortIndex)->get_value<ignition::msgs::Model_V>();
 
   EXPECT_EQ(input_models.models_size(), output_models.models_size());
 

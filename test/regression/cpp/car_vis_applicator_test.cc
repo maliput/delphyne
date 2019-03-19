@@ -53,7 +53,7 @@ class CarVisApplicatorTest : public ::testing::Test {
     const int kOutputIndex =
         dut_->get_visual_geometry_poses_output_port().get_index();
     return output_->get_data(kOutputIndex)
-        ->GetValueOrThrow<PoseBundle<double>>();
+        ->get_value<PoseBundle<double>>();
   }
 
   const int kIdZero{0};

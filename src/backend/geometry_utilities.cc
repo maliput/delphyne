@@ -9,6 +9,8 @@
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 
+#include "delphyne/macros.h"
+
 namespace delphyne {
 
 drake::lcmt_viewer_load_robot
@@ -27,7 +29,10 @@ BuildLoadMessageForRoad(const drake::maliput::api::RoadGeometry& road_geometry,
   plant.Finalize();
   drake::lcmt_viewer_load_robot load_message = BuildLoadMessage(scene_graph);
   for (drake::lcmt_viewer_link_data& link : load_message.link) {
+    DELPHYNE_VALIDATE(link.geom.size() == 1, std::runtime_error,
+                    "Expected one geometry in link");
     link.name = link.name.substr(link.name.rfind("::") + 2);
+    link.geom[0].string_data.append("?culling=off");
   }
   return load_message;
 }

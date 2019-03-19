@@ -58,7 +58,10 @@ ignition::common::URI SystemPackage::DoResolve(
     if (path.empty()) {
       return ignition::common::URI();
     }
-    return ignition::common::URI("file://" + path);
+    ignition::common::URI newUri(uri);
+    newUri.Path() = ignition::common::URIPath(path);
+    newUri.SetScheme("file");
+    return newUri;
   }
   // TODO(hidmic): Check for existence of other,
   //               likely external, resources too.

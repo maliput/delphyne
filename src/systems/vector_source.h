@@ -51,7 +51,7 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
     const drake::systems::AbstractValues* abstract_state =
         &context.get_abstract_state();
 
-    return abstract_state->get_value(kStateIndexVal).GetValue<T>();
+    return abstract_state->get_value(kStateIndexVal).get_value<T>();
   }
 
   /// Sets a new value that will eventually be synchronized into @p context.
@@ -117,7 +117,7 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
     drake::systems::AbstractValues* abstract_state =
         &state->get_mutable_abstract_state();
 
-    abstract_state->get_mutable_value(kStateIndexVal).GetMutableValue<T>() =
+    abstract_state->get_mutable_value(kStateIndexVal).get_mutable_value<T>() =
         curr_val;
   }
 
@@ -127,7 +127,8 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
         &context.get_abstract_state();
 
     output->SetAtIndex(0,
-                       abstract_state->get_value(kStateIndexVal).GetValue<T>());
+                       abstract_state->get_value(
+                        kStateIndexVal).get_value<T>());
   }
 
  private:

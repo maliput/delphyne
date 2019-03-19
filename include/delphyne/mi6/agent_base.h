@@ -101,7 +101,7 @@ class AgentBase {
     using drake::systems::BasicVector;
     using drake::systems::rendering::PoseVector;
     const BasicVector<T>& base_vector =
-        port_value->template GetValueOrThrow<BasicVector<T>>();
+        port_value->template get_value<BasicVector<T>>();
     const PoseVector<T>& pose_vector =
         dynamic_cast<const PoseVector<T>&>(base_vector);
     return pose_vector.get_isometry();
@@ -124,7 +124,7 @@ class AgentBase {
     using drake::systems::BasicVector;
     using drake::systems::rendering::FrameVelocity;
     const BasicVector<T>& base_vector =
-        port_value->template GetValueOrThrow<BasicVector<T>>();
+        port_value->template get_value<BasicVector<T>>();
     const FrameVelocity<T>& frame_velocity =
         dynamic_cast<const FrameVelocity<T>&>(base_vector);
     return frame_velocity.get_velocity().get_coeffs();

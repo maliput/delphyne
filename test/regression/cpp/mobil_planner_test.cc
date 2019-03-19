@@ -253,7 +253,7 @@ TEST_P(MobilPlannerTest, IncentiveWhileTailgating) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
   EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
@@ -277,7 +277,7 @@ TEST_P(MobilPlannerTest, IncentiveWhileTailgatingInBackwardLane) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
   EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
@@ -297,7 +297,7 @@ TEST_P(MobilPlannerTest, NoCars) {
 
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the right lane to be more desirable (the left is above threshold).
   EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
@@ -319,7 +319,7 @@ TEST_P(MobilPlannerTest, IncentiveWhileNotTailgating) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
   EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
@@ -341,7 +341,7 @@ TEST_P(MobilPlannerTest, PolitenessNoTailgator) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the right lane to be more desirable.
   EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
@@ -363,7 +363,7 @@ TEST_P(MobilPlannerTest, PolitenessWithTailgator) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
   EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
@@ -385,7 +385,7 @@ TEST_P(MobilPlannerTest, ThreeLanePolitenessTestPreferLeft) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the leftmost lane to be more desirable.
   EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
@@ -407,7 +407,7 @@ TEST_P(MobilPlannerTest, ThreeLaneIncentiveTestPreferRight) {
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the rightmost lane to be more desirable.
   EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
@@ -426,7 +426,7 @@ TEST_P(MobilPlannerTest, SideBySideCars) {
   // Expect failsafe behavior.
   const auto result = output_->GetMutableData(lane_output_index_);
   dut_->CalcOutput(*context_, output_.get());
-  auto lane_direction = result->template GetMutableValue<LaneDirection>();
+  auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the rightmost lane (ego car's lane) to be more desirable.
   EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),

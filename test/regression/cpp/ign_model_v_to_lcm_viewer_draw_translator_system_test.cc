@@ -27,7 +27,7 @@ GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   translator.CalcOutput(*context, output.get());
 
   const auto& lcm_msg =
-      output->get_data(kPortIndex)->GetValue<drake::lcmt_viewer_draw>();
+      output->get_data(kPortIndex)->get_value<drake::lcmt_viewer_draw>();
 
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }

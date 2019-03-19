@@ -42,7 +42,7 @@ GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
 
   const auto& aggregated_load_robot =
       output->get_data(LoadRobotAggregator::kPortIndex)
-          ->GetValue<lcmt_viewer_load_robot>();
+          ->get_value<lcmt_viewer_load_robot>();
 
   // The resulting message should have twice the number of links as the original
   // message (since two of those were aggregated).

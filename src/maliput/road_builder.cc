@@ -10,6 +10,7 @@
 #include "delphyne/maliput/road_builder.h"
 
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/api/road_network.h>
 #include <drake/automotive/maliput/dragway/road_geometry.h>
 #include <drake/automotive/maliput/multilane/loader.h>
 #include <drake/automotive/multilane_onramp_merge.h>
@@ -49,7 +50,7 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {
   return drake::automotive::MultilaneOnrampMerge().BuildOnramp();
 }
 
-std::unique_ptr<const drake::maliput::api::RoadGeometry>
+std::unique_ptr<const drake::maliput::api::RoadNetwork>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
   // TODO(hidmic): consider exposing InertialToLaneMappingConfig
   constexpr double kLinearTolerance{2e-3};

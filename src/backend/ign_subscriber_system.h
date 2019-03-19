@@ -81,7 +81,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   int GetMessageCount(const drake::systems::Context<double>& context) const {
     return context.get_abstract_state()
         .get_value(kStateIndexMessageCount)
-        .GetValue<int>();
+        .get_value<int>();
   }
 
  protected:
@@ -153,11 +153,11 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
 
     if (received_message_count_ > 0) {
       abstract_state->get_mutable_value(kStateIndexMessage)
-          .GetMutableValue<IGN_TYPE>() = last_received_message_;
+          .get_mutable_value<IGN_TYPE>() = last_received_message_;
     }
 
     abstract_state->get_mutable_value(kStateIndexMessageCount)
-        .GetMutableValue<int>() = received_message_count_;
+        .get_mutable_value<int>() = received_message_count_;
   }
 
   void CalcIgnMessage(const drake::systems::Context<double>& context,

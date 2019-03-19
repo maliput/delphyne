@@ -79,7 +79,7 @@ void CarVisApplicator<T>::CalcPoseBundleOutput(
   // Obtains the input and output.
   const PoseBundle<T>& vehicle_poses =
       drake::systems::System<T>::EvalAbstractInput(context, input_port_index_)
-          ->template GetValue<PoseBundle<T>>();
+          ->template get_value<PoseBundle<T>>();
   DRAKE_ASSERT(vehicle_poses.get_num_poses() == num_cars());
 
   if (vehicle_poses.get_num_poses() != static_cast<int>(visualizers_.size())) {

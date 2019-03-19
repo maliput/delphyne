@@ -59,7 +59,7 @@ rm -f "$SSH_IDENTITY_FILE"
 
 if [ "$CHANGE_BRANCH" != "" ]; then
     echo "**** Checking out custom branch $CHANGE_BRANCH ****"
-    vcs custom --args checkout "$CHANGE_BRANCH" src || true
+    vcs custom src --args checkout "$CHANGE_BRANCH" || true
 else
     echo "**** Using default branches ****"
 fi

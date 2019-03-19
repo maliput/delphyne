@@ -52,7 +52,7 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
 
   const drake::AbstractValue* output_value = output->get_data(0);
   const auto& output_frame_pose_vector =
-      output_value->GetValue<drake::geometry::FramePoseVector<double>>();
+      output_value->get_value<drake::geometry::FramePoseVector<double>>();
 
   EXPECT_EQ(output_frame_pose_vector.source_id(), source_id);
   EXPECT_EQ(output_frame_pose_vector.size(), 2);

@@ -36,6 +36,40 @@ AgentSimulationBase<T>::AgentSimulationBase(
       diagram_(std::move(diagram)),
       agents_(std::move(agents)),
       road_geometry_(std::move(road_geometry)),
+      road_network_(nullptr),
+      scene_graph_(scene_graph),
+      scene_system_(scene_system) {
+  DELPHYNE_VALIDATE(simulator_ != nullptr, std::runtime_error,
+                    "Invalid null simulator given");
+  DELPHYNE_VALIDATE(diagram_ != nullptr, std::runtime_error,
+                    "Invalid null diagram given");
+  DELPHYNE_VALIDATE(scene_graph_ != nullptr, std::runtime_error,
+                    "Invalid null scene graph given");
+  DELPHYNE_VALIDATE(scene_graph_ != nullptr, std::runtime_error,
+                    "Invalid null scene graph given");
+  DELPHYNE_VALIDATE(scene_system_ != nullptr, std::runtime_error,
+                    "Invalid null scene system given");
+  // Retrieve SceneGraph query object for later use.
+  const drake::systems::OutputPort<T>& scene_graph_query_port =
+      scene_graph_->get_query_output_port();
+  scene_query_ = scene_graph_query_port.Allocate();
+  const drake::systems::Context<T>& scene_graph_context =
+      diagram_->GetSubsystemContext(*scene_graph_, simulator_->get_context());
+  scene_graph_query_port.Calc(scene_graph_context, scene_query_.get());
+}
+
+template <typename T>
+AgentSimulationBase<T>::AgentSimulationBase(
+    std::unique_ptr<drake::systems::Simulator<T>> simulator,
+    std::unique_ptr<drake::systems::Diagram<T>> diagram,
+    std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
+    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
+    drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system)
+    : simulator_(std::move(simulator)),
+      diagram_(std::move(diagram)),
+      agents_(std::move(agents)),
+      road_geometry_(nullptr),
+      road_network_(std::move(road_network)),
       scene_graph_(scene_graph),
       scene_system_(scene_system) {
   DELPHYNE_VALIDATE(simulator_ != nullptr, std::runtime_error,
@@ -75,7 +109,7 @@ AgentSimulationBase<T>::GetVisualScene() {
   scene_system_->CalcOutput(scene_context, output.get());
 
   scene_message->CopyFrom(
-      output->get_data(0)->template GetValue<ignition::msgs::Scene>());
+      output->get_data(0)->template get_value<ignition::msgs::Scene>());
 
   return std::move(scene_message);
 }
@@ -133,7 +167,7 @@ std::vector<AgentBaseCollision<T>> AgentSimulationBase<T>::GetCollisions()
   using drake::geometry::QueryObject;
   using drake::geometry::PenetrationAsPointPair;
   const std::vector<PenetrationAsPointPair<T>> collisions =
-      scene_query_->GetValue<QueryObject<T>>().ComputePointPairPenetration();
+      scene_query_->get_value<QueryObject<T>>().ComputePointPairPenetration();
   std::vector<AgentBaseCollision<T>> agent_collisions;
   for (const auto& collision : collisions) {
     const auto it_A = std::find_if(agents_.begin(), agents_.end(),
@@ -165,7 +199,7 @@ AgentSimulationBase<T>::GetCurrentPoses() const {
   std::unique_ptr<SystemOutput<T>> system_output = diagram_->AllocateOutput();
   diagram_->CalcOutput(simulator_->get_context(), system_output.get());
   const AbstractValue* abstract_value = system_output->get_data(0);
-  return abstract_value->GetValueOrThrow<PoseBundle<T>>();
+  return abstract_value->get_value<PoseBundle<T>>();
 }
 
 template class AgentSimulationBase<double>;

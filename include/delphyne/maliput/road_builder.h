@@ -15,6 +15,7 @@
 #include <string>
 
 #include <drake/automotive/maliput/api/road_geometry.h>
+#include <drake/automotive/maliput/api/road_network.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -65,7 +66,7 @@ CreateMultilaneFromFile(const std::string& file_path);
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const drake::maliput::api::RoadGeometry>
+std::unique_ptr<const drake::maliput::api::RoadNetwork>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path);
 
 /// @brief Create a multilane on-ramp.

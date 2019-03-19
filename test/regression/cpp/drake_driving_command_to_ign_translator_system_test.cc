@@ -37,7 +37,7 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
 
   const auto& ign_msg =
       output->get_data(kPortIndex)
-          ->GetValue<ignition::msgs::AutomotiveDrivingCommand>();
+          ->get_value<ignition::msgs::AutomotiveDrivingCommand>();
 
   EXPECT_EQ(ign_msg.theta(), kTheta);
   EXPECT_EQ(ign_msg.acceleration(), kAcceleration);

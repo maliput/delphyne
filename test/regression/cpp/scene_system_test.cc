@@ -59,7 +59,7 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
 
   const double kOutputPortIndex{0};
   const auto& scene_msg =
-      output->get_data(kOutputPortIndex)->GetValue<ignition::msgs::Scene>();
+      output->get_data(kOutputPortIndex)->get_value<ignition::msgs::Scene>();
 
   // The geometry models should have been updated to include the pose of the
   // updated pose models.

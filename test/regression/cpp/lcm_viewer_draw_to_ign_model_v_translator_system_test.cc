@@ -27,7 +27,7 @@ GTEST_TEST(LCMViewerDrawToIgnModelVTranslatorSystemTest, TestTranslation) {
   translator.CalcOutput(*context, output.get());
 
   const auto& ign_msg =
-      output->get_data(kPortIndex)->GetValue<ignition::msgs::Model_V>();
+      output->get_data(kPortIndex)->get_value<ignition::msgs::Model_V>();
 
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }

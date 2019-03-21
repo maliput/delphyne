@@ -10,7 +10,7 @@ find_package(PythonInterp QUIET)
 ##############################################################################
 
 macro(delphyne_build_tests)
-  # Build all the tests
+  # Build all cpp tests
   foreach(GTEST_SOURCE_file ${ARGN})
     string(REGEX REPLACE ".cc" "" BINARY_NAME ${GTEST_SOURCE_file})
     set(BINARY_NAME ${TEST_TYPE}_${BINARY_NAME})
@@ -59,6 +59,16 @@ macro(delphyne_build_tests)
         ${PROJECT_SOURCE_DIR}/test/utils/check_test_ran.py
         ${CMAKE_BINARY_DIR}/test_results/${BINARY_NAME}.xml)
     endif()
+  endforeach()
+endmacro()
+
+macro(delphyne_build_python_tests)
+  # Build all python tests
+  foreach(PYTHON_TEST_file ${ARGN})
+    string(REGEX REPLACE ".py" "" PY_TEST ${PYTHON_TEST_file})
+    set(PY_TEST ${TEST_TYPE}_${PY_TEST})
+
+    add_test(NAME ${PY_TEST} COMMAND ${PYTHON_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR})
   endforeach()
 endmacro()
 

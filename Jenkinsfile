@@ -7,29 +7,15 @@ node('delphyne-linux-bionic-unprovisioned') {
   timeout(60) {
     ansiColor('xterm') {
       try {
-        stage('checkout') {
+        stach('checkout') {
           dir('src/delphyne') {
-             checkout scm
+            checkout scm
           }
         }
-        stage('setup early') {
-          sh './src/delphyne/tools/continuous_integration/jenkins/setup_early'
+        stage('checkout_index') {
+          sh 'src/delphyne/tools/ci/jenkins/checkout_index'
         }
-        stage('check style') {
-          sh './src/delphyne/tools/continuous_integration/jenkins/check_style'
-        }
-        stage('build workspace') {
-          sh './src/delphyne/tools/continuous_integration/jenkins/build_workspace'
-        }
-        stage('setup late') {
-          sh './src/delphyne/tools/continuous_integration/jenkins/setup_late'
-        }
-        stage('build') {
-          sh './src/delphyne/tools/continuous_integration/jenkins/build'
-        }
-        stage('test') {
-          sh './src/delphyne/tools/continuous_integration/jenkins/test'
-        }
+        load './index/ci/jenkins/pipeline.groovy'
       } finally {
         cleanWs(notFailBuild: true)
       }

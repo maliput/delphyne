@@ -1,9 +1,0 @@
-#!/bin/bash
-
-set -euo pipefail
-
-JOBS=$( getconf _NPROCESSORS_ONLN )
-
-source /opt/drake/setup.bash
-
-colcon build --parallel-workers $JOBS --packages-up-to delphyne-gui

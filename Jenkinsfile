@@ -15,7 +15,10 @@ node('delphyne-linux-bionic-unprovisioned') {
         stage('checkout_index') {
           sh 'src/delphyne/tools/ci/jenkins/checkout_index'
         }
-        load './index/ci/jenkins/pipeline.groovy'
+        withEnv(['COLCON_BUILD_EXTRA_ARGS="--packages-up-to delphyne delphyne-gui"',
+                 'COLCON_TEST_EXTRA_ARGS="--packages-select delphyne delphyne-gui"']) {
+          load './index/ci/jenkins/pipeline.groovy'
+        }
       } finally {
         cleanWs(notFailBuild: true)
       }

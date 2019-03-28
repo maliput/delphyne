@@ -15,6 +15,7 @@
 #include <drake/automotive/maliput/multilane/loader.h>
 #include <drake/automotive/multilane_onramp_merge.h>
 
+#include <malidrive/constants.h>
 #include <malidrive/loader.h>
 
 /*****************************************************************************
@@ -52,18 +53,15 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {
 
 std::unique_ptr<const drake::maliput::api::RoadNetwork>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
-  // TODO(hidmic): consider exposing InertialToLaneMappingConfig
-  constexpr double kLinearTolerance{2e-3};
-  constexpr double kAngularTolerance{1e-2};
-  constexpr double kScaleLength{1.};
-  constexpr double kExplorationRadius{5.};
-  constexpr int kMaxIntersectIterations{10};
   return malidrive::Load(
       file_path,
       drake::maliput::api::RoadGeometryId(name),
-      kLinearTolerance, kAngularTolerance, kScaleLength,
+      malidrive::Constants::kLinearTolerance,
+      malidrive::Constants::kAngularTolerance,
+      malidrive::Constants::kScaleLength,
       malidrive::InertialToLaneMappingConfig(
-          kExplorationRadius, kMaxIntersectIterations),
+          malidrive::Constants::kExplorationRadius,
+          malidrive::Constants::kNumIterations),
       malidrive::WorldToOpenDriveTransform::Identity());
 }
 

@@ -59,23 +59,26 @@ def main():
     features.draw_lane_haze = False
     features.draw_branch_points = False
 
-    # The road geometry
-    road_geometry = builder.set_road_geometry(
+    # The road network
+    road_network = builder.set_road_network(
         maliput.create_malidrive_from_file(
             name="mali-road",
             file_path=args.road_file
         ), features
     )
 
-    # Setup railcar 1
+    # Find a lane
+    road_geometry = road_network.road_geometry()
+    first_junction_found = road_geometry.junction(0)
+    first_lane_found = first_junction_found.segment(0).lane(0)
+
+    # Setup railcar
     railcar_speed = 20.0  # (m/s)
     railcar_s = 0.0      # (m)
-    robot_id = 1
-    lane_1 = road_geometry.junction(0).segment(0).lane(0)
     utilities.add_rail_car(
         builder,
-        name=str(robot_id),
-        lane=lane_1,
+        name='rail-car',
+        lane=first_lane_found,
         position=railcar_s,
         offset=0.0,
         speed=railcar_speed

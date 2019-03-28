@@ -130,7 +130,7 @@ def main():
             sys.exit()
     elif args.road_type == "malidrive":
         try:
-            builder.set_road_geometry(
+            builder.set_road_network(
                 maliput.create_malidrive_from_file(
                     name=args.name,
                     file_path=args.filename

@@ -1,6 +1,11 @@
+# Prefix test name
+set(TEST_TYPE UNIT)
+
 ##############################################################################
-# Subdirectories
+# Tests
 ##############################################################################
 
-add_subdirectory(cpp)
-add_subdirectory(python)
+set(PY_SOURCE
+    simulation_runner_py_test.py)
+
+delphyne_build_python_tests(${PY_SOURCE})

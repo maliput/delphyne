@@ -76,7 +76,7 @@ class AgentSimulationBaseBuilder {
   /// Sets the RoadNetwork for this simulation and use its road geometry
   ///
   /// @param road_network The road network to use for the simulation.
-  const drake::maliput::api::RoadGeometry* SetRoadGeometry(
+  const drake::maliput::api::RoadNetwork* SetRoadNetwork(
       std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network);
 
   /// Sets the RoadNetwork for this simulation.
@@ -84,15 +84,9 @@ class AgentSimulationBaseBuilder {
   /// @param road_network The road network to use for the simulation.
   /// @param features The road features that will be shown in the simulation.
   /// @see documentation of drake::maliput::utility::ObjFeatures
-  const drake::maliput::api::RoadGeometry* SetRoadGeometry(
+  const drake::maliput::api::RoadNetwork* SetRoadNetwork(
       std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
       const drake::maliput::utility::ObjFeatures& features);
-
-  /// Sets the RoadNetwork for this simulation.
-  ///
-  /// @param road_network The road network to use for the simulation.
-  const drake::maliput::api::RoadNetwork* SetRoadNetwork(
-      std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network);
 
   /// Constructs a Blueprint in-place and uses it to build and
   /// take ownership of an agent, which is to be wired into the

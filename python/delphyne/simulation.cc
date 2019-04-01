@@ -147,25 +147,19 @@ PYBIND11_MODULE(simulation, m) {
                &AgentSimulationBuilder::SetRoadGeometry),
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"), py::arg("features"))
-      .def("set_road_geometry",
-           py::overload_cast<
-               std::unique_ptr<const drake::maliput::api::RoadNetwork>>(
-               &AgentSimulationBuilder::SetRoadGeometry),
-           "Sets road geometry for the simulation to be built",
-           py::arg("road_network"))
-      .def("set_road_geometry",
-           py::overload_cast<
-               std::unique_ptr<const drake::maliput::api::RoadNetwork>,
-               const drake::maliput::utility::ObjFeatures&>(
-               &AgentSimulationBuilder::SetRoadGeometry),
-           "Sets road geometry using road net for the simulation to be built",
-           py::arg("road_network"), py::arg("features"))
       .def("set_road_network",
            py::overload_cast<
                std::unique_ptr<const drake::maliput::api::RoadNetwork>>(
                &AgentSimulationBuilder::SetRoadNetwork),
            "Sets road network for the simulation to be built",
            py::arg("road_network"))
+      .def("set_road_network",
+           py::overload_cast<
+               std::unique_ptr<const drake::maliput::api::RoadNetwork>,
+               const drake::maliput::utility::ObjFeatures&>(
+               &AgentSimulationBuilder::SetRoadNetwork),
+           "Sets road network for the simulation to be built",
+           py::arg("road_network"), py::arg("features"))
       .def("build", &AgentSimulationBuilder::Build);
 
   py::class_<AgentSimulation>(m, "AgentSimulation")

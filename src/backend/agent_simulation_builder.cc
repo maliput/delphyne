@@ -98,26 +98,6 @@ void AgentSimulationBaseBuilder<T>::Reset() {
   scene_graph_->set_name("scene_graph");
 }
 
-template <typename T>
-const drake::maliput::api::RoadGeometry*
-AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry) {
-  drake::maliput::utility::ObjFeatures features;
-  // Max distance between rendered vertices (in s- or r-dimension), in meters.
-  features.max_grid_unit = 1.0;
-  // Min number of vertices (in s- or r-dimension).
-  features.min_grid_resolution = 5.0;
-  // Using the standard linear tolerance, which gives great results most of
-  // the time.
-  features.simplify_mesh_threshold = 0.01;
-  features.draw_elevation_bounds = false;
-  features.draw_stripes = true;
-  features.draw_arrows = false;
-  features.draw_lane_haze = false;
-  features.draw_branch_points = false;
-  return SetRoadGeometry(std::move(road_geometry), features);
-}
-
 // TODO(hidmic): Figure out why this is necessary, as SceneGraph ID duplication
 // ensues otherwise. There seems to be a (very) subtle issue when linking the
 // template class that keeps the atomic sequence of FrameIds.
@@ -125,8 +105,11 @@ template <typename T>
 void AgentSimulationBaseBuilder<T>::DoAddAgent(
     AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
+  const drake::maliput::api::RoadGeometry* road_geometry =
+      road_network_ != nullptr ?
+      road_network_->road_geometry() : road_geometry_.get();
   std::unique_ptr<AgentBase<T>> agent =
-      blueprint->BuildInto(road_geometry_.get(), builder_.get());
+      blueprint->BuildInto(road_geometry, builder_.get());
   const int agent_id = agent_id_sequence_++;
   const std::string& agent_name = agent->name();
   DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
@@ -162,44 +145,64 @@ void AgentSimulationBaseBuilder<T>::DoAddAgent(
   agents_[agent_name] = std::move(agent);
 }
 
+namespace {
+
+// Get default features of the road mesh.
+drake::maliput::utility::ObjFeatures GetDefaultFeatures() {
+  drake::maliput::utility::ObjFeatures features;
+  // Max distance between rendered vertices (in s- or r-dimension), in meters.
+  features.max_grid_unit = 1.0;
+  // Min number of vertices (in s- or r-dimension).
+  features.min_grid_resolution = 5.0;
+  // Using the standard linear tolerance, which gives great results most of
+  // the time.
+  features.simplify_mesh_threshold = 0.01;
+  features.draw_elevation_bounds = false;
+  features.draw_stripes = true;
+  features.draw_arrows = false;
+  features.draw_lane_haze = false;
+  features.draw_branch_points = false;
+  return features;
+}
+
+}  // namespace
+
+template <typename T>
+const drake::maliput::api::RoadGeometry*
+AgentSimulationBaseBuilder<T>::SetRoadGeometry(
+    std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry) {
+  return SetRoadGeometry(std::move(road_geometry), GetDefaultFeatures());
+}
+
 template <typename T>
 const drake::maliput::api::RoadGeometry*
 AgentSimulationBaseBuilder<T>::SetRoadGeometry(
     std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
     const drake::maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_geometry != nullptr);
+  DELPHYNE_DEMAND(road_network_ == nullptr);
   road_geometry_ = std::move(road_geometry);
   road_features_ = features;
   return road_geometry_.get();
 }
 
 template<typename T>
-const drake::maliput::api::RoadGeometry*
-AgentSimulationBaseBuilder<T>::SetRoadGeometry(
+const drake::maliput::api::RoadNetwork*
+AgentSimulationBaseBuilder<T>::SetRoadNetwork(
     std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network) {
-  DELPHYNE_DEMAND(road_network != nullptr);
-  road_network = std::move(road_network);
-  return road_network->road_geometry();
-}
-
-template<typename T>
-const drake::maliput::api::RoadGeometry*
-AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
-    const drake::maliput::utility::ObjFeatures& features) {
-  DELPHYNE_DEMAND(road_network != nullptr);
-  road_network_ = std::move(road_network);
-  road_features_ = features;
-  return road_network->road_geometry();
+  return SetRoadNetwork(std::move(road_network), GetDefaultFeatures());
 }
 
 template<typename T>
 const drake::maliput::api::RoadNetwork*
 AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network) {
+    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
+    const drake::maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_network != nullptr);
+  DELPHYNE_DEMAND(road_geometry_ == nullptr);
   road_network_ = std::move(road_network);
-  return road_network.get();
+  road_features_ = features;
+  return road_network_.get();
 }
 
 template <typename T>
@@ -236,13 +239,12 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // load robot messages, so those need to be aggregated.
   std::vector<drake::lcmt_viewer_load_robot> messages{
     car_vis_applicator_->get_load_robot_message()};
-  if (road_geometry_ != nullptr) {
-    messages.push_back(BuildLoadMessageForRoad(*road_geometry_,
+  const drake::maliput::api::RoadGeometry* road_geometry =
+      road_network_ != nullptr ?
+      road_network_->road_geometry() : road_geometry_.get();
+  if (road_geometry != nullptr) {
+    messages.push_back(BuildLoadMessageForRoad(*road_geometry,
                                                road_features_));
-  } else if (road_network_ != nullptr) {
-    messages.push_back(
-      BuildLoadMessageForRoad(*(road_network_->road_geometry()),
-      road_features_));
   }
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
   // messages into a single one containing all models in the scene.

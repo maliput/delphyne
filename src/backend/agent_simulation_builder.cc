@@ -104,7 +104,6 @@ void AgentSimulationBaseBuilder<T>::Reset() {
 template <typename T>
 void AgentSimulationBaseBuilder<T>::DoAddAgent(
     AgentBaseBlueprint<T>* blueprint) {
-  
   // Builds and validates the agent.
   const drake::maliput::api::RoadGeometry* road_geometry =
       road_network_ != nullptr ?

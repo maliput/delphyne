@@ -29,13 +29,20 @@ source ./bringup
 
 ## Use
 
-1. Source your build:
+1. Bring up your development workspace:
 
 ```sh
-source install/setup.bash
-```.
+cd path/to/my/workspace
+source ./bringup
+```
 
-2. Run any demo, for instance:
+2. Source your build:
+
+```sh
+source ./install/setup.bash
+```
+
+3. Run any demo, for instance:
 
 ```sh
 delphyne-gazoo

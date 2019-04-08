@@ -21,6 +21,7 @@
 #include <drake/geometry/scene_graph.h>
 #include <drake/lcm/drake_mock_lcm.h>
 #include <drake/lcmt_viewer_load_robot.hpp>
+#include <drake/math/rigid_transform.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
@@ -83,7 +84,8 @@ drake::systems::rendering::PoseBundle<T>
 SimplePriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
   const drake::multibody::Body<T>& footprint =
       plant_.GetBodyByName("chassis_footprint");
-  plant_.SetFreeBodyPose(plant_context_.get(), footprint, X_WM);
+  plant_.SetFreeBodyPose(
+      plant_context_.get(), footprint, drake::math::RigidTransform<T>(X_WM));
 
   int bundle_index = 0;
   std::vector<drake::multibody::BodyIndex> parts_indices =
@@ -92,8 +94,8 @@ SimplePriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
   for (const drake::lcmt_viewer_link_data& link_data : vis_elements_) {
     const drake::multibody::Body<T>& part =
         plant_.GetBodyByName(link_data.name);
-    const drake::Isometry3<T>& X_WP =
-        plant_.EvalBodyPoseInWorld(*plant_context_, part);
+    const drake::Isometry3<T> X_WP =
+        plant_.EvalBodyPoseInWorld(*plant_context_, part).GetAsIsometry3();
     result.set_pose(bundle_index, X_WP);
     result.set_name(bundle_index, part.name());
     result.set_model_instance_id(bundle_index, this->id());

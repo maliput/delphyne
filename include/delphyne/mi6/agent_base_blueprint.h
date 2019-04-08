@@ -55,23 +55,12 @@ class AgentBaseBlueprint {
 
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(AgentBaseBlueprint)
 
-  /// Constructs a blueprint for an agent with the given name and
-  /// located at the given initial pose.
-  ///
-  /// @param name The name for the agent, must be unique in any
-  ///             given simulation.
-  /// @param initial_world_pose The initial pose of the agent.
-  explicit AgentBaseBlueprint(const std::string& name,
-                              const drake::Isometry3<T>& initial_world_pose)
-      : name_(name), initial_world_pose_(initial_world_pose) {}
-
-  /// Constructs a blueprint for an agent with the given name and
-  /// located at the origin.
+  /// Constructs a blueprint for an agent with the given name.
   ///
   /// @param name The name for the agent, must be unique in any
   ///             given simulation.
   explicit AgentBaseBlueprint(const std::string& name)
-      : AgentBaseBlueprint(name, drake::Isometry3<T>::Identity()) {}
+      : name_(name) {}
 
   virtual ~AgentBaseBlueprint() = default;
 
@@ -110,11 +99,6 @@ class AgentBaseBlueprint {
   /// Gets the name for the agent.
   const std::string& name() const { return name_; }
 
-  /// Gets the initial world pose for the agent.
-  const drake::Isometry3<T>& GetInitialWorldPose() const {
-    return initial_world_pose_;
-  }
-
   // Gets a mutable reference to the @p agent Diagram representation.
   typename AgentBase<T>::Diagram* GetMutableDiagram(AgentBase<T>* agent) const {
     return agent->diagram_;
@@ -126,12 +110,6 @@ class AgentBaseBlueprint {
     return &agent->geometry_ids_;
   }
 
- protected:
-  // Sets the initial world pose for the agent.
-  void SetInitialWorldPose(const drake::Isometry3<T>& pose) {
-    initial_world_pose_ = pose;
-  }
-
  private:
   // Builds the Diagram representation for the agent.
   virtual std::unique_ptr<AgentBase<T>> DoBuildInto(
@@ -140,9 +118,6 @@ class AgentBaseBlueprint {
 
   // The name for the agent to be built.
   std::string name_{};
-
-  // The initial world pose for the agent to be built.
-  drake::Isometry3<T> initial_world_pose_{};
 };
 
 /// An abstract but typed blueprint class for agents in Delphyne.

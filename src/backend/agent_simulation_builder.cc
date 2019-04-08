@@ -138,8 +138,7 @@ void AgentSimulationBaseBuilder<T>::DoAddAgent(
 
   builder_->Connect(
       agent_diagram->get_output_port("pose"),
-      WirePriusGeometry(agent_name, blueprint->GetInitialWorldPose(),
-                        builder_.get(), scene_graph_,
+      WirePriusGeometry(agent_name, builder_.get(), scene_graph_,
                         blueprint->GetMutableGeometryIDs(agent.get())));
 
   agents_[agent_name] = std::move(agent);

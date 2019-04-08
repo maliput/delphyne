@@ -43,7 +43,7 @@ void FramePoseAggregator<T>::CalcFramePoseVector(
     drake::geometry::FramePoseVector<T>* output) const {
   using drake::systems::rendering::PoseVector;
   output->clear();
-  const int num_ports = this->get_num_input_ports();
+  const int num_ports = this->num_input_ports();
   for (int port_index = 0; port_index < num_ports; ++port_index) {
     const PoseVector<T>* input_pose =
         this->template EvalVectorInput<PoseVector>(context, port_index);

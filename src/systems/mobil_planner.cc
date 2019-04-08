@@ -124,7 +124,7 @@ void MobilPlanner<T>::CalcLaneDirection(
   // Obtain the state if we've allocated it.
   RoadPosition ego_rp;
   if (context.template get_state().get_abstract_state().size() != 0) {
-    DRAKE_ASSERT(context.get_num_abstract_states() == 1);
+    DRAKE_ASSERT(context.num_abstract_states() == 1);
     ego_rp = context.template get_abstract_state<RoadPosition>(0);
   }
 
@@ -309,7 +309,7 @@ void MobilPlanner<T>::DoCalcUnrestrictedUpdate(
     const drake::systems::Context<T>& context,
     const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
     drake::systems::State<T>* state) const {
-  DRAKE_ASSERT(context.get_num_abstract_states() == 1);
+  DRAKE_ASSERT(context.num_abstract_states() == 1);
 
   // Obtain the input and state data.
   const PoseVector<T>* const ego_pose =

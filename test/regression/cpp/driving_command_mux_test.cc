@@ -32,10 +32,10 @@ class DrivingCommandMuxTest : public ::testing::Test {
 
 TEST_F(DrivingCommandMuxTest, Basic) {
   // Confirm the shape.
-  ASSERT_EQ(2, mux_->get_num_input_ports());
+  ASSERT_EQ(2, mux_->num_input_ports());
   ASSERT_EQ(1, mux_->steering_input().size());
   ASSERT_EQ(1, mux_->acceleration_input().size());
-  ASSERT_EQ(1, mux_->get_num_output_ports());
+  ASSERT_EQ(1, mux_->num_output_ports());
   ASSERT_EQ(2, mux_->get_output_port(0).size());
 
   // Confirm the output is indeed a DrivingCommand.
@@ -62,8 +62,8 @@ TEST_F(DrivingCommandMuxTest, IsStateless) {
 // Tests conversion to AutoDiffXd.
 TEST_F(DrivingCommandMuxTest, ToAutoDiff) {
   EXPECT_TRUE(is_autodiffxd_convertible(*mux_, [&](const auto& converted) {
-    EXPECT_EQ(2, converted.get_num_input_ports());
-    EXPECT_EQ(1, converted.get_num_output_ports());
+    EXPECT_EQ(2, converted.num_input_ports());
+    EXPECT_EQ(1, converted.num_output_ports());
 
     EXPECT_EQ(1, converted.get_input_port(0).size());
     EXPECT_EQ(1, converted.get_input_port(1).size());
@@ -81,8 +81,8 @@ TEST_F(DrivingCommandMuxTest, ToAutoDiff) {
 // Tests conversion to drake::symbolic::Expression.
 TEST_F(DrivingCommandMuxTest, ToSymbolic) {
   EXPECT_TRUE(is_symbolic_convertible(*mux_, [&](const auto& converted) {
-    EXPECT_EQ(2, converted.get_num_input_ports());
-    EXPECT_EQ(1, converted.get_num_output_ports());
+    EXPECT_EQ(2, converted.num_input_ports());
+    EXPECT_EQ(1, converted.num_output_ports());
 
     EXPECT_EQ(1, converted.get_input_port(0).size());
     EXPECT_EQ(1, converted.get_input_port(1).size());

@@ -20,6 +20,8 @@ import time
 import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
+from delphyne.utilities import launch_interactive_simulation
+
 from . import helpers
 
 ##############################################################################
@@ -152,7 +154,7 @@ def main():
           "* <q> will stop the simulation and quit the demo.          *\n"
           "************************************************************\n")
 
-    with utilities.launch_interactive_simulation(runner) as launcher:
+    with launch_interactive_simulation(runner, bare=args.bare) as launcher:
         if args.duration < 0:
             # run indefinitely
             runner.start()

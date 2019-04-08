@@ -16,6 +16,8 @@ import delphyne.maliput as maliput
 import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
+from delphyne.utilities import launch_interactive_simulation
+
 from . import helpers
 
 ##############################################################################
@@ -26,15 +28,27 @@ from . import helpers
 def parse_arguments():
     "Argument passing and demo documentation."
     parser = helpers.create_argument_parser(
-        "Mali Racing!",
+        'Mali Racing!',
         """
 An example of a railcar running in an OpenDrive based maliput road.
         """
     )
-    parser.add_argument("--road-file", required=True,
-                        help="The OpenDrive network to drive on.")
-
+    parser.add_argument('-i', '--road-file', default='Roundabout.xodr',
+                        help=('The OpenDrive network to drive on. '
+                              'Resolve path against MALIDRIVE_RESOURCE_ROOT '
+                              'if not found in the current working dir.'))
     return parser.parse_args()
+
+
+def get_malidrive_resource(path):
+    """Resolve the path against malidrive resources root location."""
+    root = utilities.get_from_env_or_fail('MALIDRIVE_RESOURCE_ROOT')
+    for root in root.split(':'):
+        resolved_path = os.path.join(root, 'resources', 'odr', path)
+        if os.path.exists(resolved_path):
+            return resolved_path
+    return ''
+
 
 ##############################################################################
 # Main
@@ -48,9 +62,12 @@ def main():
     builder = simulation.AgentSimulationBuilder()
 
     if not os.path.isfile(args.road_file):
-        print("Required file {} not found."
-              .format(os.path.abspath(args.road_file)))
-        quit()
+        resolved_road_file = get_malidrive_resource(args.road_file)
+        if not os.path.isfile(resolved_road_file):
+            print("Required file {} not found."
+                  .format(os.path.abspath(args.road_file)))
+            quit()
+        args.road_file = resolved_road_file
 
     features = maliput.ObjFeatures()
     features.draw_arrows = True
@@ -92,7 +109,7 @@ def main():
         log=args.log,
         logfile_name=args.logfile_name)
 
-    with utilities.launch_interactive_simulation(runner) as launcher:
+    with launch_interactive_simulation(runner, bare=args.bare) as launcher:
         if args.duration < 0:
             # run indefinitely
             runner.start()

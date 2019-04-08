@@ -61,5 +61,7 @@ def create_argument_parser(title, content, default_duration=-1.0):
     parser.add_argument('-f', '--logfile_name', default="",
                         action='store', type=str,
                         help='Custom logfile name (default: empty string)')
-
+    parser.add_argument('-b', '--bare', action='store_true',
+                        default=False, help=('Run simulation with no '
+                                             'visualizer (default: False)'))
     return parser

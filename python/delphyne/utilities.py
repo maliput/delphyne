@@ -28,7 +28,8 @@ from . import launcher
 
 @contextmanager
 def launch_interactive_simulation(simulation_runner,
-                                  layout="layout_with_teleop.config"):
+                                  layout="layout_with_teleop.config",
+                                  bare=False):
     """Defines a context manager function used to hande the execution of an
     interactive simulation. An interactive simulation launches the delphyne
     visualizer in a separate process and ends the simulation when the
@@ -36,7 +37,8 @@ def launch_interactive_simulation(simulation_runner,
 
     launch_manager = launcher.Launcher()
     try:
-        launch_visualizer(launch_manager, layout)
+        if not bare:
+            launch_visualizer(launch_manager, layout)
         yield launch_manager
         launch_manager.wait(float("Inf"))
     except RuntimeError as error_msg:

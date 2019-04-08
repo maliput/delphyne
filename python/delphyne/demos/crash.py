@@ -18,6 +18,8 @@ from delphyne.simulation import (
 )
 import delphyne.utilities as utilities
 
+from delphyne.utilities import launch_interactive_simulation
+
 from . import helpers
 
 ##############################################################################
@@ -124,7 +126,7 @@ def main():
         log=args.log,
         logfile_name=args.logfile_name)
 
-    with utilities.launch_interactive_simulation(runner):
+    with launch_interactive_simulation(runner, bare=args.bare):
         # Adds a callback to check for agent collisions.
         runner.add_collision_callback(
             lambda agents_in_collision: on_agent_collision(

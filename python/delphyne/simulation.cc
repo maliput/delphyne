@@ -138,6 +138,7 @@ PYBIND11_MODULE(simulation, m) {
            py::overload_cast<
                std::unique_ptr<const drake::maliput::api::RoadGeometry>>(
                &AgentSimulationBuilder::SetRoadGeometry),
+           py::return_value_policy::reference_internal,
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"))
       .def("set_road_geometry",
@@ -145,12 +146,14 @@ PYBIND11_MODULE(simulation, m) {
                std::unique_ptr<const drake::maliput::api::RoadGeometry>,
                const drake::maliput::utility::ObjFeatures&>(
                &AgentSimulationBuilder::SetRoadGeometry),
+           py::return_value_policy::reference_internal,
            "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"), py::arg("features"))
       .def("set_road_network",
            py::overload_cast<
                std::unique_ptr<const drake::maliput::api::RoadNetwork>>(
                &AgentSimulationBuilder::SetRoadNetwork),
+           py::return_value_policy::reference_internal,
            "Sets road network for the simulation to be built",
            py::arg("road_network"))
       .def("set_road_network",
@@ -158,6 +161,7 @@ PYBIND11_MODULE(simulation, m) {
                std::unique_ptr<const drake::maliput::api::RoadNetwork>,
                const drake::maliput::utility::ObjFeatures&>(
                &AgentSimulationBuilder::SetRoadNetwork),
+           py::return_value_policy::reference_internal,
            "Sets road network for the simulation to be built",
            py::arg("road_network"), py::arg("features"))
       .def("build", &AgentSimulationBuilder::Build);

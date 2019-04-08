@@ -81,7 +81,8 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   // Registers a source for the given scene graph.
   const SourceId source_id = scene_graph->RegisterSource(frame_root);
   // Registers the Prius car frame.
-  const GeometryFrame car_frame(detail::ResolveFrameName(frame_root, "car_frame"));
+  const GeometryFrame car_frame(
+      detail::ResolveFrameName(frame_root, "car_frame"));
   const FrameId car_frame_id = scene_graph->RegisterFrame(source_id, car_frame);
 
   // Registers the Prius car chassis frame.

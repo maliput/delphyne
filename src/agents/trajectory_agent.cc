@@ -60,10 +60,6 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
   // the pose output
   const PoseVelocity initial_car_pose_velocity =
       trajectory_->value(times.front());
-
-  SetInitialWorldPose(
-      drake::Translation3<double>(initial_car_pose_velocity.translation()) *
-      initial_car_pose_velocity.rotation());
 }
 
 std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(

@@ -1,5 +1,6 @@
 // Copyright 2017 Toyota Research Institute
 
+syntax = "proto2";
 package ignition.msgs;
 option java_package = "com.ignition.msgs";
 option java_outer_classname = "SceneRequestProtos";

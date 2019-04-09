@@ -42,11 +42,7 @@ namespace delphyne {
 MobilCarBlueprint::MobilCarBlueprint(const std::string& name,
                                      bool direction_of_travel, double x,
                                      double y, double heading, double speed)
-    : BasicAgentBlueprint(
-          name, drake::Isometry3<double>(
-                    drake::Translation3<double>(x, y, 0.0) *
-                    drake::AngleAxis<double>(heading,
-                                             drake::Vector3<double>::UnitZ()))),
+    : BasicAgentBlueprint(name),
       initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(

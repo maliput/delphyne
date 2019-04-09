@@ -77,9 +77,6 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       lane.ToGeoPosition(initial_car_lane_position);
   drake::maliput::api::Rotation initial_car_orientation =
       lane.GetOrientation(initial_car_lane_position);
-  SetInitialWorldPose(
-      drake::Translation3<double>(initial_car_geo_position.xyz()) *
-      initial_car_orientation.quat());
 }
 
 std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(

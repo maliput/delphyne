@@ -63,11 +63,11 @@ class CarVisApplicatorTest : public ::testing::Test {
 };
 
 TEST_F(CarVisApplicatorTest, Topology) {
-  ASSERT_EQ(dut_->get_num_input_ports(), 1);
+  ASSERT_EQ(dut_->num_input_ports(), 1);
   const auto& pose_port = dut_->get_car_poses_input_port();
   EXPECT_EQ(pose_port.get_data_type(), drake::systems::kAbstractValued);
 
-  ASSERT_EQ(dut_->get_num_output_ports(), 1);
+  ASSERT_EQ(dut_->num_output_ports(), 1);
   const auto& lane_output_port = dut_->get_visual_geometry_poses_output_port();
   EXPECT_EQ(lane_output_port.get_data_type(), drake::systems::kAbstractValued);
 

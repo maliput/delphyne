@@ -40,8 +40,6 @@ inline std::string ResolveFrameName(const std::string& root,
 /// @p builder and @p scene_graph.
 ///
 /// @param frame_root A root name (i.e. a prefix) for all Prius car frames.
-/// @param initial_world_to_car_transform The initial world to Prius car
-///                                       transform.
 /// @param builder The builder used to wire associated systems into
 ///                the diagram.
 /// @param scene_graph The scene graph where geometries are registered into.
@@ -56,7 +54,6 @@ template <typename T, typename std::enable_if<std::is_same<T, double>::value,
                                               int>::type = 0>
 const drake::systems::InputPort<T>& WirePriusGeometry(
     const std::string& frame_root,
-    const drake::Isometry3<T>& initial_world_to_car_transform,
     drake::systems::DiagramBuilder<T>* builder,
     drake::geometry::SceneGraph<T>* scene_graph,
     std::set<drake::geometry::GeometryId>* geometry_ids) {
@@ -85,14 +82,12 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   const SourceId source_id = scene_graph->RegisterSource(frame_root);
   // Registers the Prius car frame.
   const GeometryFrame car_frame(
-      detail::ResolveFrameName(frame_root, "car_frame"),
-      initial_world_to_car_transform);
+      detail::ResolveFrameName(frame_root, "car_frame"));
   const FrameId car_frame_id = scene_graph->RegisterFrame(source_id, car_frame);
 
   // Registers the Prius car chassis frame.
   const GeometryFrame car_chassis_frame(
-      detail::ResolveFrameName(frame_root, "car_chassis_frame"),
-      kPriusCarToChassisTranslation * kPriusCarToChassisRotation);
+      detail::ResolveFrameName(frame_root, "car_chassis_frame"));
   const FrameId car_chassis_frame_id =
       scene_graph->RegisterFrame(source_id, car_frame_id, car_chassis_frame);
 

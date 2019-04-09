@@ -62,8 +62,7 @@ PYBIND11_MODULE(agents, m) {
            [](AgentBlueprint* self, const AgentSimulation& simulation) {
              return &self->GetAgent(simulation);
            })
-      .def("get_mutable_agent", &AgentBlueprint::GetMutableAgent)
-      .def("get_initial_world_pose", &AgentBlueprint::GetInitialWorldPose);
+      .def("get_mutable_agent", &AgentBlueprint::GetMutableAgent);
 
   py::class_<SimpleCarBlueprint, AgentBlueprint>(m, "SimpleCarBlueprint")
       .def(py::init<const std::string&, double, double, double, double>(),

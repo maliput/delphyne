@@ -25,6 +25,8 @@ import delphyne.maliput as maliput
 import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
+from delphyne.utilities import launch_interactive_simulation
+
 from . import helpers
 
 ##############################################################################
@@ -175,7 +177,7 @@ def main():
     monitor = TimeMonitor(running_simulation, rail_car)
 
     stats = SimulationStats()
-    with utilities.launch_interactive_simulation(runner) as launcher:
+    with launch_interactive_simulation(runner, bare=args.bare) as launcher:
         # Add a callback to record and print statistics
         runner.add_step_callback(stats.record_tick)
 

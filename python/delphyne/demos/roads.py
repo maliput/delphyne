@@ -14,7 +14,8 @@ import sys
 
 import delphyne.maliput as maliput
 import delphyne.simulation as simulation
-import delphyne.utilities as utilities
+
+from delphyne.utilities import launch_interactive_simulation
 
 from . import helpers
 
@@ -153,7 +154,7 @@ def main():
         logfile_name=args.logfile_name
     )
 
-    with utilities.launch_interactive_simulation(runner) as launcher:
+    with launch_interactive_simulation(runner, bare=args.bare) as launcher:
         if args.duration < 0:
             # run indefinitely
             runner.start()

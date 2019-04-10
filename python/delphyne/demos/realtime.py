@@ -17,6 +17,8 @@ import sys
 import delphyne.simulation as simulation
 import delphyne.utilities as utilities
 
+from delphyne.utilities import launch_interactive_simulation
+
 from . import helpers
 
 ##############################################################################
@@ -111,7 +113,7 @@ def main():
     print("Running at real-time rate {0} for {1} steps"
           .format(runner.get_realtime_rate(), initial_steps))
 
-    with utilities.launch_interactive_simulation(runner) as launcher:
+    with launch_interactive_simulation(runner, bare=args.bare) as launcher:
         if args.duration < 0:
             # run indefinitely
             runner.start()

@@ -16,23 +16,12 @@ include (${PROJECT_SOURCE_DIR}/cmake/Utils.cmake)
 include(GNUInstallDirs)
 
 ##############################################################################
-# Uninstall Target
-##############################################################################
-
-configure_file(
-  "${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in"
-  "${PROJECT_BINARY_DIR}/cmake/cmake_uninstall.cmake"
-  IMMEDIATE @ONLY)
-add_custom_target(uninstall
-  "${CMAKE_COMMAND}" -P
-  "${PROJECT_BINARY_DIR}/cmake/cmake_uninstall.cmake")
-
-##############################################################################
 # Find 3rd Party Packages
 ##############################################################################
 
 message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 
+find_package(ament_cmake REQUIRED)
 find_package(drake REQUIRED)
 find_package(malidrive REQUIRED)
 find_package(ignition-common2 REQUIRED COMPONENTS graphics)
@@ -101,17 +90,20 @@ add_subdirectory(media)
 # Tests
 ##############################################################################
 
-# We always enable tests (that might change in the future)
-enable_testing()
-add_subdirectory(test)
-add_test(NAME CPPLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_cpplint.sh)
-add_test(NAME PYLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_python_checks.sh)
+if(BUILD_TESTS)
+  enable_testing()
+  add_subdirectory(test)
+  add_test(NAME CPPLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_cpplint.sh)
+  add_test(NAME PYLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_python_checks.sh)
+endif()
 
 ##############################################################################
 # Export
 ##############################################################################
 
 include(CMakePackageConfigHelpers)
+
+ament_environment_hooks(setup.bash.in)
 
 configure_package_config_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake.in
@@ -134,6 +126,7 @@ install(
   DESTINATION
     ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
+
 install(
   EXPORT ${PROJECT_NAME}-targets
   NAMESPACE ${PROJECT_NAME}::
@@ -141,12 +134,7 @@ install(
     ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
 )
 
-configure_file(
-  setup.bash.in
-  ${PROJECT_BINARY_DIR}/setup.bash
-  IMMEDIATE @ONLY
-)
-install(
-  PROGRAMS ${PROJECT_BINARY_DIR}/setup.bash
-  DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}
+ament_package(
+  CONFIG_EXTRAS
+  ${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in
 )

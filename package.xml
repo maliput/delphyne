@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>delphyne</name>
+  <version>0.1.0</version>
+  <description>Delphyne</description>
+  <maintainer email="complete@later.com">Complete later</maintainer>
+  <license>Apache License 2.0</license>
+
+  <build_depend>drake</build_depend>
+  <build_depend>ignition-common2</build_depend>
+  <build_depend>ignition-math5</build_depend>
+  <build_depend>ignition-msgs2</build_depend>
+  <build_depend>ignition-transport5</build_depend>
+  <build_depend>malidrive</build_depend>
+
+  <build_export_depend>drake</build_export_depend>
+  <build_export_depend>ignition-common2</build_export_depend>
+  <build_export_depend>ignition-math5</build_export_depend>
+  <build_export_depend>ignition-msgs2</build_export_depend>
+  <build_export_depend>ignition-transport5</build_export_depend>
+  <build_export_depend>malidrive</build_export_depend>
+
+  <exec_depend>ament_cmake</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -101,40 +101,10 @@ endif()
 # Export
 ##############################################################################
 
-include(CMakePackageConfigHelpers)
-
 ament_environment_hooks(setup.bash.in)
+ament_export_dependencies(ament_cmake)
+ament_export_dependencies(drake)
+ament_export_dependencies(malidrive)
+ament_export_interfaces(${PROJECT_NAME}-targets HAS_LIBRARY_TARGET)
 
-configure_package_config_file(
-  ${CMAKE_CURRENT_SOURCE_DIR}/cmake/${PROJECT_NAME}-config.cmake.in
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-  INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake
-)
-
-# Version module
-write_basic_config_version_file(
-  ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  VERSION ${PROJECT_VERSION}
-  COMPATIBILITY SameMajorVersion
-)
-
-# Install config, version and target modules
-install(
-  FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
-    ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
-  DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-)
-
-install(
-  EXPORT ${PROJECT_NAME}-targets
-  NAMESPACE ${PROJECT_NAME}::
-  DESTINATION
-    ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}-${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-)
-
-ament_package(
-  CONFIG_EXTRAS
-  ${PROJECT_SOURCE_DIR}/cmake/cmake_uninstall.cmake.in
-)
+ament_package()

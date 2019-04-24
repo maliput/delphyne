@@ -169,7 +169,7 @@ def main():
     # Find a lane
     road_geometry = road_network.road_geometry()
     if 'lane_id' in road:
-        lane = road_geometry.by_id().get_lane(road['lane_id'])
+        lane = road_geometry.ById().GetLane(road['lane_id'])
     else:
         lane = road_geometry.junction(0).segment(0).lane(0)
 

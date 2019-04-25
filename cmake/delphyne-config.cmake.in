@@ -22,5 +22,6 @@ include(${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@-targets.cmake)
 ##############################################################################
 
 include(CMakeFindDependencyMacro)
+find_dependency(drake_vendor)
 find_dependency(ignition-msgs2)
 find_dependency(malidrive)

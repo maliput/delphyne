@@ -4,8 +4,8 @@
   <name>delphyne</name>
   <version>0.1.0</version>
   <description>Delphyne</description>
-  <maintainer email="complete@later.com">Complete later</maintainer>
-  <license>Apache License 2.0</license>
+  <maintainer email="daniel.stonier@tri.global">Daniel Stonier</maintainer>
+  <license>TODO</license>
 
   <build_depend>cmake</build_depend>
   <build_depend>coreutils</build_depend>

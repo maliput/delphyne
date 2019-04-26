@@ -78,8 +78,10 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   step_simtime = sim_start + 0.2;
   step_realtime = realtime_start + std::chrono::milliseconds(200);
 
+#ifndef NDEBUG
   EXPECT_DEATH(stats.StepExecuted(step_simtime, step_realtime),
                "condition '!run_finished_' failed.");
+#endif
 }
 
 }  // namespace delphyne

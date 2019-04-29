@@ -161,21 +161,22 @@ def add_mobil_car(builder, name, scene_x, scene_y, heading, speed):
 
 
 # pylint: disable=too-many-arguments
-def add_rail_car(builder, name, lane, position, offset, speed):
+def add_rail_car(builder, name, lane, position, offset,
+                 speed, direction_of_travel=True):
     """
     Adds a centre-line following rail car to the simulation and
     returns its blueprint.
     """
     return builder.add_agent(
         agents.RailCarBlueprint(
-            name=name,                       # unique name
-            lane=lane,                       # lane
-            direction_of_travel=True,        # direction_of_travel
-            longitudinal_position=position,  # lane s-coordinate (m)
-            lateral_offset=offset,           # lane r-coordinate (m)
-            speed=speed,                     # initial speed in
-                                             # s-direction (m/s)
-            nominal_speed=20.0               # nominal_speed (m/s)
+            name=name,                                # unique name
+            lane=lane,                                # lane
+            direction_of_travel=direction_of_travel,  # direction_of_travel
+            longitudinal_position=position,           # lane s-coordinate (m)
+            lateral_offset=offset,                    # lane r-coordinate (m)
+            speed=speed,                              # initial speed in
+                                                      # s-direction (m/s)
+            nominal_speed=20.0                        # nominal_speed (m/s)
         )
     )
 

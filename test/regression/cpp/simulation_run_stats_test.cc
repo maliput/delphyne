@@ -78,8 +78,13 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   step_simtime = sim_start + 0.2;
   step_realtime = realtime_start + std::chrono::milliseconds(200);
 
+#ifndef NDEBUG
+  // Death tests are explicitly disabled when not compiling for debug
+  // because the assertions these expect are not armed (i.e. the macros
+  // expand to nothing) in this case.
   EXPECT_DEATH(stats.StepExecuted(step_simtime, step_realtime),
                "condition '!run_finished_' failed.");
+#endif
 }
 
 }  // namespace delphyne

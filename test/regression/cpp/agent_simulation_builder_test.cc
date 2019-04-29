@@ -358,7 +358,9 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
 }
 
 TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
-  constexpr double kPoseXTolerance{1e-6};
+  // Tolerance is rather large as the trajectory agent
+  // is splining its way through.
+  constexpr double kPoseXTolerance{0.1};
   constexpr double kTolerance{1e-8};
 
   AgentSimulationBuilder builder;
@@ -400,10 +402,7 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   // Look for the chassis_floor link of the first car.
   const ignition::msgs::Link& link = GetChassisFloorLink(alice_model);
 
-  EXPECT_NEAR(link.pose().position().x(),
-              // Simply 30.00 won't work because the trajectory
-              // agent is splining it's way along.
-              30.0, kPoseXTolerance);
+  EXPECT_NEAR(link.pose().position().x(), 30.0, kPoseXTolerance);
   EXPECT_NEAR(link.pose().position().y(), 0, kTolerance);
   EXPECT_NEAR(link.pose().position().z(), 0.37832599878311157, kTolerance);
   EXPECT_NEAR(link.pose().orientation().w(), 1, kTolerance);

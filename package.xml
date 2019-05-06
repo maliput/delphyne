@@ -7,36 +7,36 @@
   <maintainer email="daniel.stonier@tri.global">Daniel Stonier</maintainer>
   <license>TODO</license>
 
+  <!-- Packages not present in rosdep DB -->
+  <build_depend>libavdevice-dev</build_depend>
+  <build_depend>libboost-filesystem-dev</build_depend>
+  <build_depend>libzip-dev</build_depend>
+  <build_depend>mesa-utils</build_depend>
+  <build_depend>pylint3</build_depend>
+  <build_depend>pycodestyle</build_depend>
+  <build_depend>python3-pycodestyle</build_depend>
+  <build_depend>ruby-ronn</build_depend>
+  <build_depend>zip</build_depend>
+
+  <!-- Packages present in rosdep DB -->
   <build_depend>cmake</build_depend>
   <build_depend>coreutils</build_depend>
   <build_depend>gcovr</build_depend>
   <build_depend>git</build_depend>
   <build_depend>lcov</build_depend>
-  <build_depend>libavdevice-dev</build_depend>
-  <build_depend>libboost-filesystem-dev</build_depend>
-  <build_depend>libfreeimage-dev</build_depend>
+  <build_depend>freeimage</build_depend>
   <build_depend>libglew-dev</build_depend>
-  <build_depend>libgts-dev</build_depend>
+  <build_depend>libgts</build_depend>
   <build_depend>libicu-dev</build_depend>
   <build_depend>libsqlite3-dev</build_depend>
-  <build_depend>libprotobuf-dev</build_depend>
-  <build_depend>libprotoc-dev</build_depend>
-  <build_depend>libtinyxml2-dev</build_depend>
-  <build_depend>libzip-dev</build_depend>
+  <build_depend>protobuf-dev</build_depend>
+  <build_depend>tinyxml2</build_depend>
   <build_depend>libzmq3-dev</build_depend>
   <build_depend>mercurial</build_depend>
-  <build_depend>mesa-utils</build_depend>
   <build_depend>pkg-config</build_depend>
-  <build_depend>protobuf-compiler</build_depend>
-  <build_depend>pylint3</build_depend>
-  <build_depend>python3</build_depend>
-  <build_depend>pycodestyle</build_depend>
-  <build_depend>python3-pycodestyle</build_depend>
   <build_depend>python3-setuptools</build_depend>
-  <build_depend>ruby-ronn</build_depend>
-  <build_depend>uuid-dev</build_depend>
+  <build_depend>uuid</build_depend>
   <build_depend>unzip</build_depend>
-  <build_depend>zip</build_depend>
 
   <build_depend>drake</build_depend>
   <build_depend>ignition-common2</build_depend>

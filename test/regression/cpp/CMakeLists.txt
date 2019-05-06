@@ -9,16 +9,16 @@ set(TEST_TYPE UNIT)
 # Helper test library.
 file(GLOB SOURCES "test_utilities/*.cc")
 
-add_library(test_utilities ${SOURCES})
+add_library(delphyne_test_utilities ${SOURCES})
 
 target_include_directories(
-  test_utilities
+  delphyne_test_utilities
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
-target_link_libraries(test_utilities
+target_link_libraries(delphyne_test_utilities
   gtest
   gtest_main
   public_headers

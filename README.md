@@ -27,7 +27,7 @@ source ./bringup
    colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne-gui
    ```
 
-Note: If you want to build tests, make sure to add --cmake-args -DBUILD_TESTS=ON to colcon build. Example:
+Note: If you want to build tests, make sure to add `--cmake-args -DBUILD_TESTS=ON` to colcon build. Example:
 ```sh
    colcon build --cmake-args -DBUILD_TESTS=ON --packages-up-to delphyne-gui
 ```

@@ -17,6 +17,8 @@
 
 #include <malidrive/constants.h>
 #include <malidrive/loader.h>
+#include <malidrive/road_geometry_configuration.h>
+#include <malidrive/road_network_configuration.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -53,15 +55,23 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {
 
 std::unique_ptr<const drake::maliput::api::RoadNetwork>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
+  malidrive::RoadNetworkConfiguration road_network_configuration{
+    malidrive::RoadGeometryConfiguration{
+    drake::maliput::api::RoadGeometryId(name),
+    file_path,
+    malidrive::Constants::kLinearTolerance,
+    malidrive::Constants::kAngularTolerance,
+    malidrive::Constants::kScaleLength,
+    malidrive::InertialToLaneMappingConfig(
+        malidrive::Constants::kExplorationRadius,
+        malidrive::Constants::kNumIterations)
+    },
+    drake::nullopt,
+    drake::nullopt,
+    drake::nullopt
+  };
   return malidrive::Load(
-      file_path,
-      drake::maliput::api::RoadGeometryId(name),
-      malidrive::Constants::kLinearTolerance,
-      malidrive::Constants::kAngularTolerance,
-      malidrive::Constants::kScaleLength,
-      malidrive::InertialToLaneMappingConfig(
-          malidrive::Constants::kExplorationRadius,
-          malidrive::Constants::kNumIterations),
+      road_network_configuration,
       malidrive::WorldToOpenDriveTransform::Identity());
 }
 

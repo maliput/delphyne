@@ -22,7 +22,7 @@ include(GNUInstallDirs)
 message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 
 find_package(ament_cmake REQUIRED)
-find_package(drake REQUIRED)
+find_package(drake_vendor REQUIRED)
 find_package(malidrive REQUIRED)
 find_package(ignition-common2 REQUIRED COMPONENTS graphics)
 find_package(ignition-math5 REQUIRED)

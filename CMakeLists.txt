@@ -103,7 +103,7 @@ endif()
 
 ament_environment_hooks(setup.bash.in)
 ament_export_dependencies(ament_cmake)
-ament_export_dependencies(drake)
+ament_export_dependencies(drake_vendor)
 ament_export_dependencies(malidrive)
 ament_export_interfaces(${PROJECT_NAME}-targets HAS_LIBRARY_TARGET)
 

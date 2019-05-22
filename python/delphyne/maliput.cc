@@ -36,7 +36,7 @@ namespace {
 *****************************************************************************/
 
 PYBIND11_MODULE(maliput, m) {
-  py::module::import("pydrake.maliput.api");
+  py::module::import("maliput.api");
 
   // Most of the required maliput types (e.g. Lane, LaneId, RoadGeometry)
   // already have bindings in pydrake. Take advantage of these or help

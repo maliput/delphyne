@@ -2,21 +2,21 @@
 
 #include <gtest/gtest.h>
 
-#include <drake/automotive/maliput/dragway/road_geometry.h>
-#include <drake/automotive/multilane_onramp_merge.h>
+#include <dragway/road_geometry.h>
+#include <multilane/multilane_onramp_merge.h>
 #include <drake/common/autodiff.h>
 
 #include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::GeoPositionT;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::RoadPosition;
-using drake::maliput::api::Rotation;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::GeoPositionT;
+using ::maliput::api::Lane;
+using ::maliput::api::LaneEnd;
+using ::maliput::api::LanePosition;
+using ::maliput::api::RoadPosition;
+using ::maliput::api::Rotation;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
 
@@ -49,7 +49,7 @@ void SetOnrampPoses(const Lane* lane, LanePolarity polarity, const T& speed,
   velocity->set_velocity(drake::multibody::SpatialVelocity<T>(velocity_vector));
 }
 
-const Lane* GetLaneFromId(const drake::maliput::api::RoadGeometry& road,
+const Lane* GetLaneFromId(const ::maliput::api::RoadGeometry& road,
                           const std::string& lane_id) {
   for (int i = 0; i < road.num_junctions(); ++i) {
     if (road.junction(i)->segment(0)->lane(0)->id().string() == lane_id) {
@@ -62,7 +62,7 @@ const Lane* GetLaneFromId(const drake::maliput::api::RoadGeometry& road,
 // Sets up poses in the requested lane and performs the tests based on a
 // hypothesized RoadPosition.  If the requested lane is nullptr, then the
 // expected result is the default RoadPosition.
-void PerformTest(const drake::maliput::api::RoadGeometry& rg, const Lane* lane,
+void PerformTest(const ::maliput::api::RoadGeometry& rg, const Lane* lane,
                  LanePolarity polarity, double speed, const Lane* expected_lane,
                  const LanePosition& expected_lp) {
   DRAKE_DEMAND(lane != nullptr);
@@ -88,8 +88,8 @@ void PerformTest(const drake::maliput::api::RoadGeometry& rg, const Lane* lane,
 
 GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
   // N.B. In this road, `post0` branches into `pre0` and `onramp1`.
-  auto merge_road = std::make_unique<drake::automotive::MultilaneOnrampMerge>();
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> rg =
+  auto merge_road = std::make_unique<maliput::multilane::MultilaneOnrampMerge>();
+  std::unique_ptr<const ::maliput::api::RoadGeometry> rg =
       merge_road->BuildOnramp();
 
   // Set speed to be zero and the car facing both along and against the
@@ -109,8 +109,8 @@ GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
-  auto merge_road = std::make_unique<drake::automotive::MultilaneOnrampMerge>();
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> rg =
+  auto merge_road = std::make_unique<maliput::multilane::MultilaneOnrampMerge>();
+  std::unique_ptr<const ::maliput::api::RoadGeometry> rg =
       merge_road->BuildOnramp();
 
   PoseVector<double> pose;
@@ -138,8 +138,8 @@ GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
-  drake::maliput::dragway::RoadGeometry rg(
-      drake::maliput::api::RoadGeometryId("1-lane dragway"), 1 /* num_lanes */,
+  ::maliput::dragway::RoadGeometry rg(
+      ::maliput::api::RoadGeometryId("1-lane dragway"), 1 /* num_lanes */,
       100. /* length */, 2. /* lane_width */, 0. /* shoulder_width */,
       5. /* maximum_height */,
       std::numeric_limits<double>::epsilon() /* linear_tolerance */,

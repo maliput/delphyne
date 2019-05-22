@@ -13,7 +13,7 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/primitives/multiplexer.h>
 
@@ -46,7 +46,7 @@ MobilCarBlueprint::MobilCarBlueprint(const std::string& name,
       initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
-    const drake::maliput::api::RoadGeometry* road_geometry) const {
+    const ::maliput::api::RoadGeometry* road_geometry) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
                     "MOBIL cars require a road geometry to run, make "
                     "sure the simulation was setup with one.");

@@ -14,10 +14,10 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/maliput/api/junction.h>
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/maliput/api/segment.h>
+#include <maliput/api/junction.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/road_geometry.h>
+#include <maliput/api/segment.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/primitives/constant_vector_source.h>
@@ -47,7 +47,7 @@ namespace delphyne {
  *****************************************************************************/
 
 RailCarBlueprint::RailCarBlueprint(const std::string& name,
-                                   const drake::maliput::api::Lane& lane,
+                                   const ::maliput::api::Lane& lane,
                                    bool direction_of_travel,
                                    double longitudinal_position,  // s
                                    double lateral_offset,         // r
@@ -71,21 +71,21 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       std::invalid_argument,
       "The lane to be initialised on is not part of a road geometry.");
 
-  drake::maliput::api::LanePosition initial_car_lane_position{
+  ::maliput::api::LanePosition initial_car_lane_position{
       longitudinal_position, lateral_offset, 0.0};
-  drake::maliput::api::GeoPosition initial_car_geo_position =
+  ::maliput::api::GeoPosition initial_car_geo_position =
       lane.ToGeoPosition(initial_car_lane_position);
-  drake::maliput::api::Rotation initial_car_orientation =
+  ::maliput::api::Rotation initial_car_orientation =
       lane.GetOrientation(initial_car_lane_position);
 }
 
 std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
-    const drake::maliput::api::RoadGeometry* road_geometry,
+    const ::maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
                     "Rail cars need a road geometry to drive on, make "
                     "sure the simulation is built with one.");
-  const drake::maliput::api::RoadGeometry* lane_road_geometry =
+  const ::maliput::api::RoadGeometry* lane_road_geometry =
       initial_parameters_.lane.segment()->junction()->road_geometry();
   DELPHYNE_VALIDATE(
       lane_road_geometry->id() == road_geometry->id(), std::invalid_argument,

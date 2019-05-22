@@ -76,7 +76,7 @@ PYBIND11_MODULE(agents, m) {
            py::arg("heading"), py::arg("speed"));
 
   py::class_<RailCarBlueprint, AgentBlueprint>(m, "RailCarBlueprint")
-      .def(py::init<const std::string&, const drake::maliput::api::Lane&, bool,
+      .def(py::init<const std::string&, const ::maliput::api::Lane&, bool,
                     double, double, double, double>(),
            "Construct and configure a rail car", py::arg("name"),
            py::arg("lane"), py::arg("direction_of_travel"),

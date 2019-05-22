@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/road_geometry.h>
 #include "delphyne/mi6/agent_base_blueprint.h"
 #include "systems/trajectory.h"
 
@@ -39,7 +39,7 @@ class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
 
  private:
   std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const drake::maliput::api::RoadGeometry* road_geometry) const override;
+      const ::maliput::api::RoadGeometry* road_geometry) const override;
 
   std::unique_ptr<Trajectory> trajectory_{};
 };

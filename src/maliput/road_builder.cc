@@ -9,11 +9,11 @@
 
 #include "delphyne/maliput/road_builder.h"
 
-#include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/maliput/api/road_network.h>
-#include <drake/automotive/maliput/dragway/road_geometry.h>
-#include <drake/automotive/maliput/multilane/loader.h>
-#include <drake/automotive/multilane_onramp_merge.h>
+#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
+#include <dragway/road_geometry.h>
+#include <multilane/loader.h>
+#include <multilane/multilane_onramp_merge.h>
 
 #include <malidrive/constants.h>
 #include <malidrive/loader.h>
@@ -27,37 +27,37 @@
 namespace delphyne {
 namespace maliput {
 
-namespace api = drake::maliput::api;
+namespace api = ::maliput::api;
 
 /*****************************************************************************
 ** Implementation
 *****************************************************************************/
 
-std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateDragway(
+std::unique_ptr<const ::maliput::api::RoadGeometry> CreateDragway(
     const std::string& name, int num_lanes, double length, double lane_width,
     double shoulder_width, double maximum_height, double linear_tolerance,
     double angular_tolerance) {
-  drake::maliput::api::RoadGeometryId id(name);
-  return std::make_unique<const drake::maliput::dragway::RoadGeometry>(
+  ::maliput::api::RoadGeometryId id(name);
+  return std::make_unique<const ::maliput::dragway::RoadGeometry>(
       id, num_lanes, length, lane_width, shoulder_width, maximum_height,
       linear_tolerance, angular_tolerance);
 }
 
-std::unique_ptr<const drake::maliput::api::RoadGeometry>
+std::unique_ptr<const ::maliput::api::RoadGeometry>
 CreateMultilaneFromFile(const std::string& file_path) {
-  return drake::maliput::multilane::LoadFile(
-      drake::maliput::multilane::BuilderFactory(), file_path);
+  return ::maliput::multilane::LoadFile(
+      ::maliput::multilane::BuilderFactory(), file_path);
 }
 
-std::unique_ptr<const drake::maliput::api::RoadGeometry> CreateOnRamp() {
-  return drake::automotive::MultilaneOnrampMerge().BuildOnramp();
+std::unique_ptr<const ::maliput::api::RoadGeometry> CreateOnRamp() {
+  return ::maliput::multilane::MultilaneOnrampMerge().BuildOnramp();
 }
 
-std::unique_ptr<const drake::maliput::api::RoadNetwork>
+std::unique_ptr<const ::maliput::api::RoadNetwork>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
   malidrive::RoadNetworkConfiguration road_network_configuration{
     malidrive::RoadGeometryConfiguration{
-    drake::maliput::api::RoadGeometryId(name),
+    ::maliput::api::RoadGeometryId(name),
     file_path,
     malidrive::Constants::kLinearTolerance,
     malidrive::Constants::kAngularTolerance,

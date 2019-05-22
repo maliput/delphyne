@@ -2,11 +2,11 @@
 
 #include <gtest/gtest.h>
 
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/maliput/dragway/road_geometry.h>
-#include <drake/automotive/maliput/multilane/builder.h>
-#include <drake/automotive/maliput/multilane/road_geometry.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/road_geometry.h>
+#include <dragway/road_geometry.h>
+#include <multilane/builder.h>
+#include <multilane/road_geometry.h>
 #include <drake/common/extract_double.h>
 #include <drake/math/rotation_matrix.h>
 
@@ -15,25 +15,25 @@
 namespace delphyne {
 namespace {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::HBounds;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::RBounds;
-using drake::maliput::api::RoadPosition;
-using drake::maliput::api::Rotation;
-using drake::maliput::multilane::ArcOffset;
-using drake::maliput::multilane::BuilderFactory;
-using drake::maliput::multilane::ComputationPolicy;
-using drake::maliput::multilane::Connection;
-using drake::maliput::multilane::Endpoint;
-using drake::maliput::multilane::EndpointXy;
-using drake::maliput::multilane::EndpointZ;
-using drake::maliput::multilane::EndReference;
-using drake::maliput::multilane::LaneLayout;
-using drake::maliput::multilane::LineOffset;
-using drake::maliput::multilane::StartReference;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::HBounds;
+using ::maliput::api::Lane;
+using ::maliput::api::LaneEnd;
+using ::maliput::api::LanePosition;
+using ::maliput::api::RBounds;
+using ::maliput::api::RoadPosition;
+using ::maliput::api::Rotation;
+using ::maliput::multilane::ArcOffset;
+using ::maliput::multilane::BuilderFactory;
+using ::maliput::multilane::ComputationPolicy;
+using ::maliput::multilane::Connection;
+using ::maliput::multilane::Endpoint;
+using ::maliput::multilane::EndpointXy;
+using ::maliput::multilane::EndpointZ;
+using ::maliput::multilane::EndReference;
+using ::maliput::multilane::LaneLayout;
+using ::maliput::multilane::LineOffset;
+using ::maliput::multilane::StartReference;
 
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
@@ -76,7 +76,7 @@ constexpr double kRoadSegmentLength{15.};
 const EndpointZ kEndZ{0., 0., 0., 0.};
 
 static const Lane* GetLaneByLaneId(
-    const drake::maliput::api::RoadGeometry& road, const std::string& lane_id) {
+    const ::maliput::api::RoadGeometry& road, const std::string& lane_id) {
   for (int i = 0; i < road.num_junctions(); ++i) {
     const Lane* lane = road.junction(i)->segment(0)->lane(0);
     if (lane->id().string() == lane_id) {
@@ -93,14 +93,14 @@ class TrafficPoseSelectorDragwayTest : public ::testing::Test {
     DRAKE_ASSERT(num_lanes >= 0);
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
-    road_.reset(new drake::maliput::dragway::RoadGeometry(
-        drake::maliput::api::RoadGeometryId("Test Dragway"), num_lanes,
+    road_.reset(new ::maliput::dragway::RoadGeometry(
+        ::maliput::api::RoadGeometryId("Test Dragway"), num_lanes,
         lane_length, kDragwayLaneWidth, 0. /* shoulder width */,
         5. /* maximum_height */,
         std::numeric_limits<double>::epsilon() /* linear_tolerance */,
         std::numeric_limits<double>::epsilon() /* angular_tolerance */));
   }
-  std::unique_ptr<drake::maliput::dragway::RoadGeometry> road_;
+  std::unique_ptr<::maliput::dragway::RoadGeometry> road_;
 };
 
 template <typename T>
@@ -197,7 +197,7 @@ static void SetPoses(const T& s_offset, const T& r_offset,
 // Returns the lane in the road associated with the provided pose.
 template <typename T>
 const Lane* get_lane(const PoseVector<T>& pose,
-                     const drake::maliput::api::RoadGeometry& road) {
+                     const ::maliput::api::RoadGeometry& road) {
   const GeoPosition geo_position{
       ExtractDoubleOrThrow(pose.get_translation().x()),
       ExtractDoubleOrThrow(pose.get_translation().y()),
@@ -619,7 +619,7 @@ TEST_F(TrafficPoseSelectorDragwayTest, TestGetSigmaVelocity) {
   MakeDragway(1 /* num lanes */, kDragwayLaneLength);
 
   // Provide GetSigmaVelocity() with a null Lane.
-  RoadPosition null_rp(nullptr, drake::maliput::api::LanePosition(0., 0., 0.));
+  RoadPosition null_rp(nullptr, ::maliput::api::LanePosition(0., 0., 0.));
   FrameVelocity<double> velocity{};
 
   // Expect it to throw.
@@ -629,7 +629,7 @@ TEST_F(TrafficPoseSelectorDragwayTest, TestGetSigmaVelocity) {
 
   // Set a valid lane.
   const Lane* lane = road_->junction(0)->segment(0)->lane(0);
-  RoadPosition position(lane, drake::maliput::api::LanePosition(0., 0., 0.));
+  RoadPosition position(lane, ::maliput::api::LanePosition(0., 0., 0.));
 
   // Expect the s-velocity to be zero.
   double sigma_v =
@@ -658,7 +658,7 @@ TEST_F(TrafficPoseSelectorDragwayTest, TestGetSigmaVelocity) {
 
 // Build a road with three lanes in series.  If is_opposing is true, then the
 // middle segment is reversed.
-std::unique_ptr<const drake::maliput::api::RoadGeometry> MakeThreeSegmentRoad(
+std::unique_ptr<const ::maliput::api::RoadGeometry> MakeThreeSegmentRoad(
     bool is_opposing) {
   auto builder = BuilderFactory().Make(
       2. * std::abs(kEgoRPosition) + 4. /* lane_width */,
@@ -671,37 +671,37 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> MakeThreeSegmentRoad(
   const Connection* c0 = builder->Connect(
       "0_fwd", lane_layout,
       StartReference().at(Endpoint({0., 0., 0.}, kEndZ),
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       LineOffset(kRoadSegmentLength),
       EndReference().z_at(kEndZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const Connection* c1{};
   if (is_opposing) {
     // Construct a segment in the direction opposite to the initial lane.
     c1 = builder->Connect(
         "1_rev", lane_layout,
         StartReference().at(Endpoint({2. * kRoadSegmentLength, 0., 0.}, kEndZ),
-                            drake::maliput::multilane::Direction::kReverse),
+                            ::maliput::multilane::Direction::kReverse),
         LineOffset(kRoadSegmentLength),
         EndReference().z_at(kEndZ,
-                            drake::maliput::multilane::Direction::kForward));
+                            ::maliput::multilane::Direction::kForward));
   } else {
     // Construct a segment in the direction aligned with the initial lane.
     c1 = builder->Connect(
         "1_fwd", lane_layout,
         StartReference().at(Endpoint({kRoadSegmentLength, 0., 0.}, kEndZ),
-                            drake::maliput::multilane::Direction::kForward),
+                            ::maliput::multilane::Direction::kForward),
         LineOffset(kRoadSegmentLength),
         EndReference().z_at(kEndZ,
-                            drake::maliput::multilane::Direction::kForward));
+                            ::maliput::multilane::Direction::kForward));
   }
   const Connection* c2 = builder->Connect(
       "2_fwd", lane_layout,
       StartReference().at(Endpoint({2. * kRoadSegmentLength, 0., 0.}, kEndZ),
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       LineOffset(kRoadSegmentLength),
       EndReference().z_at(kEndZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
 
   const int kLaneId = 0;
   if (is_opposing) {
@@ -717,13 +717,13 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> MakeThreeSegmentRoad(
   }
 
   return builder->Build(
-      drake::maliput::api::RoadGeometryId("ThreeLaneStretch"));
+      ::maliput::api::RoadGeometryId("ThreeLaneStretch"));
 }
 
 // Verifies the soundness of the results when applied to multi-segment roads.
 GTEST_TEST(TrafficPoseSelectorTest, MultiSegmentRoad) {
   // Instantiate multilane roads with multiple segments.
-  std::vector<std::unique_ptr<const drake::maliput::api::RoadGeometry>> roads;
+  std::vector<std::unique_ptr<const ::maliput::api::RoadGeometry>> roads;
   roads.push_back(MakeThreeSegmentRoad(false));  // Road with consistent
                                                  // with_s
                                                  // directionality.
@@ -775,7 +775,7 @@ GTEST_TEST(TrafficPoseSelectorTest, MultiSegmentRoad) {
 
 // Construct a multilane road with three confluent feeder lanes corresponding to
 // three distinct branch points.
-std::unique_ptr<const drake::maliput::api::RoadGeometry> BuildOnrampRoad() {
+std::unique_ptr<const ::maliput::api::RoadGeometry> BuildOnrampRoad() {
   auto builder = BuilderFactory().Make(
       4. /* lane_width */, HBounds(0., 5.), 0.01 /* linear_tolerance */,
       0.01 /* angular_tolerance */, 1. /* scale_length */,
@@ -794,53 +794,53 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> BuildOnrampRoad() {
   const auto& lane6 = builder->Connect(
       "lane6", lane_layout,
       StartReference().at(kRoadOrigin,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kArcRadius, -kArcLength / kArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& lane5 = builder->Connect(
       "lane5", lane_layout,
       StartReference().at(*lane6, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kArcRadius, kArcLength / kArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& lane4 = builder->Connect(
       "lane4", lane_layout,
       StartReference().at(*lane5, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kArcRadius, -kArcLength / kArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& lane3 = builder->Connect(
       "lane3", lane_layout,
       StartReference().at(*lane4, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kArcRadius, kArcLength / kArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& lane2 = builder->Connect(
       "lane2", lane_layout,
       StartReference().at(*lane3, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kArcRadius, -kArcLength / kArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& lane1 = builder->Connect(
       "lane1", lane_layout,
       StartReference().at(*lane2, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kArcRadius, kArcLength / kArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const double kLinearLength = 100.;
   const auto& lane0 = builder->Connect(
       "lane0", lane_layout,
       StartReference().at(*lane1, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       LineOffset(kLinearLength),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
 
   // Construct the three branches (working backwards from each branch point).
   const double kBranchArcRadius = 35.;
@@ -849,45 +849,45 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> BuildOnrampRoad() {
   const auto& b0_lane1 = builder->Connect(
       "b0_lane1", lane_layout,
       StartReference().at(*lane1, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kBranchArcRadius, kBranchArcLength / kBranchArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& b0_lane0 = builder->Connect(
       "b0_lane0", lane_layout,
       StartReference().at(*b0_lane1, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       LineOffset(kBranchLinearLength),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& b1_lane1 = builder->Connect(
       "b1_lane1", lane_layout,
       StartReference().at(*lane3, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kBranchArcRadius, kBranchArcLength / kBranchArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& b1_lane0 = builder->Connect(
       "b1_lane0", lane_layout,
       StartReference().at(*b1_lane1, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       LineOffset(kBranchLinearLength),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& b2_lane1 = builder->Connect(
       "b2_lane1", lane_layout,
       StartReference().at(*lane5, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       ArcOffset(kBranchArcRadius, kBranchArcLength / kBranchArcRadius),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
   const auto& b2_lane0 = builder->Connect(
       "b2_lane0", lane_layout,
       StartReference().at(*b2_lane1, LaneEnd::Which::kFinish,
-                          drake::maliput::multilane::Direction::kForward),
+                          ::maliput::multilane::Direction::kForward),
       LineOffset(kBranchLinearLength),
       EndReference().z_at(kFlatZ,
-                          drake::maliput::multilane::Direction::kForward));
+                          ::maliput::multilane::Direction::kForward));
 
   // Manually specify the default branches for all junctions in the road.
   const int kLaneId = 0;
@@ -917,7 +917,7 @@ std::unique_ptr<const drake::maliput::api::RoadGeometry> BuildOnrampRoad() {
                             kLaneId, LaneEnd::kFinish);
 
   return builder->Build(
-      drake::maliput::api::RoadGeometryId{"three_feeder_lanes"});
+      ::maliput::api::RoadGeometryId{"three_feeder_lanes"});
 }
 
 enum class LanePolarity { kWithS, kAgainstS };
@@ -991,7 +991,7 @@ void SetDefaultOnrampPoses(const Lane* ego_lane, const Lane* traffic_lane,
 
 using Cases = std::map<LanePolarity, std::pair<AheadOrBehind, AheadOrBehind>>;
 
-void CheckOnrampPosesInBranches(const drake::maliput::api::RoadGeometry& road,
+void CheckOnrampPosesInBranches(const ::maliput::api::RoadGeometry& road,
                                 const PoseVector<double>& ego_pose,
                                 const PoseBundle<double>& traffic_poses,
                                 std::string expected_traffic_lane,
@@ -1047,7 +1047,7 @@ void CheckOnrampPosesInBranches(const drake::maliput::api::RoadGeometry& road,
 }
 
 GTEST_TEST(TrafficPoseSelectorOnrampTest, CheckBranches) {
-  std::unique_ptr<const drake::maliput::api::RoadGeometry> road =
+  std::unique_ptr<const ::maliput::api::RoadGeometry> road =
       BuildOnrampRoad();
 
   PoseVector<double> ego_pose;

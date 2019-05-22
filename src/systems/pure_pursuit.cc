@@ -5,7 +5,7 @@
 #include <cmath>
 #include <memory>
 
-#include <drake/automotive/maliput/api/lane.h>
+#include <maliput/api/lane.h>
 #include <drake/common/autodiff.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
@@ -15,9 +15,9 @@
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPositionT;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LanePositionT;
+using ::maliput::api::GeoPositionT;
+using ::maliput::api::Lane;
+using ::maliput::api::LanePositionT;
 using drake::systems::rendering::PoseVector;
 
 template <typename T>

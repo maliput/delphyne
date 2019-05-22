@@ -24,10 +24,19 @@ target_include_directories(
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
+ament_target_dependencies(maliput_utilities
+  "drake"
+  "maliput"
+  "multilane"
+  "dragway"
+)
+
 target_link_libraries(
   maliput_utilities
-  PUBLIC
     drake::drake
+    dragway::dragway
+    maliput::api
+    multilane::multilane
     malidrive::utility
     malidrive::malidrive
     malidrive::opendrive

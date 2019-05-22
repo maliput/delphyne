@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/common/eigen_types.h>
 #include <drake/common/trajectories/piecewise_polynomial.h>

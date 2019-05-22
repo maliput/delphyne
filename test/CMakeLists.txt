@@ -25,16 +25,24 @@ macro(delphyne_build_tests)
     )
 
     # Kind of an ugly catch-all bucket
+
+#    ament_target_dependencies(${BINARY_NAME}
+#      "drake"
+#      "maliput"
+#      "multilane"
+#      "dragway")
+
     target_link_libraries(
       ${BINARY_NAME}
-      PRIVATE
         agents
         common
-        backend
         translations
         protobuf
         visualization
         drake::drake
+        maliput::api
+        multilane::multilane
+        dragway::dragway
         ignition-common2::ignition-common2
         ignition-transport5::ignition-transport5
         ignition-msgs2::ignition-msgs2
@@ -42,6 +50,7 @@ macro(delphyne_build_tests)
         gtest_main
         gtest
         pthread
+        backend
     )
 
     # Remove a warning in GTest.

@@ -5,36 +5,36 @@
 
 #include <gtest/gtest.h>
 
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/lane_data.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/maliput/dragway/road_geometry.h>
-#include <drake/automotive/maliput/multilane/builder.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
+#include <dragway/road_geometry.h>
+#include <multilane/builder.h>
 
 #include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::HBounds;
-using drake::maliput::api::JunctionId;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::RoadGeometry;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::HBounds;
+using ::maliput::api::JunctionId;
+using ::maliput::api::Lane;
+using ::maliput::api::LaneEnd;
+using ::maliput::api::LanePosition;
+using ::maliput::api::RoadGeometry;
 
-using drake::maliput::multilane::ArcOffset;
-using drake::maliput::multilane::Builder;
-using drake::maliput::multilane::BuilderFactory;
-using drake::maliput::multilane::ComputationPolicy;
-using drake::maliput::multilane::Direction;
-using drake::maliput::multilane::Endpoint;
-using drake::maliput::multilane::EndpointZ;
-using drake::maliput::multilane::LaneLayout;
-using drake::maliput::multilane::LineOffset;
-using drake::maliput::multilane::EndReference;
-using drake::maliput::multilane::StartReference;
+using ::maliput::multilane::ArcOffset;
+using ::maliput::multilane::Builder;
+using ::maliput::multilane::BuilderFactory;
+using ::maliput::multilane::ComputationPolicy;
+using ::maliput::multilane::Direction;
+using ::maliput::multilane::Endpoint;
+using ::maliput::multilane::EndpointZ;
+using ::maliput::multilane::LaneLayout;
+using ::maliput::multilane::LineOffset;
+using ::maliput::multilane::EndReference;
+using ::maliput::multilane::StartReference;
 
 using drake::Vector3;
 
@@ -88,7 +88,7 @@ std::unique_ptr<const RoadGeometry> MakeTwoLaneRoad(bool is_opposing) {
   }
 
   return builder->Build(
-      drake::maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
+      ::maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
 }
 
 const Lane* GetLaneById(const RoadGeometry& road, const std::string& lane_id) {

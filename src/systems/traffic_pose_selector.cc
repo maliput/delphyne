@@ -8,9 +8,9 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/maliput/api/branch_point.h>
-#include <drake/automotive/maliput/api/junction.h>
-#include <drake/automotive/maliput/api/segment.h>
+#include <maliput/api/branch_point.h>
+#include <maliput/api/junction.h>
+#include <maliput/api/segment.h>
 #include <drake/common/autodiffxd_make_coherent.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
@@ -19,18 +19,18 @@
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::GeoPositionT;
-using drake::maliput::api::HBounds;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LaneEndSet;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::LanePositionT;
-using drake::maliput::api::RBounds;
-using drake::maliput::api::RoadGeometry;
-using drake::maliput::api::RoadPosition;
-using drake::maliput::api::Rotation;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::GeoPositionT;
+using ::maliput::api::HBounds;
+using ::maliput::api::Lane;
+using ::maliput::api::LaneEnd;
+using ::maliput::api::LaneEndSet;
+using ::maliput::api::LanePosition;
+using ::maliput::api::LanePositionT;
+using ::maliput::api::RBounds;
+using ::maliput::api::RoadGeometry;
+using ::maliput::api::RoadPosition;
+using ::maliput::api::Rotation;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
@@ -348,10 +348,10 @@ T CalcSigmaVelocity(const Lane* lane, const LanePositionT<T>& lane_position,
 // cars.
 static constexpr double kEgoSigmaVelocity{1.};
 
-// A container consisting of a maliput::api::LaneEnd and a distance along the
+// A container consisting of a ::maliput::api::LaneEnd and a distance along the
 // s-coordinate to that end.
 template <typename T>
-using LaneEndDistance = std::pair<const T, const drake::maliput::api::LaneEnd>;
+using LaneEndDistance = std::pair<const T, const ::maliput::api::LaneEnd>;
 
 // Returns the closest pose to the ego car given a `lane`, the ego vehicle's
 // pose `ego_pose`, a PoseBundle of `traffic_poses`, the AheadOrBehind specifier

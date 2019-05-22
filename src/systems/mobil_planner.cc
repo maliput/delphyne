@@ -8,19 +8,19 @@
 #include <utility>
 #include <vector>
 
-#include <drake/automotive/maliput/api/junction.h>
-#include <drake/automotive/maliput/api/segment.h>
+#include <maliput/api/junction.h>
+#include <maliput/api/segment.h>
 #include <drake/common/cond.h>
 #include <drake/common/drake_assert.h>
 #include <drake/math/saturate.h>
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::RoadGeometry;
-using drake::maliput::api::RoadPosition;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::Lane;
+using ::maliput::api::LanePosition;
+using ::maliput::api::RoadGeometry;
+using ::maliput::api::RoadPosition;
 using drake::math::saturate;
 using drake::systems::BasicVector;
 using drake::systems::rendering::FrameVelocity;

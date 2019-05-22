@@ -7,8 +7,8 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/automotive/maliput/api/lane_data.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
@@ -67,7 +67,7 @@ class IDMController : public drake::systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  IDMController(const drake::maliput::api::RoadGeometry& road,
+  IDMController(const ::maliput::api::RoadGeometry& road,
                 ScanStrategy path_or_branches,
                 RoadPositionStrategy road_position_strategy, double period_sec);
 
@@ -88,7 +88,7 @@ class IDMController : public drake::systems::LeafSystem<T> {
   /// @}
 
  protected:
-  const drake::maliput::api::RoadGeometry& road() const { return road_; }
+  const ::maliput::api::RoadGeometry& road() const { return road_; }
   int ego_pose_index() const { return ego_pose_index_; }
   int ego_velocity_index() const { return ego_velocity_index_; }
   int traffic_index() const { return traffic_index_; }
@@ -99,7 +99,7 @@ class IDMController : public drake::systems::LeafSystem<T> {
       const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
       const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const IdmPlannerParameters<T>& idm_params,
-      const drake::maliput::api::RoadPosition& ego_rp,
+      const ::maliput::api::RoadPosition& ego_rp,
       drake::systems::BasicVector<T>* command) const;
 
   void DoCalcUnrestrictedUpdate(
@@ -113,13 +113,13 @@ class IDMController : public drake::systems::LeafSystem<T> {
   friend class IDMController;
 
   // Converts @p pose into RoadPosition.
-  const drake::maliput::api::RoadPosition GetRoadPosition(
+  const ::maliput::api::RoadPosition GetRoadPosition(
       const drake::Isometry3<T>& pose) const;
 
   void CalcAcceleration(const drake::systems::Context<T>& context,
                         drake::systems::BasicVector<T>* accel_output) const;
 
-  const drake::maliput::api::RoadGeometry& road_;
+  const ::maliput::api::RoadGeometry& road_;
   const ScanStrategy path_or_branches_{};
   const RoadPositionStrategy road_position_strategy_{};
   const double period_sec_{};

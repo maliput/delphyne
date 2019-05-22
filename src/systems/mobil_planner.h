@@ -9,8 +9,8 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
@@ -98,7 +98,7 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  MobilPlanner(const drake::maliput::api::RoadGeometry& road,
+  MobilPlanner(const ::maliput::api::RoadGeometry& road,
                bool initial_with_s, RoadPositionStrategy road_position_strategy,
                double period_sec);
 
@@ -144,7 +144,7 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
       const drake::systems::BasicVector<T>& ego_accel_command,
       const IdmPlannerParameters<T>& idm_params,
       const MobilPlannerParameters<T>& mobil_params,
-      const drake::maliput::api::RoadPosition& ego_rp,
+      const ::maliput::api::RoadPosition& ego_rp,
       LaneDirection* lane_direction) const;
 
   // Computes a pair of incentive measures for the provided neighboring lanes.
@@ -153,8 +153,8 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
   // for these lanes are returned as the first and second elements in the return
   // value.
   const std::pair<T, T> ComputeIncentives(
-      const std::pair<const drake::maliput::api::Lane*,
-                      const drake::maliput::api::Lane*>
+      const std::pair<const ::maliput::api::Lane*,
+                      const ::maliput::api::Lane*>
           lanes,
       const IdmPlannerParameters<T>& idm_params,
       const MobilPlannerParameters<T>& mobil_params,
@@ -185,7 +185,7 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
   static constexpr int kMobilParamsIndex{1};
   static constexpr double kDefaultLargeAccel{1e6};  // m/s^2
 
-  const drake::maliput::api::RoadGeometry& road_;
+  const ::maliput::api::RoadGeometry& road_;
   const bool with_s_{true};
   const RoadPositionStrategy road_position_strategy_{};
 

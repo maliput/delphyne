@@ -25,8 +25,6 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <pybind11/pybind11.h>
-
 #include "common/filesystem.h"
 
 namespace delphyne {

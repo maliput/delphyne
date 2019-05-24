@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include <drake/automotive/maliput/api/lane.h>
+#include <maliput/api/lane.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/system_symbolic_inspector.h>
@@ -19,7 +19,7 @@
 
 namespace delphyne {
 
-/// RailFollower models an entity that follows a maliput::api::Lane as if it
+/// RailFollower models an entity that follows a ::maliput::api::Lane as if it
 /// were on rails and neglecting all physics.
 ///
 /// Parameters:

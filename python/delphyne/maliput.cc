@@ -13,9 +13,9 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/maliput/utility/generate_obj.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/road_geometry.h>
+#include <maliput-utilities/generate_obj.h>
 
 // public headers
 #include "delphyne/maliput/find_lane.h"
@@ -27,7 +27,7 @@
 
 namespace py = pybind11;
 
-using drake::maliput::utility::ObjFeatures;
+using ::maliput::utility::ObjFeatures;
 
 namespace {
 
@@ -36,7 +36,7 @@ namespace {
 *****************************************************************************/
 
 PYBIND11_MODULE(maliput, m) {
-  py::module::import("pydrake.maliput.api");
+  py::module::import("maliput.api");
 
   // Most of the required maliput types (e.g. Lane, LaneId, RoadGeometry)
   // already have bindings in pydrake. Take advantage of these or help

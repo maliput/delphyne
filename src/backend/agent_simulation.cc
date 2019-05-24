@@ -16,6 +16,8 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/framework/system_output.h>
+#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 #include "backend/scene_system.h"
 
@@ -30,7 +32,7 @@ AgentSimulationBase<T>::AgentSimulationBase(
     std::unique_ptr<drake::systems::Simulator<T>> simulator,
     std::unique_ptr<drake::systems::Diagram<T>> diagram,
     std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-    std::unique_ptr<const drake::maliput::api::RoadGeometry> road_geometry,
+    std::unique_ptr<const ::maliput::api::RoadGeometry> road_geometry,
     drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system)
     : simulator_(std::move(simulator)),
       diagram_(std::move(diagram)),
@@ -63,7 +65,7 @@ AgentSimulationBase<T>::AgentSimulationBase(
     std::unique_ptr<drake::systems::Simulator<T>> simulator,
     std::unique_ptr<drake::systems::Diagram<T>> diagram,
     std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-    std::unique_ptr<const drake::maliput::api::RoadNetwork> road_network,
+    std::unique_ptr<const ::maliput::api::RoadNetwork> road_network,
     drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system)
     : simulator_(std::move(simulator)),
       diagram_(std::move(diagram)),

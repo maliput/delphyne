@@ -2,9 +2,9 @@
 
 #include "systems/calc_ongoing_road_position.h"
 
-#include <drake/automotive/maliput/api/branch_point.h>
-#include <drake/automotive/maliput/api/junction.h>
-#include <drake/automotive/maliput/api/segment.h>
+#include <maliput/api/branch_point.h>
+#include <maliput/api/junction.h>
+#include <maliput/api/segment.h>
 #include <drake/common/autodiff.h>
 #include <drake/common/symbolic.h>
 
@@ -12,12 +12,12 @@
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPositionT;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LaneEndSet;
-using drake::maliput::api::LanePositionT;
-using drake::maliput::api::RoadGeometry;
-using drake::maliput::api::RoadPosition;
+using ::maliput::api::GeoPositionT;
+using ::maliput::api::LaneEnd;
+using ::maliput::api::LaneEndSet;
+using ::maliput::api::LanePositionT;
+using ::maliput::api::RoadGeometry;
+using ::maliput::api::RoadPosition;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
 

@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 
 // public headers
@@ -71,7 +71,7 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
   } initial_parameters_;
 
   std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const drake::maliput::api::RoadGeometry* road_geometry) const override;
+      const ::maliput::api::RoadGeometry* road_geometry) const override;
 };
 
 /*****************************************************************************

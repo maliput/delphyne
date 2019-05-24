@@ -7,8 +7,8 @@
 #include <string>
 #include <utility>
 
-#include <drake/automotive/maliput/api/road_geometry.h>
-#include <drake/automotive/maliput/utility/generate_obj.h>
+#include <maliput/api/road_geometry.h>
+#include <maliput-utilities/generate_obj.h>
 #include <drake/common/eigen_types.h>
 #include <drake/geometry/geometry_frame.h>
 #include <drake/geometry/geometry_ids.h>
@@ -137,7 +137,7 @@ BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
 }
 
 drake::lcmt_viewer_load_robot
-BuildLoadMessageForRoad(const drake::maliput::api::RoadGeometry& road_geometry,
-                        const drake::maliput::utility::ObjFeatures& features);
+BuildLoadMessageForRoad(const ::maliput::api::RoadGeometry& road_geometry,
+                        const ::maliput::utility::ObjFeatures& features);
 
 }  // namespace delphyne

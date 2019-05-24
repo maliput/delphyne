@@ -4,9 +4,9 @@
 
 #include <vector>
 
-#include <drake/automotive/maliput/api/branch_point.h>
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/lane_data.h>
+#include <maliput/api/branch_point.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/lane_data.h>
 #include <drake/common/cond.h>
 #include <drake/common/drake_assert.h>
 #include <drake/common/unused.h>
@@ -14,11 +14,11 @@
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LaneEnd;
-using drake::maliput::api::LaneEndSet;
-using drake::maliput::api::RoadGeometry;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::Lane;
+using ::maliput::api::LaneEnd;
+using ::maliput::api::LaneEndSet;
+using ::maliput::api::RoadGeometry;
 using drake::trajectories::PiecewisePolynomial;
 using drake::MatrixX;
 using drake::Vector3;

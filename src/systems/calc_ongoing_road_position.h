@@ -2,8 +2,8 @@
 
 #pragma once
 
-#include <drake/automotive/maliput/api/lane_data.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 
@@ -29,7 +29,7 @@ template <typename T>
 void CalcOngoingRoadPosition(
     const drake::systems::rendering::PoseVector<T>& pose,
     const drake::systems::rendering::FrameVelocity<T>& velocity,
-    const drake::maliput::api::RoadGeometry& road,
-    drake::maliput::api::RoadPosition* rp);
+    const ::maliput::api::RoadGeometry& road,
+    ::maliput::api::RoadPosition* rp);
 
 }  // namespace delphyne

@@ -5,17 +5,17 @@
 
 #include <gtest/gtest.h>
 
-#include <drake/automotive/maliput/dragway/road_geometry.h>
+#include <dragway/road_geometry.h>
 
 #include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace test_p {
 
-using drake::maliput::api::Lane;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::RoadPosition;
-using drake::maliput::dragway::RoadGeometry;
+using ::maliput::api::Lane;
+using ::maliput::api::LanePosition;
+using ::maliput::api::RoadPosition;
+using ::maliput::dragway::RoadGeometry;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
@@ -31,8 +31,8 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     DRAKE_ASSERT(num_lanes >= 0);
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
-    road_.reset(new drake::maliput::dragway::RoadGeometry(
-        drake::maliput::api::RoadGeometryId("Test Dragway"), num_lanes,
+    road_.reset(new ::maliput::dragway::RoadGeometry(
+        ::maliput::api::RoadGeometryId("Test Dragway"), num_lanes,
         100 /* length */, kLaneWidth /* lane_width */, 0. /* shoulder_width */,
         5. /* maximum_height */,
         std::numeric_limits<double>::epsilon() /* linear_tolerance */,
@@ -139,8 +139,8 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
       dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<drake::maliput::api::RoadGeometry> road_;
-  const drake::maliput::api::Segment* segment_;
+  std::unique_ptr<::maliput::api::RoadGeometry> road_;
+  const ::maliput::api::Segment* segment_;
   std::vector<LaneDirection> lane_directions_{};
 
   int ego_pose_input_index_{};

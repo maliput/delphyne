@@ -12,6 +12,7 @@ The city demo.
 
 import os.path
 import random
+import sys
 
 import pydrake.maliput.all as maliput
 
@@ -60,7 +61,7 @@ def main():
     # The simulation builder
     builder = simulation.AgentSimulationBuilder()
 
-    filename = utilities.get_delphyne_resource(
+    filename = utilities.get_delphyne_gui_resource(
         "roads/little_city.yaml"
     )
 
@@ -68,7 +69,7 @@ def main():
         print("Required file {} not found."
               " Please, make sure to install the latest delphyne-gui."
               .format(os.path.abspath(filename)))
-        quit()
+        sys.exit()
 
     # The road geometry
     road = builder.set_road_geometry(

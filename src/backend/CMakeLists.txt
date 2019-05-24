@@ -24,21 +24,27 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
     $<BUILD_INTERFACE:${PYTHON_INCLUDE_DIRS}>
 )
+
+ament_target_dependencies(backend
+  "drake"
+  "maliput"
+  "maliput-utilities"
+)
+
 target_link_libraries(
   backend
-  PUBLIC
     protobuf_messages
     public_headers
     utility
     visualization
     drake::drake
+    maliput::api
+    maliput-utilities::maliput-utilities
     ignition-common2::ignition-common2
     ignition-transport5::core
     ignition-transport5::log
     ignition-msgs2::ignition-msgs2
-    pybind11::module
     ${PYTHON_LIBRARIES}
-  PRIVATE
     common
     translations
 )

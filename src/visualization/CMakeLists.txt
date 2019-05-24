@@ -15,10 +15,18 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
+
+ament_target_dependencies(visualization
+"drake"
+"maliput"
+"dragway"
+)
+
 target_link_libraries(visualization
-  PUBLIC
     public_headers
     drake::drake
+    maliput::api
+    dragway::dragway
     ignition-common2::ignition-common2
 )
 

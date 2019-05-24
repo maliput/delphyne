@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/road_geometry.h>
 
 /*****************************************************************************
 ** Namespaces
@@ -31,9 +31,9 @@ namespace maliput {
 ///
 /// @param road_geometry[in] Search over this road geometry.
 /// @return A pointer to the lane, null if not found.
-const drake::maliput::api::Lane* FindLane(
-    const drake::maliput::api::LaneId& lane_id,
-    const drake::maliput::api::RoadGeometry& road_geometry);
+const ::maliput::api::Lane* FindLane(
+    const ::maliput::api::LaneId& lane_id,
+    const ::maliput::api::RoadGeometry& road_geometry);
 
 /*****************************************************************************
 ** Trailers

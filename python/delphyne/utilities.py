@@ -100,6 +100,11 @@ def get_delphyne_resource_root():
     return get_from_env_or_fail('DELPHYNE_RESOURCE_ROOT')
 
 
+def get_delphyne_gui_resource_root():
+    """Return the root path where delphyne-gui resources live"""
+    return get_from_env_or_fail('DELPHYNE_GUI_RESOURCE_ROOT')
+
+
 def get_delphyne_resource(path):
     """Resolve the path against delphyne resources root location."""
     for root in get_delphyne_resource_root().split(':'):
@@ -107,6 +112,16 @@ def get_delphyne_resource(path):
         if os.path.exists(resolved_path):
             return resolved_path
     return ''
+
+
+def get_delphyne_gui_resource(path):
+    """Resolve the path against delphyne resources root location."""
+    for root in get_delphyne_gui_resource_root().split(':'):
+        resolved_path = os.path.join(root, path)
+        if os.path.exists(resolved_path):
+            return resolved_path
+    return ''
+
 
 ##############################################################################
 # Agents

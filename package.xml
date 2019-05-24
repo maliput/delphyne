@@ -44,6 +44,10 @@
   <build_depend>ignition-msgs2</build_depend>
   <build_depend>ignition-transport5</build_depend>
   <build_depend>malidrive</build_depend>
+  <depend>maliput</depend>
+  <depend>multilane</depend>
+  <depend>maliput-utilities</depend>
+  <depend>dragway</depend>
 
   <build_export_depend>drake_vendor</build_export_depend>
   <build_export_depend>ignition-common2</build_export_depend>

@@ -12,13 +12,13 @@
 
 namespace delphyne {
 
-using drake::maliput::api::GeoPosition;
-using drake::maliput::api::GeoPositionT;
-using drake::maliput::api::Lane;
-using drake::maliput::api::LanePosition;
-using drake::maliput::api::LanePositionT;
-using drake::maliput::api::RoadGeometry;
-using drake::maliput::api::RoadPosition;
+using ::maliput::api::GeoPosition;
+using ::maliput::api::GeoPositionT;
+using ::maliput::api::Lane;
+using ::maliput::api::LanePosition;
+using ::maliput::api::LanePositionT;
+using ::maliput::api::RoadGeometry;
+using ::maliput::api::RoadPosition;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;

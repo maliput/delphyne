@@ -8,9 +8,9 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/automotive/maliput/api/lane.h>
-#include <drake/automotive/maliput/api/lane_data.h>
-#include <drake/automotive/maliput/api/road_geometry.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
@@ -114,7 +114,7 @@ class TrafficPoseSelector {
   /// The RoadGeometry from which @p lane is drawn is required to have default
   /// branches set for all branches in the road network.
   static std::map<AheadOrBehind, const ClosestPose<T>> FindClosestPair(
-      const drake::maliput::api::Lane* lane,
+      const ::maliput::api::Lane* lane,
       const drake::systems::rendering::PoseVector<T>& ego_pose,
       const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const T& scan_distance, ScanStrategy path_or_branches);
@@ -133,7 +133,7 @@ class TrafficPoseSelector {
   /// RoadOdometry within ClosestPose will contain an `s`-value of
   /// `std::numeric_limits<double>::infinity()`.
   static ClosestPose<T> FindSingleClosestPose(
-      const drake::maliput::api::Lane* lane,
+      const ::maliput::api::Lane* lane,
       const drake::systems::rendering::PoseVector<T>& ego_pose,
       const drake::systems::rendering::PoseBundle<T>& traffic_poses,
       const T& scan_distance, const AheadOrBehind side,
@@ -149,7 +149,7 @@ class TrafficPoseSelector {
   /// in the `s` direction when the road is straight (no yaw angle variations).
   //
   // TODO(jadecastro) Enable AutoDiffXd for
-  // maliput::api::Lane::GetOrientation().
+  // ::maliput::api::Lane::GetOrientation().
   static T GetSigmaVelocity(const RoadOdometry<T>& road_odometry);
 };
 

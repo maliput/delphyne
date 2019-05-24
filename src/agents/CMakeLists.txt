@@ -16,17 +16,21 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 
+ament_target_dependencies(agents
+  "drake"
+  "maliput"
+)
+
 target_link_libraries(
   agents
-  PUBLIC
     mi6
     public_headers
     maliput_utilities
     translations
     drake_systems
     drake::drake
+    maliput::api
     Eigen3::Eigen
-  PRIVATE
     translations
 )
 install(TARGETS agents

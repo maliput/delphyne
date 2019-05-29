@@ -5,6 +5,7 @@
 add_subdirectory(agents)
 add_subdirectory(backend)
 add_subdirectory(common)
+add_subdirectory(examples)
 add_subdirectory(maliput)
 add_subdirectory(gen)
 add_subdirectory(protobuf)

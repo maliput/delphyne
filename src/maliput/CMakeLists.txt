@@ -37,7 +37,6 @@ target_link_libraries(
     dragway::dragway
     maliput::api
     multilane::multilane
-    malidrive::utility
     malidrive::malidrive
     malidrive::opendrive
 )

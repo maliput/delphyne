@@ -68,7 +68,7 @@ def launch_visualizer(launcher_manager, layout_filename=None,
     ign_visualizer_args = []
     if layout_filename:
         layout_key = "--layout="
-        layout_path = get_delphyne_resource(
+        layout_path = get_delphyne_gui_resource(
             os.path.join("layouts", layout_filename)
         )
         ign_visualizer_args.append(layout_key + layout_path)

@@ -39,7 +39,7 @@ source ./bringup
 2. Source your build:
 
 ```sh
-source ./install/setup.sh
+source ./install/setup.bash
 ```
 
 3. Run any demo, for instance:

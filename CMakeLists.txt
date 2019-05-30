@@ -94,7 +94,7 @@ add_subdirectory(media)
 # Tests
 ##############################################################################
 
-if(BUILD_TESTS)
+if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(test)
   add_test(NAME CPPLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_cpplint.sh)
@@ -105,7 +105,7 @@ endif()
 # Export
 ##############################################################################
 
-ament_environment_hooks(setup.bash.in)
+ament_environment_hooks(setup.sh.in)
 ament_export_dependencies(ament_cmake)
 ament_export_dependencies(drake_vendor)
 ament_export_dependencies(malidrive)

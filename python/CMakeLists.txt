@@ -9,5 +9,4 @@ include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 ##############################################################################
 
 add_subdirectory(delphyne)
-add_subdirectory(examples)
 add_subdirectory(scripts)

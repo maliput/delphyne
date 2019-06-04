@@ -26,12 +26,6 @@ macro(delphyne_build_tests)
 
     # Kind of an ugly catch-all bucket
 
-#    ament_target_dependencies(${BINARY_NAME}
-#      "drake"
-#      "maliput"
-#      "multilane"
-#      "dragway")
-
     target_link_libraries(
       ${BINARY_NAME}
         agents
@@ -86,15 +80,6 @@ configure_file (test_config.h.in ${PROJECT_BINARY_DIR}/test/test_config.h)
 ##############################################################################
 # Testing
 ##############################################################################
-
-add_test(
-  NAME smoke_test_delphyne_mali
-  COMMAND ${PROJECT_SOURCE_DIR}/python/examples/delphyne-mali -b -d 2
-)
-add_test(
-  NAME smoke_test_delphyne_gazoo
-  COMMAND ${PROJECT_SOURCE_DIR}/python/examples/delphyne-gazoo -b -d 2
-)
 
 add_subdirectory(libgtest)
 add_subdirectory(regression)

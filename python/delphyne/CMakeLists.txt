@@ -2,7 +2,6 @@
 # Modules
 ##############################################################################
 
-add_subdirectory(demos)
 add_subdirectory(toolkit)
 
 install(

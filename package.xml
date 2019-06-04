@@ -7,18 +7,16 @@
   <maintainer email="daniel.stonier@tri.global">Daniel Stonier</maintainer>
   <license>TODO</license>
 
-  <!-- Packages not present in rosdep DB -->
   <build_depend>libavdevice-dev</build_depend>
   <build_depend>libboost-filesystem-dev</build_depend>
   <build_depend>libzip-dev</build_depend>
   <build_depend>mesa-utils</build_depend>
-  <build_depend>pylint3</build_depend>
-  <build_depend>pycodestyle</build_depend>
+  <build_depend>python-pylint3</build_depend>
+  <build_depend>python-pycodestyle</build_depend>
   <build_depend>python3-pycodestyle</build_depend>
   <build_depend>ruby-ronn</build_depend>
   <build_depend>zip</build_depend>
 
-  <!-- Packages present in rosdep DB -->
   <build_depend>cmake</build_depend>
   <build_depend>coreutils</build_depend>
   <build_depend>gcovr</build_depend>
@@ -42,6 +40,7 @@
   <build_depend>ignition-msgs2</build_depend>
   <build_depend>ignition-transport5</build_depend>
   <build_depend>malidrive</build_depend>
+
   <depend>maliput</depend>
   <depend>multilane</depend>
   <depend>maliput-utilities</depend>

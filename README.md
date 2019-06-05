@@ -4,7 +4,7 @@ This is the repository for Delphyne - a traffic level simulator for autonomous d
 
 ## Build
 
-1. Setup a development workspace as described [here](https://github.com/ToyotaResearchInstitute/dsim-repos-index/tree/master/setup/README.md).
+1. Setup a development workspace as described [here](https://github.com/ToyotaResearchInstitute/dsim-repos-index/tree/master/README.md).
 
 2. Bring up your development workspace:
 
@@ -26,11 +26,6 @@ source ./bringup
    ```sh
    colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne-gui
    ```
-
-Note: If you want to build tests, make sure to add `--cmake-args -DBUILD_TESTS=ON` to colcon build. Example:
-```sh
-   colcon build --cmake-args -DBUILD_TESTS=ON --packages-up-to delphyne-gui
-```
 
 ## Use
 

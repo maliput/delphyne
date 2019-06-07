@@ -14,7 +14,7 @@ import os.path
 import random
 import sys
 
-import pydrake.maliput.all as maliput
+import maliput.api
 
 import delphyne.maliput as maliput_helpers
 import delphyne.simulation as simulation
@@ -87,7 +87,7 @@ def main():
     # Determines all available spots for car positioning.
     car_distance = 6.0  # m
     lane_positions = [
-        (lane, maliput.LanePosition(s=i * car_distance, r=0., h=0.))
+        (lane, maliput.api.LanePosition(s=i * car_distance, r=0., h=0.))
         for lane in lanes for i in range(int(lane.length() / car_distance))
     ]
 

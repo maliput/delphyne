@@ -44,7 +44,7 @@ namespace {
 
 PYBIND11_MODULE(simulation, m) {
   py::module::import("pydrake.systems.framework");
-  py::module::import("pydrake.maliput.api");
+  py::module::import("maliput.api");
 
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
       .def(py::init<>())

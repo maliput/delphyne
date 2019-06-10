@@ -1,0 +1,26 @@
+#!/bin/bash
+
+set -e pipefail
+
+source prereqs.lib
+
+prereqs.init 'The Delphyne source distribution prerequisites script'
+
+prereqs.assert_sudo
+
+if prereqs.tag_applies "ignition|all"; then
+    prereqs.install_apt_repo \
+        gazebo-stable \
+        http://packages.osrfoundation.org/gazebo/ubuntu-stable \
+        D2486D2DD83DB69272AFE98867170598AF249743
+
+    prereqs.apt update
+
+    prereqs.apt install --no-install-recommends \
+        libignition-common2-dev \
+        libignition-math5-dev \
+        libignition-msgs2-dev \
+        libignition-transport5-dev
+fi
+
+prereqs.done

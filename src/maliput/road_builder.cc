@@ -15,7 +15,7 @@
 #include <multilane/loader.h>
 #include <multilane/multilane_onramp_merge.h>
 
-#include <malidrive/constants/constants.h>
+#include <malidrive/constants.h>
 #include <malidrive/loader.h>
 #include <malidrive/road_geometry_configuration.h>
 #include <malidrive/road_network_configuration.h>

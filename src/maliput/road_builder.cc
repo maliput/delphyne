@@ -59,12 +59,12 @@ CreateMalidriveFromFile(const std::string& name, const std::string& file_path) {
     malidrive::RoadGeometryConfiguration{
     ::maliput::api::RoadGeometryId(name),
     file_path,
-    malidrive::Constants::kLinearTolerance,
-    malidrive::Constants::kAngularTolerance,
-    malidrive::Constants::kScaleLength,
+    malidrive::constants::kLinearTolerance,
+    malidrive::constants::kAngularTolerance,
+    malidrive::constants::kScaleLength,
     malidrive::InertialToLaneMappingConfig(
-        malidrive::Constants::kExplorationRadius,
-        malidrive::Constants::kNumIterations)
+        malidrive::constants::kExplorationRadius,
+        malidrive::constants::kNumIterations)
     },
     drake::nullopt,
     drake::nullopt,

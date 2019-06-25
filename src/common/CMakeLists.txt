@@ -19,7 +19,7 @@ target_link_libraries(
   common
   PUBLIC
     public_headers
-    ignition-common2::ignition-common2
+    ignition-common3::ignition-common3
     ${LIBZIP_LIBRARIES}
 
 )

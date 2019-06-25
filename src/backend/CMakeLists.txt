@@ -40,7 +40,7 @@ target_link_libraries(
     drake::drake
     maliput::api
     maliput-utilities::maliput-utilities
-    ignition-common2::ignition-common2
+    ignition-common3::ignition-common3
     ignition-transport5::core
     ignition-transport5::log
     ignition-msgs2::ignition-msgs2

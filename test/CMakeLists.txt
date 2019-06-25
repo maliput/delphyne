@@ -37,7 +37,7 @@ macro(delphyne_build_tests)
         maliput::api
         multilane::multilane
         dragway::dragway
-        ignition-common2::ignition-common2
+        ignition-common3::ignition-common3
         ignition-transport5::ignition-transport5
         ignition-msgs2::ignition-msgs2
         delphyne_test_utilities

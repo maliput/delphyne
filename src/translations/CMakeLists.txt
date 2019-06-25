@@ -18,13 +18,14 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
+
 target_link_libraries(translations
   PUBLIC
     public_headers
     protobuf
     protobuf_messages
     drake::drake
-    ignition-common2::ignition-common2
+    ignition-common3::ignition-common3
     ignition-msgs2::ignition-msgs2
     ignition-transport5::ignition-transport5
 )

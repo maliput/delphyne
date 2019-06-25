@@ -24,7 +24,7 @@ target_link_libraries(delphyne_test_utilities
   public_headers
   drake::drake
   drake_gen
-  ignition-common2::ignition-common2
+  ignition-common3::ignition-common3
   ignition-msgs2::ignition-msgs2
   ignition-transport5::ignition-transport5
 )

@@ -20,7 +20,7 @@ target_include_directories(
 target_link_libraries(utility
   PUBLIC
     public_headers
-    ignition-common2::ignition-common2
+    ignition-common3::ignition-common3
   PRIVATE
     common
 )

@@ -27,7 +27,7 @@ target_link_libraries(visualization
     drake::drake
     maliput::api
     dragway::dragway
-    ignition-common2::ignition-common2
+    ignition-common3::ignition-common3
 )
 
 install(TARGETS visualization

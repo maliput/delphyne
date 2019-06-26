@@ -18,13 +18,13 @@ source ./bringup
   - If not building drake from source:
 
    ```sh
-   colcon build --packages-up-to delphyne-gui
+   colcon build --packages-up-to delphyne-demos
    ```
 
   - If building drake from source:
 
    ```sh
-   colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne-gui
+   colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne-demos
    ```
 
 ## Use

@@ -2,15 +2,11 @@
 # Modules
 ##############################################################################
 
-add_subdirectory(demos)
-add_subdirectory(toolkit)
-
 install(
   FILES
     __init__.py
     cmdline.py
     console.py
-    launcher.py
     utilities.py
   DESTINATION
     ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}

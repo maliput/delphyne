@@ -9,9 +9,7 @@
 namespace delphyne {
 
 template <typename T>
-FramePoseAggregator<T>::FramePoseAggregator(
-    const drake::geometry::SourceId& source_id)
-    : drake::systems::LeafSystem<T>(), source_id_(source_id) {
+FramePoseAggregator<T>::FramePoseAggregator() {
   // Declare the output port and provide an allocator for a FramePoseVector of
   // length equal to the concatenation of all inputs.
   this->DeclareAbstractOutputPort(&FramePoseAggregator::MakeFramePoseVector,
@@ -34,7 +32,7 @@ const drake::systems::InputPort<T>& FramePoseAggregator<T>::DeclareInput(
 template <typename T>
 drake::geometry::FramePoseVector<T>
 FramePoseAggregator<T>::MakeFramePoseVector() const {
-  return drake::geometry::FramePoseVector<T>(source_id_, frame_ids_);
+  return drake::geometry::FramePoseVector<T>();
 }
 
 template <typename T>

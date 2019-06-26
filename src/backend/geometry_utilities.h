@@ -108,7 +108,7 @@ const drake::systems::InputPort<T>& WirePriusGeometry(
   // drake::systems::rendering::PoseVector to drake::geometry::FramePoseVector
   // conversions.
   auto frame_pose_aggregator =
-      builder->template AddSystem<FramePoseAggregator<T>>(source_id);
+      builder->template AddSystem<FramePoseAggregator<T>>();
 
   // Fixes the car-to-chassis transform.
   auto fixed_chassis_pose =

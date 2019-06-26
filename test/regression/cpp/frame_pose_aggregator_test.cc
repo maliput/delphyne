@@ -18,9 +18,7 @@ namespace delphyne {
 namespace {
 
 GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
-  const drake::geometry::SourceId source_id =
-      drake::geometry::SourceId::get_new_id();
-  FramePoseAggregator<double> frame_pose_aggregator(source_id);
+  FramePoseAggregator<double> frame_pose_aggregator;
 
   const drake::geometry::FrameId frame0 =
       drake::geometry::FrameId::get_new_id();
@@ -54,7 +52,6 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
   const auto& output_frame_pose_vector =
       output_value->get_value<drake::geometry::FramePoseVector<double>>();
 
-  EXPECT_EQ(output_frame_pose_vector.source_id(), source_id);
   EXPECT_EQ(output_frame_pose_vector.size(), 2);
   EXPECT_TRUE(output_frame_pose_vector.has_id(frame0));
   EXPECT_TRUE(output_frame_pose_vector.value(frame0).isApprox(

@@ -28,7 +28,6 @@
 
 #include "gen/rail_follower_params.h"
 #include "gen/rail_follower_state.h"
-#include "gen/simple_car_state_translator.h"
 
 // private headers
 #include "systems/lane_direction.h"

@@ -14,7 +14,6 @@
 
 #include "backend/ign_subscriber_system.h"
 #include "gen/simple_car_state.h"
-#include "gen/simple_car_state_translator.h"
 #include "systems/simple_car.h"
 #include "translations/ign_driving_command_to_drake.h"
 

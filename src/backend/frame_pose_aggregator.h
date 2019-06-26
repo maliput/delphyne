@@ -24,8 +24,7 @@ class FramePoseAggregator : public drake::systems::LeafSystem<T> {
  public:
   DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(FramePoseAggregator)
 
-  /// Constructs an aggregator that uses the given @p source_id.
-  explicit FramePoseAggregator(const drake::geometry::SourceId& source_id);
+  FramePoseAggregator();
 
   /// Declares a pose input port, associated with the given @p frame_id.
   /// @return The input drake::systems::rendering::PoseVector port
@@ -43,9 +42,6 @@ class FramePoseAggregator : public drake::systems::LeafSystem<T> {
   void CalcFramePoseVector(const drake::systems::Context<T>& context,
                            drake::geometry::FramePoseVector<T>* output) const;
 
-  // Aggregator's source ID to tag the outgoing drake::geometry::FramePoseVector
-  // instances (@see MakeFramePoseVector()).
-  const drake::geometry::SourceId source_id_{};
   // Aggregator inputs' associated frame IDs.
   std::vector<drake::geometry::FrameId> frame_ids_{};
 };

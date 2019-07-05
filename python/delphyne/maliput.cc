@@ -27,7 +27,7 @@
 
 namespace py = pybind11;
 
-using ::maliput::utility::ObjFeatures;
+using maliput::utility::ObjFeatures;
 
 namespace {
 
@@ -42,11 +42,11 @@ PYBIND11_MODULE(maliput, m) {
   // already have bindings in pydrake. Take advantage of these or help
   // contribute to them so others can take advantage of them as well.
 
-  m.def("find_lane", &delphyne::maliput::FindLane,
+  m.def("find_lane", &delphyne::roads::FindLane,
         "Find the lane inside the specified road geometry by id",
         py::arg("lane_id"), py::arg("road_geometry"));
 
-  m.def("create_dragway", &delphyne::maliput::CreateDragway,
+  m.def("create_dragway", &delphyne::roads::CreateDragway,
         "Create a simple multi-lane dragway strip", py::arg("name"),
         py::arg("num_lanes"), py::arg("length"), py::arg("lane_width"),
         py::arg("shoulder_width"), py::arg("maximum_height"),
@@ -54,14 +54,14 @@ PYBIND11_MODULE(maliput, m) {
         py::arg("angular_tolerance") = std::numeric_limits<double>::epsilon());
 
   m.def(
-      "create_multilane_from_file", &delphyne::maliput::CreateMultilaneFromFile,
+      "create_multilane_from_file", &delphyne::roads::CreateMultilaneFromFile,
       "Load a multilane road geometry from file (yaml)", py::arg("file_path"));
 
-  m.def("create_on_ramp", &delphyne::maliput::CreateOnRamp,
+  m.def("create_on_ramp", &delphyne::roads::CreateOnRamp,
         "Create the exemplar highway on-ramp");
 
   m.def("create_malidrive_from_file",
-        &delphyne::maliput::CreateMalidriveFromFile,
+        &delphyne::roads::CreateMalidriveFromFile,
         "Load an OpenDrive road geometry from file (xodr)",
         py::arg("name"), py::arg("file_path"));
 

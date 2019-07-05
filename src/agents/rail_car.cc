@@ -91,7 +91,7 @@ std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
       "The provided initial lane is not on the same road geometry "
       "as that used by the simulation");
   DELPHYNE_VALIDATE(
-      maliput::FindLane(initial_parameters_.lane.id(), *road_geometry),
+      roads::FindLane(initial_parameters_.lane.id(), *road_geometry),
       std::invalid_argument,
       "The provided initial lane is not within this simulation's "
       "RoadGeometry.");

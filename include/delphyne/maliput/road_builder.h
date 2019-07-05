@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 namespace delphyne {
-namespace maliput {
+namespace roads {
 
 /*****************************************************************************
 ** Methods
@@ -50,7 +50,7 @@ namespace maliput {
 ///
 /// @param[in] angular_tolerance The tolerance guaranteed for angular
 /// measurements (m).
-std::unique_ptr<const ::maliput::api::RoadGeometry> CreateDragway(
+std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
     const std::string& name, int num_lanes, double length, double lane_width,
     double shoulder_width, double maximum_height,
     double linear_tolerance = std::numeric_limits<double>::epsilon(),
@@ -59,22 +59,22 @@ std::unique_ptr<const ::maliput::api::RoadGeometry> CreateDragway(
 /// @brief Create a multilane from yaml source.
 ///
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const ::maliput::api::RoadGeometry>
+std::unique_ptr<const maliput::api::RoadGeometry>
 CreateMultilaneFromFile(const std::string& file_path);
 
 /// @brief Create a malidrive from xodr source.
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const ::maliput::api::RoadNetwork>
+std::unique_ptr<const maliput::api::RoadNetwork>
 CreateMalidriveFromFile(const std::string& name, const std::string& file_path);
 
 /// @brief Create a multilane on-ramp.
-std::unique_ptr<const ::maliput::api::RoadGeometry> CreateOnRamp();
+std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp();
 
 /*****************************************************************************
 ** Trailers
 *****************************************************************************/
 
-}  // namespace maliput
+}  // namespace roads
 }  // namespace delphyne

@@ -17,7 +17,7 @@
 *****************************************************************************/
 
 namespace delphyne {
-namespace maliput {
+namespace roads {
 
 /*****************************************************************************
 ** Methods
@@ -31,13 +31,13 @@ namespace maliput {
 ///
 /// @param road_geometry[in] Search over this road geometry.
 /// @return A pointer to the lane, null if not found.
-const ::maliput::api::Lane* FindLane(
-    const ::maliput::api::LaneId& lane_id,
-    const ::maliput::api::RoadGeometry& road_geometry);
+const maliput::api::Lane* FindLane(
+    const maliput::api::LaneId& lane_id,
+    const maliput::api::RoadGeometry& road_geometry);
 
 /*****************************************************************************
 ** Trailers
 *****************************************************************************/
 
-}  // namespace maliput
+}  // namespace roads
 }  // namespace delphyne

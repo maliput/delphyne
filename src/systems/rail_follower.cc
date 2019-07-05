@@ -227,11 +227,11 @@ void RailFollower<T>::CalcPose(
   const RailFollowerState<T>& state = get_rail_follower_state(context);
   const LaneDirection& lane_direction = get_lane_direction(context);
 
-  const ::maliput::api::LanePosition lane_position(
+  const maliput::api::LanePosition lane_position(
       state.s(), CalcR(params, lane_direction), params.h());
-  const ::maliput::api::GeoPosition geo_position =
+  const maliput::api::GeoPosition geo_position =
       lane_direction.lane->ToGeoPosition(lane_position);
-  const ::maliput::api::Rotation rotation =
+  const maliput::api::Rotation rotation =
       lane_direction.lane->GetOrientation(lane_position);
 
   using std::atan2;
@@ -240,10 +240,10 @@ void RailFollower<T>::CalcPose(
 
   // Adjust the rotation based on whether the vehicle is traveling with s or
   // against s.
-  const ::maliput::api::Rotation adjusted_rotation =
+  const maliput::api::Rotation adjusted_rotation =
       (lane_direction.with_s
            ? rotation
-           : ::maliput::api::Rotation::FromRpy(
+           : maliput::api::Rotation::FromRpy(
                  -rotation.roll(), -rotation.pitch(),
                  atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
   pose->set_translation(Eigen::Translation<T, 3>(geo_position.xyz()));
@@ -272,9 +272,9 @@ void RailFollower<T>::CalcVelocity(
   const drake::Vector3<T> v_LC_L(
       lane_direction.with_s ? state.speed() : -state.speed(), 0 /* r_dot */,
       0 /* h_dot */);
-  const ::maliput::api::Rotation rotation =
+  const maliput::api::Rotation rotation =
       lane_direction.lane->GetOrientation(
-          ::maliput::api::LanePosition(state.s(), params.r(), params.h()));
+          maliput::api::LanePosition(state.s(), params.r(), params.h()));
   const Eigen::Matrix<T, 3, 3> R_WL = rotation.matrix();
   const drake::Vector3<T> v_WC_W = R_WL * v_LC_L;
 
@@ -324,11 +324,11 @@ void RailFollower<T>::ImplCalcTimeDerivatives(
     RailFollowerState<T>* rates) const {
   const T speed = state.speed();
   const T sigma_v = drake::cond(lane_direction.with_s, speed, -speed);
-  const ::maliput::api::LanePosition motion_derivatives =
+  const maliput::api::LanePosition motion_derivatives =
       lane_direction.lane->EvalMotionDerivatives(
-          ::maliput::api::LanePosition(
+          maliput::api::LanePosition(
               state.s(), CalcR(params, lane_direction), params.h()),
-          ::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
+          maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
                                                0 /* eta_v */));
   // Since the railcar's IsoLaneVelocity's rho_v and eta_v values are both
   // zero, we expect the resulting motion derivative's r and h values to
@@ -372,18 +372,18 @@ void RailFollower<T>::DoCalcNextUpdateTime(
 
     const T& s = state.s();
     const T& speed = state.speed();
-    const ::maliput::api::Lane* lane = lane_direction.lane;
+    const maliput::api::Lane* lane = lane_direction.lane;
     const bool with_s = lane_direction.with_s;
 
     DRAKE_ASSERT(lane != nullptr);
 
     // Computes `s_dot`, the time derivative of `s`.
     const T sigma_v = drake::cond(with_s, speed, -speed);
-    const ::maliput::api::LanePosition motion_derivatives =
+    const maliput::api::LanePosition motion_derivatives =
         lane_direction.lane->EvalMotionDerivatives(
-            ::maliput::api::LanePosition(s, CalcR(params, lane_direction),
+            maliput::api::LanePosition(s, CalcR(params, lane_direction),
                                               params.h()),
-            ::maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
+            maliput::api::IsoLaneVelocity(sigma_v, 0 /* rho_v */,
                                                  0 /* eta_v */));
     const T s_dot = motion_derivatives.s();
 
@@ -438,7 +438,7 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
   if (current_with_s) {
     const int num_branches =
         current_lane_direction.lane
-            ->GetOngoingBranches(::maliput::api::LaneEnd::kFinish)
+            ->GetOngoingBranches(maliput::api::LaneEnd::kFinish)
             ->size();
     if (num_branches == 0 && current_s >= current_length - kLaneEndEpsilon) {
       next_railcar_state->set_speed(0);
@@ -446,7 +446,7 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
   } else {
     const int num_branches =
         current_lane_direction.lane
-            ->GetOngoingBranches(::maliput::api::LaneEnd::kStart)
+            ->GetOngoingBranches(maliput::api::LaneEnd::kStart)
             ->size();
     if (num_branches == 0 && current_s <= kLaneEndEpsilon) {
       next_railcar_state->set_speed(0);
@@ -458,14 +458,14 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
         next_state->template get_mutable_abstract_state<LaneDirection>(0);
     // TODO(liang.fok) Generalize the following to support the selection of
     // non-default branches or non-zero ongoing branches. See #5702.
-    drake::optional<::maliput::api::LaneEnd> next_branch;
+    drake::optional<maliput::api::LaneEnd> next_branch;
     if (current_with_s) {
       next_branch = current_lane_direction.lane->GetDefaultBranch(
-          ::maliput::api::LaneEnd::kFinish);
+          maliput::api::LaneEnd::kFinish);
       if (!next_branch) {
-        const ::maliput::api::LaneEndSet* ongoing_lanes =
+        const maliput::api::LaneEndSet* ongoing_lanes =
             current_lane_direction.lane->GetOngoingBranches(
-                ::maliput::api::LaneEnd::kFinish);
+                maliput::api::LaneEnd::kFinish);
         if (ongoing_lanes != nullptr) {
           if (ongoing_lanes->size() > 0) {
             next_branch = ongoing_lanes->get(0);
@@ -474,11 +474,11 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
       }
     } else {
       next_branch = current_lane_direction.lane->GetDefaultBranch(
-          ::maliput::api::LaneEnd::kStart);
+          maliput::api::LaneEnd::kStart);
       if (!next_branch) {
-        const ::maliput::api::LaneEndSet* ongoing_lanes =
+        const maliput::api::LaneEndSet* ongoing_lanes =
             current_lane_direction.lane->GetOngoingBranches(
-                ::maliput::api::LaneEnd::kStart);
+                maliput::api::LaneEnd::kStart);
         if (ongoing_lanes != nullptr) {
           if (ongoing_lanes->size() > 0) {
             next_branch = ongoing_lanes->get(0);
@@ -494,7 +494,7 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(
           "exists.");
     } else {
       next_lane_direction.lane = next_branch->lane;
-      if (next_branch->end == ::maliput::api::LaneEnd::kStart) {
+      if (next_branch->end == maliput::api::LaneEnd::kStart) {
         next_lane_direction.with_s = true;
         next_railcar_state->set_s(0);
       } else {

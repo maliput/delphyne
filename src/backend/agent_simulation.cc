@@ -32,7 +32,7 @@ AgentSimulationBase<T>::AgentSimulationBase(
     std::unique_ptr<drake::systems::Simulator<T>> simulator,
     std::unique_ptr<drake::systems::Diagram<T>> diagram,
     std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-    std::unique_ptr<const ::maliput::api::RoadGeometry> road_geometry,
+    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
     drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system)
     : simulator_(std::move(simulator)),
       diagram_(std::move(diagram)),
@@ -65,7 +65,7 @@ AgentSimulationBase<T>::AgentSimulationBase(
     std::unique_ptr<drake::systems::Simulator<T>> simulator,
     std::unique_ptr<drake::systems::Diagram<T>> diagram,
     std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-    std::unique_ptr<const ::maliput::api::RoadNetwork> road_network,
+    std::unique_ptr<const maliput::api::RoadNetwork> road_network,
     drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system)
     : simulator_(std::move(simulator)),
       diagram_(std::move(diagram)),

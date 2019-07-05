@@ -19,7 +19,7 @@
 
 namespace delphyne {
 
-/// RailFollower models an entity that follows a ::maliput::api::Lane as if it
+/// RailFollower models an entity that follows a maliput::api::Lane as if it
 /// were on rails and neglecting all physics.
 ///
 /// Parameters:

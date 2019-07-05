@@ -14,15 +14,15 @@
 namespace delphyne {
 
 drake::lcmt_viewer_load_robot
-BuildLoadMessageForRoad(const ::maliput::api::RoadGeometry& road_geometry,
-                        const ::maliput::utility::ObjFeatures& features) {
+BuildLoadMessageForRoad(const maliput::api::RoadGeometry& road_geometry,
+                        const maliput::utility::ObjFeatures& features) {
   drake::geometry::SceneGraph<double> scene_graph;
   drake::multibody::MultibodyPlant<double> plant;
   plant.RegisterAsSourceForSceneGraph(&scene_graph);
   std::string filename = road_geometry.id().string();
   std::transform(filename.begin(), filename.end(), filename.begin(),
                  [](char ch) { return ch == ' ' ? '_' : ch; });
-  ::maliput::utility::GenerateUrdfFile(&road_geometry, "/tmp",
+  maliput::utility::GenerateUrdfFile(&road_geometry, "/tmp",
                                             filename, features);
   drake::multibody::Parser parser(&plant);
   parser.AddModelFromFile("/tmp/" + filename + ".urdf");

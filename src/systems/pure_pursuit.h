@@ -58,7 +58,7 @@ class PurePursuit {
   /// Computes the goal point at a distance `s_lookahead` from the closest
   /// position on the curve in the intended direction of travel, and `with_s`
   /// and `pose` are the direction of travel and PoseVector for the ego vehicle.
-  static const ::maliput::api::GeoPositionT<T> ComputeGoalPoint(
+  static const maliput::api::GeoPositionT<T> ComputeGoalPoint(
       const T& s_lookahead, const LaneDirection& lane_direction,
       const drake::systems::rendering::PoseVector<T>& pose);
 };

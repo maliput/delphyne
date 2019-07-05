@@ -63,7 +63,7 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
 }
 
 std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(
-    const ::maliput::api::RoadGeometry* road_geometry) const {
+    const maliput::api::RoadGeometry* road_geometry) const {
   drake::unused(road_geometry);
   AgentBlueprint::DiagramBuilder builder(this->name());
 

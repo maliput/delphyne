@@ -85,7 +85,7 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
   /// @param speed The actual initial speed.
   /// @param nominal_speed The desired cruising speed.
   explicit RailCarBlueprint(const std::string& name,
-                            const ::maliput::api::Lane& lane,
+                            const maliput::api::Lane& lane,
                             bool direction_of_travel,
                             double longitudinal_position,  // s
                             double lateral_offset,         // r
@@ -98,13 +98,13 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
   // are used internally and is a useful construct for recording and
   // logging / streaming to debug configuration errors.
   struct Parameters {
-    const ::maliput::api::Lane& lane;
+    const maliput::api::Lane& lane;
     bool direction_of_travel{true};  // with or against the lane s-axis
     double position{0.0};            // longitudinal position in lane (m)
     double offset{0.0};              // lateral position in lane (m)
     double speed{0.0};          // speed in direction of the lane s-axis (m/s)
     double nominal_speed{0.0};  // nominal cruising speed (m/s)
-    Parameters(const ::maliput::api::Lane& lane, bool direction_of_travel,
+    Parameters(const maliput::api::Lane& lane, bool direction_of_travel,
                double position,  // s
                double offset,    // r
                double speed, double nominal_speed)
@@ -117,7 +117,7 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
   } initial_parameters_;
 
   std::unique_ptr<RailCar> DoBuildAgentInto(
-      const ::maliput::api::RoadGeometry* road_geometry,
+      const maliput::api::RoadGeometry* road_geometry,
       drake::systems::DiagramBuilder<double>* builder) const override;
 };
 

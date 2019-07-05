@@ -46,7 +46,7 @@ namespace delphyne {
  *****************************************************************************/
 
 RailCarBlueprint::RailCarBlueprint(const std::string& name,
-                                   const ::maliput::api::Lane& lane,
+                                   const maliput::api::Lane& lane,
                                    bool direction_of_travel,
                                    double longitudinal_position,  // s
                                    double lateral_offset,         // r
@@ -70,21 +70,21 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       std::invalid_argument,
       "The lane to be initialised on is not part of a road geometry.");
 
-  ::maliput::api::LanePosition initial_car_lane_position{
+  maliput::api::LanePosition initial_car_lane_position{
       longitudinal_position, lateral_offset, 0.0};
-  ::maliput::api::GeoPosition initial_car_geo_position =
+  maliput::api::GeoPosition initial_car_geo_position =
       lane.ToGeoPosition(initial_car_lane_position);
-  ::maliput::api::Rotation initial_car_orientation =
+  maliput::api::Rotation initial_car_orientation =
       lane.GetOrientation(initial_car_lane_position);
 }
 
 std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
-    const ::maliput::api::RoadGeometry* road_geometry,
+    const maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
                     "Rail cars need a road geometry to drive on, make "
                     "sure the simulation is built with one.");
-  const ::maliput::api::RoadGeometry* lane_road_geometry =
+  const maliput::api::RoadGeometry* lane_road_geometry =
       initial_parameters_.lane.segment()->junction()->road_geometry();
   DELPHYNE_VALIDATE(
       lane_road_geometry->id() == road_geometry->id(), std::invalid_argument,

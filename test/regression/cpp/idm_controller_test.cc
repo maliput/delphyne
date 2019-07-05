@@ -16,10 +16,10 @@ namespace delphyne {
 // https://groups.google.com/forum/#!topic/googletestframework/gVPQmRfJ1m8
 namespace test_p {
 
-using ::maliput::api::Lane;
-using ::maliput::api::LanePosition;
-using ::maliput::api::RoadPosition;
-using ::maliput::dragway::RoadGeometry;
+using maliput::api::Lane;
+using maliput::api::LanePosition;
+using maliput::api::RoadPosition;
+using maliput::dragway::RoadGeometry;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
 using drake::AutoDiffXd;
@@ -33,8 +33,8 @@ class IDMControllerTest
  protected:
   void SetUpIdm(ScanStrategy path_or_branches) {
     // Create a straight road with one lane.
-    road_.reset(new ::maliput::dragway::RoadGeometry(
-        ::maliput::api::RoadGeometryId("Single-Lane Dragway"),
+    road_.reset(new maliput::dragway::RoadGeometry(
+        maliput::api::RoadGeometryId("Single-Lane Dragway"),
         1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
         0. /* shoulder_width */, 5. /* maximum_height */,
         std::numeric_limits<double>::epsilon() /* linear_tolerance */,
@@ -109,7 +109,7 @@ class IDMControllerTest
       dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<::maliput::dragway::RoadGeometry> road_;
+  std::unique_ptr<maliput::dragway::RoadGeometry> road_;
 
   int ego_pose_input_index_;
   int ego_velocity_input_index_;

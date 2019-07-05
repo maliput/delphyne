@@ -34,7 +34,7 @@
 
 namespace delphyne {
 
-using ::maliput::api::RoadGeometry;
+using maliput::api::RoadGeometry;
 using drake::AbstractValue;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::RungeKutta2Integrator;
@@ -107,7 +107,7 @@ template <typename T>
 void AgentSimulationBaseBuilder<T>::DoAddAgent(
     AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
-  const ::maliput::api::RoadGeometry* road_geometry =
+  const maliput::api::RoadGeometry* road_geometry =
       road_network_ != nullptr ?
       road_network_->road_geometry() : road_geometry_.get();
   std::unique_ptr<AgentBase<T>> agent =
@@ -149,8 +149,8 @@ void AgentSimulationBaseBuilder<T>::DoAddAgent(
 namespace {
 
 // Get default features of the road mesh.
-::maliput::utility::ObjFeatures GetDefaultFeatures() {
-  ::maliput::utility::ObjFeatures features;
+maliput::utility::ObjFeatures GetDefaultFeatures() {
+  maliput::utility::ObjFeatures features;
   // Max distance between rendered vertices (in s- or r-dimension), in meters.
   features.max_grid_unit = 1.0;
   // Min number of vertices (in s- or r-dimension).
@@ -169,17 +169,17 @@ namespace {
 }  // namespace
 
 template <typename T>
-const ::maliput::api::RoadGeometry*
+const maliput::api::RoadGeometry*
 AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const ::maliput::api::RoadGeometry> road_geometry) {
+    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry) {
   return SetRoadGeometry(std::move(road_geometry), GetDefaultFeatures());
 }
 
 template <typename T>
-const ::maliput::api::RoadGeometry*
+const maliput::api::RoadGeometry*
 AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const ::maliput::api::RoadGeometry> road_geometry,
-    const ::maliput::utility::ObjFeatures& features) {
+    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
+    const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_geometry != nullptr);
   DELPHYNE_DEMAND(road_network_ == nullptr);
   road_geometry_ = std::move(road_geometry);
@@ -188,17 +188,17 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
 }
 
 template<typename T>
-const ::maliput::api::RoadNetwork*
+const maliput::api::RoadNetwork*
 AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<const ::maliput::api::RoadNetwork> road_network) {
+    std::unique_ptr<const maliput::api::RoadNetwork> road_network) {
   return SetRoadNetwork(std::move(road_network), GetDefaultFeatures());
 }
 
 template<typename T>
-const ::maliput::api::RoadNetwork*
+const maliput::api::RoadNetwork*
 AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<const ::maliput::api::RoadNetwork> road_network,
-    const ::maliput::utility::ObjFeatures& features) {
+    std::unique_ptr<const maliput::api::RoadNetwork> road_network,
+    const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_network != nullptr);
   DELPHYNE_DEMAND(road_geometry_ == nullptr);
   road_network_ = std::move(road_network);
@@ -240,7 +240,7 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // load robot messages, so those need to be aggregated.
   std::vector<drake::lcmt_viewer_load_robot> messages{
     car_vis_applicator_->get_load_robot_message()};
-  const ::maliput::api::RoadGeometry* road_geometry =
+  const maliput::api::RoadGeometry* road_geometry =
       road_network_ != nullptr ?
       road_network_->road_geometry() : road_geometry_.get();
   if (road_geometry != nullptr) {

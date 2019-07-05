@@ -39,7 +39,7 @@ class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
 
  private:
   std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const ::maliput::api::RoadGeometry* road_geometry) const override;
+      const maliput::api::RoadGeometry* road_geometry) const override;
 
   std::unique_ptr<Trajectory> trajectory_{};
 };

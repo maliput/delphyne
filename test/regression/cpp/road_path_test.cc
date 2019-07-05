@@ -16,25 +16,25 @@
 namespace delphyne {
 namespace {
 
-using ::maliput::api::GeoPosition;
-using ::maliput::api::HBounds;
-using ::maliput::api::JunctionId;
-using ::maliput::api::Lane;
-using ::maliput::api::LaneEnd;
-using ::maliput::api::LanePosition;
-using ::maliput::api::RoadGeometry;
+using maliput::api::GeoPosition;
+using maliput::api::HBounds;
+using maliput::api::JunctionId;
+using maliput::api::Lane;
+using maliput::api::LaneEnd;
+using maliput::api::LanePosition;
+using maliput::api::RoadGeometry;
 
-using ::maliput::multilane::ArcOffset;
-using ::maliput::multilane::Builder;
-using ::maliput::multilane::BuilderFactory;
-using ::maliput::multilane::ComputationPolicy;
-using ::maliput::multilane::Direction;
-using ::maliput::multilane::Endpoint;
-using ::maliput::multilane::EndpointZ;
-using ::maliput::multilane::LaneLayout;
-using ::maliput::multilane::LineOffset;
-using ::maliput::multilane::EndReference;
-using ::maliput::multilane::StartReference;
+using maliput::multilane::ArcOffset;
+using maliput::multilane::Builder;
+using maliput::multilane::BuilderFactory;
+using maliput::multilane::ComputationPolicy;
+using maliput::multilane::Direction;
+using maliput::multilane::Endpoint;
+using maliput::multilane::EndpointZ;
+using maliput::multilane::LaneLayout;
+using maliput::multilane::LineOffset;
+using maliput::multilane::EndReference;
+using maliput::multilane::StartReference;
 
 using drake::Vector3;
 
@@ -88,7 +88,7 @@ std::unique_ptr<const RoadGeometry> MakeTwoLaneRoad(bool is_opposing) {
   }
 
   return builder->Build(
-      ::maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
+      maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
 }
 
 const Lane* GetLaneById(const RoadGeometry& road, const std::string& lane_id) {

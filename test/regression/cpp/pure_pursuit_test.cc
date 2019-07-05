@@ -19,25 +19,25 @@ static constexpr double kAngularTolerance{
 using drake::AutoDiffXd;
 using drake::Translation3;
 using drake::Vector3;
-using ::maliput::api::GeoPosition;
-using ::maliput::api::RoadGeometryId;
-using ::maliput::multilane::ArcOffset;
-using ::maliput::multilane::Builder;
-using ::maliput::multilane::GroupFactory;
-using ::maliput::multilane::Direction;
-using ::maliput::multilane::Endpoint;
-using ::maliput::multilane::EndpointZ;
-using ::maliput::multilane::EndReference;
-using ::maliput::multilane::LaneLayout;
-using ::maliput::multilane::StartReference;
-using ::maliput::multilane::ComputationPolicy;
+using maliput::api::GeoPosition;
+using maliput::api::RoadGeometryId;
+using maliput::multilane::ArcOffset;
+using maliput::multilane::Builder;
+using maliput::multilane::GroupFactory;
+using maliput::multilane::Direction;
+using maliput::multilane::Endpoint;
+using maliput::multilane::EndpointZ;
+using maliput::multilane::EndReference;
+using maliput::multilane::LaneLayout;
+using maliput::multilane::StartReference;
+using maliput::multilane::ComputationPolicy;
 
 class PurePursuitTest : public ::testing::Test {
  protected:
   void SetUp() override {
     // Create a straight road with one lane.
-    road_.reset(new ::maliput::dragway::RoadGeometry(
-        ::maliput::api::RoadGeometryId("Single-Lane Dragway"),
+    road_.reset(new maliput::dragway::RoadGeometry(
+        maliput::api::RoadGeometryId("Single-Lane Dragway"),
         1 /* num_lanes */, 100 /* length */, 4. /* lane_width */,
         0. /* shoulder_width */, 5. /* maximum_height */, kLinearTolerance,
         kAngularTolerance));
@@ -65,11 +65,11 @@ class PurePursuitTest : public ::testing::Test {
   const PurePursuitParams<AutoDiffXd> pp_params_ad_{};
   const SimpleCarParams<double> car_params_{};
   const SimpleCarParams<AutoDiffXd> car_params_ad_{};
-  std::unique_ptr<const ::maliput::api::RoadGeometry> road_;
+  std::unique_ptr<const maliput::api::RoadGeometry> road_;
 };
 
 TEST_F(PurePursuitTest, Evaluate) {
-  const ::maliput::api::Lane* const lane =
+  const maliput::api::Lane* const lane =
       road_->junction(0)->segment(0)->lane(0);
 
   // Set the ego car's pose to be all zeros, and facing parallel to the track in
@@ -139,7 +139,7 @@ TEST_F(PurePursuitTest, Evaluate) {
 // Tests that rotational symmetry is preserved.
 TEST_F(PurePursuitTest, RotationalSymmetry) {
   MakeQuarterCircleRoad();
-  const ::maliput::api::Lane* const lane =
+  const maliput::api::Lane* const lane =
       road_->junction(0)->segment(0)->lane(0);
 
   // Situate the ego car at the START of the arc-shaped lane such that it is
@@ -168,7 +168,7 @@ TEST_F(PurePursuitTest, RotationalSymmetry) {
 }
 
 TEST_F(PurePursuitTest, EvaluateAutoDiff) {
-  const ::maliput::api::Lane* const lane =
+  const maliput::api::Lane* const lane =
       road_->junction(0)->segment(0)->lane(0);
 
   // Set the ego car's pose to be all zeros, and facing parallel to the track in
@@ -230,7 +230,7 @@ TEST_F(PurePursuitTest, ComputeGoalPoint) {
   pose.set_translation(
       Eigen::Translation3d(50. /* s */, 5. /* r */, 0. /* h */));
   pose.set_rotation(Eigen::Quaternion<double>::Identity());
-  const ::maliput::api::Lane* const lane =
+  const maliput::api::Lane* const lane =
       road_->junction(0)->segment(0)->lane(0);
 
   GeoPosition goal_position = PurePursuit<double>::ComputeGoalPoint(

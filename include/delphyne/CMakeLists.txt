@@ -48,6 +48,6 @@ install(TARGETS public_headers EXPORT ${PROJECT_NAME}-targets)
 # Subdirectories
 ##############################################################################
 
-add_subdirectory(maliput)
+add_subdirectory(roads)
 add_subdirectory(mi6)
 add_subdirectory(utility)

@@ -25,7 +25,7 @@ target_link_libraries(
   agents
     mi6
     public_headers
-    maliput_utilities
+    roads_utilities
     translations
     drake_systems
     drake::drake

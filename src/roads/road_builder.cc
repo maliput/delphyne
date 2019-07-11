@@ -1,5 +1,5 @@
 /**
- * @file src/maliput/road_builder.cc
+ * @file src/roads/road_builder.cc
  *
  * Copyright 2017 Toyota Research Institute
  */
@@ -7,7 +7,7 @@
 ** Includes
 *****************************************************************************/
 
-#include "delphyne/maliput/road_builder.h"
+#include "delphyne/roads/road_builder.h"
 
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>

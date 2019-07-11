@@ -1,5 +1,5 @@
 /**
- * @file include/delphyne/maliput/find_lane.h
+ * @file include/delphyne/roads/find_lane.h
  *
  * Copyright 2017 Toyota Research Institute
  */

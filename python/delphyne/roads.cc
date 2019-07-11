@@ -1,5 +1,5 @@
 /**
- * @file python/delphyne/maliput.cc
+ * @file python/delphyne/roads.cc
  *
  * Copyright 2017 Toyota Research Institute
  */
@@ -18,8 +18,8 @@
 #include <maliput-utilities/generate_obj.h>
 
 // public headers
-#include "delphyne/maliput/find_lane.h"
-#include "delphyne/maliput/road_builder.h"
+#include "delphyne/roads/find_lane.h"
+#include "delphyne/roads/road_builder.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -35,7 +35,7 @@ namespace {
 ** Implementation
 *****************************************************************************/
 
-PYBIND11_MODULE(maliput, m) {
+PYBIND11_MODULE(roads, m) {
   py::module::import("maliput.api");
 
   // Most of the required maliput types (e.g. Lane, LaneId, RoadGeometry)

@@ -1,5 +1,5 @@
 /**
- * @file src/maliput/find_lane.cc
+ * @file src/roads/find_lane.cc
  *
  * Copyright 2017 Toyota Research Institute
  */
@@ -12,7 +12,7 @@
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/segment.h>
 
-#include "delphyne/maliput/find_lane.h"
+#include "delphyne/roads/find_lane.h"
 
 /*****************************************************************************
 ** Namespaces

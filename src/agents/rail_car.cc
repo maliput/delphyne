@@ -24,7 +24,7 @@
 
 // public headers
 #include "delphyne/macros.h"
-#include "delphyne/maliput/find_lane.h"
+#include "delphyne/roads/find_lane.h"
 
 #include "gen/rail_follower_params.h"
 #include "gen/rail_follower_state.h"

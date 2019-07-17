@@ -34,6 +34,12 @@ find_package(ignition-msgs2 REQUIRED)
 find_package(ignition-transport5 REQUIRED COMPONENTS log)
 pkg_check_modules(LIBZIP REQUIRED libzip)
 
+# Since ignition libraries are compiled using C++17 and drake is not,
+# we need to define the following macro
+# to avoid having undefined references from drake when we use std::variant.
+# See https://drake.mit.edu/doxygen_cxx/drake__optional_8h.html
+add_definitions(-DSTX_NO_STD_VARIANT)
+
 ##############################################################################
 # Project Configuration
 ##############################################################################

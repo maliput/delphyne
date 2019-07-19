@@ -10,9 +10,7 @@ class Road(py_trees.composites.Sequence):
         self.road_geometry = None
 
     def iterate(self, *args, **kwargs):
-        """
-        Ensure roads are setup once before their children.
-        """
+        # Ensure roads are setup once before their children.
         yield self
         yield from super().iterate(*args, **kwargs)
 

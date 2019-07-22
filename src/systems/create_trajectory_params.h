@@ -40,7 +40,7 @@ std::tuple<Curve2<double>, double, double> CreateTrajectoryParams(int index);
  * @return tuple of curve, speed, start_time
  */
 std::tuple<Curve2<double>, double, double> CreateTrajectoryParamsForDragway(
-    const ::maliput::dragway::RoadGeometry& road_geometry, int index,
+    const maliput::dragway::RoadGeometry& road_geometry, int index,
     double speed, double start_time);
 
 }  // namespace delphyne

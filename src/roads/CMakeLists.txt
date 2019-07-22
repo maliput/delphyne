@@ -8,23 +8,23 @@ file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cc)
 # Library
 ##############################################################################
 
-add_library(maliput_utilities ${SOURCES})
+add_library(roads_utilities ${SOURCES})
 
 set_target_properties(
-  maliput_utilities
+  roads_utilities
   PROPERTIES
     OUTPUT_NAME
-      ${PROJECT_NAME}-maliput-utilities
+      ${PROJECT_NAME}-roads-utilities
 )
 
 target_include_directories(
-  maliput_utilities
+  roads_utilities
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-ament_target_dependencies(maliput_utilities
+ament_target_dependencies(roads_utilities
   "drake"
   "maliput"
   "multilane"
@@ -32,7 +32,7 @@ ament_target_dependencies(maliput_utilities
 )
 
 target_link_libraries(
-  maliput_utilities
+  roads_utilities
     drake::drake
     dragway::dragway
     maliput::api
@@ -43,6 +43,6 @@ target_link_libraries(
 )
 
 install(
-  TARGETS maliput_utilities EXPORT ${PROJECT_NAME}-targets
+  TARGETS roads_utilities EXPORT ${PROJECT_NAME}-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

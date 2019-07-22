@@ -16,11 +16,11 @@
 
 namespace delphyne {
 
-using ::maliput::api::GeoPosition;
-using ::maliput::api::Lane;
-using ::maliput::api::LanePosition;
-using ::maliput::api::RoadGeometry;
-using ::maliput::api::RoadPosition;
+using maliput::api::GeoPosition;
+using maliput::api::Lane;
+using maliput::api::LanePosition;
+using maliput::api::RoadGeometry;
+using maliput::api::RoadPosition;
 using drake::math::saturate;
 using drake::systems::BasicVector;
 using drake::systems::rendering::FrameVelocity;

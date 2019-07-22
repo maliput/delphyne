@@ -15,9 +15,9 @@
 
 namespace delphyne {
 
-using ::maliput::api::GeoPositionT;
-using ::maliput::api::Lane;
-using ::maliput::api::LanePositionT;
+using maliput::api::GeoPositionT;
+using maliput::api::Lane;
+using maliput::api::LanePositionT;
 using drake::systems::rendering::PoseVector;
 
 template <typename T>

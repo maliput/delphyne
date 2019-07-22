@@ -40,19 +40,19 @@ install(
 # Maliput Bindings
 ####################
 
-pybind11_add_module(maliput_bindings maliput.cc)
-set_target_properties(maliput_bindings PROPERTIES OUTPUT_NAME maliput)
+pybind11_add_module(roads_bindings roads.cc)
+set_target_properties(roads_bindings PROPERTIES OUTPUT_NAME roads)
 
-target_link_libraries(maliput_bindings
+target_link_libraries(roads_bindings
   PRIVATE
-    maliput_utilities
+    roads_utilities
     drake::drake
     pybind11::module
     ${PYTHON_LIBRARIES}
 )
 
 install(
-  TARGETS maliput_bindings
+  TARGETS roads_bindings
   DESTINATION ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )
 

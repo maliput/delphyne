@@ -137,7 +137,7 @@ BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
 }
 
 drake::lcmt_viewer_load_robot
-BuildLoadMessageForRoad(const ::maliput::api::RoadGeometry& road_geometry,
-                        const ::maliput::utility::ObjFeatures& features);
+BuildLoadMessageForRoad(const maliput::api::RoadGeometry& road_geometry,
+                        const maliput::utility::ObjFeatures& features);
 
 }  // namespace delphyne

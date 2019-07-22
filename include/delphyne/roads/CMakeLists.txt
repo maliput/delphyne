@@ -7,5 +7,5 @@ install(
     find_lane.h
     road_builder.h
   DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/maliput
+    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/roads
 )

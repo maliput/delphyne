@@ -29,7 +29,7 @@ template <typename T>
 void CalcOngoingRoadPosition(
     const drake::systems::rendering::PoseVector<T>& pose,
     const drake::systems::rendering::FrameVelocity<T>& velocity,
-    const ::maliput::api::RoadGeometry& road,
-    ::maliput::api::RoadPosition* rp);
+    const maliput::api::RoadGeometry& road,
+    maliput::api::RoadPosition* rp);
 
 }  // namespace delphyne

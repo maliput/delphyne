@@ -71,7 +71,7 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
   } initial_parameters_;
 
   std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const ::maliput::api::RoadGeometry* road_geometry) const override;
+      const maliput::api::RoadGeometry* road_geometry) const override;
 };
 
 /*****************************************************************************

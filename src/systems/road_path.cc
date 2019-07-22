@@ -14,11 +14,11 @@
 
 namespace delphyne {
 
-using ::maliput::api::GeoPosition;
-using ::maliput::api::Lane;
-using ::maliput::api::LaneEnd;
-using ::maliput::api::LaneEndSet;
-using ::maliput::api::RoadGeometry;
+using maliput::api::GeoPosition;
+using maliput::api::Lane;
+using maliput::api::LaneEnd;
+using maliput::api::LaneEndSet;
+using maliput::api::RoadGeometry;
 using drake::trajectories::PiecewisePolynomial;
 using drake::MatrixX;
 using drake::Vector3;

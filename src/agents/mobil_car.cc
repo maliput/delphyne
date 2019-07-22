@@ -46,7 +46,7 @@ MobilCarBlueprint::MobilCarBlueprint(const std::string& name,
       initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
-    const ::maliput::api::RoadGeometry* road_geometry) const {
+    const maliput::api::RoadGeometry* road_geometry) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
                     "MOBIL cars require a road geometry to run, make "
                     "sure the simulation was setup with one.");

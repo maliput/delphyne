@@ -24,7 +24,7 @@
 
 // public headers
 #include "delphyne/macros.h"
-#include "delphyne/maliput/find_lane.h"
+#include "delphyne/roads/find_lane.h"
 
 #include "gen/rail_follower_params.h"
 #include "gen/rail_follower_state.h"
@@ -46,7 +46,7 @@ namespace delphyne {
  *****************************************************************************/
 
 RailCarBlueprint::RailCarBlueprint(const std::string& name,
-                                   const ::maliput::api::Lane& lane,
+                                   const maliput::api::Lane& lane,
                                    bool direction_of_travel,
                                    double longitudinal_position,  // s
                                    double lateral_offset,         // r
@@ -70,28 +70,28 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name,
       std::invalid_argument,
       "The lane to be initialised on is not part of a road geometry.");
 
-  ::maliput::api::LanePosition initial_car_lane_position{
+  maliput::api::LanePosition initial_car_lane_position{
       longitudinal_position, lateral_offset, 0.0};
-  ::maliput::api::GeoPosition initial_car_geo_position =
+  maliput::api::GeoPosition initial_car_geo_position =
       lane.ToGeoPosition(initial_car_lane_position);
-  ::maliput::api::Rotation initial_car_orientation =
+  maliput::api::Rotation initial_car_orientation =
       lane.GetOrientation(initial_car_lane_position);
 }
 
 std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(
-    const ::maliput::api::RoadGeometry* road_geometry,
+    const maliput::api::RoadGeometry* road_geometry,
     drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
                     "Rail cars need a road geometry to drive on, make "
                     "sure the simulation is built with one.");
-  const ::maliput::api::RoadGeometry* lane_road_geometry =
+  const maliput::api::RoadGeometry* lane_road_geometry =
       initial_parameters_.lane.segment()->junction()->road_geometry();
   DELPHYNE_VALIDATE(
       lane_road_geometry->id() == road_geometry->id(), std::invalid_argument,
       "The provided initial lane is not on the same road geometry "
       "as that used by the simulation");
   DELPHYNE_VALIDATE(
-      maliput::FindLane(initial_parameters_.lane.id(), *road_geometry),
+      roads::FindLane(initial_parameters_.lane.id(), *road_geometry),
       std::invalid_argument,
       "The provided initial lane is not within this simulation's "
       "RoadGeometry.");

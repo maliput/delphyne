@@ -33,7 +33,7 @@ SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x,
       initial_parameters_(x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
-    const ::maliput::api::RoadGeometry* road_geometry) const {
+    const maliput::api::RoadGeometry* road_geometry) const {
   drake::unused(road_geometry);
 
   AgentBlueprint::DiagramBuilder builder(this->name());

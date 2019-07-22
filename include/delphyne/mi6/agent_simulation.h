@@ -81,7 +81,7 @@ class AgentSimulationBase {
       std::unique_ptr<drake::systems::Simulator<T>> simulator,
       std::unique_ptr<drake::systems::Diagram<T>> diagram,
       std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-      std::unique_ptr<const ::maliput::api::RoadGeometry> road_geometry,
+      std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
       drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
 
   /// Constructs a simulation.
@@ -97,7 +97,7 @@ class AgentSimulationBase {
       std::unique_ptr<drake::systems::Simulator<T>> simulator,
       std::unique_ptr<drake::systems::Diagram<T>> diagram,
       std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-      std::unique_ptr<const ::maliput::api::RoadNetwork> road_network,
+      std::unique_ptr<const maliput::api::RoadNetwork> road_network,
       drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
 
   /// Returns a reference to the `name`d agent of the given type.
@@ -232,9 +232,9 @@ class AgentSimulationBase {
   // The collection of all agents in the simulation, indexed by name.
   std::map<std::string, std::unique_ptr<AgentBase<T>>> agents_;
   // The geometry of the road in this simulation.
-  std::unique_ptr<const ::maliput::api::RoadGeometry> road_geometry_;
+  std::unique_ptr<const maliput::api::RoadGeometry> road_geometry_;
   // The network of the road in this simulation.
-  std::unique_ptr<const ::maliput::api::RoadNetwork> road_network_;
+  std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
   // The scene graph with all collision geometries in this simulation.
   drake::geometry::SceneGraph<T>* scene_graph_;
   // The system that publishes this simulation as a scene for rendering

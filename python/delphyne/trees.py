@@ -12,6 +12,8 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         self.runner = None
 
     def setup(self, realtime_rate, start_paused, logfile_name='', **kwargs):
+        # Bear in mind that this is a local builder. Once the AgentSimulation
+        # is created, the builder will be destroyed, along with its blueprints
         builder = delphyne.simulation.AgentSimulationBuilder()
 
         super().setup(builder=builder, **kwargs)

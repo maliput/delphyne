@@ -16,6 +16,7 @@ install(
 install(
   DIRECTORY
     behaviours
+    blackboard
   DESTINATION
     ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )

@@ -1,4 +1,5 @@
 import delphyne.roads
+import delphyne.blackboard.blackboard_helper as bb_helper
 
 import py_trees.composites
 import py_trees.common
@@ -29,7 +30,7 @@ class Dragway(Road):
     def setup(self, *, builder):
         if self.road_geometry is None:
             self.road_geometry = builder.set_road_geometry(
-                delphyne.maliput.create_dragway(
+                delphyne.roads.create_dragway(
                     name=self.name,
                     num_lanes=self.num_lanes,
                     length=self.length,
@@ -38,3 +39,19 @@ class Dragway(Road):
                     maximum_height=self.maximum_height
                 )
             )
+            bb_helper.set_road_geometry(self.road_geometry)
+
+
+class Multilane(Road):
+
+    def __init__(self, file_path, name=py_trees.common.Name.AUTO_GENERATED):
+        super().__init__(name)
+        self.file_path = file_path
+
+    def setup(self, *, builder):
+        if self.road_geometry is None:
+            self.road_geometry = builder.set_road_geometry(
+                delphyne.roads.create_multilane_from_file(
+                    self.file_path)
+                )
+            bb_helper.set_road_geometry(self.road_geometry)

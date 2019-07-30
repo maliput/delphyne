@@ -12,7 +12,6 @@ tree, keep on mind that the setup call is top-down.
 
 ROAD_GEOMETRY_KEY = 'road_geometry'
 
-
 def get_road_geometry():
     blackboard = py_trees.blackboard.Blackboard()
     return blackboard.get(ROAD_GEOMETRY_KEY)
@@ -20,3 +19,15 @@ def get_road_geometry():
 def set_road_geometry(road_geometry):
     blackboard = py_trees.blackboard.Blackboard()
     blackboard.set(ROAD_GEOMETRY_KEY, road_geometry, True)
+
+def initialize_agent_attributes(agent_name):
+    blackboard = py_trees.blackboard.Blackboard()
+    blackboard.set(agent_name, {}, True)
+
+def get_attribute_for_agent(agent_name, attribute):
+    blackboard = py_trees.blackboard.Blackboard()
+    attributes = blackboard.get(agent_name)
+    if attribute in attributes:
+        return attributes[attribute]
+    else:
+        return None

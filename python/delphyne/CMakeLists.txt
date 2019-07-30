@@ -17,7 +17,6 @@ install(
   DIRECTORY
     behaviours
     blackboard
-    decorators
   DESTINATION
     ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )

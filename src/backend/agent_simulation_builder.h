@@ -181,6 +181,11 @@ class AgentSimulationBaseBuilder {
   /// Gets maximum integration step size for the simulation to be built.
   const T& GetMaxStepSize() const { return max_step_size_; }
 
+  /// Gets constructed agent by name
+  AgentBase<T>* GetAgentByName(const std::string &name) {
+    return agents_[name].get();
+  }
+
  private:
   // The rate at which the scene is published over ignition transport to
   // update the scene tree widget tree.

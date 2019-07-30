@@ -67,6 +67,7 @@ class RailCar(py_trees.behaviours.Success):
         self.lateral_offset = lateral_offset
         self.speed = speed
         self.nominal_speed = nominal_speed
+        bb_helper.initialize_agent_attributes(self.name)
 
     def setup(self, *, builder):
         road_index = bb_helper.get_road_geometry().ById()
@@ -83,6 +84,14 @@ class RailCar(py_trees.behaviours.Success):
                 nominal_speed=self.nominal_speed                  # nominal_speed (m/s)
             )
         )
+        self.agent = builder.get_agent(self.name)
+
+    def update(self):
+        speed = bb_helper.get_attribute_for_agent(self.name, "speed")
+        if speed is not None and speed != self.speed:
+            self.speed = self.agent.set_speed(speed)
+        return py_trees.common.Status.SUCCESS
+
 
 
 class TrajectoryAgent(py_trees.behaviours.Success):

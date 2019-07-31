@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "common/compression.h"
+#include "utility/compression.h"
 
 #include <fstream>
 #include <memory>
@@ -13,7 +13,7 @@
 
 #include <zip.h>
 
-#include "common/filesystem.h"
+#include "utility/filesystem.h"
 
 namespace delphyne {
 

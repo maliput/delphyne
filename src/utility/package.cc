@@ -14,7 +14,7 @@
 #include <ignition/common/SystemPaths.hh>
 #include <ignition/common/URI.hh>
 
-#include "common/filesystem.h"
+#include "utility/filesystem.h"
 
 #include "delphyne/macros.h"
 

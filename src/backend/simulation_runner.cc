@@ -25,7 +25,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include "common/filesystem.h"
+#include "utility/filesystem.h"
 
 namespace delphyne {
 namespace {

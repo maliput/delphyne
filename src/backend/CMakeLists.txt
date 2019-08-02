@@ -35,7 +35,7 @@ target_link_libraries(
   backend
     protobuf_messages
     public_headers
-    delphyne-utilities
+    utility
     visualization
     drake::drake
     maliput::api
@@ -45,7 +45,6 @@ target_link_libraries(
     ignition-transport5::log
     ignition-msgs2::ignition-msgs2
     ${PYTHON_LIBRARIES}
-    ${PROJECT_NAME}-utilities
     translations
 )
 

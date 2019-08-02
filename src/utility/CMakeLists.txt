@@ -2,7 +2,7 @@
 # Delphyne utility
 ##############################################################################
 
-add_library(${PROJECT_NAME}-utilities
+add_library(utility
   compression.cc
   filesystem.cc
   package.cc
@@ -11,22 +11,23 @@ add_library(${PROJECT_NAME}-utilities
   resources/resources.cc
 )
 
+set_target_properties(utility PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-utility)
 target_include_directories(
-  ${PROJECT_NAME}-utilities
+  utility
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     ${LIBZIP_INCLUDE_DIRS}
 )
 
-target_link_libraries(${PROJECT_NAME}-utilities
+target_link_libraries(utility
   PUBLIC
     public_headers
     ignition-common3::ignition-common3
     ${LIBZIP_LIBRARIES}
 )
 
-install(TARGETS ${PROJECT_NAME}-utilities EXPORT ${PROJECT_NAME}-targets
+install(TARGETS utility EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

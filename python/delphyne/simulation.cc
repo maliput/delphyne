@@ -134,9 +134,6 @@ PYBIND11_MODULE(simulation, m) {
              return self->AddAgent(std::move(blueprint));
            },
            py::return_value_policy::reference_internal)
-      .def("get_agent",
-            &AgentSimulationBuilder::GetAgentByName,
-            py::return_value_policy::reference_internal)
       .def("set_road_geometry",
            py::overload_cast<
                std::unique_ptr<const ::maliput::api::RoadGeometry>>(

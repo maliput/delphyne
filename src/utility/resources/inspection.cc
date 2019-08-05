@@ -11,7 +11,7 @@
 #include <ignition/common/StringUtils.hh>
 #include <ignition/common/URI.hh>
 
-#include "common/filesystem.h"
+#include "utility/filesystem.h"
 
 #include "delphyne/utility/resources/meshes.h"
 #include "delphyne/utility/resources/resources.h"

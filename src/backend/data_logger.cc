@@ -17,8 +17,8 @@
 #include <ignition/common/StringUtils.hh>
 #include <ignition/common/SystemPaths.hh>
 
-#include "common/compression.h"
-#include "common/filesystem.h"
+#include "utility/compression.h"
+#include "utility/filesystem.h"
 
 #include "delphyne/macros.h"
 #include "delphyne/utility/package.h"

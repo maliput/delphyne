@@ -13,7 +13,7 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/log/Log.hh>
 
-#include "common/compression.h"
+#include "utility/compression.h"
 #include "delphyne/utility/package.h"
 #include "test_utilities/helpers.h"
 

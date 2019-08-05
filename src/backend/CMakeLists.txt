@@ -45,7 +45,6 @@ target_link_libraries(
     ignition-transport5::log
     ignition-msgs2::ignition-msgs2
     ${PYTHON_LIBRARIES}
-    common
     translations
 )
 

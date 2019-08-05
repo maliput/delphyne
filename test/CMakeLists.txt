@@ -29,7 +29,7 @@ macro(delphyne_build_tests)
     target_link_libraries(
       ${BINARY_NAME}
         agents
-        common
+        utility
         translations
         protobuf
         visualization

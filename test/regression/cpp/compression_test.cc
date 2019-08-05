@@ -1,6 +1,6 @@
 // Copyright 2018 Toyota Research Institute
 
-#include "common/compression.h"
+#include "utility/compression.h"
 
 #include <cstdlib>
 #include <fstream>

@@ -37,17 +37,15 @@ template <typename ToType, typename FromType>
   if (ptr == nullptr) {
     const std::string from_name{drake::NiceTypeName::Get<FromType>()};
     const std::string to_name{drake::NiceTypeName::Get<ToType>()};
-    return ::testing::AssertionFailure()
-           << "is_dynamic_castable<" << to_name << ">(" << from_name << "* ptr)"
-           << " failed because ptr was already nullptr.";
+    return ::testing::AssertionFailure() << "is_dynamic_castable<" << to_name << ">(" << from_name << "* ptr)"
+                                         << " failed because ptr was already nullptr.";
   }
   if (dynamic_cast<const ToType* const>(ptr) == nullptr) {
     const std::string from_name{drake::NiceTypeName::Get<FromType>()};
     const std::string to_name{drake::NiceTypeName::Get<ToType>()};
     const std::string dynamic_name{drake::NiceTypeName::Get(*ptr)};
-    return ::testing::AssertionFailure()
-           << "is_dynamic_castable<" << to_name << ">(" << from_name << "* ptr)"
-           << " failed because ptr is of dynamic type " << dynamic_name << ".";
+    return ::testing::AssertionFailure() << "is_dynamic_castable<" << to_name << ">(" << from_name << "* ptr)"
+                                         << " failed because ptr is of dynamic type " << dynamic_name << ".";
   }
   return ::testing::AssertionSuccess();
 }
@@ -66,8 +64,7 @@ template <typename ToType, typename FromType>
 /// provide a good diagnostic for what @p ptr _actually_ was when the test
 /// fails.
 template <typename ToType, typename FromType>
-::testing::AssertionResult is_dynamic_castable(
-    const std::unique_ptr<FromType>& ptr) {
+::testing::AssertionResult is_dynamic_castable(const std::unique_ptr<FromType>& ptr) {
   return is_dynamic_castable<ToType, FromType>(ptr.get());
 }
 

@@ -7,12 +7,12 @@
 
 #include <Eigen/Geometry>
 
-#include <maliput/api/lane_data.h>
-#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
 
 #include "gen/idm_planner_parameters.h"
 #include "systems/calc_ongoing_road_position.h"
@@ -67,15 +67,13 @@ class IDMController : public drake::systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  IDMController(const maliput::api::RoadGeometry& road,
-                ScanStrategy path_or_branches,
+  IDMController(const maliput::api::RoadGeometry& road, ScanStrategy path_or_branches,
                 RoadPositionStrategy road_position_strategy, double period_sec);
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
   explicit IDMController(const IDMController<U>& other)
-      : IDMController<T>(other.road_, other.path_or_branches_,
-                         other.road_position_strategy_, other.period_sec_) {}
+      : IDMController<T>(other.road_, other.path_or_branches_, other.road_position_strategy_, other.period_sec_) {}
 
   ~IDMController() override;
 
@@ -94,18 +92,15 @@ class IDMController : public drake::systems::LeafSystem<T> {
   int traffic_index() const { return traffic_index_; }
   int acceleration_index() const { return acceleration_index_; }
 
-  void ImplCalcAcceleration(
-      const drake::systems::rendering::PoseVector<T>& ego_pose,
-      const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
-      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
-      const IdmPlannerParameters<T>& idm_params,
-      const maliput::api::RoadPosition& ego_rp,
-      drake::systems::BasicVector<T>* command) const;
+  void ImplCalcAcceleration(const drake::systems::rendering::PoseVector<T>& ego_pose,
+                            const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
+                            const drake::systems::rendering::PoseBundle<T>& traffic_poses,
+                            const IdmPlannerParameters<T>& idm_params, const maliput::api::RoadPosition& ego_rp,
+                            drake::systems::BasicVector<T>* command) const;
 
-  void DoCalcUnrestrictedUpdate(
-      const drake::systems::Context<T>& context,
-      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
-      drake::systems::State<T>* state) const override;
+  void DoCalcUnrestrictedUpdate(const drake::systems::Context<T>& context,
+                                const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+                                drake::systems::State<T>* state) const override;
 
  private:
   // Allow different specializations to access each other's private data.
@@ -113,11 +108,9 @@ class IDMController : public drake::systems::LeafSystem<T> {
   friend class IDMController;
 
   // Converts @p pose into RoadPosition.
-  const maliput::api::RoadPosition GetRoadPosition(
-      const drake::Isometry3<T>& pose) const;
+  const maliput::api::RoadPosition GetRoadPosition(const drake::Isometry3<T>& pose) const;
 
-  void CalcAcceleration(const drake::systems::Context<T>& context,
-                        drake::systems::BasicVector<T>* accel_output) const;
+  void CalcAcceleration(const drake::systems::Context<T>& context, drake::systems::BasicVector<T>* accel_output) const;
 
   const maliput::api::RoadGeometry& road_;
   const ScanStrategy path_or_branches_{};

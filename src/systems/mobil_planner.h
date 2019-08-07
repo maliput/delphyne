@@ -9,12 +9,12 @@
 
 #include <Eigen/Geometry>
 
-#include <maliput/api/lane.h>
-#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/road_geometry.h>
 
 #include "gen/idm_planner_parameters.h"
 #include "gen/mobil_planner_parameters.h"
@@ -98,8 +98,7 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
   /// RoadPosition. See `calc_ongoing_road_position.h`.
   /// @param period_sec The update period to use if road_position_strategy ==
   /// RoadPositionStrategy::kCache.
-  MobilPlanner(const maliput::api::RoadGeometry& road,
-               bool initial_with_s, RoadPositionStrategy road_position_strategy,
+  MobilPlanner(const maliput::api::RoadGeometry& road, bool initial_with_s, RoadPositionStrategy road_position_strategy,
                double period_sec);
 
   /// See the class description for details on the following input ports.
@@ -114,71 +113,55 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
   /// Getters to mutable named-vector references associated with MobilPlanner's
   /// Parameters groups.
   /// @{
-  inline IdmPlannerParameters<T>& get_mutable_idm_params(
-      drake::systems::Context<T>* context) const {
-    return this->template GetMutableNumericParameter<IdmPlannerParameters>(
-        context, kIdmParamsIndex);
+  inline IdmPlannerParameters<T>& get_mutable_idm_params(drake::systems::Context<T>* context) const {
+    return this->template GetMutableNumericParameter<IdmPlannerParameters>(context, kIdmParamsIndex);
   }
-  inline MobilPlannerParameters<T>& get_mutable_mobil_params(
-      drake::systems::Context<T>* context) const {
-    return this->template GetMutableNumericParameter<MobilPlannerParameters>(
-        context, kMobilParamsIndex);
+  inline MobilPlannerParameters<T>& get_mutable_mobil_params(drake::systems::Context<T>* context) const {
+    return this->template GetMutableNumericParameter<MobilPlannerParameters>(context, kMobilParamsIndex);
   }
   /// @}
 
  protected:
-  void DoCalcUnrestrictedUpdate(
-      const drake::systems::Context<T>& context,
-      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
-      drake::systems::State<T>* state) const override;
+  void DoCalcUnrestrictedUpdate(const drake::systems::Context<T>& context,
+                                const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+                                drake::systems::State<T>* state) const override;
 
  private:
-  void CalcLaneDirection(const drake::systems::Context<T>& context,
-                         LaneDirection* lane_direction) const;
+  void CalcLaneDirection(const drake::systems::Context<T>& context, LaneDirection* lane_direction) const;
 
   // Performs the calculations for the lane_output() port.
-  void ImplCalcLaneDirection(
-      const drake::systems::rendering::PoseVector<T>& ego_pose,
-      const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
-      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
-      const drake::systems::BasicVector<T>& ego_accel_command,
-      const IdmPlannerParameters<T>& idm_params,
-      const MobilPlannerParameters<T>& mobil_params,
-      const maliput::api::RoadPosition& ego_rp,
-      LaneDirection* lane_direction) const;
+  void ImplCalcLaneDirection(const drake::systems::rendering::PoseVector<T>& ego_pose,
+                             const drake::systems::rendering::FrameVelocity<T>& ego_velocity,
+                             const drake::systems::rendering::PoseBundle<T>& traffic_poses,
+                             const drake::systems::BasicVector<T>& ego_accel_command,
+                             const IdmPlannerParameters<T>& idm_params, const MobilPlannerParameters<T>& mobil_params,
+                             const maliput::api::RoadPosition& ego_rp, LaneDirection* lane_direction) const;
 
   // Computes a pair of incentive measures for the provided neighboring lanes.
   // The first and second elements in `lanes` correspond to, respectively, a
   // pair of lanes included in the incentive query. The respective incentives
   // for these lanes are returned as the first and second elements in the return
   // value.
-  const std::pair<T, T> ComputeIncentives(
-      const std::pair<const maliput::api::Lane*,
-                      const maliput::api::Lane*>
-          lanes,
-      const IdmPlannerParameters<T>& idm_params,
-      const MobilPlannerParameters<T>& mobil_params,
-      const ClosestPose<T>& ego_closest_pose,
-      const drake::systems::rendering::PoseVector<T>& ego_pose,
-      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
-      const T& ego_acceleration) const;
+  const std::pair<T, T> ComputeIncentives(const std::pair<const maliput::api::Lane*, const maliput::api::Lane*> lanes,
+                                          const IdmPlannerParameters<T>& idm_params,
+                                          const MobilPlannerParameters<T>& mobil_params,
+                                          const ClosestPose<T>& ego_closest_pose,
+                                          const drake::systems::rendering::PoseVector<T>& ego_pose,
+                                          const drake::systems::rendering::PoseBundle<T>& traffic_poses,
+                                          const T& ego_acceleration) const;
 
   // Computes a pair of incentive measures that consider the leading and
   // trailing vehicles that are closest to the pre-computed result in the
   // current lane. `closest_poses` contains the odometries and relative
   // distances to the leading and trailing cars.
   void ComputeIncentiveOutOfLane(const IdmPlannerParameters<T>& idm_params,
-                                 const MobilPlannerParameters<T>& mobil_params,
-                                 const ClosestPoses& closest_poses,
-                                 const ClosestPose<T>& ego_closest_pose,
-                                 const T& ego_old_accel,
-                                 const T& trailing_delta_accel_this,
-                                 T* incentive) const;
+                                 const MobilPlannerParameters<T>& mobil_params, const ClosestPoses& closest_poses,
+                                 const ClosestPose<T>& ego_closest_pose, const T& ego_old_accel,
+                                 const T& trailing_delta_accel_this, T* incentive) const;
 
   // Computes an acceleration based on the IDM equation (via a call to
   // IdmPlanner::Eval()).
-  const T EvaluateIdm(const IdmPlannerParameters<T>& idm_params,
-                      const ClosestPose<T>& trailing_closest_pose,
+  const T EvaluateIdm(const IdmPlannerParameters<T>& idm_params, const ClosestPose<T>& trailing_closest_pose,
                       const ClosestPose<T>& leading_closest_pose) const;
 
   static constexpr int kIdmParamsIndex{0};

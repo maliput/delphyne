@@ -45,8 +45,7 @@ class ResourceInspector {
   /// @throws std::logic_error if given @p type is null
   /// @throws std::runtime_error if given @p extension is already
   ///                            associated to a type.
-  void AssociateExtension(const std::string& extension,
-                          const ResourceType* type);
+  void AssociateExtension(const std::string& extension, const ResourceType* type);
 
   /// Retrieves a representation of the resource pointed by @p uri
   /// @param uri Identifier of the resource, to be resolved against the
@@ -64,8 +63,7 @@ class ResourceInspector {
   ///            class documentation).
   /// @returns The URIs of the dependencies, if any, or an empty vector if
   ///          the resource type is unknown (see AssociateExtension()).
-  std::vector<ignition::common::URI> GetDependencies(
-      const ignition::common::URI& uri) const;
+  std::vector<ignition::common::URI> GetDependencies(const ignition::common::URI& uri) const;
 
  private:
   // Default constructor.

@@ -33,15 +33,13 @@ namespace delphyne {
  *****************************************************************************/
 
 // TODO(daniel.stonier) convert this to accepting a Trajectory class instead
-TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
-    const std::string& name, const std::vector<double>& times,
-    const std::vector<double>& headings,
-    const std::vector<std::vector<double>>& translations)
+TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(const std::string& name, const std::vector<double>& times,
+                                                   const std::vector<double>& headings,
+                                                   const std::vector<std::vector<double>>& translations)
     : BasicAgentBlueprint(name) {
   std::vector<Eigen::Quaternion<double>> eigen_orientations;
   for (const double& heading : headings) {
-    Eigen::Quaternion<double> orientation(
-        Eigen::AngleAxis<double>(heading, Eigen::Vector3d::UnitZ()));
+    Eigen::Quaternion<double> orientation(Eigen::AngleAxis<double>(heading, Eigen::Vector3d::UnitZ()));
     eigen_orientations.push_back(orientation);
   }
   std::vector<Eigen::Vector3d> eigen_translations;
@@ -53,13 +51,11 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(
     eigen_translations.push_back(eigen_translation);
   }
 
-  trajectory_ = std::make_unique<Trajectory>(
-      Trajectory::Make(times, eigen_orientations, eigen_translations));
+  trajectory_ = std::make_unique<Trajectory>(Trajectory::Make(times, eigen_orientations, eigen_translations));
 
   // TODO(daniel.stonier) stop using this, make use of an initial value on
   // the pose output
-  const PoseVelocity initial_car_pose_velocity =
-      trajectory_->value(times.front());
+  const PoseVelocity initial_car_pose_velocity = trajectory_->value(times.front());
 }
 
 std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(
@@ -75,8 +71,8 @@ std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(
   double sampling_time = 0.01;
 
   typedef TrajectoryFollower<double> TrajectoryFollower;
-  TrajectoryFollower* trajectory_follower_system = builder.AddSystem(
-      std::make_unique<TrajectoryFollower>(*trajectory_, sampling_time));
+  TrajectoryFollower* trajectory_follower_system =
+      builder.AddSystem(std::make_unique<TrajectoryFollower>(*trajectory_, sampling_time));
   trajectory_follower_system->set_name(this->name() + "_system");
 
   /*********************

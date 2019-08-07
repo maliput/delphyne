@@ -28,7 +28,7 @@ namespace roads {
 // TODO(daniel.stonier) cache a map of lane id's -> lane pointers?
 // TODO(daniel.stonier) return optional once we have c++17
 const maliput::api::Lane* FindLane(const maliput::api::LaneId& lane_id,
-                          const maliput::api::RoadGeometry& road_geometry) {
+                                   const maliput::api::RoadGeometry& road_geometry) {
   for (int i = 0; i < road_geometry.num_junctions(); ++i) {
     const maliput::api::Junction* junction = road_geometry.junction(i);
     for (int j = 0; j < junction->num_segments(); ++j) {

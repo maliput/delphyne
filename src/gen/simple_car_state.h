@@ -70,10 +70,8 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  SimpleCarState(const SimpleCarState& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  SimpleCarState(SimpleCarState&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  SimpleCarState(const SimpleCarState& other) : drake::systems::BasicVector<T>(other.values()) {}
+  SimpleCarState(SimpleCarState&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   SimpleCarState& operator=(const SimpleCarState& other) {
     this->values() = other.values();
     return *this;
@@ -89,9 +87,7 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_x(drake::symbolic::Variable("x"));
     this->set_y(drake::symbolic::Variable("y"));
     this->set_heading(drake::symbolic::Variable("heading"));
@@ -177,9 +173,7 @@ class SimpleCarState final : public drake::systems::BasicVector<T> {
   //@}
 
   /// See SimpleCarStateIndices::GetCoordinateNames().
-  static const std::vector<std::string>& GetCoordinateNames() {
-    return SimpleCarStateIndices::GetCoordinateNames();
-  }
+  static const std::vector<std::string>& GetCoordinateNames() { return SimpleCarStateIndices::GetCoordinateNames(); }
 
   /// Returns whether the current values of this vector are well-formed.
   drake::boolean<T> IsValid() const {

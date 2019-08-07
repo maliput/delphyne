@@ -15,33 +15,28 @@
 using std::unique_ptr;
 using std::vector;
 
+using drake::Value;
+using drake::systems::Context;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
-using drake::systems::Context;
-using drake::Value;
 
 namespace delphyne {
 
 template <typename T>
 CarVisApplicator<T>::CarVisApplicator() {
-  input_port_index_ = drake::systems::LeafSystem<T>::DeclareAbstractInputPort(
-                          Value<PoseBundle<T>>(0))
-                          .get_index();
-  output_port_index_ = drake::systems::LeafSystem<T>::DeclareAbstractOutputPort(
-                           &CarVisApplicator::MakePoseBundleOutput,
-                           &CarVisApplicator::CalcPoseBundleOutput)
+  input_port_index_ = drake::systems::LeafSystem<T>::DeclareAbstractInputPort(Value<PoseBundle<T>>(0)).get_index();
+  output_port_index_ = drake::systems::LeafSystem<T>::DeclareAbstractOutputPort(&CarVisApplicator::MakePoseBundleOutput,
+                                                                                &CarVisApplicator::CalcPoseBundleOutput)
                            .get_index();
 }
 
 template <typename T>
-const drake::systems::InputPort<T>&
-CarVisApplicator<T>::get_car_poses_input_port() const {
+const drake::systems::InputPort<T>& CarVisApplicator<T>::get_car_poses_input_port() const {
   return drake::systems::System<T>::get_input_port(input_port_index_);
 }
 
 template <typename T>
-const drake::systems::OutputPort<T>&
-CarVisApplicator<T>::get_visual_geometry_poses_output_port() const {
+const drake::systems::OutputPort<T>& CarVisApplicator<T>::get_visual_geometry_poses_output_port() const {
   return drake::systems::System<T>::get_output_port(output_port_index_);
 }
 
@@ -58,12 +53,10 @@ void CarVisApplicator<T>::AddCarVis(std::unique_ptr<CarVis<T>> vis) {
 }
 
 template <typename T>
-drake::lcmt_viewer_load_robot CarVisApplicator<T>::get_load_robot_message()
-    const {
+drake::lcmt_viewer_load_robot CarVisApplicator<T>::get_load_robot_message() const {
   drake::lcmt_viewer_load_robot result;
   for (const auto& visualizer : visualizers_) {
-    const std::vector<drake::lcmt_viewer_link_data>& vis_elements =
-        visualizer.second->GetVisElements();
+    const std::vector<drake::lcmt_viewer_link_data>& vis_elements = visualizer.second->GetVisElements();
     for (const auto& vis_element : vis_elements) {
       result.link.push_back(vis_element);
     }
@@ -73,21 +66,19 @@ drake::lcmt_viewer_load_robot CarVisApplicator<T>::get_load_robot_message()
 }
 
 template <typename T>
-void CarVisApplicator<T>::CalcPoseBundleOutput(
-    const drake::systems::Context<T>& context,
-    PoseBundle<T>* visualization_poses) const {
+void CarVisApplicator<T>::CalcPoseBundleOutput(const drake::systems::Context<T>& context,
+                                               PoseBundle<T>* visualization_poses) const {
   // Obtains the input and output.
   const PoseBundle<T>& vehicle_poses =
-      drake::systems::System<T>::EvalAbstractInput(context, input_port_index_)
-          ->template get_value<PoseBundle<T>>();
+      drake::systems::System<T>::EvalAbstractInput(context, input_port_index_)->template get_value<PoseBundle<T>>();
   DRAKE_ASSERT(vehicle_poses.get_num_poses() == num_cars());
 
   if (vehicle_poses.get_num_poses() != static_cast<int>(visualizers_.size())) {
     throw std::runtime_error(
         "CarVisApplicator::DoCalcOutput(): Input "
         "PoseBundle has " +
-        std::to_string(vehicle_poses.get_num_poses()) + " poses. Expected " +
-        std::to_string(visualizers_.size()) + ".");
+        std::to_string(vehicle_poses.get_num_poses()) + " poses. Expected " + std::to_string(visualizers_.size()) +
+        ".");
   }
 
   for (int i = 0; i < vehicle_poses.get_num_poses(); ++i) {
@@ -118,8 +109,7 @@ void CarVisApplicator<T>::CalcPoseBundleOutput(
       throw std::runtime_error(
           "CarVisApplicator::DoCalcOutput(): Input "
           "PoseBundle has invalid model name with ID " +
-          std::to_string(id) + ". Expected \"" + expected_name +
-          "\" but got \"" + name + "\".");
+          std::to_string(id) + ". Expected \"" + expected_name + "\" but got \"" + name + "\".");
     }
     const drake::Isometry3<T>& root_pose = vehicle_poses.get_pose(i);
     const PoseBundle<T> model_vis_poses = car_vis->CalcPoses(root_pose);
@@ -140,8 +130,7 @@ PoseBundle<T> CarVisApplicator<T>::MakePoseBundleOutput() const {
     // Storing the index in a member variable is OK since it's done prior to
     // the start of simulation and remains constant throughout the simulation.
     starting_indices_[id] = index;
-    const std::vector<drake::lcmt_viewer_link_data>& link_data =
-        car_vis->GetVisElements();
+    const std::vector<drake::lcmt_viewer_link_data>& link_data = car_vis->GetVisElements();
     for (const auto& data : link_data) {
       DRAKE_DEMAND(index < num_vis_poses());
       pose_bundle.set_name(index, data.name);

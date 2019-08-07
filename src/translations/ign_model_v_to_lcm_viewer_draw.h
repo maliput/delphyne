@@ -13,13 +13,11 @@ namespace delphyne {
 
 /// @brief A system that translates ignition Model_V messages to LCM viewer draw
 /// messages.
-class IgnModelVToLcmViewerDraw
-    : public IgnToDrake<ignition::msgs::Model_V, drake::lcmt_viewer_draw> {
+class IgnModelVToLcmViewerDraw : public IgnToDrake<ignition::msgs::Model_V, drake::lcmt_viewer_draw> {
  protected:
   // @brief @see IgnToDrake::DoIgnToDrakeTranslation.
-  void DoIgnToDrakeTranslation(
-      const ignition::msgs::Model_V& ign_message,
-      drake::lcmt_viewer_draw* lcm_message) const override;
+  void DoIgnToDrakeTranslation(const ignition::msgs::Model_V& ign_message,
+                               drake::lcmt_viewer_draw* lcm_message) const override;
 };
 
 }  // namespace delphyne

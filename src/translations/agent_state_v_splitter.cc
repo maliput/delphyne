@@ -16,32 +16,26 @@ namespace delphyne {
 
 template <typename T>
 AgentState_v_Splitter<T>::AgentState_v_Splitter(int num_agents) {
-  DELPHYNE_VALIDATE(num_agents > 0, std::invalid_argument,
-                    "There must be at least 1 agent.");
-  this->DeclareAbstractInputPort(
-      drake::systems::kUseDefaultName,
-      drake::Value<ignition::msgs::AgentState_V>());
+  DELPHYNE_VALIDATE(num_agents > 0, std::invalid_argument, "There must be at least 1 agent.");
+  this->DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::AgentState_V>());
 
   auto do_alloc = std::bind(&AgentState_v_Splitter<T>::DoAlloc, this);
   using std::placeholders::_1;
   using std::placeholders::_2;
   for (int i = 0; i < num_agents; ++i) {
-    auto do_split =
-        std::bind(&AgentState_v_Splitter<T>::DoSplit, this, _1, _2, i);
+    auto do_split = std::bind(&AgentState_v_Splitter<T>::DoSplit, this, _1, _2, i);
     this->DeclareAbstractOutputPort(do_alloc, do_split);
   }
 }
 
 template <typename T>
-std::unique_ptr<drake::AbstractValue>
-AgentState_v_Splitter<T>::DoAlloc() const {
+std::unique_ptr<drake::AbstractValue> AgentState_v_Splitter<T>::DoAlloc() const {
   return drake::AbstractValue::Make(state_);
 }
 
 template <typename T>
-void AgentState_v_Splitter<T>::DoSplit(
-    const drake::systems::Context<T>& context,
-    drake::AbstractValue* output, int agent_index) const {
+void AgentState_v_Splitter<T>::DoSplit(const drake::systems::Context<T>& context, drake::AbstractValue* output,
+                                       int agent_index) const {
   // Evaluates input.
   const ignition::msgs::AgentState_V* simple_car_state_v =
       this->template EvalInputValue<ignition::msgs::AgentState_V>(context, 0);

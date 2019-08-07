@@ -79,10 +79,8 @@ class RailFollowerParams final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  RailFollowerParams(const RailFollowerParams& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  RailFollowerParams(RailFollowerParams&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  RailFollowerParams(const RailFollowerParams& other) : drake::systems::BasicVector<T>(other.values()) {}
+  RailFollowerParams(RailFollowerParams&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   RailFollowerParams& operator=(const RailFollowerParams& other) {
     this->values() = other.values();
     return *this;
@@ -97,18 +95,14 @@ class RailFollowerParams final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == delphyne::Symbolic.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, Symbolic>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, Symbolic>::value>::type SetToNamedVariables() {
     this->set_r(drake::symbolic::Variable(kNames[kR]));
     this->set_h(drake::symbolic::Variable(kNames[kH]));
     this->set_max_speed(drake::symbolic::Variable(kNames[kMaxSpeed]));
-    this->set_velocity_limit_kp(
-        drake::symbolic::Variable(kNames[kVelocityLimitKp]));
+    this->set_velocity_limit_kp(drake::symbolic::Variable(kNames[kVelocityLimitKp]));
   }
 
-  RailFollowerParams<T>* DoClone() const final {
-    return new RailFollowerParams;
-  }
+  RailFollowerParams<T>* DoClone() const final { return new RailFollowerParams; }
 
   /// @name Getters and Setters
   //@{
@@ -178,14 +172,11 @@ class RailFollowerParams final : public drake::systems::BasicVector<T> {
     return this->GetAtIndex(kVelocityLimitKp);
   }
   /// Setter that matches velocity_limit_kp().
-  void set_velocity_limit_kp(const T& velocity_limit_kp) {
-    this->SetAtIndex(kVelocityLimitKp, velocity_limit_kp);
-  }
+  void set_velocity_limit_kp(const T& velocity_limit_kp) { this->SetAtIndex(kVelocityLimitKp, velocity_limit_kp); }
   /// Fluent setter that matches velocity_limit_kp().
   /// Returns a copy of `this` with velocity_limit_kp set to a new value.
   DRAKE_VECTOR_GEN_NODISCARD
-  RailFollowerParams<T> with_velocity_limit_kp(
-      const T& velocity_limit_kp) const {
+  RailFollowerParams<T> with_velocity_limit_kp(const T& velocity_limit_kp) const {
     RailFollowerParams<T> result(*this);
     result.set_max_velocity_limit_kp(velocity_limit_kp);
     return result;

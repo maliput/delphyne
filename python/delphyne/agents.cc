@@ -30,13 +30,13 @@
 namespace py = pybind11;
 
 using delphyne::Agent;
-using delphyne::RailCar;
 using delphyne::AgentBlueprint;
 using delphyne::AgentSimulation;
 using delphyne::BasicAgentBlueprint;
-using delphyne::SimpleCarBlueprint;
-using delphyne::RailCarBlueprint;
 using delphyne::MobilCarBlueprint;
+using delphyne::RailCar;
+using delphyne::RailCarBlueprint;
+using delphyne::SimpleCarBlueprint;
 using delphyne::TrajectoryAgentBlueprint;
 
 namespace {
@@ -59,39 +59,29 @@ PYBIND11_MODULE(agents, m) {
 
   py::class_<AgentBlueprint>(m, "AgentBlueprint")
       .def("get_agent",
-           [](AgentBlueprint* self, const AgentSimulation& simulation) {
-             return &self->GetAgent(simulation);
-           },
+           [](AgentBlueprint* self, const AgentSimulation& simulation) { return &self->GetAgent(simulation); },
            py::return_value_policy::reference_internal)
-      .def("get_mutable_agent", &AgentBlueprint::GetMutableAgent,
-           py::return_value_policy::reference_internal);
+      .def("get_mutable_agent", &AgentBlueprint::GetMutableAgent, py::return_value_policy::reference_internal);
 
   py::class_<SimpleCarBlueprint, AgentBlueprint>(m, "SimpleCarBlueprint")
-      .def(py::init<const std::string&, double, double, double, double>(),
-           "Construct and configure a simple car", py::arg("name"),
-           py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));
+      .def(py::init<const std::string&, double, double, double, double>(), "Construct and configure a simple car",
+           py::arg("name"), py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));
 
   py::class_<MobilCarBlueprint, AgentBlueprint>(m, "MobilCarBlueprint")
-      .def(py::init<const std::string&, bool, double, double, double, double>(),
-           "Construct and configure a mobil car", py::arg("name"),
-           py::arg("direction_of_travel"), py::arg("x"), py::arg("y"),
-           py::arg("heading"), py::arg("speed"));
+      .def(py::init<const std::string&, bool, double, double, double, double>(), "Construct and configure a mobil car",
+           py::arg("name"), py::arg("direction_of_travel"), py::arg("x"), py::arg("y"), py::arg("heading"),
+           py::arg("speed"));
 
   py::class_<RailCarBlueprint, AgentBlueprint>(m, "RailCarBlueprint")
-      .def(py::init<const std::string&, const ::maliput::api::Lane&, bool,
-                    double, double, double, double>(),
-           "Construct and configure a rail car", py::arg("name"),
-           py::arg("lane"), py::arg("direction_of_travel"),
-           py::arg("longitudinal_position"), py::arg("lateral_offset"),
-           py::arg("speed"), py::arg("nominal_speed"));
+      .def(py::init<const std::string&, const ::maliput::api::Lane&, bool, double, double, double, double>(),
+           "Construct and configure a rail car", py::arg("name"), py::arg("lane"), py::arg("direction_of_travel"),
+           py::arg("longitudinal_position"), py::arg("lateral_offset"), py::arg("speed"), py::arg("nominal_speed"));
 
-  py::class_<TrajectoryAgentBlueprint, AgentBlueprint>(
-      m, "TrajectoryAgentBlueprint")
-      .def(py::init<const std::string&, const std::vector<double>&,
-                    const std::vector<double>&,
+  py::class_<TrajectoryAgentBlueprint, AgentBlueprint>(m, "TrajectoryAgentBlueprint")
+      .def(py::init<const std::string&, const std::vector<double>&, const std::vector<double>&,
                     const std::vector<std::vector<double>>&>(),
-           "Construct and configure a trajectory agent", py::arg("name"),
-           py::arg("times"), py::arg("headings"), py::arg("translations"));
+           "Construct and configure a trajectory agent", py::arg("name"), py::arg("times"), py::arg("headings"),
+           py::arg("translations"));
 }
 
 /*****************************************************************************

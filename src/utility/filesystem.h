@@ -20,8 +20,7 @@ using DirectoryWalkFn = std::function<void(const std::string& path)>;
 ///                      or not.
 /// @throws std::runtime_error if @p dirpath does not refer to an
 ///                            existing directory.
-void WalkDirectory(const std::string& dirpath, const DirectoryWalkFn& walkfn,
-                   bool recursive);
+void WalkDirectory(const std::string& dirpath, const DirectoryWalkFn& walkfn, bool recursive);
 
 /// Checks whether the given @p path is absolute or not.
 bool IsAbsolutePath(const std::string& path);

@@ -64,10 +64,8 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  DrivingCommand(const DrivingCommand& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  DrivingCommand(DrivingCommand&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  DrivingCommand(const DrivingCommand& other) : drake::systems::BasicVector<T>(other.values()) {}
+  DrivingCommand(DrivingCommand&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   DrivingCommand& operator=(const DrivingCommand& other) {
     this->values() = other.values();
     return *this;
@@ -82,9 +80,7 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_steering_angle(drake::symbolic::Variable("steering_angle"));
     this->set_acceleration(drake::symbolic::Variable("acceleration"));
   }
@@ -96,9 +92,7 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   /// The desired steering angle of a virtual center wheel, positive results in
   /// the vehicle turning left.
   /// @note @c steering_angle is expressed in units of rad.
-  const T& steering_angle() const {
-    return this->GetAtIndex(K::kSteeringAngle);
-  }
+  const T& steering_angle() const { return this->GetAtIndex(K::kSteeringAngle); }
   void set_steering_angle(const T& steering_angle) {
     ThrowIfEmpty();
     this->SetAtIndex(K::kSteeringAngle, steering_angle);
@@ -134,9 +128,7 @@ class DrivingCommand final : public drake::systems::BasicVector<T> {
   //@}
 
   /// See DrivingCommandIndices::GetCoordinateNames().
-  static const std::vector<std::string>& GetCoordinateNames() {
-    return DrivingCommandIndices::GetCoordinateNames();
-  }
+  static const std::vector<std::string>& GetCoordinateNames() { return DrivingCommandIndices::GetCoordinateNames(); }
 
   /// Returns whether the current values of this vector are well-formed.
   drake::boolean<T> IsValid() const {

@@ -16,15 +16,14 @@ const int BicycleCarStateIndices::kSx;
 const int BicycleCarStateIndices::kSy;
 
 const std::vector<std::string>& BicycleCarStateIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(
-      std::vector<std::string>{
-          "Psi",      // BR
-          "Psi_dot",  // BR
-          "beta",     // BR
-          "vel",      // BR
-          "sx",       // BR
-          "sy",       // BR
-      });
+  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+      "Psi",      // BR
+      "Psi_dot",  // BR
+      "beta",     // BR
+      "vel",      // BR
+      "sx",       // BR
+      "sy",       // BR
+  });
   return coordinates.access();
 }
 

@@ -64,8 +64,7 @@ class MaliputRailcarState final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  MaliputRailcarState(const MaliputRailcarState& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  MaliputRailcarState(const MaliputRailcarState& other) : drake::systems::BasicVector<T>(other.values()) {}
   MaliputRailcarState(MaliputRailcarState&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   MaliputRailcarState& operator=(const MaliputRailcarState& other) {
@@ -83,16 +82,12 @@ class MaliputRailcarState final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_s(drake::symbolic::Variable("s"));
     this->set_speed(drake::symbolic::Variable("speed"));
   }
 
-  MaliputRailcarState<T>* DoClone() const final {
-    return new MaliputRailcarState;
-  }
+  MaliputRailcarState<T>* DoClone() const final { return new MaliputRailcarState; }
 
   /// @name Getters and Setters
   //@{

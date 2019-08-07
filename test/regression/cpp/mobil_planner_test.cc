@@ -12,13 +12,13 @@
 namespace delphyne {
 namespace test_p {
 
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseBundle;
+using drake::systems::rendering::PoseVector;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
 using maliput::api::RoadPosition;
 using maliput::dragway::RoadGeometry;
-using drake::systems::rendering::FrameVelocity;
-using drake::systems::rendering::PoseBundle;
-using drake::systems::rendering::PoseVector;
 
 constexpr double kEgoXPosition{10.};            // meters
 constexpr double kLaneWidth{4.};                // meters
@@ -32,10 +32,8 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
     road_.reset(new maliput::dragway::RoadGeometry(
-        maliput::api::RoadGeometryId("Test Dragway"), num_lanes,
-        100 /* length */, kLaneWidth /* lane_width */, 0. /* shoulder_width */,
-        5. /* maximum_height */,
-        std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+        maliput::api::RoadGeometryId("Test Dragway"), num_lanes, 100 /* length */, kLaneWidth /* lane_width */,
+        0. /* shoulder_width */, 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
         std::numeric_limits<double>::epsilon() /* angular_tolerance */));
     segment_ = road_->junction(0)->segment(0);
     ExtractLaneDirectionsFromDragway();
@@ -50,8 +48,7 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
   // travel.
   void InitializeMobilPlanner(bool initial_with_s) {
     DRAKE_DEMAND(road_ != nullptr);
-    dut_.reset(new MobilPlanner<double>(*road_, initial_with_s,
-                                        cache_or_search_, period_sec_));
+    dut_.reset(new MobilPlanner<double>(*road_, initial_with_s, cache_or_search_, period_sec_));
     context_ = dut_->CreateDefaultContext();
     output_ = dut_->AllocateOutput();
 
@@ -97,46 +94,39 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     // Configure the ego car pose and velocity.
     const bool with_s = initial_lane_direction.with_s;
     const double length = initial_lane_direction.lane->length();
-    const Eigen::Translation3d translation_ego(
-        with_s ? kEgoXPosition : length - kEgoXPosition,   /* x */
-        (lane_index - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
-        0.);                                               /* z */
+    const Eigen::Translation3d translation_ego(with_s ? kEgoXPosition : length - kEgoXPosition,   /* x */
+                                               (lane_index - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
+                                               0.);                                               /* z */
     ego_pose->set_translation(translation_ego);
     context_->FixInputPort(ego_pose_input_index_, std::move(ego_pose));
 
     drake::Vector6<double> velocity{};
     velocity << 0., /* ωx */ 0., /* ωy */ 0., /* ωz */
         kEgoSpeed, /* vx */ 0., /* vy */ 0.;  /* vz */
-    ego_velocity->set_velocity(
-        drake::multibody::SpatialVelocity<double>(velocity));
+    ego_velocity->set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
     context_->FixInputPort(ego_velocity_input_index_, std::move(ego_velocity));
 
     // Mock up a command acceleration for the ego car.
-    context_->FixInputPort(
-        ego_acceleration_input_index_,
-        drake::systems::BasicVector<double>::Make(kEgoAccelerationCommand));
+    context_->FixInputPort(ego_acceleration_input_index_,
+                           drake::systems::BasicVector<double>::Make(kEgoAccelerationCommand));
 
     // Configure the traffic poses and velocities, inclusive of the ego car,
     // where all cars are traveling at the same x-velocity.
     FrameVelocity<double> all_velocity;
-    all_velocity.set_velocity(
-        drake::multibody::SpatialVelocity<double>(velocity));
+    all_velocity.set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
     for (int i = 0; i < num_lanes; ++i) {
-      const Eigen::Translation3d translation(
-          translation_ego.x() + delta_positions[i], /* x */
-          (i - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
-          0.);                                      /* z */
+      const Eigen::Translation3d translation(translation_ego.x() + delta_positions[i], /* x */
+                                             (i - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
+                                             0.);                                      /* z */
       traffic_poses.set_pose(i, Eigen::Isometry3d(translation));
       traffic_poses.set_velocity(i, all_velocity);
     }
     traffic_poses.set_pose(num_lanes, Eigen::Isometry3d(translation_ego));
     traffic_poses.set_velocity(num_lanes, all_velocity);
-    context_->FixInputPort(traffic_input_index_,
-                           drake::AbstractValue::Make(traffic_poses));
+    context_->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(traffic_poses));
   }
 
-  std::unique_ptr<drake::systems::System<double>>
-      dut_;  //< The device under test.
+  std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
   std::unique_ptr<maliput::api::RoadGeometry> road_;
@@ -164,19 +154,14 @@ TEST_P(MobilPlannerTest, Topology) {
   const auto& ego_pose_input_port = dut_->get_input_port(ego_pose_input_index_);
   EXPECT_EQ(drake::systems::kVectorValued, ego_pose_input_port.get_data_type());
   EXPECT_EQ(7 /* PoseVector input */, ego_pose_input_port.size());
-  const auto& ego_velocity_input_port =
-      dut_->get_input_port(ego_velocity_input_index_);
-  EXPECT_EQ(drake::systems::kVectorValued,
-            ego_velocity_input_port.get_data_type());
+  const auto& ego_velocity_input_port = dut_->get_input_port(ego_velocity_input_index_);
+  EXPECT_EQ(drake::systems::kVectorValued, ego_velocity_input_port.get_data_type());
   EXPECT_EQ(6 /* FrameVelocity input */, ego_velocity_input_port.size());
-  const auto& ego_acceleration_input_port =
-      dut_->get_input_port(ego_acceleration_input_index_);
-  EXPECT_EQ(drake::systems::kVectorValued,
-            ego_acceleration_input_port.get_data_type());
+  const auto& ego_acceleration_input_port = dut_->get_input_port(ego_acceleration_input_index_);
+  EXPECT_EQ(drake::systems::kVectorValued, ego_acceleration_input_port.get_data_type());
   EXPECT_EQ(1 /* acceleration input */, ego_acceleration_input_port.size());
   const auto& traffic_input_port = dut_->get_input_port(traffic_input_index_);
-  EXPECT_EQ(drake::systems::kAbstractValued,
-            traffic_input_port.get_data_type());
+  EXPECT_EQ(drake::systems::kAbstractValued, traffic_input_port.get_data_type());
 
   ASSERT_EQ(1, dut_->num_output_ports());
   const auto& lane_output_port = dut_->get_output_port(lane_output_index_);
@@ -192,16 +177,13 @@ TEST_P(MobilPlannerTest, MutableParameterAccessors) {
   const auto mobil = dynamic_cast<const MobilPlanner<double>*>(dut_.get());
 
   auto& mobil_params = mobil->get_mutable_mobil_params(context_.get());
-  EXPECT_EQ(MobilPlannerParametersIndices::kNumCoordinates,
-            mobil_params.size());
-  EXPECT_TRUE(MobilPlannerParametersIndices::GetCoordinateNames() ==
-              mobil_params.GetCoordinateNames());
+  EXPECT_EQ(MobilPlannerParametersIndices::kNumCoordinates, mobil_params.size());
+  EXPECT_TRUE(MobilPlannerParametersIndices::GetCoordinateNames() == mobil_params.GetCoordinateNames());
   mobil_params[0] = 42.;
 
   auto& idm_params = mobil->get_mutable_idm_params(context_.get());
   EXPECT_EQ(IdmPlannerParametersIndices::kNumCoordinates, idm_params.size());
-  EXPECT_TRUE(IdmPlannerParametersIndices::GetCoordinateNames() ==
-              idm_params.GetCoordinateNames());
+  EXPECT_TRUE(IdmPlannerParametersIndices::GetCoordinateNames() == idm_params.GetCoordinateNames());
   idm_params[0] = 42.;
 }
 
@@ -221,20 +203,17 @@ TEST_P(MobilPlannerTest, UnrestrictedUpdate) {
     drake::systems::LeafCompositeEventCollection<double> events;
     double t = dut_->CalcNextUpdateTime(*context_, &events);
     EXPECT_EQ(t, period_sec_);
-    const drake::systems::EventCollection<
-        drake::systems::UnrestrictedUpdateEvent<double>>& e =
+    const drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<double>>& e =
         events.get_unrestricted_update_events();
     const auto& leaf_events =
-        static_cast<const drake::systems::LeafEventCollection<
-            drake::systems::UnrestrictedUpdateEvent<double>>&>(e);
+        static_cast<const drake::systems::LeafEventCollection<drake::systems::UnrestrictedUpdateEvent<double>>&>(e);
     EXPECT_EQ(leaf_events.get_events().size(), 1);
 
     drake::systems::State<double>& state = context_->get_mutable_state();
     dut_->CalcUnrestrictedUpdate(*context_, &state);
     const RoadPosition& rp = state.get_abstract_state<RoadPosition>(0);
     EXPECT_EQ(lane_directions_[0].lane->id(), rp.lane->id());
-    EXPECT_TRUE(test::CompareMatrices(LanePosition{kEgoXPosition, 0., 0.}.srh(),
-                                      rp.pos.srh()));
+    EXPECT_TRUE(test::CompareMatrices(LanePosition{kEgoXPosition, 0., 0.}.srh(), rp.pos.srh()));
   }
 }
 
@@ -247,8 +226,8 @@ TEST_P(MobilPlannerTest, IncentiveWhileTailgating) {
   // Arrange the ego car in the right lane with two traffic cars ahead, the
   // right car being closer ahead.
   SetDefaultMultiLanePoses(lane_directions_[right_lane_index_], /* ego lane */
-                           {5.,    /* right car position */
-                            40.}); /* left car position */
+                           {5.,                                 /* right car position */
+                            40.});                              /* left car position */
 
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -256,8 +235,7 @@ TEST_P(MobilPlannerTest, IncentiveWhileTailgating) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
-  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Verifies that the same results as above are obtained when `with_s = false`.
@@ -280,8 +258,7 @@ TEST_P(MobilPlannerTest, IncentiveWhileTailgatingInBackwardLane) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
-  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Tests that valid results can be obtained with no cars in the road, and that
@@ -300,8 +277,7 @@ TEST_P(MobilPlannerTest, NoCars) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the right lane to be more desirable (the left is above threshold).
-  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Tests the incentive of the ego car to keep its current lane when a car is far
@@ -313,8 +289,8 @@ TEST_P(MobilPlannerTest, IncentiveWhileNotTailgating) {
   // Arrange the ego car in the left lane with two traffic cars ahead, the right
   // car being closer ahead.
   SetDefaultMultiLanePoses(lane_directions_[left_lane_index_], /* ego lane */
-                           {5.,    /* right car position */
-                            40.}); /* left car position */
+                           {5.,                                /* right car position */
+                            40.});                             /* left car position */
 
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -322,8 +298,7 @@ TEST_P(MobilPlannerTest, IncentiveWhileNotTailgating) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
-  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Tests the politeness of the ego car to keep its current lane when a car is
@@ -335,8 +310,8 @@ TEST_P(MobilPlannerTest, PolitenessNoTailgator) {
   // Arrange the ego car in the right lane with two traffic cars behind, the
   // left car being closer behind.
   SetDefaultMultiLanePoses(lane_directions_[right_lane_index_], /* ego lane */
-                           {-40.,  /* right car position */
-                            -5.}); /* left car position */
+                           {-40.,                               /* right car position */
+                            -5.});                              /* left car position */
 
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -344,8 +319,7 @@ TEST_P(MobilPlannerTest, PolitenessNoTailgator) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the right lane to be more desirable.
-  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Tests the politeness of the ego car to change lanes in response to being
@@ -357,8 +331,8 @@ TEST_P(MobilPlannerTest, PolitenessWithTailgator) {
   // Arrange the ego car in the right lane with two traffic cars behind, the
   // right car being closer behind.
   SetDefaultMultiLanePoses(lane_directions_[right_lane_index_], /* ego lane */
-                           {-5.,    /* right car position */
-                            -40.}); /* left car position */
+                           {-5.,                                /* right car position */
+                            -40.});                             /* left car position */
 
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -366,8 +340,7 @@ TEST_P(MobilPlannerTest, PolitenessWithTailgator) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the left lane to be more desirable.
-  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 TEST_P(MobilPlannerTest, ThreeLanePolitenessTestPreferLeft) {
@@ -378,9 +351,9 @@ TEST_P(MobilPlannerTest, ThreeLanePolitenessTestPreferLeft) {
   // Arrange the ego in the middle lane with three trailing traffic cars; the
   // one behind being the closest and the leftmost car furthest behind.
   SetDefaultMultiLanePoses(lane_directions_[center_lane_index], /* ego lane */
-                           {-6.,    /* rightmost car position */
-                            -5,     /* car directly behind */
-                            -40.}); /* leftmost car position */
+                           {-6.,                                /* rightmost car position */
+                            -5,                                 /* car directly behind */
+                            -40.});                             /* leftmost car position */
 
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -388,8 +361,7 @@ TEST_P(MobilPlannerTest, ThreeLanePolitenessTestPreferLeft) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the leftmost lane to be more desirable.
-  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[left_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 TEST_P(MobilPlannerTest, ThreeLaneIncentiveTestPreferRight) {
@@ -400,9 +372,9 @@ TEST_P(MobilPlannerTest, ThreeLaneIncentiveTestPreferRight) {
   // Arrange the ego in the middle lane with three trailing traffic cars; the
   // one behind being the closest and the leftmost car furthest behind.
   SetDefaultMultiLanePoses(lane_directions_[center_lane_index], /* ego lane */
-                           {40.,  /* rightmost car position */
-                            5,    /* car directly behind */
-                            6.}); /* leftmost car position */
+                           {40.,                                /* rightmost car position */
+                            5,                                  /* car directly behind */
+                            6.});                               /* leftmost car position */
 
   // Compute the output.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -410,8 +382,7 @@ TEST_P(MobilPlannerTest, ThreeLaneIncentiveTestPreferRight) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the rightmost lane to be more desirable.
-  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Tests that MobilPlanner is failsafe to two cars side-by-side.
@@ -421,7 +392,7 @@ TEST_P(MobilPlannerTest, SideBySideCars) {
 
   // Arrange the ego car and traffic cars to have identical poses.
   SetDefaultMultiLanePoses(lane_directions_[right_lane_index_], /* ego lane */
-                           {10., 0.}); /* traffic car position */
+                           {10., 0.});                          /* traffic car position */
 
   // Expect failsafe behavior.
   const auto result = output_->GetMutableData(lane_output_index_);
@@ -429,15 +400,12 @@ TEST_P(MobilPlannerTest, SideBySideCars) {
   auto lane_direction = result->template get_mutable_value<LaneDirection>();
 
   // Expect the rightmost lane (ego car's lane) to be more desirable.
-  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(),
-            lane_direction.lane->id());
+  EXPECT_EQ(lane_directions_[right_lane_index_].lane->id(), lane_direction.lane->id());
 }
 
 // Perform all tests with cache and exhaustive search options.
-INSTANTIATE_TEST_CASE_P(
-    RoadPositionStrategy, MobilPlannerTest,
-    testing::Values(RoadPositionStrategy::kCache,
-                    RoadPositionStrategy::kExhaustiveSearch));
+INSTANTIATE_TEST_CASE_P(RoadPositionStrategy, MobilPlannerTest,
+                        testing::Values(RoadPositionStrategy::kCache, RoadPositionStrategy::kExhaustiveSearch));
 
-}  // namespace
+}  // namespace test_p
 }  // namespace delphyne

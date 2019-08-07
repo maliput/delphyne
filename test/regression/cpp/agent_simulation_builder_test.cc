@@ -11,12 +11,12 @@
 #include <string>
 #include <thread>
 
-#include <maliput/api/lane.h>
 #include <dragway/road_geometry.h>
 #include <drake/common/find_resource.h>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/diagram_context.h>
 #include <drake/systems/rendering/pose_bundle.h>
+#include <maliput/api/lane.h>
 
 #include <gtest/gtest.h>
 
@@ -62,8 +62,7 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
 // such as road_geometry->junction(0)->segment(0)->lane(0) which is used
 // frequently in the tests below exists and does not need to be checked
 // for a null pointer.
-std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
-    const std::string& name, const int& number_of_lanes) {
+std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(const std::string& name, const int& number_of_lanes) {
   return std::make_unique<const maliput::dragway::RoadGeometry>(
       maliput::api::RoadGeometryId(name), number_of_lanes,
       100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
@@ -74,13 +73,9 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
 }
 
 // Retrieves the chassis floor link from the model message.
-const ignition::msgs::Link&
-GetChassisFloorLink(const ignition::msgs::Model& message) {
-  auto it = std::find_if(
-      message.link().begin(), message.link().end(),
-      [](const ignition::msgs::Link& link) {
-        return (link.name() == "chassis_floor");
-      });
+const ignition::msgs::Link& GetChassisFloorLink(const ignition::msgs::Model& message) {
+  auto it = std::find_if(message.link().begin(), message.link().end(),
+                         [](const ignition::msgs::Link& link) { return (link.name() == "chassis_floor"); });
   DELPHYNE_DEMAND(it != message.link().end());
   return *it;
 }
@@ -91,11 +86,9 @@ void CheckModelLinks(const ignition::msgs::Model_V& message) {
   const int link_count = GetLinkCount(message);
   EXPECT_EQ(link_count, GetPriusLinkCount());
   const ignition::msgs::Model& model = message.models(0);
-  ASSERT_NE(std::find_if(
-      model.link().begin(), model.link().end(),
-      [](const ignition::msgs::Link& link) {
-        return (link.name() == "chassis_floor");
-      }), model.link().end());
+  ASSERT_NE(std::find_if(model.link().begin(), model.link().end(),
+                         [](const ignition::msgs::Link& link) { return (link.name() == "chassis_floor"); }),
+            model.link().end());
 }
 
 // Returns the x-position of the vehicle based on an ignition::msgs::Model_V.
@@ -132,28 +125,21 @@ TEST_F(AgentSimulationTest, TestGetVisualScene) {
 
   AgentSimulationBuilder builder;
   builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading,
-                                       kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   std::unique_ptr<ignition::msgs::Scene> scene = simulation->GetVisualScene();
 
-  std::map<std::string, std::pair<int, int>> expected_load{
-    {"chassis_floor", {0, 1}},
-    {"body", {0, 1}},
-    {"left_wheel", {0, 1}},
-    {"right_wheel", {0, 1}},
-    {"left_wheel_rear", {0, 1}},
-    {"right_wheel_rear", {0, 1}},
-    {"surface", {1, 1}}
-  };
+  std::map<std::string, std::pair<int, int>> expected_load{{"chassis_floor", {0, 1}},   {"body", {0, 1}},
+                                                           {"left_wheel", {0, 1}},      {"right_wheel", {0, 1}},
+                                                           {"left_wheel_rear", {0, 1}}, {"right_wheel_rear", {0, 1}},
+                                                           {"surface", {1, 1}}};
 
   for (int i = 0; i < scene->model_size(); i++) {
     auto model = scene->model(i);
     for (int k = 0; k < model.link_size(); k++) {
       auto link = model.link(k);
-      ASSERT_TRUE(expected_load.count(link.name()) > 0)
-          << "'" << link.name() << "' is not an expected link!";
+      ASSERT_TRUE(expected_load.count(link.name()) > 0) << "'" << link.name() << "' is not an expected link!";
       int robot_num, num_geometries;
       std::tie(robot_num, num_geometries) = expected_load[link.name()];
       EXPECT_EQ(link.visual_size(), num_geometries);
@@ -170,10 +156,8 @@ TEST_F(AgentSimulationTest, BasicTest) {
   constexpr double kZeroSpeed{0.0};
 
   AgentSimulationBuilder builder;
-  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading,
-                                       kZeroSpeed);
-  builder.AddAgent<SimpleCarBlueprint>("alice", kZeroX, kZeroY, kZeroHeading,
-                                       kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("alice", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   // Verifies that agents are present in the simulation.
@@ -194,8 +178,7 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCar) {
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
   builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading,
-                                       kZeroSpeed);
+  builder.AddAgent<SimpleCarBlueprint>("bob", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   // Simulate an external system sending a driving command to the car at
@@ -219,14 +202,12 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCar) {
 
   // Shortly after starting, we should not have moved much.
   const int kStateMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.do_until(
-      kStateMessagesCount, kTimeoutMs,
-      [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
+  EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
+                                   [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
-  ignition::msgs::AgentState state_message =
-      ign_monitor.get_last_message().states(0);
+  ignition::msgs::AgentState state_message = ign_monitor.get_last_message().states(0);
   EXPECT_LT(state_message.position().x(), 0.1);
 
   // Move a lot. Confirm that we're moving in +x.
@@ -256,14 +237,12 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCarInitialState) {
   test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
 
   const int kStateMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.do_until(
-      kStateMessagesCount, kTimeoutMs,
-      [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
+  EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
+                                   [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
   EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
 
-  const ignition::msgs::AgentState state_message =
-      ign_monitor.get_last_message().states(0);
+  const ignition::msgs::AgentState state_message = ign_monitor.get_last_message().states(0);
 
   // Computations of AgentState from a PoseBundle incur minimal numerical
   // precision loss. Hence, a small tolerance is allowed when comparing the
@@ -283,10 +262,8 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCarInitialState) {
   EXPECT_EQ(state_message.orientation().pitch(), 0.0);
   EXPECT_NEAR(state_message.orientation().yaw(), kHeading, kAccuracy);
 
-  EXPECT_NEAR(state_message.linear_velocity().x(), kSpeed * cos(kHeading),
-              kAccuracy);
-  EXPECT_NEAR(state_message.linear_velocity().y(), kSpeed * sin(kHeading),
-              kAccuracy);
+  EXPECT_NEAR(state_message.linear_velocity().x(), kSpeed * cos(kHeading), kAccuracy);
+  EXPECT_NEAR(state_message.linear_velocity().y(), kSpeed * sin(kHeading), kAccuracy);
   EXPECT_EQ(state_message.linear_velocity().z(), 0.0);
 
   EXPECT_EQ(state_message.angular_velocity().x(), 0.0);
@@ -298,10 +275,8 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
-  const maliput::api::RoadGeometry* road_geometry =
-      builder.SetRoadGeometry(CreateDragway("TestDragway", 2));
-  const maliput::api::Lane& first_lane =
-      *(road_geometry->junction(0)->segment(0)->lane(0));
+  const maliput::api::RoadGeometry* road_geometry = builder.SetRoadGeometry(CreateDragway("TestDragway", 2));
+  const maliput::api::Lane& first_lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 
   // Create one MOBIL car and two stopped cars arranged as follows:
   //
@@ -352,8 +327,7 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   EXPECT_EQ(GetLinkCount(draw_message), 3 * GetPriusLinkCount());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
-  const ignition::msgs::Link& link =
-      GetChassisFloorLink(draw_message.models(0));
+  const ignition::msgs::Link& link = GetChassisFloorLink(draw_message.models(0));
   EXPECT_GE(link.pose().position().y(), -2.);
 }
 
@@ -369,11 +343,9 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   std::vector<double> times{0.0, 5.0, 10.0, 15.0, 20.0};
   std::vector<double> headings(5, 0.0);
   std::vector<std::vector<double>> translations{
-      {0.0, 0.0, 0.0},  {10.0, 0.0, 0.0},  {30.0, 0.0, 0.0},
-      {60.0, 0.0, 0.0}, {100.0, 0.0, 0.0},
+      {0.0, 0.0, 0.0}, {10.0, 0.0, 0.0}, {30.0, 0.0, 0.0}, {60.0, 0.0, 0.0}, {100.0, 0.0, 0.0},
   };
-  builder.AddAgent<TrajectoryAgentBlueprint>("alice", times, headings,
-                                             translations);
+  builder.AddAgent<TrajectoryAgentBlueprint>("alice", times, headings, translations);
 
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
@@ -415,8 +387,7 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
   AgentSimulationBuilder builder;
 
   auto road_geometry = CreateDragway("TestDragway", 1);
-  const maliput::api::Lane& first_lane =
-      *(road_geometry->junction(0)->segment(0)->lane(0));
+  const maliput::api::Lane& first_lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 
   EXPECT_ARGUMENT_THROW(
       {
@@ -449,10 +420,8 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
 TEST_F(AgentSimulationTest, TestMaliputRailcar) {
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
-  const maliput::api::RoadGeometry* road_geometry =
-      builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  const maliput::api::Lane& lane =
-      *(road_geometry->junction(0)->segment(0)->lane(0));
+  const maliput::api::RoadGeometry* road_geometry = builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
+  const maliput::api::Lane& lane = *(road_geometry->junction(0)->segment(0)->lane(0));
   const double k_offset{0.5};
   builder.AddAgent<RailCarBlueprint>("railcar", lane,
                                      true,      // lane_direction,
@@ -501,8 +470,7 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
   const std::string kDrawTopicName{"visualizer/scene_update"};
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
 
-  const std::unique_ptr<const ignition::msgs::Scene> scene =
-      simulation->GetVisualScene();
+  const std::unique_ptr<const ignition::msgs::Scene> scene = simulation->GetVisualScene();
 
   int scene_link_count = 0;
   for (const ignition::msgs::Model& model : scene->model()) {
@@ -532,17 +500,13 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
 TEST_F(AgentSimulationTest, TestDuplicateVehicleNameException) {
   AgentSimulationBuilder builder;
 
-  const maliput::api::RoadGeometry* road_geometry =
-      builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
+  const maliput::api::RoadGeometry* road_geometry = builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
 
-  EXPECT_NO_THROW(
-      builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0));
-  EXPECT_RUNTIME_THROW(
-      builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0),
-      "An agent named \"Model1\" already exists.");
+  EXPECT_NO_THROW(builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0));
+  EXPECT_RUNTIME_THROW(builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0),
+                       "An agent named \"Model1\" already exists.");
 
-  const maliput::api::Lane& lane =
-      *(road_geometry->junction(0)->segment(0)->lane(0));
+  const maliput::api::Lane& lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 
   EXPECT_NO_THROW(builder.AddAgent<RailCarBlueprint>("FOO", lane,
                                                      true,   // lane_direction,
@@ -558,14 +522,13 @@ TEST_F(AgentSimulationTest, TestDuplicateVehicleNameException) {
                                                      0.0,    // speed
                                                      5.0));  // nominal_speed
 
-  EXPECT_RUNTIME_THROW(
-      builder.AddAgent<RailCarBlueprint>("alice", lane,
-                                         true,  // lane_direction,
-                                         0.0,   // position
-                                         0.0,   // offset
-                                         0.0,   // speed
-                                         5.0),  // nominal_speed
-      "An agent named \"alice\" already exists.");
+  EXPECT_RUNTIME_THROW(builder.AddAgent<RailCarBlueprint>("alice", lane,
+                                                          true,  // lane_direction,
+                                                          0.0,   // position
+                                                          0.0,   // offset
+                                                          0.0,   // speed
+                                                          5.0),  // nominal_speed
+                       "An agent named \"alice\" already exists.");
 }
 
 // Verifies that the velocity outputs of the rail cars are connected to
@@ -574,16 +537,12 @@ TEST_F(AgentSimulationTest, TestRailcarVelocityOutput) {
   AgentSimulationBuilder builder;
 
   const maliput::api::RoadGeometry* road_geometry =
-      builder.SetRoadGeometry(
-          std::make_unique<const maliput::dragway::RoadGeometry>(
-              maliput::api::RoadGeometryId("TestDragway"),
-              1 /* num lanes */, 100 /* length */, 4 /* lane width */,
-              1 /* shoulder width */, 5 /* maximum_height */,
-              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-              std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+      builder.SetRoadGeometry(std::make_unique<const maliput::dragway::RoadGeometry>(
+          maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */, 100 /* length */, 4 /* lane width */,
+          1 /* shoulder width */, 5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+          std::numeric_limits<double>::epsilon() /* angular_tolerance */));
 
-  const maliput::api::Lane& lane =
-      *(road_geometry->junction(0)->segment(0)->lane(0));
+  const maliput::api::Lane& lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 
   const double kR{0.5};
 
@@ -612,8 +571,7 @@ TEST_F(AgentSimulationTest, TestRailcarVelocityOutput) {
 
   // Verifies that the velocity within the PoseAggregator's PoseBundle output
   // is non-zero.
-  const drake::systems::rendering::PoseBundle<double> poses =
-      simulation->GetCurrentPoses();
+  const drake::systems::rendering::PoseBundle<double> poses = simulation->GetCurrentPoses();
   ASSERT_EQ(poses.get_num_poses(), 2);
 
   ASSERT_EQ(poses.get_model_instance_id(kAliceIndex), 0);
@@ -671,51 +629,38 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
 
   // Builds a two (2) lane dragway to populate the
   // simulation world with.
-  const maliput::api::RoadGeometry* road =
-      builder.SetRoadGeometry(CreateDragway("TestDragway", kNumLanes));
+  const maliput::api::RoadGeometry* road = builder.SetRoadGeometry(CreateDragway("TestDragway", kNumLanes));
 
   // Retrieves references to both lanes. Below's indirections
   // are guaranteed to be safe by Maliput's Dragway implementation.
-  const maliput::api::Lane* first_lane =
-      road->junction(0)->segment(0)->lane(0);
-  const maliput::api::Lane* second_lane =
-      road->junction(0)->segment(0)->lane(1);
+  const maliput::api::Lane* first_lane = road->junction(0)->segment(0)->lane(0);
+  const maliput::api::Lane* second_lane = road->junction(0)->segment(0)->lane(1);
 
   // Configures agent `Bob`.
-  const maliput::api::LanePosition agent_bob_lane_position{
-      kCarDistance, kZeroROffset, kZeroHOffset};
-  const maliput::api::GeoPosition agent_bob_geo_position =
-      first_lane->ToGeoPosition(agent_bob_lane_position);
-  builder.AddAgent<SimpleCarBlueprint>("bob", agent_bob_geo_position.x(),
-                                       agent_bob_geo_position.y(), kHeadingEast,
+  const maliput::api::LanePosition agent_bob_lane_position{kCarDistance, kZeroROffset, kZeroHOffset};
+  const maliput::api::GeoPosition agent_bob_geo_position = first_lane->ToGeoPosition(agent_bob_lane_position);
+  builder.AddAgent<SimpleCarBlueprint>("bob", agent_bob_geo_position.x(), agent_bob_geo_position.y(), kHeadingEast,
                                        kCruiseSpeed);
 
   // Configures agent `Alice`.
-  const maliput::api::LanePosition agent_alice_lane_position{
-      second_lane->length(), kZeroROffset, kZeroHOffset};
-  const maliput::api::GeoPosition agent_alice_geo_position =
-      second_lane->ToGeoPosition(agent_alice_lane_position);
+  const maliput::api::LanePosition agent_alice_lane_position{second_lane->length(), kZeroROffset, kZeroHOffset};
+  const maliput::api::GeoPosition agent_alice_geo_position = second_lane->ToGeoPosition(agent_alice_lane_position);
 
-  builder.AddAgent<SimpleCarBlueprint>("alice", agent_alice_geo_position.x(),
-                                       agent_alice_geo_position.y(),
+  builder.AddAgent<SimpleCarBlueprint>("alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
                                        kHeadingWest, kCruiseSpeed);
 
   // Configures agent `Smith`.
-  const maliput::api::LanePosition agent_smith_lane_position{
-      kZeroSOffset, kZeroROffset, kZeroHOffset};
-  const maliput::api::GeoPosition agent_smith_geo_position =
-      first_lane->ToGeoPosition(agent_smith_lane_position);
-  builder.AddAgent<SimpleCarBlueprint>(
-      "smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
-      kHeadingEast + kHeadingDeviation, kCruiseSpeed);
+  const maliput::api::LanePosition agent_smith_lane_position{kZeroSOffset, kZeroROffset, kZeroHOffset};
+  const maliput::api::GeoPosition agent_smith_geo_position = first_lane->ToGeoPosition(agent_smith_lane_position);
+  builder.AddAgent<SimpleCarBlueprint>("smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
+                                       kHeadingEast + kHeadingDeviation, kCruiseSpeed);
 
   // Builds the simulation.
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
-  std::vector<AgentBaseCollision<double>> agent_collisions =
-      simulation->GetCollisions();
+  std::vector<AgentBaseCollision<double>> agent_collisions = simulation->GetCollisions();
   EXPECT_EQ(agent_collisions.size(), 0);
 
   // Simulates forward in time.
@@ -730,10 +675,8 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
 
   // Cannot make any assumption regarding pair order, see
   // delphyne::Simulation::GetCollisions().
-  EXPECT_TRUE((collision.agents.first->name() == "alice" &&
-               collision.agents.second->name() == "smith") ||
-              (collision.agents.first->name() == "smith" &&
-               collision.agents.second->name() == "alice"));
+  EXPECT_TRUE((collision.agents.first->name() == "alice" && collision.agents.second->name() == "smith") ||
+              (collision.agents.first->name() == "smith" && collision.agents.second->name() == "alice"));
 }
 
 //////////////////////////////////////////////////

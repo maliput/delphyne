@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <maliput/api/lane_data.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/api/lane_data.h>
 
 #include "gen/pure_pursuit_params.h"
 #include "gen/simple_car_params.h"
@@ -50,17 +50,14 @@ class PurePursuit {
   ///
   /// @param pose is the PoseVector for the ego vehicle.
   // TODO(jadecastro): Infer the direction of travel rather than require it.
-  static T Evaluate(const PurePursuitParams<T>& pp_params,
-                    const SimpleCarParams<T>& car_params,
-                    const LaneDirection& lane_direction,
-                    const drake::systems::rendering::PoseVector<T>& pose);
+  static T Evaluate(const PurePursuitParams<T>& pp_params, const SimpleCarParams<T>& car_params,
+                    const LaneDirection& lane_direction, const drake::systems::rendering::PoseVector<T>& pose);
 
   /// Computes the goal point at a distance `s_lookahead` from the closest
   /// position on the curve in the intended direction of travel, and `with_s`
   /// and `pose` are the direction of travel and PoseVector for the ego vehicle.
-  static const maliput::api::GeoPositionT<T> ComputeGoalPoint(
-      const T& s_lookahead, const LaneDirection& lane_direction,
-      const drake::systems::rendering::PoseVector<T>& pose);
+  static const maliput::api::GeoPositionT<T> ComputeGoalPoint(const T& s_lookahead, const LaneDirection& lane_direction,
+                                                              const drake::systems::rendering::PoseVector<T>& pose);
 };
 
 }  // namespace delphyne

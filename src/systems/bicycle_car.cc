@@ -14,11 +14,8 @@
 namespace delphyne {
 
 template <typename T>
-BicycleCar<T>::BicycleCar()
-    : drake::systems::LeafSystem<T>(
-          drake::systems::SystemTypeTag<BicycleCar>{}) {
-  auto& steering_input =
-      this->DeclareInputPort(drake::systems::kVectorValued, 1);
+BicycleCar<T>::BicycleCar() : drake::systems::LeafSystem<T>(drake::systems::SystemTypeTag<BicycleCar>{}) {
+  auto& steering_input = this->DeclareInputPort(drake::systems::kVectorValued, 1);
   auto& force_input = this->DeclareInputPort(drake::systems::kVectorValued, 1);
   auto& state_output = this->DeclareVectorOutputPort(&BicycleCar::CopyOutState);
   static_assert(BicycleCarStateIndices::kPsi == 0,
@@ -27,11 +24,10 @@ BicycleCar<T>::BicycleCar()
   static_assert(BicycleCarStateIndices::kPsiDot == 1,
                 "BicycleCar requires BicycleCarStateIndices::kPsiDot to be the "
                 "1st element.");
-  this->DeclareContinuousState(
-      BicycleCarState<T>(),
-      1,                                             // num_q (Ψ)
-      1,                                             // num_v (Ψ_dot)
-      BicycleCarStateIndices::kNumCoordinates - 2);  // num_z (all but Ψ, Ψ_dot)
+  this->DeclareContinuousState(BicycleCarState<T>(),
+                               1,                                             // num_q (Ψ)
+                               1,                                             // num_v (Ψ_dot)
+                               BicycleCarStateIndices::kNumCoordinates - 2);  // num_z (all but Ψ, Ψ_dot)
   // TODO(jadecastro): Expose translational second-order structure of `sx`, `sy`
   // using `vel` as the generalized velocity (#5323).
 
@@ -50,31 +46,25 @@ template <typename T>
 BicycleCar<T>::~BicycleCar() {}
 
 template <typename T>
-const drake::systems::InputPort<T>& BicycleCar<T>::get_steering_input_port()
-    const {
+const drake::systems::InputPort<T>& BicycleCar<T>::get_steering_input_port() const {
   return drake::systems::System<T>::get_input_port(steering_input_port_);
 }
 
 template <typename T>
-const drake::systems::InputPort<T>& BicycleCar<T>::get_force_input_port()
-    const {
+const drake::systems::InputPort<T>& BicycleCar<T>::get_force_input_port() const {
   return drake::systems::System<T>::get_input_port(force_input_port_);
 }
 
 template <typename T>
-const drake::systems::OutputPort<T>& BicycleCar<T>::get_state_output_port()
-    const {
+const drake::systems::OutputPort<T>& BicycleCar<T>::get_state_output_port() const {
   return drake::systems::System<T>::get_output_port(state_output_port_);
 }
 
 template <typename T>
-void BicycleCar<T>::CopyOutState(const drake::systems::Context<T>& context,
-                                 BicycleCarState<T>* output_vector) const {
+void BicycleCar<T>::CopyOutState(const drake::systems::Context<T>& context, BicycleCarState<T>* output_vector) const {
   // Obtain the state.
-  const drake::systems::VectorBase<T>& context_state =
-      context.get_continuous_state_vector();
-  const BicycleCarState<T>* const state =
-      dynamic_cast<const BicycleCarState<T>*>(&context_state);
+  const drake::systems::VectorBase<T>& context_state = context.get_continuous_state_vector();
+  const BicycleCarState<T>* const state = dynamic_cast<const BicycleCarState<T>*>(&context_state);
   DRAKE_ASSERT(state != nullptr);
 
   output_vector->set_value(state->get_value());
@@ -82,48 +72,40 @@ void BicycleCar<T>::CopyOutState(const drake::systems::Context<T>& context,
 
 // Calculate the continuous-time derivatives.
 template <typename T>
-void BicycleCar<T>::DoCalcTimeDerivatives(
-    const drake::systems::Context<T>& context,
-    drake::systems::ContinuousState<T>* derivatives) const {
+void BicycleCar<T>::DoCalcTimeDerivatives(const drake::systems::Context<T>& context,
+                                          drake::systems::ContinuousState<T>* derivatives) const {
   // Obtain the parameters, states, inputs, and state derivatives.
   const int kParamsIndex = 0;
   const BicycleCarParameters<T>& params =
-      this->template GetNumericParameter<BicycleCarParameters>(context,
-                                                               kParamsIndex);
-  const drake::systems::VectorBase<T>& context_state =
-      context.get_continuous_state_vector();
-  const BicycleCarState<T>* const state =
-      dynamic_cast<const BicycleCarState<T>*>(&context_state);
+      this->template GetNumericParameter<BicycleCarParameters>(context, kParamsIndex);
+  const drake::systems::VectorBase<T>& context_state = context.get_continuous_state_vector();
+  const BicycleCarState<T>* const state = dynamic_cast<const BicycleCarState<T>*>(&context_state);
   DRAKE_ASSERT(state != nullptr);
 
   const drake::systems::BasicVector<T>* steering =
       this->EvalVectorInput(context, get_steering_input_port().get_index());
   DRAKE_ASSERT(steering != nullptr);
 
-  const drake::systems::BasicVector<T>* force =
-      this->EvalVectorInput(context, get_force_input_port().get_index());
+  const drake::systems::BasicVector<T>* force = this->EvalVectorInput(context, get_force_input_port().get_index());
   DRAKE_ASSERT(force != nullptr);
 
   DRAKE_ASSERT(derivatives != nullptr);
-  drake::systems::VectorBase<T>& derivative_vector =
-      derivatives->get_mutable_vector();
-  BicycleCarState<T>* const state_derivatives =
-      dynamic_cast<BicycleCarState<T>*>(&derivative_vector);
+  drake::systems::VectorBase<T>& derivative_vector = derivatives->get_mutable_vector();
+  BicycleCarState<T>* const state_derivatives = dynamic_cast<BicycleCarState<T>*>(&derivative_vector);
   DRAKE_ASSERT(state_derivatives != nullptr);
 
   ImplCalcTimeDerivatives(params, *state, *steering, *force, state_derivatives);
 }
 
 template <typename T>
-void BicycleCar<T>::ImplCalcTimeDerivatives(
-    const BicycleCarParameters<T>& params, const BicycleCarState<T>& state,
-    const drake::systems::BasicVector<T>& steering,
-    const drake::systems::BasicVector<T>& force,
-    BicycleCarState<T>* derivatives) const {
+void BicycleCar<T>::ImplCalcTimeDerivatives(const BicycleCarParameters<T>& params, const BicycleCarState<T>& state,
+                                            const drake::systems::BasicVector<T>& steering,
+                                            const drake::systems::BasicVector<T>& force,
+                                            BicycleCarState<T>* derivatives) const {
   DRAKE_DEMAND(params.IsValid());
 
-  using std::pow;
   using std::cos;
+  using std::pow;
   using std::sin;
 
   // Parse and validate the parameters.
@@ -155,11 +137,10 @@ void BicycleCar<T>::ImplCalcTimeDerivatives(
   const T torsional_damping = (Cf * pow(lf, 2.) + Cr * pow(lr, 2.)) / vel;
 
   // Compute the differential equations of motion.
-  const T Psi_ddot = torsional_stiffness / Iz * beta -
-                     torsional_damping / Iz * Psi_dot +
-                     front_torsional_stiffness / Iz * delta;
-  const T beta_dot = (torsional_stiffness / (m * pow(vel, 2.)) - 1.) * Psi_dot +
-                     Cf / (m * vel) * delta - (Cf + Cr) / (m * vel) * beta;
+  const T Psi_ddot =
+      torsional_stiffness / Iz * beta - torsional_damping / Iz * Psi_dot + front_torsional_stiffness / Iz * delta;
+  const T beta_dot =
+      (torsional_stiffness / (m * pow(vel, 2.)) - 1.) * Psi_dot + Cf / (m * vel) * delta - (Cf + Cr) / (m * vel) * beta;
   const T vel_dot = F_in / m;  // a_x in Althoff & Dolan, 2014.
   const T sx_dot = vel * cos(beta + Psi);
   const T sy_dot = vel * sin(beta + Psi);
@@ -175,5 +156,4 @@ void BicycleCar<T>::ImplCalcTimeDerivatives(
 }  // namespace delphyne
 
 // These instantiations must match the API documentation in bicycle_car.h.
-DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::delphyne::BicycleCar)
+DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(class ::delphyne::BicycleCar)

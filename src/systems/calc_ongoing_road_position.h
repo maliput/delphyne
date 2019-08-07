@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <maliput/api/lane_data.h>
-#include <maliput/api/road_geometry.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
 
 namespace delphyne {
 
@@ -26,10 +26,8 @@ namespace delphyne {
 // PoseSelector::GetSigmaVelocity() is blocking us, as it uses
 // ExtractDoubleOrThrow()).
 template <typename T>
-void CalcOngoingRoadPosition(
-    const drake::systems::rendering::PoseVector<T>& pose,
-    const drake::systems::rendering::FrameVelocity<T>& velocity,
-    const maliput::api::RoadGeometry& road,
-    maliput::api::RoadPosition* rp);
+void CalcOngoingRoadPosition(const drake::systems::rendering::PoseVector<T>& pose,
+                             const drake::systems::rendering::FrameVelocity<T>& velocity,
+                             const maliput::api::RoadGeometry& road, maliput::api::RoadPosition* rp);
 
 }  // namespace delphyne

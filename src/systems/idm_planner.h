@@ -48,8 +48,7 @@ class IdmPlanner {
   /// given the current velocity @p ego_velocity, distance to the lead car @p
   /// target_distance, and the closing velocity @p target_distance_dot.  The
   /// returned value is a longitudinal acceleration.
-  static const T Evaluate(const IdmPlannerParameters<T>& params,
-                          const T& ego_velocity, const T& target_distance,
+  static const T Evaluate(const IdmPlannerParameters<T>& params, const T& ego_velocity, const T& target_distance,
                           const T& target_distance_dot);
 };
 

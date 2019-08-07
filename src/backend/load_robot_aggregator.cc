@@ -8,15 +8,13 @@
 
 namespace delphyne {
 
-LoadRobotAggregator::LoadRobotAggregator(
-    const std::vector<drake::lcmt_viewer_load_robot>& load_robot_messages)
+LoadRobotAggregator::LoadRobotAggregator(const std::vector<drake::lcmt_viewer_load_robot>& load_robot_messages)
     : load_robot_messages_(load_robot_messages) {
   DeclareAbstractOutputPort(&LoadRobotAggregator::CalcAggregatedLoadRobot);
 }
 
-void LoadRobotAggregator::CalcAggregatedLoadRobot(
-    const drake::systems::Context<double>& context,
-    drake::lcmt_viewer_load_robot* load_robot_message) const {
+void LoadRobotAggregator::CalcAggregatedLoadRobot(const drake::systems::Context<double>& context,
+                                                  drake::lcmt_viewer_load_robot* load_robot_message) const {
   DELPHYNE_VALIDATE(load_robot_message != nullptr, std::invalid_argument,
                     "Load robot message pointer must not be null");
 

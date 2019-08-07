@@ -8,12 +8,12 @@
 
 #include <Eigen/Geometry>
 
-#include <maliput/api/lane.h>
-#include <maliput/api/lane_data.h>
-#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/road_geometry.h>
 
 #include "systems/lane_direction.h"
 #include "systems/road_odometry.h"
@@ -30,8 +30,7 @@ struct ClosestPose {
   ClosestPose() = default;
 
   /// Constructs the ClosestPose via a full parameterization.
-  ClosestPose(const RoadOdometry<T>& odom, const T& dist)
-      : odometry(odom), distance(dist) {}
+  ClosestPose(const RoadOdometry<T>& odom, const T& dist) : odometry(odom), distance(dist) {}
 
   RoadOdometry<T> odometry{};
   T distance{0.};
@@ -114,10 +113,9 @@ class TrafficPoseSelector {
   /// The RoadGeometry from which @p lane is drawn is required to have default
   /// branches set for all branches in the road network.
   static std::map<AheadOrBehind, const ClosestPose<T>> FindClosestPair(
-      const maliput::api::Lane* lane,
-      const drake::systems::rendering::PoseVector<T>& ego_pose,
-      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
-      const T& scan_distance, ScanStrategy path_or_branches);
+      const maliput::api::Lane* lane, const drake::systems::rendering::PoseVector<T>& ego_pose,
+      const drake::systems::rendering::PoseBundle<T>& traffic_poses, const T& scan_distance,
+      ScanStrategy path_or_branches);
 
   /// Same as TrafficPoseSelector::FindClosestPair() except that it returns a
   /// single ClosestPose for either the vehicle ahead (AheadOrBehind::kAhead)
@@ -132,12 +130,11 @@ class TrafficPoseSelector {
   /// Note that when no car is detected in front of the ego car, the returned
   /// RoadOdometry within ClosestPose will contain an `s`-value of
   /// `std::numeric_limits<double>::infinity()`.
-  static ClosestPose<T> FindSingleClosestPose(
-      const maliput::api::Lane* lane,
-      const drake::systems::rendering::PoseVector<T>& ego_pose,
-      const drake::systems::rendering::PoseBundle<T>& traffic_poses,
-      const T& scan_distance, const AheadOrBehind side,
-      ScanStrategy path_or_branches);
+  static ClosestPose<T> FindSingleClosestPose(const maliput::api::Lane* lane,
+                                              const drake::systems::rendering::PoseVector<T>& ego_pose,
+                                              const drake::systems::rendering::PoseBundle<T>& traffic_poses,
+                                              const T& scan_distance, const AheadOrBehind side,
+                                              ScanStrategy path_or_branches);
 
   /// Extracts the vehicle's `s`-direction velocity based on its RoadOdometry @p
   /// road_odometry in the Lane coordinate frame. Assumes the road has zero

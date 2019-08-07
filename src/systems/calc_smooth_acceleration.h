@@ -19,8 +19,7 @@ namespace delphyne {
 ///
 /// They are already available to link against in the containing library.
 template <typename T>
-T calc_smooth_acceleration(const T& desired_acceleration, const T& max_velocity,
-                           const T& velocity_limit_kp,
+T calc_smooth_acceleration(const T& desired_acceleration, const T& max_velocity, const T& velocity_limit_kp,
                            const T& current_velocity);
 
 }  // namespace delphyne

@@ -53,19 +53,15 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
 
   /// Default constructor.  Sets all rows to their default value:
   /// @arg @c s_lookahead defaults to 15.0 m.
-  PurePursuitParams() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
-    this->set_s_lookahead(10.0);
-  }
+  PurePursuitParams() : drake::systems::BasicVector<T>(K::kNumCoordinates) { this->set_s_lookahead(10.0); }
 
   // Note: It's safe to implement copy and move because this class is final.
 
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  PurePursuitParams(const PurePursuitParams& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  PurePursuitParams(PurePursuitParams&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  PurePursuitParams(const PurePursuitParams& other) : drake::systems::BasicVector<T>(other.values()) {}
+  PurePursuitParams(PurePursuitParams&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   PurePursuitParams& operator=(const PurePursuitParams& other) {
     this->values() = other.values();
     return *this;
@@ -81,9 +77,7 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_s_lookahead(drake::symbolic::Variable("s_lookahead"));
   }
 
@@ -114,9 +108,7 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
   //@}
 
   /// See PurePursuitParamsIndices::GetCoordinateNames().
-  static const std::vector<std::string>& GetCoordinateNames() {
-    return PurePursuitParamsIndices::GetCoordinateNames();
-  }
+  static const std::vector<std::string>& GetCoordinateNames() { return PurePursuitParamsIndices::GetCoordinateNames(); }
 
   /// Returns whether the current values of this vector are well-formed.
   drake::boolean<T> IsValid() const {
@@ -127,8 +119,7 @@ class PurePursuitParams final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  void GetElementBounds(Eigen::VectorXd* lower,
-                        Eigen::VectorXd* upper) const final {
+  void GetElementBounds(Eigen::VectorXd* lower, Eigen::VectorXd* upper) const final {
     const double kInf = std::numeric_limits<double>::infinity();
     *lower = Eigen::Matrix<double, 1, 1>::Constant(-kInf);
     *upper = Eigen::Matrix<double, 1, 1>::Constant(kInf);

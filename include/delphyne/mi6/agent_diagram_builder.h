@@ -50,12 +50,9 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// @brief Default constructor.
   /// @param[in] name : Convenient descriptive name for the diagram.
   explicit AgentDiagramBuilder(const std::string& name) : name_(name) {
-    traffic_poses_ =
-        this->AddSystem(std::make_unique<drake::systems::PassThrough<double>>(
-            drake::Value<
-                drake::systems::rendering::PoseBundle<double>>(0)));
-    inputs_mapping_["traffic_poses"] =
-        this->ExportInput(traffic_poses_->get_input_port());
+    traffic_poses_ = this->AddSystem(std::make_unique<drake::systems::PassThrough<double>>(
+        drake::Value<drake::systems::rendering::PoseBundle<double>>(0)));
+    inputs_mapping_["traffic_poses"] = this->ExportInput(traffic_poses_->get_input_port());
   }
 
   /// @brief Export the specified state output port.
@@ -67,10 +64,9 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// @exception @c std::runtime_error : if this method is called more
   /// than once before building.
   void ExportStateOutput(const drake::systems::OutputPort<T>& output) {
-    DELPHYNE_VALIDATE(
-        outputs_mapping_.count("state") == 0, std::runtime_error,
-        "A state output port has already been exported and this diagram "
-        "enforces that there can be only one.");
+    DELPHYNE_VALIDATE(outputs_mapping_.count("state") == 0, std::runtime_error,
+                      "A state output port has already been exported and this diagram "
+                      "enforces that there can be only one.");
     outputs_mapping_["state"] = this->ExportOutput(output);
   }
 
@@ -83,10 +79,9 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// @exception @c std::runtime_error : if this method is called more
   /// than once before building.
   void ExportPoseOutput(const drake::systems::OutputPort<T>& output) {
-    DELPHYNE_VALIDATE(
-        outputs_mapping_.count("pose") == 0, std::runtime_error,
-        "A pose output port has already been exported and this diagram "
-        "enforces that there can be only one.");
+    DELPHYNE_VALIDATE(outputs_mapping_.count("pose") == 0, std::runtime_error,
+                      "A pose output port has already been exported and this diagram "
+                      "enforces that there can be only one.");
     outputs_mapping_["pose"] = this->ExportOutput(output);
   }
 
@@ -99,10 +94,9 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// @exception @c std::runtime_error : if this method is called more
   /// than once before building.
   void ExportVelocityOutput(const drake::systems::OutputPort<T>& output) {
-    DELPHYNE_VALIDATE(
-        outputs_mapping_.count("velocity") == 0, std::runtime_error,
-        "A velocity output port has already been exported and this diagram "
-        "enforces that there can be only one.");
+    DELPHYNE_VALIDATE(outputs_mapping_.count("velocity") == 0, std::runtime_error,
+                      "A velocity output port has already been exported and this diagram "
+                      "enforces that there can be only one.");
     outputs_mapping_["velocity"] = this->ExportOutput(output);
   }
 
@@ -127,8 +121,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
     DELPHYNE_VALIDATE(outputs_mapping_.count("pose") != 0, std::runtime_error,
                       "A pose output port has not been exported (see "
                       "AgentDiagramBuilder::ExportPoseOutput)");
-    DELPHYNE_VALIDATE(outputs_mapping_.count("velocity") != 0,
-                      std::runtime_error,
+    DELPHYNE_VALIDATE(outputs_mapping_.count("velocity") != 0, std::runtime_error,
                       "A velocity output port has not been exported (see "
                       "AgentDiagramBuilder::ExportPoseOutput)");
     auto diagram = std::make_unique<DiagramBundle<T>>(this);

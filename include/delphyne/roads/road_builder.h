@@ -51,23 +51,21 @@ namespace roads {
 /// @param[in] angular_tolerance The tolerance guaranteed for angular
 /// measurements (m).
 std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
-    const std::string& name, int num_lanes, double length, double lane_width,
-    double shoulder_width, double maximum_height,
-    double linear_tolerance = std::numeric_limits<double>::epsilon(),
+    const std::string& name, int num_lanes, double length, double lane_width, double shoulder_width,
+    double maximum_height, double linear_tolerance = std::numeric_limits<double>::epsilon(),
     double angular_tolerance = std::numeric_limits<double>::epsilon());
 
 /// @brief Create a multilane from yaml source.
 ///
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const maliput::api::RoadGeometry>
-CreateMultilaneFromFile(const std::string& file_path);
+std::unique_ptr<const maliput::api::RoadGeometry> CreateMultilaneFromFile(const std::string& file_path);
 
 /// @brief Create a malidrive from xodr source.
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const maliput::api::RoadNetwork>
-CreateMalidriveFromFile(const std::string& name, const std::string& file_path);
+std::unique_ptr<const maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::string& name,
+                                                                         const std::string& file_path);
 
 /// @brief Create a multilane on-ramp.
 std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp();

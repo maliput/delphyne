@@ -22,8 +22,7 @@ class ZipTest : public test::TestWithFiles {
     initial_path_ = joinPaths(tmpdir(), "initial_stuff");
     archive_path_ = joinPaths(tmpdir(), "archive.zip");
     final_path_ = joinPaths(tmpdir(), "final_stuff");
-    const std::string path_to_nested_dir =
-        joinPaths(initial_path_, "deeply/nested/dir/");
+    const std::string path_to_nested_dir = joinPaths(initial_path_, "deeply/nested/dir/");
     ignition::common::createDirectories(path_to_nested_dir);
     std::ofstream nested_file_fs(joinPaths(path_to_nested_dir, "nested.txt"));
     nested_file_fs << "dummy content";
@@ -32,22 +31,18 @@ class ZipTest : public test::TestWithFiles {
     ignition::common::createDirectories(final_path_);
   }
 
-  bool Zip(const std::string& source_path,
-           const std::string& destination_path) {
-    const std::string command = "cd " + source_path + "; zip -r " +
-                                destination_path + " * 1>/dev/null 2>&1";
+  bool Zip(const std::string& source_path, const std::string& destination_path) {
+    const std::string command = "cd " + source_path + "; zip -r " + destination_path + " * 1>/dev/null 2>&1";
     return (std::system(command.c_str()) == 0);
   }
 
   bool Unzip(const std::string& archive_path, const std::string& extract_path) {
-    const std::string command = "unzip -o -q " + archive_path + " -d " +
-                                extract_path + " 1>/dev/null 2>&1";
+    const std::string command = "unzip -o -q " + archive_path + " -d " + extract_path + " 1>/dev/null 2>&1";
     return (std::system(command.c_str()) == 0);
   }
 
   bool Diff(const std::string& dir_a, const std::string& dir_b) {
-    const std::string command =
-        "diff -rq " + dir_a + " " + dir_b + " 1>/dev/null 2>&1";
+    const std::string command = "diff -rq " + dir_a + " " + dir_b + " 1>/dev/null 2>&1";
     return (std::system(command.c_str()) != 0);
   }
 

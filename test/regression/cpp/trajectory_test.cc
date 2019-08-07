@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <vector>
 
+#include <gtest/gtest.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-#include <gtest/gtest.h>
 
 #include <drake/math/roll_pitch_yaw.h>
 
@@ -18,10 +18,10 @@ static constexpr double kTol = 1e-12;
 static constexpr double kDeltaT = 2.;  // The expected time interval to traverse
                                        // a pair of waypoints.
 
-using Eigen::Quaternion;
-using Eigen::Vector3d;
 using drake::math::IsQuaternionValid;
 using drake::multibody::SpatialVelocity;
+using Eigen::Quaternion;
+using Eigen::Vector3d;
 using test::CompareMatrices;
 
 // Checks the defaults.
@@ -29,12 +29,9 @@ GTEST_TEST(PoseVelocityTest, Defaults) {
   const PoseVelocity actual;
 
   EXPECT_TRUE(CompareMatrices(actual.translation(), Vector3d::Zero()));
-  EXPECT_TRUE(CompareMatrices(actual.rotation().matrix(),
-                              Quaternion<double>::Identity().matrix()));
-  EXPECT_TRUE(
-      CompareMatrices(actual.velocity().rotational(), Vector3d::Zero()));
-  EXPECT_TRUE(
-      CompareMatrices(actual.velocity().translational(), Vector3d::Zero()));
+  EXPECT_TRUE(CompareMatrices(actual.rotation().matrix(), Quaternion<double>::Identity().matrix()));
+  EXPECT_TRUE(CompareMatrices(actual.velocity().rotational(), Vector3d::Zero()));
+  EXPECT_TRUE(CompareMatrices(actual.velocity().translational(), Vector3d::Zero()));
 }
 
 // Checks the accessors.
@@ -51,28 +48,19 @@ GTEST_TEST(PoseVelocityTest, Accessors) {
   const PoseVelocity actual(quaternion, translation, velocity);
 
   EXPECT_TRUE(CompareMatrices(actual.translation(), translation));
-  EXPECT_TRUE(
-      CompareMatrices(actual.rotation().matrix(), quaternion.matrix(), kTol));
+  EXPECT_TRUE(CompareMatrices(actual.rotation().matrix(), quaternion.matrix(), kTol));
   EXPECT_TRUE(CompareMatrices(actual.velocity().rotational(), w));
   EXPECT_TRUE(CompareMatrices(actual.velocity().translational(), v));
-  const Vector3d expected_pose3{translation.x(), translation.y(),
-                                rpy.yaw_angle()};
+  const Vector3d expected_pose3{translation.x(), translation.y(), rpy.yaw_angle()};
   EXPECT_TRUE(CompareMatrices(actual.pose3(), expected_pose3));
   EXPECT_EQ(actual.speed(), sqrt(pow(v(0), 2) + pow(v(1), 2) + pow(v(2), 2)));
 }
 
-void CheckAllConstructors(const std::vector<double>& times,
-                          const std::vector<Quaternion<double>>& rotations,
-                          const std::vector<Vector3d>& translations,
-                          const std::vector<double> speeds) {
-  EXPECT_THROW(Trajectory::Make(times, rotations, translations),
-               std::exception);
-  EXPECT_THROW(
-      Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds),
-      std::exception);
-  EXPECT_THROW(
-      Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds[0]),
-      std::exception);
+void CheckAllConstructors(const std::vector<double>& times, const std::vector<Quaternion<double>>& rotations,
+                          const std::vector<Vector3d>& translations, const std::vector<double> speeds) {
+  EXPECT_THROW(Trajectory::Make(times, rotations, translations), std::exception);
+  EXPECT_THROW(Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds), std::exception);
+  EXPECT_THROW(Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds[0]), std::exception);
 }
 
 // Empty or mismatched-sized vectors are rejected.
@@ -82,12 +70,10 @@ GTEST_TEST(TrajectoryTest, InvalidSizes) {
   const Vector3d dummy_translation = Vector3d::Zero();
   const std::vector<Quaternion<double>> rotations_empty{};
   const std::vector<Quaternion<double>> rotations_1d{dummy_rotation};
-  const std::vector<Quaternion<double>> rotations_3d{
-      dummy_rotation, dummy_rotation, dummy_rotation};
+  const std::vector<Quaternion<double>> rotations_3d{dummy_rotation, dummy_rotation, dummy_rotation};
   const std::vector<Vector3d> translations_empty{};
   const std::vector<Vector3d> translations_1d{dummy_translation};
-  const std::vector<Vector3d> translations_3d{
-      dummy_translation, dummy_translation, dummy_translation};
+  const std::vector<Vector3d> translations_3d{dummy_translation, dummy_translation, dummy_translation};
   const std::vector<double> speeds_3d{3., 4., 5.};
 
   CheckAllConstructors(times_3d, rotations_empty, translations_3d, speeds_3d);
@@ -104,10 +90,8 @@ GTEST_TEST(TrajectoryTest, InterpolationType) {
   const std::vector<double> times{0., 1., 2.};
   const Quaternion<double> dummy_rotation = Quaternion<double>::Identity();
   const Vector3d dummy_translation = Vector3d::Zero();
-  std::vector<Quaternion<double>> rotations{dummy_rotation, dummy_rotation,
-                                            dummy_rotation};
-  std::vector<Vector3d> translations{dummy_translation, dummy_translation,
-                                     dummy_translation};
+  std::vector<Quaternion<double>> rotations{dummy_rotation, dummy_rotation, dummy_rotation};
+  std::vector<Vector3d> translations{dummy_translation, dummy_translation, dummy_translation};
   for (const auto& type : {Type::kFirstOrderHold, Type::kCubic, Type::kPchip}) {
     EXPECT_NO_THROW(Trajectory::Make(times, rotations, translations, type));
   }
@@ -131,8 +115,7 @@ GTEST_TEST(TrajectoryTest, Trajectory) {
     rotations.back().normalize();
   }
 
-  const Trajectory trajectory =
-      Trajectory::Make(times, rotations, translations, Type::kFirstOrderHold);
+  const Trajectory trajectory = Trajectory::Make(times, rotations, translations, Type::kFirstOrderHold);
 
   for (int i{0}; i < static_cast<int>(times.size()); i++) {
     if (i < static_cast<int>(times.size()) - 1) {
@@ -148,15 +131,13 @@ GTEST_TEST(TrajectoryTest, Trajectory) {
     const PoseVelocity actual = trajectory.value(times[i]);
     EXPECT_TRUE(IsQuaternionValid(actual.rotation(), kTol));
     EXPECT_TRUE(CompareMatrices(actual.translation(), translations[i]));
-    EXPECT_TRUE(CompareMatrices(actual.rotation().matrix(),
-                                rotations[i].matrix(), kTol));
+    EXPECT_TRUE(CompareMatrices(actual.rotation().matrix(), rotations[i].matrix(), kTol));
 
     // Check that the velocities are consistent with the translational movement
     // under linear interpolation and the velocities are as expected given the
     // change in rotations between time steps.
     const Vector3d v_expected{1., 1., 1.};
-    EXPECT_TRUE(
-        CompareMatrices(actual.velocity().translational(), v_expected, kTol));
+    EXPECT_TRUE(CompareMatrices(actual.velocity().translational(), v_expected, kTol));
     EXPECT_LT(0., actual.velocity().rotational().x());
     EXPECT_LT(0., actual.velocity().rotational().y());
     EXPECT_LT(0., actual.velocity().rotational().z());
@@ -168,10 +149,8 @@ GTEST_TEST(TrajectoryTest, Trajectory) {
 // expected time increment `kDeltaT` between each waypoint.  `translations`
 // starts from x-y-z position [1., 2., 3.].  `rotations` is held constant at an
 // orientation (r-p-y) of [0., 0., 0.] unless otherwise specified.
-void MakePoses(const std::vector<double>& speeds,
-               std::vector<Quaternion<double>>* rotations,
-               std::vector<Vector3d>* translations,
-               const Vector3d& rpy = Vector3d{0., 0., 0.}) {
+void MakePoses(const std::vector<double>& speeds, std::vector<Quaternion<double>>* rotations,
+               std::vector<Vector3d>* translations, const Vector3d& rpy = Vector3d{0., 0., 0.}) {
   rotations->resize(speeds.size());
   translations->resize(speeds.size());
   double displacement = 0.;
@@ -194,11 +173,8 @@ GTEST_TEST(TrajectoryTest, NegativeSpeeds) {
   std::vector<Vector3d> translations{};
   MakePoses(speeds, &rotations, &translations);
 
-  EXPECT_THROW(
-      Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds),
-      std::exception);
-  EXPECT_THROW(Trajectory::MakeCubicFromWaypoints(rotations, translations, -1.),
-               std::exception);
+  EXPECT_THROW(Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds), std::exception);
+  EXPECT_THROW(Trajectory::MakeCubicFromWaypoints(rotations, translations, -1.), std::exception);
 }
 
 // Deadlock detection rejects unreachable waypoints.
@@ -208,14 +184,11 @@ GTEST_TEST(TrajectoryTest, UnreachableCubicWaypoints) {
   std::vector<Vector3d> translations{};
   MakePoses(speeds, &rotations, &translations);
 
-  EXPECT_THROW(
-      Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds),
-      std::exception);
+  EXPECT_THROW(Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds), std::exception);
 }
 
 struct RpyCase {
-  RpyCase(const Vector3d& rpy, const Vector3d& vel)
-      : rpy_value(rpy), expected_velocity_basis(vel) {}
+  RpyCase(const Vector3d& rpy, const Vector3d& vel) : rpy_value(rpy), expected_velocity_basis(vel) {}
   const Vector3d rpy_value{};
   const Vector3d expected_velocity_basis{};  // Basis vector for velocity in
                                              // x-y-z coordinates.
@@ -239,23 +212,18 @@ GTEST_TEST(TrajectoryTest, MakeCubicFromWaypoints) {
     std::vector<Vector3d> translations{};
     MakePoses(speeds, &rotations, &translations, rpy_case.rpy_value);
 
-    const Trajectory trajectory =
-        Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds);
+    const Trajectory trajectory = Trajectory::MakeCubicFromWaypoints(rotations, translations, speeds);
 
     double time{0.};
     for (int i{0}; i < static_cast<int>(speeds.size()); i++, time += kDeltaT) {
       // Evaluate at the expected time corresponding to the i-th waypoint.
       const PoseVelocity actual_at = trajectory.value(time);
+      EXPECT_TRUE(CompareMatrices(actual_at.translation(), translations[i], kTol));
       EXPECT_TRUE(
-          CompareMatrices(actual_at.translation(), translations[i], kTol));
-      EXPECT_TRUE(CompareMatrices(actual_at.velocity().translational(),
-                                  rpy_case.expected_velocity_basis * speeds[i],
-                                  kTol));
+          CompareMatrices(actual_at.velocity().translational(), rpy_case.expected_velocity_basis * speeds[i], kTol));
       EXPECT_NEAR(actual_at.speed(), speeds[i], kTol);
-      EXPECT_TRUE(CompareMatrices(actual_at.rotation().matrix(),
-                                  rotations[i].matrix(), kTol));
-      EXPECT_TRUE(CompareMatrices(actual_at.velocity().rotational(),
-                                  Vector3d{0., 0., 0.}, kTol));
+      EXPECT_TRUE(CompareMatrices(actual_at.rotation().matrix(), rotations[i].matrix(), kTol));
+      EXPECT_TRUE(CompareMatrices(actual_at.velocity().rotational(), Vector3d{0., 0., 0.}, kTol));
 
       if (i == static_cast<int>(speeds.size()) - 1) break;
 
@@ -263,14 +231,10 @@ GTEST_TEST(TrajectoryTest, MakeCubicFromWaypoints) {
       const PoseVelocity actual_between = trajectory.value(time + kDeltaT / 2.);
       EXPECT_GT(actual_between.translation().x(), translations[i].x());
       EXPECT_LT(actual_between.translation().x(), translations[i + 1].x());
-      EXPECT_GT(actual_between.speed(),
-                *min_element(speeds.begin(), speeds.end()));
-      EXPECT_LT(actual_between.speed(),
-                *max_element(speeds.begin(), speeds.end()));
-      EXPECT_TRUE(CompareMatrices(actual_between.rotation().matrix(),
-                                  rotations[i].matrix(), kTol));
-      EXPECT_TRUE(CompareMatrices(actual_between.velocity().rotational(),
-                                  Vector3d{0., 0., 0.}, kTol));
+      EXPECT_GT(actual_between.speed(), *min_element(speeds.begin(), speeds.end()));
+      EXPECT_LT(actual_between.speed(), *max_element(speeds.begin(), speeds.end()));
+      EXPECT_TRUE(CompareMatrices(actual_between.rotation().matrix(), rotations[i].matrix(), kTol));
+      EXPECT_TRUE(CompareMatrices(actual_between.velocity().rotational(), Vector3d{0., 0., 0.}, kTol));
     }
   }
 }
@@ -284,18 +248,15 @@ GTEST_TEST(TrajectoryTest, MakeCubicFromWaypointsWithConstantSpeed) {
   std::vector<Vector3d> translations{};
   MakePoses(speeds, &rotations, &translations);
 
-  const Trajectory trajectory =
-      Trajectory::MakeCubicFromWaypoints(rotations, translations, speed);
+  const Trajectory trajectory = Trajectory::MakeCubicFromWaypoints(rotations, translations, speed);
 
   const std::vector<double> expected_times{0., kDeltaT};
   for (int i{0}; i < static_cast<int>(expected_times.size()); i++) {
     const double time = expected_times[i];
     // Evaluate at the expected time corresponding to the i-th waypoint.
     const PoseVelocity actual_at = trajectory.value(time);
-    EXPECT_TRUE(
-        CompareMatrices(actual_at.translation(), translations[i], kTol));
-    EXPECT_TRUE(CompareMatrices(actual_at.rotation().matrix(),
-                                rotations[i].matrix(), kTol));
+    EXPECT_TRUE(CompareMatrices(actual_at.translation(), translations[i], kTol));
+    EXPECT_TRUE(CompareMatrices(actual_at.rotation().matrix(), rotations[i].matrix(), kTol));
     EXPECT_EQ(actual_at.speed(), speed);
 
     if (i == static_cast<int>(speeds.size()) - 1) break;

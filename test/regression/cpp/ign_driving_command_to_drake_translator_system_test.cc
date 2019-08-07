@@ -19,11 +19,9 @@ GTEST_TEST(IgnDrivingCommandToDrakeTranslatorSystemTest, TestTranslation) {
   ign_msg.set_acceleration(kAcceleration);
 
   const IgnDrivingCommandToDrake translator;
-  std::unique_ptr<drake::systems::Context<double>> context =
-      translator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
   const int kPortIndex{0};
-  context->FixInputPort(kPortIndex,
-                        drake::AbstractValue::Make(ign_msg));
+  context->FixInputPort(kPortIndex, drake::AbstractValue::Make(ign_msg));
 
   auto output = translator.AllocateOutput();
   translator.CalcOutput(*context, output.get());

@@ -20,11 +20,11 @@
 #include <drake/common/find_resource.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/lcm/drake_mock_lcm.h>
-#include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/math/rigid_transform.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
+#include <drake/lcmt_viewer_load_robot.hpp>
 
 #include <ignition/common/SystemPaths.hh>
 
@@ -38,8 +38,7 @@ template <typename T>
 constexpr double SimplePriusVis<T>::kVisOffset;
 
 template <typename T>
-SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
-    : CarVis<T>(id, name) {
+SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name) : CarVis<T>(id, name) {
 #ifdef HAVE_SPDLOG
   // Avoid the many & varied 'warn' level logging messages coming from drake.
   //
@@ -48,16 +47,14 @@ SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
   drake::log()->set_level(spdlog::level::err);
 #endif
   using ignition::common::SystemPaths;
-  const std::list<std::string> paths =
-      SystemPaths::PathsFromEnv("DELPHYNE_RESOURCE_ROOT");
+  const std::list<std::string> paths = SystemPaths::PathsFromEnv("DELPHYNE_RESOURCE_ROOT");
   DELPHYNE_VALIDATE(!paths.empty(), std::runtime_error,
                     "DELPHYNE_RESOURCE_ROOT environment "
                     "variable is not set");
   std::vector<std::string> resource_paths;
   resource_paths.reserve(paths.size());
   std::copy(paths.begin(), paths.end(), std::back_inserter(resource_paths));
-  const std::string sdf_path = SystemPaths::LocateLocalFile(
-      "media/prius/simple_prius.sdf", resource_paths);
+  const std::string sdf_path = SystemPaths::LocateLocalFile("media/prius/simple_prius.sdf", resource_paths);
   plant_.RegisterAsSourceForSceneGraph(&scene_graph_);
   drake::multibody::Parser parser(&plant_);
   prius_index_ = parser.AddModelFromFile(sdf_path);
@@ -74,28 +71,21 @@ SimplePriusVis<T>::SimplePriusVis(int id, const std::string& name)
 }
 
 template <typename T>
-const std::vector<drake::lcmt_viewer_link_data>&
-SimplePriusVis<T>::GetVisElements() const {
+const std::vector<drake::lcmt_viewer_link_data>& SimplePriusVis<T>::GetVisElements() const {
   return vis_elements_;
 }
 
 template <typename T>
-drake::systems::rendering::PoseBundle<T>
-SimplePriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
-  const drake::multibody::Body<T>& footprint =
-      plant_.GetBodyByName("chassis_footprint");
-  plant_.SetFreeBodyPose(
-      plant_context_.get(), footprint, drake::math::RigidTransform<T>(X_WM));
+drake::systems::rendering::PoseBundle<T> SimplePriusVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
+  const drake::multibody::Body<T>& footprint = plant_.GetBodyByName("chassis_footprint");
+  plant_.SetFreeBodyPose(plant_context_.get(), footprint, drake::math::RigidTransform<T>(X_WM));
 
   int bundle_index = 0;
-  std::vector<drake::multibody::BodyIndex> parts_indices =
-      plant_.GetBodyIndices(prius_index_);
+  std::vector<drake::multibody::BodyIndex> parts_indices = plant_.GetBodyIndices(prius_index_);
   drake::systems::rendering::PoseBundle<T> result(vis_elements_.size());
   for (const drake::lcmt_viewer_link_data& link_data : vis_elements_) {
-    const drake::multibody::Body<T>& part =
-        plant_.GetBodyByName(link_data.name);
-    const drake::Isometry3<T> X_WP =
-        plant_.EvalBodyPoseInWorld(*plant_context_, part).GetAsIsometry3();
+    const drake::multibody::Body<T>& part = plant_.GetBodyByName(link_data.name);
+    const drake::Isometry3<T> X_WP = plant_.EvalBodyPoseInWorld(*plant_context_, part).GetAsIsometry3();
     result.set_pose(bundle_index, X_WP);
     result.set_name(bundle_index, part.name());
     result.set_model_instance_id(bundle_index, this->id());

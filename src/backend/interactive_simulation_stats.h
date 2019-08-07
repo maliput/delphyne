@@ -62,8 +62,7 @@ class InteractiveSimulationStats {
   ///
   /// @param[in] start_realtime. The time the simulation started, given by the
   /// real-time clock.
-  void NewRunStartingAt(double start_simtime, double expected_realtime_rate,
-                        const TimePoint& start_realtime);
+  void NewRunStartingAt(double start_simtime, double expected_realtime_rate, const TimePoint& start_realtime);
 
   /// @brief Records that a step was executed by the simulator and records it as
   /// part of the current simulation run. Assumes that the realtime counterpart

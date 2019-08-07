@@ -33,15 +33,13 @@ class BicycleCarTest : public ::testing::Test {
 
   BicycleCarState<double>* continuous_state() {
     auto& xc = context_->get_mutable_continuous_state_vector();
-    BicycleCarState<double>* state =
-        dynamic_cast<BicycleCarState<double>*>(&xc);
+    BicycleCarState<double>* state = dynamic_cast<BicycleCarState<double>*>(&xc);
     DRAKE_DEMAND(state != nullptr);
     return state;
   }
 
   const BicycleCarState<double>* derivatives() const {
-    const auto derivatives = dynamic_cast<const BicycleCarState<double>*>(
-        &derivatives_->get_mutable_vector());
+    const auto derivatives = dynamic_cast<const BicycleCarState<double>*>(&derivatives_->get_mutable_vector());
     DRAKE_DEMAND(derivatives != nullptr);
     return derivatives;
   }
@@ -88,17 +86,11 @@ TEST_F(BicycleCarTest, Topology) {
   EXPECT_EQ(kStateDimension, state_port.size());
 }
 
-TEST_F(BicycleCarTest, ToAutoDiff) {
-  EXPECT_TRUE(is_autodiffxd_convertible(*dut_));
-}
+TEST_F(BicycleCarTest, ToAutoDiff) { EXPECT_TRUE(is_autodiffxd_convertible(*dut_)); }
 
-TEST_F(BicycleCarTest, ToSymbolic) {
-  EXPECT_TRUE(is_symbolic_convertible(*dut_));
-}
+TEST_F(BicycleCarTest, ToSymbolic) { EXPECT_TRUE(is_symbolic_convertible(*dut_)); }
 
-TEST_F(BicycleCarTest, DirectFeedthrough) {
-  EXPECT_FALSE(dut_->HasAnyDirectFeedthrough());
-}
+TEST_F(BicycleCarTest, DirectFeedthrough) { EXPECT_FALSE(dut_->HasAnyDirectFeedthrough()); }
 
 TEST_F(BicycleCarTest, Output) {
   const double kTolerance = 1e-10;
@@ -115,8 +107,7 @@ TEST_F(BicycleCarTest, Output) {
   const Vector6<double> result = output->CopyToVector();
 
   // Expect that the output matches the states, since there is no feedthrough.
-  EXPECT_TRUE(test::CompareMatrices(result, Vector6<double>::Ones(), kTolerance,
-                                    test::MatrixCompareType::absolute));
+  EXPECT_TRUE(test::CompareMatrices(result, Vector6<double>::Ones(), kTolerance, test::MatrixCompareType::absolute));
 }
 
 // Tests the consistency of the derivatives when a trivial set of states is

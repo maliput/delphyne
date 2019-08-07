@@ -73,10 +73,8 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  RailFollowerState(const RailFollowerState& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  RailFollowerState(RailFollowerState&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  RailFollowerState(const RailFollowerState& other) : drake::systems::BasicVector<T>(other.values()) {}
+  RailFollowerState(RailFollowerState&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   RailFollowerState& operator=(const RailFollowerState& other) {
     this->values() = other.values();
     return *this;
@@ -91,8 +89,7 @@ class RailFollowerState final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T ==  delphyne::Symbolic.
   template <typename U = T>
-  typename std::enable_if<std::is_same<U, Symbolic>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, Symbolic>::value>::type SetToNamedVariables() {
     this->set_s(drake::symbolic::Variable(kNames[kS]));
     this->set_speed(drake::symbolic::Variable(kNames[kSpeed]));
   }

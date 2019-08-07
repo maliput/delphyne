@@ -30,8 +30,7 @@ class SimpleCarBlueprint : public BasicAgentBlueprint {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCarBlueprint)
 
-  explicit SimpleCarBlueprint(const std::string& name, double x, double y,
-                              double heading, double speed);
+  explicit SimpleCarBlueprint(const std::string& name, double x, double y, double heading, double speed);
 
  private:
   // Container for the agent's initial configuration.
@@ -44,12 +43,10 @@ class SimpleCarBlueprint : public BasicAgentBlueprint {
     double y{0.0};        // scene y-coordinate (m)
     double heading{0.0};  // scene heading (around z-axis (radians)
     double speed{0.0};    // speed in axis defined by the heading (m/s)
-    Parameters(double x, double y, double heading, double speed)
-        : x(x), y(y), heading(heading), speed(speed) {}
+    Parameters(double x, double y, double heading, double speed) : x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
 };
 
 /*****************************************************************************

@@ -22,22 +22,14 @@ GTEST_TEST(DrakeDrivingCommandToIgnTranslatorSystemTest, TestTranslation) {
   drake_msg.set_acceleration(kAcceleration);
 
   const DrakeDrivingCommandToIgn translator;
-  std::unique_ptr<drake::systems::Context<double>> context =
-      translator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
   const int kPortIndex{0};
-  context->FixInputPort(
-      kPortIndex,
-      std::make_unique<
-          drake::Value<drake::systems::BasicVector<double>>>(
-          drake_msg));
+  context->FixInputPort(kPortIndex, std::make_unique<drake::Value<drake::systems::BasicVector<double>>>(drake_msg));
 
-  std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      translator.AllocateOutput();
+  std::unique_ptr<drake::systems::SystemOutput<double>> output = translator.AllocateOutput();
   translator.CalcOutput(*context, output.get());
 
-  const auto& ign_msg =
-      output->get_data(kPortIndex)
-          ->get_value<ignition::msgs::AutomotiveDrivingCommand>();
+  const auto& ign_msg = output->get_data(kPortIndex)->get_value<ignition::msgs::AutomotiveDrivingCommand>();
 
   EXPECT_EQ(ign_msg.theta(), kTheta);
   EXPECT_EQ(ign_msg.acceleration(), kAcceleration);

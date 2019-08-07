@@ -77,8 +77,7 @@ class BicycleCarParameters final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  BicycleCarParameters(const BicycleCarParameters& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  BicycleCarParameters(const BicycleCarParameters& other) : drake::systems::BasicVector<T>(other.values()) {}
   BicycleCarParameters(BicycleCarParameters&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   BicycleCarParameters& operator=(const BicycleCarParameters& other) {
@@ -96,9 +95,7 @@ class BicycleCarParameters final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_mass(drake::symbolic::Variable("mass"));
     this->set_lf(drake::symbolic::Variable("lf"));
     this->set_lr(drake::symbolic::Variable("lr"));
@@ -107,9 +104,7 @@ class BicycleCarParameters final : public drake::systems::BasicVector<T> {
     this->set_Cr(drake::symbolic::Variable("Cr"));
   }
 
-  BicycleCarParameters<T>* DoClone() const final {
-    return new BicycleCarParameters;
-  }
+  BicycleCarParameters<T>* DoClone() const final { return new BicycleCarParameters; }
 
   /// @name Getters and Setters
   //@{
@@ -259,8 +254,7 @@ class BicycleCarParameters final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  void GetElementBounds(Eigen::VectorXd* lower,
-                        Eigen::VectorXd* upper) const final {
+  void GetElementBounds(Eigen::VectorXd* lower, Eigen::VectorXd* upper) const final {
     const double kInf = std::numeric_limits<double>::infinity();
     *lower = Eigen::Matrix<double, 6, 1>::Constant(-kInf);
     *upper = Eigen::Matrix<double, 6, 1>::Constant(kInf);

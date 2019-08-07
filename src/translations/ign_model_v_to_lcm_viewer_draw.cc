@@ -6,9 +6,8 @@
 
 namespace delphyne {
 
-void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
-    const ignition::msgs::Model_V& ign_message,
-    drake::lcmt_viewer_draw* lcm_message) const {
+void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(const ignition::msgs::Model_V& ign_message,
+                                                       drake::lcmt_viewer_draw* lcm_message) const {
   // Clears state from the previous call.
   // @see IgnToDrake::DoIgnToDrakeTranslation
   lcm_message->link_name.clear();
@@ -19,8 +18,7 @@ void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
 
   // LCM timestamps are in milliseconds.
   const ignition::msgs::Time& ign_timestamp = ign_message.header().stamp();
-  lcm_message->timestamp =
-      SecsAndNanosToMillis(ign_timestamp.sec(), ign_timestamp.nsec());
+  lcm_message->timestamp = SecsAndNanosToMillis(ign_timestamp.sec(), ign_timestamp.nsec());
 
   // Ignition models have a hierarchical structure, where each model contains
   // its many links, whereas LCM flattens this into a single array, using the id
@@ -36,8 +34,7 @@ void IgnModelVToLcmViewerDraw::DoIgnToDrakeTranslation(
 
       const ::ignition::msgs::Pose& pose = link.pose();
       lcm_message->position.push_back(IgnPositionToVector(pose.position()));
-      lcm_message->quaternion.push_back(
-          IgnQuaternionToVector(pose.orientation()));
+      lcm_message->quaternion.push_back(IgnQuaternionToVector(pose.orientation()));
 
       lcm_message->num_links += 1;
     }

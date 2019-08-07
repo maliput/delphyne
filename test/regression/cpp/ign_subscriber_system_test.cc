@@ -29,8 +29,7 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   ignition::transport::Node node;
 
   // Ignition transport publisher.
-  ignition::transport::Node::Publisher publisher =
-      node.Advertise<ignition::msgs::Model_V>(kTopicName);
+  ignition::transport::Node::Publisher publisher = node.Advertise<ignition::msgs::Model_V>(kTopicName);
 
   // Wait for both the subscriber and publisher to be connected before doing the
   // actual publishing.
@@ -46,8 +45,7 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
   // To trigger the subscriber system's sync mechanism, we need to have it
   // trigger and process an unrestricted update event.
 
-  std::unique_ptr<drake::systems::Context<double>> context =
-      subscriber_system.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = subscriber_system.AllocateContext();
   std::unique_ptr<drake::systems::CompositeEventCollection<double>> event_info =
       subscriber_system.AllocateCompositeEventCollection();
 
@@ -58,20 +56,16 @@ GTEST_TEST(IgnSubscriberSystemTest, SubscribeTest) {
 
   // The update is performed over a temporary state, which is then copied to the
   // real context.
-  std::unique_ptr<drake::systems::State<double>> tmp_state =
-      context->CloneState();
-  subscriber_system.CalcUnrestrictedUpdate(
-      *context, event_info->get_unrestricted_update_events(), tmp_state.get());
+  std::unique_ptr<drake::systems::State<double>> tmp_state = context->CloneState();
+  subscriber_system.CalcUnrestrictedUpdate(*context, event_info->get_unrestricted_update_events(), tmp_state.get());
   context->get_mutable_state().SetFrom(*tmp_state);
 
   // Finally, the context containing the results of the update can be used to
   // calculate the system's output.
-  std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      subscriber_system.AllocateOutput();
+  std::unique_ptr<drake::systems::SystemOutput<double>> output = subscriber_system.AllocateOutput();
   subscriber_system.CalcOutput(*context, output.get());
 
-  const auto& received_message =
-      output->get_data(0)->get_value<ignition::msgs::Model_V>();
+  const auto& received_message = output->get_data(0)->get_value<ignition::msgs::Model_V>();
 
   // Verifies the received message matches the published message.
   EXPECT_TRUE(test::CheckProtobufMsgEquality(ign_message, received_message));

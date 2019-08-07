@@ -10,9 +10,9 @@
 #include <set>
 #include <string>
 
-#include <maliput/api/road_geometry.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/framework/diagram_builder.h>
+#include <maliput/api/road_geometry.h>
 
 #include "delphyne/macros.h"
 #include "delphyne/mi6/agent_base.h"
@@ -59,8 +59,7 @@ class AgentBaseBlueprint {
   ///
   /// @param name The name for the agent, must be unique in any
   ///             given simulation.
-  explicit AgentBaseBlueprint(const std::string& name)
-      : name_(name) {}
+  explicit AgentBaseBlueprint(const std::string& name) : name_(name) {}
 
   virtual ~AgentBaseBlueprint() = default;
 
@@ -69,8 +68,7 @@ class AgentBaseBlueprint {
   ///
   /// @param[in] simulation Simulation instance where the agent lives.
   /// @see AgentSimulationBase<T>::GetAgentByName()
-  virtual const AgentBase<T>& GetAgent(
-      const AgentSimulationBase<T>& simulation) const {
+  virtual const AgentBase<T>& GetAgent(const AgentSimulationBase<T>& simulation) const {
     return simulation.GetAgentByName(this->name());
   }
 
@@ -88,11 +86,9 @@ class AgentBaseBlueprint {
   /// @param builder The builder for the simulation Diagram.
   /// @returns Ownership of the agent just built.
   /// @throws std::runtime_error if builder is nullptr.
-  std::unique_ptr<AgentBase<T>> BuildInto(
-      const maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<T>* builder) {
-    DELPHYNE_VALIDATE(builder != nullptr, std::runtime_error,
-                      "Given diagram builder is null");
+  std::unique_ptr<AgentBase<T>> BuildInto(const maliput::api::RoadGeometry* road_geometry,
+                                          drake::systems::DiagramBuilder<T>* builder) {
+    DELPHYNE_VALIDATE(builder != nullptr, std::runtime_error, "Given diagram builder is null");
     return DoBuildInto(road_geometry, builder);
   }
 
@@ -100,21 +96,17 @@ class AgentBaseBlueprint {
   const std::string& name() const { return name_; }
 
   // Gets a mutable reference to the @p agent Diagram representation.
-  typename AgentBase<T>::Diagram* GetMutableDiagram(AgentBase<T>* agent) const {
-    return agent->diagram_;
-  }
+  typename AgentBase<T>::Diagram* GetMutableDiagram(AgentBase<T>* agent) const { return agent->diagram_; }
 
   // Gets a mutable reference to the @p agent geometry IDs.
-  std::set<drake::geometry::GeometryId>* GetMutableGeometryIDs(
-      AgentBase<T>* agent) const {
+  std::set<drake::geometry::GeometryId>* GetMutableGeometryIDs(AgentBase<T>* agent) const {
     return &agent->geometry_ids_;
   }
 
  private:
   // Builds the Diagram representation for the agent.
-  virtual std::unique_ptr<AgentBase<T>> DoBuildInto(
-      const maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<T>* builder) const = 0;
+  virtual std::unique_ptr<AgentBase<T>> DoBuildInto(const maliput::api::RoadGeometry* road_geometry,
+                                                    drake::systems::DiagramBuilder<T>* builder) const = 0;
 
   // The name for the agent to be built.
   std::string name_{};
@@ -130,8 +122,7 @@ class AgentBaseBlueprint {
 template <typename T, class A>
 class TypedAgentBaseBlueprint : public AgentBaseBlueprint<T> {
  public:
-  static_assert(std::is_base_of<AgentBase<T>, A>::value,
-                "Class is not an AgentBase derived class.");
+  static_assert(std::is_base_of<AgentBase<T>, A>::value, "Class is not an AgentBase derived class.");
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(TypedAgentBaseBlueprint)
 
   using AgentBaseBlueprint<T>::AgentBaseBlueprint;
@@ -147,17 +138,15 @@ class TypedAgentBaseBlueprint : public AgentBaseBlueprint<T> {
   }
 
  private:
-  std::unique_ptr<AgentBase<T>> DoBuildInto(
-      const maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<T>* builder) const final {
+  std::unique_ptr<AgentBase<T>> DoBuildInto(const maliput::api::RoadGeometry* road_geometry,
+                                            drake::systems::DiagramBuilder<T>* builder) const final {
     return DoBuildAgentInto(road_geometry, builder);
   }
 
   // DoBuildInto() variation to cope with the lack of support
   // for type covariance when dealing with smart pointers.
-  virtual std::unique_ptr<A> DoBuildAgentInto(
-      const maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<T>* builder) const = 0;
+  virtual std::unique_ptr<A> DoBuildAgentInto(const maliput::api::RoadGeometry* road_geometry,
+                                              drake::systems::DiagramBuilder<T>* builder) const = 0;
 };
 
 /// A simplified abstract and typed blueprint for agents.
@@ -172,11 +161,9 @@ class BasicTypedAgentBaseBlueprint : public TypedAgentBaseBlueprint<T, A> {
   using TypedAgentBaseBlueprint<T, A>::TypedAgentBaseBlueprint;
 
  private:
-  std::unique_ptr<A> DoBuildAgentInto(
-      const maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<T>* builder) const override {
-    return std::make_unique<A>(
-        builder->AddSystem(DoBuildDiagram(road_geometry)));
+  std::unique_ptr<A> DoBuildAgentInto(const maliput::api::RoadGeometry* road_geometry,
+                                      drake::systems::DiagramBuilder<T>* builder) const override {
+    return std::make_unique<A>(builder->AddSystem(DoBuildDiagram(road_geometry)));
   }
 
   // Builds a Diagram representation for the agent.
@@ -206,17 +193,12 @@ using SymbolicTypedAgentBlueprint = TypedAgentBaseBlueprint<Symbolic, A>;
 template <class A>
 using BasicTypedAgentBlueprint = BasicTypedAgentBaseBlueprint<double, A>;
 template <class A>
-using BasicAutoDiffTypedAgentBlueprint =
-    BasicTypedAgentBaseBlueprint<AutoDiff, A>;
+using BasicAutoDiffTypedAgentBlueprint = BasicTypedAgentBaseBlueprint<AutoDiff, A>;
 template <class A>
-using BasicSymbolicTypedAgentBlueprint =
-    BasicTypedAgentBaseBlueprint<Symbolic, A>;
+using BasicSymbolicTypedAgentBlueprint = BasicTypedAgentBaseBlueprint<Symbolic, A>;
 
-using BasicAgentBlueprint =
-    BasicTypedAgentBaseBlueprint<double, AgentBase<double>>;
-using BasicAutoDiffAgentBlueprint =
-    BasicTypedAgentBaseBlueprint<AutoDiff, AgentBase<AutoDiff>>;
-using BasicSymbolicAgentBlueprint =
-    BasicTypedAgentBaseBlueprint<Symbolic, AgentBase<Symbolic>>;
+using BasicAgentBlueprint = BasicTypedAgentBaseBlueprint<double, AgentBase<double>>;
+using BasicAutoDiffAgentBlueprint = BasicTypedAgentBaseBlueprint<AutoDiff, AgentBase<AutoDiff>>;
+using BasicSymbolicAgentBlueprint = BasicTypedAgentBaseBlueprint<Symbolic, AgentBase<Symbolic>>;
 
 }  // namespace delphyne

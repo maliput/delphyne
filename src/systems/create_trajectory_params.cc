@@ -51,8 +51,7 @@ Curve2<double> MakeCurve(double radius, double inset) {
   const int kNumCopies = 100;
   std::vector<Point2d> looped_waypoints;
   for (int copies = 0; copies < kNumCopies; ++copies) {
-    std::copy(waypoints.begin(), waypoints.end(),
-              std::back_inserter(looped_waypoints));
+    std::copy(waypoints.begin(), waypoints.end(), std::back_inserter(looped_waypoints));
   }
   looped_waypoints.push_back(waypoints.front());
 
@@ -76,18 +75,14 @@ std::tuple<Curve2<double>, double, double> CreateTrajectoryParams(int index) {
 }
 
 std::tuple<Curve2<double>, double, double> CreateTrajectoryParamsForDragway(
-    const maliput::dragway::RoadGeometry& road_geometry, int index,
-    double speed, double start_time) {
-  const maliput::api::Segment* segment =
-      road_geometry.junction(0)->segment(0);
+    const maliput::dragway::RoadGeometry& road_geometry, int index, double speed, double start_time) {
+  const maliput::api::Segment* segment = road_geometry.junction(0)->segment(0);
   DRAKE_DEMAND(index < segment->num_lanes());
   const maliput::api::Lane* lane = segment->lane(index);
   const maliput::api::GeoPosition start_geo_position =
-      lane->ToGeoPosition(
-          maliput::api::LanePosition(0 /* s */, 0 /* r */, 0 /* h */));
+      lane->ToGeoPosition(maliput::api::LanePosition(0 /* s */, 0 /* r */, 0 /* h */));
   const maliput::api::GeoPosition end_geo_position =
-      lane->ToGeoPosition(maliput::api::LanePosition(
-          lane->length() /* s */, 0 /* r */, 0 /* h */));
+      lane->ToGeoPosition(maliput::api::LanePosition(lane->length() /* s */, 0 /* r */, 0 /* h */));
   std::vector<Curve2<double>::Point2> waypoints;
   waypoints.push_back({start_geo_position.x(), start_geo_position.y()});
   waypoints.push_back({end_geo_position.x(), end_geo_position.y()});

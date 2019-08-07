@@ -77,10 +77,8 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  SimpleCarParams(const SimpleCarParams& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  SimpleCarParams(SimpleCarParams&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  SimpleCarParams(const SimpleCarParams& other) : drake::systems::BasicVector<T>(other.values()) {}
+  SimpleCarParams(SimpleCarParams&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   SimpleCarParams& operator=(const SimpleCarParams& other) {
     this->values() = other.values();
     return *this;
@@ -96,13 +94,10 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_wheelbase(drake::symbolic::Variable("wheelbase"));
     this->set_track(drake::symbolic::Variable("track"));
-    this->set_max_abs_steering_angle(
-        drake::symbolic::Variable("max_abs_steering_angle"));
+    this->set_max_abs_steering_angle(drake::symbolic::Variable("max_abs_steering_angle"));
     this->set_max_velocity(drake::symbolic::Variable("max_velocity"));
     this->set_max_acceleration(drake::symbolic::Variable("max_acceleration"));
     this->set_velocity_limit_kp(drake::symbolic::Variable("velocity_limit_kp"));
@@ -169,8 +164,7 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   /// Fluent setter that matches max_abs_steering_angle().
   /// Returns a copy of `this` with max_abs_steering_angle set to a new value.
   DRAKE_VECTOR_GEN_NODISCARD
-  SimpleCarParams<T> with_max_abs_steering_angle(
-      const T& max_abs_steering_angle) const {
+  SimpleCarParams<T> with_max_abs_steering_angle(const T& max_abs_steering_angle) const {
     SimpleCarParams<T> result(*this);
     result.set_max_abs_steering_angle(max_abs_steering_angle);
     return result;
@@ -238,9 +232,7 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
   //@}
 
   /// See SimpleCarParamsIndices::GetCoordinateNames().
-  static const std::vector<std::string>& GetCoordinateNames() {
-    return SimpleCarParamsIndices::GetCoordinateNames();
-  }
+  static const std::vector<std::string>& GetCoordinateNames() { return SimpleCarParamsIndices::GetCoordinateNames(); }
 
   /// Returns whether the current values of this vector are well-formed.
   drake::boolean<T> IsValid() const {
@@ -261,8 +253,7 @@ class SimpleCarParams final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  void GetElementBounds(Eigen::VectorXd* lower,
-                        Eigen::VectorXd* upper) const final {
+  void GetElementBounds(Eigen::VectorXd* lower, Eigen::VectorXd* upper) const final {
     const double kInf = std::numeric_limits<double>::infinity();
     *lower = Eigen::Matrix<double, 6, 1>::Constant(-kInf);
     *upper = Eigen::Matrix<double, 6, 1>::Constant(kInf);

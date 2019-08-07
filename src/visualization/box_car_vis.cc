@@ -12,11 +12,9 @@ using drake::systems::rendering::MakeGeometryData;
 using drake::systems::rendering::PoseBundle;
 
 template <typename T>
-BoxCarVis<T>::BoxCarVis(int model_instance_id, const std::string& name)
-    : CarVis<T>(model_instance_id, name) {
-  DrakeShapes::VisualElement box_vis(
-      DrakeShapes::Box(Eigen::Vector3d(1.0, 1.0, 1.0)),
-      Eigen::Isometry3d::Identity(), Eigen::Vector4d(0.7, 0.7, 0.7, 1));
+BoxCarVis<T>::BoxCarVis(int model_instance_id, const std::string& name) : CarVis<T>(model_instance_id, name) {
+  DrakeShapes::VisualElement box_vis(DrakeShapes::Box(Eigen::Vector3d(1.0, 1.0, 1.0)), Eigen::Isometry3d::Identity(),
+                                     Eigen::Vector4d(0.7, 0.7, 0.7, 1));
 
   drake::lcmt_viewer_link_data link_data;
   link_data.name = CarVis<T>::name();
@@ -29,8 +27,7 @@ BoxCarVis<T>::BoxCarVis(int model_instance_id, const std::string& name)
 }
 
 template <typename T>
-const vector<drake::lcmt_viewer_link_data>& BoxCarVis<T>::GetVisElements()
-    const {
+const vector<drake::lcmt_viewer_link_data>& BoxCarVis<T>::GetVisElements() const {
   return vis_elements_;
 }
 

@@ -12,11 +12,10 @@ const int DrivingCommandIndices::kSteeringAngle;
 const int DrivingCommandIndices::kAcceleration;
 
 const std::vector<std::string>& DrivingCommandIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(
-      std::vector<std::string>{
-          "steering_angle",  // BR
-          "acceleration",    // BR
-      });
+  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+      "steering_angle",  // BR
+      "acceleration",    // BR
+  });
   return coordinates.access();
 }
 

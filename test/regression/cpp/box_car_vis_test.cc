@@ -1,11 +1,11 @@
 #include "visualization/box_car_vis.h"
 
-#include <Eigen/Dense>
 #include <gtest/gtest.h>
+#include <Eigen/Dense>
 
-#include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <drake/lcmt_viewer_link_data.hpp>
 
 #include "test_utilities/eigen_matrix_compare.h"
 
@@ -25,8 +25,7 @@ GTEST_TEST(BoxCarVisTest, BasicTest) {
   // Instantiates the device under test (DUT).
   BoxCarVis<double> dut(kModelInstanceId, kName);
 
-  const vector<drake::lcmt_viewer_link_data>& vis_elements =
-      dut.GetVisElements();
+  const vector<drake::lcmt_viewer_link_data>& vis_elements = dut.GetVisElements();
   EXPECT_EQ(vis_elements.size(), 1u);
 
   const drake::lcmt_viewer_link_data& link_data = vis_elements.at(0);
@@ -52,9 +51,7 @@ GTEST_TEST(BoxCarVisTest, BasicTest) {
     expected_pose.rotate(Eigen::Quaterniond({0, 0, 0, -1}));
   }
   // The following tolerance was empirically determined.
-  EXPECT_TRUE(test::CompareMatrices(vis_poses.get_pose(0).matrix(),
-                                    expected_pose.matrix(),
-                                    1e-15 /* tolerance */));
+  EXPECT_TRUE(test::CompareMatrices(vis_poses.get_pose(0).matrix(), expected_pose.matrix(), 1e-15 /* tolerance */));
 
   EXPECT_EQ(vis_poses.get_model_instance_id(0), kModelInstanceId);
   EXPECT_EQ(vis_poses.get_name(0), kName);

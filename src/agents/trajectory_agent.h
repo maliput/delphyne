@@ -32,14 +32,11 @@ class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryAgentBlueprint)
 
-  TrajectoryAgentBlueprint(
-      const std::string& name, const std::vector<double>& times,
-      const std::vector<double>& headings,
-      const std::vector<std::vector<double>>& translations);
+  TrajectoryAgentBlueprint(const std::string& name, const std::vector<double>& times,
+                           const std::vector<double>& headings, const std::vector<std::vector<double>>& translations);
 
  private:
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
 
   std::unique_ptr<Trajectory> trajectory_{};
 };

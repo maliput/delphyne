@@ -10,10 +10,10 @@
 
 namespace delphyne {
 
-using drake::symbolic::Expression;
-using drake::symbolic::Environment;
-using drake::symbolic::Variable;
 using drake::Vector1d;
+using drake::symbolic::Environment;
+using drake::symbolic::Expression;
+using drake::symbolic::Variable;
 
 namespace {
 
@@ -55,9 +55,7 @@ void do_test() {
   }
 }
 
-GTEST_TEST(SmoothAccelerationFunctionTest, TestDoubleType) {
-  do_test<double>();
-}
+GTEST_TEST(SmoothAccelerationFunctionTest, TestDoubleType) { do_test<double>(); }
 
 GTEST_TEST(SmoothAccelerationFunctionTest, TestAutoDiffXType) {
   do_test<drake::AutoDiffXd>();
@@ -71,8 +69,7 @@ GTEST_TEST(SmoothAccelerationFunctionTest, TestAutoDiffXType) {
   double kDesiredAcceleration{2};
 
   drake::AutoDiffXd result = calc_smooth_acceleration(
-      drake::AutoDiffXd{kDesiredAcceleration, Vector1d(1)},
-      drake::AutoDiffXd{kMaxVelocity, Vector1d(1)},
+      drake::AutoDiffXd{kDesiredAcceleration, Vector1d(1)}, drake::AutoDiffXd{kMaxVelocity, Vector1d(1)},
       drake::AutoDiffXd{kVelocityLimitKp, Vector1d(1)},
       drake::AutoDiffXd{kMaxVelocity /* current velocity */, Vector1d(1)});
 
@@ -88,14 +85,11 @@ GTEST_TEST(SmoothAccelerationFunctionTest, TestExpressionType) {
   Variable max_velocity{"max_velocity"};
   Variable velocity_limit_kp{"velocity_limit_kp"};
 
-  auto smooth_acceleration_expression = calc_smooth_acceleration(
-      Expression{desired_acceleration}, Expression{max_velocity},
-      Expression{velocity_limit_kp}, Expression{current_velocity});
-  EXPECT_EQ(smooth_acceleration_expression.Evaluate(
-                Environment{{desired_acceleration, 10},
-                            {max_velocity, 50},
-                            {velocity_limit_kp, 4},
-                            {current_velocity, 50}}),
+  auto smooth_acceleration_expression =
+      calc_smooth_acceleration(Expression{desired_acceleration}, Expression{max_velocity},
+                               Expression{velocity_limit_kp}, Expression{current_velocity});
+  EXPECT_EQ(smooth_acceleration_expression.Evaluate(Environment{
+                {desired_acceleration, 10}, {max_velocity, 50}, {velocity_limit_kp, 4}, {current_velocity, 50}}),
             0);
 }
 

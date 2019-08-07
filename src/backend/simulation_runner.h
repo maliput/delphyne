@@ -115,8 +115,7 @@ class SimulationRunner {
 
   // @brief On agent collision callback function type.
   // @see AgentSimulation::GetCollisions()
-  using CollisionCallback =
-      std::function<void(const std::vector<AgentCollision>&)>;
+  using CollisionCallback = std::function<void(const std::vector<AgentCollision>&)>;
 
   /// @brief Default constructor.
   ///
@@ -134,8 +133,7 @@ class SimulationRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
-                   double realtime_rate, bool paused, bool log,
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step, double realtime_rate, bool paused, bool log,
                    std::string logfile_name);
 
   /// @brief Simplified constructor that runs the simulation at a real-time
@@ -151,8 +149,7 @@ class SimulationRunner {
   /// simulator in paused mode.
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
-                   bool paused, bool log);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step, bool paused, bool log);
 
   /// @brief Simplified constructor that runs the simulation at a real-time
   /// rate of 1.0.
@@ -168,8 +165,8 @@ class SimulationRunner {
   /// @param[in] log A boolean value that if true, will log messages
   /// to disk.
   /// @param[in] logfile_name A string with a custom file name for the log.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
-                   bool paused, bool log, std::string logfile_name);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step, bool paused, bool log,
+                   std::string logfile_name);
 
   /// @brief Simplified constructor that starts the simulator with
   /// _paused = false, and log = true.
@@ -182,8 +179,7 @@ class SimulationRunner {
   ///
   /// @param[in] realtime_rate. Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
-  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step,
-                   double realtime_rate);
+  SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step, double realtime_rate);
 
   /// @brief Simplified constructor that runs the simulation with
   /// _paused = false, a real-time rate of 1.0, and log = true.
@@ -285,9 +281,7 @@ class SimulationRunner {
   void DisableCollisions() { collisions_enabled_ = false; }
 
   /// @brief Returns the current simulation time in seconds.
-  double GetCurrentSimulationTime() const {
-    return drake::ExtractDoubleOrThrow(simulation_->GetCurrentTime());
-  }
+  double GetCurrentSimulationTime() const { return drake::ExtractDoubleOrThrow(simulation_->GetCurrentTime()); }
 
   /// @brief Returns a reference to the simulation being run
   const AgentSimulation& GetSimulation() const { return *simulation_; }
@@ -339,8 +333,7 @@ class SimulationRunner {
   //
   // @param[in] callback A callback function that will be executed when the
   // simulation has finished.
-  void RunInteractiveSimulationLoopFor(double duration,
-                                       std::function<void()> callback);
+  void RunInteractiveSimulationLoopFor(double duration, std::function<void()> callback);
 
   // @brief Performs a single interactive simulation loop step. This means:
   //
@@ -381,10 +374,9 @@ class SimulationRunner {
   //
   // @param[out] response The response (unused).
   // @return The result of the service.
-  bool OnSceneRequest(
-      const ignition::msgs::SceneRequest& request,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response);
+  bool OnSceneRequest(const ignition::msgs::SceneRequest& request,
+                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+                      ignition::msgs::Boolean& response);
 
   // @brief Processes one WorldControl message.
   //
@@ -397,10 +389,9 @@ class SimulationRunner {
   //
   // @param[out] response The response (unused).
   // @return The result of the service.
-  bool OnWorldControl(
-      const ignition::msgs::WorldControl& request,
-      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-      ignition::msgs::Boolean& response);
+  bool OnWorldControl(const ignition::msgs::WorldControl& request,
+                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
+                      ignition::msgs::Boolean& response);
 
   // @brief Processes all pending incoming messages.
   void ProcessIncomingMessages();

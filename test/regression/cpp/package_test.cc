@@ -90,8 +90,7 @@ TEST_F(PackageTest, AddingToBundledPackage) {
 
   package.Add(path_to_new_resource);
 
-  const ignition::common::URI resolved_uri =
-      package.Resolve(path_to_new_resource);
+  const ignition::common::URI resolved_uri = package.Resolve(path_to_new_resource);
   EXPECT_TRUE(resolved_uri.Valid());
   EXPECT_EQ(resolved_uri.Scheme(), "file");
 

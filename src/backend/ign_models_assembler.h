@@ -39,9 +39,8 @@ class IgnModelsAssembler : public drake::systems::LeafSystem<double> {
  private:
   // Calculates (i.e. assembles) an output model vector message
   // based on the input model vector and model states.
-  void CalcAssembledIgnModelVMessage(
-      const drake::systems::Context<double>& context,
-      ignition::msgs::Model_V* output_models) const;
+  void CalcAssembledIgnModelVMessage(const drake::systems::Context<double>& context,
+                                     ignition::msgs::Model_V* output_models) const;
 
   // The index of the models' abstract input port.
   int models_input_port_index_;

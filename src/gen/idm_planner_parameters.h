@@ -86,8 +86,7 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  IdmPlannerParameters(const IdmPlannerParameters& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  IdmPlannerParameters(const IdmPlannerParameters& other) : drake::systems::BasicVector<T>(other.values()) {}
   IdmPlannerParameters(IdmPlannerParameters&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   IdmPlannerParameters& operator=(const IdmPlannerParameters& other) {
@@ -105,9 +104,7 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_v_ref(drake::symbolic::Variable("v_ref"));
     this->set_a(drake::symbolic::Variable("a"));
     this->set_b(drake::symbolic::Variable("b"));
@@ -115,15 +112,11 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
     this->set_time_headway(drake::symbolic::Variable("time_headway"));
     this->set_delta(drake::symbolic::Variable("delta"));
     this->set_bloat_diameter(drake::symbolic::Variable("bloat_diameter"));
-    this->set_distance_lower_limit(
-        drake::symbolic::Variable("distance_lower_limit"));
-    this->set_scan_ahead_distance(
-        drake::symbolic::Variable("scan_ahead_distance"));
+    this->set_distance_lower_limit(drake::symbolic::Variable("distance_lower_limit"));
+    this->set_scan_ahead_distance(drake::symbolic::Variable("scan_ahead_distance"));
   }
 
-  IdmPlannerParameters<T>* DoClone() const final {
-    return new IdmPlannerParameters;
-  }
+  IdmPlannerParameters<T>* DoClone() const final { return new IdmPlannerParameters; }
 
   /// @name Getters and Setters
   //@{
@@ -284,8 +277,7 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   /// Fluent setter that matches distance_lower_limit().
   /// Returns a copy of `this` with distance_lower_limit set to a new value.
   DRAKE_VECTOR_GEN_NODISCARD
-  IdmPlannerParameters<T> with_distance_lower_limit(
-      const T& distance_lower_limit) const {
+  IdmPlannerParameters<T> with_distance_lower_limit(const T& distance_lower_limit) const {
     IdmPlannerParameters<T> result(*this);
     result.set_distance_lower_limit(distance_lower_limit);
     return result;
@@ -305,8 +297,7 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
   /// Fluent setter that matches scan_ahead_distance().
   /// Returns a copy of `this` with scan_ahead_distance set to a new value.
   DRAKE_VECTOR_GEN_NODISCARD
-  IdmPlannerParameters<T> with_scan_ahead_distance(
-      const T& scan_ahead_distance) const {
+  IdmPlannerParameters<T> with_scan_ahead_distance(const T& scan_ahead_distance) const {
     IdmPlannerParameters<T> result(*this);
     result.set_scan_ahead_distance(scan_ahead_distance);
     return result;
@@ -343,8 +334,7 @@ class IdmPlannerParameters final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  void GetElementBounds(Eigen::VectorXd* lower,
-                        Eigen::VectorXd* upper) const final {
+  void GetElementBounds(Eigen::VectorXd* lower, Eigen::VectorXd* upper) const final {
     const double kInf = std::numeric_limits<double>::infinity();
     *lower = Eigen::Matrix<double, 9, 1>::Constant(-kInf);
     *upper = Eigen::Matrix<double, 9, 1>::Constant(kInf);

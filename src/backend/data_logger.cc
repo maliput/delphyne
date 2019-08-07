@@ -76,8 +76,7 @@ std::string ResolveLogPath(const std::string& filename) {
 // at the time of the call. It's on caller behalf to avoid TOCTTOU
 // races if necessary.
 // @see ResolveLogPath
-std::pair<std::string, std::string> GenerateLogPaths(
-    const std::string& filename) {
+std::pair<std::string, std::string> GenerateLogPaths(const std::string& filename) {
   // Gets full path based on the given filename.
   const std::string logpath = ResolveLogPath(filename);
   // Splits extension from log path.
@@ -94,8 +93,7 @@ std::pair<std::string, std::string> GenerateLogPaths(
   int counter = 1;
   std::string unique_logpath = logpath;
   std::string unique_tmppath = basepath;
-  while (ignition::common::exists(unique_logpath) ||
-         ignition::common::exists(unique_tmppath)) {
+  while (ignition::common::exists(unique_logpath) || ignition::common::exists(unique_tmppath)) {
     unique_tmppath = basepath + std::to_string(counter++);
     unique_logpath = unique_tmppath + "." + extension;
   }
@@ -111,30 +109,23 @@ DataLogger::~DataLogger() {
 }
 
 void DataLogger::Sync(const ignition::transport::Clock* clock) {
-  DELPHYNE_VALIDATE(clock != nullptr, std::runtime_error,
-                    "Given clock is null.");
-  DELPHYNE_VALIDATE(!is_logging(), std::runtime_error,
-                    "Cannot synchronize logs if already running.");
+  DELPHYNE_VALIDATE(clock != nullptr, std::runtime_error, "Given clock is null.");
+  DELPHYNE_VALIDATE(!is_logging(), std::runtime_error, "Cannot synchronize logs if already running.");
   using ignition::transport::log::RecorderError;
   const RecorderError result = topic_recorder_.Sync(clock);
-  DELPHYNE_VALIDATE(result == RecorderError::SUCCESS, std::runtime_error,
-                    "Failed to synchronize topic recordings.");
+  DELPHYNE_VALIDATE(result == RecorderError::SUCCESS, std::runtime_error, "Failed to synchronize topic recordings.");
 }
 
 void DataLogger::Start(const std::string& filename) {
-  DELPHYNE_VALIDATE(!is_logging(), std::runtime_error,
-                    "Cannot start logging, already running.");
+  DELPHYNE_VALIDATE(!is_logging(), std::runtime_error, "Cannot start logging, already running.");
   std::string logpath = "";
   std::string tmppath = "";
   std::tie(logpath, tmppath) = GenerateLogPaths(filename);
-  DELPHYNE_VALIDATE(ignition::common::createDirectories(tmppath),
-                    std::runtime_error,
+  DELPHYNE_VALIDATE(ignition::common::createDirectories(tmppath), std::runtime_error,
                     "Cannot setup internal temporary directory structure");
-  DELPHYNE_VALIDATE(
-      StartTopicRecording(ignition::common::joinPaths(tmppath, "topic.db")),
-      std::runtime_error, "Could not start logging topic messages.");
-  package_ = std::make_unique<utility::BundledPackage>(
-      ignition::common::joinPaths(tmppath, "bundle"));
+  DELPHYNE_VALIDATE(StartTopicRecording(ignition::common::joinPaths(tmppath, "topic.db")), std::runtime_error,
+                    "Could not start logging topic messages.");
+  package_ = std::make_unique<utility::BundledPackage>(ignition::common::joinPaths(tmppath, "bundle"));
   tmppath_ = std::move(tmppath);
   logpath_ = std::move(logpath);
 }
@@ -150,8 +141,7 @@ namespace {
 // @tparam OutputIt Output iterator type, taking pointers to
 //                  google::protobuf::Message instances.
 template <typename OutputIt>
-void find_proto_messages(const google::protobuf::Message& msg,
-                         const google::protobuf::Descriptor* type,
+void find_proto_messages(const google::protobuf::Message& msg, const google::protobuf::Descriptor* type,
                          OutputIt output) {
   using google::protobuf::Descriptor;
   using google::protobuf::FieldDescriptor;
@@ -169,13 +159,11 @@ void find_proto_messages(const google::protobuf::Message& msg,
     if (field_descriptor->type() == FieldDescriptor::TYPE_MESSAGE) {
       if (field_descriptor->is_repeated()) {
         for (int i = 0; i < reflection->FieldSize(msg, field_descriptor); ++i) {
-          const Message& field_msg =
-              reflection->GetRepeatedMessage(msg, field_descriptor, i);
+          const Message& field_msg = reflection->GetRepeatedMessage(msg, field_descriptor, i);
           find_proto_messages(field_msg, type, output);
         }
       } else {
-        const Message& field_msg =
-            reflection->GetMessage(msg, field_descriptor);
+        const Message& field_msg = reflection->GetMessage(msg, field_descriptor);
         find_proto_messages(field_msg, type, output);
       }
     }
@@ -193,22 +181,19 @@ void find_proto_messages(const google::protobuf::Message& msg,
 // @tparam OutputIt Output iterator type, taking pointers to
 //                  MsgType instances.
 template <typename MsgType, typename OutputIt>
-void find_proto_messages(const google::protobuf::Message& msg,
-                         OutputIt output) {
+void find_proto_messages(const google::protobuf::Message& msg, OutputIt output) {
   static_assert(std::is_base_of<google::protobuf::Message, MsgType>::value,
                 "Given message type is no protobuf message.");
 
   const MsgType witness_msg;
-  const google::protobuf::Descriptor* message_type =
-      witness_msg.GetDescriptor();
+  const google::protobuf::Descriptor* message_type = witness_msg.GetDescriptor();
   std::vector<const google::protobuf::Message*> messages;
   find_proto_messages(msg, message_type, std::back_inserter(messages));
-  std::transform(messages.begin(), messages.end(), output,
-                 [](const google::protobuf::Message* msg) {
-                   const MsgType* typed_msg = dynamic_cast<const MsgType*>(msg);
-                   DELPHYNE_DEMAND(typed_msg != nullptr);
-                   return typed_msg;
-                 });
+  std::transform(messages.begin(), messages.end(), output, [](const google::protobuf::Message* msg) {
+    const MsgType* typed_msg = dynamic_cast<const MsgType*>(msg);
+    DELPHYNE_DEMAND(typed_msg != nullptr);
+    return typed_msg;
+  });
 }
 
 }  // namespace
@@ -235,12 +220,10 @@ bool DataLogger::StartTopicRecording(const std::string& logpath) {
 void DataLogger::StopTopicRecording() { topic_recorder_.Stop(); }
 
 void DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
-  DELPHYNE_VALIDATE(is_logging(), std::runtime_error,
-                    "Cannot capture meshes if not logging.");
+  DELPHYNE_VALIDATE(is_logging(), std::runtime_error, "Cannot capture meshes if not logging.");
   // Look up all meshes in the scene.
   std::vector<const ignition::msgs::MeshGeom*> mesh_msgs{};
-  find_proto_messages<ignition::msgs::MeshGeom>(scene_msg,
-                                                std::back_inserter(mesh_msgs));
+  find_proto_messages<ignition::msgs::MeshGeom>(scene_msg, std::back_inserter(mesh_msgs));
   // Logs all meshes.
   for (const ignition::msgs::MeshGeom* msg : mesh_msgs) {
     if (!msg->has_filename()) {
@@ -257,8 +240,7 @@ void DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
 }
 
 void DataLogger::Stop() {
-  DELPHYNE_VALIDATE(is_logging(), std::runtime_error,
-                    "Cannot stop if not logging.");
+  DELPHYNE_VALIDATE(is_logging(), std::runtime_error, "Cannot stop if not logging.");
   StopTopicRecording();
   package_.reset();
   ZipDirectory(tmppath_, logpath_);

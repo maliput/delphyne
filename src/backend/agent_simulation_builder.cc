@@ -17,8 +17,8 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/primitives/constant_vector_source.h>
-#include <maliput/api/road_geometry.h>
 #include <maliput-utilities/generate_obj.h>
+#include <maliput/api/road_geometry.h>
 
 #include "backend/geometry_utilities.h"
 #include "backend/ign_models_assembler.h"
@@ -34,11 +34,11 @@
 
 namespace delphyne {
 
-using maliput::api::RoadGeometry;
 using drake::AbstractValue;
-using drake::systems::rendering::PoseBundle;
 using drake::systems::RungeKutta2Integrator;
 using drake::systems::SystemOutput;
+using drake::systems::rendering::PoseBundle;
+using maliput::api::RoadGeometry;
 
 template <typename T>
 constexpr double AgentSimulationBaseBuilder<T>::kSceneTreePublishRateHz;
@@ -53,8 +53,7 @@ template <typename T>
 constexpr const char* AgentSimulationBaseBuilder<T>::kSceneUpdatesTopicName;
 
 template <typename T>
-constexpr const char*
-    AgentSimulationBaseBuilder<T>::kAggregatedAgentsStateTopicName;
+constexpr const char* AgentSimulationBaseBuilder<T>::kAggregatedAgentsStateTopicName;
 
 template <typename T>
 AgentSimulationBaseBuilder<T>::AgentSimulationBaseBuilder() {
@@ -83,17 +82,14 @@ void AgentSimulationBaseBuilder<T>::Reset() {
   agent_id_sequence_ = 0;
 
   // Adds pose aggregator system for agents' poses.
-  aggregator_ =
-      builder_
-          ->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();
+  aggregator_ = builder_->template AddSystem<drake::systems::rendering::PoseAggregator<T>>();
   aggregator_->set_name("pose_aggregator");
   builder_->ExportOutput(aggregator_->get_output_port(0));
 
   // Adds agents' visuals applicator system.
   car_vis_applicator_ = builder_->template AddSystem<CarVisApplicator<T>>();
   car_vis_applicator_->set_name("car_vis_applicator");
-  builder_->Connect(aggregator_->get_output_port(0),
-                    car_vis_applicator_->get_car_poses_input_port());
+  builder_->Connect(aggregator_->get_output_port(0), car_vis_applicator_->get_car_poses_input_port());
 
   // Adds scene graph system for agents' collision geometries.
   scene_graph_ = builder_->template AddSystem<drake::geometry::SceneGraph<T>>();
@@ -104,30 +100,23 @@ void AgentSimulationBaseBuilder<T>::Reset() {
 // ensues otherwise. There seems to be a (very) subtle issue when linking the
 // template class that keeps the atomic sequence of FrameIds.
 template <typename T>
-void AgentSimulationBaseBuilder<T>::DoAddAgent(
-    AgentBaseBlueprint<T>* blueprint) {
+void AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
   const maliput::api::RoadGeometry* road_geometry =
-      road_network_ != nullptr ?
-      road_network_->road_geometry() : road_geometry_.get();
-  std::unique_ptr<AgentBase<T>> agent =
-      blueprint->BuildInto(road_geometry, builder_.get());
+      road_network_ != nullptr ? road_network_->road_geometry() : road_geometry_.get();
+  std::unique_ptr<AgentBase<T>> agent = blueprint->BuildInto(road_geometry, builder_.get());
   const int agent_id = agent_id_sequence_++;
   const std::string& agent_name = agent->name();
   DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
                     "An agent named \"" + agent_name + "\" already exists.");
 
   // Wires up the agent's ports.
-  typename AgentBase<T>::Diagram* agent_diagram =
-      blueprint->GetMutableDiagram(agent.get());
+  typename AgentBase<T>::Diagram* agent_diagram = blueprint->GetMutableDiagram(agent.get());
   drake::systems::rendering::PoseVelocityInputPorts<double> ports =
       aggregator_->AddSinglePoseAndVelocityInput(agent_name, agent_id);
-  builder_->Connect(agent_diagram->get_output_port("pose"),
-                    ports.pose_input_port);
-  builder_->Connect(agent_diagram->get_output_port("velocity"),
-                    ports.velocity_input_port);
-  builder_->Connect(aggregator_->get_output_port(0),
-                    agent_diagram->get_input_port("traffic_poses"));
+  builder_->Connect(agent_diagram->get_output_port("pose"), ports.pose_input_port);
+  builder_->Connect(agent_diagram->get_output_port("velocity"), ports.velocity_input_port);
+  builder_->Connect(aggregator_->get_output_port(0), agent_diagram->get_input_port("traffic_poses"));
 
   // Registers and wires up a Prius geometry for both visuals and collision
   // geometries.
@@ -135,13 +124,11 @@ void AgentSimulationBaseBuilder<T>::DoAddAgent(
   // TODO(daniel.stonier) this just enforces ... 'everything is a Prius'.
   // We'll need a means of having the agents report what visual they have and
   // hooking that up. Also wondering why visuals are in the drake diagram?
-  car_vis_applicator_->AddCarVis(
-      std::make_unique<SimplePriusVis<T>>(agent_id, agent_name));
+  car_vis_applicator_->AddCarVis(std::make_unique<SimplePriusVis<T>>(agent_id, agent_name));
 
   builder_->Connect(
       agent_diagram->get_output_port("pose"),
-      WirePriusGeometry(agent_name, builder_.get(), scene_graph_,
-                        blueprint->GetMutableGeometryIDs(agent.get())));
+      WirePriusGeometry(agent_name, builder_.get(), scene_graph_, blueprint->GetMutableGeometryIDs(agent.get())));
 
   agents_[agent_name] = std::move(agent);
 }
@@ -169,17 +156,14 @@ maliput::utility::ObjFeatures GetDefaultFeatures() {
 }  // namespace
 
 template <typename T>
-const maliput::api::RoadGeometry*
-AgentSimulationBaseBuilder<T>::SetRoadGeometry(
+const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::SetRoadGeometry(
     std::unique_ptr<const maliput::api::RoadGeometry> road_geometry) {
   return SetRoadGeometry(std::move(road_geometry), GetDefaultFeatures());
 }
 
 template <typename T>
-const maliput::api::RoadGeometry*
-AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
-    const maliput::utility::ObjFeatures& features) {
+const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::SetRoadGeometry(
+    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry, const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_geometry != nullptr);
   DELPHYNE_DEMAND(road_network_ == nullptr);
   road_geometry_ = std::move(road_geometry);
@@ -187,18 +171,15 @@ AgentSimulationBaseBuilder<T>::SetRoadGeometry(
   return road_geometry_.get();
 }
 
-template<typename T>
-const maliput::api::RoadNetwork*
-AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+template <typename T>
+const maliput::api::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
     std::unique_ptr<const maliput::api::RoadNetwork> road_network) {
   return SetRoadNetwork(std::move(road_network), GetDefaultFeatures());
 }
 
-template<typename T>
-const maliput::api::RoadNetwork*
-AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<const maliput::api::RoadNetwork> road_network,
-    const maliput::utility::ObjFeatures& features) {
+template <typename T>
+const maliput::api::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+    std::unique_ptr<const maliput::api::RoadNetwork> road_network, const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_network != nullptr);
   DELPHYNE_DEMAND(road_geometry_ == nullptr);
   road_network_ = std::move(road_network);
@@ -211,24 +192,19 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // Adds a translation system that takes the output of a CarVisApplicator
   // and creates an lcmt_viewer_draw message containing the latest poses of
   // the visual elements.
-  auto bundle_to_draw = builder_->template AddSystem<
-      drake::systems::rendering::PoseBundleToDrawMessage>();
+  auto bundle_to_draw = builder_->template AddSystem<drake::systems::rendering::PoseBundleToDrawMessage>();
   bundle_to_draw->set_name("bundle_to_draw");
 
   // The bundle of poses are translated into an LCM viewer draw message.
-  builder_->Connect(
-      car_vis_applicator_->get_visual_geometry_poses_output_port(),
-      bundle_to_draw->get_input_port(0));
+  builder_->Connect(car_vis_applicator_->get_visual_geometry_poses_output_port(), bundle_to_draw->get_input_port(0));
 
   // The LCM viewer draw message is translated into an ignition Model_V message.
-  auto viewer_draw_translator =
-      builder_->template AddSystem<LcmViewerDrawToIgnModelV>();
+  auto viewer_draw_translator = builder_->template AddSystem<LcmViewerDrawToIgnModelV>();
   builder_->Connect(*bundle_to_draw, *viewer_draw_translator);
 
   // The translated Model_V message is then published.
-  auto model_v_publisher =
-      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
-          kSceneUpdatesTopicName, kSceneUpdatesPublishRateHz);
+  auto model_v_publisher = builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Model_V>>(
+      kSceneUpdatesTopicName, kSceneUpdatesPublishRateHz);
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
@@ -238,52 +214,42 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
 
   // The geometry description is retrieved from multiple sources as LCM viewer
   // load robot messages, so those need to be aggregated.
-  std::vector<drake::lcmt_viewer_load_robot> messages{
-    car_vis_applicator_->get_load_robot_message()};
+  std::vector<drake::lcmt_viewer_load_robot> messages{car_vis_applicator_->get_load_robot_message()};
   const maliput::api::RoadGeometry* road_geometry =
-      road_network_ != nullptr ?
-      road_network_->road_geometry() : road_geometry_.get();
+      road_network_ != nullptr ? road_network_->road_geometry() : road_geometry_.get();
   if (road_geometry != nullptr) {
-    messages.push_back(BuildLoadMessageForRoad(*road_geometry,
-                                               road_features_));
+    messages.push_back(BuildLoadMessageForRoad(*road_geometry, road_features_));
   }
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
   // messages into a single one containing all models in the scene.
-  auto load_robot_aggregator =
-      builder_->template AddSystem<LoadRobotAggregator>(messages);
+  auto load_robot_aggregator = builder_->template AddSystem<LoadRobotAggregator>(messages);
 
   // The aggregated LCM viewer load robot message containing the geometry
   // description is translated into an ignition Model_V message.
-  auto viewer_load_robot_translator =
-      builder_->template AddSystem<LcmViewerLoadRobotToIgnModelV>();
+  auto viewer_load_robot_translator = builder_->template AddSystem<LcmViewerLoadRobotToIgnModelV>();
   builder_->Connect(*load_robot_aggregator, *viewer_load_robot_translator);
 
   auto scene_system = builder_->template AddSystem<SceneSystem>();
   scene_system->set_name("scene_system");
 
   // The Model_V describing the geometry is finally used to build the scene.
-  builder_->Connect(viewer_load_robot_translator->get_output_port(0),
-                    scene_system->get_geometry_models_input_port());
+  builder_->Connect(viewer_load_robot_translator->get_output_port(0), scene_system->get_geometry_models_input_port());
 
   // Updated model and links poses are stored in the Model_V message that
   // is assembled from an LCM viewer draw translation and a pose bundle.
   auto models_assembler = builder_->template AddSystem<IgnModelsAssembler>();
 
-  builder_->Connect(viewer_draw_translator->get_output_port(0),
-                    models_assembler->get_models_input_port());
+  builder_->Connect(viewer_draw_translator->get_output_port(0), models_assembler->get_models_input_port());
 
-  builder_->Connect(aggregator_->get_output_port(0),
-                    models_assembler->get_states_input_port());
+  builder_->Connect(aggregator_->get_output_port(0), models_assembler->get_states_input_port());
 
-  builder_->Connect(models_assembler->get_output_port(0),
-                    scene_system->get_updated_pose_models_input_port());
+  builder_->Connect(models_assembler->get_output_port(0), scene_system->get_updated_pose_models_input_port());
 
   // The scene is then published over a scene topic to update the scene tree
   // widget of the visualizer. Because this information is not needed at the
   // same frequency the simulation runs at, the publishing frequency is reduced.
-  auto scene_publisher =
-      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
-          kSceneTreeTopicName, kSceneTreePublishRateHz);
+  auto scene_publisher = builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Scene>>(
+      kSceneTreeTopicName, kSceneTreePublishRateHz);
   builder_->Connect(*scene_system, *scene_publisher);
 
   return scene_system;
@@ -292,17 +258,14 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
 template <typename T>
 void AgentSimulationBaseBuilder<T>::AddAgentStatePublishers() {
   // Adds a PoseBundle to AgentState vector translation system.
-  auto pose_bundle_to_agent_state_v =
-      builder_->template AddSystem<PoseBundleToAgentState_V>();
+  auto pose_bundle_to_agent_state_v = builder_->template AddSystem<PoseBundleToAgentState_V>();
 
   // Adds an AgentState vector publisher system.
-  auto aggregated_agents_state_publisher = builder_->template AddSystem<
-      IgnPublisherSystem<ignition::msgs::AgentState_V>>(
-      kAggregatedAgentsStateTopicName);
+  auto aggregated_agents_state_publisher =
+      builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::AgentState_V>>(kAggregatedAgentsStateTopicName);
 
   // Wires above's systems together and with the PoseAggregator.
-  builder_->Connect(aggregator_->get_output_port(0),
-                    pose_bundle_to_agent_state_v->get_input_port(0));
+  builder_->Connect(aggregator_->get_output_port(0), pose_bundle_to_agent_state_v->get_input_port(0));
   builder_->Connect(pose_bundle_to_agent_state_v->get_output_port(0),
                     aggregated_agents_state_publisher->get_input_port(0));
 
@@ -310,24 +273,20 @@ void AgentSimulationBaseBuilder<T>::AddAgentStatePublishers() {
 
   if (num_agents > 0) {
     // Adds an AgentState vector splitter system for the right number of agents.
-    auto agents_state_splitter =
-        builder_->template AddSystem<AgentState_v_Splitter<T>>(num_agents);
+    auto agents_state_splitter = builder_->template AddSystem<AgentState_v_Splitter<T>>(num_agents);
 
     // Wires up the vector splitter system.
-    builder_->Connect(pose_bundle_to_agent_state_v->get_output_port(0),
-                      agents_state_splitter->get_input_port(0));
+    builder_->Connect(pose_bundle_to_agent_state_v->get_output_port(0), agents_state_splitter->get_input_port(0));
 
     auto agent_it = agents_.cbegin();
     for (int i = 0; i < num_agents; ++i) {
       // Adds an AgentState vector publisher system for each agent
       // and wires it with the splitter.
-      auto agent_state_publisher = builder_->template AddSystem<
-          IgnPublisherSystem<ignition::msgs::AgentState>>(
+      auto agent_state_publisher = builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::AgentState>>(
           "agent/" + std::get<0>(*agent_it) + "/state");
       ++agent_it;
 
-      builder_->Connect(agents_state_splitter->get_output_port(i),
-                        agent_state_publisher->get_input_port(0));
+      builder_->Connect(agents_state_splitter->get_output_port(i), agent_state_publisher->get_input_port(0));
     }
   }
 }
@@ -349,16 +308,14 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   simulator->set_target_realtime_rate(GetTargetRealTimeRate());
   drake::systems::Context<T>& context = simulator->get_mutable_context();
   drake::systems::RungeKutta2Integrator<T>* integrator =
-      simulator->template reset_integrator<RungeKutta2Integrator<T>>(
-          *diagram, GetMaxStepSize(), &context);
+      simulator->template reset_integrator<RungeKutta2Integrator<T>>(*diagram, GetMaxStepSize(), &context);
   integrator->set_fixed_step_mode(UsesFixedStepMode());
   simulator->Initialize();
 
   // Injects simulation context references into agents.
   for (auto& name_and_agent : agents_) {
     AgentBase<T>* agent = name_and_agent.second.get();
-    drake::systems::Context<T>& agent_context =
-        diagram->GetMutableSubsystemContext(agent->GetDiagram(), &context);
+    drake::systems::Context<T>& agent_context = diagram->GetMutableSubsystemContext(agent->GetDiagram(), &context);
     agent->SetContext(&agent_context);
   }
 
@@ -367,14 +324,12 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
 
   // Yields simulation instance.
   if (road_geometry_ != nullptr) {
-    return std::make_unique<AgentSimulationBase<T>>(
-      std::move(simulator), std::move(diagram), std::move(agents_),
-      std::move(road_geometry_), scene_graph_, scene_system);
+    return std::make_unique<AgentSimulationBase<T>>(std::move(simulator), std::move(diagram), std::move(agents_),
+                                                    std::move(road_geometry_), scene_graph_, scene_system);
   }
 
-  return std::make_unique<AgentSimulationBase<T>>(
-      std::move(simulator), std::move(diagram), std::move(agents_),
-      std::move(road_network_), scene_graph_, scene_system);
+  return std::make_unique<AgentSimulationBase<T>>(std::move(simulator), std::move(diagram), std::move(agents_),
+                                                  std::move(road_network_), scene_graph_, scene_system);
 }
 
 template class AgentSimulationBaseBuilder<double>;

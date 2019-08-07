@@ -76,8 +76,7 @@ class DynamicBicycleCar final : public drake::systems::LeafSystem<T> {
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
-  explicit DynamicBicycleCar(const DynamicBicycleCar<U>&)
-      : DynamicBicycleCar<T>() {}
+  explicit DynamicBicycleCar(const DynamicBicycleCar<U>&) : DynamicBicycleCar<T>() {}
 
   /// Specifies whether to use the front or rear tire for calculating various
   /// parameters.
@@ -92,49 +91,39 @@ class DynamicBicycleCar final : public drake::systems::LeafSystem<T> {
   /// Returns the input port to the tire angle and applied longitudinal force.
   const drake::systems::InputPort<T>& get_input_port() const;
 
-  const DynamicBicycleCarState<T>& get_state(
-      const drake::systems::Context<T>& context) const;
+  const DynamicBicycleCarState<T>& get_state(const drake::systems::Context<T>& context) const;
 
-  DynamicBicycleCarState<T>& get_mutable_state(
-      drake::systems::Context<T>* context) const;
+  DynamicBicycleCarState<T>& get_mutable_state(drake::systems::Context<T>* context) const;
 
   /// Slip angle of front or rear tires.
-  static T CalcTireSlip(const DynamicBicycleCarState<T>& state,
-                        const DynamicBicycleCarParams<T>& params,
+  static T CalcTireSlip(const DynamicBicycleCarState<T>& state, const DynamicBicycleCarParams<T>& params,
                         const T& steer_angle, Tire tire_select);
 
   /// Normal forces on the front or rear tires.
-  static T CalcNormalTireForce(const DynamicBicycleCarParams<T>& params,
-                               const T& f_x, Tire tire_select);
+  static T CalcNormalTireForce(const DynamicBicycleCarParams<T>& params, const T& f_x, Tire tire_select);
 
   /// Lateral tire forces on the front or rear tires.
-  static T CalcLateralTireForce(const T& tire_slip_angle, const T& c_alpha,
-                                const T& f_z, const T& mu);
+  static T CalcLateralTireForce(const T& tire_slip_angle, const T& c_alpha, const T& f_z, const T& mu);
 
  private:
   // Evaluates the input port and returns the scalar value of the steering
   // angle.
   const T get_steer(const drake::systems::Context<T>& context) const {
-    return this->EvalVectorInput(context, 0)
-        ->GetAtIndex(DynamicBicycleCarInputIndices::kSteerCd);
+    return this->EvalVectorInput(context, 0)->GetAtIndex(DynamicBicycleCarInputIndices::kSteerCd);
   }
 
   // Evaluates the input port and returns the scalar value of the longitudinal
   // force.
-  const T get_longitudinal_force(
-      const drake::systems::Context<T>& context) const {
-    return this->EvalVectorInput(context, 0)
-        ->GetAtIndex(DynamicBicycleCarInputIndices::kFCpX);
+  const T get_longitudinal_force(const drake::systems::Context<T>& context) const {
+    return this->EvalVectorInput(context, 0)->GetAtIndex(DynamicBicycleCarInputIndices::kFCpX);
   }
 
   // Copies the state out to the output port.
-  void CopyStateOut(const drake::systems::Context<T>& context,
-                    DynamicBicycleCarState<T>* output) const;
+  void CopyStateOut(const drake::systems::Context<T>& context, DynamicBicycleCarState<T>* output) const;
 
   // Calculates the time derivatives of the state.
-  void DoCalcTimeDerivatives(
-      const drake::systems::Context<T>& context,
-      drake::systems::ContinuousState<T>* derivatives) const override;
+  void DoCalcTimeDerivatives(const drake::systems::Context<T>& context,
+                             drake::systems::ContinuousState<T>* derivatives) const override;
 };
 
 }  // namespace delphyne

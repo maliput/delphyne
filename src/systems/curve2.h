@@ -38,8 +38,7 @@ class Curve2 {
 
   /// Constructor that traces through the given @p waypoints in order.
   /// Throws an error if @p waypoints.size() == 1.
-  explicit Curve2(const std::vector<Point2>& waypoints)
-      : waypoints_(waypoints), path_length_(GetLength(waypoints_)) {
+  explicit Curve2(const std::vector<Point2>& waypoints) : waypoints_(waypoints), path_length_(GetLength(waypoints_)) {
     // TODO(jwnimmer-tri) We should reject duplicate adjacent
     // waypoints (derivative problems); this will probably come for
     // free as part of the spline refactoring.
@@ -88,8 +87,7 @@ class Curve2 {
 
     // Iterate over the segments, up through the requested path_distance.
     T remaining_distance = max(T{0.0}, path_distance);
-    for (auto point0 = waypoints_.begin(), point1 = point0 + 1;
-         point1 != waypoints_.end();  // BR
+    for (auto point0 = waypoints_.begin(), point1 = point0 + 1; point1 != waypoints_.end();  // BR
          point0 = point1++) {
       Point2 relative_step{*point1 - *point0};
       const double length = relative_step.norm();
@@ -133,8 +131,7 @@ class Curve2 {
     if (waypoints.size() == 1) {
       throw std::invalid_argument{"single waypoint"};
     }
-    for (auto point0 = waypoints.begin(), point1 = point0 + 1;
-         point1 != waypoints.end();  // BR
+    for (auto point0 = waypoints.begin(), point1 = point0 + 1; point1 != waypoints.end();  // BR
          point0 = point1++) {
       const Point2 relative_step{*point1 - *point0};
       const double length = relative_step.norm();

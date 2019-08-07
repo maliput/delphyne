@@ -5,10 +5,10 @@
 #include <memory>
 
 #include <drake/common/drake_copyable.h>
-#include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <drake/lcmt_viewer_load_robot.hpp>
 
 #include "visualization/car_vis.h"
 
@@ -54,8 +54,7 @@ class CarVisApplicator : public drake::systems::LeafSystem<T> {
 
   /// Returns the output port that contains the visual geometry
   /// poses of all vehicle visualizations.
-  const drake::systems::OutputPort<T>& get_visual_geometry_poses_output_port()
-      const;
+  const drake::systems::OutputPort<T>& get_visual_geometry_poses_output_port() const;
 
   /// Adds a CarVis object for a vehicle. The ID returned by CarVis::id() must
   /// be unique among the CarVis objects added to this method. A
@@ -78,9 +77,8 @@ class CarVisApplicator : public drake::systems::LeafSystem<T> {
  private:
   drake::systems::rendering::PoseBundle<T> MakePoseBundleOutput() const;
 
-  void CalcPoseBundleOutput(
-      const drake::systems::Context<T>& context,
-      drake::systems::rendering::PoseBundle<T>* output) const;
+  void CalcPoseBundleOutput(const drake::systems::Context<T>& context,
+                            drake::systems::rendering::PoseBundle<T>* output) const;
 
   // The key is the car ID.
   std::map<int, std::unique_ptr<const CarVis<T>>> visualizers_;

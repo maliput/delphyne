@@ -15,8 +15,7 @@
 namespace delphyne {
 
 template <typename T>
-const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params,
-                                const T& ego_velocity, const T& target_distance,
+const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params, const T& ego_velocity, const T& target_distance,
                                 const T& target_distance_dot) {
   DRAKE_DEMAND(params.IsValid());
 
@@ -36,12 +35,10 @@ const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params,
   DRAKE_DEMAND(target_distance > 0.);
 
   // Compute the interaction acceleration terms.
-  const T& closing_term =
-      ego_velocity * target_distance_dot / (2 * sqrt(a * b));
+  const T& closing_term = ego_velocity * target_distance_dot / (2 * sqrt(a * b));
   const T& too_close_term = s_0 + ego_velocity * time_headway;
-  const T& accel_interaction = drake::cond(
-      target_distance < std::numeric_limits<T>::infinity(),
-      pow((closing_term + too_close_term) / target_distance, 2.), T(0.));
+  const T& accel_interaction = drake::cond(target_distance < std::numeric_limits<T>::infinity(),
+                                           pow((closing_term + too_close_term) / target_distance, 2.), T(0.));
 
   // Compute the free-road acceleration term.
   const T accel_free_road = pow(max(T(0.), ego_velocity) / v_ref, delta);
@@ -53,5 +50,4 @@ const T IdmPlanner<T>::Evaluate(const IdmPlannerParameters<T>& params,
 }  // namespace delphyne
 
 // These instantiations must match the API documentation in idm_planner.h.
-DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(
-    class ::delphyne::IdmPlanner)
+DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(class ::delphyne::IdmPlanner)

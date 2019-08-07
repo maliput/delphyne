@@ -5,10 +5,10 @@
 
 #include <gtest/gtest.h>
 
+#include <dragway/road_geometry.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_geometry.h>
-#include <dragway/road_geometry.h>
 #include <multilane/builder.h>
 
 #include "test_utilities/eigen_matrix_compare.h"
@@ -31,9 +31,9 @@ using maliput::multilane::ComputationPolicy;
 using maliput::multilane::Direction;
 using maliput::multilane::Endpoint;
 using maliput::multilane::EndpointZ;
+using maliput::multilane::EndReference;
 using maliput::multilane::LaneLayout;
 using maliput::multilane::LineOffset;
-using maliput::multilane::EndReference;
 using maliput::multilane::StartReference;
 
 using drake::Vector3;
@@ -51,44 +51,32 @@ const EndpointZ kEndZ{0, 0, 0, 0};  // Specifies zero elevation/super-elevation.
 
 // Build a road with two lanes in series.
 std::unique_ptr<const RoadGeometry> MakeTwoLaneRoad(bool is_opposing) {
-  auto builder = BuilderFactory().Make(
-      4. /* lane width */, HBounds(0., 5.), 0.01 /* linear tolerance */,
-      M_PI_2 / 180.0 /* angular tolerance */, 1. /* scale length*/,
-      ComputationPolicy::kPreferAccuracy /* accuracy */);
-  const LaneLayout lane_layout(2. /* left shoulder */, 2. /* right shoulder */,
-                               1 /* number of lanes */, 0 /* reference lane*/,
-                               0. /* reference r0 */);
+  auto builder = BuilderFactory().Make(4. /* lane width */, HBounds(0., 5.), 0.01 /* linear tolerance */,
+                                       M_PI_2 / 180.0 /* angular tolerance */, 1. /* scale length*/,
+                                       ComputationPolicy::kPreferAccuracy /* accuracy */);
+  const LaneLayout lane_layout(2. /* left shoulder */, 2. /* right shoulder */, 1 /* number of lanes */,
+                               0 /* reference lane*/, 0. /* reference r0 */);
 
-  builder->Connect(
-      "0_fwd", lane_layout,
-      StartReference().at(Endpoint({0, 0, 0}, kEndZ), Direction::kForward),
-      LineOffset(kStraightRoadLength),
-      EndReference().z_at(kEndZ, Direction::kForward));
+  builder->Connect("0_fwd", lane_layout, StartReference().at(Endpoint({0, 0, 0}, kEndZ), Direction::kForward),
+                   LineOffset(kStraightRoadLength), EndReference().z_at(kEndZ, Direction::kForward));
 
   if (is_opposing) {
     // Construct a curved segment that is directionally opposite the straight
     // lane.
     builder->Connect(
         "1_rev", lane_layout,
-        StartReference().at(Endpoint({kStraightRoadLength + kCurvedRoadRadius,
-                                      kCurvedRoadRadius, 1.5 * M_PI},
-                                     kEndZ),
+        StartReference().at(Endpoint({kStraightRoadLength + kCurvedRoadRadius, kCurvedRoadRadius, 1.5 * M_PI}, kEndZ),
                             Direction::kForward),
-        ArcOffset(kCurvedRoadRadius, -kCurvedRoadTheta),
-        EndReference().z_at(kEndZ, Direction::kForward));
+        ArcOffset(kCurvedRoadRadius, -kCurvedRoadTheta), EndReference().z_at(kEndZ, Direction::kForward));
   } else {
     // Construct a curved segment that is directionally confluent with the
     // straight lane.
-    builder->Connect(
-        "1_fwd", lane_layout,
-        StartReference().at(Endpoint({kStraightRoadLength, 0, 0}, kEndZ),
-                            Direction::kForward),
-        ArcOffset(kCurvedRoadRadius, kCurvedRoadTheta),
-        EndReference().z_at(kEndZ, Direction::kForward));
+    builder->Connect("1_fwd", lane_layout,
+                     StartReference().at(Endpoint({kStraightRoadLength, 0, 0}, kEndZ), Direction::kForward),
+                     ArcOffset(kCurvedRoadRadius, kCurvedRoadTheta), EndReference().z_at(kEndZ, Direction::kForward));
   }
 
-  return builder->Build(
-      maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
+  return builder->Build(maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
 }
 
 const Lane* GetLaneById(const RoadGeometry& road, const std::string& lane_id) {
@@ -102,8 +90,7 @@ const Lane* GetLaneById(const RoadGeometry& road, const std::string& lane_id) {
 
 static double path_radius(const Vector3<double> value) {
   Vector3<double> result;
-  result << value(0) - kStraightRoadLength, value(1) - kCurvedRoadRadius,
-      value(2);
+  result << value(0) - kStraightRoadLength, value(1) - kCurvedRoadRadius, value(2);
   return result.norm();
 }
 
@@ -113,17 +100,14 @@ GTEST_TEST(IdmControllerTest, ConstructOpposingSegments) {
   // Instantiate a road with opposing segments.
   auto road_opposing = MakeTwoLaneRoad(true);
   // Start in the straight segment and progress in the positive-s-direction.
-  const LaneDirection initial_lane_dir =
-      LaneDirection(GetLaneById(*road_opposing, "j:0_fwd"), /* lane */
-                    true);                                  /* with_s */
+  const LaneDirection initial_lane_dir = LaneDirection(GetLaneById(*road_opposing, "j:0_fwd"), /* lane */
+                                                       true);                                  /* with_s */
   // Create a finely-discretized path with a sufficient number of segments to
   // cover the full length.
-  const auto path =
-      RoadPath<double>(initial_lane_dir, /* initial_lane_direction */
-                       kStepSize,        /* step_size */
-                       100);             /* num_breaks */
-  ASSERT_LE(kTotalRoadLength,
-            path.get_path().end_time() - path.get_path().start_time());
+  const auto path = RoadPath<double>(initial_lane_dir, /* initial_lane_direction */
+                                     kStepSize,        /* step_size */
+                                     100);             /* num_breaks */
+  ASSERT_LE(kTotalRoadLength, path.get_path().end_time() - path.get_path().start_time());
 
   // Expect the lane boundary values to match.
   Vector3<double> expected_value{};
@@ -135,8 +119,7 @@ GTEST_TEST(IdmControllerTest, ConstructOpposingSegments) {
 
   // Derive s-position of the straight road segment from the number of break
   // point steps taken to reach  kStraightRoadLength from the end of the road.
-  const double straight_length{
-      path.get_path().start_time(std::ceil(kStraightRoadLength / kStepSize))};
+  const double straight_length{path.get_path().start_time(std::ceil(kStraightRoadLength / kStepSize))};
   expected_value << 10., 0., 0.;
   actual_value = path.get_path().value(straight_length);
   EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
@@ -167,17 +150,14 @@ GTEST_TEST(IdmControllerTest, ConstructConfluentSegments) {
   // Instantiate a road with confluent segments.
   auto road_confluent = MakeTwoLaneRoad(false);
   // Start in the curved segment, and progress in the negative-s-direction.
-  const LaneDirection initial_lane_dir =
-      LaneDirection(GetLaneById(*road_confluent, "j:1_fwd"), /* lane */
-                    false);                                  /* with_s */
+  const LaneDirection initial_lane_dir = LaneDirection(GetLaneById(*road_confluent, "j:1_fwd"), /* lane */
+                                                       false);                                  /* with_s */
   // Create a finely-discretized path with a sufficient number of segments to
   // cover the full length.
-  const auto path =
-      RoadPath<double>(initial_lane_dir, /* initial_lane_direction */
-                       kStepSize,        /* step_size */
-                       100);             /* num_breaks */
-  ASSERT_LE(kTotalRoadLength,
-            path.get_path().end_time() - path.get_path().start_time());
+  const auto path = RoadPath<double>(initial_lane_dir, /* initial_lane_direction */
+                                     kStepSize,        /* step_size */
+                                     100);             /* num_breaks */
+  ASSERT_LE(kTotalRoadLength, path.get_path().end_time() - path.get_path().start_time());
 
   // Expect the lane boundary values to match.
   Vector3<double> expected_value{};
@@ -189,8 +169,7 @@ GTEST_TEST(IdmControllerTest, ConstructConfluentSegments) {
   double total_length{path.get_path().end_time()};
   // Derive s-position of the straight road segment from the number of break
   // point steps taken to reach kStraightRoadLength from the start of the road.
-  double straight_length{
-      path.get_path().end_time(std::ceil(kStraightRoadLength / kStepSize))};
+  double straight_length{path.get_path().end_time(std::ceil(kStraightRoadLength / kStepSize))};
   double curved_length{total_length - straight_length};
   expected_value << 10., 0., 0.;
   actual_value = path.get_path().value(curved_length);

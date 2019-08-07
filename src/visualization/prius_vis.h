@@ -8,11 +8,11 @@
 
 #include <drake/common/drake_copyable.h>
 #include <drake/geometry/scene_graph.h>
-#include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_bundle.h>
+#include <drake/lcmt_viewer_link_data.hpp>
 
 #include "visualization/car_vis.h"
 
@@ -41,11 +41,9 @@ class PriusVis : public CarVis<T> {
 
   PriusVis(int id, const std::string& name);
 
-  const std::vector<drake::lcmt_viewer_link_data>& GetVisElements()
-      const override;
+  const std::vector<drake::lcmt_viewer_link_data>& GetVisElements() const override;
 
-  drake::systems::rendering::PoseBundle<T> CalcPoses(
-      const drake::Isometry3<T>& X_WM) const override;
+  drake::systems::rendering::PoseBundle<T> CalcPoses(const drake::Isometry3<T>& X_WM) const override;
 
  private:
   drake::geometry::SceneGraph<T> scene_graph_{};

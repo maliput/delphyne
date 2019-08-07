@@ -18,12 +18,10 @@ struct LaneDirection {
   LaneDirection() {}
 
   /// A constructor that sets `with_s` to be `true`.
-  explicit LaneDirection(const maliput::api::Lane* lane_input)
-      : LaneDirection(lane_input, true) {}
+  explicit LaneDirection(const maliput::api::Lane* lane_input) : LaneDirection(lane_input, true) {}
 
   /// Fully parameterized constructor.
-  LaneDirection(const maliput::api::Lane* lane_input, bool with_s_input)
-      : lane(lane_input), with_s(with_s_input) {}
+  LaneDirection(const maliput::api::Lane* lane_input, bool with_s_input) : lane(lane_input), with_s(with_s_input) {}
 
   const maliput::api::Lane* lane{nullptr};
 

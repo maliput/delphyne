@@ -34,12 +34,10 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
 
   // Creates a simulator to work with the publisher.
-  drake::systems::Simulator<double> simulator(
-      ign_publisher, ign_publisher.CreateDefaultContext());
+  drake::systems::Simulator<double> simulator(ign_publisher, ign_publisher.CreateDefaultContext());
 
   // Configures context's input with the pre-loaded message.
-  simulator.get_mutable_context().FixInputPort(
-      0, drake::AbstractValue::Make(kIgnMsg));
+  simulator.get_mutable_context().FixInputPort(0, drake::AbstractValue::Make(kIgnMsg));
 
   // Simulates for a small time period.
   simulator.Initialize();
@@ -52,8 +50,7 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
 
   // Verifies the equivalence of the original ignition message
   // and the received one.
-  EXPECT_TRUE(
-      test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
+  EXPECT_TRUE(test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
 }
 
 // Creates an Ignition Publisher System and publish a message repeatedly at a
@@ -62,17 +59,14 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
 TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   const double kPublishRateHz{4.0};
   // Sets up publisher system and monitor subscription.
-  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName,
-                                                            kPublishRateHz);
+  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName, kPublishRateHz);
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
 
   // Creates a simulator to work with the publisher.
-  drake::systems::Simulator<double> simulator(
-      ign_publisher, ign_publisher.CreateDefaultContext());
+  drake::systems::Simulator<double> simulator(ign_publisher, ign_publisher.CreateDefaultContext());
 
   // Configures context's input with the pre-loaded message.
-  simulator.get_mutable_context().FixInputPort(
-      0, drake::AbstractValue::Make(kIgnMsg));
+  simulator.get_mutable_context().FixInputPort(0, drake::AbstractValue::Make(kIgnMsg));
 
   // Simulates enough for the expected message count to get
   // published.
@@ -86,8 +80,7 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
 
   // Verifies the equivalence of the original ignition message
   // and the received one.
-  EXPECT_TRUE(
-      test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
+  EXPECT_TRUE(test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
 }
 
 }  // namespace

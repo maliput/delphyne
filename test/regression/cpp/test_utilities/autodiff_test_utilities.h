@@ -12,18 +12,13 @@ namespace test {
 
 // Helper to set the derivatives to the desired n-dimensional values, resizing
 // its derivatives vector according to the size of `desired`.
-inline void SetDerivatives(AutoDiffXd* variable,
-                           const Eigen::VectorXd& desired) {
-  variable->derivatives() = desired;
-}
+inline void SetDerivatives(AutoDiffXd* variable, const Eigen::VectorXd& desired) { variable->derivatives() = desired; }
 
 inline void SetDerivatives(double*, const Eigen::VectorXd&) {}
 
 // Helper to check that the derivatives match, to within the given tolerance,
 // the provided expected values.
-inline void CheckDerivatives(const AutoDiffXd& variable,
-                             const Eigen::VectorXd& expected,
-                             const double tol = 1e-9) {
+inline void CheckDerivatives(const AutoDiffXd& variable, const Eigen::VectorXd& expected, const double tol = 1e-9) {
   if (expected.isZero() && (variable.derivatives().size() == 0)) {
     // Zero and empty are functionally equivalent.
     return;

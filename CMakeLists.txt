@@ -103,7 +103,6 @@ add_subdirectory(media)
 if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(test)
-  add_test(NAME CPPLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_cpplint.sh)
   add_test(NAME PYLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_python_checks.sh)
 endif()
 

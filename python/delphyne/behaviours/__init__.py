@@ -1,7 +1,7 @@
 from . import agents
-from . import maliput
+from . import roads
 
 __all__ = [
     agents,
-    maliput
+    roads
 ]

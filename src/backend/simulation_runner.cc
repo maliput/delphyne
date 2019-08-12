@@ -26,6 +26,7 @@
 #include <ignition/transport/Node.hh>
 
 #include "common/filesystem.h"
+#include "common/signal_guard.h"
 
 namespace delphyne {
 namespace {
@@ -189,6 +190,8 @@ void SimulationRunner::RunSyncFor(double duration) {
   DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error,
                     "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
+  common::SignalGuard guard(
+    SIGINT, [this]() { interactive_loop_running_ = false; });
   this->RunInteractiveSimulationLoopFor(duration, [] {});
 }
 

@@ -5,6 +5,7 @@
 add_library(common
   compression.cc
   filesystem.cc
+  signal_guard.cc
 )
 
 set_target_properties(common PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-common)

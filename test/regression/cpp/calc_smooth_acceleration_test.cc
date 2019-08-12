@@ -55,7 +55,11 @@ void do_test() {
   }
 }
 
-GTEST_TEST(SmoothAccelerationFunctionTest, TestDoubleType) { do_test<double>(); }
+// clang-format off
+GTEST_TEST(SmoothAccelerationFunctionTest, TestDoubleType) {
+  do_test<double>();
+}
+// clang-format on
 
 GTEST_TEST(SmoothAccelerationFunctionTest, TestAutoDiffXType) {
   do_test<drake::AutoDiffXd>();

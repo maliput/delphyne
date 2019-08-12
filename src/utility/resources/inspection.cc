@@ -32,9 +32,7 @@ ResourceInspector::ResourceInspector() {
 
 void ResourceInspector::AssociateExtension(const std::string& extension, const ResourceType* type) {
   DELPHYNE_VALIDATE(type_extension_associations_.count(extension) == 0, std::runtime_error,
-                    "Extension '" + extension +
-                        "' already"
-                        "asociated.");
+                    "Extension '" + extension + "' already associated.");
   DELPHYNE_VALIDATE(type != nullptr, std::logic_error, "Type is null.");
   type_extension_associations_[extension] = type;
 }

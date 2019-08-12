@@ -172,7 +172,9 @@ RoadOdometry<T> MakeInfiniteOdometry(const LaneEnd& lane_end_ahead, const PoseVe
   const LanePositionT<T> lane_position(infinite_position, zero_position, zero_position);
   FrameVelocity<T> frame_velocity;
   auto velocity = frame_velocity.get_mutable_value();
-  for (int i = 0; i < frame_velocity.kSize; ++i) drake::autodiffxd_make_coherent(witness_state, &velocity(i));
+  for (int i = 0; i < frame_velocity.kSize; ++i) {
+    drake::autodiffxd_make_coherent(witness_state, &velocity(i));
+  }
   // TODO(jadecastro) Consider moving the above autodiffxd_make_coherent() step
   // to BasicVector().
   return {lane_end_ahead.lane, lane_position, frame_velocity};

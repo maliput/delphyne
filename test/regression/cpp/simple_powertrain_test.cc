@@ -37,9 +37,15 @@ TEST_F(SimplePowertrainTest, SystemMatrices) {
   EXPECT_EQ(drake::Vector1<double>(1. / kPowertrainTimeConstant), dut_->C());
 }
 
-TEST_F(SimplePowertrainTest, ToAutoDiff) { EXPECT_TRUE(is_autodiffxd_convertible(*dut_)); }
+// clang-format off
+TEST_F(SimplePowertrainTest, ToAutoDiff) {
+  EXPECT_TRUE(is_autodiffxd_convertible(*dut_));
+}
 
-TEST_F(SimplePowertrainTest, ToSymbolic) { EXPECT_TRUE(is_symbolic_convertible(*dut_)); }
+TEST_F(SimplePowertrainTest, ToSymbolic) {
+  EXPECT_TRUE(is_symbolic_convertible(*dut_));
+}
+// clang-format on
 
 }  // namespace
 }  // namespace delphyne

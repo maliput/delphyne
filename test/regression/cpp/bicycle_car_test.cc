@@ -86,11 +86,19 @@ TEST_F(BicycleCarTest, Topology) {
   EXPECT_EQ(kStateDimension, state_port.size());
 }
 
-TEST_F(BicycleCarTest, ToAutoDiff) { EXPECT_TRUE(is_autodiffxd_convertible(*dut_)); }
+// clang-format off
+TEST_F(BicycleCarTest, ToAutoDiff) {
+  EXPECT_TRUE(is_autodiffxd_convertible(*dut_));
+}
 
-TEST_F(BicycleCarTest, ToSymbolic) { EXPECT_TRUE(is_symbolic_convertible(*dut_)); }
+TEST_F(BicycleCarTest, ToSymbolic) {
+  EXPECT_TRUE(is_symbolic_convertible(*dut_));
+}
 
-TEST_F(BicycleCarTest, DirectFeedthrough) { EXPECT_FALSE(dut_->HasAnyDirectFeedthrough()); }
+TEST_F(BicycleCarTest, DirectFeedthrough) {
+  EXPECT_FALSE(dut_->HasAnyDirectFeedthrough());
+}
+// clang-format on
 
 TEST_F(BicycleCarTest, Output) {
   const double kTolerance = 1e-10;

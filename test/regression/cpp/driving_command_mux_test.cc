@@ -53,7 +53,11 @@ TEST_F(DrivingCommandMuxTest, Basic) {
   ASSERT_EQ(11., driving_command_output->acceleration());
 }
 
-TEST_F(DrivingCommandMuxTest, IsStateless) { EXPECT_EQ(0, context_->get_continuous_state().size()); }
+// clang-format off
+TEST_F(DrivingCommandMuxTest, IsStateless) {
+  EXPECT_EQ(0, context_->get_continuous_state().size());
+}
+// clang-format on
 
 // Tests conversion to AutoDiffXd.
 TEST_F(DrivingCommandMuxTest, ToAutoDiff) {

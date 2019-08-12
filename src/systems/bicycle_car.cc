@@ -137,10 +137,13 @@ void BicycleCar<T>::ImplCalcTimeDerivatives(const BicycleCarParameters<T>& param
   const T torsional_damping = (Cf * pow(lf, 2.) + Cr * pow(lr, 2.)) / vel;
 
   // Compute the differential equations of motion.
-  const T Psi_ddot =
-      torsional_stiffness / Iz * beta - torsional_damping / Iz * Psi_dot + front_torsional_stiffness / Iz * delta;
-  const T beta_dot =
-      (torsional_stiffness / (m * pow(vel, 2.)) - 1.) * Psi_dot + Cf / (m * vel) * delta - (Cf + Cr) / (m * vel) * beta;
+  // clang-format off
+  const T Psi_ddot = torsional_stiffness / Iz * beta -
+                     torsional_damping / Iz * Psi_dot +
+                     front_torsional_stiffness / Iz * delta;
+  const T beta_dot = (torsional_stiffness / (m * pow(vel, 2.)) - 1.) * Psi_dot +
+                     Cf / (m * vel) * delta - (Cf + Cr) / (m * vel) * beta;
+  // clang-format on
   const T vel_dot = F_in / m;  // a_x in Althoff & Dolan, 2014.
   const T sx_dot = vel * cos(beta + Psi);
   const T sy_dot = vel * sin(beta + Psi);

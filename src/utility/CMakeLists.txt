@@ -9,6 +9,7 @@ add_library(utility
   resources/inspection.cc
   resources/meshes.cc
   resources/resources.cc
+  signal_guard.cc
 )
 
 set_target_properties(utility PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-utility)

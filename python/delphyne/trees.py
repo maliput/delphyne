@@ -38,10 +38,11 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                 tick_tocks < number_of_iterations or
                 number_of_iterations == CONTINUOUS_TICK_TOCK
         )):
-            self.tick(pre_tick_handler, post_tick_handler)
+            if not self.runner.is_simulation_paused():
+                self.tick(pre_tick_handler, post_tick_handler)
+                tick_tocks += 1
             try:
                 self.step(period)
             except KeyboardInterrupt:
                 break
-            tick_tocks += 1
         self.interrupt_tick_tocking = False

@@ -5,10 +5,10 @@
 #include <memory>
 
 #include <drake/common/drake_copyable.h>
+#include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
-#include <drake/lcmt_viewer_load_robot.hpp>
 
 #include "visualization/car_vis.h"
 

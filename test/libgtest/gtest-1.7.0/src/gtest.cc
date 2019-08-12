@@ -84,10 +84,10 @@
 
 #elif GTEST_OS_WINDOWS  // We are on Windows proper.
 
-#include <io.h>         // NOLINT
 #include <sys/stat.h>   // NOLINT
-#include <sys/timeb.h>  // NOLINT
 #include <sys/types.h>  // NOLINT
+#include <io.h>         // NOLINT
+#include <sys/timeb.h>  // NOLINT
 
 #if GTEST_OS_WINDOWS_MINGW
 // MinGW has gettimeofday() but not _ftime64().

@@ -8,8 +8,8 @@
 #include <memory>
 #include <vector>
 
-#include <drake/systems/lcm/lcm_and_vector_base_translator.h>
 #include <drake/lcmt_simple_car_state_t.hpp>
+#include <drake/systems/lcm/lcm_and_vector_base_translator.h>
 
 #include "gen/simple_car_state.h"
 

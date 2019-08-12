@@ -1,11 +1,11 @@
 #include "visualization/box_car_vis.h"
 
-#include <gtest/gtest.h>
 #include <Eigen/Dense>
+#include <gtest/gtest.h>
 
+#include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
-#include <drake/lcmt_viewer_link_data.hpp>
 
 #include "test_utilities/eigen_matrix_compare.h"
 

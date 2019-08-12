@@ -1,14 +1,9 @@
-# -*- yaml -*-
-
 # This file determines clang-format's style settings; for details, refer to
 # http://clang.llvm.org/docs/ClangFormatStyleOptions.html
 
----
 BasedOnStyle:  Google
----
-Language: Cpp
+ColumnLimit: 120
 
-# Force pointers to the type for C++.
 DerivePointerAlignment: false
 PointerAlignment: Left
 
@@ -39,4 +34,3 @@ IncludeCategories:
   # Other libraries' h files (with quotes).
   - Regex:    '^"'
     Priority: 41
----

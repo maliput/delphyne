@@ -4,14 +4,14 @@
 #include <stdexcept>
 #include <utility>
 
-#include <gtest/gtest.h>
 #include <Eigen/Dense>
+#include <gtest/gtest.h>
 
 #include <drake/common/value.h>
+#include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
-#include <drake/lcmt_viewer_link_data.hpp>
 
 #include "test_utilities/eigen_matrix_compare.h"
 #include "visualization/box_car_vis.h"

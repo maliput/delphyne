@@ -15,11 +15,11 @@
 
 #include <drake/common/drake_copyable.h>
 #include <drake/geometry/scene_graph.h>
+#include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_bundle.h>
-#include <drake/lcmt_viewer_link_data.hpp>
 
 #include "visualization/car_vis.h"
 

@@ -3,9 +3,9 @@
 #include <algorithm>
 #include <vector>
 
-#include <gtest/gtest.h>
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
+#include <gtest/gtest.h>
 
 #include <drake/math/roll_pitch_yaw.h>
 

@@ -8,9 +8,9 @@
 #include <mutex>
 #include <string>
 
-#include <drake/systems/rendering/pose_bundle.h>
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_load_robot.hpp>
+#include <drake/systems/rendering/pose_bundle.h>
 
 #include <google/protobuf/message.h>
 

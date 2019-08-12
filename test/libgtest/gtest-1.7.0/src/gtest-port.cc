@@ -39,8 +39,8 @@
 #if GTEST_OS_WINDOWS_MOBILE
 #include <windows.h>  // For TerminateProcess()
 #elif GTEST_OS_WINDOWS
-#include <io.h>
 #include <sys/stat.h>
+#include <io.h>
 #else
 #include <unistd.h>
 #endif  // GTEST_OS_WINDOWS_MOBILE

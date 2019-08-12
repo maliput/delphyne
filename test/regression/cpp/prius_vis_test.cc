@@ -6,10 +6,10 @@
 
 #include <gtest/gtest.h>
 
+#include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_bundle.h>
-#include <drake/lcmt_viewer_link_data.hpp>
 
 #include "test_utilities/eigen_matrix_compare.h"
 

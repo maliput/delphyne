@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <type_traits>
 
+#include <drake/lcmt_viewer_geometry_data.hpp>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/vector_base.h>
-#include <drake/lcmt_viewer_geometry_data.hpp>
 
 #include "backend/translate_exception.h"
 #include "delphyne/macros.h"

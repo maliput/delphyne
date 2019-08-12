@@ -20,11 +20,11 @@
 #include <drake/common/find_resource.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/lcm/drake_mock_lcm.h>
+#include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/math/rigid_transform.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
-#include <drake/lcmt_viewer_load_robot.hpp>
 
 #include <ignition/common/SystemPaths.hh>
 

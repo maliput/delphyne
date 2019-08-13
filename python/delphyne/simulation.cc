@@ -126,6 +126,8 @@ PYBIND11_MODULE(simulation, m) {
                              const ::maliput::utility::ObjFeatures&>(&AgentSimulationBuilder::SetRoadGeometry),
            py::return_value_policy::reference_internal, "Sets road geometry for the simulation to be built",
            py::arg("road_geometry"), py::arg("features"))
+      .def("get_road_geometry", &AgentSimulationBuilder::GetRoadGeometry,
+           py::return_value_policy::reference_internal)
       .def("set_road_network",
            py::overload_cast<std::unique_ptr<const ::maliput::api::RoadNetwork>>(
                &AgentSimulationBuilder::SetRoadNetwork),

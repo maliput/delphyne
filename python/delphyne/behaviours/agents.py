@@ -1,8 +1,13 @@
 import delphyne.agents
+import delphyne.blackboard.blackboard_helper as bb_helper
 
 import py_trees.behaviours
 import py_trees.common
 
+def resolve(expression, *args, **kwargs):
+    if callable(expression):
+        expression = expression(*args, **kwargs)
+    return expression
 
 class SimpleCar(py_trees.behaviours.Success):
 
@@ -15,7 +20,7 @@ class SimpleCar(py_trees.behaviours.Success):
         self.speed = speed
 
     def setup(self, *, builder):
-        self._agent = builder.add_agent(
+        builder.add_agent(
             delphyne.agents.SimpleCarBlueprint(
                 name=self.name,
                 x=self.initial_x,  # initial x-coordinate (m)
@@ -28,25 +33,29 @@ class SimpleCar(py_trees.behaviours.Success):
 
 class MobilCar(py_trees.behaviours.Success):
 
+    '''
+    MobilCar agent. You can give a function to lane_pos_generator parameter
+    that returns a pair (Lane, LanePosition)
+    '''
     def __init__(self, name=py_trees.common.Name.AUTO_GENERATED,
-                 initial_x=0., initial_y=0., initial_heading=0.,
+                 initial_pose=(0., 0., 0.), # x, y and initial heading coord.
                  speed=1., direction_of_travel=True):
         super().__init__(name)
-        self.initial_x = initial_x
-        self.initial_y = initial_y
-        self.initial_heading = initial_heading
+        self.initial_pose = initial_pose
         self.direction_of_travel = direction_of_travel
         self.speed = speed
 
     def setup(self, *, builder):
-        self.agent = builder.add_agent(
+        road_geometry = bb_helper.get_road_geometry()
+        self.initial_pose = resolve(self.initial_pose, road_geometry)
+        builder.add_agent(
             delphyne.agents.MobilCarBlueprint(
                 name=self.name,                 # unique name
                 # with or against the lane s-direction
                 direction_of_travel=self.direction_of_travel,
-                x=self.initial_x,                 # x-coordinate (m)
-                y=self.initial_y,                 # y-coordinate (m)
-                heading=self.initial_heading,     # heading (radians)
+                x=self.initial_pose[0],                 # x-coordinate (m)
+                y=self.initial_pose[1],                 # y-coordinate (m)
+                heading=self.initial_pose[2],     # heading (radians)
                 speed=self.speed                  # the s-direction (m/s)
             )
         )
@@ -65,11 +74,21 @@ class RailCar(py_trees.behaviours.Success):
         self.lateral_offset = lateral_offset
         self.speed = speed
         self.nominal_speed = nominal_speed
+        self.agent = None
+        bb_helper.initialize_agent_attributes(self.name)
+
+    def initialise(self):
+        if self.agent is None:
+            self.agent = bb_helper.get_simulation().get_agent_by_name(self.name)
 
     def setup(self, *, builder):
-        road_index = self.parent.road_geometry.ById()
+        road_geometry = builder.get_road_geometry()
+        road_index = road_geometry.ById()
+        self.lane_id = resolve(self.lane_id, road_geometry)
+        self.longitudinal_position = resolve(self.longitudinal_position,
+            road_geometry, self.lane_id)
         lane = road_index.GetLane(self.lane_id)
-        self.agent = builder.add_agent(
+        builder.add_agent(
             delphyne.agents.RailCarBlueprint(
                 name=self.name,                                   # unique name
                 lane=lane,                                        # lane
@@ -82,6 +101,13 @@ class RailCar(py_trees.behaviours.Success):
             )
         )
 
+    def update(self):
+        speed = bb_helper.get_attribute_for_agent(self.name, "speed")
+        if self.agent is not None and speed is not None and speed != self.speed:
+            self.speed = self.agent.set_speed(speed)
+        return py_trees.common.Status.SUCCESS
+
+
 
 class TrajectoryAgent(py_trees.behaviours.Success):
 
@@ -93,7 +119,7 @@ class TrajectoryAgent(py_trees.behaviours.Success):
         self.waypoints = waypoints
 
     def setup(self, *, builder):
-        self.agent = builder.add_agent(
+        builder.add_agent(
             delphyne.agents.TrajectoryAgentBlueprint(
                 self.name,
                 self.times,       # timings (sec)
@@ -101,3 +127,4 @@ class TrajectoryAgent(py_trees.behaviours.Success):
                 self.waypoints   # list of x-y-z-tuples (m, m, m)
             )
         )
+

@@ -1,9 +1,9 @@
+import delphyne.blackboard.blackboard_helper as bb_helper
 import delphyne.simulation
 
 import py_trees.trees
 
 from py_trees.trees import CONTINUOUS_TICK_TOCK
-
 
 class BehaviourTree(py_trees.trees.BehaviourTree):
 
@@ -12,6 +12,8 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         self.runner = None
 
     def setup(self, realtime_rate, start_paused, logfile_name='', **kwargs):
+        # Bear in mind that this is a local builder. Once the AgentSimulation
+        # is created, the builder will be destroyed, along with its blueprints
         builder = delphyne.simulation.AgentSimulationBuilder()
 
         super().setup(builder=builder, **kwargs)
@@ -24,6 +26,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
             log=bool(logfile_name),
             logfile_name=logfile_name
         )
+        bb_helper.set_simulation(self.runner.get_simulation())
 
     def step(self, period):
         self.runner.run_sync_for(period)

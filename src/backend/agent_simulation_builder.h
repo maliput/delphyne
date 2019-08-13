@@ -58,6 +58,9 @@ class AgentSimulationBaseBuilder {
 
   AgentSimulationBaseBuilder();
 
+  /// Gets the RoadGeometry from this simulation
+  const maliput::api::RoadGeometry* GetRoadGeometry() const;
+
   /// Sets the RoadGeometry for this simulation.
   ///
   /// @param road_geometry The road geometry to use for the simulation.

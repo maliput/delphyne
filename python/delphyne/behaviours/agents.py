@@ -75,7 +75,7 @@ class RailCar(py_trees.behaviours.Success):
             self.agent = bb_helper.get_simulation().get_agent_by_name(self.name)
 
     def setup(self, *, builder):
-        road_index = bb_helper.get_road_geometry().ById()
+        road_index = builder.get_road_geometry().ById()
         lane = road_index.GetLane(self.lane_id)
         builder.add_agent(
             delphyne.agents.RailCarBlueprint(

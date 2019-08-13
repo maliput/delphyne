@@ -87,18 +87,14 @@ class BicycleCar final : public drake::systems::LeafSystem<T> {
   const drake::systems::OutputPort<T>& get_state_output_port() const;
 
  private:
-  void CopyOutState(const drake::systems::Context<T>& context,
-                    BicycleCarState<T>* output) const;
+  void CopyOutState(const drake::systems::Context<T>& context, BicycleCarState<T>* output) const;
 
-  void DoCalcTimeDerivatives(
-      const drake::systems::Context<T>& context,
-      drake::systems::ContinuousState<T>* derivatives) const override;
+  void DoCalcTimeDerivatives(const drake::systems::Context<T>& context,
+                             drake::systems::ContinuousState<T>* derivatives) const override;
 
-  void ImplCalcTimeDerivatives(const BicycleCarParameters<T>& params,
-                               const BicycleCarState<T>& state,
+  void ImplCalcTimeDerivatives(const BicycleCarParameters<T>& params, const BicycleCarState<T>& state,
                                const drake::systems::BasicVector<T>& steering,
-                               const drake::systems::BasicVector<T>& force,
-                               BicycleCarState<T>* derivatives) const;
+                               const drake::systems::BasicVector<T>& force, BicycleCarState<T>* derivatives) const;
 
   int steering_input_port_{};
   int force_input_port_{};

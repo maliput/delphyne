@@ -13,24 +13,20 @@
 
 namespace delphyne {
 
-void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
-    const drake::lcmt_viewer_load_robot& lcm_message,
-    ignition::msgs::Model_V* ign_message, int64_t time) const {
-  DELPHYNE_VALIDATE(ign_message != nullptr, std::invalid_argument,
-                    "Ignition message pointer must not be null");
+void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_viewer_load_robot& lcm_message,
+                                                            ignition::msgs::Model_V* ign_message, int64_t time) const {
+  DELPHYNE_VALIDATE(ign_message != nullptr, std::invalid_argument, "Ignition message pointer must not be null");
 
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
 
-  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
-      MillisToIgnitionTime(time));
+  ign_message->mutable_header()->mutable_stamp()->CopyFrom(MillisToIgnitionTime(time));
 
   // An lcmt_viewer_load_robot is a vector of links, some of which have the same
   // id, and correspond to the same model. To make translation into models
   // easier, a first pass over said vector is done, grouping by link id.
-  std::map<int32_t, std::vector<const drake::lcmt_viewer_link_data*>>
-      grouped_links_by_id;
+  std::map<int32_t, std::vector<const drake::lcmt_viewer_link_data*>> grouped_links_by_id;
 
   for (const drake::lcmt_viewer_link_data& link : lcm_message.link) {
     const int32_t id = link.robot_num;
@@ -60,8 +56,7 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(
 
         ignition::msgs::Pose* pose = new_visual->mutable_pose();
         PositionArrayToIgnition(geometry.position, pose->mutable_position());
-        QuaternionArrayToIgnition(geometry.quaternion,
-                                  pose->mutable_orientation());
+        QuaternionArrayToIgnition(geometry.quaternion, pose->mutable_orientation());
 
         ignition::msgs::Material* material = new_visual->mutable_material();
         LcmColorToIgnition(geometry.color, material->mutable_diffuse());

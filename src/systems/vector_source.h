@@ -36,11 +36,8 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
 
   explicit VectorSource(T defaultval) {
     output_port_index_ =
-        this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
-                                      &VectorSource::CalcOutputValue)
-            .get_index();
-    this->DeclareAbstractState(
-        drake::AbstractValue::Make<T>(T{defaultval}));
+        this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1), &VectorSource::CalcOutputValue).get_index();
+    this->DeclareAbstractState(drake::AbstractValue::Make<T>(T{defaultval}));
     val_ = defaultval;
   }
 
@@ -48,8 +45,7 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
 
   /// Returns the value stored in @p context.
   T Get(const drake::systems::Context<T>& context) const {
-    const drake::systems::AbstractValues* abstract_state =
-        &context.get_abstract_state();
+    const drake::systems::AbstractValues* abstract_state = &context.get_abstract_state();
 
     return abstract_state->get_value(kStateIndexVal).get_value<T>();
   }
@@ -60,18 +56,13 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
     val_ = new_val;
   }
 
-  const drake::systems::OutputPort<T>& output() const {
-    return this->get_output_port(output_port_index_);
-  }
+  const drake::systems::OutputPort<T>& output() const { return this->get_output_port(output_port_index_); }
 
  protected:
   void DoCalcNextUpdateTime(const drake::systems::Context<T>& context,
-                            drake::systems::CompositeEventCollection<T>* events,
-                            T* time) const override {
-    DELPHYNE_VALIDATE(events != nullptr, std::invalid_argument,
-                      "Events pointer must not be null");
-    DELPHYNE_VALIDATE(time != nullptr, std::invalid_argument,
-                      "Time pointer must not be null");
+                            drake::systems::CompositeEventCollection<T>* events, T* time) const override {
+    DELPHYNE_VALIDATE(events != nullptr, std::invalid_argument, "Events pointer must not be null");
+    DELPHYNE_VALIDATE(time != nullptr, std::invalid_argument, "Time pointer must not be null");
 
     // An update time calculation is required here to avoid having
     // a NaN value when callling the StepBy method.
@@ -91,22 +82,18 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
       // TODO(siyuan): should be context.get_time() once #5725 is resolved.
       *time = context.get_time() + 0.0001;
 
-      drake::systems::EventCollection<
-          drake::systems::UnrestrictedUpdateEvent<T>>& uu_events =
+      drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<T>>& uu_events =
           events->get_mutable_unrestricted_update_events();
 
       uu_events.add_event(
-          std::make_unique<drake::systems::UnrestrictedUpdateEvent<T>>(
-              drake::systems::Event<T>::TriggerType::kTimed));
+          std::make_unique<drake::systems::UnrestrictedUpdateEvent<T>>(drake::systems::Event<T>::TriggerType::kTimed));
     }
   }
 
-  void DoCalcUnrestrictedUpdate(
-      const drake::systems::Context<T>& context,
-      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
-      drake::systems::State<T>* state) const override {
-    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
-                      "State pointer must not be null");
+  void DoCalcUnrestrictedUpdate(const drake::systems::Context<T>& context,
+                                const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+                                drake::systems::State<T>* state) const override {
+    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument, "State pointer must not be null");
 
     T curr_val;
     {
@@ -114,21 +101,15 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
       curr_val = val_;
     }
 
-    drake::systems::AbstractValues* abstract_state =
-        &state->get_mutable_abstract_state();
+    drake::systems::AbstractValues* abstract_state = &state->get_mutable_abstract_state();
 
-    abstract_state->get_mutable_value(kStateIndexVal).get_mutable_value<T>() =
-        curr_val;
+    abstract_state->get_mutable_value(kStateIndexVal).get_mutable_value<T>() = curr_val;
   }
 
-  void CalcOutputValue(const drake::systems::Context<T>& context,
-                       drake::systems::BasicVector<T>* output) const {
-    const drake::systems::AbstractValues* abstract_state =
-        &context.get_abstract_state();
+  void CalcOutputValue(const drake::systems::Context<T>& context, drake::systems::BasicVector<T>* output) const {
+    const drake::systems::AbstractValues* abstract_state = &context.get_abstract_state();
 
-    output->SetAtIndex(0,
-                       abstract_state->get_value(
-                        kStateIndexVal).get_value<T>());
+    output->SetAtIndex(0, abstract_state->get_value(kStateIndexVal).get_value<T>());
   }
 
  private:

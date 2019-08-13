@@ -26,8 +26,7 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
  public:
   IgnToDrake() {
     // Input port (abstract for all ignition types).
-    DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                             drake::Value<IGN_TYPE>());
+    DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<IGN_TYPE>());
 
     // Output port (vector or abstract, depending on DRAKE_TYPE).
     InitOutputPort();
@@ -41,28 +40,22 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // function must perform any required cleanup from the previous call.
   // @see DeclareVectorOutputPort
   // @see DeclareAbstractOutputPort
-  virtual void DoIgnToDrakeTranslation(const IGN_TYPE& ign_message,
-                                       DRAKE_TYPE* drake_message) const = 0;
+  virtual void DoIgnToDrakeTranslation(const IGN_TYPE& ign_message, DRAKE_TYPE* drake_message) const = 0;
 
   // Translation helper functions and constants, to be used by derived
   // translators.
 
   // @brief Convert an ignition position message to a vector of floats (LCM's
   // type for positions).
-  static std::vector<float> IgnPositionToVector(
-      const ignition::msgs::Vector3d& position) {
-    return {static_cast<float>(position.x()), static_cast<float>(position.y()),
-            static_cast<float>(position.z())};
+  static std::vector<float> IgnPositionToVector(const ignition::msgs::Vector3d& position) {
+    return {static_cast<float>(position.x()), static_cast<float>(position.y()), static_cast<float>(position.z())};
   }
 
   // @brief Convert an ignition quaterion message to a vector of floats (LCM's
   // type for orientations).
-  static std::vector<float> IgnQuaternionToVector(
-      const ignition::msgs::Quaternion& orientation) {
-    return {static_cast<float>(orientation.w()),
-            static_cast<float>(orientation.x()),
-            static_cast<float>(orientation.y()),
-            static_cast<float>(orientation.z())};
+  static std::vector<float> IgnQuaternionToVector(const ignition::msgs::Quaternion& orientation) {
+    return {static_cast<float>(orientation.w()), static_cast<float>(orientation.x()),
+            static_cast<float>(orientation.y()), static_cast<float>(orientation.z())};
   }
 
  private:
@@ -80,18 +73,14 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // @brief Output port initialization for Drake objects that inherit from
   // VectorBase.
   template <class T = DRAKE_TYPE>
-  typename std::enable_if<
-      std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
-  InitOutputPort() {
+  typename std::enable_if<std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type InitOutputPort() {
     DeclareVectorOutputPort(&IgnToDrake::CalcDrakeMessage);
   }
 
   // @brief Output port initialization for Drake objects that do not inherit
   // from VectorBase.
   template <class T = DRAKE_TYPE>
-  typename std::enable_if<
-      !std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type
-  InitOutputPort() {
+  typename std::enable_if<!std::is_base_of<drake::systems::VectorBase<double>, T>::value>::type InitOutputPort() {
     DeclareAbstractOutputPort(&IgnToDrake::CalcDrakeMessage);
   }
 
@@ -103,14 +92,11 @@ class IgnToDrake : public drake::systems::LeafSystem<double> {
   // @param[in] context The Drake system context.
   // @param[out] drake_message The Drake message that will be stored in the
   // output port.
-  void CalcDrakeMessage(const drake::systems::Context<double>& context,
-                        DRAKE_TYPE* drake_message) const {
-    DELPHYNE_VALIDATE(drake_message != nullptr, std::invalid_argument,
-                      "Drake message pointer must not be null");
+  void CalcDrakeMessage(const drake::systems::Context<double>& context, DRAKE_TYPE* drake_message) const {
+    DELPHYNE_VALIDATE(drake_message != nullptr, std::invalid_argument, "Drake message pointer must not be null");
 
     // Retrieves the ignition message from the input port.
-    const IGN_TYPE* ign_message =
-        this->template EvalInputValue<IGN_TYPE>(context, kPortIndex);
+    const IGN_TYPE* ign_message = this->template EvalInputValue<IGN_TYPE>(context, kPortIndex);
 
     // And then translates to Drake.
     DoIgnToDrakeTranslation(*ign_message, drake_message);

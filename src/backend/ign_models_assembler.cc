@@ -11,38 +11,28 @@ namespace delphyne {
 
 IgnModelsAssembler::IgnModelsAssembler() {
   models_input_port_index_ =
-      DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                               drake::Value<ignition::msgs::Model_V>())
-          .get_index();
-  states_input_port_index_ =
-      DeclareAbstractInputPort(
-          drake::systems::kUseDefaultName,
-          drake::Value<
-              drake::systems::rendering::PoseBundle<double>>())
-          .get_index();
+      DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::Model_V>()).get_index();
+  states_input_port_index_ = DeclareAbstractInputPort(drake::systems::kUseDefaultName,
+                                                      drake::Value<drake::systems::rendering::PoseBundle<double>>())
+                                 .get_index();
 
   DeclareAbstractOutputPort(&IgnModelsAssembler::CalcAssembledIgnModelVMessage);
 }
 
-void IgnModelsAssembler::CalcAssembledIgnModelVMessage(
-    const drake::systems::Context<double>& context,
-    ignition::msgs::Model_V* output_models) const {
+void IgnModelsAssembler::CalcAssembledIgnModelVMessage(const drake::systems::Context<double>& context,
+                                                       ignition::msgs::Model_V* output_models) const {
   // Ensures provided output models message is cleared.
   output_models->Clear();
 
   // Retrieves models and states inputs.
   const ignition::msgs::Model_V* input_models =
-      this->template EvalInputValue<ignition::msgs::Model_V>(
-          context, models_input_port_index_);
+      this->template EvalInputValue<ignition::msgs::Model_V>(context, models_input_port_index_);
 
   const drake::systems::rendering::PoseBundle<double>* input_states =
-      this->template EvalInputValue<
-          drake::systems::rendering::PoseBundle<double>>(
-          context, states_input_port_index_);
+      this->template EvalInputValue<drake::systems::rendering::PoseBundle<double>>(context, states_input_port_index_);
 
   // Copies timestamp from input to output.
-  output_models->mutable_header()->mutable_stamp()->CopyFrom(
-      input_models->header().stamp());
+  output_models->mutable_header()->mutable_stamp()->CopyFrom(input_models->header().stamp());
 
   // Reverses the pose bundle index to model ID mapping
   // for convenience.

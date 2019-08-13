@@ -76,10 +76,8 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  BicycleCarState(const BicycleCarState& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
-  BicycleCarState(BicycleCarState&& other) noexcept
-      : drake::systems::BasicVector<T>(std::move(other.values())) {}
+  BicycleCarState(const BicycleCarState& other) : drake::systems::BasicVector<T>(other.values()) {}
+  BicycleCarState(BicycleCarState&& other) noexcept : drake::systems::BasicVector<T>(std::move(other.values())) {}
   BicycleCarState& operator=(const BicycleCarState& other) {
     this->values() = other.values();
     return *this;
@@ -95,9 +93,7 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_Psi(drake::symbolic::Variable("Psi"));
     this->set_Psi_dot(drake::symbolic::Variable("Psi_dot"));
     this->set_beta(drake::symbolic::Variable("beta"));
@@ -221,9 +217,7 @@ class BicycleCarState final : public drake::systems::BasicVector<T> {
   //@}
 
   /// See BicycleCarStateIndices::GetCoordinateNames().
-  static const std::vector<std::string>& GetCoordinateNames() {
-    return BicycleCarStateIndices::GetCoordinateNames();
-  }
+  static const std::vector<std::string>& GetCoordinateNames() { return BicycleCarStateIndices::GetCoordinateNames(); }
 
   /// Returns whether the current values of this vector are well-formed.
   drake::boolean<T> IsValid() const {

@@ -17,10 +17,7 @@ static constexpr double kPowertrainGain{5.};          /* [N] */
 
 class SimplePowertrainTest : public ::testing::Test {
  protected:
-  void SetUp() override {
-    dut_.reset(
-        new SimplePowertrain<double>(kPowertrainTimeConstant, kPowertrainGain));
-  }
+  void SetUp() override { dut_.reset(new SimplePowertrain<double>(kPowertrainTimeConstant, kPowertrainGain)); }
   std::unique_ptr<SimplePowertrain<double>> dut_;  //< The device under test.
 };
 
@@ -40,6 +37,7 @@ TEST_F(SimplePowertrainTest, SystemMatrices) {
   EXPECT_EQ(drake::Vector1<double>(1. / kPowertrainTimeConstant), dut_->C());
 }
 
+// clang-format off
 TEST_F(SimplePowertrainTest, ToAutoDiff) {
   EXPECT_TRUE(is_autodiffxd_convertible(*dut_));
 }
@@ -47,6 +45,7 @@ TEST_F(SimplePowertrainTest, ToAutoDiff) {
 TEST_F(SimplePowertrainTest, ToSymbolic) {
   EXPECT_TRUE(is_symbolic_convertible(*dut_));
 }
+// clang-format on
 
 }  // namespace
 }  // namespace delphyne

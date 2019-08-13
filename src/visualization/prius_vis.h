@@ -41,11 +41,9 @@ class PriusVis : public CarVis<T> {
 
   PriusVis(int id, const std::string& name);
 
-  const std::vector<drake::lcmt_viewer_link_data>& GetVisElements()
-      const override;
+  const std::vector<drake::lcmt_viewer_link_data>& GetVisElements() const override;
 
-  drake::systems::rendering::PoseBundle<T> CalcPoses(
-      const drake::Isometry3<T>& X_WM) const override;
+  drake::systems::rendering::PoseBundle<T> CalcPoses(const drake::Isometry3<T>& X_WM) const override;
 
  private:
   drake::geometry::SceneGraph<T> scene_graph_{};

@@ -16,18 +16,14 @@ GTEST_TEST(IgnModelVToLCMViewerDrawTranslatorSystemTest, TestTranslation) {
   const ignition::msgs::Model_V ign_msg{test::BuildPreloadedModelVMsg()};
 
   const IgnModelVToLcmViewerDraw translator;
-  std::unique_ptr<drake::systems::Context<double>> context =
-      translator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = translator.AllocateContext();
   const int kPortIndex{0};
-  context->FixInputPort(kPortIndex,
-                        drake::AbstractValue::Make(ign_msg));
+  context->FixInputPort(kPortIndex, drake::AbstractValue::Make(ign_msg));
 
-  std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      translator.AllocateOutput();
+  std::unique_ptr<drake::systems::SystemOutput<double>> output = translator.AllocateOutput();
   translator.CalcOutput(*context, output.get());
 
-  const auto& lcm_msg =
-      output->get_data(kPortIndex)->get_value<drake::lcmt_viewer_draw>();
+  const auto& lcm_msg = output->get_data(kPortIndex)->get_value<drake::lcmt_viewer_draw>();
 
   EXPECT_TRUE(test::CheckMsgTranslation(lcm_msg, ign_msg));
 }

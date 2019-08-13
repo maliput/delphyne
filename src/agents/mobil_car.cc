@@ -13,9 +13,9 @@
 #include <string>
 #include <utility>
 
-#include <maliput/api/road_geometry.h>
 #include <drake/common/eigen_types.h>
 #include <drake/systems/primitives/multiplexer.h>
+#include <maliput/api/road_geometry.h>
 
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
@@ -39,11 +39,9 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-MobilCarBlueprint::MobilCarBlueprint(const std::string& name,
-                                     bool direction_of_travel, double x,
-                                     double y, double heading, double speed)
-    : BasicAgentBlueprint(name),
-      initial_parameters_(direction_of_travel, x, y, heading, speed) {}
+MobilCarBlueprint::MobilCarBlueprint(const std::string& name, bool direction_of_travel, double x, double y,
+                                     double heading, double speed)
+    : BasicAgentBlueprint(name), initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
     const maliput::api::RoadGeometry* road_geometry) const {
@@ -67,50 +65,37 @@ std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
   /*********************
    * Instantiate Systems
    *********************/
-  delphyne::MobilPlanner<double>* mobil_planner =
-      builder.AddSystem(std::make_unique<delphyne::MobilPlanner<double>>(
-          *road_geometry, initial_parameters_.direction_of_travel,
-          RoadPositionStrategy::kExhaustiveSearch,
-          0. /* time period (unused) */));
+  delphyne::MobilPlanner<double>* mobil_planner = builder.AddSystem(std::make_unique<delphyne::MobilPlanner<double>>(
+      *road_geometry, initial_parameters_.direction_of_travel, RoadPositionStrategy::kExhaustiveSearch,
+      0. /* time period (unused) */));
   mobil_planner->set_name(this->name() + "_mobil_planner");
 
-  IDMController<double>* idm_controller =
-      builder.AddSystem(std::make_unique<IDMController<double>>(
-          *road_geometry, ScanStrategy::kBranches,
-          RoadPositionStrategy::kExhaustiveSearch,
-          0. /* time period (unused) */));
+  IDMController<double>* idm_controller = builder.AddSystem(std::make_unique<IDMController<double>>(
+      *road_geometry, ScanStrategy::kBranches, RoadPositionStrategy::kExhaustiveSearch, 0. /* time period (unused) */));
   idm_controller->set_name(this->name() + "_idm_controller");
 
-  delphyne::PurePursuitController<double>* pursuit = builder.AddSystem(
-      std::make_unique<delphyne::PurePursuitController<double>>());
+  delphyne::PurePursuitController<double>* pursuit =
+      builder.AddSystem(std::make_unique<delphyne::PurePursuitController<double>>());
   pursuit->set_name(this->name() + "_pure_pursuit_controller");
 
   typedef SimpleCar2<double> SimpleCarSystem;
   SimpleCarSystem* simple_car_system =
-      builder.AddSystem(std::make_unique<SimpleCarSystem>(
-          context_continuous_state, context_numeric_parameters));
+      builder.AddSystem(std::make_unique<SimpleCarSystem>(context_continuous_state, context_numeric_parameters));
   simple_car_system->set_name(this->name() + "_simple_car");
 
-  drake::systems::Multiplexer<double>* mux =
-      builder.AddSystem<drake::systems::Multiplexer<double>>(
-          std::make_unique<drake::systems::Multiplexer<double>>(
-              DrivingCommand<double>()));
+  drake::systems::Multiplexer<double>* mux = builder.AddSystem<drake::systems::Multiplexer<double>>(
+      std::make_unique<drake::systems::Multiplexer<double>>(DrivingCommand<double>()));
   mux->set_name(this->name() + "_mux");
 
   /*********************
    * Diagram Wiring
    *********************/
   // driving
-  builder.Connect(simple_car_system->pose_output(),
-                  mobil_planner->ego_pose_input());
-  builder.Connect(simple_car_system->velocity_output(),
-                  mobil_planner->ego_velocity_input());
-  builder.Connect(idm_controller->acceleration_output(),
-                  mobil_planner->ego_acceleration_input());
-  builder.Connect(simple_car_system->pose_output(),
-                  idm_controller->ego_pose_input());
-  builder.Connect(simple_car_system->velocity_output(),
-                  idm_controller->ego_velocity_input());
+  builder.Connect(simple_car_system->pose_output(), mobil_planner->ego_pose_input());
+  builder.Connect(simple_car_system->velocity_output(), mobil_planner->ego_velocity_input());
+  builder.Connect(idm_controller->acceleration_output(), mobil_planner->ego_acceleration_input());
+  builder.Connect(simple_car_system->pose_output(), idm_controller->ego_pose_input());
+  builder.Connect(simple_car_system->velocity_output(), idm_controller->ego_velocity_input());
 
   builder.ConnectTrafficPosesTo(mobil_planner->traffic_input());
   builder.ConnectTrafficPosesTo(idm_controller->traffic_input());
@@ -120,10 +105,8 @@ std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
   // Build DrivingCommand via a mux of two scalar outputs (a BasicVector where
   // row 0 = steering command, row 1 = acceleration command).
   builder.Connect(pursuit->steering_command_output(), mux->get_input_port(0));
-  builder.Connect(idm_controller->acceleration_output(),
-                  mux->get_input_port(1));
-  builder.Connect(mux->get_output_port(0),
-                  simple_car_system->get_input_port(0));
+  builder.Connect(idm_controller->acceleration_output(), mux->get_input_port(1));
+  builder.Connect(mux->get_output_port(0), simple_car_system->get_input_port(0));
 
   /*********************
    * Diagram Outputs

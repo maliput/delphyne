@@ -8,13 +8,13 @@
 #include <utility>
 #include <vector>
 
-#include <maliput/api/road_geometry.h>
-#include <maliput/api/road_network.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/diagram.h>
 #include <drake/systems/rendering/pose_bundle.h>
+#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 #include <ignition/msgs.hh>
 
@@ -41,13 +41,12 @@ class SceneSystem;
 /// - Symbolic
 template <typename T>
 struct AgentBaseCollision {
-  AgentBaseCollision(const std::pair<AgentBase<T>*, AgentBase<T>*> agents_in,
-                     const drake::Vector3<T>& location_in)
+  AgentBaseCollision(const std::pair<AgentBase<T>*, AgentBase<T>*> agents_in, const drake::Vector3<T>& location_in)
       : agents(agents_in), location(location_in) {}
 
   const std::pair<AgentBase<T>*, AgentBase<T>*> agents;  ///< Pair of agents in
                                                          ///  in collision.
-  const drake::Vector3<T> location;  ///< Location of the point-of-collision.
+  const drake::Vector3<T> location;                      ///< Location of the point-of-collision.
 };
 
 using AgentCollision = AgentBaseCollision<double>;
@@ -77,12 +76,11 @@ class AgentSimulationBase {
   ///                    for all sorts of geometrical queries.
   /// @param scene_system a reference to the scene composing system in this
   ///                     simulation
-  explicit AgentSimulationBase(
-      std::unique_ptr<drake::systems::Simulator<T>> simulator,
-      std::unique_ptr<drake::systems::Diagram<T>> diagram,
-      std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-      std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
-      drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
+  explicit AgentSimulationBase(std::unique_ptr<drake::systems::Simulator<T>> simulator,
+                               std::unique_ptr<drake::systems::Diagram<T>> diagram,
+                               std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
+                               std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
+                               drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
 
   /// Constructs a simulation.
   /// @param simulator the Simulator instance to advance this simulation.
@@ -93,12 +91,11 @@ class AgentSimulationBase {
   ///                    for all sorts of geometrical queries.
   /// @param scene_system a reference to the scene composing system in this
   ///                     simulation
-  explicit AgentSimulationBase(
-      std::unique_ptr<drake::systems::Simulator<T>> simulator,
-      std::unique_ptr<drake::systems::Diagram<T>> diagram,
-      std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
-      std::unique_ptr<const maliput::api::RoadNetwork> road_network,
-      drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
+  explicit AgentSimulationBase(std::unique_ptr<drake::systems::Simulator<T>> simulator,
+                               std::unique_ptr<drake::systems::Diagram<T>> diagram,
+                               std::map<std::string, std::unique_ptr<AgentBase<T>>> agents,
+                               std::unique_ptr<const maliput::api::RoadNetwork> road_network,
+                               drake::geometry::SceneGraph<T>* scene_graph, SceneSystem* scene_system);
 
   /// Returns a reference to the `name`d agent of the given type.
   ///
@@ -110,8 +107,7 @@ class AgentSimulationBase {
   /// @tparam AgentType An AgentBase<T> subclass.
   template <class AgentType>
   const AgentType& GetAgentByName(const std::string& name) {
-    static_assert(std::is_base_of<AgentBase<T>, AgentType>::value,
-                  "Expected type is not an agent type.");
+    static_assert(std::is_base_of<AgentBase<T>, AgentType>::value, "Expected type is not an agent type.");
     return dynamic_cast<const AgentType&>(GetAgentByName(name));
   }
 
@@ -126,8 +122,7 @@ class AgentSimulationBase {
   ///                       for T.
   template <template <typename U> class AgentBaseType>
   const AgentBaseType<T>& GetAgentByName(const std::string& name) {
-    static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value,
-                  "Expected type is not an agent type.");
+    static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value, "Expected type is not an agent type.");
     return dynamic_cast<const AgentBaseType<T>&>(GetAgentByName(name));
   }
 
@@ -149,8 +144,7 @@ class AgentSimulationBase {
   /// @tparam AgentType An AgentBase<T> subclass.
   template <class AgentType>
   AgentType* GetMutableAgentByName(const std::string& name) {
-    static_assert(std::is_base_of<AgentBase<T>, AgentType>::value,
-                  "Expected type is not an agent type.");
+    static_assert(std::is_base_of<AgentBase<T>, AgentType>::value, "Expected type is not an agent type.");
     return dynamic_cast<AgentType*>(GetMutableAgentByName(name));
   }
 
@@ -166,8 +160,7 @@ class AgentSimulationBase {
   ///                       for T.
   template <template <typename U> class AgentBaseType>
   AgentBaseType<T>* GetMutableAgentByName(const std::string& name) {
-    static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value,
-                  "Expected type is not an agent type.");
+    static_assert(std::is_base_of<AgentBase<T>, AgentBaseType<T>>::value, "Expected type is not an agent type.");
     return dynamic_cast<AgentBaseType<T>*>(GetMutableAgentByName(name));
   }
 
@@ -194,15 +187,11 @@ class AgentSimulationBase {
 
   /// Sets the real-time rate for this simulation.
   /// @see systems::Simulator::set_target_realtime_rate
-  void SetRealTimeRate(double realtime_rate) {
-    simulator_->set_target_realtime_rate(realtime_rate);
-  }
+  void SetRealTimeRate(double realtime_rate) { simulator_->set_target_realtime_rate(realtime_rate); }
 
   /// Gets the real-time rate for this simulation.
   /// @see systems::Simulator::get_target_realtime_rate
-  double GetRealTimeRate() const {
-    return simulator_->get_target_realtime_rate();
-  }
+  double GetRealTimeRate() const { return simulator_->get_target_realtime_rate(); }
 
   /// Advances simulated time by the given @p time_step in seconds.
   void StepBy(const T& time_step);
@@ -215,14 +204,10 @@ class AgentSimulationBase {
   const drake::systems::Diagram<T>& GetDiagram() const { return *diagram_; }
 
   /// Gets a reference to the simulation context.
-  const drake::systems::Context<T>& GetContext() const {
-    return simulator_->get_context();
-  }
+  const drake::systems::Context<T>& GetContext() const { return simulator_->get_context(); }
 
   /// Gets a mutable reference to the simulation context.
-  drake::systems::Context<T>* GetMutableContext() {
-    return &simulator_->get_mutable_context();
-  }
+  drake::systems::Context<T>* GetMutableContext() { return &simulator_->get_mutable_context(); }
 
  private:
   // The simulator to advance this simulation in time.

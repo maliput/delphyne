@@ -5,12 +5,12 @@
 #include <memory>
 #include <vector>
 
-#include <maliput/api/lane.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/system_symbolic_inspector.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/api/lane.h>
 
 #include "gen/rail_follower_params.h"
 #include "gen/rail_follower_state.h"
@@ -105,13 +105,11 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
   /// travel.
   /// @param[in] initial_context_state The continuous state variables
   /// @param[in] initial_context_parameters The parameters
-  RailFollower(const LaneDirection& initial_lane_direction,
-               const RailFollowerState<T>& initial_context_state,
+  RailFollower(const LaneDirection& initial_lane_direction, const RailFollowerState<T>& initial_context_state,
                const RailFollowerParams<T>& initial_context_parameters);
 
   /// Returns a mutable reference to the parameters in the given @p context.
-  RailFollowerParams<T>& get_mutable_parameters(
-      drake::systems::Context<T>* context) const;
+  RailFollowerParams<T>& get_mutable_parameters(drake::systems::Context<T>* context) const;
 
   /// Getter methods for input and output ports.
   /// @{
@@ -125,61 +123,46 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
 
  private:
   // System<T> overrides.
-  void DoCalcTimeDerivatives(
-      const drake::systems::Context<T>& context,
-      drake::systems::ContinuousState<T>* derivatives) const override;
+  void DoCalcTimeDerivatives(const drake::systems::Context<T>& context,
+                             drake::systems::ContinuousState<T>* derivatives) const override;
 
   // LeafSystem<T> overrides.
   drake::optional<bool> DoHasDirectFeedthrough(int, int) const override;
-  void DoCalcNextUpdateTime(const drake::systems::Context<T>& context,
-                            drake::systems::CompositeEventCollection<T>*,
+  void DoCalcNextUpdateTime(const drake::systems::Context<T>& context, drake::systems::CompositeEventCollection<T>*,
                             T* time) const override;
-  void DoCalcUnrestrictedUpdate(
-      const drake::systems::Context<T>& context,
-      const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
-      drake::systems::State<T>* state) const override;
+  void DoCalcUnrestrictedUpdate(const drake::systems::Context<T>& context,
+                                const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
+                                drake::systems::State<T>* state) const override;
 
-  void CalcSimpleCarStateOutput(const drake::systems::Context<T>& context,
-                                SimpleCarState<T>* output) const;
+  void CalcSimpleCarStateOutput(const drake::systems::Context<T>& context, SimpleCarState<T>* output) const;
 
-  void CalcStateOutput(const drake::systems::Context<T>& context,
-                       RailFollowerState<T>* output) const;
+  void CalcStateOutput(const drake::systems::Context<T>& context, RailFollowerState<T>* output) const;
 
-  void CalcLaneOutput(const drake::systems::Context<T>& context,
-                      LaneDirection* output) const;
+  void CalcLaneOutput(const drake::systems::Context<T>& context, LaneDirection* output) const;
 
-  void CalcPose(const drake::systems::Context<T>& context,
-                drake::systems::rendering::PoseVector<T>* pose) const;
+  void CalcPose(const drake::systems::Context<T>& context, drake::systems::rendering::PoseVector<T>* pose) const;
 
-  void CalcVelocity(const drake::systems::Context<T>& context,
-                    drake::systems::rendering::FrameVelocity<T>* pose) const;
+  void CalcVelocity(const drake::systems::Context<T>& context, drake::systems::rendering::FrameVelocity<T>* pose) const;
 
-  void ImplCalcTimeDerivatives(const RailFollowerParams<T>& params,
-                               const RailFollowerState<T>& state,
-                               const LaneDirection& lane_direction,
-                               const drake::systems::BasicVector<T>& input,
+  void ImplCalcTimeDerivatives(const RailFollowerParams<T>& params, const RailFollowerState<T>& state,
+                               const LaneDirection& lane_direction, const drake::systems::BasicVector<T>& input,
                                RailFollowerState<T>* rates) const;
 
-  void ImplCalcTimeDerivativesDouble(const RailFollowerParams<double>& params,
-                                     const RailFollowerState<double>& state,
+  void ImplCalcTimeDerivativesDouble(const RailFollowerParams<double>& params, const RailFollowerState<double>& state,
                                      RailFollowerState<double>* rates) const;
 
   // Calculates the vehicle's `r` coordinate based on whether it's traveling
   // with or against `s` in the current lane relative to the initial lane.
-  T CalcR(const RailFollowerParams<T>& params,
-          const LaneDirection& lane_direction) const;
+  T CalcR(const RailFollowerParams<T>& params, const LaneDirection& lane_direction) const;
 
   /****************************************
    * Context Accessors
    ***************************************/
-  const RailFollowerState<T>& get_rail_follower_state(
-      const drake::systems::Context<T>& context) const;
+  const RailFollowerState<T>& get_rail_follower_state(const drake::systems::Context<T>& context) const;
 
-  const RailFollowerParams<T>& get_rail_follower_parameters(
-      const drake::systems::Context<T>& context) const;
+  const RailFollowerParams<T>& get_rail_follower_parameters(const drake::systems::Context<T>& context) const;
 
-  const LaneDirection& get_lane_direction(
-      const drake::systems::Context<T>& context) const;
+  const LaneDirection& get_lane_direction(const drake::systems::Context<T>& context) const;
 
   /********************
    * Initial Values

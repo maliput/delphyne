@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
 #include <drake/common/eigen_types.h>
 #include <drake/common/trajectories/piecewise_polynomial.h>
+#include <maliput/api/road_geometry.h>
 
 #include "systems/lane_direction.h"
 
@@ -40,8 +40,7 @@ class RoadPath {
   /// knot points.
   /// @param num_breaks are the number of breaks at which the knot points will
   /// be evaluated.
-  RoadPath(const LaneDirection& initial_lane_direction, const T& step_size,
-           int num_breaks);
+  RoadPath(const LaneDirection& initial_lane_direction, const T& step_size, int num_breaks);
   ~RoadPath();
 
   const drake::trajectories::PiecewisePolynomial<T>& get_path() const;
@@ -49,8 +48,7 @@ class RoadPath {
   /// Computes the closest `s`-position on the path to an arbitrary point in
   /// the world frame of the provided Maliput Lanes.  (Not yet implemented)
   // TODO(jadecastro): Implement this.
-  const T GetClosestPathPosition(const drake::Vector3<T>& geo_position,
-                                 const T& s_guess) const;
+  const T GetClosestPathPosition(const drake::Vector3<T>& geo_position, const T& s_guess) const;
 
  private:
   // Traverse the road, starting from an initial LaneDirection, and build a
@@ -60,9 +58,8 @@ class RoadPath {
   // If a BranchPoint is encountered in which there is more than one ongoing
   // lane, the zero-index lane is always selected.
   // TODO(jadecastro): Use Lane::GetDefaultBranch() to decide the ongoing Lane.
-  const drake::trajectories::PiecewisePolynomial<T> MakePiecewisePolynomial(
-      const LaneDirection& initial_lane_direction, const T& step_size,
-      int num_breaks) const;
+  const drake::trajectories::PiecewisePolynomial<T> MakePiecewisePolynomial(const LaneDirection& initial_lane_direction,
+                                                                            const T& step_size, int num_breaks) const;
 
   // The path representing the mid-curve of the road.
   drake::trajectories::PiecewisePolynomial<T> path_;

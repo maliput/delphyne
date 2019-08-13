@@ -13,9 +13,9 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/log/Log.hh>
 
-#include "utility/compression.h"
 #include "delphyne/utility/package.h"
 #include "test_utilities/helpers.h"
+#include "utility/compression.h"
 
 namespace delphyne {
 namespace {
@@ -23,8 +23,7 @@ namespace {
 class DataLoggerTest : public test::TestWithFiles {
  protected:
   void DoSetUp() override {
-    auto package = std::make_unique<utility::BundledPackage>(
-        ignition::common::joinPaths(tmpdir(), "base"));
+    auto package = std::make_unique<utility::BundledPackage>(ignition::common::joinPaths(tmpdir(), "base"));
     path_to_mesh_mtl_ = ignition::common::joinPaths(tmpdir(), "quad.mtl");
     std::fstream matfs(path_to_mesh_mtl_, std::ios::out);
     matfs << "newmtl material0\n"
@@ -89,14 +88,12 @@ class DataLoggerTest : public test::TestWithFiles {
 TEST_F(DataLoggerTest, LoggingPreconditions) {
   // Checks that trying to capture meshes on a logger
   // that has not been started fails.
-  EXPECT_THROW(logger_->CaptureMeshes(ignition::msgs::Scene()),
-               std::runtime_error);
+  EXPECT_THROW(logger_->CaptureMeshes(ignition::msgs::Scene()), std::runtime_error);
   // Checks that trying to stop a logger that has not
   // been started fails.
   EXPECT_THROW(logger_->Stop(), std::runtime_error);
 
-  const std::string path_to_logfile =
-      ignition::common::joinPaths(tmpdir(), "test.log");
+  const std::string path_to_logfile = ignition::common::joinPaths(tmpdir(), "test.log");
   logger_->Start(path_to_logfile);
 
   // Checks that trying to start a logger that has
@@ -106,8 +103,7 @@ TEST_F(DataLoggerTest, LoggingPreconditions) {
 
 // Checks that logging is working as expected.
 TEST_F(DataLoggerTest, LoggingWorkflow) {
-  const std::string path_to_logfile =
-      ignition::common::joinPaths(tmpdir(), "test.log");
+  const std::string path_to_logfile = ignition::common::joinPaths(tmpdir(), "test.log");
   EXPECT_FALSE(ignition::common::exists(path_to_logfile));
 
   logger_->Start(path_to_logfile);
@@ -119,19 +115,16 @@ TEST_F(DataLoggerTest, LoggingWorkflow) {
 
   EXPECT_TRUE(ignition::common::isFile(path_to_logfile));
 
-  const std::string path_to_logdir =
-      ignition::common::joinPaths(tmpdir(), "test");
+  const std::string path_to_logdir = ignition::common::joinPaths(tmpdir(), "test");
   EXPECT_TRUE(ignition::common::createDirectories(path_to_logdir));
   UnzipDirectory(path_to_logfile, path_to_logdir);
 
-  const std::string topic_log_path =
-      ignition::common::joinPaths(path_to_logdir, "topic.db");
+  const std::string topic_log_path = ignition::common::joinPaths(path_to_logdir, "topic.db");
   EXPECT_TRUE(ignition::common::isFile(topic_log_path));
   ignition::transport::log::Log topic_log;
   EXPECT_TRUE(topic_log.Open(topic_log_path));
 
-  const std::string bundled_package_path =
-      ignition::common::joinPaths(path_to_logdir, "bundle");
+  const std::string bundled_package_path = ignition::common::joinPaths(path_to_logdir, "bundle");
   EXPECT_TRUE(ignition::common::isDirectory(bundled_package_path));
   utility::BundledPackage package(bundled_package_path);
   EXPECT_TRUE(package.Resolve(path_to_mesh_).Valid());

@@ -15,17 +15,15 @@ const int BicycleCarParametersIndices::kIz;
 const int BicycleCarParametersIndices::kCf;
 const int BicycleCarParametersIndices::kCr;
 
-const std::vector<std::string>&
-BicycleCarParametersIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(
-      std::vector<std::string>{
-          "mass",  // BR
-          "lf",    // BR
-          "lr",    // BR
-          "Iz",    // BR
-          "Cf",    // BR
-          "Cr",    // BR
-      });
+const std::vector<std::string>& BicycleCarParametersIndices::GetCoordinateNames() {
+  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+      "mass",  // BR
+      "lf",    // BR
+      "lr",    // BR
+      "Iz",    // BR
+      "Cf",    // BR
+      "Cr",    // BR
+  });
   return coordinates.access();
 }
 

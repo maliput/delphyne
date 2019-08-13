@@ -11,10 +11,9 @@ const int PurePursuitParamsIndices::kNumCoordinates;
 const int PurePursuitParamsIndices::kSLookahead;
 
 const std::vector<std::string>& PurePursuitParamsIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(
-      std::vector<std::string>{
-          "s_lookahead",  // BR
-      });
+  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+      "s_lookahead",  // BR
+  });
   return coordinates.access();
 }
 

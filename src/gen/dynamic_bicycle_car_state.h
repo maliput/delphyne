@@ -62,8 +62,7 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
   /// @arg @c v_LCp_x defaults to 0.0 m/s.
   /// @arg @c v_LCp_y defaults to 0.0 m/s.
   /// @arg @c yawDt_LC defaults to 0.0 rad/s.
-  DynamicBicycleCarState()
-      : drake::systems::BasicVector<T>(K::kNumCoordinates) {
+  DynamicBicycleCarState() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
     this->set_p_LoCp_x(0.0);
     this->set_p_LoCp_y(0.0);
     this->set_yaw_LC(0.0);
@@ -77,8 +76,7 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  DynamicBicycleCarState(const DynamicBicycleCarState& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  DynamicBicycleCarState(const DynamicBicycleCarState& other) : drake::systems::BasicVector<T>(other.values()) {}
   DynamicBicycleCarState(DynamicBicycleCarState&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   DynamicBicycleCarState& operator=(const DynamicBicycleCarState& other) {
@@ -96,9 +94,7 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_p_LoCp_x(drake::symbolic::Variable("p_LoCp_x"));
     this->set_p_LoCp_y(drake::symbolic::Variable("p_LoCp_y"));
     this->set_yaw_LC(drake::symbolic::Variable("yaw_LC"));
@@ -107,9 +103,7 @@ class DynamicBicycleCarState final : public drake::systems::BasicVector<T> {
     this->set_yawDt_LC(drake::symbolic::Variable("yawDt_LC"));
   }
 
-  DynamicBicycleCarState<T>* DoClone() const final {
-    return new DynamicBicycleCarState;
-  }
+  DynamicBicycleCarState<T>* DoClone() const final { return new DynamicBicycleCarState; }
 
   /// @name Getters and Setters
   //@{

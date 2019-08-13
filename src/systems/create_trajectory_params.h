@@ -8,8 +8,8 @@
 #include <memory>
 #include <tuple>
 
-#include "maliput/api/road_geometry.h"
 #include "dragway/road_geometry.h"
+#include "maliput/api/road_geometry.h"
 
 #include "systems/curve2.h"
 
@@ -40,7 +40,6 @@ std::tuple<Curve2<double>, double, double> CreateTrajectoryParams(int index);
  * @return tuple of curve, speed, start_time
  */
 std::tuple<Curve2<double>, double, double> CreateTrajectoryParamsForDragway(
-    const maliput::dragway::RoadGeometry& road_geometry, int index,
-    double speed, double start_time);
+    const maliput::dragway::RoadGeometry& road_geometry, int index, double speed, double start_time);
 
 }  // namespace delphyne

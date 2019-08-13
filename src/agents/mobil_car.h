@@ -12,8 +12,8 @@
 #include <memory>
 #include <string>
 
-#include <maliput/api/road_geometry.h>
 #include <drake/common/drake_copyable.h>
+#include <maliput/api/road_geometry.h>
 
 // public headers
 #include "delphyne/mi6/agent_base_blueprint.h"
@@ -50,8 +50,8 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
   /// @param y[in] The scene y-coordinate.
   /// @param heading[in] The orientation of the car in the x-y frame.
   /// @param speed[in] The actual initial speed.
-  explicit MobilCarBlueprint(const std::string& name, bool direction_of_travel,
-                             double x, double y, double heading, double speed);
+  explicit MobilCarBlueprint(const std::string& name, bool direction_of_travel, double x, double y, double heading,
+                             double speed);
 
  private:
   struct Parameters {
@@ -61,17 +61,11 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
     double heading{0.0};
     double offset{0.0};
     double speed{0.0};
-    Parameters(bool direction_of_travel, double x, double y, double heading,
-               double speed)
-        : direction_of_travel(direction_of_travel),
-          x(x),
-          y(y),
-          heading(heading),
-          speed(speed) {}
+    Parameters(bool direction_of_travel, double x, double y, double heading, double speed)
+        : direction_of_travel(direction_of_travel), x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(
-      const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
 };
 
 /*****************************************************************************

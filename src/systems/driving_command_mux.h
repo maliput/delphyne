@@ -51,8 +51,7 @@ class DrivingCommandMux : public drake::systems::LeafSystem<T> {
 
  private:
   // Packs a DrivingCommand based on the values seen at the input ports.
-  void CombineInputsToOutput(const drake::systems::Context<T>& context,
-                             DrivingCommand<T>* output) const;
+  void CombineInputsToOutput(const drake::systems::Context<T>& context, DrivingCommand<T>* output) const;
 
   const int steering_port_index_{};
   const int acceleration_port_index_{};

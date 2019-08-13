@@ -41,8 +41,7 @@
 /// };
 /// </pre>
 /// */
-#define DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(class) \
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(class)
+#define DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(class) DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(class)
 
 /// \def STR_SIMPLE
 /// Internal stringify a token

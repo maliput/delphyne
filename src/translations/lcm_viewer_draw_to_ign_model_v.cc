@@ -8,33 +8,23 @@
 
 namespace delphyne {
 
-void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
-    const drake::lcmt_viewer_draw& lcm_message,
-    ignition::msgs::Model_V* ign_message, int64_t time) const {
-  DELPHYNE_VALIDATE(lcm_message.link_name.size() ==
-                        static_cast<unsigned int>(lcm_message.num_links),
-                    std::invalid_argument,
-                    "LCM link name size must equal the number of links");
-  DELPHYNE_VALIDATE(lcm_message.robot_num.size() ==
-                        static_cast<unsigned int>(lcm_message.num_links),
-                    std::invalid_argument,
-                    "LCM robot number size must equal the number of links");
-  DELPHYNE_VALIDATE(lcm_message.position.size() ==
-                        static_cast<unsigned int>(lcm_message.num_links),
-                    std::invalid_argument,
-                    "LCM position size must equal the number of links");
-  DELPHYNE_VALIDATE(lcm_message.quaternion.size() ==
-                        static_cast<unsigned int>(lcm_message.num_links),
-                    std::invalid_argument,
-                    "LCM quaternion size must equal the number of links");
+void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_viewer_draw& lcm_message,
+                                                       ignition::msgs::Model_V* ign_message, int64_t time) const {
+  DELPHYNE_VALIDATE(lcm_message.link_name.size() == static_cast<unsigned int>(lcm_message.num_links),
+                    std::invalid_argument, "LCM link name size must equal the number of links");
+  DELPHYNE_VALIDATE(lcm_message.robot_num.size() == static_cast<unsigned int>(lcm_message.num_links),
+                    std::invalid_argument, "LCM robot number size must equal the number of links");
+  DELPHYNE_VALIDATE(lcm_message.position.size() == static_cast<unsigned int>(lcm_message.num_links),
+                    std::invalid_argument, "LCM position size must equal the number of links");
+  DELPHYNE_VALIDATE(lcm_message.quaternion.size() == static_cast<unsigned int>(lcm_message.num_links),
+                    std::invalid_argument, "LCM quaternion size must equal the number of links");
 
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
 
   // LCM timestamps are in milliseconds.
-  ign_message->mutable_header()->mutable_stamp()->CopyFrom(
-      MillisToIgnitionTime(lcm_message.timestamp));
+  ign_message->mutable_header()->mutable_stamp()->CopyFrom(MillisToIgnitionTime(lcm_message.timestamp));
 
   std::map<int32_t, ignition::msgs::Model*> models;
 
@@ -54,17 +44,14 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(
     ignition::msgs::Pose* pose = link->mutable_pose();
 
     // Checks position size and translates.
-    DELPHYNE_VALIDATE(lcm_message.position[i].size() == kPositionVectorSize,
-                      std::runtime_error, "Position vector size did not match");
-    PositionArrayToIgnition(lcm_message.position[i].data(),
-                            pose->mutable_position());
+    DELPHYNE_VALIDATE(lcm_message.position[i].size() == kPositionVectorSize, std::runtime_error,
+                      "Position vector size did not match");
+    PositionArrayToIgnition(lcm_message.position[i].data(), pose->mutable_position());
 
     // Checks orientation size and translates.
-    DELPHYNE_VALIDATE(
-        lcm_message.quaternion[i].size() == kOrientationVectorSize,
-        std::runtime_error, "Orientation vector size did not match");
-    QuaternionArrayToIgnition(lcm_message.quaternion[i].data(),
-                              pose->mutable_orientation());
+    DELPHYNE_VALIDATE(lcm_message.quaternion[i].size() == kOrientationVectorSize, std::runtime_error,
+                      "Orientation vector size did not match");
+    QuaternionArrayToIgnition(lcm_message.quaternion[i].data(), pose->mutable_orientation());
   }
 }
 

@@ -14,13 +14,13 @@
 namespace delphyne {
 namespace {
 
+using drake::ExtractDoubleOrThrow;
 using std::pow;
 using std::sqrt;
 using test::CheckDerivativeNegativity;
 using test::CheckDerivativePositivity;
 using test::CheckDerivatives;
 using test::SetDerivatives;
-using drake::ExtractDoubleOrThrow;
 
 template <typename T>
 class IdmPlannerTest : public ::testing::Test {
@@ -45,8 +45,7 @@ class IdmPlannerTest : public ::testing::Test {
 
   // Sets the derivatives() to a 3-vector ordered as follows: {ego_velocity,
   // target_distance, target_distance_dot}.
-  void SetAllDerivatives(T* ego_velocity, T* target_distance,
-                         T* target_distance_dot) {
+  void SetAllDerivatives(T* ego_velocity, T* target_distance, T* target_distance_dot) {
     SetDerivatives(ego_velocity, Eigen::VectorXd::Unit(3, 0));
     SetDerivatives(target_distance, Eigen::VectorXd::Unit(3, 1));
     SetDerivatives(target_distance_dot, Eigen::VectorXd::Unit(3, 2));
@@ -56,9 +55,7 @@ class IdmPlannerTest : public ::testing::Test {
   double a() const { return ExtractDoubleOrThrow(this->params_.a()); }
   double v_ref() const { return ExtractDoubleOrThrow(this->params_.v_ref()); }
   double s_0() const { return ExtractDoubleOrThrow(this->params_.s_0()); }
-  double time_headway() const {
-    return ExtractDoubleOrThrow(this->params_.time_headway());
-  }
+  double time_headway() const { return ExtractDoubleOrThrow(this->params_.time_headway()); }
 
   const IdmPlannerParameters<T> params_;
 };
@@ -73,13 +70,10 @@ TYPED_TEST(IdmPlannerTest, SameSpeedAtHeadwayDistance) {
 
   T ego_velocity = this->params_.v_ref();
   T target_distance = this->params_.v_ref() * this->params_.time_headway();
-  T target_distance_dot =
-      -4 * sqrt(this->params_.a() * this->params_.b()) / this->params_.v_ref();
-  this->SetAllDerivatives(&ego_velocity, &target_distance,
-                          &target_distance_dot);
+  T target_distance_dot = -4 * sqrt(this->params_.a() * this->params_.b()) / this->params_.v_ref();
+  this->SetAllDerivatives(&ego_velocity, &target_distance, &target_distance_dot);
 
-  const T result = IdmPlanner<T>::Evaluate(
-      this->params_, ego_velocity, target_distance, target_distance_dot);
+  const T result = IdmPlanner<T>::Evaluate(this->params_, ego_velocity, target_distance, target_distance_dot);
 
   // We expect acceleration to be close to zero.
   EXPECT_NEAR(0., ExtractDoubleOrThrow(result), 1e-2);
@@ -103,11 +97,9 @@ TYPED_TEST(IdmPlannerTest, SameSpeedBelowHeadwayDistance) {
   T ego_velocity = this->params_.v_ref();
   T target_distance = 6.;
   T target_distance_dot = 0.;
-  this->SetAllDerivatives(&ego_velocity, &target_distance,
-                          &target_distance_dot);
+  this->SetAllDerivatives(&ego_velocity, &target_distance, &target_distance_dot);
 
-  const T result = IdmPlanner<T>::Evaluate(
-      this->params_, ego_velocity, target_distance, target_distance_dot);
+  const T result = IdmPlanner<T>::Evaluate(this->params_, ego_velocity, target_distance, target_distance_dot);
 
   // We expect the car to decelerate.
   EXPECT_GT(0., ExtractDoubleOrThrow(result));
@@ -126,11 +118,9 @@ TYPED_TEST(IdmPlannerTest, DifferentSpeedsBelowHeadwayDistance) {
   T ego_velocity = 7.;
   T target_distance = 6.;
   T target_distance_dot = 3.;
-  this->SetAllDerivatives(&ego_velocity, &target_distance,
-                          &target_distance_dot);
+  this->SetAllDerivatives(&ego_velocity, &target_distance, &target_distance_dot);
 
-  const T result = IdmPlanner<T>::Evaluate(
-      this->params_, ego_velocity, target_distance, target_distance_dot);
+  const T result = IdmPlanner<T>::Evaluate(this->params_, ego_velocity, target_distance, target_distance_dot);
 
   // We expect the car to decelerate.
   EXPECT_GT(0., ExtractDoubleOrThrow(result));
@@ -149,11 +139,9 @@ TYPED_TEST(IdmPlannerTest, EgoAtDesiredSpeed) {
   T ego_velocity = this->params_.v_ref();
   T target_distance = std::numeric_limits<double>::infinity();
   T target_distance_dot = this->params_.v_ref();
-  this->SetAllDerivatives(&ego_velocity, &target_distance,
-                          &target_distance_dot);
+  this->SetAllDerivatives(&ego_velocity, &target_distance, &target_distance_dot);
 
-  const T result = IdmPlanner<T>::Evaluate(
-      this->params_, ego_velocity, target_distance, target_distance_dot);
+  const T result = IdmPlanner<T>::Evaluate(this->params_, ego_velocity, target_distance, target_distance_dot);
 
   // We expect acceleration to be close to zero.
   EXPECT_NEAR(0., ExtractDoubleOrThrow(result), 1e-2);
@@ -171,19 +159,16 @@ TYPED_TEST(IdmPlannerTest, EgoStartFromRest) {
   T ego_velocity = 0.;
   T target_distance = 1.;
   T target_distance_dot = 0.;
-  this->SetAllDerivatives(&ego_velocity, &target_distance,
-                          &target_distance_dot);
+  this->SetAllDerivatives(&ego_velocity, &target_distance, &target_distance_dot);
 
-  const T result = IdmPlanner<T>::Evaluate(
-      this->params_, ego_velocity, target_distance, target_distance_dot);
+  const T result = IdmPlanner<T>::Evaluate(this->params_, ego_velocity, target_distance, target_distance_dot);
 
   // We expect the car to stay at rest at this target distance.
   EXPECT_EQ(0., ExtractDoubleOrThrow(result));
 
   // Since v = d_dot = 0, then ∂/∂d_dot(result) = 0 and ∂/∂v(result) and
   // ∂/∂d(result) reduce to the simple relations provided above.
-  CheckDerivatives(result,
-                   Eigen::Vector3d{this->get_dadv(), this->get_dadd(), 0.});
+  CheckDerivatives(result, Eigen::Vector3d{this->get_dadv(), this->get_dadd(), 0.});
 }
 
 // Set the agent and ego sufficiently far apart from one another, with the ego
@@ -194,11 +179,9 @@ TYPED_TEST(IdmPlannerTest, EgoStartWithNegativeSpeed) {
   T ego_velocity = -1.;
   T target_distance = 1.;
   T target_distance_dot = 0.;
-  this->SetAllDerivatives(&ego_velocity, &target_distance,
-                          &target_distance_dot);
+  this->SetAllDerivatives(&ego_velocity, &target_distance, &target_distance_dot);
 
-  const T result = IdmPlanner<T>::Evaluate(
-      this->params_, ego_velocity, target_distance, target_distance_dot);
+  const T result = IdmPlanner<T>::Evaluate(this->params_, ego_velocity, target_distance, target_distance_dot);
 
   // We expect the car to accelerate.
   EXPECT_LT(0., ExtractDoubleOrThrow(result));

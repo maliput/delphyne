@@ -18,20 +18,18 @@ const int IdmPlannerParametersIndices::kBloatDiameter;
 const int IdmPlannerParametersIndices::kDistanceLowerLimit;
 const int IdmPlannerParametersIndices::kScanAheadDistance;
 
-const std::vector<std::string>&
-IdmPlannerParametersIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(
-      std::vector<std::string>{
-          "v_ref",                 // BR
-          "a",                     // BR
-          "b",                     // BR
-          "s_0",                   // BR
-          "time_headway",          // BR
-          "delta",                 // BR
-          "bloat_diameter",        // BR
-          "distance_lower_limit",  // BR
-          "scan_ahead_distance",   // BR
-      });
+const std::vector<std::string>& IdmPlannerParametersIndices::GetCoordinateNames() {
+  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+      "v_ref",                 // BR
+      "a",                     // BR
+      "b",                     // BR
+      "s_0",                   // BR
+      "time_headway",          // BR
+      "delta",                 // BR
+      "bloat_diameter",        // BR
+      "distance_lower_limit",  // BR
+      "scan_ahead_distance",   // BR
+  });
   return coordinates.access();
 }
 

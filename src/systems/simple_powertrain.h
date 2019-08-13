@@ -38,10 +38,8 @@ class SimplePowertrain final : public drake::systems::LinearSystem<T> {
   /// @param gain is the gain converting throttle input to force output [N].
   SimplePowertrain(double time_constant, double gain)
       : drake::systems::LinearSystem<T>(
-            drake::systems::SystemTypeTag<SimplePowertrain>{},
-            drake::Vector1d(-1. / time_constant), drake::Vector1d(gain),
-            drake::Vector1d(1. / time_constant), drake::Vector1d(0.),
-            0.0 /* time_period */),
+            drake::systems::SystemTypeTag<SimplePowertrain>{}, drake::Vector1d(-1. / time_constant),
+            drake::Vector1d(gain), drake::Vector1d(1. / time_constant), drake::Vector1d(0.), 0.0 /* time_period */),
         time_constant_(time_constant),
         gain_(gain) {}
 

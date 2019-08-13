@@ -35,8 +35,7 @@ class CarVis {
   virtual ~CarVis() {}
 
   /// Returns the visualization elements.
-  virtual const std::vector<drake::lcmt_viewer_link_data>& GetVisElements()
-      const = 0;
+  virtual const std::vector<drake::lcmt_viewer_link_data>& GetVisElements() const = 0;
 
   /// Computes and returns the poses of the bodies that constitute the vehicle's
   /// visualization. The provided `X_WM` is the pose of the vehicle model in the
@@ -44,8 +43,7 @@ class CarVis {
   /// middle of the vehicle's rear axle. The poses in the returned PoseBundle
   /// are for the visualization's elements, and are also in the world frame. The
   /// size of this bundle is the value returned by num_poses().
-  virtual drake::systems::rendering::PoseBundle<T> CalcPoses(
-      const drake::Isometry3<T>& X_WM) const = 0;
+  virtual drake::systems::rendering::PoseBundle<T> CalcPoses(const drake::Isometry3<T>& X_WM) const = 0;
 
   /// Returns the ID that was supplied to the constructor.
   int id() const { return id_; }

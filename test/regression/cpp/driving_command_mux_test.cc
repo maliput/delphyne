@@ -44,10 +44,8 @@ TEST_F(DrivingCommandMuxTest, Basic) {
   ASSERT_NE(nullptr, driving_command_output);
 
   // Provide input data.
-  context_->FixInputPort(mux_->steering_input().get_index(),
-                         drake::systems::BasicVector<double>::Make({42.}));
-  context_->FixInputPort(mux_->acceleration_input().get_index(),
-                         drake::systems::BasicVector<double>::Make({11.}));
+  context_->FixInputPort(mux_->steering_input().get_index(), drake::systems::BasicVector<double>::Make({42.}));
+  context_->FixInputPort(mux_->acceleration_input().get_index(), drake::systems::BasicVector<double>::Make({11.}));
 
   // Confirm output data.
   mux_->CalcOutput(*context_, output_.get());
@@ -55,9 +53,11 @@ TEST_F(DrivingCommandMuxTest, Basic) {
   ASSERT_EQ(11., driving_command_output->acceleration());
 }
 
+// clang-format off
 TEST_F(DrivingCommandMuxTest, IsStateless) {
   EXPECT_EQ(0, context_->get_continuous_state().size());
 }
+// clang-format on
 
 // Tests conversion to AutoDiffXd.
 TEST_F(DrivingCommandMuxTest, ToAutoDiff) {
@@ -72,8 +72,7 @@ TEST_F(DrivingCommandMuxTest, ToAutoDiff) {
     const auto context = converted.CreateDefaultContext();
     const auto output = converted.AllocateOutput();
     const DrivingCommand<AutoDiffXd>* driving_command_output =
-        dynamic_cast<const DrivingCommand<AutoDiffXd>*>(
-            output->get_vector_data(0));
+        dynamic_cast<const DrivingCommand<AutoDiffXd>*>(output->get_vector_data(0));
     EXPECT_NE(nullptr, driving_command_output);
   }));
 }
@@ -91,8 +90,7 @@ TEST_F(DrivingCommandMuxTest, ToSymbolic) {
     const auto context = converted.CreateDefaultContext();
     const auto output = converted.AllocateOutput();
     const DrivingCommand<drake::symbolic::Expression>* driving_command_output =
-        dynamic_cast<const DrivingCommand<drake::symbolic::Expression>*>(
-            output->get_vector_data(0));
+        dynamic_cast<const DrivingCommand<drake::symbolic::Expression>*>(output->get_vector_data(0));
     EXPECT_NE(nullptr, driving_command_output);
   }));
 }

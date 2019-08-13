@@ -37,8 +37,7 @@ class PoseVelocity final {
   /// origin.
   /// @param velocity the (rotational/translational) spatial velocity Xdot_WA of
   /// the frame A with respect to frame W.
-  PoseVelocity(const Eigen::Quaternion<double>& rotation,
-               const Eigen::Vector3d& translation,
+  PoseVelocity(const Eigen::Quaternion<double>& rotation, const Eigen::Vector3d& translation,
                const drake::multibody::SpatialVelocity<double>& velocity);
 
   /// Accesses p_WA, the translation component of the pose of A, expressed in
@@ -59,9 +58,7 @@ class PoseVelocity final {
 
   /// Accesses Xdot_WA, a SpatialVelocity of frame A, expressed in world-frame
   /// coordinates W.
-  const drake::multibody::SpatialVelocity<double>& velocity() const {
-    return velocity_;
-  }
+  const drake::multibody::SpatialVelocity<double>& velocity() const { return velocity_; }
 
   /// Gets the speed ‖pdot_WA‖₂, the 2-norm of the world-frame translational
   /// velocities.
@@ -110,12 +107,9 @@ class Trajectory final {
   /// @throws std::runtime_error if `times` and `knots` have different lengths,
   /// `times` is not strictly increasing, and the inputs are otherwise
   /// inconsistent with the given `interp_type` (see piecewise_polynomial.h).
-  static Trajectory Make(
-      const std::vector<double>& times,
-      const std::vector<Eigen::Quaternion<double>>& knots_rotation,
-      const std::vector<Eigen::Vector3d>& knots_translation,
-      const InterpolationType& interp_type =
-          InterpolationType::kFirstOrderHold);
+  static Trajectory Make(const std::vector<double>& times, const std::vector<Eigen::Quaternion<double>>& knots_rotation,
+                         const std::vector<Eigen::Vector3d>& knots_translation,
+                         const InterpolationType& interp_type = InterpolationType::kFirstOrderHold);
 
   /// Makes a Trajectory from a discrete set of (time-independent)
   /// waypoints and a vector of speeds.  The resulting trajectory is assumed to
@@ -143,10 +137,9 @@ class Trajectory final {
   //
   // TODO(jadecastro) Compute the break points as the solution to an
   // optimization problem or from additional user inputs.
-  static Trajectory MakeCubicFromWaypoints(
-      const std::vector<Eigen::Quaternion<double>>& waypoints_rotation,
-      const std::vector<Eigen::Vector3d>& waypoints_translation,
-      const std::vector<double>& speeds);
+  static Trajectory MakeCubicFromWaypoints(const std::vector<Eigen::Quaternion<double>>& waypoints_rotation,
+                                           const std::vector<Eigen::Vector3d>& waypoints_translation,
+                                           const std::vector<double>& speeds);
 
   /// Makes a Trajectory from a discrete set of (time-independent)
   /// waypoints, based on a constant speed, using cubic-polynomial
@@ -160,9 +153,8 @@ class Trajectory final {
   /// trajectory.
   /// @throws std::exception if `speed` is non-positive or if either of the
   /// input vectors is empty.
-  static Trajectory MakeCubicFromWaypoints(
-      const std::vector<Eigen::Quaternion<double>>& waypoints_rotation,
-      const std::vector<Eigen::Vector3d>& waypoints_translation, double speed);
+  static Trajectory MakeCubicFromWaypoints(const std::vector<Eigen::Quaternion<double>>& waypoints_rotation,
+                                           const std::vector<Eigen::Vector3d>& waypoints_translation, double speed);
 
   /// Evaluates the Trajectory at a given @p time, returning a packed
   /// PoseVelocity.
@@ -171,9 +163,8 @@ class Trajectory final {
  private:
   // Constructs a Trajectory from a translation PiecewisePolynomial, @p
   // translation, and a rotation PiecewiseQuaternionSlerp, @p rotation.
-  explicit Trajectory(
-      const drake::trajectories::PiecewisePolynomial<double>& translation,
-      const drake::trajectories::PiecewiseQuaternionSlerp<double>& rotation);
+  explicit Trajectory(const drake::trajectories::PiecewisePolynomial<double>& translation,
+                      const drake::trajectories::PiecewiseQuaternionSlerp<double>& rotation);
 
   drake::trajectories::PiecewisePolynomial<double> translation_;
   drake::trajectories::PiecewiseQuaternionSlerp<double> rotation_;

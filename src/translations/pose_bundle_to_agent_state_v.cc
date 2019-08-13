@@ -16,8 +16,8 @@ namespace delphyne {
 const unsigned int kPoseBundleVectorSize{0};
 
 void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
-    const drake::systems::rendering::PoseBundle<double>& drake_message,
-    ignition::msgs::AgentState_V* ign_message, int64_t time_ms) const {
+    const drake::systems::rendering::PoseBundle<double>& drake_message, ignition::msgs::AgentState_V* ign_message,
+    int64_t time_ms) const {
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();
@@ -31,17 +31,13 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const Eigen::Vector3d euler_rotation = pose.rotation().eulerAngles(0, 1, 2);
 
     // Calculates car's velocity.
-    const drake::multibody::SpatialVelocity<double>& spatial_velocity =
-        drake_message.get_velocity(i).get_velocity();
+    const drake::multibody::SpatialVelocity<double>& spatial_velocity = drake_message.get_velocity(i).get_velocity();
     const drake::Vector3<double>& rotational = spatial_velocity.rotational();
-    const drake::Vector3<double>& translational =
-        spatial_velocity.translational();
+    const drake::Vector3<double>& translational = spatial_velocity.translational();
 
     // Appends a new state to the vector.
     ignition::msgs::AgentState* current_state = ign_message->add_states();
-    current_state->set_name(
-        "/agent/" + drake_message.get_name(i) +
-        "/state");
+    current_state->set_name("/agent/" + drake_message.get_name(i) + "/state");
     current_state->mutable_position()->set_x(pose.translation().x());
     current_state->mutable_position()->set_y(pose.translation().y());
     current_state->mutable_position()->set_z(pose.translation().z());

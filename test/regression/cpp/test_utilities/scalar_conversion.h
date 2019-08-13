@@ -28,25 +28,20 @@ static T copysign_int_to_non_symbolic_scalar(int magic, const T& value) {
 /// `const S<AutoDiffXd>&` and return void; a typical value would be a lambda
 /// such as `[](const auto& converted) { EXPECT_TRUE(converted.thing()); }`.
 template <template <typename> class S, typename Callback>
-::testing::AssertionResult is_autodiffxd_convertible(const S<double>& dut,
-                                                     Callback callback) {
+::testing::AssertionResult is_autodiffxd_convertible(const S<double>& dut, Callback callback) {
   // We must use salted local variable names ("_67273" suffix) to work around
   // GCC 5.4 bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67273 because the
   // `callback` is a generic lambda.  The bug is fixed as of GCC 6.1.
 
   // Check if a proper type came out; return early if not.
-  std::unique_ptr<drake::systems::System<drake::AutoDiffXd>> converted_67273 =
-      dut.ToAutoDiffXdMaybe();
-  ::testing::AssertionResult result_67273 =
-      delphyne::test::is_dynamic_castable<S<drake::AutoDiffXd>>(
-          converted_67273);
+  std::unique_ptr<drake::systems::System<drake::AutoDiffXd>> converted_67273 = dut.ToAutoDiffXdMaybe();
+  ::testing::AssertionResult result_67273 = delphyne::test::is_dynamic_castable<S<drake::AutoDiffXd>>(converted_67273);
   if (!result_67273) {
     return result_67273;
   }
 
   // Allow calling code to specify additional tests on the converted System.
-  const S<drake::AutoDiffXd>& downcast_67273 =
-      dynamic_cast<const S<drake::AutoDiffXd>&>(*converted_67273);
+  const S<drake::AutoDiffXd>& downcast_67273 = dynamic_cast<const S<drake::AutoDiffXd>&>(*converted_67273);
   callback(downcast_67273);
 
   return ::testing::AssertionSuccess();
@@ -66,18 +61,15 @@ template <template <typename> class S>
 /// `const S<Expression>&` and return void; a typical value would be a lambda
 /// such as `[](const auto& converted) { EXPECT_TRUE(converted.thing()); }`.
 template <template <typename> class S, typename Callback>
-::testing::AssertionResult is_symbolic_convertible(const S<double>& dut,
-                                                   Callback callback) {
+::testing::AssertionResult is_symbolic_convertible(const S<double>& dut, Callback callback) {
   // We must use salted local variable names ("_67273" suffix) to work around
   // GCC 5.4 bug https://gcc.gnu.org/bugzilla/show_bug.cgi?id=67273 because the
   // `callback` is a generic lambda.  The bug is fixed as of GCC 6.1.
 
   // Check if a proper type came out; return early if not.
-  std::unique_ptr<drake::systems::System<drake::symbolic::Expression>>
-      converted_67273 = dut.ToSymbolicMaybe();
+  std::unique_ptr<drake::systems::System<drake::symbolic::Expression>> converted_67273 = dut.ToSymbolicMaybe();
   ::testing::AssertionResult result_67273 =
-      delphyne::test::is_dynamic_castable<S<drake::symbolic::Expression>>(
-          converted_67273);
+      delphyne::test::is_dynamic_castable<S<drake::symbolic::Expression>>(converted_67273);
   if (!result_67273) {
     return result_67273;
   }

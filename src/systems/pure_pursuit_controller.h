@@ -47,8 +47,7 @@ class PurePursuitController : public drake::systems::LeafSystem<T> {
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
-  explicit PurePursuitController(const PurePursuitController<U>&)
-      : PurePursuitController<T>() {}
+  explicit PurePursuitController(const PurePursuitController<U>&) : PurePursuitController<T>() {}
 
   ~PurePursuitController() override;
 
@@ -58,14 +57,12 @@ class PurePursuitController : public drake::systems::LeafSystem<T> {
   const drake::systems::OutputPort<T>& steering_command_output() const;
 
  private:
-  void OutputSteeringCommand(const drake::systems::Context<T>& context,
-                             drake::systems::BasicVector<T>* output) const;
+  void OutputSteeringCommand(const drake::systems::Context<T>& context, drake::systems::BasicVector<T>* output) const;
 
-  void CalcSteeringCommand(
-      const PurePursuitParams<T>& pp_params,
-      const SimpleCarParams<T>& car_params, const LaneDirection& lane_direction,
-      const drake::systems::rendering::PoseVector<T>& ego_pose,
-      drake::systems::BasicVector<T>* command) const;
+  void CalcSteeringCommand(const PurePursuitParams<T>& pp_params, const SimpleCarParams<T>& car_params,
+                           const LaneDirection& lane_direction,
+                           const drake::systems::rendering::PoseVector<T>& ego_pose,
+                           drake::systems::BasicVector<T>* command) const;
 
   // Indices for the input / output ports.
   const int lane_index_{};

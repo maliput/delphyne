@@ -27,10 +27,8 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x,
-                                       double y, double heading, double speed)
-    : BasicAgentBlueprint(name),
-      initial_parameters_(x, y, heading, speed) {}
+SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x, double y, double heading, double speed)
+    : BasicAgentBlueprint(name), initial_parameters_(x, y, heading, speed) {}
 
 std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
     const maliput::api::RoadGeometry* road_geometry) const {
@@ -55,21 +53,18 @@ std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
    *********************/
   typedef SimpleCar2<double> SimpleCarSystem;
   SimpleCarSystem* simple_car_system =
-      builder.AddSystem(std::make_unique<SimpleCarSystem>(
-          context_continuous_state, context_numeric_parameters));
+      builder.AddSystem(std::make_unique<SimpleCarSystem>(context_continuous_state, context_numeric_parameters));
   simple_car_system->set_name(this->name() + "_system");
 
   /*********************
    * Teleop Systems
    *********************/
   std::string command_channel = "teleop/" + this->name();
-  typedef IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand>
-      DrivingCommandSubscriber;
-  DrivingCommandSubscriber* driving_command_subscriber = builder.AddSystem(
-      std::make_unique<DrivingCommandSubscriber>(command_channel));
+  typedef IgnSubscriberSystem<ignition::msgs::AutomotiveDrivingCommand> DrivingCommandSubscriber;
+  DrivingCommandSubscriber* driving_command_subscriber =
+      builder.AddSystem(std::make_unique<DrivingCommandSubscriber>(command_channel));
 
-  auto driving_command_translator =
-      builder.AddSystem(std::make_unique<IgnDrivingCommandToDrake>());
+  auto driving_command_translator = builder.AddSystem(std::make_unique<IgnDrivingCommandToDrake>());
 
   // Ignition driving commands received through the subscriber are translated
   // to Drake.

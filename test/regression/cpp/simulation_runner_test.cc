@@ -28,14 +28,9 @@ class SimulationRunnerTest : public test::TestWithFiles {
  protected:
   void SetUp() override {
     AgentSimulationBuilder builder;
-    builder.AddAgent<SimpleCarBlueprint>(
-        "moving_car", kCarX, kCarY,
-        kCarHeading, kCarSpeed);
-    builder.AddAgent<SimpleCarBlueprint>(
-        "stopped_car", kCarX + kCarsDistance,
-        kCarY, kCarHeading, kCarSpeed);
-    sim_runner_ = std::make_unique<SimulationRunner>(
-        builder.Build(), kTimeStep);
+    builder.AddAgent<SimpleCarBlueprint>("moving_car", kCarX, kCarY, kCarHeading, kCarSpeed);
+    builder.AddAgent<SimpleCarBlueprint>("stopped_car", kCarX + kCarsDistance, kCarY, kCarHeading, kCarSpeed);
+    sim_runner_ = std::make_unique<SimulationRunner>(builder.Build(), kTimeStep);
     // Set environmental variable to define the logfile path
     setenv("DELPHYNE_LOGS_PATH", "/tmp/XXXXXX", 1);
   }
@@ -43,15 +38,12 @@ class SimulationRunnerTest : public test::TestWithFiles {
   void TearDown() override { unsetenv("DELPHYNE_LOGS_PATH"); }
 
   // Callback method for handlig SceneRequest service calls
-  void SceneRequestCallback(const ignition::msgs::Scene& request) {
-    callback_called_ = true;
-  }
+  void SceneRequestCallback(const ignition::msgs::Scene& request) { callback_called_ = true; }
 
   // Advertises a service for a given service_name, with
   // the method SceneRequestCallback as callback
   void AdvertiseSceneRequest(std::string service_name) {
-    node_.Advertise(service_name, &SimulationRunnerTest::SceneRequestCallback,
-                    this);
+    node_.Advertise(service_name, &SimulationRunnerTest::SceneRequestCallback, this);
 
     // Calling node_.Request() immediately after Advertise() sometimes causes
     // that call to hang: waiting fixes this.
@@ -61,12 +53,12 @@ class SimulationRunnerTest : public test::TestWithFiles {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
 
-  const double kTimeStep{0.01};  // 10 millis
-  const double kCarX{0.};  // 0 meters
-  const double kCarY{0.};  // 0 meters
+  const double kTimeStep{0.01};     // 10 millis
+  const double kCarX{0.};           // 0 meters
+  const double kCarY{0.};           // 0 meters
   const double kCarsDistance{50.};  // 50 meters
-  const double kCarHeading{0.};  // 0 degrees
-  const double kCarSpeed{10.};  // 10 meters per sec
+  const double kCarHeading{0.};     // 0 degrees
+  const double kCarSpeed{10.};      // 10 meters per sec
   bool callback_called_{false};
 
   std::unique_ptr<SimulationRunner> sim_runner_;
@@ -99,8 +91,7 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 
   auto step_end = std::chrono::steady_clock::now();
 
-  const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-      step_end - step_start);
+  const auto duration = std::chrono::duration_cast<std::chrono::microseconds>(step_end - step_start);
 
   // Expected max/min duration in microseconds.
   std::chrono::microseconds min_simulation_time(9500);
@@ -127,8 +118,7 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg,
-                timeout, response, result);
+  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg, timeout, response, result);
 
   EXPECT_TRUE(result);
   EXPECT_FALSE(callback_called_);
@@ -158,8 +148,7 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg,
-                timeout, response, result);
+  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg, timeout, response, result);
   EXPECT_TRUE(result);
 
   // Wait until the currently running step of the loop finishes.
@@ -196,9 +185,9 @@ TEST_F(SimulationRunnerTest, TestPauseResetMethod) {
 TEST_F(SimulationRunnerTest, TestPauseOnCollision) {
   sim_runner_->EnableCollisions();
   sim_runner_->AddCollisionCallback([this](auto) {
-      EXPECT_TRUE(sim_runner_->IsSimulationPaused());
-      sim_runner_->Stop();
-    });
+    EXPECT_TRUE(sim_runner_->IsSimulationPaused());
+    sim_runner_->Stop();
+  });
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
   sim_runner_->RunSyncFor(kCarsDistance / kCarSpeed);
 }
@@ -209,8 +198,7 @@ TEST_F(SimulationRunnerTest, TestCantPauseTwice) {
   sim_runner_->Start();
   sim_runner_->PauseSimulation();
 
-  EXPECT_RUNTIME_THROW(sim_runner_->PauseSimulation(),
-                       "Cannot pause already paused simulation");
+  EXPECT_RUNTIME_THROW(sim_runner_->PauseSimulation(), "Cannot pause already paused simulation");
 }
 
 // @brief Asserts that the execution breaks if the runner is unpaused twice in
@@ -220,8 +208,7 @@ TEST_F(SimulationRunnerTest, TestCantUnpauseTwice) {
   sim_runner_->PauseSimulation();
   sim_runner_->UnpauseSimulation();
 
-  EXPECT_RUNTIME_THROW(sim_runner_->UnpauseSimulation(),
-                       "Cannot unpause already running simulation");
+  EXPECT_RUNTIME_THROW(sim_runner_->UnpauseSimulation(), "Cannot unpause already running simulation");
 }
 
 // @brief Asserts that the execution breaks if a RequestSimulationStepExecution
@@ -234,15 +221,13 @@ TEST_F(SimulationRunnerTest, TestRequestSimulationStepExecutionWhenNotStarted) {
 // @brief Asserts that the execution breaks if a Start() is requested twice
 TEST_F(SimulationRunnerTest, TestCantStartTwice) {
   sim_runner_->Start();
-  EXPECT_RUNTIME_THROW(sim_runner_->Start(),
-                       "Cannot run a simulation that is already running");
+  EXPECT_RUNTIME_THROW(sim_runner_->Start(), "Cannot run a simulation that is already running");
 }
 
 // @brief Asserts that the execution breaks if Stop() is called and the
 // simulation runner hasn't started yet.
 TEST_F(SimulationRunnerTest, TestStopWithoutStartShouldFail) {
-  EXPECT_RUNTIME_THROW(sim_runner_->Stop(),
-                       "Cannot stop a simulation that is not running");
+  EXPECT_RUNTIME_THROW(sim_runner_->Stop(), "Cannot stop a simulation that is not running");
 }
 
 // @brief Asserts that the execution breaks if a RequestSimulationStepExecution
@@ -252,8 +237,7 @@ TEST_F(SimulationRunnerTest, TestRequestSimulationStepExecutionWhenUnPaused) {
 
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 
-  EXPECT_RUNTIME_THROW(sim_runner_->RequestSimulationStepExecution(1u),
-                       "Cannot step a simulation that is not paused");
+  EXPECT_RUNTIME_THROW(sim_runner_->RequestSimulationStepExecution(1u), "Cannot step a simulation that is not paused");
 }
 
 // @brief Asserts that logs can be sent to a custom destination path.
@@ -264,8 +248,7 @@ TEST_F(SimulationRunnerTest, TestLoggingToCustomPath) {
   EXPECT_FALSE(sim_runner_->IsLogging());
 
   // Start logging at temporary full path.
-  const std::string filename =
-      test::MakeTemporaryDirectory("/tmp/XXXXXX") + "/test.log";
+  const std::string filename = test::MakeTemporaryDirectory("/tmp/XXXXXX") + "/test.log";
   sim_runner_->StartLogging(filename);
 
   // Checks that logging has been started.
@@ -320,8 +303,7 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   // Simulation should now be logging.
   EXPECT_TRUE(sim_runner_->IsLogging());
 
-  EXPECT_NE(std::string::npos,
-            sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
+  EXPECT_NE(std::string::npos, sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
 
   sim_runner_->StopLogging();
 
@@ -335,8 +317,7 @@ TEST_F(SimulationRunnerTest, TestStartStopLogging) {
   // Simulation should now be logging.
   EXPECT_TRUE(sim_runner_->IsLogging());
 
-  EXPECT_NE(std::string::npos,
-            sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
+  EXPECT_NE(std::string::npos, sim_runner_->GetLogFilename().find("/tmp/XXXXXX/logs"));
 }
 
 // @brief Checks that RunSyncFor executes the simulation for the expected
@@ -401,8 +382,7 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
   // Wall clock measured in milliseconds
   const int kMinWallClockDuration = 600;
   const int kDelayForPause = 300;
-  const int kMaxWallClockDuration =
-      kMinWallClockDuration + kDelayForPause + kSimulationDuration * 1000;
+  const int kMaxWallClockDuration = kMinWallClockDuration + kDelayForPause + kSimulationDuration * 1000;
 
   // Variables requires to wait on the async callback
   bool callback_executed(false);
@@ -413,12 +393,11 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
   const auto wall_clock_start = std::chrono::steady_clock::now();
 
   // Run the simulation and flag the condition variable when done.
-  sim_runner_->RunAsyncFor(kSimulationDuration,
-                           [&callback_executed, &m, &cv]() {
-                             std::unique_lock<std::mutex> lock(m);
-                             callback_executed = true;
-                             cv.notify_one();
-                           });
+  sim_runner_->RunAsyncFor(kSimulationDuration, [&callback_executed, &m, &cv]() {
+    std::unique_lock<std::mutex> lock(m);
+    callback_executed = true;
+    cv.notify_one();
+  });
 
   // Wait for 50 milliseconds and pause the execution.
   std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -443,8 +422,7 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
 
   // Compare wall clock time.
   const auto wall_clock_duration =
-      std::chrono::duration_cast<std::chrono::milliseconds>(wall_clock_end -
-                                                            wall_clock_start);
+      std::chrono::duration_cast<std::chrono::milliseconds>(wall_clock_end - wall_clock_start);
 
   // Expected max/min duration in milliseconds.
   const std::chrono::milliseconds min_wall_clock_time(kMinWallClockDuration);
@@ -456,10 +434,8 @@ TEST_F(SimulationRunnerTest, TestPlayPauseOnRunAsyncFor) {
   // Compare simulation time
   const auto elapsed_sim_time = sim_runner_->GetCurrentSimulationTime();
 
-  EXPECT_GE(elapsed_sim_time,
-            kSimulationDuration * (1. - kSimulationRelativeTolerance));
-  EXPECT_LE(elapsed_sim_time,
-            kSimulationDuration * (1. + kSimulationRelativeTolerance));
+  EXPECT_GE(elapsed_sim_time, kSimulationDuration * (1. - kSimulationRelativeTolerance));
+  EXPECT_LE(elapsed_sim_time, kSimulationDuration * (1. + kSimulationRelativeTolerance));
 }
 
 }  // namespace delphyne

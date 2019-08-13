@@ -23,11 +23,9 @@ class BoxCarVis : public CarVis<T> {
  public:
   BoxCarVis(int model_instance_id, const std::string& name);
 
-  const std::vector<drake::lcmt_viewer_link_data>& GetVisElements()
-      const override;
+  const std::vector<drake::lcmt_viewer_link_data>& GetVisElements() const override;
 
-  drake::systems::rendering::PoseBundle<T> CalcPoses(
-      const drake::Isometry3<T>& X_WM) const override;
+  drake::systems::rendering::PoseBundle<T> CalcPoses(const drake::Isometry3<T>& X_WM) const override;
 
  private:
   std::vector<drake::lcmt_viewer_link_data> vis_elements_;

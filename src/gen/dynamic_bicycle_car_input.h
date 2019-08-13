@@ -54,8 +54,7 @@ class DynamicBicycleCarInput final : public drake::systems::BasicVector<T> {
   /// Default constructor.  Sets all rows to their default value:
   /// @arg @c steer_CD defaults to 0.0 rad.
   /// @arg @c f_Cp_x defaults to 0.0 N.
-  DynamicBicycleCarInput()
-      : drake::systems::BasicVector<T>(K::kNumCoordinates) {
+  DynamicBicycleCarInput() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
     this->set_steer_CD(0.0);
     this->set_f_Cp_x(0.0);
   }
@@ -65,8 +64,7 @@ class DynamicBicycleCarInput final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  DynamicBicycleCarInput(const DynamicBicycleCarInput& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  DynamicBicycleCarInput(const DynamicBicycleCarInput& other) : drake::systems::BasicVector<T>(other.values()) {}
   DynamicBicycleCarInput(DynamicBicycleCarInput&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   DynamicBicycleCarInput& operator=(const DynamicBicycleCarInput& other) {
@@ -84,16 +82,12 @@ class DynamicBicycleCarInput final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_steer_CD(drake::symbolic::Variable("steer_CD"));
     this->set_f_Cp_x(drake::symbolic::Variable("f_Cp_x"));
   }
 
-  DynamicBicycleCarInput<T>* DoClone() const final {
-    return new DynamicBicycleCarInput;
-  }
+  DynamicBicycleCarInput<T>* DoClone() const final { return new DynamicBicycleCarInput; }
 
   /// @name Getters and Setters
   //@{

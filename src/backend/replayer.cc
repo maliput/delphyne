@@ -26,11 +26,9 @@ namespace {
 
 // Populates @p dst time based on given @p src timestamp,
 // converting one representation to the other.
-void ChronoToIgnTime(const std::chrono::nanoseconds& src,
-                     ignition::msgs::Time* dst) {
+void ChronoToIgnTime(const std::chrono::nanoseconds& src, ignition::msgs::Time* dst) {
   DELPHYNE_DEMAND(dst != nullptr);
-  std::chrono::seconds src_in_seconds =
-      std::chrono::duration_cast<std::chrono::seconds>(src);
+  std::chrono::seconds src_in_seconds = std::chrono::duration_cast<std::chrono::seconds>(src);
   dst->set_sec(std::floor(src_in_seconds.count()));
   dst->set_nsec((src - src_in_seconds).count());
 }
@@ -74,8 +72,7 @@ class Replayer {
       return 1;
     }
     if (topics_add_result < 0) {
-      ignerr << "Failed to advertise topics: " << topics_add_result
-             << std::endl;
+      ignerr << "Failed to advertise topics: " << topics_add_result << std::endl;
       return 1;
     }
     // Begins playback.
@@ -116,8 +113,7 @@ class Replayer {
       status_pub.Publish(msg);
       // Waits until the given time point.
       std::this_thread::sleep_until(next_status_update_time);
-      next_status_update_time =
-          (std::chrono::steady_clock::now() + kStatusUpdatePeriod);
+      next_status_update_time = (std::chrono::steady_clock::now() + kStatusUpdatePeriod);
     }
     return 0;
   }
@@ -127,11 +123,9 @@ class Replayer {
   ignition::transport::Node::Publisher SetupPlaybackStatusPublication() {
     constexpr const char* const kStatusTopicName = "/replayer/status";
     using ignition::transport::Node;
-    Node::Publisher pub =
-        node_.Advertise<ignition::msgs::PlaybackStatus>(kStatusTopicName);
+    Node::Publisher pub = node_.Advertise<ignition::msgs::PlaybackStatus>(kStatusTopicName);
     if (!pub) {
-      ignerr << "Error advertising topic [" << kStatusTopicName << "]"
-             << std::endl;
+      ignerr << "Error advertising topic [" << kStatusTopicName << "]" << std::endl;
     }
     return pub;
   }
@@ -144,28 +138,20 @@ class Replayer {
     constexpr const char* const kStepServiceName = "/replayer/step";
 
     // Advertises pause and resume services.
-    if (!node_.Advertise(kPauseServiceName, &Replayer::OnPauseRequestCallback,
-                         this)) {
-      ignerr << "Error advertising service [" << kPauseServiceName << "]"
-             << std::endl;
+    if (!node_.Advertise(kPauseServiceName, &Replayer::OnPauseRequestCallback, this)) {
+      ignerr << "Error advertising service [" << kPauseServiceName << "]" << std::endl;
       return false;
     }
-    if (!node_.Advertise(kResumeServiceName, &Replayer::OnResumeRequestCallback,
-                         this)) {
-      ignerr << "Error advertising service [" << kResumeServiceName << "]"
-             << std::endl;
+    if (!node_.Advertise(kResumeServiceName, &Replayer::OnResumeRequestCallback, this)) {
+      ignerr << "Error advertising service [" << kResumeServiceName << "]" << std::endl;
       return false;
     }
-    if (!node_.Advertise(kStepServiceName, &Replayer::OnStepRequestCallback,
-                         this)) {
-      ignerr << "Error advertising service [" << kStepServiceName << "]"
-             << std::endl;
+    if (!node_.Advertise(kStepServiceName, &Replayer::OnStepRequestCallback, this)) {
+      ignerr << "Error advertising service [" << kStepServiceName << "]" << std::endl;
       return false;
     }
-    if (!node_.Advertise(kSeekServiceName, &Replayer::OnSeekRequestCallback,
-                         this)) {
-      ignerr << "Error advertising service [" << kSeekServiceName << "]"
-             << std::endl;
+    if (!node_.Advertise(kSeekServiceName, &Replayer::OnSeekRequestCallback, this)) {
+      ignerr << "Error advertising service [" << kSeekServiceName << "]" << std::endl;
       return false;
     }
     return true;
@@ -197,13 +183,10 @@ class Replayer {
       ignerr << "Playback must be paused to step." << std::endl;
     } else {
       const std::chrono::nanoseconds total_nanos{
-          std::chrono::duration_cast<std::chrono::nanoseconds>(
-              std::chrono::seconds(step_duration.sec())) +
+          std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::seconds(step_duration.sec())) +
           std::chrono::nanoseconds(step_duration.nsec())};
-      const std::chrono::milliseconds total_millis{
-          std::chrono::duration_cast<std::chrono::milliseconds>(total_nanos)};
-      igndbg << "Stepping playback for " << total_millis.count()
-             << " milliseconds." << std::endl;
+      const std::chrono::milliseconds total_millis{std::chrono::duration_cast<std::chrono::milliseconds>(total_nanos)};
+      igndbg << "Stepping playback for " << total_millis.count() << " milliseconds." << std::endl;
       handle_->Step(total_nanos);
     }
   }
@@ -211,12 +194,10 @@ class Replayer {
   // Seek service's handler.
   void OnSeekRequestCallback(const ignition::msgs::Duration& seek_duration) {
     using seconds = std::chrono::duration<double>;
-    const std::chrono::nanoseconds total_nanos{
-        std::chrono::seconds(seek_duration.sec()) +
-        std::chrono::nanoseconds(seek_duration.nsec())};
+    const std::chrono::nanoseconds total_nanos{std::chrono::seconds(seek_duration.sec()) +
+                                               std::chrono::nanoseconds(seek_duration.nsec())};
     const seconds total_secs{total_nanos};
-    ignmsg << "Establishing playback time to " << total_secs.count()
-           << " seconds." << std::endl;
+    ignmsg << "Establishing playback time to " << total_secs.count() << " seconds." << std::endl;
     handle_->Seek(total_nanos);
   }
 
@@ -228,8 +209,7 @@ class Replayer {
     constexpr const char* const kSceneTopicName = "/scene";
     constexpr const char* const kSceneRequestServiceName = "/get_scene";
     // Retrieves first Scene message from the log.
-    Batch scene_messages_batch =
-        log_.QueryMessages(TopicList(std::set<std::string>{kSceneTopicName}));
+    Batch scene_messages_batch = log_.QueryMessages(TopicList(std::set<std::string>{kSceneTopicName}));
     if (scene_messages_batch.begin() == scene_messages_batch.end()) {
       ignwarn << "No scene messages found in the log." << std::endl;
       return false;
@@ -241,8 +221,7 @@ class Replayer {
       return false;
     }
     // Advertises the scene request service.
-    if (!node_.Advertise(kSceneRequestServiceName,
-                         &Replayer::OnSceneRequestCallback, this)) {
+    if (!node_.Advertise(kSceneRequestServiceName, &Replayer::OnSceneRequestCallback, this)) {
       ignwarn << "Error advertising service "
               << "[" << kSceneRequestServiceName << "]" << std::endl;
       return false;

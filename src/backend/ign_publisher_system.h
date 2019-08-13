@@ -23,9 +23,7 @@ namespace delphyne {
 ///
 /// @tparam IGN_TYPE A valid ignition message type.
 template <typename IGN_TYPE,
-          typename std::enable_if<
-              std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value,
-              int>::type = 0>
+          typename std::enable_if<std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value, int>::type = 0>
 class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
  public:
   /// Constructs a publisher that forwards messages at a given fixed rate
@@ -36,20 +34,15 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   /// @param[in] publish_rate The publishing rate, in Hz.
   /// @pre Given @p publish_rate is a positive number.
   /// @warning Failure to meet any of the preconditions will abort execution.
-  explicit IgnPublisherSystem(const std::string& topic_name,
-                              double publish_rate)
-      : topic_name_(topic_name) {
-    DELPHYNE_VALIDATE(publish_rate > 0.0, std::invalid_argument,
-                      "Invalid publish rate (must be > 0.0)");
-    this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                                   drake::Value<IGN_TYPE>());
+  explicit IgnPublisherSystem(const std::string& topic_name, double publish_rate) : topic_name_(topic_name) {
+    DELPHYNE_VALIDATE(publish_rate > 0.0, std::invalid_argument, "Invalid publish rate (must be > 0.0)");
+    this->DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<IGN_TYPE>());
     const double kPublishTimeOffset{0.};
     const drake::systems::PublishEvent<double> publish_event(
         drake::systems::Event<double>::TriggerType::kPeriodic,
-        std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this,
-                  std::placeholders::_1, std::placeholders::_2));
-    this->DeclarePeriodicEvent(1.0 / publish_rate, kPublishTimeOffset,
-                               publish_event);
+        std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this, std::placeholders::_1,
+                  std::placeholders::_2));
+    this->DeclarePeriodicEvent(1.0 / publish_rate, kPublishTimeOffset, publish_event);
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
 
@@ -59,14 +52,12 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   ///
   /// @param[in] topic_name The name of the ignition topic this system will
   ///                       be publishing to.
-  explicit IgnPublisherSystem(const std::string& topic_name)
-      : topic_name_(topic_name) {
-    this->DeclareAbstractInputPort(drake::systems::kUseDefaultName,
-                                   drake::Value<IGN_TYPE>());
+  explicit IgnPublisherSystem(const std::string& topic_name) : topic_name_(topic_name) {
+    this->DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<IGN_TYPE>());
     const drake::systems::PublishEvent<double> publish_event(
         drake::systems::Event<double>::TriggerType::kPerStep,
-        std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this,
-                  std::placeholders::_1, std::placeholders::_2));
+        std::bind(&IgnPublisherSystem<IGN_TYPE>::PublishIgnMessage, this, std::placeholders::_1,
+                  std::placeholders::_2));
     this->DeclarePerStepEvent(publish_event);
     publisher_ = node_.Advertise<IGN_TYPE>(topic_name);
   }
@@ -87,8 +78,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
     const int kPortIndex = 0;
     // Publishes the message onto the specified
     // ignition transport topic.
-    publisher_.Publish(
-        *this->template EvalInputValue<IGN_TYPE>(context, kPortIndex));
+    publisher_.Publish(*this->template EvalInputValue<IGN_TYPE>(context, kPortIndex));
   }
 
   // The topic on which to publish ignition transport messages.

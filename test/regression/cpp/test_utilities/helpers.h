@@ -20,27 +20,24 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
-#define EXPECT_THROW_OF_TYPE(type, statement, msg)                         \
-  do {                                                                     \
-    try {                                                                  \
-      statement;                                                           \
-    } catch (type const& err) {                                            \
-      if (std::string(err.what()).find(msg) == std::string::npos) {        \
-        FAIL() << "Expected error msg containing:" << std::endl            \
-               << msg << std::endl                                         \
-               << "Saw error msg:" << std::endl                            \
-               << err.what() << std::endl;                                 \
-      }                                                                    \
-    } catch (std::exception const& err) {                                  \
-      FAIL() << "Expected " #type << std::endl                             \
-             << "Saw exception type: " << typeid(err).name() << std::endl; \
-    }                                                                      \
+#define EXPECT_THROW_OF_TYPE(type, statement, msg)                                                           \
+  do {                                                                                                       \
+    try {                                                                                                    \
+      statement;                                                                                             \
+    } catch (type const& err) {                                                                              \
+      if (std::string(err.what()).find(msg) == std::string::npos) {                                          \
+        FAIL() << "Expected error msg containing:" << std::endl                                              \
+               << msg << std::endl                                                                           \
+               << "Saw error msg:" << std::endl                                                              \
+               << err.what() << std::endl;                                                                   \
+      }                                                                                                      \
+    } catch (std::exception const& err) {                                                                    \
+      FAIL() << "Expected " #type << std::endl << "Saw exception type: " << typeid(err).name() << std::endl; \
+    }                                                                                                        \
   } while (0)
 
-#define EXPECT_RUNTIME_THROW(st, msg) \
-  EXPECT_THROW_OF_TYPE(std::runtime_error, st, msg)
-#define EXPECT_ARGUMENT_THROW(st, msg) \
-  EXPECT_THROW_OF_TYPE(std::invalid_argument, st, msg)
+#define EXPECT_RUNTIME_THROW(st, msg) EXPECT_THROW_OF_TYPE(std::runtime_error, st, msg)
+#define EXPECT_ARGUMENT_THROW(st, msg) EXPECT_THROW_OF_TYPE(std::invalid_argument, st, msg)
 
 namespace delphyne {
 namespace test {
@@ -72,9 +69,8 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckMsgTranslation(
-    const drake::lcmt_viewer_draw& lcm_msg,
-    const ignition::msgs::Model_V& ign_models);
+::testing::AssertionResult CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
+                                               const ignition::msgs::Model_V& ign_models);
 
 // Asserts that all the array-iterable values from lcm_msg match the content of
 // the ign_models object.
@@ -82,9 +78,8 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // @param lcm_msg An lcm viewer load robot message with the desired values.
 // @param ign_models An ignition messages Model_V with the translated values.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckMsgTranslation(
-    const drake::lcmt_viewer_load_robot& lcm_msg,
-    const ignition::msgs::Model_V& ign_models);
+::testing::AssertionResult CheckMsgTranslation(const drake::lcmt_viewer_load_robot& lcm_msg,
+                                               const ignition::msgs::Model_V& ign_models);
 
 // Asserts that all the array-iterable values from
 // lcm_msg match the content of the scene object.
@@ -92,8 +87,8 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // @param lcm_msg An lcm viewer draw message with the desired values.
 // @param ign_models An ignition messages Scene with the translated values.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckMsgTranslation(
-    const drake::lcmt_viewer_draw& lcm_msg, const ignition::msgs::Scene& scene);
+::testing::AssertionResult CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
+                                               const ignition::msgs::Scene& scene);
 
 // Asserts that the position values found on an array provenient from an
 // lcm message are equivalent to those found on the ignition object.
@@ -103,9 +98,9 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // value.
 // @param tolerance A double containing the translation's tolerance.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckLcmArrayToVector3dEquivalence(
-    const float lcm_position[], const ignition::msgs::Vector3d& ign_position,
-    double tolerance);
+::testing::AssertionResult CheckLcmArrayToVector3dEquivalence(const float lcm_position[],
+                                                              const ignition::msgs::Vector3d& ign_position,
+                                                              double tolerance);
 
 // Asserts that the quaternion values found on an array provenient from an
 // lcm message are equivalent to those found on the ignition object.
@@ -114,9 +109,9 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // @param ign_orientation An ignition messages of type Quaternion.
 // @param tolerance A double containing the translation's tolerance.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckLcmArrayToQuaternionEquivalence(
-    const float lcm_orientation[],
-    const ignition::msgs::Quaternion& ign_orientation, double tolerance);
+::testing::AssertionResult CheckLcmArrayToQuaternionEquivalence(const float lcm_orientation[],
+                                                                const ignition::msgs::Quaternion& ign_orientation,
+                                                                double tolerance);
 
 // Asserts that the color values found on an array provenient from an lcm
 // message are equivalent to those found on the ignition object.
@@ -125,9 +120,8 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // @param ign_color An ignition messages of type Color.
 // @param tolerance A double containing the translation's tolerance.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckLcmArrayToColorEquivalence(
-    const float lcm_color[], const ignition::msgs::Color& ign_color,
-    double tolerance);
+::testing::AssertionResult CheckLcmArrayToColorEquivalence(const float lcm_color[],
+                                                           const ignition::msgs::Color& ign_color, double tolerance);
 
 // Asserts the equivalence between an lcm geometry type versus an
 // ignition messages geometry type.
@@ -136,33 +130,28 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // geometry type.
 // @param ign_orientation An ignition geometry type value.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckGeometryTypeEquivalence(
-    int8_t lcm_geometry_type, ignition::msgs::Geometry::Type ign_geometry_type);
+::testing::AssertionResult CheckGeometryTypeEquivalence(int8_t lcm_geometry_type,
+                                                        ignition::msgs::Geometry::Type ign_geometry_type);
 
 // Asserts that two protobuf messages are equal.
 //
 // @param lhs A protobuf messsage.
 // @param rhs A second protobuf messsage to compare against.
 // @return a google test's AssertionResult.
-::testing::AssertionResult CheckProtobufMsgEquality(
-    const google::protobuf::MessageLite& lhs,
-    const google::protobuf::MessageLite& rhs);
+::testing::AssertionResult CheckProtobufMsgEquality(const google::protobuf::MessageLite& lhs,
+                                                    const google::protobuf::MessageLite& rhs);
 
 // A helper class to monitor publications over an ignition
 // transport topic.
 //
 // @tparam IGN_TYPE A valid ignition message type.
 template <typename IGN_TYPE,
-          typename std::enable_if<
-              std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value,
-              int>::type = 0>
+          typename std::enable_if<std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value, int>::type = 0>
 class IgnMonitor {
  public:
   // Constructs a monitor for the given topic.
   // @param topic_name Valid ignition transport topic name.
-  explicit IgnMonitor(const std::string& topic_name) {
-    node_.Subscribe(topic_name, &IgnMonitor::OnTopicMessage, this);
-  }
+  explicit IgnMonitor(const std::string& topic_name) { node_.Subscribe(topic_name, &IgnMonitor::OnTopicMessage, this); }
 
   ~IgnMonitor() {}
 
@@ -185,8 +174,7 @@ class IgnMonitor {
   // @param timeout Timeout for the wait.
   // @return Whether the wait succeeded or not (i.e. it timed out).
   template <typename R, typename P>
-  bool wait_until(int message_count,
-                  std::chrono::duration<R, P> timeout) const {
+  bool wait_until(int message_count, std::chrono::duration<R, P> timeout) const {
     return do_until(message_count, timeout, [] {});
   }
 
@@ -199,8 +187,7 @@ class IgnMonitor {
   //                  (upon message arrival)
   // @return Whether the wait succeeded or not (i.e. it timed out).
   template <typename R, typename P>
-  bool do_until(int message_count, std::chrono::duration<R, P> timeout,
-                std::function<void()> procedure) const {
+  bool do_until(int message_count, std::chrono::duration<R, P> timeout, std::function<void()> procedure) const {
     std::unique_lock<std::mutex> guard(mutex_);
     while (message_count_ < message_count) {
       procedure();

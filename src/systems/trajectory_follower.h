@@ -53,43 +53,32 @@ class TrajectoryFollower final : public drake::systems::LeafSystem<T> {
   /// @param trajectory a Trajectory containing the trajectory.
   /// @param sampling_time_sec the requested sampling time (in sec) for this
   /// system.  @default 0.01.
-  TrajectoryFollower(const Trajectory& trajectory,
-                     double sampling_time_sec = 0.01);
+  TrajectoryFollower(const Trajectory& trajectory, double sampling_time_sec = 0.01);
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
-  explicit TrajectoryFollower(const TrajectoryFollower<U>& other)
-      : TrajectoryFollower<T>(other.trajectory_) {}
+  explicit TrajectoryFollower(const TrajectoryFollower<U>& other) : TrajectoryFollower<T>(other.trajectory_) {}
 
   /// @name Accessors for the outputs, as enumerated in the class documentation.
   /// @{
-  const drake::systems::OutputPort<T>& state_output() const {
-    return this->get_output_port(0);
-  }
-  const drake::systems::OutputPort<T>& pose_output() const {
-    return this->get_output_port(1);
-  }
-  const drake::systems::OutputPort<T>& velocity_output() const {
-    return this->get_output_port(2);
-  }
+  const drake::systems::OutputPort<T>& state_output() const { return this->get_output_port(0); }
+  const drake::systems::OutputPort<T>& pose_output() const { return this->get_output_port(1); }
+  const drake::systems::OutputPort<T>& velocity_output() const { return this->get_output_port(2); }
   /// @}
 
  private:
   // Converts a PoseVelocity, evaluated at the current time, into a
   // SimpleCarState output.
-  void CalcStateOutput(const drake::systems::Context<T>& context,
-                       SimpleCarState<T>* output_vector) const;
+  void CalcStateOutput(const drake::systems::Context<T>& context, SimpleCarState<T>* output_vector) const;
 
   // Converts a PoseVelocity, evaluated at the current time, into a PoseVector
   // output.
-  void CalcPoseOutput(const drake::systems::Context<T>& context,
-                      drake::systems::rendering::PoseVector<T>* pose) const;
+  void CalcPoseOutput(const drake::systems::Context<T>& context, drake::systems::rendering::PoseVector<T>* pose) const;
 
   // Converts a PoseVelocity, evaluated at the current time, into a
   // FrameVelocity output.
-  void CalcVelocityOutput(
-      const drake::systems::Context<T>& context,
-      drake::systems::rendering::FrameVelocity<T>* velocity) const;
+  void CalcVelocityOutput(const drake::systems::Context<T>& context,
+                          drake::systems::rendering::FrameVelocity<T>* velocity) const;
 
   // Extracts the PoseVelocity value at the current time, as provided in
   // Context.

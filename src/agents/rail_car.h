@@ -12,9 +12,9 @@
 #include <memory>
 #include <string>
 
+#include <drake/systems/primitives/constant_vector_source.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
-#include <drake/systems/primitives/constant_vector_source.h>
 
 // public headers
 #include "delphyne/macros.h"
@@ -84,9 +84,7 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
   ///            line (maliput lane coordinate 'r' (m)).
   /// @param speed The actual initial speed.
   /// @param nominal_speed The desired cruising speed.
-  explicit RailCarBlueprint(const std::string& name,
-                            const maliput::api::Lane& lane,
-                            bool direction_of_travel,
+  explicit RailCarBlueprint(const std::string& name, const maliput::api::Lane& lane, bool direction_of_travel,
                             double longitudinal_position,  // s
                             double lateral_offset,         // r
                             double speed, double nominal_speed);
@@ -102,8 +100,8 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
     bool direction_of_travel{true};  // with or against the lane s-axis
     double position{0.0};            // longitudinal position in lane (m)
     double offset{0.0};              // lateral position in lane (m)
-    double speed{0.0};          // speed in direction of the lane s-axis (m/s)
-    double nominal_speed{0.0};  // nominal cruising speed (m/s)
+    double speed{0.0};               // speed in direction of the lane s-axis (m/s)
+    double nominal_speed{0.0};       // nominal cruising speed (m/s)
     Parameters(const maliput::api::Lane& lane, bool direction_of_travel,
                double position,  // s
                double offset,    // r
@@ -116,9 +114,8 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<RailCar> DoBuildAgentInto(
-      const maliput::api::RoadGeometry* road_geometry,
-      drake::systems::DiagramBuilder<double>* builder) const override;
+  std::unique_ptr<RailCar> DoBuildAgentInto(const maliput::api::RoadGeometry* road_geometry,
+                                            drake::systems::DiagramBuilder<double>* builder) const override;
 };
 
 /*****************************************************************************

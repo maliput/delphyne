@@ -3,13 +3,15 @@
 #include <gtest/gtest.h>
 
 #include <dragway/road_geometry.h>
-#include <multilane/multilane_onramp_merge.h>
 #include <drake/common/autodiff.h>
+#include <multilane/multilane_onramp_merge.h>
 
 #include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseVector;
 using maliput::api::GeoPosition;
 using maliput::api::GeoPositionT;
 using maliput::api::Lane;
@@ -17,8 +19,6 @@ using maliput::api::LaneEnd;
 using maliput::api::LanePosition;
 using maliput::api::RoadPosition;
 using maliput::api::Rotation;
-using drake::systems::rendering::FrameVelocity;
-using drake::systems::rendering::PoseVector;
 
 namespace {
 
@@ -29,16 +29,14 @@ enum class LanePolarity { kWithS, kAgainstS };
 // Sets the pose at s = 1 and sets velocity according to the orientation of the
 // lane, at the requested polarity.  Returns the ground truth LanePosition.
 template <typename T>
-void SetOnrampPoses(const Lane* lane, LanePolarity polarity, const T& speed,
-                    PoseVector<T>* pose, FrameVelocity<T>* velocity) {
+void SetOnrampPoses(const Lane* lane, LanePolarity polarity, const T& speed, PoseVector<T>* pose,
+                    FrameVelocity<T>* velocity) {
   const GeoPosition xyz = lane->ToGeoPosition(kSomeLanePosition);
-  pose->set_translation(
-      drake::Translation3<T>(T(xyz.x()), T(xyz.y()), T(xyz.z())));
+  pose->set_translation(drake::Translation3<T>(T(xyz.x()), T(xyz.y()), T(xyz.z())));
   const Rotation rotation = lane->GetOrientation(kSomeLanePosition);
   const double roll = rotation.roll();
   const double pitch = rotation.pitch();
-  const double yaw =
-      rotation.yaw() - ((polarity == LanePolarity::kWithS) ? 0. : M_PI);
+  const double yaw = rotation.yaw() - ((polarity == LanePolarity::kWithS) ? 0. : M_PI);
   const drake::math::RollPitchYaw<double> new_rotation(roll, pitch, yaw);
   pose->set_rotation(new_rotation.ToQuaternion());
 
@@ -49,8 +47,7 @@ void SetOnrampPoses(const Lane* lane, LanePolarity polarity, const T& speed,
   velocity->set_velocity(drake::multibody::SpatialVelocity<T>(velocity_vector));
 }
 
-const Lane* GetLaneFromId(const maliput::api::RoadGeometry& road,
-                          const std::string& lane_id) {
+const Lane* GetLaneFromId(const maliput::api::RoadGeometry& road, const std::string& lane_id) {
   for (int i = 0; i < road.num_junctions(); ++i) {
     if (road.junction(i)->segment(0)->lane(0)->id().string() == lane_id) {
       return road.junction(i)->segment(0)->lane(0);
@@ -62,9 +59,8 @@ const Lane* GetLaneFromId(const maliput::api::RoadGeometry& road,
 // Sets up poses in the requested lane and performs the tests based on a
 // hypothesized RoadPosition.  If the requested lane is nullptr, then the
 // expected result is the default RoadPosition.
-void PerformTest(const maliput::api::RoadGeometry& rg, const Lane* lane,
-                 LanePolarity polarity, double speed, const Lane* expected_lane,
-                 const LanePosition& expected_lp) {
+void PerformTest(const maliput::api::RoadGeometry& rg, const Lane* lane, LanePolarity polarity, double speed,
+                 const Lane* expected_lane, const LanePosition& expected_lp) {
   DRAKE_DEMAND(lane != nullptr);
 
   // Set the hypothetical pose at s = 10 in `post0`.
@@ -89,8 +85,7 @@ void PerformTest(const maliput::api::RoadGeometry& rg, const Lane* lane,
 GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
   // N.B. In this road, `post0` branches into `pre0` and `onramp1`.
   auto merge_road = std::make_unique<maliput::multilane::MultilaneOnrampMerge>();
-  std::unique_ptr<const maliput::api::RoadGeometry> rg =
-      merge_road->BuildOnramp();
+  std::unique_ptr<const maliput::api::RoadGeometry> rg = merge_road->BuildOnramp();
 
   // Set speed to be zero and the car facing both along and against the
   // s-direction.
@@ -110,39 +105,33 @@ GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
 
 GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
   auto merge_road = std::make_unique<maliput::multilane::MultilaneOnrampMerge>();
-  std::unique_ptr<const maliput::api::RoadGeometry> rg =
-      merge_road->BuildOnramp();
+  std::unique_ptr<const maliput::api::RoadGeometry> rg = merge_road->BuildOnramp();
 
   PoseVector<double> pose;
   FrameVelocity<double> velocity;
   const double speed = 10.;
 
   // A nullptr RoadGeometry should throw.
-  EXPECT_THROW(CalcOngoingRoadPosition(pose, velocity, *rg, nullptr),
-               std::runtime_error);
+  EXPECT_THROW(CalcOngoingRoadPosition(pose, velocity, *rg, nullptr), std::runtime_error);
 
   // Set a hypothetical RoadPosition with nullptr Lane.
   RoadPosition rp(nullptr, LanePosition{0., 0., 0.});
 
   // Set the actual pose somewhere well outside the RoadGeometry.
-  SetOnrampPoses(GetLaneFromId(*rg, "l:post5_0"), LanePolarity::kWithS, speed,
-                 &pose, &velocity);
+  SetOnrampPoses(GetLaneFromId(*rg, "l:post5_0"), LanePolarity::kWithS, speed, &pose, &velocity);
   pose.set_translation(Eigen::Translation3d(1000., 1000., 0.));
 
   CalcOngoingRoadPosition(pose, velocity, *rg, &rp);
 
   // Expect RoadPosition to be closest to `onramp0`.
   EXPECT_EQ(GetLaneFromId(*rg, "l:onramp0_0"), rp.lane);
-  EXPECT_TRUE(test::CompareMatrices(LanePosition{100., -4., 0.}.srh(),
-                                    rp.pos.srh(), 1e-10));
+  EXPECT_TRUE(test::CompareMatrices(LanePosition{100., -4., 0.}.srh(), rp.pos.srh(), 1e-10));
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
   maliput::dragway::RoadGeometry rg(
-      maliput::api::RoadGeometryId("1-lane dragway"), 1 /* num_lanes */,
-      100. /* length */, 2. /* lane_width */, 0. /* shoulder_width */,
-      5. /* maximum_height */,
-      std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+      maliput::api::RoadGeometryId("1-lane dragway"), 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
+      0. /* shoulder_width */, 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
       std::numeric_limits<double>::epsilon() /* angular_tolerance */);
 
   // AutoDiffXd only appear at the inputs; only check that computation succeeds.
@@ -162,8 +151,7 @@ GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
   // The DUT.
   CalcOngoingRoadPosition(pose, velocity, rg, &rp);
 
-  EXPECT_TRUE(test::CompareMatrices(kSomeLanePosition.srh(),
-                                    rp.pos.MakeDouble().srh(), 1e-10));
+  EXPECT_TRUE(test::CompareMatrices(kSomeLanePosition.srh(), rp.pos.MakeDouble().srh(), 1e-10));
   EXPECT_EQ(lane->id(), rp.lane->id());
 }
 

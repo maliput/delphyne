@@ -36,14 +36,12 @@ class SimpleCar2Test : public ::testing::Test {
     const SimpleCarParams<double> default_params;
     auto value = std::make_unique<DrivingCommand<double>>();
     value->set_steering_angle(steering_angle);
-    value->set_acceleration(normalized_acceleration *
-                            default_params.max_acceleration());
+    value->set_acceleration(normalized_acceleration * default_params.max_acceleration());
     context_->FixInputPort(0, std::move(value));
   }
 
   SimpleCarState<double>* continuous_state() {
-    auto result = dynamic_cast<SimpleCarState<double>*>(
-        &context_->get_mutable_continuous_state_vector());
+    auto result = dynamic_cast<SimpleCarState<double>*>(&context_->get_mutable_continuous_state_vector());
     if (result == nullptr) {
       throw std::bad_cast();
     }
@@ -51,22 +49,19 @@ class SimpleCar2Test : public ::testing::Test {
   }
 
   const SimpleCarState<double>* state_output() const {
-    auto state = dynamic_cast<const SimpleCarState<double>*>(
-        output_->get_vector_data(0));
+    auto state = dynamic_cast<const SimpleCarState<double>*>(output_->get_vector_data(0));
     DRAKE_DEMAND(state != nullptr);
     return state;
   }
 
   const PoseVector<double>* pose_output() const {
-    auto pose =
-        dynamic_cast<const PoseVector<double>*>(output_->get_vector_data(1));
+    auto pose = dynamic_cast<const PoseVector<double>*>(output_->get_vector_data(1));
     DRAKE_DEMAND(pose != nullptr);
     return pose;
   }
 
   const FrameVelocity<double>* velocity_output() const {
-    auto velocity =
-        dynamic_cast<const FrameVelocity<double>*>(output_->get_vector_data(2));
+    auto velocity = dynamic_cast<const FrameVelocity<double>*>(output_->get_vector_data(2));
     DRAKE_DEMAND(velocity != nullptr);
     return velocity;
   }
@@ -99,8 +94,7 @@ class SimpleCar2Test : public ::testing::Test {
   // Checks that the velocity output has the correct values for the state that
   // InitializeNonzeroState sets.
   void VerifyNonzeroVelocity() {
-    const drake::multibody::SpatialVelocity<double> v_WC =
-        velocity_output()->get_velocity();
+    const drake::multibody::SpatialVelocity<double> v_WC = velocity_output()->get_velocity();
     EXPECT_EQ(std::cos(3.0) * 4.0, v_WC.translational()[0]);
     EXPECT_EQ(std::sin(3.0) * 4.0, v_WC.translational()[1]);
   }
@@ -145,9 +139,7 @@ TEST_F(SimpleCar2Test, ZeroOutput) {
   EXPECT_EQ(0.0, state->heading());
   EXPECT_EQ(0.0, state->velocity());
 
-  EXPECT_TRUE(
-      test::CompareMatrices(drake::Isometry3<double>::Identity().matrix(),
-                            pose->get_isometry().matrix()));
+  EXPECT_TRUE(test::CompareMatrices(drake::Isometry3<double>::Identity().matrix(), pose->get_isometry().matrix()));
 }
 
 TEST_F(SimpleCar2Test, StateAppearsInOutput) {
@@ -213,8 +205,7 @@ TEST_F(SimpleCar2Test, Derivatives) {
 
   // Grab a pointer to where the EvalTimeDerivatives results end up.
   const SimpleCarState<double>* const result =
-      dynamic_cast<const SimpleCarState<double>*>(
-          &derivatives_->get_mutable_vector());
+      dynamic_cast<const SimpleCarState<double>*>(&derivatives_->get_mutable_vector());
   ASSERT_NE(nullptr, result);
 
   // Starting state is all zeros.
@@ -288,8 +279,7 @@ TEST_F(SimpleCar2Test, Derivatives) {
   EXPECT_EQ(too_fast, result->x());
   EXPECT_EQ(0.0, result->y());
   EXPECT_EQ(0.0, result->heading());
-  EXPECT_NEAR(-0.001 * default_params.velocity_limit_kp(), result->velocity(),
-              kTolerance);
+  EXPECT_NEAR(-0.001 * default_params.velocity_limit_kp(), result->velocity(), kTolerance);
   // ... but not when the brake is larger.
   SetInputValue(0.0, -0.1);
   dut_->CalcTimeDerivatives(*context_, derivatives_.get());
@@ -306,8 +296,7 @@ TEST_F(SimpleCar2Test, Derivatives) {
   EXPECT_EQ(0.0, result->x());  // N.B. Not -0.001!
   EXPECT_EQ(0.0, result->y());
   EXPECT_EQ(0.0, result->heading());  // N.B. Not rotating!
-  EXPECT_NEAR(0.001 * default_params.velocity_limit_kp(), result->velocity(),
-              kTolerance);
+  EXPECT_NEAR(0.001 * default_params.velocity_limit_kp(), result->velocity(), kTolerance);
   // ... but not when the throttle is larger.
   SetInputValue(M_PI_2, 0.1);
   dut_->CalcTimeDerivatives(*context_, derivatives_.get());
@@ -380,11 +369,9 @@ TEST_F(SimpleCar2Test, TransmogrifySymbolic) {
     // TODO(jwnimmer-tri) We should have a framework way to just say "make the
     // entire context symbolic variables (vs zero)" that is reusable for any
     // consumer of the framework.
-    auto input_value =
-        std::make_unique<DrivingCommand<drake::symbolic::Expression>>();
+    auto input_value = std::make_unique<DrivingCommand<drake::symbolic::Expression>>();
     other_context->FixInputPort(0, std::move(input_value));
-    drake::systems::VectorBase<drake::symbolic::Expression>& xc =
-        other_context->get_mutable_continuous_state_vector();
+    drake::systems::VectorBase<drake::symbolic::Expression>& xc = other_context->get_mutable_continuous_state_vector();
     for (int i = 0; i < xc.size(); ++i) {
       xc[i] = drake::symbolic::Variable("xc" + std::to_string(i));
     }
@@ -399,25 +386,19 @@ TEST_F(SimpleCar2Test, TestConstraints) {
   using drake::systems::SystemConstraint;
   using drake::systems::SystemConstraintIndex;
 
-  SimpleCarParams<double>* params = dynamic_cast<SimpleCarParams<double>*>(
-      &context_->get_mutable_numeric_parameter(0));
+  SimpleCarParams<double>* params = dynamic_cast<SimpleCarParams<double>*>(&context_->get_mutable_numeric_parameter(0));
   EXPECT_TRUE(params);
   SimpleCarState<double>* state = continuous_state();
 
   ASSERT_EQ(dut_->num_constraints(), 4);
-  const SystemConstraint<double>& params_constraint =
-      dut_->get_constraint(SystemConstraintIndex(0));
-  const SystemConstraint<double>& steering_constraint =
-      dut_->get_constraint(SystemConstraintIndex(1));
-  const SystemConstraint<double>& acceleration_constraint =
-      dut_->get_constraint(SystemConstraintIndex(2));
-  const SystemConstraint<double>& velocity_constraint =
-      dut_->get_constraint(SystemConstraintIndex(3));
+  const SystemConstraint<double>& params_constraint = dut_->get_constraint(SystemConstraintIndex(0));
+  const SystemConstraint<double>& steering_constraint = dut_->get_constraint(SystemConstraintIndex(1));
+  const SystemConstraint<double>& acceleration_constraint = dut_->get_constraint(SystemConstraintIndex(2));
+  const SystemConstraint<double>& velocity_constraint = dut_->get_constraint(SystemConstraintIndex(3));
 
   // Merely confirm the presence of the parameters constraint; we rely on the
   // framework test coverage to ensure the the details are correct.
-  EXPECT_THAT(params_constraint.description(),
-              ::testing::HasSubstr("SimpleCarParams"));
+  EXPECT_THAT(params_constraint.description(), ::testing::HasSubstr("SimpleCarParams"));
 
   // Test steering constraint.
   EXPECT_EQ(steering_constraint.description(), "steering angle limit");

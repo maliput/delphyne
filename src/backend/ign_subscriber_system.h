@@ -33,44 +33,32 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
   ///
   /// @param[in] topic_name The name of the ignition topic this system will
   /// be subscribed to.
-  explicit IgnSubscriberSystem(const std::string& topic_name)
-      : topic_name_(topic_name) {
-    DeclareAbstractOutputPort(
-        [this]() { return this->AllocateDefaultAbstractValue(); },
-        [this](const drake::systems::Context<double>& context,
-               drake::AbstractValue* out) {
-          this->IgnSubscriberSystem::CalcIgnMessage(context, out);
-        });
+  explicit IgnSubscriberSystem(const std::string& topic_name) : topic_name_(topic_name) {
+    DeclareAbstractOutputPort([this]() { return this->AllocateDefaultAbstractValue(); },
+                              [this](const drake::systems::Context<double>& context, drake::AbstractValue* out) {
+                                this->IgnSubscriberSystem::CalcIgnMessage(context, out);
+                              });
 
-    if (!node_.Subscribe(topic_name_,
-                         &IgnSubscriberSystem<IGN_TYPE>::HandleMessage, this)) {
-      ignerr << "Error subscribing to topic: " << topic_name_
-             << "\n Ignition Subscriber will not work" << std::endl;
+    if (!node_.Subscribe(topic_name_, &IgnSubscriberSystem<IGN_TYPE>::HandleMessage, this)) {
+      ignerr << "Error subscribing to topic: " << topic_name_ << "\n Ignition Subscriber will not work" << std::endl;
     }
   }
 
   ~IgnSubscriberSystem() override {}
 
-  std::unique_ptr<drake::AbstractValue> AllocateDefaultAbstractValue()
-      const {
+  std::unique_ptr<drake::AbstractValue> AllocateDefaultAbstractValue() const {
     return std::make_unique<drake::Value<IGN_TYPE>>(IGN_TYPE{});
   }
 
-  std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState()
-      const override {
-    std::vector<std::unique_ptr<drake::AbstractValue>> abstract_values(
-        kTotalStateValues);
+  std::unique_ptr<drake::systems::AbstractValues> AllocateAbstractState() const override {
+    std::vector<std::unique_ptr<drake::AbstractValue>> abstract_values(kTotalStateValues);
     abstract_values[kStateIndexMessage] = AllocateDefaultAbstractValue();
-    abstract_values[kStateIndexMessageCount] =
-        drake::AbstractValue::Make<int>(0);
-    return std::make_unique<drake::systems::AbstractValues>(
-        std::move(abstract_values));
+    abstract_values[kStateIndexMessageCount] = drake::AbstractValue::Make<int>(0);
+    return std::make_unique<drake::systems::AbstractValues>(std::move(abstract_values));
   }
 
-  void SetDefaultState(const drake::systems::Context<double>&,
-                       drake::systems::State<double>* state) const override {
-    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
-                      "State pointer must not be null");
+  void SetDefaultState(const drake::systems::Context<double>&, drake::systems::State<double>* state) const override {
+    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument, "State pointer must not be null");
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
 
@@ -79,9 +67,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
 
   /// Returns the message counter stored in @p context.
   int GetMessageCount(const drake::systems::Context<double>& context) const {
-    return context.get_abstract_state()
-        .get_value(kStateIndexMessageCount)
-        .get_value<int>();
+    return context.get_abstract_state().get_value(kStateIndexMessageCount).get_value<int>();
   }
 
  protected:
@@ -96,19 +82,14 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
     received_message_count_++;
   }
 
-  void DoCalcNextUpdateTime(
-      const drake::systems::Context<double>& context,
-      drake::systems::CompositeEventCollection<double>* events,
-      double* time) const override {
-    DELPHYNE_VALIDATE(events != nullptr, std::invalid_argument,
-                      "Events pointer must not be null");
-    DELPHYNE_VALIDATE(time != nullptr, std::invalid_argument,
-                      "Time pointer must not be null");
+  void DoCalcNextUpdateTime(const drake::systems::Context<double>& context,
+                            drake::systems::CompositeEventCollection<double>* events, double* time) const override {
+    DELPHYNE_VALIDATE(events != nullptr, std::invalid_argument, "Events pointer must not be null");
+    DELPHYNE_VALIDATE(time != nullptr, std::invalid_argument, "Time pointer must not be null");
 
     // An update time calculation is required here to avoid having
     // a NaN value when callling the StepBy method.
-    drake::systems::LeafSystem<double>::DoCalcNextUpdateTime(context, events,
-                                                             time);
+    drake::systems::LeafSystem<double>::DoCalcNextUpdateTime(context, events, time);
 
     const int last_message_count = GetMessageCount(context);
 
@@ -123,50 +104,38 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
       // TODO(siyuan): should be context.get_time() once #5725 is resolved.
       *time = context.get_time() + 0.0001;
 
-      drake::systems::EventCollection<
-          drake::systems::UnrestrictedUpdateEvent<double>>& uu_events =
+      drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<double>>& uu_events =
           events->get_mutable_unrestricted_update_events();
 
-      uu_events.add_event(
-          std::make_unique<drake::systems::UnrestrictedUpdateEvent<double>>(
-              drake::systems::Event<double>::TriggerType::kTimed));
+      uu_events.add_event(std::make_unique<drake::systems::UnrestrictedUpdateEvent<double>>(
+          drake::systems::Event<double>::TriggerType::kTimed));
     }
   }
 
-  void DoCalcUnrestrictedUpdate(
-      const drake::systems::Context<double>&,
-      const std::vector<
-          const drake::systems::UnrestrictedUpdateEvent<double>*>&,
-      drake::systems::State<double>* state) const override {
-    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument,
-                      "State pointer must not be null");
+  void DoCalcUnrestrictedUpdate(const drake::systems::Context<double>&,
+                                const std::vector<const drake::systems::UnrestrictedUpdateEvent<double>*>&,
+                                drake::systems::State<double>* state) const override {
+    DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument, "State pointer must not be null");
 
     ProcessMessageAndStoreToAbstractState(&state->get_mutable_abstract_state());
   }
 
-  void ProcessMessageAndStoreToAbstractState(
-      drake::systems::AbstractValues* abstract_state) const {
-    DELPHYNE_VALIDATE(abstract_state != nullptr, std::invalid_argument,
-                      "Abstract state pointer must not be null");
+  void ProcessMessageAndStoreToAbstractState(drake::systems::AbstractValues* abstract_state) const {
+    DELPHYNE_VALIDATE(abstract_state != nullptr, std::invalid_argument, "Abstract state pointer must not be null");
 
     std::lock_guard<std::mutex> lock(received_message_mutex_);
 
     if (received_message_count_ > 0) {
-      abstract_state->get_mutable_value(kStateIndexMessage)
-          .get_mutable_value<IGN_TYPE>() = last_received_message_;
+      abstract_state->get_mutable_value(kStateIndexMessage).get_mutable_value<IGN_TYPE>() = last_received_message_;
     }
 
-    abstract_state->get_mutable_value(kStateIndexMessageCount)
-        .get_mutable_value<int>() = received_message_count_;
+    abstract_state->get_mutable_value(kStateIndexMessageCount).get_mutable_value<int>() = received_message_count_;
   }
 
-  void CalcIgnMessage(const drake::systems::Context<double>& context,
-                      drake::AbstractValue* output_value) const {
-    DELPHYNE_VALIDATE(output_value != nullptr, std::invalid_argument,
-                      "Output value pointer must not be null");
+  void CalcIgnMessage(const drake::systems::Context<double>& context, drake::AbstractValue* output_value) const {
+    DELPHYNE_VALIDATE(output_value != nullptr, std::invalid_argument, "Output value pointer must not be null");
 
-    output_value->SetFrom(
-        context.get_abstract_state().get_value(kStateIndexMessage));
+    output_value->SetFrom(context.get_abstract_state().get_value(kStateIndexMessage));
   }
 
  private:

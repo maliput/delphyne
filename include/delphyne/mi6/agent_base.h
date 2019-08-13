@@ -54,8 +54,7 @@ class AgentBase {
   ///                for the agent, owned by the simulation.
   /// @throws std::runtime_error if @p diagram is nullptr.
   explicit AgentBase(Diagram* diagram) : diagram_(diagram), context_(nullptr) {
-    DELPHYNE_VALIDATE(diagram != nullptr, std::runtime_error,
-                      "Invalid null diagram representation given");
+    DELPHYNE_VALIDATE(diagram != nullptr, std::runtime_error, "Invalid null diagram representation given");
   }
 
   virtual ~AgentBase() = default;
@@ -66,15 +65,13 @@ class AgentBase {
   ///                simulation.
   /// @throws std::runtime_error if @p context is nullptr.
   void SetContext(drake::systems::Context<T>* context) {
-    DELPHYNE_VALIDATE(context != nullptr, std::runtime_error,
-                      "Invalid null context given");
+    DELPHYNE_VALIDATE(context != nullptr, std::runtime_error, "Invalid null context given");
     context_ = context;
   }
 
   /// Gets a reference to the agent's Context.
   const drake::systems::Context<T>& GetContext() const {
-    DELPHYNE_VALIDATE(context_ != nullptr, std::runtime_error,
-                      "This agent has no simulation context yet");
+    DELPHYNE_VALIDATE(context_ != nullptr, std::runtime_error, "This agent has no simulation context yet");
     return *context_;
   }
 
@@ -88,10 +85,8 @@ class AgentBase {
   /// @throws std::runtime_error if this agent lacks Context.
   drake::Isometry3<T> GetPose() const {
     constexpr const char* const kPosePortName = "pose";
-    const drake::systems::OutputPort<T>& pose_output_port =
-        GetDiagram().get_output_port(kPosePortName);
-    std::unique_ptr<drake::AbstractValue> port_value =
-        pose_output_port.Allocate();
+    const drake::systems::OutputPort<T>& pose_output_port = GetDiagram().get_output_port(kPosePortName);
+    std::unique_ptr<drake::AbstractValue> port_value = pose_output_port.Allocate();
     pose_output_port.Calc(GetContext(), port_value.get());
     // TODO(hidmic): figure out why type assertions fail if
     // trying to get the port value with the correct type in
@@ -100,10 +95,8 @@ class AgentBase {
     // inherit it, see drake::is_cloneable).
     using drake::systems::BasicVector;
     using drake::systems::rendering::PoseVector;
-    const BasicVector<T>& base_vector =
-        port_value->template get_value<BasicVector<T>>();
-    const PoseVector<T>& pose_vector =
-        dynamic_cast<const PoseVector<T>&>(base_vector);
+    const BasicVector<T>& base_vector = port_value->template get_value<BasicVector<T>>();
+    const PoseVector<T>& pose_vector = dynamic_cast<const PoseVector<T>&>(base_vector);
     return pose_vector.get_isometry();
   }
 
@@ -111,10 +104,8 @@ class AgentBase {
   /// @throws std::runtime_error if this agent lacks Context.
   drake::TwistVector<T> GetVelocity() const {
     constexpr const char* const kVelocityPortName = "velocity";
-    const drake::systems::OutputPort<T>& vel_output_port =
-        GetDiagram().get_output_port(kVelocityPortName);
-    std::unique_ptr<drake::AbstractValue> port_value =
-        vel_output_port.Allocate();
+    const drake::systems::OutputPort<T>& vel_output_port = GetDiagram().get_output_port(kVelocityPortName);
+    std::unique_ptr<drake::AbstractValue> port_value = vel_output_port.Allocate();
     vel_output_port.Calc(GetContext(), port_value.get());
     // TODO(hidmic): figure out why type assertions fail if
     // trying to get the port value with the correct type in
@@ -123,10 +114,8 @@ class AgentBase {
     // inherit it, see drake::is_cloneable).
     using drake::systems::BasicVector;
     using drake::systems::rendering::FrameVelocity;
-    const BasicVector<T>& base_vector =
-        port_value->template get_value<BasicVector<T>>();
-    const FrameVelocity<T>& frame_velocity =
-        dynamic_cast<const FrameVelocity<T>&>(base_vector);
+    const BasicVector<T>& base_vector = port_value->template get_value<BasicVector<T>>();
+    const FrameVelocity<T>& frame_velocity = dynamic_cast<const FrameVelocity<T>&>(base_vector);
     return frame_velocity.get_velocity().get_coeffs();
   }
 
@@ -134,15 +123,12 @@ class AgentBase {
   const std::string& name() const { return GetDiagram().get_name(); }
 
   /// Gets a reference to the agent's geometry IDs.
-  const std::set<drake::geometry::GeometryId>& GetGeometryIDs() const {
-    return geometry_ids_;
-  }
+  const std::set<drake::geometry::GeometryId>& GetGeometryIDs() const { return geometry_ids_; }
 
   /// Checks whether this agent is the source of the given
   /// @p geometry_id (i.e. has registered the geometry associated
   /// with that id) or not.
-  virtual bool IsSourceOf(
-      const drake::geometry::GeometryId& geometry_id) const {
+  virtual bool IsSourceOf(const drake::geometry::GeometryId& geometry_id) const {
     return (geometry_ids_.count(geometry_id) != 0);
   }
 

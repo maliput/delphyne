@@ -44,16 +44,12 @@ class CarVisApplicatorTest : public ::testing::Test {
     ASSERT_NE(dut_, nullptr);
     ASSERT_NE(context_, nullptr);
     const int kPoseIndex = dut_->get_car_poses_input_port().get_index();
-    context_->FixInputPort(
-        kPoseIndex,
-        drake::AbstractValue::Make<PoseBundle<double>>(pose_bundle));
+    context_->FixInputPort(kPoseIndex, drake::AbstractValue::Make<PoseBundle<double>>(pose_bundle));
   }
 
   const PoseBundle<double>& GetOutput() const {
-    const int kOutputIndex =
-        dut_->get_visual_geometry_poses_output_port().get_index();
-    return output_->get_data(kOutputIndex)
-        ->get_value<PoseBundle<double>>();
+    const int kOutputIndex = dut_->get_visual_geometry_poses_output_port().get_index();
+    return output_->get_data(kOutputIndex)->get_value<PoseBundle<double>>();
   }
 
   const int kIdZero{0};
@@ -75,26 +71,21 @@ TEST_F(CarVisApplicatorTest, Topology) {
 }
 
 TEST_F(CarVisApplicatorTest, Configuration) {
-  EXPECT_NO_THROW(
-      dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Alice")));
-  EXPECT_THROW(dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Bob")),
-               std::runtime_error);
+  EXPECT_NO_THROW(dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Alice")));
+  EXPECT_THROW(dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Bob")), std::runtime_error);
 
   const int kFooId{kIdZero + 5};  // Out of order with respect to kIdZero.
-  EXPECT_NO_THROW(
-      dut_->AddCarVis(make_unique<BoxCarVis<double>>(kFooId, "Foo")));
+  EXPECT_NO_THROW(dut_->AddCarVis(make_unique<BoxCarVis<double>>(kFooId, "Foo")));
 
   // Tests CarVisApplicator::get_load_robot_message().
   const int kExpectedGeomType = drake::lcmt_viewer_geometry_data::BOX;
-  const drake::lcmt_viewer_load_robot& load_message =
-      dut_->get_load_robot_message();
+  const drake::lcmt_viewer_load_robot& load_message = dut_->get_load_robot_message();
   EXPECT_EQ(load_message.num_links, 2);
   const int alice_index = load_message.link.at(0).name == "Alice" ? 0 : 1;
   EXPECT_EQ(load_message.link.at(alice_index).name, "Alice");
   EXPECT_EQ(load_message.link.at(alice_index).robot_num, kIdZero);
   EXPECT_EQ(load_message.link.at(alice_index).num_geom, 1);
-  EXPECT_EQ(load_message.link.at(alice_index).geom.at(0).type,
-            kExpectedGeomType);
+  EXPECT_EQ(load_message.link.at(alice_index).geom.at(0).type, kExpectedGeomType);
   const int foo_index = load_message.link.at(0).name == "Foo" ? 0 : 1;
   EXPECT_EQ(load_message.link.at(foo_index).name, "Foo");
   EXPECT_EQ(load_message.link.at(foo_index).robot_num, kFooId);
@@ -106,8 +97,7 @@ TEST_F(CarVisApplicatorTest, Configuration) {
 }
 
 TEST_F(CarVisApplicatorTest, InputOutput) {
-  EXPECT_NO_THROW(
-      dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Alice")));
+  EXPECT_NO_THROW(dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Alice")));
   CreateOutputAndContext();
   Eigen::Isometry3d test_pose = Eigen::Isometry3d::Identity();
   {
@@ -126,8 +116,7 @@ TEST_F(CarVisApplicatorTest, InputOutput) {
 
   const PoseBundle<double>& pose_bundle = GetOutput();
   EXPECT_EQ(pose_bundle.get_num_poses(), 1);
-  EXPECT_TRUE(test::CompareMatrices(pose_bundle.get_pose(0).matrix(),
-                                    test_pose.matrix(), 1e-15));
+  EXPECT_TRUE(test::CompareMatrices(pose_bundle.get_pose(0).matrix(), test_pose.matrix(), 1e-15));
   EXPECT_EQ(pose_bundle.get_name(0), "Alice");
   EXPECT_EQ(pose_bundle.get_model_instance_id(0), kIdZero);
 }
@@ -135,8 +124,7 @@ TEST_F(CarVisApplicatorTest, InputOutput) {
 // Verifies that a bad PoseBundle input that contains an undefined model
 // instance ID or an undefined name results in an exception being thrown.
 TEST_F(CarVisApplicatorTest, BadInput) {
-  EXPECT_NO_THROW(
-      dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Alice")));
+  EXPECT_NO_THROW(dut_->AddCarVis(make_unique<BoxCarVis<double>>(kIdZero, "Alice")));
   CreateOutputAndContext();
   Eigen::Isometry3d test_pose = Eigen::Isometry3d::Identity();
   {
@@ -166,4 +154,4 @@ TEST_F(CarVisApplicatorTest, BadInput) {
 }
 
 }  // namespace
-}  // namespace delphye
+}  // namespace delphyne

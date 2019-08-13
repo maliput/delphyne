@@ -16,36 +16,32 @@ namespace delphyne {
 // https://groups.google.com/forum/#!topic/googletestframework/gVPQmRfJ1m8
 namespace test_p {
 
+using drake::AutoDiffXd;
+using drake::systems::rendering::FrameVelocity;
+using drake::systems::rendering::PoseVector;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
 using maliput::api::RoadPosition;
 using maliput::dragway::RoadGeometry;
-using drake::systems::rendering::FrameVelocity;
-using drake::systems::rendering::PoseVector;
-using drake::AutoDiffXd;
 
 static constexpr double kEgoSPosition{10.};
 static constexpr int kLeadIndex{0};
 static constexpr int kEgoIndex{1};
 
-class IDMControllerTest
-    : public ::testing::TestWithParam<RoadPositionStrategy> {
+class IDMControllerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
  protected:
   void SetUpIdm(ScanStrategy path_or_branches) {
     // Create a straight road with one lane.
     road_.reset(new maliput::dragway::RoadGeometry(
-        maliput::api::RoadGeometryId("Single-Lane Dragway"),
-        1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
-        0. /* shoulder_width */, 5. /* maximum_height */,
-        std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+        maliput::api::RoadGeometryId("Single-Lane Dragway"), 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
+        0. /* shoulder_width */, 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
         std::numeric_limits<double>::epsilon() /* angular_tolerance */));
 
     cache_or_search_ = this->GetParam();
     period_sec_ = 1.;
 
     // Initialize IDMController with the road.
-    dut_.reset(new IDMController<double>(*road_, path_or_branches,
-                                         cache_or_search_, period_sec_));
+    dut_.reset(new IDMController<double>(*road_, path_or_branches, cache_or_search_, period_sec_));
     context_ = dut_->CreateDefaultContext();
     output_ = dut_->AllocateOutput();
 
@@ -60,15 +56,11 @@ class IDMControllerTest
   // Set the default poses according to the desired offset position and speeds
   // for the lead car.  `s_offset = s_lead - s_ego`, `relative_sdot =
   // sdot_lead - sdot_ego`, and `relative_rdot = rdot_lead - rdot_ego`.
-  void SetDefaultPoses(const double ego_speed, const double s_offset = 0.,
-                       const double relative_sdot = 0.,
+  void SetDefaultPoses(const double ego_speed, const double s_offset = 0., const double relative_sdot = 0.,
                        const double relative_rdot = 0.) {
-    DRAKE_DEMAND(ego_pose_input_index_ >= 0 &&
-                 ego_pose_input_index_ < dut_->num_input_ports());
-    DRAKE_DEMAND(ego_velocity_input_index_ >= 0 &&
-                 ego_velocity_input_index_ < dut_->num_input_ports());
-    DRAKE_DEMAND(traffic_input_index_ >= 0 &&
-                 traffic_input_index_ < dut_->num_input_ports());
+    DRAKE_DEMAND(ego_pose_input_index_ >= 0 && ego_pose_input_index_ < dut_->num_input_ports());
+    DRAKE_DEMAND(ego_velocity_input_index_ >= 0 && ego_velocity_input_index_ < dut_->num_input_ports());
+    DRAKE_DEMAND(traffic_input_index_ >= 0 && traffic_input_index_ < dut_->num_input_ports());
 
     auto ego_pose = std::make_unique<PoseVector<double>>();
     auto ego_velocity = std::make_unique<FrameVelocity<double>>();
@@ -78,35 +70,28 @@ class IDMControllerTest
     EXPECT_LE(0., ego_speed);
 
     // Configure the ego car pose and velocity.
-    const Eigen::Translation3d translation_ego(kEgoSPosition /* x */,
-                                               0. /* y */, 0. /* z */);
+    const Eigen::Translation3d translation_ego(kEgoSPosition /* x */, 0. /* y */, 0. /* z */);
     ego_pose->set_translation(translation_ego);
     context_->FixInputPort(ego_pose_input_index_, std::move(ego_pose));
 
     drake::Vector6<double> velocity{};
-    velocity << 0. /* ωx */, 0. /* ωy */, 0. /* ωz */, ego_speed /* vx */,
-        0. /* vy */, 0. /* vz */;
-    ego_velocity->set_velocity(
-        drake::multibody::SpatialVelocity<double>(velocity));
+    velocity << 0. /* ωx */, 0. /* ωy */, 0. /* ωz */, ego_speed /* vx */, 0. /* vy */, 0. /* vz */;
+    ego_velocity->set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
     context_->FixInputPort(ego_velocity_input_index_, std::move(ego_velocity));
 
     // Configure the traffic poses, inclusive of the ego car.
     FrameVelocity<double> lead_velocity;
-    const Eigen::Translation3d translation_lead(
-        kEgoSPosition + s_offset /* x */, 0. /* y */, 0. /* z */);
+    const Eigen::Translation3d translation_lead(kEgoSPosition + s_offset /* x */, 0. /* y */, 0. /* z */);
     traffic_poses.set_pose(kLeadIndex, Eigen::Isometry3d(translation_lead));
     velocity[3] += relative_sdot;
     velocity[4] += relative_rdot;
-    lead_velocity.set_velocity(
-        drake::multibody::SpatialVelocity<double>(velocity));
+    lead_velocity.set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
     traffic_poses.set_velocity(kLeadIndex, lead_velocity);
     traffic_poses.set_pose(kEgoIndex, Eigen::Isometry3d(translation_ego));
-    context_->FixInputPort(traffic_input_index_,
-                           drake::AbstractValue::Make(traffic_poses));
+    context_->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(traffic_poses));
   }
 
-  std::unique_ptr<drake::systems::System<double>>
-      dut_;  //< The device under test.
+  std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
   std::unique_ptr<maliput::dragway::RoadGeometry> road_;
@@ -127,14 +112,11 @@ TEST_P(IDMControllerTest, Topology) {
   const auto& ego_pose_input_port = dut_->get_input_port(ego_pose_input_index_);
   EXPECT_EQ(drake::systems::kVectorValued, ego_pose_input_port.get_data_type());
   EXPECT_EQ(7 /* PoseVector input */, ego_pose_input_port.size());
-  const auto& ego_velocity_input_port =
-      dut_->get_input_port(ego_velocity_input_index_);
-  EXPECT_EQ(drake::systems::kVectorValued,
-            ego_velocity_input_port.get_data_type());
+  const auto& ego_velocity_input_port = dut_->get_input_port(ego_velocity_input_index_);
+  EXPECT_EQ(drake::systems::kVectorValued, ego_velocity_input_port.get_data_type());
   EXPECT_EQ(6 /* FrameVelocity input */, ego_velocity_input_port.size());
   const auto& traffic_input_port = dut_->get_input_port(traffic_input_index_);
-  EXPECT_EQ(drake::systems::kAbstractValued,
-            traffic_input_port.get_data_type());
+  EXPECT_EQ(drake::systems::kAbstractValued, traffic_input_port.get_data_type());
 
   ASSERT_EQ(1, dut_->num_output_ports());
   const auto& output_port = dut_->get_output_port(acceleration_output_index_);
@@ -155,12 +137,10 @@ TEST_P(IDMControllerTest, UnrestrictedUpdate) {
     drake::systems::LeafCompositeEventCollection<double> events;
     double t = dut_->CalcNextUpdateTime(*context_, &events);
     EXPECT_EQ(t, period_sec_);
-    const drake::systems::EventCollection<
-        drake::systems::UnrestrictedUpdateEvent<double>>& e =
+    const drake::systems::EventCollection<drake::systems::UnrestrictedUpdateEvent<double>>& e =
         events.get_unrestricted_update_events();
     const auto& leaf_events =
-        static_cast<const drake::systems::LeafEventCollection<
-            drake::systems::UnrestrictedUpdateEvent<double>>&>(e);
+        static_cast<const drake::systems::LeafEventCollection<drake::systems::UnrestrictedUpdateEvent<double>>&>(e);
     EXPECT_EQ(leaf_events.get_events().size(), 1);
 
     drake::systems::State<double>& state = context_->get_mutable_state();
@@ -168,8 +148,7 @@ TEST_P(IDMControllerTest, UnrestrictedUpdate) {
     const RoadPosition& rp = state.get_abstract_state<RoadPosition>(0);
     const Lane* expected_lane = road_->junction(0)->segment(0)->lane(0);
     EXPECT_EQ(expected_lane->id(), rp.lane->id());
-    EXPECT_TRUE(test::CompareMatrices(LanePosition{kEgoSPosition, 0., 0.}.srh(),
-                                      rp.pos.srh()));
+    EXPECT_TRUE(test::CompareMatrices(LanePosition{kEgoSPosition, 0., 0.}.srh(), rp.pos.srh()));
   }
 }
 
@@ -189,8 +168,7 @@ TEST_P(IDMControllerTest, Output) {
 
   // Set the same conditions as above, but with the lead car having a nonzero
   // r-component in its velocity.
-  SetDefaultPoses(10. /* ego_speed */, 6. /* s_offset */, -5. /* rel_sdot */,
-                  5. /* rel_rdot */);
+  SetDefaultPoses(10. /* ego_speed */, 6. /* s_offset */, -5. /* rel_sdot */, 5. /* rel_rdot */);
   dut_->CalcOutput(*context_, output_.get());
 
   // Expect no change to the previous results.
@@ -242,21 +220,16 @@ TEST_P(IDMControllerTest, ToAutoDiff) {
     const AutoDiffXd kZeroDerivative{0., drake::Vector1d(0.)};
 
     auto pose = std::make_unique<PoseVector<AutoDiffXd>>();
-    const drake::Translation3<AutoDiffXd> translation(
-        AutoDiffXd(0., drake::Vector1d(1.)), /* x */
-        kZeroDerivative,                     /* y */
-        kZeroDerivative);                    /* z */
+    const drake::Translation3<AutoDiffXd> translation(AutoDiffXd(0., drake::Vector1d(1.)), /* x */
+                                                      kZeroDerivative,                     /* y */
+                                                      kZeroDerivative);                    /* z */
     pose->set_translation(translation);
     other_context->FixInputPort(ego_pose_input_index_, std::move(pose));
 
     auto velocity = std::make_unique<FrameVelocity<AutoDiffXd>>();
     const drake::multibody::SpatialVelocity<AutoDiffXd> velocity_vector(
-        drake::Vector3<AutoDiffXd>(kZeroDerivative /* ωx */,
-                                   kZeroDerivative /* ωy */,
-                                   kZeroDerivative /* ωz */),
-        drake::Vector3<AutoDiffXd>(kZeroDerivative /* vx */,
-                                   kZeroDerivative /* vy */,
-                                   kZeroDerivative /* vz */));
+        drake::Vector3<AutoDiffXd>(kZeroDerivative /* ωx */, kZeroDerivative /* ωy */, kZeroDerivative /* ωz */),
+        drake::Vector3<AutoDiffXd>(kZeroDerivative /* vx */, kZeroDerivative /* vy */, kZeroDerivative /* vz */));
     velocity->set_velocity(velocity_vector);
     other_context->FixInputPort(ego_velocity_input_index_, std::move(velocity));
 
@@ -265,11 +238,9 @@ TEST_P(IDMControllerTest, ToAutoDiff) {
     traffic_velocity.set_velocity(velocity_vector);
     poses.set_velocity(0, traffic_velocity);
     poses.set_pose(0, drake::Isometry3<AutoDiffXd>(translation));
-    other_context->FixInputPort(traffic_input_index_,
-                                drake::AbstractValue::Make(poses));
+    other_context->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(poses));
 
-    const auto result =
-        other_output->get_vector_data(acceleration_output_index_);
+    const auto result = other_output->get_vector_data(acceleration_output_index_);
     other_dut.CalcOutput(*other_context, other_output.get());
 
     // It suffices to check that the autodiff derivative seeded at the inputs
@@ -281,8 +252,7 @@ TEST_P(IDMControllerTest, ToAutoDiff) {
     //   2. Has size of one (1) and first entry equal to zero.
     // Note: C++'s "short-circuit evaluation" ensures that the second expression
     //       is never evaluated if the derivatives vector has zero size.
-    EXPECT_TRUE((*result)[0].derivatives().size() == 0 ||
-                (*result)[0].derivatives()(0) == 0.);
+    EXPECT_TRUE((*result)[0].derivatives().size() == 0 || (*result)[0].derivatives()(0) == 0.);
   }));
 }
 
@@ -304,10 +274,8 @@ TEST_P(IDMControllerTest, CheckBranches) {
 }
 
 // Perform all tests with cache and exhaustive search options.
-INSTANTIATE_TEST_CASE_P(
-    RoadPositionStrategy, IDMControllerTest,
-    testing::Values(RoadPositionStrategy::kCache,
-                    RoadPositionStrategy::kExhaustiveSearch));
+INSTANTIATE_TEST_CASE_P(RoadPositionStrategy, IDMControllerTest,
+                        testing::Values(RoadPositionStrategy::kCache, RoadPositionStrategy::kExhaustiveSearch));
 
 }  // namespace test_p
 }  // namespace delphyne

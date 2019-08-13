@@ -21,17 +21,12 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
   /// Default constructor.
   SpeedSystem() {
     speed_feedback_input_port_index_ =
-        this->DeclareVectorInputPort(
-                drake::systems::rendering::FrameVelocity<T>())
-            .get_index();
+        this->DeclareVectorInputPort(drake::systems::rendering::FrameVelocity<T>()).get_index();
 
-    command_input_port_index_ =
-        this->DeclareVectorInputPort(drake::systems::BasicVector<T>(1))
-            .get_index();
+    command_input_port_index_ = this->DeclareVectorInputPort(drake::systems::BasicVector<T>(1)).get_index();
 
     accel_output_port_index_ =
-        this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1),
-                                      &SpeedSystem::CalcOutputAcceleration)
+        this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1), &SpeedSystem::CalcOutputAcceleration)
             .get_index();
   }
 
@@ -45,17 +40,13 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
     return this->get_input_port(speed_feedback_input_port_index_);
   }
 
-  const drake::systems::InputPort<T>& command_input() const {
-    return this->get_input_port(command_input_port_index_);
-  }
+  const drake::systems::InputPort<T>& command_input() const { return this->get_input_port(command_input_port_index_); }
 
  protected:
-  void CalcOutputAcceleration(const drake::systems::Context<T>& context,
-                              drake::systems::BasicVector<T>* output) const {
+  void CalcOutputAcceleration(const drake::systems::Context<T>& context, drake::systems::BasicVector<T>* output) const {
     const drake::systems::rendering::FrameVelocity<T>* feedback_input =
-        this->template EvalVectorInput<
-            drake::systems::rendering::FrameVelocity>(
-            context, speed_feedback_input_port_index_);
+        this->template EvalVectorInput<drake::systems::rendering::FrameVelocity>(context,
+                                                                                 speed_feedback_input_port_index_);
 
     if (feedback_input == nullptr) {
       // If the feedback is not connected, we can't do anything, so leave
@@ -65,8 +56,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
     }
 
     const drake::systems::BasicVector<T>* cmd_input =
-        this->template EvalVectorInput<drake::systems::BasicVector>(
-            context, command_input_port_index_);
+        this->template EvalVectorInput<drake::systems::BasicVector>(context, command_input_port_index_);
 
     if (cmd_input == nullptr) {
       // If the command input is not connected, we can't do anything, so leave
@@ -84,8 +74,7 @@ class SpeedSystem final : public drake::systems::LeafSystem<T> {
       return;
     }
 
-    const drake::multibody::SpatialVelocity<T> vel =
-        feedback_input->get_velocity();
+    const drake::multibody::SpatialVelocity<T> vel = feedback_input->get_velocity();
 
     // Let's calculate the magnitude of the vector to get an estimate
     // of our forward speed.

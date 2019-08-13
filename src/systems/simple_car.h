@@ -63,43 +63,32 @@ class SimpleCar2 final : public drake::systems::LeafSystem<T> {
   ///
   /// @param initial_context_state[in] The continuous state.
   /// @param iniital_context_parameters[in] The numeric parameterisation.
-  SimpleCar2(
-      const SimpleCarState<T>& initial_context_state = SimpleCarState<T>(),
-      const SimpleCarParams<T>& initial_context_parameters =
-          SimpleCarParams<T>());
+  SimpleCar2(const SimpleCarState<T>& initial_context_state = SimpleCarState<T>(),
+             const SimpleCarParams<T>& initial_context_parameters = SimpleCarParams<T>());
 
   /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
   template <typename U>
   explicit SimpleCar2(const SimpleCar2<U>&);
 
   // System<T> overrides
-  void DoCalcTimeDerivatives(
-      const drake::systems::Context<T>& context,
-      drake::systems::ContinuousState<T>* derivatives) const override;
+  void DoCalcTimeDerivatives(const drake::systems::Context<T>& context,
+                             drake::systems::ContinuousState<T>* derivatives) const override;
 
   const drake::systems::OutputPort<T>& state_output() const;
   const drake::systems::OutputPort<T>& pose_output() const;
   const drake::systems::OutputPort<T>& velocity_output() const;
 
  private:
-  void CalcStateOutput(const drake::systems::Context<T>&,
-                       SimpleCarState<T>*) const;
-  void CalcPose(const drake::systems::Context<T>&,
-                drake::systems::rendering::PoseVector<T>*) const;
-  void CalcVelocity(const drake::systems::Context<T>&,
-                    drake::systems::rendering::FrameVelocity<T>*) const;
+  void CalcStateOutput(const drake::systems::Context<T>&, SimpleCarState<T>*) const;
+  void CalcPose(const drake::systems::Context<T>&, drake::systems::rendering::PoseVector<T>*) const;
+  void CalcVelocity(const drake::systems::Context<T>&, drake::systems::rendering::FrameVelocity<T>*) const;
 
-  void ImplCalcTimeDerivatives(const SimpleCarParams<T>& params,
-                               const SimpleCarState<T>& state,
-                               const DrivingCommand<T>& input,
-                               SimpleCarState<T>* rates) const;
+  void ImplCalcTimeDerivatives(const SimpleCarParams<T>& params, const SimpleCarState<T>& state,
+                               const DrivingCommand<T>& input, SimpleCarState<T>* rates) const;
 
-  void CalcSteeringAngleConstraint(const drake::systems::Context<T>&,
-                                   drake::VectorX<T>*) const;
-  void CalcAccelerationConstraint(const drake::systems::Context<T>&,
-                                  drake::VectorX<T>*) const;
-  void CalcVelocityConstraint(const drake::systems::Context<T>&,
-                              drake::VectorX<T>*) const;
+  void CalcSteeringAngleConstraint(const drake::systems::Context<T>&, drake::VectorX<T>*) const;
+  void CalcAccelerationConstraint(const drake::systems::Context<T>&, drake::VectorX<T>*) const;
+  void CalcVelocityConstraint(const drake::systems::Context<T>&, drake::VectorX<T>*) const;
 };
 
 }  // namespace delphyne

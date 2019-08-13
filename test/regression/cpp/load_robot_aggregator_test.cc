@@ -14,9 +14,9 @@
 
 namespace delphyne {
 
-using drake::lcmt_viewer_load_robot;
-using drake::lcmt_viewer_link_data;
 using drake::lcmt_viewer_geometry_data;
+using drake::lcmt_viewer_link_data;
+using drake::lcmt_viewer_load_robot;
 
 // @brief Checks that LCM viewer load robot messages on the input port of the
 // system are correctly aggregated into a new load robot message.
@@ -33,26 +33,21 @@ GTEST_TEST(LoadRobotAggregatorSystemTest, TwoMessagesAggregation) {
   }
 
   const LoadRobotAggregator aggregator({original, modified});
-  std::unique_ptr<drake::systems::Context<double>> context =
-      aggregator.AllocateContext();
+  std::unique_ptr<drake::systems::Context<double>> context = aggregator.AllocateContext();
 
-  std::unique_ptr<drake::systems::SystemOutput<double>> output =
-      aggregator.AllocateOutput();
+  std::unique_ptr<drake::systems::SystemOutput<double>> output = aggregator.AllocateOutput();
   aggregator.CalcOutput(*context, output.get());
 
   const auto& aggregated_load_robot =
-      output->get_data(LoadRobotAggregator::kPortIndex)
-          ->get_value<lcmt_viewer_load_robot>();
+      output->get_data(LoadRobotAggregator::kPortIndex)->get_value<lcmt_viewer_load_robot>();
 
   // The resulting message should have twice the number of links as the original
   // message (since two of those were aggregated).
   ASSERT_EQ(original.num_links * 2, aggregated_load_robot.num_links);
   for (int i = 0; i < original.num_links; ++i) {
     const lcmt_viewer_link_data& original_link = original.link[i];
-    const lcmt_viewer_link_data& unmodified_link =
-        aggregated_load_robot.link[i];
-    const lcmt_viewer_link_data& modified_link =
-        aggregated_load_robot.link[i + original.num_links];
+    const lcmt_viewer_link_data& unmodified_link = aggregated_load_robot.link[i];
+    const lcmt_viewer_link_data& modified_link = aggregated_load_robot.link[i + original.num_links];
 
     EXPECT_EQ(original_link.robot_num, unmodified_link.robot_num);
     EXPECT_EQ(-original_link.robot_num, modified_link.robot_num);

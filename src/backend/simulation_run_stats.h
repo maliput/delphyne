@@ -30,8 +30,7 @@ class SimulationRunStats {
   ///
   /// @param[in] expected_realtime_rate The desired real time based in the
   /// simulation runner configuration.
-  explicit SimulationRunStats(double start_simtime,
-                              double expected_realtime_rate);
+  explicit SimulationRunStats(double start_simtime, double expected_realtime_rate);
 
   /// @brief Creates a new simulation run.
   ///
@@ -43,9 +42,7 @@ class SimulationRunStats {
   ///
   /// @param[in] start_realtime The time the simulation started, given by the
   /// wall clock.
-  explicit SimulationRunStats(double start_simtime,
-                              double expected_realtime_rate,
-                              const TimePoint& start_realtime);
+  explicit SimulationRunStats(double start_simtime, double expected_realtime_rate, const TimePoint& start_realtime);
 
   /// @brief Records that a step was executed by the simulator.
   ///
@@ -86,9 +83,7 @@ class SimulationRunStats {
   const TimePoint& get_start_realtime() const { return start_realtime_; }
 
   /// @brief Returns the real time of the last recorded step.
-  const TimePoint& get_last_step_realtime() const {
-    return last_step_realtime_;
-  }
+  const TimePoint& get_last_step_realtime() const { return last_step_realtime_; }
 
   double get_expected_realtime_rate() const { return expected_realtime_rate_; }
 

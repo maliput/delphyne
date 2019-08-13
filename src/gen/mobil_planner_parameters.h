@@ -57,8 +57,7 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   /// @arg @c p defaults to 0.5 dimensionless.
   /// @arg @c threshold defaults to 0.1 m/s^2.
   /// @arg @c max_deceleration defaults to 4.0 m/s^2.
-  MobilPlannerParameters()
-      : drake::systems::BasicVector<T>(K::kNumCoordinates) {
+  MobilPlannerParameters() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
     this->set_p(0.5);
     this->set_threshold(0.1);
     this->set_max_deceleration(4.0);
@@ -69,8 +68,7 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  MobilPlannerParameters(const MobilPlannerParameters& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  MobilPlannerParameters(const MobilPlannerParameters& other) : drake::systems::BasicVector<T>(other.values()) {}
   MobilPlannerParameters(MobilPlannerParameters&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   MobilPlannerParameters& operator=(const MobilPlannerParameters& other) {
@@ -87,17 +85,13 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   /// Create a symbolic::Variable for each element with the known variable
   /// name.  This is only available for T == symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_p(drake::symbolic::Variable("p"));
     this->set_threshold(drake::symbolic::Variable("threshold"));
     this->set_max_deceleration(drake::symbolic::Variable("max_deceleration"));
   }
 
-  MobilPlannerParameters<T>* DoClone() const final {
-    return new MobilPlannerParameters;
-  }
+  MobilPlannerParameters<T>* DoClone() const final { return new MobilPlannerParameters; }
 
   /// @name Getters and Setters
   //@{
@@ -154,8 +148,7 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
   /// Fluent setter that matches max_deceleration().
   /// Returns a copy of `this` with max_deceleration set to a new value.
   DRAKE_VECTOR_GEN_NODISCARD
-  MobilPlannerParameters<T> with_max_deceleration(
-      const T& max_deceleration) const {
+  MobilPlannerParameters<T> with_max_deceleration(const T& max_deceleration) const {
     MobilPlannerParameters<T> result(*this);
     result.set_max_deceleration(max_deceleration);
     return result;
@@ -181,8 +174,7 @@ class MobilPlannerParameters final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  void GetElementBounds(Eigen::VectorXd* lower,
-                        Eigen::VectorXd* upper) const final {
+  void GetElementBounds(Eigen::VectorXd* lower, Eigen::VectorXd* upper) const final {
     const double kInf = std::numeric_limits<double>::infinity();
     *lower = Eigen::Matrix<double, 3, 1>::Constant(-kInf);
     *upper = Eigen::Matrix<double, 3, 1>::Constant(kInf);

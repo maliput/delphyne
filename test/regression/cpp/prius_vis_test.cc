@@ -63,42 +63,35 @@ GTEST_TEST(PriusVisTest, BasicTest) {
   // Defines visualization model translation offsets to evaluate. All poses in
   // the resulting visualization PoseBundle should be offset by these amounts
   // relative to `origin_vis_poses`.
-  const std::vector<std::vector<double>> translation_offsets = {
-      {1, 0, 0}, {0, 1, 0}, {0, 0, 1}, {1, 1, 0}, {0, 1, 1}, {1, 1, 1}};
+  const std::vector<std::vector<double>> translation_offsets = {{1, 0, 0}, {0, 1, 0}, {0, 0, 1},
+                                                                {1, 1, 0}, {0, 1, 1}, {1, 1, 1}};
 
   for (const auto& translation : translation_offsets) {
     const int xOffset = translation.at(0);
     const int yOffset = translation.at(1);
     const int zOffset = translation.at(2);
 
-    const Eigen::Isometry3d X_WM_W_offset(
-        Eigen::Translation3d(xOffset, yOffset, zOffset));
+    const Eigen::Isometry3d X_WM_W_offset(Eigen::Translation3d(xOffset, yOffset, zOffset));
     PoseBundle<double> offset_vis_poses = dut.CalcPoses(X_WM_W_offset);
     EXPECT_EQ(offset_vis_poses.get_num_poses(), kNumBodies);
-    ASSERT_EQ(origin_vis_poses.get_num_poses(),
-              offset_vis_poses.get_num_poses());
+    ASSERT_EQ(origin_vis_poses.get_num_poses(), offset_vis_poses.get_num_poses());
 
     // Verifies that all of the poses in `offset_vis_poses` are offset as
     // expected relative to `origin_vis_poses`, but are otherwise identical.
     for (int i = 0; i < origin_vis_poses.get_num_poses(); ++i) {
       EXPECT_EQ(origin_vis_poses.get_name(i), offset_vis_poses.get_name(i));
-      EXPECT_EQ(origin_vis_poses.get_model_instance_id(i),
-                offset_vis_poses.get_model_instance_id(i));
+      EXPECT_EQ(origin_vis_poses.get_model_instance_id(i), offset_vis_poses.get_model_instance_id(i));
 
       const Isometry3<double>& offset_pose = offset_vis_poses.get_pose(i);
       const Isometry3<double> expected_pose =
-          Eigen::Translation3d(xOffset, yOffset, zOffset) *
-          origin_vis_poses.get_pose(i);
+          Eigen::Translation3d(xOffset, yOffset, zOffset) * origin_vis_poses.get_pose(i);
 
-      EXPECT_TRUE(CompareMatrices(offset_pose.matrix(), expected_pose.matrix(),
-                                  1e-15, test::MatrixCompareType::absolute));
+      EXPECT_TRUE(
+          CompareMatrices(offset_pose.matrix(), expected_pose.matrix(), 1e-15, test::MatrixCompareType::absolute));
 
-      const FrameVelocity<double>& frame_velocity_origin =
-          origin_vis_poses.get_velocity(i);
-      const FrameVelocity<double>& frame_velocity_higher =
-          offset_vis_poses.get_velocity(i);
-      EXPECT_EQ(frame_velocity_origin.get_value(),
-                frame_velocity_higher.get_value());
+      const FrameVelocity<double>& frame_velocity_origin = origin_vis_poses.get_velocity(i);
+      const FrameVelocity<double>& frame_velocity_higher = offset_vis_poses.get_velocity(i);
+      EXPECT_EQ(frame_velocity_origin.get_value(), frame_velocity_higher.get_value());
     }
   }
 
@@ -106,9 +99,8 @@ GTEST_TEST(PriusVisTest, BasicTest) {
   // order. All poses in the resulting visualization PoseBundle should be offset
   // by these amounts relative to `origin_vis_poses`.
   const std::vector<Eigen::Vector3d> rotation_offsets = {
-      Eigen::Vector3d(M_PI_2, 0, 0),      Eigen::Vector3d(0, M_PI_2, 0),
-      Eigen::Vector3d(0, 0, M_PI_2),      Eigen::Vector3d(M_PI_2, M_PI_2, 0),
-      Eigen::Vector3d(0, M_PI_2, M_PI_2), Eigen::Vector3d(M_PI_2, 0, M_PI_2),
+      Eigen::Vector3d(M_PI_2, 0, 0),      Eigen::Vector3d(0, M_PI_2, 0),      Eigen::Vector3d(0, 0, M_PI_2),
+      Eigen::Vector3d(M_PI_2, M_PI_2, 0), Eigen::Vector3d(0, M_PI_2, M_PI_2), Eigen::Vector3d(M_PI_2, 0, M_PI_2),
   };
 
   for (const auto& rotation : rotation_offsets) {
@@ -116,69 +108,50 @@ GTEST_TEST(PriusVisTest, BasicTest) {
     Eigen::Isometry3d X_WM_W_offset = rpy.ToQuaternion() * X_WM_W_origin;
     PoseBundle<double> offset_vis_poses = dut.CalcPoses(X_WM_W_offset);
     EXPECT_EQ(offset_vis_poses.get_num_poses(), kNumBodies);
-    ASSERT_EQ(origin_vis_poses.get_num_poses(),
-              offset_vis_poses.get_num_poses());
+    ASSERT_EQ(origin_vis_poses.get_num_poses(), offset_vis_poses.get_num_poses());
 
     // Verifies that all of the poses in `offset_vis_poses` are rotated as
     // expected relative to `origin_vis_poses` but are otherwise identical.
     for (int i = 0; i < origin_vis_poses.get_num_poses(); ++i) {
       EXPECT_EQ(origin_vis_poses.get_name(i), offset_vis_poses.get_name(i));
-      EXPECT_EQ(origin_vis_poses.get_model_instance_id(i),
-                offset_vis_poses.get_model_instance_id(i));
+      EXPECT_EQ(origin_vis_poses.get_model_instance_id(i), offset_vis_poses.get_model_instance_id(i));
 
       const Isometry3<double>& offset_pose = offset_vis_poses.get_pose(i);
-      const Isometry3<double> expected_pose =
-          rpy.ToMatrix3ViaRotationMatrix() * origin_vis_poses.get_pose(i);
-      ASSERT_TRUE(CompareMatrices(offset_pose.linear(), expected_pose.linear(),
-                                  1e-15, test::MatrixCompareType::absolute));
+      const Isometry3<double> expected_pose = rpy.ToMatrix3ViaRotationMatrix() * origin_vis_poses.get_pose(i);
+      ASSERT_TRUE(
+          CompareMatrices(offset_pose.linear(), expected_pose.linear(), 1e-15, test::MatrixCompareType::absolute));
 
-      const FrameVelocity<double>& frame_velocity_origin =
-          origin_vis_poses.get_velocity(i);
-      const FrameVelocity<double>& frame_velocity_higher =
-          offset_vis_poses.get_velocity(i);
-      EXPECT_EQ(frame_velocity_origin.get_value(),
-                frame_velocity_higher.get_value());
+      const FrameVelocity<double>& frame_velocity_origin = origin_vis_poses.get_velocity(i);
+      const FrameVelocity<double>& frame_velocity_higher = offset_vis_poses.get_velocity(i);
+      EXPECT_EQ(frame_velocity_origin.get_value(), frame_velocity_higher.get_value());
     }
   }
 
   // Tests the visualization's pose when the model is rotated 90 degrees about
   // its +Z axis.
-  const Isometry3<double> floor_pose_identity =
-      GetChassisFloorPose(origin_vis_poses);
+  const Isometry3<double> floor_pose_identity = GetChassisFloorPose(origin_vis_poses);
   EXPECT_DOUBLE_EQ(floor_pose_identity.translation().x(), 0.);
 
   // Tests the visualization's pose when the model is rotated 90 degrees about
   // its +Z axis. In other words, the vehicle is facing left.
   const Eigen::Isometry3d X_WM_W_90_about_z =
-      drake::math::RollPitchYaw<double>(Eigen::Vector3d(0, 0, M_PI_2))
-          .ToQuaternion() *
-      Eigen::Isometry3d::Identity();
-  EXPECT_DOUBLE_EQ(
-      GetChassisFloorPose(dut.CalcPoses(X_WM_W_90_about_z)).translation().y(),
-      0.);
+      drake::math::RollPitchYaw<double>(Eigen::Vector3d(0, 0, M_PI_2)).ToQuaternion() * Eigen::Isometry3d::Identity();
+  EXPECT_DOUBLE_EQ(GetChassisFloorPose(dut.CalcPoses(X_WM_W_90_about_z)).translation().y(), 0.);
 
   // Tests the visualization's pose when the model is rotated 45 degrees about
   // its +Y axis. In other words, the vehicle is going down a steep hill.
   const Eigen::Isometry3d X_WM_W_45_about_y =
-      drake::math::RollPitchYaw<double>(Eigen::Vector3d(0, M_PI_4, 0))
-          .ToQuaternion() *
-      Eigen::Isometry3d::Identity();
-  const Isometry3<double> floor_pose_down_hill =
-      GetChassisFloorPose(dut.CalcPoses(X_WM_W_45_about_y));
-  EXPECT_DOUBLE_EQ(floor_pose_down_hill.translation().x(),
-                   floor_pose_identity.translation().z() * std::sin(M_PI_4));
-  EXPECT_DOUBLE_EQ(floor_pose_down_hill.translation().z(),
-                   floor_pose_identity.translation().z() * std::cos(M_PI_4));
+      drake::math::RollPitchYaw<double>(Eigen::Vector3d(0, M_PI_4, 0)).ToQuaternion() * Eigen::Isometry3d::Identity();
+  const Isometry3<double> floor_pose_down_hill = GetChassisFloorPose(dut.CalcPoses(X_WM_W_45_about_y));
+  EXPECT_DOUBLE_EQ(floor_pose_down_hill.translation().x(), floor_pose_identity.translation().z() * std::sin(M_PI_4));
+  EXPECT_DOUBLE_EQ(floor_pose_down_hill.translation().z(), floor_pose_identity.translation().z() * std::cos(M_PI_4));
 
   // Tests the visualization's pose when the model is rotated 45 degrees about
   // its +X axis. In other words, the vehicle is leaning to its right side due
   // to the lane being severely cambered.
   const Eigen::Isometry3d X_WM_W_45_about_x =
-      drake::math::RollPitchYaw<double>(Eigen::Vector3d(M_PI_4, 0, 0))
-          .ToQuaternion() *
-      Eigen::Isometry3d::Identity();
-  const Isometry3<double> floor_pose_severe_camber =
-      GetChassisFloorPose(dut.CalcPoses(X_WM_W_45_about_x));
+      drake::math::RollPitchYaw<double>(Eigen::Vector3d(M_PI_4, 0, 0)).ToQuaternion() * Eigen::Isometry3d::Identity();
+  const Isometry3<double> floor_pose_severe_camber = GetChassisFloorPose(dut.CalcPoses(X_WM_W_45_about_x));
   EXPECT_DOUBLE_EQ(floor_pose_severe_camber.translation().x(), 0.);
 }
 

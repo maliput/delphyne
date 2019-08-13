@@ -29,8 +29,7 @@ class FramePoseAggregator : public drake::systems::LeafSystem<T> {
   /// Declares a pose input port, associated with the given @p frame_id.
   /// @return The input drake::systems::rendering::PoseVector port
   /// descriptor.
-  const drake::systems::InputPort<T>& DeclareInput(
-      const drake::geometry::FrameId& frame_id);
+  const drake::systems::InputPort<T>& DeclareInput(const drake::geometry::FrameId& frame_id);
 
  private:
   // Returns a new drake::geometry::FramePoseVector instance to

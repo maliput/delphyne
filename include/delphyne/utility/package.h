@@ -53,9 +53,7 @@ class Package {
   ///
   /// @see ToURI(const std::string&)
   /// @see Resolve(const ignition::common::URI&)
-  ignition::common::URI Resolve(const std::string& uri_or_path) const {
-    return this->Resolve(ToURI(uri_or_path));
-  }
+  ignition::common::URI Resolve(const std::string& uri_or_path) const { return this->Resolve(ToURI(uri_or_path)); }
 
   /// Resolves a @p uri, specific to this package, into a full regular URI.
   ///
@@ -64,8 +62,7 @@ class Package {
   /// @throws std::runtime_error if @p uri is not valid (i.e. uri.Valid()
   ///                            is false).
   ignition::common::URI Resolve(const ignition::common::URI& uri) const {
-    DELPHYNE_VALIDATE(uri.Valid(), std::runtime_error,
-                      uri.Str() + " is not a valid URI.");
+    DELPHYNE_VALIDATE(uri.Valid(), std::runtime_error, uri.Str() + " is not a valid URI.");
     return this->DoResolve(uri);
   }
 
@@ -74,8 +71,7 @@ class Package {
 
  private:
   // @see Resolve(const ignition::common::URI&)
-  virtual ignition::common::URI DoResolve(
-      const ignition::common::URI& uri) const = 0;
+  virtual ignition::common::URI DoResolve(const ignition::common::URI& uri) const = 0;
 };
 
 /// A Package subclass that leverages a Delphyne system installation.
@@ -93,8 +89,7 @@ class SystemPackage : public Package {
   SystemPackage();
 
  private:
-  ignition::common::URI DoResolve(
-      const ignition::common::URI& uri) const override;
+  ignition::common::URI DoResolve(const ignition::common::URI& uri) const override;
 
   // List of paths that can contain resources (e.g. meshes).
   // The content of this variable is populated with the value of the
@@ -130,8 +125,7 @@ class BundledPackage : public Package {
   ///                            See PackageManager and ResourceInspector
   ///                            singletons.
   void Add(const ignition::common::URI& uri) {
-    const std::vector<ignition::common::URI> dep_uris =
-        ResourceInspector::Instance()->GetDependencies(uri);
+    const std::vector<ignition::common::URI> dep_uris = ResourceInspector::Instance()->GetDependencies(uri);
     for (const auto& dep_uri : dep_uris) {
       if (!this->Resolve(dep_uri).Valid()) {
         this->Add(dep_uri);
@@ -150,8 +144,7 @@ class BundledPackage : public Package {
   // @see Add(const ignition::common::URI&)
   virtual void DoAdd(const ignition::common::URI& uri);
 
-  ignition::common::URI DoResolve(
-      const ignition::common::URI& uri) const override;
+  ignition::common::URI DoResolve(const ignition::common::URI& uri) const override;
 
   // Package bundle root path.
   std::string path_{};

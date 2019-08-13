@@ -15,17 +15,15 @@ const int DynamicBicycleCarStateIndices::kVLcpX;
 const int DynamicBicycleCarStateIndices::kVLcpY;
 const int DynamicBicycleCarStateIndices::kYawdtLc;
 
-const std::vector<std::string>&
-DynamicBicycleCarStateIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(
-      std::vector<std::string>{
-          "p_LoCp_x",  // BR
-          "p_LoCp_y",  // BR
-          "yaw_LC",    // BR
-          "v_LCp_x",   // BR
-          "v_LCp_y",   // BR
-          "yawDt_LC",  // BR
-      });
+const std::vector<std::string>& DynamicBicycleCarStateIndices::GetCoordinateNames() {
+  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+      "p_LoCp_x",  // BR
+      "p_LoCp_y",  // BR
+      "yaw_LC",    // BR
+      "v_LCp_x",   // BR
+      "v_LCp_y",   // BR
+      "yawDt_LC",  // BR
+  });
   return coordinates.access();
 }
 

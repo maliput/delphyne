@@ -69,8 +69,7 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
   /// @arg @c Lb defaults to 1.21 m.
   /// @arg @c p_LoCp_z defaults to 0.508 m.
   /// @arg @c gravity defaults to 9.81 m/s^2.
-  DynamicBicycleCarParams()
-      : drake::systems::BasicVector<T>(K::kNumCoordinates) {
+  DynamicBicycleCarParams() : drake::systems::BasicVector<T>(K::kNumCoordinates) {
     this->set_mass(1823.0);
     this->set_izz(2000.0);
     this->set_c_alpha_f(115000);
@@ -87,8 +86,7 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
   /// @name Implements CopyConstructible, CopyAssignable, MoveConstructible,
   /// MoveAssignable
   //@{
-  DynamicBicycleCarParams(const DynamicBicycleCarParams& other)
-      : drake::systems::BasicVector<T>(other.values()) {}
+  DynamicBicycleCarParams(const DynamicBicycleCarParams& other) : drake::systems::BasicVector<T>(other.values()) {}
   DynamicBicycleCarParams(DynamicBicycleCarParams&& other) noexcept
       : drake::systems::BasicVector<T>(std::move(other.values())) {}
   DynamicBicycleCarParams& operator=(const DynamicBicycleCarParams& other) {
@@ -106,9 +104,7 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
   /// variable
   /// name.  This is only available for T == drake::symbolic::Expression.
   template <typename U = T>
-  typename std::enable_if<
-      std::is_same<U, drake::symbolic::Expression>::value>::type
-  SetToNamedVariables() {
+  typename std::enable_if<std::is_same<U, drake::symbolic::Expression>::value>::type SetToNamedVariables() {
     this->set_mass(drake::symbolic::Variable("mass"));
     this->set_izz(drake::symbolic::Variable("izz"));
     this->set_c_alpha_f(drake::symbolic::Variable("c_alpha_f"));
@@ -120,9 +116,7 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
     this->set_gravity(drake::symbolic::Variable("gravity"));
   }
 
-  DynamicBicycleCarParams<T>* DoClone() const final {
-    return new DynamicBicycleCarParams;
-  }
+  DynamicBicycleCarParams<T>* DoClone() const final { return new DynamicBicycleCarParams; }
 
   /// @name Getters and Setters
   //@{
@@ -338,8 +332,7 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
     return result;
   }
 
-  void GetElementBounds(Eigen::VectorXd* lower,
-                        Eigen::VectorXd* upper) const final {
+  void GetElementBounds(Eigen::VectorXd* lower, Eigen::VectorXd* upper) const final {
     const double kInf = std::numeric_limits<double>::infinity();
     *lower = Eigen::Matrix<double, 9, 1>::Constant(-kInf);
     *upper = Eigen::Matrix<double, 9, 1>::Constant(kInf);
@@ -353,7 +346,6 @@ class DynamicBicycleCarParams final : public drake::systems::BasicVector<T> {
     (*lower)(K::kPLocpZ) = 0.0;
     (*lower)(K::kGravity) = 0.0;
   }
-
 
  private:
   void ThrowIfEmpty() const {

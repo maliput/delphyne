@@ -29,9 +29,7 @@ namespace delphyne {
 struct AgentDiagramBuilderTest : public ::testing::Test {
   using SimpleCarSystem = SimpleCar2<double>;
 
-  AgentDiagramBuilderTest()
-      : builder("foo"),
-        system(builder.AddSystem(std::make_unique<SimpleCarSystem>())) {}
+  AgentDiagramBuilderTest() : builder("foo"), system(builder.AddSystem(std::make_unique<SimpleCarSystem>())) {}
   AgentDiagramBuilder<double> builder;
   SimpleCarSystem* system{};
 };
@@ -44,21 +42,17 @@ TEST_F(AgentDiagramBuilderTest, BuildWithoutExports) {
 
 TEST_F(AgentDiagramBuilderTest, BuildWithTooManyExports) {
   builder.ExportStateOutput(system->state_output());
-  EXPECT_THROW_OF_TYPE(
-      std::runtime_error, builder.ExportStateOutput(system->state_output()),
-      "A state output port has already been exported and this diagram "
-      "enforces that there can be only one.");
+  EXPECT_THROW_OF_TYPE(std::runtime_error, builder.ExportStateOutput(system->state_output()),
+                       "A state output port has already been exported and this diagram "
+                       "enforces that there can be only one.");
   builder.ExportPoseOutput(system->pose_output());
-  EXPECT_THROW_OF_TYPE(
-      std::runtime_error, builder.ExportPoseOutput(system->pose_output()),
-      "A pose output port has already been exported and this diagram "
-      "enforces that there can be only one.");
+  EXPECT_THROW_OF_TYPE(std::runtime_error, builder.ExportPoseOutput(system->pose_output()),
+                       "A pose output port has already been exported and this diagram "
+                       "enforces that there can be only one.");
   builder.ExportVelocityOutput(system->velocity_output());
-  EXPECT_THROW_OF_TYPE(
-      std::runtime_error,
-      builder.ExportVelocityOutput(system->velocity_output()),
-      "A velocity output port has already been exported and this diagram "
-      "enforces that there can be only one.");
+  EXPECT_THROW_OF_TYPE(std::runtime_error, builder.ExportVelocityOutput(system->velocity_output()),
+                       "A velocity output port has already been exported and this diagram "
+                       "enforces that there can be only one.");
 }
 
 //////////////////////////////////////////////////

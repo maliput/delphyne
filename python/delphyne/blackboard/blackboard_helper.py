@@ -14,7 +14,6 @@ tree, keep on mind that the setup call is top-down.
 
 ROAD_GEOMETRY_KEY = 'road_geometry'
 SIMULATION_KEY = 'simulation'
-LANE_PROVIDER_KEY = 'lane_provider'
 
 class LaneAndLocationProvider():
 

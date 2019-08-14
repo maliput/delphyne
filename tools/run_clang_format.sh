@@ -29,7 +29,7 @@ if [ "$CLANGFORMATFAILED" -eq "0" ]; then
   # Run ament_clang_format
   find -regex $REGEX -not \( -path "./test/libgtest/*" \) \
        -printf '%h\n' | sort | uniq |                     \
-       xargs ament_clang_format --config=.clang-format || CLANGFORMATFAILED=1
+       xargs ament_clang_format --config=.clang-format $1 || CLANGFORMATFAILED=1
   popd
 else
   echo $'\n*** ament_clang_format failed, not doing style formatting ***'

@@ -29,7 +29,7 @@ if [ "$CLANGTIDYFAILED" -eq "0" ]; then
   # Run ament_clang_tidy
   find -regex $REGEX -not \( -path "./test/libgtest/*" \) \
        -printf '%h\n' | sort | uniq |                     \
-       xargs ament_clang_tidy --config=.clang-tidy || CLANGTIDYFAILED=1
+       xargs ament_clang_tidy --config=.clang-tidy $1 || CLANGTIDYFAILED=1
   popd
 else
   echo $'\n*** ament_clang_tidy failed, not doing style formatting ***'

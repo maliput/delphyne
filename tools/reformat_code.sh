@@ -6,3 +6,4 @@
 # repository.  It is recommended to run this before opening any pull request.
 
 ./run_clang_format.sh --reformat
+# ./run_clang_tidy.sh --fix-errors

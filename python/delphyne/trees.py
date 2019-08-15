@@ -1,17 +1,33 @@
-import delphyne.blackboard.blackboard_helper as bb_helper
+# Copyright 2019 Toyota Research Institute
+
+"""
+A module providing behaviour trees to work on agent-based simulation.
+"""
+
+import delphyne.blackboard
 import delphyne.simulation
 
 import py_trees.trees
-
 from py_trees.trees import CONTINUOUS_TICK_TOCK
 
+
 class BehaviourTree(py_trees.trees.BehaviourTree):
+    """
+    A behaviour tree for agent-based simulations using Delphyne.
+    """
 
     def __init__(self, *, root):
         super().__init__(root=root)
         self.runner = None
 
     def setup(self, realtime_rate, start_paused, logfile_name='', **kwargs):
+        """
+        Setup a Delphyne behaviour tree for agent based simulation.
+
+        :param realtime_rate:
+        :param start_paused:
+        :param logfile_name:
+        """
         # Bear in mind that this is a local builder. Once the AgentSimulation
         # is created, the builder will be destroyed, along with its blueprints
         builder = delphyne.simulation.AgentSimulationBuilder()
@@ -26,9 +42,16 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
             log=bool(logfile_name),
             logfile_name=logfile_name
         )
-        bb_helper.set_simulation(self.runner.get_simulation())
+        delphyne.blackboard.state.set_simulation(
+            self.runner.get_simulation()
+        )
 
     def step(self, period):
+        """
+        Step simulation forward in time.
+
+        :param period: in seconds.
+        """
         self.runner.run_sync_for(period)
 
     def tick_tock(self,
@@ -42,9 +65,11 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                 number_of_iterations == CONTINUOUS_TICK_TOCK
         )):
             if not self.runner.is_simulation_paused():
+                # Do not tick tree if simulation is paused.
                 self.tick(pre_tick_handler, post_tick_handler)
                 tick_tocks += 1
             try:
+                # Always step simulation to unpause.
                 self.step(period)
             except KeyboardInterrupt:
                 break

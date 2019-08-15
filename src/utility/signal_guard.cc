@@ -1,6 +1,6 @@
 // Copyright 2019 Toyota Research Institute
 
-#include "common/signal_guard.h"
+#include "utility/signal_guard.h"
 
 #include <atomic>
 #include <csignal>

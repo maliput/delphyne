@@ -157,9 +157,10 @@ maliput::utility::ObjFeatures GetDefaultFeatures() {
 
 template <typename T>
 const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::GetRoadGeometry() const {
-  return road_geometry_ ? road_geometry_.get() : road_network_->road_geometry();
+  return road_network_ ? road_network_->road_geometry() : road_geometry_.get();
 }
 
+template <typename T>
 const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::SetRoadGeometry(
     std::unique_ptr<const maliput::api::RoadGeometry> road_geometry) {
   return SetRoadGeometry(std::move(road_geometry), GetDefaultFeatures());

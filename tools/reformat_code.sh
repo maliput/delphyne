@@ -1,16 +1,14 @@
 #!/bin/bash
 
-# This is a simple script to run the clang-format against all of the code
-# in the repository.  clang-format will reformat all of the code according
+# This is a simple script to run the ament_clang_format against all of the code
+# in the repository.  ament_clang_format will reformat all of the code according
 # to the format described in the top-level .clang-format file in this
-# repository.  This script must be run from the top-level of the repository
-# in order to find all of the files.  It is recommended to run this before
-# opening any pull request.
+# repository.  It is recommended to run this before opening any pull request.
 
-find . \
-  -not \( -path ./protobuf -prune \) \
-  -not \( -path ./test/libgtest -prune \) \
-  -iname '*.cc' -o -iname '*.cpp' -o -iname '*.c' -o -iname '*.hpp' -o -iname '*.hh' -o -iname '*.h' | while read file ; do
-    echo "Reformatting $file"
-    clang-format-3.9 -i -style=file "$file"
-done
+SCRIPT_PATH=$(realpath ${BASH_SOURCE[0]})
+SCRIPT_DIR=$(dirname $SCRIPT_PATH)
+REPO_DIR=$SCRIPT_DIR/..
+
+pushd $REPO_DIR
+./tools/run_clang_format.sh --reformat
+popd

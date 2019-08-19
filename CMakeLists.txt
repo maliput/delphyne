@@ -104,6 +104,7 @@ if(BUILD_TESTING)
   enable_testing()
   add_subdirectory(test)
   add_test(NAME PYLINT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_python_checks.sh)
+  add_test(NAME CLANGFORMAT COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/tools/run_clang_format.sh)
 endif()
 
 ##############################################################################

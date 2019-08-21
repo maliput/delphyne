@@ -56,7 +56,10 @@ PYBIND11_MODULE(roads, m) {
   m.def("create_on_ramp", &delphyne::roads::CreateOnRamp, "Create the exemplar highway on-ramp");
 
   m.def("create_malidrive_from_file", &delphyne::roads::CreateMalidriveFromFile,
-        "Load an OpenDrive road geometry from file (xodr)", py::arg("name"), py::arg("file_path"));
+        "Load an OpenDrive road geometry from file (xodr)", py::arg("name"), py::arg("file_path"),
+        py::arg("road_rulebook_file_path") = std::string(),
+        py::arg("traffic_light_rulebook_file_path") = std::string(),
+        py::arg("phase_ring_path") = std::string());
 
   py::class_<ObjFeatures>(m, "ObjFeatures")
       .def(py::init<>())

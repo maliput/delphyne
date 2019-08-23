@@ -8,6 +8,15 @@ install(
     cmdline.py
     console.py
     utilities.py
+    trees.py
+  DESTINATION
+    ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
+)
+
+install(
+  DIRECTORY
+    behaviours
+    blackboard
   DESTINATION
     ${PYTHON_INSTALL_DIR}/${PROJECT_NAME}
 )

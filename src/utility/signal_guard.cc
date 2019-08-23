@@ -10,14 +10,12 @@ namespace common {
 
 std::atomic_bool SignalGuard::allow_signal_handling = false;
 std::unordered_map<int, SignalGuard*> SignalGuard::signal_guards{};
-std::unordered_map<int, void(*)(int)> SignalGuard::signal_handlers{};
+std::unordered_map<int, void (*)(int)> SignalGuard::signal_handlers{};
 
-SignalGuard::SignalGuard(int signum, std::function<void()> guard_fn)
-  : signum_(signum), guard_fn_(guard_fn) {
+SignalGuard::SignalGuard(int signum, std::function<void()> guard_fn) : signum_(signum), guard_fn_(guard_fn) {
   SignalGuard::allow_signal_handling = false;
   if (SignalGuard::signal_handlers.count(signum_) == 0) {
-    SignalGuard::signal_handlers[signum_] =
-      std::signal(signum_, SignalGuard::common_signal_handler);
+    SignalGuard::signal_handlers[signum_] = std::signal(signum_, SignalGuard::common_signal_handler);
   }
   if (SignalGuard::signal_guards.count(signum_) > 0) {
     prev_signal_guard_ = SignalGuard::signal_guards[signum_];
@@ -52,4 +50,3 @@ void SignalGuard::handle() {
 
 }  // namespace common
 }  // namespace delphyne
-

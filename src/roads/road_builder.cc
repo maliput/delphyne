@@ -55,12 +55,12 @@ std::unique_ptr<const maliput::api::RoadNetwork> CreateMalidriveFromFile(const s
                                                                          const std::string& road_rulebook_file_path,
                                                                          const std::string& traffic_light_book_path,
                                                                          const std::string& phase_ring_path) {
-  drake::optional<std::string> road_rulebook = road_rulebook_file_path.empty() ?
-    drake::nullopt : drake::optional<std::string>(road_rulebook_file_path);
-  drake::optional<std::string> traffic_light_book = traffic_light_book_path.empty() ?
-    drake::nullopt : drake::optional<std::string>(traffic_light_book_path);
-  drake::optional<std::string> phase_ring = phase_ring_path.empty() ?
-    drake::nullopt : drake::optional<std::string>(phase_ring_path);
+  drake::optional<std::string> road_rulebook =
+      road_rulebook_file_path.empty() ? drake::nullopt : drake::optional<std::string>(road_rulebook_file_path);
+  drake::optional<std::string> traffic_light_book =
+      traffic_light_book_path.empty() ? drake::nullopt : drake::optional<std::string>(traffic_light_book_path);
+  drake::optional<std::string> phase_ring =
+      phase_ring_path.empty() ? drake::nullopt : drake::optional<std::string>(phase_ring_path);
   malidrive::RoadNetworkConfiguration road_network_configuration{
       malidrive::RoadGeometryConfiguration{
           maliput::api::RoadGeometryId(name), file_path, malidrive::constants::kLinearTolerance,

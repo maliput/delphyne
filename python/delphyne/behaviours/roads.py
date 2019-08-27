@@ -89,3 +89,25 @@ class Multilane(Road):
                     self.file_path)
                 )
             delphyne.blackboard.state.set_road_geometry(self.road_geometry)
+
+
+class Malidrive(Road):
+    """
+    A maliput malidrive road.
+    """
+
+    def __init__(self, file_path, features=None, name=py_trees.common.Name.AUTO_GENERATED):
+        super().__init__(name)
+        self.file_path = file_path
+        self.features = features
+        self.road_network = None
+
+    def setup(self, *, builder):
+        if self.road_network is None:
+            # Setup a road network only the first time.
+            self.road_network = builder.set_road_network(
+                delphyne.roads.create_malidrive_from_file(
+                    name=self.name,
+                    file_path=self.file_path), self.features)
+            self.road_geometry = self.road_network.road_geometry()
+            delphyne.blackboard.state.set_road_geometry(self.road_geometry)

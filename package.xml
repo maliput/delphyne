@@ -56,7 +56,7 @@
   <exec_depend>ament_cmake</exec_depend>
   <exec_depend>py_trees</exec_depend>
 
-  <test_depend>ament_clang_format</test_depend>
+  <test_depend>ament_cmake_clang_format</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

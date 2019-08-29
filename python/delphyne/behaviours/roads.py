@@ -97,7 +97,7 @@ class Malidrive(Road):
     """
 
     def __init__(self, file_path, features=delphyne.roads.ObjFeatures(),
-            name=py_trees.common.Name.AUTO_GENERATED):
+                 name=py_trees.common.Name.AUTO_GENERATED):
         super().__init__(name)
         self.file_path = file_path
         self.features = features

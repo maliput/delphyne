@@ -8,20 +8,24 @@
 namespace delphyne {
 namespace common {
 
-std::atomic_bool SignalGuard::allow_signal_handling = false;
+std::atomic_bool SignalGuard::allow_signal_guards = true;
+std::atomic_bool SignalGuard::allow_signal_handling = true;
 std::unordered_map<int, SignalGuard*> SignalGuard::signal_guards{};
 std::unordered_map<int, void (*)(int)> SignalGuard::signal_handlers{};
 
 SignalGuard::SignalGuard(int signum, std::function<void()> guard_fn) : signum_(signum), guard_fn_(guard_fn) {
-  SignalGuard::allow_signal_handling = false;
   if (SignalGuard::signal_handlers.count(signum_) == 0) {
+    SignalGuard::allow_signal_handling = false;
     SignalGuard::signal_handlers[signum_] = std::signal(signum_, SignalGuard::common_signal_handler);
+    SignalGuard::allow_signal_handling = true;
   }
+
   if (SignalGuard::signal_guards.count(signum_) > 0) {
     prev_signal_guard_ = SignalGuard::signal_guards[signum_];
   }
+  SignalGuard::allow_signal_guards = false;
   SignalGuard::signal_guards[signum_] = this;
-  SignalGuard::allow_signal_handling = true;
+  SignalGuard::allow_signal_guards = true;
 }
 
 SignalGuard::~SignalGuard() {
@@ -31,13 +35,17 @@ SignalGuard::~SignalGuard() {
 }
 
 void SignalGuard::common_signal_handler(int signum) {
-  if (SignalGuard::allow_signal_handling) {
+  if (SignalGuard::allow_signal_guards) {
     if (SignalGuard::signal_guards.count(signum) > 0) {
       if (SignalGuard::signal_guards[signum]) {
         SignalGuard::signal_guards[signum]->handle();
       }
     }
-    SignalGuard::signal_handlers[signum](signum);
+  }
+  if (SignalGuard::allow_signal_handling) {
+    if (SignalGuard::signal_handlers[signum]) {
+      SignalGuard::signal_handlers[signum](signum);
+    }
   }
 }
 

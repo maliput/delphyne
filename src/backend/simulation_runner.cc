@@ -26,7 +26,6 @@
 #include <ignition/transport/Node.hh>
 
 #include "utility/filesystem.h"
-#include "utility/signal_guard.h"
 
 namespace delphyne {
 namespace {
@@ -70,7 +69,8 @@ SimulationRunner::SimulationRunner(std::unique_ptr<AgentSimulation> sim, double 
       simulation_(std::move(sim)),
       clock_(kClockTopic),
       realtime_rate_(realtime_rate),
-      paused_(paused) {
+      paused_(paused),
+      sigint_guard_(SIGINT, [this]() { interactive_loop_running_ = false; }) {
   DELPHYNE_VALIDATE(realtime_rate >= 0.0, std::invalid_argument, "Realtime rate must be >= 0.0");
 
   // Advertises the service for controlling the simulation.
@@ -170,7 +170,6 @@ void SimulationRunner::RunAsyncFor(double duration, std::function<void()> callba
 void SimulationRunner::RunSyncFor(double duration) {
   DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error, "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
-  common::SignalGuard guard(SIGINT, [this]() { interactive_loop_running_ = false; });
   this->RunInteractiveSimulationLoopFor(duration, [] {});
 }
 

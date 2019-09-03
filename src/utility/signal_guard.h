@@ -19,6 +19,7 @@ class SignalGuard {
   ~SignalGuard();
 
  private:
+  static std::atomic_bool allow_signal_guards;
   static std::atomic_bool allow_signal_handling;
   static std::unordered_map<int, SignalGuard*> signal_guards;
   static std::unordered_map<int, void (*)(int)> signal_handlers;

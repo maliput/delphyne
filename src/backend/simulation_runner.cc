@@ -164,7 +164,7 @@ void SimulationRunner::RunAsyncFor(double duration, std::function<void()> callba
   DELPHYNE_VALIDATE(!interactive_loop_running_, std::runtime_error, "Cannot run a simulation that is already running");
   interactive_loop_running_ = true;
   main_thread_ =
-    std::thread([this, duration, callback]() { this->RunInteractiveSimulationLoopFor(duration, callback); });
+      std::thread([this, duration, callback]() { this->RunInteractiveSimulationLoopFor(duration, callback); });
 }
 
 void SimulationRunner::RunSyncFor(double duration) {

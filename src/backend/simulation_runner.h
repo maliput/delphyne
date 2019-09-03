@@ -24,6 +24,8 @@
 #include "delphyne/protobuf/scene_request.pb.h"
 #include "delphyne/protobuf/simulation_in_message.pb.h"
 
+#include "utility/signal_guard.h"
+
 namespace delphyne {
 
 using delphyne::SimulationRunStats;
@@ -469,6 +471,9 @@ class SimulationRunner {
 
   // @brief A logger to record simulation data.
   DataLogger logger_;
+
+  // @brief A guard to stop the interactive loop if a SIGINT arrives.
+  common::SignalGuard sigint_guard_;
 };
 
 }  // namespace delphyne

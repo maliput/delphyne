@@ -27,8 +27,10 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const drake::Isometry3<double>& pose = drake_message.get_pose(i);
     // Gets the agent's orientation in the form of a vector of euler angles
     // following the x-y-z convention (roll-pitch-yaw).
+    // As the transformation is an isometry, its linear part is solely comprised
+    // of a rotation i.e. no scaling nor shearing.
     // The indexes of 0, 1 and 2 represent the x, y and z axis, respectively.
-    const Eigen::Vector3d euler_rotation = pose.rotation().eulerAngles(0, 1, 2);
+    const Eigen::Vector3d euler_rotation = pose.linear().eulerAngles(0, 1, 2);
 
     // Calculates car's velocity.
     const drake::multibody::SpatialVelocity<double>& spatial_velocity = drake_message.get_velocity(i).get_velocity();

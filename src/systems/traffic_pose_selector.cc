@@ -361,7 +361,7 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
         CalcSigmaVelocity(traffic_lane, traffic_lane_position, traffic_poses.get_velocity(i));
 
     LaneEnd traffic_lane_end_ahead = FindLaneEnd(traffic_lane, traffic_lane_position,
-                                                 Quaternion<T>(traffic_isometry.rotation()), AheadOrBehind::kAhead);
+                                                 Quaternion<T>(traffic_isometry.linear()), AheadOrBehind::kAhead);
     const T traffic_lane_progress = CalcLaneProgress(traffic_lane_end_ahead, traffic_lane_position);
 
     // Determine if any of the traffic cars eventually lead to a branch within a

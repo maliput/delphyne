@@ -29,15 +29,17 @@ install(
 # Agent Bindings
 ####################
 
-pybind11_add_module(agent_bindings agents.cc)
+pybind11_add_module(agent_bindings MODULE agents.cc)
 set_target_properties(agent_bindings PROPERTIES OUTPUT_NAME agents)
+if(PYTHON_IS_DEBUG)
+  target_compile_definitions(agent_bindings PRIVATE Py_DEBUG)
+endif()
+
 
 target_link_libraries(agent_bindings
   PRIVATE
     agents
     backend
-    pybind11::module
-    ${PYTHON_LIBRARIES}
 )
 
 install(
@@ -49,15 +51,16 @@ install(
 # Maliput Bindings
 ####################
 
-pybind11_add_module(roads_bindings roads.cc)
+pybind11_add_module(roads_bindings MODULE roads.cc)
 set_target_properties(roads_bindings PROPERTIES OUTPUT_NAME roads)
+if(PYTHON_IS_DEBUG)
+  target_compile_definitions(roads_bindings PRIVATE Py_DEBUG)
+endif()
 
 target_link_libraries(roads_bindings
   PRIVATE
     roads_utilities
     drake::drake
-    pybind11::module
-    ${PYTHON_LIBRARIES}
 )
 
 install(
@@ -69,8 +72,11 @@ install(
 # Sim Bindings
 ####################
 
-pybind11_add_module(simulation_bindings simulation.cc)
+pybind11_add_module(simulation_bindings MODULE simulation.cc)
 set_target_properties(simulation_bindings PROPERTIES OUTPUT_NAME simulation)
+if(PYTHON_IS_DEBUG)
+  target_compile_definitions(simulation_bindings PRIVATE Py_DEBUG)
+endif()
 
 target_include_directories(
   simulation_bindings
@@ -82,8 +88,6 @@ target_link_libraries(simulation_bindings
   PRIVATE
     backend
     drake::drake
-    pybind11::module
-    ${PYTHON_LIBRARIES}
 )
 
 install(

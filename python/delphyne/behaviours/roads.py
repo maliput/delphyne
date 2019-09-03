@@ -112,3 +112,15 @@ class Malidrive(Road):
                     file_path=self.file_path), self.features)
             self.road_geometry = self.road_network.road_geometry()
             delphyne.blackboard.state.set_road_geometry(self.road_geometry)
+
+
+class OnRamp(Road):
+    """
+    A maliput onramp road.
+    """
+
+    def setup(self, *, builder):
+        if self.road_geometry is None:
+            self.road_geometry = builder.set_road_geometry(
+                delphyne.roads.create_on_ramp())
+            delphyne.blackboard.state.set_road_geometry(self.road_geometry)

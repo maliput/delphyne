@@ -153,7 +153,7 @@ void RailFollower<T>::CalcSimpleCarStateOutput(const drake::systems::Context<T>&
                                                SimpleCarState<T>* output) const {
   // Obtains car pose.
   const drake::systems::rendering::PoseVector<T>& pose =
-    this->pose_output().template Eval<drake::systems::rendering::PoseVector<T>>(context);
+      this->pose_output().template Eval<drake::systems::rendering::PoseVector<T>>(context);
   const Eigen::Translation<T, 3> pose_translation = pose.get_translation();
   const Eigen::Quaternion<T> pose_rotation = pose.get_rotation();
   // Translates pose from quaternion to euler.
@@ -161,7 +161,7 @@ void RailFollower<T>::CalcSimpleCarStateOutput(const drake::systems::Context<T>&
 
   // Obtains car velocity.
   const drake::systems::rendering::FrameVelocity<T>& velocity =
-    this->pose_output().template Eval<drake::systems::rendering::FrameVelocity<T>>(context);
+      this->pose_output().template Eval<drake::systems::rendering::FrameVelocity<T>>(context);
   const drake::multibody::SpatialVelocity<T> spatial_velocity = velocity.get_velocity();
   const double velocity_norm = static_cast<double>(spatial_velocity.translational().norm());
 

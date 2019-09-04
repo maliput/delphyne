@@ -51,14 +51,23 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp() {
 }
 
 std::unique_ptr<const maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::string& name,
-                                                                         const std::string& file_path) {
+                                                                         const std::string& file_path,
+                                                                         const std::string& road_rulebook_file_path,
+                                                                         const std::string& traffic_light_book_path,
+                                                                         const std::string& phase_ring_path) {
+  drake::optional<std::string> road_rulebook =
+      road_rulebook_file_path.empty() ? drake::nullopt : drake::optional<std::string>(road_rulebook_file_path);
+  drake::optional<std::string> traffic_light_book =
+      traffic_light_book_path.empty() ? drake::nullopt : drake::optional<std::string>(traffic_light_book_path);
+  drake::optional<std::string> phase_ring =
+      phase_ring_path.empty() ? drake::nullopt : drake::optional<std::string>(phase_ring_path);
   malidrive::RoadNetworkConfiguration road_network_configuration{
       malidrive::RoadGeometryConfiguration{
           maliput::api::RoadGeometryId(name), file_path, malidrive::constants::kLinearTolerance,
           malidrive::constants::kAngularTolerance, malidrive::constants::kScaleLength,
           malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                                  malidrive::constants::kNumIterations)},
-      drake::nullopt, drake::nullopt, drake::nullopt};
+      road_rulebook, traffic_light_book, phase_ring};
   return malidrive::Load(road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
 }
 

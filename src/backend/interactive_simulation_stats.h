@@ -80,7 +80,10 @@ class InteractiveSimulationStats {
   ///
   /// @param[in] realtime The time the step was executed, given by the
   /// wall clock.
-  void StepExecuted(double simtime, const TimePoint& realtime);
+  /// void StepExecuted(double simtime, const TimePoint& realtime);
+
+  /// TODO add docs
+  void RealtimeStepExecuted(const TimePoint& realtime);
 
   /// @brief Returns a copy of the current running simulation stats @see
   /// SimulationRunStats
@@ -150,9 +153,14 @@ class InteractiveSimulationStats {
   // @brief Returns the current running simulation stats @see SimulationRunStats
   SimulationRunStats* GetUnsafeMutableCurrentRunStats();
 
+  // TODO update documentation lower
   // @brief Updates the value of the `weighted_realtime_rate_` field based
   // on the elapsed simulation and real time of an executed step.
-  void UpdateWeightedRealtimeRate(double simtime, const TimePoint& realtime);
+  void UpdateWeightedSimtimeRate(double simtime);
+  
+  // @brief Updates the value of the `weighted_realtime_rate_` field based
+  // on the elapsed simulation and real time of an executed step.
+  void UpdateWeightedRealtimeRate(const TimePoint& realtime);
 
   // @brief All the recorded simulation runs
   std::vector<SimulationRunStats> run_stats_;

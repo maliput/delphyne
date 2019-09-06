@@ -41,12 +41,18 @@ SimulationRunStats* InteractiveSimulationStats::GetUnsafeMutableCurrentRunStats(
   return &run_stats_.back();
 }
 
-void InteractiveSimulationStats::StepExecuted(double simtime) { StepExecuted(simtime, RealtimeClock::now()); }
+//void InteractiveSimulationStats::StepExecuted(double simtime) { StepExecuted(simtime, RealtimeClock::now()); }
 
-void InteractiveSimulationStats::StepExecuted(double simtime, const TimePoint& realtime) {
+void InteractiveSimulationStats::StepExecuted(double simtime) {
   std::lock_guard<std::mutex> lock(mutex_);
-  UpdateWeightedRealtimeRate(simtime, realtime);
-  GetUnsafeMutableCurrentRunStats()->StepExecuted(simtime, realtime);
+  UpdateWeightedSimtimeRate(simtime);
+  GetUnsafeMutableCurrentRunStats()->StepExecuted(simtime);
+}
+
+void InteractiveSimulationStats::RealtimeStepExecuted(const TimePoint& realtime) {
+  std::lock_guard<std::mutex> lock(mutex_);
+  UpdateWeightedRealtimeRate(realtime);
+  GetUnsafeMutableCurrentRunStats()->SetRealtime(realtime);
 }
 
 const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd() const {
@@ -58,8 +64,25 @@ const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd() con
   const double current_elapsed_simtime = current_run.ElapsedSimtime();
   return current_run.get_start_realtime() + Duration(current_elapsed_simtime / current_realtime_rate);
 }
+//TODO update below two funcs comments
+void InteractiveSimulationStats::UpdateWeightedRealtimeRate(const TimePoint& realtime) {
+  // Control how much weight are we giving to the previous steps. A low value
+  // (i.e. towards 0) will make the real-time rate very sensitive to current
+  // changes but also very unstable. A high value (i.e. towards 1.0) would make
+  // the real-time rate more stable and take longer to catch-up with recent
+  // changes.
+  static const double kWeighFactor{0.95};
 
-void InteractiveSimulationStats::UpdateWeightedRealtimeRate(double simtime, const TimePoint& realtime) {
+  const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
+
+  const Duration realtime_passed = realtime - current_run.get_last_step_realtime();
+
+  weighted_realtime_ = weighted_realtime_ * kWeighFactor + realtime_passed.count();
+  
+  weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
+}
+
+void InteractiveSimulationStats::UpdateWeightedSimtimeRate(double simtime) {
   // Control how much weight are we giving to the previous steps. A low value
   // (i.e. towards 0) will make the real-time rate very sensitive to current
   // changes but also very unstable. A high value (i.e. towards 1.0) would make
@@ -70,11 +93,9 @@ void InteractiveSimulationStats::UpdateWeightedRealtimeRate(double simtime, cons
   const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
 
   const double simtime_passed = simtime - current_run.get_last_step_simtime();
-  const Duration realtime_passed = realtime - current_run.get_last_step_realtime();
 
   weighted_simtime_ = weighted_simtime_ * kWeighFactor + simtime_passed;
-  weighted_realtime_ = weighted_realtime_ * kWeighFactor + realtime_passed.count();
-
+  
   weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }
 

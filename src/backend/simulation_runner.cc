@@ -272,6 +272,8 @@ void SimulationRunner::StepSimulationBy(double time_step) {
   if (expected_realtime > RealtimeClock::now()) {
     std::this_thread::sleep_until(expected_realtime);
   }
+
+  stats_.RealtimeStepExecuted(RealtimeClock::now());
 }
 
 void SimulationRunner::SetupNewRunStats() { stats_.NewRunStartingAt(simulation_->GetCurrentTime(), realtime_rate_); }

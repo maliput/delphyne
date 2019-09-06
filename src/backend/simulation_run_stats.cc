@@ -18,10 +18,14 @@ SimulationRunStats::SimulationRunStats(double start_simtime, double expected_rea
       start_realtime_(start_realtime),
       last_step_realtime_(start_realtime) {}
 
-void SimulationRunStats::StepExecuted(double simtime, const TimePoint& realtime) {
+void SimulationRunStats::StepExecuted(double simtime) {
   DELPHYNE_ASSERT(!run_finished_);
   executed_steps_++;
   last_step_simtime_ = simtime;
+}
+
+void SimulationRunStats::SetRealtime(const TimePoint& realtime) {
+  DELPHYNE_ASSERT(!run_finished_);
   last_step_realtime_ = realtime;
 }
 

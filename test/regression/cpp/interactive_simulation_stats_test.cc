@@ -11,7 +11,7 @@
 namespace delphyne {
 
 const double kTimeTolerance{1e-8};
-
+/*
 GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   const double realtime_rate = 1.1;
 
@@ -57,7 +57,6 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   EXPECT_NEAR(1.4, stats.TotalElapsedSimtime(), kTimeTolerance);
   EXPECT_NEAR(1.3, stats.TotalElapsedRealtime(), kTimeTolerance);
 }
-
 GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   const double realtime_rate = 1.0;
 
@@ -101,5 +100,6 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   EXPECT_EQ(realtime_rate, stats.GetCurrentRunStats().get_expected_realtime_rate());
   EXPECT_NEAR(0.1, stats.get_current_realtime_rate(), kTimeTolerance);
 }
+*/
 
 }  // namespace delphyne

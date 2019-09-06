@@ -9,7 +9,7 @@ import delphyne.simulation
 
 import py_trees.trees
 from py_trees.trees import CONTINUOUS_TICK_TOCK
-
+import time
 
 class BehaviourTree(py_trees.trees.BehaviourTree):
     """
@@ -20,7 +20,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         super().__init__(root=root)
         self.runner = None
 
-    def setup(self, realtime_rate, start_paused, logfile_name='', **kwargs):
+    def setup(self, realtime_rate, start_paused, time_step=0.001, logfile_name='', **kwargs):
         """
         Setup a Delphyne behaviour tree for agent based simulation.
 
@@ -33,10 +33,9 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         builder = delphyne.simulation.AgentSimulationBuilder()
 
         super().setup(builder=builder, **kwargs)
-
         self.runner = delphyne.simulation.SimulationRunner(
             simulation=builder.build(),
-            time_step=0.001,  # (secs)
+            time_step=time_step,  # (secs)
             realtime_rate=realtime_rate,
             paused=start_paused,
             log=bool(logfile_name),

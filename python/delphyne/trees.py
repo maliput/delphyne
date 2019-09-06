@@ -9,7 +9,6 @@ import delphyne.simulation
 
 import py_trees.trees
 from py_trees.trees import CONTINUOUS_TICK_TOCK
-import time
 
 class BehaviourTree(py_trees.trees.BehaviourTree):
     """

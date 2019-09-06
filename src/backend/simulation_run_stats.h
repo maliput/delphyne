@@ -53,7 +53,11 @@ class SimulationRunStats {
   /// wall clock.
   void StepExecuted(double simtime);
 
-  /// TODO write description
+  /// @brief Records the current real time, typically used after a 
+  /// simulation step has occurred
+  ///
+  /// @param[in] realtime The time the step was executed, given by the
+  /// wall clock.
   void SetRealtime(const TimePoint& realtime);
 
   /// @brief Returns the simulation time difference, in seconds, since the

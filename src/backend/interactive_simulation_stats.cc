@@ -41,7 +41,7 @@ SimulationRunStats* InteractiveSimulationStats::GetUnsafeMutableCurrentRunStats(
   return &run_stats_.back();
 }
 
-//void InteractiveSimulationStats::StepExecuted(double simtime) { StepExecuted(simtime, RealtimeClock::now()); }
+void InteractiveSimulationStats::RealtimeStepExecuted() { RealtimeStepExecuted(RealtimeClock::now()); }
 
 void InteractiveSimulationStats::StepExecuted(double simtime) {
   std::lock_guard<std::mutex> lock(mutex_);
@@ -64,7 +64,7 @@ const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd() con
   const double current_elapsed_simtime = current_run.ElapsedSimtime();
   return current_run.get_start_realtime() + Duration(current_elapsed_simtime / current_realtime_rate);
 }
-//TODO update below two funcs comments
+
 void InteractiveSimulationStats::UpdateWeightedRealtimeRate(const TimePoint& realtime) {
   // Control how much weight are we giving to the previous steps. A low value
   // (i.e. towards 0) will make the real-time rate very sensitive to current

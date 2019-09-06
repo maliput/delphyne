@@ -72,18 +72,17 @@ class InteractiveSimulationStats {
   /// the simulator clock.
   void StepExecuted(double simtime);
 
-  /// @brief Records that a step was executed by the simulator and records it as
+  /// @brief Sets the time when the step is completed and records it as
   /// part of the current simulation run.
   ///
-  /// @param[in] simtime The time the step was executed, in seconds, given by
-  /// the simulator clock.
-  ///
-  /// @param[in] realtime The time the step was executed, given by the
+  /// @param[in] realtime The time the step took to execute, given by the
   /// wall clock.
   /// void StepExecuted(double simtime, const TimePoint& realtime);
-
-  /// TODO add docs
   void RealtimeStepExecuted(const TimePoint& realtime);
+  
+  /// @brief Sets the time when the step is completed and records it as
+  /// part of the current simulation run.
+  void RealtimeStepExecuted();
 
   /// @brief Returns a copy of the current running simulation stats @see
   /// SimulationRunStats
@@ -153,13 +152,12 @@ class InteractiveSimulationStats {
   // @brief Returns the current running simulation stats @see SimulationRunStats
   SimulationRunStats* GetUnsafeMutableCurrentRunStats();
 
-  // TODO update documentation lower
   // @brief Updates the value of the `weighted_realtime_rate_` field based
-  // on the elapsed simulation and real time of an executed step.
+  // on the elapsed simulation time of an executed step.
   void UpdateWeightedSimtimeRate(double simtime);
   
   // @brief Updates the value of the `weighted_realtime_rate_` field based
-  // on the elapsed simulation and real time of an executed step.
+  // on the elapsed real time of an executed step.
   void UpdateWeightedRealtimeRate(const TimePoint& realtime);
 
   // @brief All the recorded simulation runs

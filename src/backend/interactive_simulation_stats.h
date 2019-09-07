@@ -79,7 +79,7 @@ class InteractiveSimulationStats {
   /// wall clock.
   /// void StepExecuted(double simtime, const TimePoint& realtime);
   void RealtimeStepExecuted(const TimePoint& realtime);
-  
+
   /// @brief Sets the time when the step is completed and records it as
   /// part of the current simulation run.
   void RealtimeStepExecuted();
@@ -155,7 +155,7 @@ class InteractiveSimulationStats {
   // @brief Updates the value of the `weighted_realtime_rate_` field based
   // on the elapsed simulation time of an executed step.
   void UpdateWeightedSimtimeRate(double simtime);
-  
+
   // @brief Updates the value of the `weighted_realtime_rate_` field based
   // on the elapsed real time of an executed step.
   void UpdateWeightedRealtimeRate(const TimePoint& realtime);

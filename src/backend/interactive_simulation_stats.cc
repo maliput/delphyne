@@ -78,7 +78,7 @@ void InteractiveSimulationStats::UpdateWeightedRealtimeRate(const TimePoint& rea
   const Duration realtime_passed = realtime - current_run.get_last_step_realtime();
 
   weighted_realtime_ = weighted_realtime_ * kWeighFactor + realtime_passed.count();
-  
+
   weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }
 
@@ -95,7 +95,7 @@ void InteractiveSimulationStats::UpdateWeightedSimtimeRate(double simtime) {
   const double simtime_passed = simtime - current_run.get_last_step_simtime();
 
   weighted_simtime_ = weighted_simtime_ * kWeighFactor + simtime_passed;
-  
+
   weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }
 

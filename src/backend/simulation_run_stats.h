@@ -53,7 +53,7 @@ class SimulationRunStats {
   /// wall clock.
   void StepExecuted(double simtime);
 
-  /// @brief Records the current real time, typically used after a 
+  /// @brief Records the current real time, typically used after a
   /// simulation step has occurred
   ///
   /// @param[in] realtime The time the step was executed, given by the

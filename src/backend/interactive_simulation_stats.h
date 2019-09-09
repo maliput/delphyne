@@ -77,7 +77,6 @@ class InteractiveSimulationStats {
   ///
   /// @param[in] realtime The time the step took to execute, given by the
   /// wall clock.
-  /// void StepExecuted(double simtime, const TimePoint& realtime);
   void RealtimeStepExecuted(const TimePoint& realtime);
 
   /// @brief Sets the time when the step is completed and records it as

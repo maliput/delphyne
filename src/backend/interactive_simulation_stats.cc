@@ -4,6 +4,8 @@
 
 namespace delphyne {
 
+static constexpr double kWeighFactor{0.95};
+
 void InteractiveSimulationStats::NewRunStartingAt(double start_simtime, double expected_realtime_rate) {
   NewRunStartingAt(start_simtime, expected_realtime_rate, RealtimeClock::now());
 }
@@ -71,8 +73,6 @@ void InteractiveSimulationStats::UpdateWeightedRealtimeRate(const TimePoint& rea
   // changes but also very unstable. A high value (i.e. towards 1.0) would make
   // the real-time rate more stable and take longer to catch-up with recent
   // changes.
-  static const double kWeighFactor{0.95};
-
   const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
 
   const Duration realtime_passed = realtime - current_run.get_last_step_realtime();
@@ -88,8 +88,6 @@ void InteractiveSimulationStats::UpdateWeightedSimtimeRate(double simtime) {
   // changes but also very unstable. A high value (i.e. towards 1.0) would make
   // the real-time rate more stable and take longer to catch-up with recent
   // changes.
-  static const double kWeighFactor{0.95};
-
   const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
 
   const double simtime_passed = simtime - current_run.get_last_step_simtime();

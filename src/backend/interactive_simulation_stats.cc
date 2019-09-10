@@ -45,10 +45,11 @@ SimulationRunStats* InteractiveSimulationStats::GetUnsafeMutableCurrentRunStats(
 
 void InteractiveSimulationStats::RealtimeStepExecuted() { RealtimeStepExecuted(RealtimeClock::now()); }
 
-void InteractiveSimulationStats::StepExecuted(double simtime) {
+TimePoint InteractiveSimulationStats::StepExecuted(double simtime) {
   std::lock_guard<std::mutex> lock(mutex_);
   UpdateWeightedSimtimeRate(simtime);
   GetUnsafeMutableCurrentRunStats()->StepExecuted(simtime);
+  return UnsafeCurrentStepExpectedRealtimeEnd();
 }
 
 void InteractiveSimulationStats::RealtimeStepExecuted(const TimePoint& realtime) {
@@ -57,9 +58,7 @@ void InteractiveSimulationStats::RealtimeStepExecuted(const TimePoint& realtime)
   GetUnsafeMutableCurrentRunStats()->SetRealtime(realtime);
 }
 
-const TimePoint InteractiveSimulationStats::CurrentStepExpectedRealtimeEnd() const {
-  std::lock_guard<std::mutex> lock(mutex_);
-
+const TimePoint InteractiveSimulationStats::UnsafeCurrentStepExpectedRealtimeEnd() const {
   const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
 
   const double current_realtime_rate = current_run.get_expected_realtime_rate();
@@ -93,8 +92,6 @@ void InteractiveSimulationStats::UpdateWeightedSimtimeRate(double simtime) {
   const double simtime_passed = simtime - current_run.get_last_step_simtime();
 
   weighted_simtime_ = weighted_simtime_ * kWeighFactor + simtime_passed;
-
-  weighted_realtime_rate_ = weighted_simtime_ / weighted_realtime_;
 }
 
 double InteractiveSimulationStats::TotalElapsedSimtime() const {

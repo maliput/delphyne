@@ -260,17 +260,8 @@ void SimulationRunner::StepSimulationBy(double time_step) {
 
   const std::chrono::duration<double> sim_time(simulation_->GetCurrentTime());
   clock_.SetTime(std::chrono::duration_cast<std::chrono::nanoseconds>(sim_time));
-  stats_.StepExecuted(simulation_->GetCurrentTime());
-
-  // If not running at full speed then sleep
-  if (realtime_rate_ != 0) {
-    const TimePoint expected_realtime = stats_.CurrentStepExpectedRealtimeEnd();
-
-    if (expected_realtime > RealtimeClock::now()) {
-      std::this_thread::sleep_until(expected_realtime);
-    }
-  }
-
+  
+  std::this_thread::sleep_until(stats_.StepExecuted(simulation_->GetCurrentTime()));
   stats_.RealtimeStepExecuted();
 }
 

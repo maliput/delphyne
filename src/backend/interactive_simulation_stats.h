@@ -70,7 +70,7 @@ class InteractiveSimulationStats {
   ///
   /// @param[in] simtime The time the step was executed, in seconds, given by
   /// the simulator clock.
-  void StepExecuted(double simtime);
+  TimePoint StepExecuted(double simtime);
 
   /// @brief Sets the time when the step is completed and records it as
   /// part of the current simulation run.
@@ -108,7 +108,7 @@ class InteractiveSimulationStats {
   /// Finally, note that if the simulation is too slow to keep up with the
   /// real-time factor, the returned object will be in the past and not in the
   /// future.
-  const TimePoint CurrentStepExpectedRealtimeEnd() const;
+  const TimePoint UnsafeCurrentStepExpectedRealtimeEnd() const;
 
   /// @brief Returns the current real-time rate by doing a weighted cumulative
   /// sum. We use this method instead of just dividing `total_elapsed_simtime_`

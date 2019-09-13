@@ -49,7 +49,7 @@ TimePoint InteractiveSimulationStats::StepExecuted(double simtime) {
   std::lock_guard<std::mutex> lock(mutex_);
   UpdateWeightedSimtimeRate(simtime);
   GetUnsafeMutableCurrentRunStats()->StepExecuted(simtime);
-  return UnsafeCurrentStepExpectedRealtimeEnd();
+  return GetUnsafeCurrentStepExpectedRealtimeEnd();
 }
 
 void InteractiveSimulationStats::RealtimeStepExecuted(const TimePoint& realtime) {
@@ -58,7 +58,7 @@ void InteractiveSimulationStats::RealtimeStepExecuted(const TimePoint& realtime)
   GetUnsafeMutableCurrentRunStats()->SetRealtime(realtime);
 }
 
-const TimePoint InteractiveSimulationStats::UnsafeCurrentStepExpectedRealtimeEnd() const {
+const TimePoint InteractiveSimulationStats::GetUnsafeCurrentStepExpectedRealtimeEnd() const {
   const SimulationRunStats& current_run = GetUnsafeCurrentRunStats();
 
   const double current_realtime_rate = current_run.get_expected_realtime_rate();

@@ -101,15 +101,6 @@ class InteractiveSimulationStats {
   /// @brief Returns the number of simulation runs.
   int TotalRuns() const;
 
-  /// @brief Returns a TimePoint representing the real-time value at which
-  /// the current simulation step is supposed to end. To compute this value
-  /// (which should theoretically be in the future) it considers the simulation
-  /// time that took the current step and the configured real-time rate.
-  /// Finally, note that if the simulation is too slow to keep up with the
-  /// real-time factor, the returned object will be in the past and not in the
-  /// future.
-  const TimePoint UnsafeCurrentStepExpectedRealtimeEnd() const;
-
   /// @brief Returns the current real-time rate by doing a weighted cumulative
   /// sum. We use this method instead of just dividing `total_elapsed_simtime_`
   /// by `total_elapsed_simtime_` because that would require a long time to
@@ -143,6 +134,15 @@ class InteractiveSimulationStats {
   // it has been agreed that only public methods will do so.
   // Consequently, it is assumed that these methods are called from a
   // thread-safe context.
+
+  /// @brief Returns a TimePoint representing the real-time value at which
+  /// the current simulation step is supposed to end. To compute this value
+  /// (which should theoretically be in the future) it considers the simulation
+  /// time that took the current step and the configured real-time rate.
+  /// Finally, note that if the simulation is too slow to keep up with the
+  /// real-time factor, the returned object will be in the past and not in the
+  /// future.
+  const TimePoint GetUnsafeCurrentStepExpectedRealtimeEnd() const;
 
   // @brief Returns a reference to the current running simulation stats @see
   // SimulationRunStats

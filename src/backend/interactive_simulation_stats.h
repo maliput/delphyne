@@ -136,12 +136,13 @@ class InteractiveSimulationStats {
   // thread-safe context.
 
   /// @brief Returns a TimePoint representing the real-time value at which
-  /// the current simulation step is supposed to end. To compute this value
-  /// (which should theoretically be in the future) it considers the simulation
-  /// time that took the current step and the configured real-time rate.
-  /// Finally, note that if the simulation is too slow to keep up with the
-  /// real-time factor, the returned object will be in the past and not in the
-  /// future.
+  /// the current simulation step is supposed to end.
+  ///
+  /// To compute this value (which should theoretically be in the future)
+  /// it considers the simulation time that took the current step and the
+  /// configured real-time rate. Finally, note that if the simulation is
+  /// too slow to keep up with the real-time factor, the returned object
+  /// will be in the past and not in the future.
   const TimePoint GetUnsafeCurrentStepExpectedRealtimeEnd() const;
 
   // @brief Returns a reference to the current running simulation stats @see

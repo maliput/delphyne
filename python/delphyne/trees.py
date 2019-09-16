@@ -19,7 +19,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         super().__init__(root=root)
         self.runner = None
 
-    def setup(self, realtime_rate, start_paused, time_step=0.001, logfile_name='', **kwargs):
+    def setup(self, realtime_rate, start_paused, time_step=0.01, logfile_name='', **kwargs):
         """
         Setup a Delphyne behaviour tree for agent based simulation.
 
@@ -57,6 +57,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                   number_of_iterations=CONTINUOUS_TICK_TOCK,
                   pre_tick_handler=None,
                   post_tick_handler=None):
+        
         tick_tocks = 0
         while (not self.interrupt_tick_tocking and (
                 tick_tocks < number_of_iterations or

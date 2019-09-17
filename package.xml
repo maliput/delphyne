@@ -45,6 +45,7 @@
   <depend>multilane</depend>
   <depend>maliput-utilities</depend>
   <depend>dragway</depend>
+  <depend>pybind11-dev</depend>
 
   <build_export_depend>drake_vendor</build_export_depend>
   <build_export_depend>ignition-common3</build_export_depend>

@@ -58,6 +58,15 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                   pre_tick_handler=None,
                   post_tick_handler=None):
         
+        duration = number_of_iterations * period
+        assert (duration >= period),                                                 \
+                "Duration ({}) must be greater than or equal to tree time step ({})" \
+                .format(duration, period)
+
+        assert (self.runner.get_timestep() <= period),                                        \
+                "Sim runner time step ({}) must be less than or equal to tree time step ({})" \
+                .format(self.runner.get_timestep(), period)
+
         tick_tocks = 0
         while (not self.interrupt_tick_tocking and (
                 tick_tocks < number_of_iterations or

@@ -294,6 +294,9 @@ class SimulationRunner {
   /// @brief Returns the collected interactive simulation statistics
   const InteractiveSimulationStats& GetStats() const { return stats_; }
 
+  /// @brief Returns the time step of the simulation runner
+  double GetTimeStep() const { return time_step_; }
+
   /// @brief Returns the logging state. True indicates that logging is enabled.
   bool IsLogging() const { return logger_.is_logging(); }
 

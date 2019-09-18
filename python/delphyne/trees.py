@@ -64,7 +64,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
 
         tick_tocks = 0
         while (not self.interrupt_tick_tocking and (
-                tick_tocks < int(number_of_iterations) or
+                tick_tocks < number_of_iterations or
                 number_of_iterations == CONTINUOUS_TICK_TOCK
         )):
             if not self.runner.is_simulation_paused():

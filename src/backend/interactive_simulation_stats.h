@@ -70,17 +70,18 @@ class InteractiveSimulationStats {
   ///
   /// @param[in] simtime The time the step was executed, in seconds, given by
   /// the simulator clock.
-  void StepExecuted(double simtime);
+  TimePoint StepExecuted(double simtime);
 
-  /// @brief Records that a step was executed by the simulator and records it as
+  /// @brief Sets the time when the step is completed and records it as
   /// part of the current simulation run.
   ///
-  /// @param[in] simtime The time the step was executed, in seconds, given by
-  /// the simulator clock.
-  ///
-  /// @param[in] realtime The time the step was executed, given by the
+  /// @param[in] realtime The time the step took to execute, given by the
   /// wall clock.
-  void StepExecuted(double simtime, const TimePoint& realtime);
+  void RealtimeStepExecuted(const TimePoint& realtime);
+
+  /// @brief Sets the time when the step is completed and records it as
+  /// part of the current simulation run.
+  void RealtimeStepExecuted();
 
   /// @brief Returns a copy of the current running simulation stats @see
   /// SimulationRunStats
@@ -99,15 +100,6 @@ class InteractiveSimulationStats {
 
   /// @brief Returns the number of simulation runs.
   int TotalRuns() const;
-
-  /// @brief Returns a TimePoint representing the real-time value at which
-  /// the current simulation step is supposed to end. To compute this value
-  /// (which should theoretically be in the future) it considers the simulation
-  /// time that took the current step and the configured real-time rate.
-  /// Finally, note that if the simulation is too slow to keep up with the
-  /// real-time factor, the returned object will be in the past and not in the
-  /// future.
-  const TimePoint CurrentStepExpectedRealtimeEnd() const;
 
   /// @brief Returns the current real-time rate by doing a weighted cumulative
   /// sum. We use this method instead of just dividing `total_elapsed_simtime_`
@@ -143,6 +135,16 @@ class InteractiveSimulationStats {
   // Consequently, it is assumed that these methods are called from a
   // thread-safe context.
 
+  /// @brief Returns a TimePoint representing the real-time value at which
+  /// the current simulation step is supposed to end.
+  ///
+  /// To compute this value (which should theoretically be in the future)
+  /// it considers the simulation time that took the current step and the
+  /// configured real-time rate. Finally, note that if the simulation is
+  /// too slow to keep up with the real-time factor, the returned object
+  /// will be in the past and not in the future.
+  const TimePoint GetUnsafeCurrentStepExpectedRealtimeEnd() const;
+
   // @brief Returns a reference to the current running simulation stats @see
   // SimulationRunStats
   const SimulationRunStats& GetUnsafeCurrentRunStats() const;
@@ -151,8 +153,12 @@ class InteractiveSimulationStats {
   SimulationRunStats* GetUnsafeMutableCurrentRunStats();
 
   // @brief Updates the value of the `weighted_realtime_rate_` field based
-  // on the elapsed simulation and real time of an executed step.
-  void UpdateWeightedRealtimeRate(double simtime, const TimePoint& realtime);
+  // on the elapsed simulation time of an executed step.
+  void UpdateWeightedSimtimeRate(double simtime);
+
+  // @brief Updates the value of the `weighted_realtime_rate_` field based
+  // on the elapsed real time of an executed step.
+  void UpdateWeightedRealtimeRate(const TimePoint& realtime);
 
   // @brief All the recorded simulation runs
   std::vector<SimulationRunStats> run_stats_;

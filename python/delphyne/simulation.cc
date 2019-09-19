@@ -99,6 +99,7 @@ PYBIND11_MODULE(simulation, m) {
       .def("get_mutable_simulation", &SimulationRunner::GetMutableSimulation,
            py::return_value_policy::reference_internal)
       .def("get_stats", &SimulationRunner::GetStats, py::return_value_policy::reference)
+      .def("get_timestep", &SimulationRunner::GetTimeStep)
       .def("is_logging", &SimulationRunner::IsLogging)
       .def("start_logging", (void (SimulationRunner::*)(void)) & SimulationRunner::StartLogging)
       .def("start_logging", (void (SimulationRunner::*)(const std::string&)) & SimulationRunner::StartLogging)

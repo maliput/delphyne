@@ -9,7 +9,6 @@
 namespace delphyne {
 
 const double kTimeTolerance{1e-8};
-
 GTEST_TEST(SimulationRunStatsTest, UsualRunTest) {
   const double sim_start = 1.0;
   const double realtime_rate = 1.1;
@@ -28,7 +27,8 @@ GTEST_TEST(SimulationRunStatsTest, UsualRunTest) {
   double step_simtime = sim_start + 0.1;
   TimePoint step_realtime = realtime_start + std::chrono::milliseconds(100);
 
-  stats.StepExecuted(step_simtime, step_realtime);
+  stats.StepExecuted(step_simtime);
+  stats.SetRealtime(step_realtime);
 
   EXPECT_EQ(1, stats.get_executed_steps());
   EXPECT_EQ(sim_start, stats.get_start_simtime());
@@ -43,7 +43,8 @@ GTEST_TEST(SimulationRunStatsTest, UsualRunTest) {
   step_simtime = sim_start + 0.2;
   step_realtime = realtime_start + std::chrono::milliseconds(400);
 
-  stats.StepExecuted(step_simtime, step_realtime);
+  stats.StepExecuted(step_simtime);
+  stats.SetRealtime(step_realtime);
 
   EXPECT_EQ(2, stats.get_executed_steps());
   EXPECT_EQ(sim_start, stats.get_start_simtime());
@@ -54,7 +55,6 @@ GTEST_TEST(SimulationRunStatsTest, UsualRunTest) {
   EXPECT_NEAR(0.4, stats.ElapsedRealtime(), kTimeTolerance);
   EXPECT_NEAR(0.5, stats.EffectiveRealtimeRate(), kTimeTolerance);
 }
-
 GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   // We need this flag for safe multithreaded death tests
   ::testing::FLAGS_gtest_death_test_style = "threadsafe";
@@ -69,7 +69,8 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   double step_simtime = sim_start + 0.1;
   TimePoint step_realtime = realtime_start + std::chrono::milliseconds(100);
 
-  stats.StepExecuted(step_simtime, step_realtime);
+  stats.StepExecuted(step_simtime);
+  stats.SetRealtime(step_realtime);
 
   // Mark the simulation run as done.
   stats.RunFinished();
@@ -82,7 +83,8 @@ GTEST_TEST(SimulationRunStatsTest, CantChangeAfterRunIsDoneTest) {
   // Death tests are explicitly disabled when not compiling for debug
   // because the assertions these expect are not armed (i.e. the macros
   // expand to nothing) in this case.
-  EXPECT_DEATH(stats.StepExecuted(step_simtime, step_realtime), "condition '!run_finished_' failed.");
+  EXPECT_DEATH(stats.StepExecuted(step_simtime), "condition '!run_finished_' failed.");
+  EXPECT_DEATH(stats.SetRealtime(step_realtime), "condition '!run_finished_' failed.");
 #endif
 }
 

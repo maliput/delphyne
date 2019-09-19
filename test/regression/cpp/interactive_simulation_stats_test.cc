@@ -11,7 +11,6 @@
 namespace delphyne {
 
 const double kTimeTolerance{1e-8};
-
 GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   const double realtime_rate = 1.1;
 
@@ -35,7 +34,8 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
   EXPECT_NEAR(0., stats.TotalElapsedRealtime(), kTimeTolerance);
 
   // Execute a step
-  stats.StepExecuted(current_run_simtime_start + 0.1, current_run_realtime_start + std::chrono::milliseconds(200));
+  stats.StepExecuted(current_run_simtime_start + 0.1);
+  stats.RealtimeStepExecuted(current_run_realtime_start + std::chrono::milliseconds(200));
 
   EXPECT_EQ(1, stats.TotalRuns());
   EXPECT_EQ(1, stats.TotalExecutedSteps());
@@ -44,20 +44,21 @@ GTEST_TEST(InteractiveSimulationStatsTest, UsualRunTest) {
 
   // Execute another step of the current run and add another run with a single
   // step that started 10 seconds after.
-  stats.StepExecuted(current_run_simtime_start + 0.3, current_run_realtime_start + std::chrono::milliseconds(500));
+  stats.StepExecuted(current_run_simtime_start + 0.3);
+  stats.RealtimeStepExecuted(current_run_realtime_start + std::chrono::milliseconds(500));
 
   current_run_simtime_start = 0.01;
   current_run_realtime_start = current_run_realtime_start + std::chrono::seconds(10);
 
   stats.NewRunStartingAt(current_run_simtime_start, realtime_rate, current_run_realtime_start);
-  stats.StepExecuted(current_run_simtime_start + 1.1, current_run_realtime_start + std::chrono::milliseconds(800));
+  stats.StepExecuted(current_run_simtime_start + 1.1);
+  stats.RealtimeStepExecuted(current_run_realtime_start + std::chrono::milliseconds(800));
 
   EXPECT_EQ(2, stats.TotalRuns());
   EXPECT_EQ(3, stats.TotalExecutedSteps());
   EXPECT_NEAR(1.4, stats.TotalElapsedSimtime(), kTimeTolerance);
   EXPECT_NEAR(1.3, stats.TotalElapsedRealtime(), kTimeTolerance);
 }
-
 GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   const double realtime_rate = 1.0;
 
@@ -75,7 +76,8 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   for (int i = 1; i < 10; i++) {
     current_run_simtime_start += 0.1;
     current_run_realtime_start += std::chrono::milliseconds(100);
-    stats.StepExecuted(current_run_simtime_start, current_run_realtime_start);
+    stats.StepExecuted(current_run_simtime_start);
+    stats.RealtimeStepExecuted(current_run_realtime_start);
   }
 
   EXPECT_EQ(realtime_rate, stats.GetCurrentRunStats().get_expected_realtime_rate());
@@ -95,7 +97,8 @@ GTEST_TEST(InteractiveSimulationStatsTest, RealtimeComputation) {
   for (int i = 1; i < 350; i++) {
     current_run_simtime_start += 0.01;
     current_run_realtime_start += std::chrono::milliseconds(100);
-    stats.StepExecuted(current_run_simtime_start, current_run_realtime_start);
+    stats.StepExecuted(current_run_simtime_start);
+    stats.RealtimeStepExecuted(current_run_realtime_start);
   }
 
   EXPECT_EQ(realtime_rate, stats.GetCurrentRunStats().get_expected_realtime_rate());

@@ -85,7 +85,7 @@ class TrafficPoseSelector {
   /// point-of-view) could be ignored in favor of a car in a branch with
   /// positive net-velocity.
   ///
-  /// The ego vehicle must be within the `driveable_bounds` of @p lane (i.e. the
+  /// The ego vehicle must be within the `segment_bounds` of @p lane (i.e. the
   /// road is contiguous with @p lane along the `r`-direction). This function
   /// is used, for instance, as logic for lane-change planners (e.g. MOBIL).
   /// The ego car's pose (@p ego_pose) and the poses of the traffic cars (@p

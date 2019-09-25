@@ -45,17 +45,17 @@ using delphyne::RoadOdometry;
 namespace {
 
 // Returns `true` if and only if @p lane_position is within the longitudinal
-// (s), driveable (r) and elevation (h) bounds of the specified @p lane
-// (i.e. within @p linear_tolerance of `lane->driveable_bounds()` and
+// (s), lateral segment (r) and elevation (h) bounds of the specified @p lane
+// (i.e. within @p linear_tolerance of `lane->segment_bounds()` and
 // `lane->elevation_bounds()`).
 template <typename T>
-bool IsWithinDriveableBounds(const Lane* lane, const LanePositionT<T>& lane_position, const double linear_tolerance) {
+bool IsWithinSegmentBounds(const Lane* lane, const LanePositionT<T>& lane_position, const double linear_tolerance) {
   const double s = drake::ExtractDoubleOrThrow(lane_position.s());
   if (s < -linear_tolerance || s > lane->length() + linear_tolerance) {
     return false;
   }
   const double r = drake::ExtractDoubleOrThrow(lane_position.r());
-  const RBounds r_bounds = lane->driveable_bounds(s);
+  const RBounds r_bounds = lane->segment_bounds(s);
   if (r < r_bounds.min() - linear_tolerance || r > r_bounds.max() + linear_tolerance) {
     return false;
   }
@@ -88,11 +88,11 @@ bool IsWithinLaneBounds(const Lane* lane, const GeoPositionT<T>& geo_position, d
 }
 
 // Returns `true` if and only if @p lane_position is within @p linear_tolerance
-// of the driveable bounds of @p lane and, in addition, `r` is within its lane
-// bounds.
+// of the lateral segment bounds of @p lane and, in addition, `r` is within its
+// lane bounds.
 template <typename T>
 bool IsWithinLaneBounds(const Lane* lane, const LanePositionT<T>& lane_position, double linear_tolerance) {
-  if (IsWithinDriveableBounds(lane, lane_position, linear_tolerance)) {
+  if (IsWithinSegmentBounds(lane, lane_position, linear_tolerance)) {
     const RBounds r_bounds = lane->lane_bounds(drake::ExtractDoubleOrThrow(lane_position.s()));
     return (lane_position.r() >= r_bounds.min() - linear_tolerance ||
             lane_position.r() <= r_bounds.max() + linear_tolerance);
@@ -101,8 +101,8 @@ bool IsWithinLaneBounds(const Lane* lane, const LanePositionT<T>& lane_position,
 }
 
 // Returns `true` if and only if @p lane_position is within its road geometry
-// linear_tolerance() of the driveable bounds of @p lane and, in addition, `r`
-// is within its lane bounds.
+// linear_tolerance() of the lateral segment bounds of @p lane and, in addition,
+// `r` is within its lane bounds.
 template <typename T>
 bool IsWithinLaneBounds(const Lane* lane, const LanePositionT<T>& lane_position) {
   const double linear_tolerance = lane->segment()->junction()->road_geometry()->linear_tolerance();
@@ -191,7 +191,8 @@ T MakeInfiniteDistance(const PoseVector<T>& pose) {
 
 // Returns the distance (along the `s`-coordinate) from an end of a lane to a @p
 // lane_position in that lane, where the end is determined by @p lane_end_ahead.
-// @pre Given @p lane_position is within `lane_end_ahead.lane` driveable bounds.
+// @pre Given @p lane_position is within `lane_end_ahead.lane` lateral segment
+//      bounds.
 template <typename T>
 T CalcLaneProgress(const LaneEnd& lane_end_ahead, const LanePositionT<T>& lane_position) {
   if (lane_end_ahead.end == LaneEnd::kStart) {

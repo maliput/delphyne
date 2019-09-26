@@ -28,7 +28,7 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
   const auto gp = GeoPositionT<T>::FromXyz(pose.get_isometry().translation());
   if (!rp->lane) {
     // Do an exhaustive search.
-    *rp = road.ToRoadPosition(gp.MakeDouble(), nullptr, nullptr, nullptr);
+    *rp = road.ToRoadPosition(gp.MakeDouble()).road_position;
     return;
   }
 
@@ -63,7 +63,7 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
     }
   }
   // Do an exhaustive search if none is found, using the given lane as a hint.
-  *rp = road.ToRoadPosition(gp.MakeDouble(), rp, nullptr, nullptr);
+  *rp = road.ToRoadPosition(gp.MakeDouble(), *rp).road_position;
 }
 
 // These instantiations must match the API documentation in

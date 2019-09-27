@@ -126,7 +126,7 @@ void MobilPlanner<T>::ImplCalcLaneDirection(const PoseVector<T>& ego_pose, const
   RoadPosition ego_position = ego_rp;
   if (!ego_rp.lane) {
     const auto gp = GeoPosition::FromXyz(ego_pose.get_isometry().translation());
-    ego_position = road_.ToRoadPosition(gp, nullptr, nullptr, nullptr);
+    ego_position = road_.ToRoadPosition(gp, drake::nullopt).road_position;
   }
   // Prepare a list of (possibly nullptr) Lanes to evaluate.
   std::pair<const Lane*, const Lane*> lanes =

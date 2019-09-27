@@ -346,7 +346,7 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
     const drake::Isometry3<T>& traffic_isometry = traffic_poses.get_pose(i);
     const GeoPositionT<T> traffic_geo_position = GeoPositionT<T>::FromXyz(traffic_isometry.translation());
     const RoadPosition traffic_road_position =
-        road_geometry->ToRoadPosition(traffic_geo_position.MakeDouble(), nullptr, nullptr, nullptr);
+        road_geometry->ToRoadPosition(traffic_geo_position.MakeDouble()).road_position;
     const Lane* traffic_lane = traffic_road_position.lane;
     // TODO(jadecastro) Supply a valid hint.
     if (!traffic_lane) continue;

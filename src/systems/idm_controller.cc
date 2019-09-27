@@ -112,7 +112,7 @@ void IDMController<T>::ImplCalcAcceleration(const PoseVector<T>& ego_pose, const
   RoadPosition ego_position = ego_rp;
   if (!ego_rp.lane) {
     const auto gp = GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
-    ego_position = road_.ToRoadPosition(gp.MakeDouble(), nullptr, nullptr, nullptr);
+    ego_position = road_.ToRoadPosition(gp.MakeDouble()).road_position;
   }
 
   // Find the single closest car ahead.

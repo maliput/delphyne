@@ -178,7 +178,7 @@ const Lane* get_lane(const PoseVector<T>& pose, const maliput::api::RoadGeometry
   const GeoPosition geo_position{ExtractDoubleOrThrow(pose.get_translation().x()),
                                  ExtractDoubleOrThrow(pose.get_translation().y()),
                                  ExtractDoubleOrThrow(pose.get_translation().z())};
-  return road.ToRoadPosition(geo_position, nullptr, nullptr, nullptr).lane;
+  return road.ToRoadPosition(geo_position).road_position.lane;
 }
 
 TEST_F(TrafficPoseSelectorDragwayTest, TwoLaneDragway) {
@@ -822,7 +822,7 @@ void CheckOnrampPosesInBranches(const maliput::api::RoadGeometry& road, const Po
                                 const Cases& ego_cases) {
   const GeoPosition ego_geo_position{ego_pose.get_translation().x(), ego_pose.get_translation().y(),
                                      ego_pose.get_translation().z()};
-  const RoadPosition& ego_position = road.ToRoadPosition(ego_geo_position, nullptr, nullptr, nullptr);
+  const RoadPosition& ego_position = road.ToRoadPosition(ego_geo_position).road_position;
 
   ClosestPose<double> closest_pose_leading = TrafficPoseSelector<double>::FindSingleClosestPose(
       ego_position.lane, ego_pose, traffic_poses, 1000. /* scan_ahead_distance */, ego_cases.at(ego_polarity).first,

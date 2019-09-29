@@ -18,7 +18,7 @@ namespace delphyne {
 using drake::systems::rendering::PoseVector;
 using maliput::api::GeoPositionT;
 using maliput::api::Lane;
-using maliput::api::LanePositionT;
+using maliput::api::LanePositionResultT;
 
 template <typename T>
 T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params, const SimpleCarParams<T>& car_params,
@@ -51,14 +51,13 @@ const GeoPositionT<T> PurePursuit<T>::ComputeGoalPoint(const T& s_lookahead, con
                                                        const PoseVector<T>& pose) {
   const Lane* const lane = lane_direction.lane;
   const bool with_s = lane_direction.with_s;
-  const LanePositionT<T> position =
+  const LanePositionResultT<T> result =
       lane->ToLanePositionT<T>({pose.get_isometry().translation().x(), pose.get_isometry().translation().y(),
-                                pose.get_isometry().translation().z()},
-                               nullptr, nullptr);
-  const T s_new = with_s ? position.s() + s_lookahead : position.s() - s_lookahead;
+                                pose.get_isometry().translation().z()});
+  const T s_new = with_s ? result.lane_position.s() + s_lookahead : result.lane_position.s() - s_lookahead;
   const T s_goal = drake::math::saturate(s_new, T(0.), T(lane->length()));
   // TODO(jadecastro): Add support for locating goal points in ongoing lanes.
-  return lane->ToGeoPositionT<T>({s_goal, 0. * position.r(), position.h()});
+  return lane->ToGeoPositionT<T>({s_goal, 0. * result.lane_position.r(), result.lane_position.h()});
 }
 
 }  // namespace delphyne

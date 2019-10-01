@@ -17,6 +17,7 @@ using drake::systems::rendering::PoseVector;
 using maliput::api::GeoPositionT;
 using maliput::api::LaneEnd;
 using maliput::api::LaneEndSet;
+using maliput::api::LanePositionResultT;
 using maliput::api::LanePositionT;
 using maliput::api::RoadGeometry;
 using maliput::api::RoadPosition;
@@ -33,17 +34,15 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
   }
 
   const double tol = rp->lane->segment()->junction()->road_geometry()->linear_tolerance();
-  LanePositionT<T> lp;
-  T distance;
-  lp = rp->lane->ToLanePositionT<T>(gp, nullptr, &distance);
-  if (distance <= tol) {  // Our current lane is good; just update position.
-    rp->pos = lp.MakeDouble();
+  LanePositionResultT<T> lpr = rp->lane->ToLanePositionT<T>(gp);
+  if (lpr.distance <= tol) {  // Our current lane is good; just update position.
+    rp->pos = lpr.lane_position.MakeDouble();
     return;
   }
 
   // Check the ongoing lanes at the end corresponding to the direction the car
   // is moving.
-  const T s_dot = TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lp, velocity});
+  const T s_dot = TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lpr.lane_position, velocity});
   for (const auto end : {LaneEnd::kStart, LaneEnd::kFinish}) {
     // Check only the relevant lane end.  If s_dot == 0, check both ends
     // (velocity isn't informative).
@@ -54,9 +53,9 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
     if (!branches) continue;
     for (int i{0}; i < branches->size(); ++i) {
       const LaneEnd lane_end = branches->get(i);
-      lp = lane_end.lane->ToLanePositionT<T>(gp, nullptr, &distance);
-      if (distance <= tol) {  // Update both the lane and position.
-        rp->pos = lp.MakeDouble();
+      lpr = lane_end.lane->ToLanePositionT<T>(gp);
+      if (lpr.distance <= tol) {  // Update both the lane and position.
+        rp->pos = lpr.lane_position.MakeDouble();
         rp->lane = lane_end.lane;
         return;
       }

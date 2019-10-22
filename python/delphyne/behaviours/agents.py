@@ -5,8 +5,6 @@ A module providing basic agent behaviours.
 """
 
 import delphyne.agents
-import delphyne.blackboard
-
 from delphyne.blackboard.providers import resolve
 
 import py_trees.behaviours
@@ -112,7 +110,6 @@ class RailCar(py_trees.behaviours.Success):
         self.lateral_offset = lateral_offset
         self.speed = speed
         self.nominal_speed = nominal_speed
-        delphyne.blackboard.state.initialize_agent_attributes(self.name)
 
     def setup(self, *, builder):
         road_geometry = builder.get_road_geometry()
@@ -135,17 +132,6 @@ class RailCar(py_trees.behaviours.Success):
                 nominal_speed=self.nominal_speed                  # nominal_speed (m/s)
             )
         )
-
-    def initialise(self):
-        simulation = delphyne.blackboard.state.get_simulation()
-        self.agent = simulation.get_agent_by_name(self.name)
-
-    def update(self):
-        from delphyne.blackboard.state import get_attribute_for_agent
-        speed = get_attribute_for_agent(self.name, "speed")
-        if self.agent is not None and speed is not None and speed != self.speed:
-            self.speed = self.agent.set_speed(speed)
-        return py_trees.common.Status.SUCCESS
 
 
 class TrajectoryAgent(py_trees.behaviours.Success):

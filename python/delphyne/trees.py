@@ -32,6 +32,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         builder = delphyne.simulation.AgentSimulationBuilder()
 
         super().setup(builder=builder, **kwargs)
+
         self.runner = delphyne.simulation.SimulationRunner(
             simulation=builder.build(),
             time_step=time_step,  # (secs)
@@ -40,9 +41,11 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
             log=bool(logfile_name),
             logfile_name=logfile_name
         )
-        delphyne.blackboard.state.set_simulation(
-            self.runner.get_simulation()
-        )
+
+        for node in self.root.iterate():
+            if not hasattr(node, 'late_setup'):
+                continue
+            node.late_setup(simulation=self.runner.get_simulation())
 
     def step(self, period):
         """
@@ -57,7 +60,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                   number_of_iterations=CONTINUOUS_TICK_TOCK,
                   pre_tick_handler=None,
                   post_tick_handler=None):
-        
+
         assert (self.runner.get_timestep() <= period),                                        \
                 "Sim runner time step ({}) must be less than or equal to tree time step ({})" \
                 .format(self.runner.get_timestep(), period)

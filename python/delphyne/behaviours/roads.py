@@ -5,7 +5,6 @@ A module providing road composites.
 """
 
 import delphyne.roads
-import delphyne.blackboard
 
 import py_trees.composites
 import py_trees.common
@@ -64,7 +63,6 @@ class Dragway(Road):
                     maximum_height=self.maximum_height
                 )
             )
-            delphyne.blackboard.state.set_road_geometry(self.road_geometry)
 
 
 class Multilane(Road):
@@ -88,7 +86,6 @@ class Multilane(Road):
                 delphyne.roads.create_multilane_from_file(
                     self.file_path)
                 )
-            delphyne.blackboard.state.set_road_geometry(self.road_geometry)
 
 
 class Malidrive(Road):
@@ -111,7 +108,6 @@ class Malidrive(Road):
                     name=self.name,
                     file_path=self.file_path), self.features)
             self.road_geometry = self.road_network.road_geometry()
-            delphyne.blackboard.state.set_road_geometry(self.road_geometry)
 
 
 class OnRamp(Road):
@@ -122,5 +118,5 @@ class OnRamp(Road):
     def setup(self, *, builder):
         if self.road_geometry is None:
             self.road_geometry = builder.set_road_geometry(
-                delphyne.roads.create_on_ramp())
-            delphyne.blackboard.state.set_road_geometry(self.road_geometry)
+                delphyne.roads.create_on_ramp()
+            )

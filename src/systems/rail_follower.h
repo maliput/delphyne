@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <vector>
+#include <optional>
 
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
@@ -127,7 +128,6 @@ class RailFollower final : public drake::systems::LeafSystem<T> {
                              drake::systems::ContinuousState<T>* derivatives) const override;
 
   // LeafSystem<T> overrides.
-  drake::optional<bool> DoHasDirectFeedthrough(int, int) const override;
   void DoCalcNextUpdateTime(const drake::systems::Context<T>& context, drake::systems::CompositeEventCollection<T>*,
                             T* time) const override;
   void DoCalcUnrestrictedUpdate(const drake::systems::Context<T>& context,

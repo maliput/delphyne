@@ -7,6 +7,8 @@
 #include <drake/common/drake_assert.h>
 #include <drake/common/drake_copyable.h>
 
+#include "maliput/common/maliput_throw.h"
+
 #if defined(__GNUC__)
 #define DELPHYNE_DEPRECATED(version) __attribute__((deprecated))
 #define DELPHYNE_FORCEINLINE __attribute__((always_inline))
@@ -26,7 +28,7 @@
 
 #define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
 #define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)
-#define DELPHYNE_ABORT() DRAKE_ABORT()
+#define DELPHYNE_ABORT_MESSAGE(msg) DRAKE_DEMAND(msg)
 
 /// \def DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN
 /// Deletes the special member functions for copy-construction, copy-assignment,

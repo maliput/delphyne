@@ -3,8 +3,8 @@
 #pragma once
 
 #include <memory>
-#include <vector>
 #include <optional>
+#include <vector>
 
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>

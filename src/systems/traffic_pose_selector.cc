@@ -5,9 +5,9 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
-#include <optional>
 
 #include <drake/common/autodiffxd_make_coherent.h>
 #include <drake/common/default_scalars.h>

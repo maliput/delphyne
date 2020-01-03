@@ -7,8 +7,6 @@
 #include <drake/common/drake_assert.h>
 #include <drake/common/drake_copyable.h>
 
-#include "maliput/common/maliput_throw.h"
-
 #if defined(__GNUC__)
 #define DELPHYNE_DEPRECATED(version) __attribute__((deprecated))
 #define DELPHYNE_FORCEINLINE __attribute__((always_inline))

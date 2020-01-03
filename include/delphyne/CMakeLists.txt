@@ -25,7 +25,6 @@ target_include_directories(
 target_link_libraries(public_headers
   INTERFACE
     drake::drake
-    maliput::common
 )
 
 ##############################################################################

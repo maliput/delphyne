@@ -117,7 +117,7 @@ template <typename T>
 drake::lcmt_viewer_load_robot BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
   drake::lcm::DrakeMockLcm lcm;
   drake::lcm::Subscriber<drake::lcmt_viewer_load_robot> sub(&lcm, "DRAKE_VIEWER_LOAD_ROBOT");
-  DispatchLoadMessage(scene_graph, &lcm, drake::geometry::Role::kUnassigned);
+  DispatchLoadMessage(scene_graph, &lcm, drake::geometry::Role::kPerception);
   constexpr int kTimeoutMS{0};
   lcm.HandleSubscriptions(kTimeoutMS);
   return sub.message();

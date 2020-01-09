@@ -41,12 +41,7 @@ void FramePoseAggregator<T>::CalcFramePoseVector(const drake::systems::Context<T
   const int num_ports = this->num_input_ports();
   for (int port_index = 0; port_index < num_ports; ++port_index) {
     const PoseVector<T>* input_pose = this->template EvalVectorInput<PoseVector>(context, port_index);
-    const auto isometry = input_pose->get_isometry();
-    const auto orthogonal_rotation_matrix =
-        drake::math::RotationMatrix<double>::ProjectToRotationMatrix(isometry.linear());
-    drake::math::RigidTransform rigid_transform{orthogonal_rotation_matrix};
-    rigid_transform.set_translation(isometry.translation());
-    output->set_value(frame_ids_[port_index], rigid_transform);
+    output->set_value(frame_ids_[port_index], drake::math::RigidTransform(input_pose->get_isometry()));
   }
 }
 

@@ -28,11 +28,13 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
   std::unique_ptr<drake::systems::Context<double>> context = frame_pose_aggregator.AllocateContext();
 
   auto input_pose0 = std::make_unique<drake::systems::rendering::PoseVector<double>>(
-      drake::Quaternion<double>(0.5, 0.5, 0., 0.), drake::Translation3<double>(1., 10., 100.));
+      drake::Quaternion<double>(1 / std::sqrt(2.), 1 / std::sqrt(2.), 0., 0.),
+      drake::Translation3<double>(1., 10., 100.));
   context->FixInputPort(input_pose_port0.get_index(), input_pose0->Clone());
 
   auto input_pose1 = std::make_unique<drake::systems::rendering::PoseVector<double>>(
-      drake::Quaternion<double>(0.5, 0., 0.5, 0.), drake::Translation3<double>(-1., -10., -100.));
+      drake::Quaternion<double>(1 / std::sqrt(2.), 0., 1 / std::sqrt(2.), 0.),
+      drake::Translation3<double>(-1., -10., -100.));
   context->FixInputPort(input_pose_port1.get_index(), input_pose1->Clone());
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output = frame_pose_aggregator.AllocateOutput();
@@ -42,24 +44,10 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
   const auto& output_frame_pose_vector = output_value->get_value<drake::geometry::FramePoseVector<double>>();
 
   EXPECT_EQ(output_frame_pose_vector.size(), 2);
-  {
-    EXPECT_TRUE(output_frame_pose_vector.has_id(frame0));
-    const auto isometry = input_pose0->get_isometry();
-    const auto orthogonal_rotation_matrix =
-        drake::math::RotationMatrix<double>::ProjectToRotationMatrix(isometry.linear());
-    drake::math::RigidTransform rigid_transform{orthogonal_rotation_matrix};
-    rigid_transform.set_translation(isometry.translation());
-    EXPECT_TRUE(output_frame_pose_vector.value(frame0).GetAsIsometry3().isApprox(rigid_transform.GetAsIsometry3()));
-  }
-  {
-    EXPECT_TRUE(output_frame_pose_vector.has_id(frame1));
-    const auto isometry = input_pose1->get_isometry();
-    const auto orthogonal_rotation_matrix =
-        drake::math::RotationMatrix<double>::ProjectToRotationMatrix(isometry.linear());
-    drake::math::RigidTransform rigid_transform{orthogonal_rotation_matrix};
-    rigid_transform.set_translation(isometry.translation());
-    EXPECT_TRUE(output_frame_pose_vector.value(frame1).GetAsIsometry3().isApprox(rigid_transform.GetAsIsometry3()));
-  }
+  EXPECT_TRUE(output_frame_pose_vector.has_id(frame0));
+  EXPECT_TRUE(output_frame_pose_vector.value(frame0).GetAsIsometry3().isApprox(input_pose0->get_isometry()));
+  EXPECT_TRUE(output_frame_pose_vector.has_id(frame1));
+  EXPECT_TRUE(output_frame_pose_vector.value(frame1).GetAsIsometry3().isApprox(input_pose1->get_isometry()));
 }
 
 }  // namespace

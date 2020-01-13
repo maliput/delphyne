@@ -271,8 +271,7 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCarInitialState) {
   EXPECT_EQ(state_message.angular_velocity().z(), 0.0);
 }
 
-// TODO(francocipollone): This test is failing since Drake upgrade.
-// It was commented to allows other repositories to continue with their developments.
+// TODO(delphyne#660) Tests are disabled to unblock development in the entire workspace.
 //
 // TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
 //   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
@@ -419,8 +418,7 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
       "geometry as that used by the simulation");
 }
 
-// TODO(francocipollone): This test is failing since Drake upgrade.
-// It was commented to allows other repositories to continue with their developments.
+// TODO(delphyne#660) Tests are disabled to unblock development in the entire workspace.
 //
 // Covers railcar behavior.
 // TEST_F(AgentSimulationTest, TestMaliputRailcar) {
@@ -501,8 +499,7 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
   EXPECT_EQ(GetLinkCount(draw_message), 2 * GetPriusLinkCount());
 }
 
-// TODO(francocipollone): This test is failing since Drake upgrade.
-// It was commented to allows other repositories to continue with their developments.
+// TODO(delphyne#660) Tests are disabled to unblock development in the entire workspace.
 //
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is
 // added to the simulation.
@@ -540,8 +537,7 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
 //                        "An agent named \"alice\" already exists.");
 // }
 
-// TODO(francocipollone): This test is failing since Drake upgrade.
-// It was commented to allows other repositories to continue with their developments.
+// TODO(delphyne#660) Tests are disabled to unblock development in the entire workspace.
 //
 // Verifies that the velocity outputs of the rail cars are connected to
 // the PoseAggregator, which prevents a regression of #5894.

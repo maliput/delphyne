@@ -12,6 +12,8 @@
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
 
+#include "delphyne/macros.h"
+
 namespace delphyne {
 
 using drake::MatrixX;
@@ -40,7 +42,7 @@ const PiecewisePolynomial<T>& RoadPath<T>::get_path() const {
 template <typename T>
 const T RoadPath<T>::GetClosestPathPosition(const Vector3<T>& geo_pos, const T& s_guess) const {
   drake::unused(geo_pos, s_guess);
-  DRAKE_ABORT();
+  DELPHYNE_ABORT_MESSAGE("Unused.");
 }
 
 template <typename T>

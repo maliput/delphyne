@@ -26,6 +26,7 @@
 
 #include <Eigen/Geometry>
 
+#include "delphyne/macros.h"
 #include "gen/rail_follower_params.h"
 #include "gen/rail_follower_state.h"
 #include "systems/calc_smooth_acceleration.h"
@@ -299,11 +300,6 @@ void RailFollower<T>::ImplCalcTimeDerivatives(const RailFollowerParams<T>& param
   rates->set_speed(smooth_acceleration);
 }
 
-template <typename T>
-drake::optional<bool> RailFollower<T>::DoHasDirectFeedthrough(int, int) const {
-  return false;
-}
-
 // TODO(liang.fok): Switch to guard functions once they are available. The
 // following computes an estimate of when the vehicle will reach the end of
 // its lane. This estimate will be off when r != 0 and the lane is very
@@ -396,7 +392,7 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(const drake::systems::Context<T>&
     LaneDirection& next_lane_direction = next_state->template get_mutable_abstract_state<LaneDirection>(0);
     // TODO(liang.fok) Generalize the following to support the selection of
     // non-default branches or non-zero ongoing branches. See #5702.
-    drake::optional<maliput::api::LaneEnd> next_branch;
+    std::optional<maliput::api::LaneEnd> next_branch;
     if (current_with_s) {
       next_branch = current_lane_direction.lane->GetDefaultBranch(maliput::api::LaneEnd::kFinish);
       if (!next_branch) {
@@ -422,7 +418,7 @@ void RailFollower<T>::DoCalcUnrestrictedUpdate(const drake::systems::Context<T>&
     }
 
     if (!next_branch) {
-      DRAKE_ABORT_MSG(
+      DELPHYNE_ABORT_MESSAGE(
           "RailFollower::DoCalcUnrestrictedUpdate: ERROR: "
           "Vehicle should switch lanes but no default or ongoing branch "
           "exists.");

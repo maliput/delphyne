@@ -15,6 +15,7 @@
 #include <drake/geometry/shape_specification.h>
 #include <drake/lcm/drake_mock_lcm.h>
 #include <drake/lcmt_viewer_load_robot.hpp>
+#include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/rendering/pose_vector.h>
@@ -88,8 +89,8 @@ const drake::systems::InputPort<T>& WirePriusGeometry(const std::string& frame_r
   // Registers a bounding box geometry for the whole car with the
   // car chassis frame as its origin.
   auto car_bounding_box = std::make_unique<GeometryInstance>(
-      Isometry3<T>::Identity(), std::make_unique<Box>(kPriusCarLength, kPriusCarWidth, kPriusCarHeight),
-      "prius_bounding_box");
+      drake::math::RigidTransform<double>::Identity(),
+      std::make_unique<Box>(kPriusCarLength, kPriusCarWidth, kPriusCarHeight), "prius_bounding_box");
 
   const GeometryId car_chassis_geometry_id =
       scene_graph->RegisterGeometry(source_id, car_chassis_frame_id, std::move(car_bounding_box));
@@ -116,7 +117,7 @@ template <typename T>
 drake::lcmt_viewer_load_robot BuildLoadMessage(const drake::geometry::SceneGraph<T>& scene_graph) {
   drake::lcm::DrakeMockLcm lcm;
   drake::lcm::Subscriber<drake::lcmt_viewer_load_robot> sub(&lcm, "DRAKE_VIEWER_LOAD_ROBOT");
-  DispatchLoadMessage(scene_graph, &lcm);
+  DispatchLoadMessage(scene_graph, &lcm, drake::geometry::Role::kPerception);
   constexpr int kTimeoutMS{0};
   lcm.HandleSubscriptions(kTimeoutMS);
   return sub.message();

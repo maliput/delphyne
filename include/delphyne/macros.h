@@ -26,7 +26,7 @@
 
 #define DELPHYNE_ASSERT(condition) DRAKE_ASSERT(condition)
 #define DELPHYNE_DEMAND(condition) DRAKE_DEMAND(condition)
-#define DELPHYNE_ABORT() DRAKE_ABORT()
+#define DELPHYNE_ABORT_MESSAGE(msg) DRAKE_DEMAND(msg)
 
 /// \def DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN
 /// Deletes the special member functions for copy-construction, copy-assignment,

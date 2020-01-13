@@ -42,7 +42,7 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
   // Simulates for a small time period.
   simulator.Initialize();
   const double kPublishDeadline{0.1};
-  simulator.StepTo(kPublishDeadline);
+  simulator.AdvanceTo(kPublishDeadline);
 
   // Checks that the correct amount of messages have been published.
   const int kMessagesToPublish = simulator.get_num_steps_taken();
@@ -73,7 +73,7 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   simulator.Initialize();
   const int kMessagesToPublish{5};
   const double kPublishDeadline = kMessagesToPublish / kPublishRateHz;
-  simulator.StepTo(kPublishDeadline);
+  simulator.AdvanceTo(kPublishDeadline);
 
   // Checks that the correct amount of messages have been published.
   ASSERT_TRUE(ign_monitor.wait_until(kMessagesToPublish, kTimeoutMs));

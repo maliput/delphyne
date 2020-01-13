@@ -5,13 +5,13 @@
 #include <algorithm>
 #include <limits>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
 #include <drake/common/autodiffxd_make_coherent.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
-#include <drake/common/drake_optional.h>
 #include <drake/common/extract_double.h>
 #include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
@@ -19,7 +19,6 @@
 
 namespace delphyne {
 
-using drake::optional;
 using drake::Quaternion;
 using drake::Vector3;
 using drake::systems::rendering::FrameVelocity;
@@ -116,7 +115,7 @@ bool IsWithinLaneBounds(const Lane* lane, const LanePositionT<T>& lane_position)
 // with its `lane` member-field set to `nullptr`.
 LaneEnd GetDefaultOrFirstOngoingLaneEndAhead(const LaneEnd& lane_end) {
   DRAKE_DEMAND(lane_end.lane != nullptr);
-  optional<LaneEnd> branch = lane_end.lane->GetDefaultBranch(lane_end.end);
+  std::optional<LaneEnd> branch = lane_end.lane->GetDefaultBranch(lane_end.end);
   if (!branch) {
     const LaneEndSet* branches = lane_end.lane->GetOngoingBranches(lane_end.end);
     if (branches->size() == 0) {

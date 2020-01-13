@@ -161,7 +161,7 @@ std::vector<AgentBaseCollision<T>> AgentSimulationBase<T>::GetCollisions() const
 
 template <typename T>
 void AgentSimulationBase<T>::StepBy(const T& time_step) {
-  simulator_->StepTo(GetCurrentTime() + time_step);
+  simulator_->AdvanceTo(GetCurrentTime() + time_step);
 }
 
 template <typename T>

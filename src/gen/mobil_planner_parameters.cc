@@ -13,7 +13,7 @@ const int MobilPlannerParametersIndices::kThreshold;
 const int MobilPlannerParametersIndices::kMaxDeceleration;
 
 const std::vector<std::string>& MobilPlannerParametersIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+  static const maliput::common::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
       "p",                 // BR
       "threshold",         // BR
       "max_deceleration",  // BR

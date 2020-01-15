@@ -19,7 +19,7 @@ const int DynamicBicycleCarParamsIndices::kPLocpZ;
 const int DynamicBicycleCarParamsIndices::kGravity;
 
 const std::vector<std::string>& DynamicBicycleCarParamsIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+  static const maliput::common::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
       "mass",       // BR
       "izz",        // BR
       "c_alpha_f",  // BR

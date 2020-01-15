@@ -14,7 +14,7 @@ const int SimpleCarStateIndices::kHeading;
 const int SimpleCarStateIndices::kVelocity;
 
 const std::vector<std::string>& SimpleCarStateIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+  static const maliput::common::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
       "x",         // BR
       "y",         // BR
       "heading",   // BR

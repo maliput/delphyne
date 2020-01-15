@@ -6,11 +6,11 @@
 
 #include <drake/common/cond.h>
 #include <drake/common/drake_assert.h>
-#include <drake/common/unused.h>
 #include <drake/math/saturate.h>
 #include <maliput/api/branch_point.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
+#include <maliput/common/maliput_unused.h>
 
 #include "delphyne/macros.h"
 
@@ -41,7 +41,7 @@ const PiecewisePolynomial<T>& RoadPath<T>::get_path() const {
 
 template <typename T>
 const T RoadPath<T>::GetClosestPathPosition(const Vector3<T>& geo_pos, const T& s_guess) const {
-  drake::unused(geo_pos, s_guess);
+  maliput::common::unused(geo_pos, s_guess);
   DELPHYNE_ABORT_MESSAGE("Unused.");
 }
 

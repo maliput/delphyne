@@ -17,6 +17,8 @@
 #include "systems/simple_car.h"
 #include "translations/ign_driving_command_to_drake.h"
 
+#include <maliput/common/maliput_unused.h>
+
 /*****************************************************************************
  ** Namespaces
  *****************************************************************************/
@@ -32,7 +34,7 @@ SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x, double
 
 std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
     const maliput::api::RoadGeometry* road_geometry) const {
-  drake::unused(road_geometry);
+  maliput::common::unused(road_geometry);
 
   AgentBlueprint::DiagramBuilder builder(this->name());
 

@@ -19,6 +19,8 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "systems/trajectory.h"
 #include "systems/trajectory_follower.h"
 
@@ -60,7 +62,7 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(const std::string& name, cons
 
 std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(
     const maliput::api::RoadGeometry* road_geometry) const {
-  drake::unused(road_geometry);
+  maliput::common::unused(road_geometry);
   AgentBlueprint::DiagramBuilder builder(this->name());
 
   /******************************************

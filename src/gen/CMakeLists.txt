@@ -25,9 +25,9 @@ ament_target_dependencies(drake_gen
 target_link_libraries(
   drake_gen
   PUBLIC
+    drake::drake
     maliput::common
     public_headers
-    drake::drake
 )
 install(
   TARGETS drake_gen

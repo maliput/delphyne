@@ -26,14 +26,14 @@ ament_target_dependencies(translations
 
 target_link_libraries(translations
   PUBLIC
-    public_headers
-    protobuf
-    protobuf_messages
     drake::drake
     ignition-common3::ignition-common3
     ignition-msgs2::ignition-msgs2
     ignition-transport5::ignition-transport5
     maliput::common
+    protobuf
+    protobuf_messages
+    public_headers
 )
 
 install(TARGETS translations

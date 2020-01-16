@@ -23,8 +23,6 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
-#include <maliput/common/maliput_unused.h>
-
 #include "utility/filesystem.h"
 
 namespace delphyne {

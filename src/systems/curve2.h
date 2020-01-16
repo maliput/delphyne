@@ -9,7 +9,8 @@
 #include <Eigen/Dense>
 
 #include "drake/common/autodiffxd_make_coherent.h"
-#include "drake/common/drake_copyable.h"
+
+#include "maliput/common/maliput_copyable.h"
 
 namespace delphyne {
 
@@ -30,7 +31,7 @@ namespace delphyne {
 template <typename T>
 class Curve2 {
  public:
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(Curve2)
+  MALIPUT_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(Curve2)
 
   /// A two-dimensional Cartesian point that is alignment-safe.
   typedef Eigen::Matrix<double, 2, 1, Eigen::DontAlign> Point2;

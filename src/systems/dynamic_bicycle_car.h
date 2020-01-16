@@ -4,6 +4,8 @@
 
 #include <drake/systems/framework/leaf_system.h>
 
+#include <maliput/common/maliput_copyable.h>
+
 #include "gen/dynamic_bicycle_car_input.h"
 #include "gen/dynamic_bicycle_car_params.h"
 #include "gen/dynamic_bicycle_car_state.h"
@@ -69,7 +71,7 @@ namespace delphyne {
 template <typename T>
 class DynamicBicycleCar final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(DynamicBicycleCar);
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(DynamicBicycleCar);
 
   /// Default constructor.
   DynamicBicycleCar();

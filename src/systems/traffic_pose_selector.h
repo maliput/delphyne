@@ -8,12 +8,12 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "systems/lane_direction.h"
 #include "systems/road_odometry.h"
@@ -65,7 +65,7 @@ enum class RoadPositionStrategy { kCache, kExhaustiveSearch };
 template <typename T>
 class TrafficPoseSelector {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrafficPoseSelector)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(TrafficPoseSelector)
 
   TrafficPoseSelector() = delete;
 

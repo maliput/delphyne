@@ -4,12 +4,13 @@
 
 #include <vector>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/geometry/frame_kinematics_vector.h>
 #include <drake/geometry/geometry_ids.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/input_port.h>
 #include <drake/systems/framework/leaf_system.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 namespace delphyne {
 
@@ -22,7 +23,7 @@ namespace delphyne {
 template <typename T>
 class FramePoseAggregator : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(FramePoseAggregator)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(FramePoseAggregator)
 
   FramePoseAggregator();
 

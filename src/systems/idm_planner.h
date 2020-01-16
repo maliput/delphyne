@@ -2,7 +2,7 @@
 
 #pragma once
 
-#include <drake/common/drake_copyable.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/idm_planner_parameters.h"
 
@@ -41,7 +41,7 @@ namespace delphyne {
 template <typename T>
 class IdmPlanner {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(IdmPlanner)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(IdmPlanner)
   IdmPlanner() = delete;
 
   /// Evaluates the IDM equation for the chosen planner parameters @p params,

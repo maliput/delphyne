@@ -32,7 +32,7 @@ namespace delphyne {
 template <typename T>
 class VectorSource final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(VectorSource)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(VectorSource)
 
   explicit VectorSource(T defaultval) {
     output_port_index_ =

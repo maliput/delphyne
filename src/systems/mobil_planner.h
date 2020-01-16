@@ -9,12 +9,12 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/idm_planner_parameters.h"
 #include "gen/mobil_planner_parameters.h"
@@ -88,7 +88,7 @@ class MobilPlanner : public drake::systems::LeafSystem<T> {
  public:
   typedef typename std::map<AheadOrBehind, const ClosestPose<T>> ClosestPoses;
 
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(MobilPlanner)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(MobilPlanner)
 
   /// A constructor that initializes the MOBIL planner.
   /// @param road The pre-defined RoadGeometry.

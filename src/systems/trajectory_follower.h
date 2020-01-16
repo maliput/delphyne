@@ -4,11 +4,12 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/common/extract_double.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/simple_car_state.h"
 #include "systems/trajectory.h"
@@ -46,7 +47,7 @@ namespace delphyne {
 template <typename T>
 class TrajectoryFollower final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryFollower)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(TrajectoryFollower)
 
   /// Constructs a TrajectoryFollower system that traces a given Trajectory.
   ///

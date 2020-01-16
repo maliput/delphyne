@@ -4,11 +4,12 @@
 #include <map>
 #include <memory>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #include "visualization/car_vis.h"
 
@@ -43,7 +44,7 @@ namespace delphyne {
 template <typename T>
 class CarVisApplicator : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(CarVisApplicator)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(CarVisApplicator)
 
   CarVisApplicator();
   ~CarVisApplicator() override {}

@@ -7,12 +7,13 @@
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/common/trajectories/piecewise_polynomial.h>
 #include <drake/common/trajectories/piecewise_quaternion.h>
 #include <drake/math/quaternion.h>
 #include <drake/math/roll_pitch_yaw.h>
 #include <drake/multibody/math/spatial_velocity.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 namespace delphyne {
 
@@ -23,7 +24,7 @@ namespace delphyne {
 /// respect to W.
 class PoseVelocity final {
  public:
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(PoseVelocity)
+  MALIPUT_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(PoseVelocity)
 
   /// Default constructor.  Sets rotation to an identity transform and all
   /// translation and velocity components to zero.
@@ -82,7 +83,7 @@ class PoseVelocity final {
 /// match the input pose data exactly.
 class Trajectory final {
  public:
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(Trajectory)
+  MALIPUT_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(Trajectory)
 
   /// An identifier for the type of valid types of interpolation used in
   /// evaluating the translational component of a Trajectory.  These types

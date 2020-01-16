@@ -16,7 +16,7 @@ namespace delphyne {
 template <typename T>
 class SpeedSystem final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SpeedSystem)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(SpeedSystem)
 
   /// Default constructor.
   SpeedSystem() {

@@ -4,10 +4,10 @@
 
 #include <memory>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/driving_command.h"
 #include "gen/simple_car_params.h"
@@ -53,7 +53,7 @@ namespace delphyne {
 template <typename T>
 class SimpleCar2 final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar2)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(SimpleCar2)
 
   /// @brief Initialise the background context on construction.
   ///

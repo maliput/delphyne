@@ -2,9 +2,9 @@
 
 #pragma once
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/lane_data.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/pure_pursuit_params.h"
 #include "gen/simple_car_params.h"
@@ -34,7 +34,7 @@ namespace delphyne {
 template <typename T>
 class PurePursuit {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(PurePursuit)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(PurePursuit)
   PurePursuit() = delete;
 
   /// Evaluates the required steering angle in radians using the pure-pursuit

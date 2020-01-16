@@ -5,6 +5,7 @@
 #include <memory>
 
 #include <maliput/api/lane.h>
+#include <maliput/common/maliput_copyable.h>
 
 namespace delphyne {
 
@@ -12,7 +13,7 @@ namespace delphyne {
 /// direction in which it is moving. A MaliputRailcar can either travel in the
 /// increasing-`s` direction or in the decreasing-`s` direction.
 struct LaneDirection {
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(LaneDirection)
+  MALIPUT_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(LaneDirection)
 
   /// Default constructor.
   LaneDirection() {}

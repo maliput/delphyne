@@ -12,8 +12,8 @@
 #include <memory>
 #include <string>
 
-#include <drake/common/drake_copyable.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/common/maliput_copyable.h>
 
 // public headers
 #include "delphyne/mi6/agent_base_blueprint.h"

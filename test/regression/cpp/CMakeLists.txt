@@ -18,15 +18,20 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
+ament_target_dependencies(delphyne_test_utilities
+  "maliput"
+)
+
 target_link_libraries(delphyne_test_utilities
-  gtest
-  gtest_main
-  public_headers
   drake::drake
   drake_gen
+  gtest
+  gtest_main
   ignition-common3::ignition-common3
   ignition-msgs2::ignition-msgs2
   ignition-transport5::ignition-transport5
+  maliput::common
+  public_headers
 )
 
 ##############################################################################

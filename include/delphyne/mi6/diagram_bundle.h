@@ -12,12 +12,13 @@
 #include <type_traits>
 #include <utility>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/diagram.h>
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/framework/framework_common.h>  // OutputPortIndex
 #include <drake/systems/framework/input_port.h>
 #include <drake/systems/framework/output_port.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #include "delphyne/macros.h"
 #include "delphyne/types.h"
@@ -52,7 +53,7 @@ class NamedPortSystem : public Base {
  public:
   static_assert(std::is_base_of<drake::systems::System<T>, Base>::value, "Only a System can have their ports mapped.");
 
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(NamedPortSystem);
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(NamedPortSystem);
 
   template <typename... Args>
   explicit NamedPortSystem(Args... args) : Base(std::forward<Args>(args)...) {}

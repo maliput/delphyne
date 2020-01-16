@@ -3,6 +3,7 @@
 #pragma once
 
 #include <drake/systems/primitives/linear_system.h>
+#include <maliput/common/maliput_copyable.h>
 
 namespace delphyne {
 
@@ -30,7 +31,7 @@ namespace delphyne {
 template <typename T>
 class SimplePowertrain final : public drake::systems::LinearSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(SimplePowertrain);
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(SimplePowertrain);
 
   /// Constructs a simple powertrain model, specified via a fixed time-constant
   /// and scalar gain.  The inputs are as follows:

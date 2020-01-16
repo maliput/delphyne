@@ -7,12 +7,12 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/idm_planner_parameters.h"
 #include "systems/calc_ongoing_road_position.h"
@@ -55,7 +55,7 @@ namespace delphyne {
 template <typename T>
 class IDMController : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(IDMController)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(IDMController)
 
   /// Constructor.
   /// @param road The pre-defined RoadGeometry.

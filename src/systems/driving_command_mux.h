@@ -2,8 +2,9 @@
 
 #pragma once
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/driving_command.h"
 
@@ -33,7 +34,7 @@ namespace delphyne {
 template <typename T>
 class DrivingCommandMux : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(DrivingCommandMux)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(DrivingCommandMux)
 
   /// Constructs a %DrivingCommandMux with two scalar-valued input ports, and
   /// one output port containing a DrivingCommand<T>.

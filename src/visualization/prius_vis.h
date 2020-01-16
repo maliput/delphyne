@@ -6,13 +6,14 @@
 #include <string>
 #include <vector>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/geometry/scene_graph.h>
 #include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/rendering/pose_bundle.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #include "visualization/car_vis.h"
 
@@ -33,7 +34,7 @@ namespace delphyne {
 template <typename T>
 class PriusVis : public CarVis<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(PriusVis)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(PriusVis)
 
   /// Defines the distance between the visual model's origin and the middle of
   /// the rear axle.

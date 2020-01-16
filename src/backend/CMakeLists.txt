@@ -39,6 +39,7 @@ target_link_libraries(
     visualization
     drake::drake
     maliput::api
+    maliput::common
     maliput-utilities::maliput-utilities
     ignition-common3::ignition-common3
     ignition-transport5::core
@@ -62,8 +63,14 @@ add_executable(replayer
   replayer.cc
 )
 
+ament_target_dependencies(replayer
+  PUBLIC
+  "maliput"
+)
+
 target_link_libraries(replayer
   PRIVATE
+    maliput::common
     protobuf_messages
     public_headers
     ${IGNITION-COMMON_LIBRARIES}

@@ -6,10 +6,10 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/scalar_conversion_traits.h>
 #include <drake/systems/rendering/pose_vector.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/pure_pursuit_params.h"
 #include "gen/simple_car_params.h"
@@ -40,7 +40,7 @@ namespace delphyne {
 template <typename T>
 class PurePursuitController : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(PurePursuitController)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(PurePursuitController)
 
   /// Constructor.
   PurePursuitController();

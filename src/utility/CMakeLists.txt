@@ -21,10 +21,16 @@ target_include_directories(
     ${LIBZIP_INCLUDE_DIRS}
 )
 
+ament_target_dependencies(utility
+	PUBLIC
+		"maliput"
+)
+
 target_link_libraries(utility
   PUBLIC
-    public_headers
     ignition-common3::ignition-common3
+    maliput::common
+    public_headers
     ${LIBZIP_LIBRARIES}
 )
 

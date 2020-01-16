@@ -2,10 +2,10 @@
 
 #pragma once
 
-#include <drake/common/drake_copyable.h>
 #include <drake/common/eigen_types.h>
 #include <drake/common/trajectories/piecewise_polynomial.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "systems/lane_direction.h"
 
@@ -30,7 +30,7 @@ namespace delphyne {
 template <typename T>
 class RoadPath {
  public:
-  DRAKE_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(RoadPath)
+  MALIPUT_DEFAULT_COPY_AND_MOVE_AND_ASSIGN(RoadPath)
 
   /// Constructs a single RoadPath from a sequence of Maliput lanes based on the
   /// following parameters:

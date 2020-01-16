@@ -6,8 +6,9 @@
 
 #include <Eigen/Geometry>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/bicycle_car_parameters.h"
 #include "gen/bicycle_car_state.h"
@@ -66,7 +67,7 @@ namespace delphyne {
 template <typename T>
 class BicycleCar final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(BicycleCar)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(BicycleCar)
 
   /// Default constructor.
   BicycleCar();

@@ -5,7 +5,8 @@
 #include <string>
 
 #include <drake/common/drake_assert.h>
-#include <drake/common/drake_copyable.h>
+
+#include <maliput/common/maliput_copyable.h>
 
 #if defined(__GNUC__)
 #define DELPHYNE_DEPRECATED(version) __attribute__((deprecated))
@@ -41,7 +42,7 @@
 /// };
 /// </pre>
 /// */
-#define DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(class) DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(class)
+#define DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(class) MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(class)
 
 /// \def STR_SIMPLE
 /// Internal stringify a token

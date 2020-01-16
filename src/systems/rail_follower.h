@@ -6,12 +6,12 @@
 #include <optional>
 #include <vector>
 
-#include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/framework/system_symbolic_inspector.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/lane.h>
+#include <maliput/common/maliput_copyable.h>
 
 #include "gen/rail_follower_params.h"
 #include "gen/rail_follower_state.h"
@@ -64,7 +64,7 @@ namespace delphyne {
 template <typename T>
 class RailFollower final : public drake::systems::LeafSystem<T> {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(RailFollower)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(RailFollower)
   /// Defines a distance that is "close enough" to the end of a lane for the
   /// modelled entity to transition to an ongoing branch. The primary
   /// constraint on the selection of this variable is the application's

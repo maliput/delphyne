@@ -7,6 +7,8 @@
 #include "drake/lcmt_viewer_link_data.hpp"
 #include "drake/systems/rendering/pose_bundle.h"
 
+#include <maliput/common/maliput_copyable.h>
+
 namespace delphyne {
 
 /// CarVis is a base class that provides visualization geometries and their
@@ -20,7 +22,7 @@ namespace delphyne {
 template <typename T>
 class CarVis {
  public:
-  DRAKE_NO_COPY_NO_MOVE_NO_ASSIGN(CarVis)
+  MALIPUT_NO_COPY_NO_MOVE_NO_ASSIGN(CarVis)
 
   /// The constructor.
   ///

@@ -18,8 +18,6 @@
 #include <utility>
 #include <vector>
 
-#include <drake/common/unused.h>
-
 #include <ignition/common/Console.hh>
 #include <ignition/common/StringUtils.hh>
 #include <ignition/msgs.hh>

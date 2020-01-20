@@ -16,11 +16,18 @@ target_include_directories(
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
+
+ament_target_dependencies(drake_gen
+  PUBLIC
+    maliput
+)
+
 target_link_libraries(
   drake_gen
   PUBLIC
-    public_headers
     drake::drake
+    maliput::common
+    public_headers
 )
 install(
   TARGETS drake_gen

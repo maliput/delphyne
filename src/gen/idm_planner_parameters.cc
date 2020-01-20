@@ -19,7 +19,7 @@ const int IdmPlannerParametersIndices::kDistanceLowerLimit;
 const int IdmPlannerParametersIndices::kScanAheadDistance;
 
 const std::vector<std::string>& IdmPlannerParametersIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+  static const maliput::common::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
       "v_ref",                 // BR
       "a",                     // BR
       "b",                     // BR

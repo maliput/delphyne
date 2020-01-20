@@ -16,7 +16,7 @@ const int DynamicBicycleCarStateIndices::kVLcpY;
 const int DynamicBicycleCarStateIndices::kYawdtLc;
 
 const std::vector<std::string>& DynamicBicycleCarStateIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+  static const maliput::common::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
       "p_LoCp_x",  // BR
       "p_LoCp_y",  // BR
       "yaw_LC",    // BR

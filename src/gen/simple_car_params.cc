@@ -16,7 +16,7 @@ const int SimpleCarParamsIndices::kMaxAcceleration;
 const int SimpleCarParamsIndices::kVelocityLimitKp;
 
 const std::vector<std::string>& SimpleCarParamsIndices::GetCoordinateNames() {
-  static const drake::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
+  static const maliput::common::never_destroyed<std::vector<std::string>> coordinates(std::vector<std::string>{
       "wheelbase",               // BR
       "track",                   // BR
       "max_abs_steering_angle",  // BR

@@ -15,9 +15,10 @@
 
 #include <drake/common/drake_bool.h>
 #include <drake/common/dummy_value.h>
-#include <drake/common/never_destroyed.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+
+#include <maliput/common/maliput_never_destroyed.h>
 
 // TODO(jwnimmer-tri) Elevate this to drake/common.
 #if __has_cpp_attribute(nodiscard)

@@ -8,6 +8,7 @@
 #include <drake/common/autodiff.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
+#include <drake/common/extract_double.h>
 #include <drake/common/symbolic.h>
 #include <drake/math/roll_pitch_yaw.h>
 #include <drake/math/saturate.h>
@@ -19,6 +20,7 @@ using drake::systems::rendering::PoseVector;
 using maliput::api::GeoPositionT;
 using maliput::api::Lane;
 using maliput::api::LanePositionResultT;
+using maliput::api::LanePositionT;
 
 template <typename T>
 T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params, const SimpleCarParams<T>& car_params,
@@ -51,13 +53,19 @@ const GeoPositionT<T> PurePursuit<T>::ComputeGoalPoint(const T& s_lookahead, con
                                                        const PoseVector<T>& pose) {
   const Lane* const lane = lane_direction.lane;
   const bool with_s = lane_direction.with_s;
-  const LanePositionResultT<T> result =
-      lane->ToLanePositionT<T>({pose.get_isometry().translation().x(), pose.get_isometry().translation().y(),
-                                pose.get_isometry().translation().z()});
-  const T s_new = with_s ? result.lane_position.s() + s_lookahead : result.lane_position.s() - s_lookahead;
+  const LanePositionResultT<double> result =
+      lane->ToLanePositionT<double>({drake::ExtractDoubleOrThrow(pose.get_isometry().translation().x()),
+                                     drake::ExtractDoubleOrThrow(pose.get_isometry().translation().y()),
+                                     drake::ExtractDoubleOrThrow(pose.get_isometry().translation().z())});
+  const LanePositionT<T> result_lane_position(
+      {result.lane_position.s(), result.lane_position.r(), result.lane_position.h()});
+  const T s_new = with_s ? result_lane_position.s() + s_lookahead : result_lane_position.s() - s_lookahead;
   const T s_goal = drake::math::saturate(s_new, T(0.), T(lane->length()));
   // TODO(jadecastro): Add support for locating goal points in ongoing lanes.
-  return lane->ToGeoPositionT<T>({s_goal, 0. * result.lane_position.r(), result.lane_position.h()});
+  const GeoPositionT<double> returnDouble = lane->ToGeoPositionT<double>(
+      {drake::ExtractDoubleOrThrow(s_goal), drake::ExtractDoubleOrThrow(0. * result_lane_position.r()),
+       drake::ExtractDoubleOrThrow(result_lane_position.h())});
+  return GeoPositionT<T>({returnDouble.x(), returnDouble.y(), returnDouble.z()});
 }
 
 }  // namespace delphyne

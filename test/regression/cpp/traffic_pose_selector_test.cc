@@ -42,7 +42,6 @@ using drake::systems::rendering::PoseVector;
 using drake::AutoDiffXd;
 using drake::ExtractDoubleOrThrow;
 using drake::Isometry3;
-using drake::Matrix3;
 using drake::Translation3;
 using drake::Vector3;
 

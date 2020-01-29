@@ -34,15 +34,16 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
   }
 
   const double tol = rp->lane->segment()->junction()->road_geometry()->linear_tolerance();
-  LanePositionResultT<T> lpr = rp->lane->ToLanePositionT<T>(gp);
+  LanePositionResultT<double> lpr = rp->lane->ToLanePositionT<double>(gp.MakeDouble());
+  LanePositionT<T> lpr_lane_position({lpr.lane_position.s(), lpr.lane_position.r(), lpr.lane_position.h()});
   if (lpr.distance <= tol) {  // Our current lane is good; just update position.
-    rp->pos = lpr.lane_position.MakeDouble();
+    rp->pos = lpr.lane_position;
     return;
   }
 
   // Check the ongoing lanes at the end corresponding to the direction the car
   // is moving.
-  const T s_dot = TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lpr.lane_position, velocity});
+  const T s_dot = TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lpr_lane_position, velocity});
   for (const auto end : {LaneEnd::kStart, LaneEnd::kFinish}) {
     // Check only the relevant lane end.  If s_dot == 0, check both ends
     // (velocity isn't informative).
@@ -53,9 +54,9 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
     if (!branches) continue;
     for (int i{0}; i < branches->size(); ++i) {
       const LaneEnd lane_end = branches->get(i);
-      lpr = lane_end.lane->ToLanePositionT<T>(gp);
+      lpr = lane_end.lane->ToLanePositionT<double>(gp.MakeDouble());
       if (lpr.distance <= tol) {  // Update both the lane and position.
-        rp->pos = lpr.lane_position.MakeDouble();
+        rp->pos = lpr.lane_position;
         rp->lane = lane_end.lane;
         return;
       }

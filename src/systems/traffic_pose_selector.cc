@@ -72,13 +72,14 @@ bool IsWithinSegmentBounds(const Lane* lane, const LanePositionT<T>& lane_positi
 template <typename T>
 bool IsWithinLaneBounds(const Lane* lane, const GeoPositionT<T>& geo_position, double linear_tolerance,
                         LanePositionT<T>* nearest_lane_position) {
-  LanePositionResultT<T> result = lane->ToLanePositionT<T>(geo_position);
+  LanePositionResultT<double> result = lane->ToLanePositionT<double>(geo_position.MakeDouble());
   if (result.distance < linear_tolerance) {
-    const RBounds r_bounds = lane->lane_bounds(drake::ExtractDoubleOrThrow(result.lane_position.s()));
+    const RBounds r_bounds = lane->lane_bounds(result.lane_position.s());
     if (result.lane_position.r() >= r_bounds.min() - linear_tolerance &&
         result.lane_position.r() <= r_bounds.max() + linear_tolerance) {
       if (nearest_lane_position != nullptr) {
-        *nearest_lane_position = result.lane_position;
+        *nearest_lane_position =
+            LanePositionT<T>({result.lane_position.s(), result.lane_position.r(), result.lane_position.h()});
       }
       return true;
     }
@@ -219,7 +220,10 @@ ClosestPose<T> FindSingleClosestInDefaultPath(const Lane* ego_lane, const PoseVe
   const double linear_tolerance = ego_lane->segment()->junction()->road_geometry()->linear_tolerance();
 
   const GeoPositionT<T> ego_geo_position = GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
-  const LanePositionT<T> ego_lane_position = ego_lane->ToLanePositionT<T>(ego_geo_position).lane_position;
+  const LanePositionT<double> ego_lane_position_double =
+      ego_lane->ToLanePositionT<double>(ego_geo_position.MakeDouble()).lane_position;
+  const LanePositionT<T> ego_lane_position(
+      {ego_lane_position_double.s(), ego_lane_position_double.r(), ego_lane_position_double.h()});
 
   std::vector<GeoPositionT<T>> traffic_geo_positions;
   traffic_geo_positions.reserve(traffic_poses.get_num_poses());
@@ -332,7 +336,10 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
   using std::min;
 
   const GeoPositionT<T> ego_geo_position = GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
-  const LanePositionT<T> ego_lane_position = ego_lane->ToLanePositionT<T>(ego_geo_position).lane_position;
+  const LanePositionT<double> ego_lane_position_double =
+      ego_lane->ToLanePositionT<double>(ego_geo_position.MakeDouble()).lane_position;
+  const LanePositionT<T> ego_lane_position(
+      {ego_lane_position_double.s(), ego_lane_position_double.r(), ego_lane_position_double.h()});
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
 
   ClosestPose<T> result;
@@ -352,7 +359,10 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
 
     // TODO(jadecastro) RoadGeometry::ToRoadPositionT() doesn't yet exist, so
     // for now, just call Lane::ToLanePositionT.
-    const LanePositionT<T> traffic_lane_position = traffic_lane->ToLanePositionT<T>(traffic_geo_position).lane_position;
+    const LanePositionT<double> traffic_lane_position_double =
+        traffic_lane->ToLanePositionT<double>(traffic_geo_position.MakeDouble()).lane_position;
+    const LanePositionT<T> traffic_lane_position(
+        {traffic_lane_position_double.s(), traffic_lane_position_double.r(), traffic_lane_position_double.h()});
 
     // Get this traffic vehicle's velocity and travel direction in the lane it
     // is occupying.
@@ -426,7 +436,10 @@ std::vector<LaneEndDistance<T>> FindConfluentBranches(const Lane* ego_lane, cons
                                                       const T& scan_distance, const AheadOrBehind side) {
   DRAKE_DEMAND(ego_lane != nullptr);  // The ego car must be in a lane.
   const GeoPositionT<T> ego_geo_position = GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
-  const LanePositionT<T> ego_lane_position = ego_lane->ToLanePositionT<T>(ego_geo_position).lane_position;
+  const LanePositionT<double> ego_lane_position_double =
+      ego_lane->ToLanePositionT<double>(ego_geo_position.MakeDouble()).lane_position;
+  const LanePositionT<T> ego_lane_position(
+      {ego_lane_position_double.s(), ego_lane_position_double.r(), ego_lane_position_double.h()});
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
   const T ego_lane_progress = CalcLaneProgress(ego_lane_end_ahead, ego_lane_position);
 

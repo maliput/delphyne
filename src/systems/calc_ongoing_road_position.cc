@@ -3,6 +3,7 @@
 #include "systems/calc_ongoing_road_position.h"
 
 #include <drake/common/autodiff.h>
+#include <drake/common/extract_double.h>
 #include <drake/common/symbolic.h>
 #include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
@@ -37,7 +38,6 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
 
   const double tol = rp->lane->segment()->junction()->road_geometry()->linear_tolerance();
   LanePositionResult lpr = rp->lane->ToLanePosition(gp);
-  LanePosition lpr_lane_position({lpr.lane_position.s(), lpr.lane_position.r(), lpr.lane_position.h()});
   if (lpr.distance <= tol) {  // Our current lane is good; just update position.
     rp->pos = lpr.lane_position;
     return;
@@ -45,7 +45,7 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
 
   // Check the ongoing lanes at the end corresponding to the direction the car
   // is moving.
-  const T s_dot = TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lpr_lane_position, velocity});
+  const T s_dot = TrafficPoseSelector<T>::GetSigmaVelocity({rp->lane, lpr.lane_position, velocity});
   for (const auto end : {LaneEnd::kStart, LaneEnd::kFinish}) {
     // Check only the relevant lane end.  If s_dot == 0, check both ends
     // (velocity isn't informative).

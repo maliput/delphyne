@@ -231,7 +231,7 @@ ClosestPose<T> FindSingleClosestInDefaultPath(const Lane* ego_lane, const PoseVe
   }
 
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
-  const T ego_lane_progress = CalcLaneProgress(ego_lane_end_ahead, ego_lane_position);
+  const T ego_lane_progress = T(CalcLaneProgress(ego_lane_end_ahead, ego_lane_position));
 
   ClosestPose<T> result;
   result.odometry = MakeInfiniteOdometry(ego_lane_end_ahead, ego_pose);
@@ -352,6 +352,7 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
         GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(traffic_isometry.translation().x()),
                               drake::ExtractDoubleOrThrow(traffic_isometry.translation().y()),
                               drake::ExtractDoubleOrThrow(traffic_isometry.translation().z())});
+
     const RoadPosition traffic_road_position = road_geometry->ToRoadPosition(traffic_geo_position).road_position;
     const Lane* traffic_lane = traffic_road_position.lane;
     // TODO(jadecastro) Supply a valid hint.

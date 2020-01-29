@@ -216,7 +216,8 @@ void RailFollower<T>::CalcPose(const drake::systems::Context<T>& context,
       (lane_direction.with_s ? rotation
                              : maliput::api::Rotation::FromRpy(-rotation.roll(), -rotation.pitch(),
                                                                atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
-  pose->set_translation(Eigen::Translation<T, 3>(geo_position.xyz()));
+  pose->set_translation(
+      Eigen::Translation<T, 3>(drake::Vector3<T>(geo_position.x(), geo_position.y(), geo_position.z())));
   const drake::math::RollPitchYaw<T> rpy(adjusted_rotation.roll(), adjusted_rotation.pitch(), adjusted_rotation.yaw());
   pose->set_rotation(rpy.ToQuaternion());
 }

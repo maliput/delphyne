@@ -39,7 +39,7 @@ T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params, const SimpleCa
   const T y = pose.get_translation().translation().y();
   const T heading = drake::math::RollPitchYaw<T>(pose.get_rotation()).yaw_angle();
 
-  const T delta_r = -(goal_position.x() - x) * sin(heading) + (goal_position.y() - y) * cos(heading);
+  const T delta_r = -(T(goal_position.x()) - x) * sin(heading) + (T(goal_position.y()) - y) * cos(heading);
   const T curvature = 2. * delta_r / pow(pp_params.s_lookahead(), 2.);
 
   // Return the steering angle.

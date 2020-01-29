@@ -130,22 +130,6 @@ static void SetDefaultDragwayPoses(PoseVector<T>* ego_pose, PoseBundle<T>* traff
   traffic_poses->set_pose(kFarBehindIndex, Isometry3<T>(translation_far_behind));
 }
 
-static void SetDefaultDerivatives(PoseVector<AutoDiffXd>* ego_pose, PoseBundle<AutoDiffXd>* traffic_poses) {
-  Eigen::Translation<AutoDiffXd, 3> ego_translation = ego_pose->get_translation();
-  ego_translation.x().derivatives() = Eigen::Vector3d(1., 0., 0.);
-  ego_translation.y().derivatives() = Eigen::Vector3d(0., 1., 0.);
-  ego_translation.z().derivatives() = Eigen::Vector3d(0., 0., 1.);
-  ego_pose->set_translation(ego_translation);
-  for (int i{0}; i < traffic_poses->get_num_poses(); ++i) {
-    Isometry3<AutoDiffXd> position;
-    position.translation() = traffic_poses->get_pose(i).translation();
-    position.translation().x().derivatives() = Eigen::Vector3d(1., 0., 0.);
-    position.translation().y().derivatives() = Eigen::Vector3d(0., 1., 0.);
-    position.translation().z().derivatives() = Eigen::Vector3d(0., 0., 1.);
-    traffic_poses->set_pose(i, position);
-  }
-}
-
 // Sets the poses for one ego car and one traffic car, with the relative
 // positions of each determined by the given s_offset an r_offset values.  The
 // optional `yaw` argument determines the orientation of the ego car with
@@ -366,39 +350,6 @@ TEST_F(TrafficPoseSelectorDragwayTest, NoCarsOnShortRoad) {
   // Expect infinite distances.
   EXPECT_EQ(kInf, closest_poses.at(AheadOrBehind::kAhead).distance);
   EXPECT_EQ(kInf, closest_poses.at(AheadOrBehind::kBehind).distance);
-}
-
-TEST_F(TrafficPoseSelectorDragwayTest, NoCarsOnShortRoadAutoDiff) {
-  // When no cars are found on a dragway whose length is less than the
-  // scan_distance, then infinite distances should be returned.
-  const double kShortLaneLength{40.};
-  MakeDragway(2 /* num lanes */, kShortLaneLength);
-
-  PoseVector<AutoDiffXd> ego_pose;
-  PoseBundle<AutoDiffXd> traffic_poses(kNumDragwayTrafficCars);
-
-  // Define the default poses.
-  SetDefaultDragwayPoses(&ego_pose, &traffic_poses);
-  SetDefaultDerivatives(&ego_pose, &traffic_poses);
-
-  // Choose a scan-ahead distance greater than the lane length.
-  const AutoDiffXd scan_ahead_distance(kShortLaneLength + 10.);
-  EXPECT_GT(scan_ahead_distance, kShortLaneLength - ego_pose.get_translation().x());
-  EXPECT_GT(scan_ahead_distance, ego_pose.get_translation().x());
-
-  // Scan for cars in the left lane, which should contain no cars.
-  const std::map<AheadOrBehind, const ClosestPose<AutoDiffXd>> closest_poses =
-      TrafficPoseSelector<AutoDiffXd>::FindClosestPair(get_lane(ego_pose, *road_)->to_left(), ego_pose, traffic_poses,
-                                                       scan_ahead_distance, ScanStrategy::kPath);
-
-  // Expect distances to have infinite value and zero derivatives in both the
-  // ahead and behind directions.
-  EXPECT_EQ(kInf, closest_poses.at(AheadOrBehind::kAhead).distance);
-  EXPECT_EQ(kInf, closest_poses.at(AheadOrBehind::kBehind).distance);
-  EXPECT_TRUE(test::CompareMatrices(Vector3<double>(0., 0., 0.),
-                                    closest_poses.at(AheadOrBehind::kAhead).distance.derivatives()));
-  EXPECT_TRUE(test::CompareMatrices(Vector3<double>(0., 0., 0.),
-                                    closest_poses.at(AheadOrBehind::kBehind).distance.derivatives()));
 }
 
 // Verifies the result when the s-positions of the ego and traffic vehicles have

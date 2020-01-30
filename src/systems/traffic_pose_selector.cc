@@ -16,10 +16,10 @@
 #include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/segment.h>
+#include <maliput/math/quaternion.h>
 
 namespace delphyne {
 
-using drake::Quaternion;
 using drake::Vector3;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
@@ -130,17 +130,17 @@ LaneEnd GetDefaultOrFirstOngoingLaneEndAhead(const LaneEnd& lane_end) {
 // coordinates), and the @p side of the car (ahead or behind) that traffic is
 // being observed.
 template <typename T>
-LaneEnd FindLaneEnd(const Lane* lane, const LanePosition& lane_position, const Quaternion<T>& rotation,
+LaneEnd FindLaneEnd(const Lane* lane, const LanePosition& lane_position, const drake::Quaternion<T>& rotation,
                     AheadOrBehind side) {
   // Get the vehicle's heading with respect to the current lane; use it to
   // determine if the vehicle is facing towards or against the lane's
   // canonical direction.
-  const Quaternion<double> lane_rotation = lane->GetOrientation(lane_position).quat();
+  const maliput::math::Quaternion lane_rotation = lane->GetOrientation(lane_position).quat();
   // It is assumed that the vehicle is going in the lane's direction if
   // the angular distance θ between their headings is -π/2 ≤ θ ≤ π/2.
   const double angle = std::fabs(lane_rotation.angularDistance(
-      Quaternion<double>(drake::ExtractDoubleOrThrow(rotation.w()), drake::ExtractDoubleOrThrow(rotation.x()),
-                         drake::ExtractDoubleOrThrow(rotation.y()), drake::ExtractDoubleOrThrow(rotation.z()))));
+      maliput::math::Quaternion(drake::ExtractDoubleOrThrow(rotation.w()), drake::ExtractDoubleOrThrow(rotation.x()),
+                                drake::ExtractDoubleOrThrow(rotation.y()), drake::ExtractDoubleOrThrow(rotation.z()))));
   // True if one or the other, but not both.
   const bool positive_s_direction = (side == AheadOrBehind::kAhead) ^ (angle > M_PI / 2.);
   return {lane, (positive_s_direction) ? LaneEnd::kFinish : LaneEnd::kStart};
@@ -365,8 +365,8 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
     const T traffic_lane_sigma_v =
         CalcSigmaVelocity(traffic_lane, traffic_lane_position, traffic_poses.get_velocity(i));
 
-    LaneEnd traffic_lane_end_ahead = FindLaneEnd(traffic_lane, traffic_lane_position,
-                                                 Quaternion<T>(traffic_isometry.linear()), AheadOrBehind::kAhead);
+    LaneEnd traffic_lane_end_ahead = FindLaneEnd(
+        traffic_lane, traffic_lane_position, drake::Quaternion<T>(traffic_isometry.linear()), AheadOrBehind::kAhead);
     const T traffic_lane_progress = CalcLaneProgress(traffic_lane_end_ahead, traffic_lane_position);
 
     // Determine if any of the traffic cars eventually lead to a branch within a

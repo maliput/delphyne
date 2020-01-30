@@ -357,8 +357,6 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
     // TODO(jadecastro) Supply a valid hint.
     if (!traffic_lane) continue;
 
-    // TODO(jadecastro) RoadGeometry::ToRoadPosition() doesn't yet exist, so
-    // for now, just call Lane::ToLanePosition.
     const LanePosition traffic_lane_position = traffic_lane->ToLanePosition(traffic_geo_position).lane_position;
 
     // Get this traffic vehicle's velocity and travel direction in the lane it

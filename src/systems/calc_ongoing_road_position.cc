@@ -3,6 +3,7 @@
 #include "systems/calc_ongoing_road_position.h"
 
 #include <drake/common/autodiff.h>
+#include <drake/common/extract_double.h>
 #include <drake/common/symbolic.h>
 #include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
@@ -14,11 +15,11 @@ namespace delphyne {
 
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPositionT;
+using maliput::api::GeoPosition;
 using maliput::api::LaneEnd;
 using maliput::api::LaneEndSet;
-using maliput::api::LanePositionResultT;
-using maliput::api::LanePositionT;
+using maliput::api::LanePosition;
+using maliput::api::LanePositionResult;
 using maliput::api::RoadGeometry;
 using maliput::api::RoadPosition;
 
@@ -26,17 +27,19 @@ template <typename T>
 void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& velocity, const RoadGeometry& road,
                              RoadPosition* rp) {
   DRAKE_THROW_UNLESS(rp != nullptr);
-  const auto gp = GeoPositionT<T>::FromXyz(pose.get_isometry().translation());
+  const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(pose.get_isometry().translation().x()),
+                                        drake::ExtractDoubleOrThrow(pose.get_isometry().translation().y()),
+                                        drake::ExtractDoubleOrThrow(pose.get_isometry().translation().z())});
   if (!rp->lane) {
     // Do an exhaustive search.
-    *rp = road.ToRoadPosition(gp.MakeDouble()).road_position;
+    *rp = road.ToRoadPosition(gp).road_position;
     return;
   }
 
   const double tol = rp->lane->segment()->junction()->road_geometry()->linear_tolerance();
-  LanePositionResultT<T> lpr = rp->lane->ToLanePositionT<T>(gp);
+  LanePositionResult lpr = rp->lane->ToLanePosition(gp);
   if (lpr.distance <= tol) {  // Our current lane is good; just update position.
-    rp->pos = lpr.lane_position.MakeDouble();
+    rp->pos = lpr.lane_position;
     return;
   }
 
@@ -53,16 +56,16 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
     if (!branches) continue;
     for (int i{0}; i < branches->size(); ++i) {
       const LaneEnd lane_end = branches->get(i);
-      lpr = lane_end.lane->ToLanePositionT<T>(gp);
+      lpr = lane_end.lane->ToLanePosition(gp);
       if (lpr.distance <= tol) {  // Update both the lane and position.
-        rp->pos = lpr.lane_position.MakeDouble();
+        rp->pos = lpr.lane_position;
         rp->lane = lane_end.lane;
         return;
       }
     }
   }
   // Do an exhaustive search if none is found, using the given lane as a hint.
-  *rp = road.ToRoadPosition(gp.MakeDouble(), *rp).road_position;
+  *rp = road.ToRoadPosition(gp, *rp).road_position;
 }
 
 // These instantiations must match the API documentation in

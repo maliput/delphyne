@@ -9,6 +9,7 @@
 
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
+#include <drake/common/extract_double.h>
 
 namespace delphyne {
 
@@ -16,10 +17,8 @@ using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
 using maliput::api::GeoPosition;
-using maliput::api::GeoPositionT;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
-using maliput::api::LanePositionT;
 using maliput::api::RoadGeometry;
 using maliput::api::RoadPosition;
 
@@ -111,8 +110,10 @@ void IDMController<T>::ImplCalcAcceleration(const PoseVector<T>& ego_pose, const
   DRAKE_DEMAND(idm_params.IsValid());
   RoadPosition ego_position = ego_rp;
   if (!ego_rp.lane) {
-    const auto gp = GeoPositionT<T>::FromXyz(ego_pose.get_isometry().translation());
-    ego_position = road_.ToRoadPosition(gp.MakeDouble()).road_position;
+    const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_isometry().translation().x()),
+                                          drake::ExtractDoubleOrThrow(ego_pose.get_isometry().translation().y()),
+                                          drake::ExtractDoubleOrThrow(ego_pose.get_isometry().translation().z())});
+    ego_position = road_.ToRoadPosition(gp).road_position;
   }
 
   // Find the single closest car ahead.
@@ -121,7 +122,7 @@ void IDMController<T>::ImplCalcAcceleration(const PoseVector<T>& ego_pose, const
       path_or_branches_);
   const T headway_distance = lead_car_pose.distance;
 
-  const LanePositionT<T> lane_position(T(ego_position.pos.s()), T(ego_position.pos.r()), T(ego_position.pos.h()));
+  const LanePosition lane_position(ego_position.pos.s(), ego_position.pos.r(), ego_position.pos.h());
   const T s_dot_ego = TrafficPoseSelector<T>::GetSigmaVelocity({ego_position.lane, lane_position, ego_velocity});
   const T s_dot_lead = (abs(lead_car_pose.odometry.pos.s()) == std::numeric_limits<T>::infinity())
                            ? T(0.)

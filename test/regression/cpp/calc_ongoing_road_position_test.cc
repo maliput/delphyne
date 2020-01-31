@@ -13,7 +13,6 @@ namespace delphyne {
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
 using maliput::api::GeoPosition;
-using maliput::api::GeoPositionT;
 using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LanePosition;
@@ -151,7 +150,7 @@ GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
   // The DUT.
   CalcOngoingRoadPosition(pose, velocity, rg, &rp);
 
-  EXPECT_TRUE(test::CompareMatrices(kSomeLanePosition.srh(), rp.pos.MakeDouble().srh(), 1e-10));
+  EXPECT_TRUE(test::CompareMatrices(kSomeLanePosition.srh(), rp.pos.srh(), 1e-10));
   EXPECT_EQ(lane->id(), rp.lane->id());
 }
 

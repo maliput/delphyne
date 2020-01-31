@@ -75,7 +75,7 @@ class PurePursuitController : public drake::systems::LeafSystem<T> {
 namespace drake {
 namespace systems {
 namespace scalar_conversion {
-// Disables symbolic support, because maliput's LanePositionT <-> GeoPositionT
+// Disables symbolic support, because maliput's LanePosition <-> GeoPosition
 // conversion (used in pure_pursuit.cc) is not symbolic-supported.
 template <>
 struct Traits<::delphyne::PurePursuitController> : public NonSymbolicTraits {};

@@ -72,8 +72,10 @@ void PerformTest(const maliput::api::RoadGeometry& rg, const Lane* lane, LanePol
 
   // The DUT.
   CalcOngoingRoadPosition(pose, velocity, rg, &rp);
-
-  EXPECT_TRUE(test::CompareMatrices(expected_lp.srh(), rp.pos.srh(), 1e-10));
+  const maliput::math::Vector3 kExpectedSrh{expected_lp.srh()};
+  const maliput::math::Vector3 kPosSrh{rp.pos.srh()};
+  EXPECT_TRUE(test::CompareMatrices(drake::Vector3<double>{kExpectedSrh.x(), kExpectedSrh.y(), kExpectedSrh.z()},
+                                    drake::Vector3<double>{kPosSrh.x(), kPosSrh.y(), kPosSrh.z()}, 1e-10));
   if (!expected_lane) {
     EXPECT_EQ(RoadPosition().lane, rp.lane);
   } else {
@@ -124,7 +126,11 @@ GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
 
   // Expect RoadPosition to be closest to `onramp0`.
   EXPECT_EQ(GetLaneFromId(*rg, "l:onramp0_0"), rp.lane);
-  EXPECT_TRUE(test::CompareMatrices(LanePosition{100., -4., 0.}.srh(), rp.pos.srh(), 1e-10));
+  const maliput::math::Vector3 kLanePositionSrh{LanePosition{100., -4., 0.}.srh()};
+  const maliput::math::Vector3 kPosSrh{rp.pos.srh()};
+  EXPECT_TRUE(
+      test::CompareMatrices(drake::Vector3<double>{kLanePositionSrh.x(), kLanePositionSrh.y(), kLanePositionSrh.z()},
+                            drake::Vector3<double>{kPosSrh.x(), kPosSrh.y(), kPosSrh.z()}, 1e-10));
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
@@ -150,7 +156,11 @@ GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
   // The DUT.
   CalcOngoingRoadPosition(pose, velocity, rg, &rp);
 
-  EXPECT_TRUE(test::CompareMatrices(kSomeLanePosition.srh(), rp.pos.srh(), 1e-10));
+  const maliput::math::Vector3 kLanePositionSrh{kSomeLanePosition.srh()};
+  const maliput::math::Vector3 kPosSrh{rp.pos.srh()};
+  EXPECT_TRUE(
+      test::CompareMatrices(drake::Vector3<double>{kLanePositionSrh.x(), kLanePositionSrh.y(), kLanePositionSrh.z()},
+                            drake::Vector3<double>{kPosSrh.x(), kPosSrh.y(), kPosSrh.z()}, 1e-10));
   EXPECT_EQ(lane->id(), rp.lane->id());
 }
 

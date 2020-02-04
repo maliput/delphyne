@@ -148,7 +148,11 @@ TEST_P(IDMControllerTest, UnrestrictedUpdate) {
     const RoadPosition& rp = state.get_abstract_state<RoadPosition>(0);
     const Lane* expected_lane = road_->junction(0)->segment(0)->lane(0);
     EXPECT_EQ(expected_lane->id(), rp.lane->id());
-    EXPECT_TRUE(test::CompareMatrices(LanePosition{kEgoSPosition, 0., 0.}.srh(), rp.pos.srh()));
+    const maliput::math::Vector3 lane_position_srh{LanePosition{kEgoSPosition, 0., 0.}.srh()};
+    const maliput::math::Vector3 rp_pos_srh{rp.pos.srh()};
+    EXPECT_TRUE(test::CompareMatrices(
+        drake::Vector3<double>{lane_position_srh.x(), lane_position_srh.y(), lane_position_srh.z()},
+        drake::Vector3<double>{rp_pos_srh.x(), rp_pos_srh.y(), rp_pos_srh.z()}));
   }
 }
 

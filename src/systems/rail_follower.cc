@@ -237,15 +237,17 @@ void RailFollower<T>::CalcVelocity(const drake::systems::Context<T>& context,
   //  - W is the world frame.
   //  - R is a rotation matrix.
 
-  const drake::Vector3<T> v_LC_L(lane_direction.with_s ? state.speed() : -state.speed(), 0 /* r_dot */, 0 /* h_dot */);
+  const maliput::math::Vector3 v_LC_L(lane_direction.with_s ? state.speed() : -state.speed(), 0 /* r_dot */,
+                                      0 /* h_dot */);
   const maliput::api::Rotation rotation =
       lane_direction.lane->GetOrientation(maliput::api::LanePosition(state.s(), params.r(), params.h()));
-  const Eigen::Matrix<T, 3, 3> R_WL = rotation.matrix();
-  const drake::Vector3<T> v_WC_W = R_WL * v_LC_L;
+  const maliput::math::Matrix3 R_WL{rotation.matrix()};
+  const maliput::math::Vector3 v_WC_W{R_WL * v_LC_L};
 
   // TODO(liang.fok) Add support for non-zero rotational velocity. See #5751.
   const drake::Vector3<T> w(T(0), T(0), T(0));
-  frame_velocity->set_velocity(drake::multibody::SpatialVelocity<T>(w, v_WC_W));
+  frame_velocity->set_velocity(
+      drake::multibody::SpatialVelocity<T>(w, drake::Vector3<T>{v_WC_W.x(), v_WC_W.y(), v_WC_W.z()}));
 }
 
 template <typename T>

@@ -138,7 +138,7 @@ LaneEnd FindLaneEnd(const Lane* lane, const LanePosition& lane_position, const d
   const maliput::math::Quaternion lane_rotation = lane->GetOrientation(lane_position).quat();
   // It is assumed that the vehicle is going in the lane's direction if
   // the angular distance θ between their headings is -π/2 ≤ θ ≤ π/2.
-  const double angle = std::fabs(lane_rotation.angularDistance(
+  const double angle = std::fabs(lane_rotation.AngularDistance(
       maliput::math::Quaternion(drake::ExtractDoubleOrThrow(rotation.w()), drake::ExtractDoubleOrThrow(rotation.x()),
                                 drake::ExtractDoubleOrThrow(rotation.y()), drake::ExtractDoubleOrThrow(rotation.z()))));
   // True if one or the other, but not both.

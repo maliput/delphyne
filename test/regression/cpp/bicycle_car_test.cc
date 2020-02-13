@@ -8,7 +8,7 @@
 
 #include <gtest/gtest.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 #include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
@@ -115,7 +115,7 @@ TEST_F(BicycleCarTest, Output) {
   const Vector6<double> result = output->CopyToVector();
 
   // Expect that the output matches the states, since there is no feedthrough.
-  EXPECT_TRUE(test::CompareMatrices(result, Vector6<double>::Ones(), kTolerance, test::MatrixCompareType::absolute));
+  EXPECT_TRUE(CompareMatrices(result, Vector6<double>::Ones(), kTolerance, MatrixCompareType::absolute));
 }
 
 // Tests the consistency of the derivatives when a trivial set of states is

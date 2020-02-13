@@ -18,11 +18,16 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
+ament_target_dependencies(delphyne_test_utilities
+  "multilane"
+)
+
 target_link_libraries(delphyne_test_utilities
   gtest
   gtest_main
   public_headers
   drake::drake
+  multilane::multilane_test_utilities
   drake_gen
   ignition-common3::ignition-common3
   ignition-msgs2::ignition-msgs2

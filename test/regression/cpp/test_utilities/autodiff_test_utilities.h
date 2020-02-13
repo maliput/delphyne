@@ -2,7 +2,7 @@
 
 #include <drake/common/autodiff.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 
@@ -23,7 +23,7 @@ inline void CheckDerivatives(const AutoDiffXd& variable, const Eigen::VectorXd& 
     // Zero and empty are functionally equivalent.
     return;
   }
-  EXPECT_TRUE(test::CompareMatrices(expected, variable.derivatives(), tol));
+  EXPECT_TRUE(CompareMatrices(expected, variable.derivatives(), tol));
 }
 
 inline void CheckDerivatives(const double&, const Eigen::VectorXd&) {}

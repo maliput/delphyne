@@ -5,8 +5,6 @@
 #include <dragway/road_geometry.h>
 #include <multilane/builder.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
-
 namespace delphyne {
 namespace {
 

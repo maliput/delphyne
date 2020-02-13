@@ -9,7 +9,7 @@
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/system_constraint.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 #include "test_utilities/scalar_conversion.h"
 
 #include "gen/simple_car_state.h"
@@ -139,7 +139,7 @@ TEST_F(SimpleCar2Test, ZeroOutput) {
   EXPECT_EQ(0.0, state->heading());
   EXPECT_EQ(0.0, state->velocity());
 
-  EXPECT_TRUE(test::CompareMatrices(drake::Isometry3<double>::Identity().matrix(), pose->get_isometry().matrix()));
+  EXPECT_TRUE(CompareMatrices(drake::Isometry3<double>::Identity().matrix(), pose->get_isometry().matrix()));
 }
 
 TEST_F(SimpleCar2Test, StateAppearsInOutput) {

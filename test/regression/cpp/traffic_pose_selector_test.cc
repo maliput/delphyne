@@ -640,11 +640,11 @@ void AddToTrafficPosesAt(int index, const Lane* traffic_lane, double traffic_s_p
   isometry.translate(translation_ahead);
 
   const Rotation traffic_rotation = traffic_lane->GetOrientation(srh);
-  Vector3<double> rpy = traffic_rotation.rpy().vector();
+  maliput::math::Vector3 rpy = traffic_rotation.rpy().vector();
   rpy.x() = (traffic_polarity == LanePolarity::kWithS) ? rpy.x() : -rpy.x();
   rpy.y() = (traffic_polarity == LanePolarity::kWithS) ? rpy.y() : -rpy.y();
   rpy.z() -= (traffic_polarity == LanePolarity::kWithS) ? 0. : M_PI;
-  const drake::math::RollPitchYaw<double> roll_pitch_yaw(rpy);
+  const drake::math::RollPitchYaw<double> roll_pitch_yaw(rpy.x(), rpy.y(), rpy.z());
   isometry.rotate(roll_pitch_yaw.ToQuaternion());
 
   traffic_poses->set_pose(index, isometry);
@@ -668,8 +668,7 @@ void SetDefaultOnrampPoses(const Lane* ego_lane, const Lane* traffic_lane, doubl
   const double ego_roll = (ego_polarity == LanePolarity::kWithS) ? ego_rotation.roll() : -ego_rotation.roll();
   const double ego_pitch = (ego_polarity == LanePolarity::kWithS) ? ego_rotation.pitch() : -ego_rotation.pitch();
   const double ego_yaw = ego_rotation.yaw() - ((ego_polarity == LanePolarity::kWithS) ? 0. : M_PI);
-  const Rotation new_rotation = Rotation::FromRpy(ego_roll, ego_pitch, ego_yaw);
-  const drake::math::RollPitchYaw<double> new_rpy(new_rotation.rpy().vector());
+  const drake::math::RollPitchYaw<double> new_rpy(ego_roll, ego_pitch, ego_yaw);
   ego_pose->set_rotation(new_rpy.ToQuaternion());
 
   const drake::math::RotationMatrix<double> ego_rotmat(new_rpy);

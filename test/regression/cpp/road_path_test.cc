@@ -11,7 +11,7 @@
 #include <maliput/api/road_geometry.h>
 #include <multilane/builder.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {
@@ -114,7 +114,7 @@ GTEST_TEST(IdmControllerTest, ConstructOpposingSegments) {
   Vector3<double> actual_value{};
   expected_value << 0., 0., 0.;
   actual_value = path.get_path().value(0.);
-  EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
+  EXPECT_TRUE(CompareMatrices(expected_value, actual_value, 1e-3));
   // N.B. Using tolerance of 1e-3 to account for possible interpolation errors.
 
   // Derive s-position of the straight road segment from the number of break
@@ -122,12 +122,12 @@ GTEST_TEST(IdmControllerTest, ConstructOpposingSegments) {
   const double straight_length{path.get_path().start_time(std::ceil(kStraightRoadLength / kStepSize))};
   expected_value << 10., 0., 0.;
   actual_value = path.get_path().value(straight_length);
-  EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
+  EXPECT_TRUE(CompareMatrices(expected_value, actual_value, 1e-3));
 
   const double total_length{path.get_path().end_time()};
   expected_value << 20., 10., 0.;
   actual_value = path.get_path().value(total_length);
-  EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
+  EXPECT_TRUE(CompareMatrices(expected_value, actual_value, 1e-3));
 
   // Pick a few arbitrary points on the curved section, expect them to trace the
   // arc, hence demonstrating the interpolation is working.
@@ -164,7 +164,7 @@ GTEST_TEST(IdmControllerTest, ConstructConfluentSegments) {
   Vector3<double> actual_value{};
   expected_value << 20., 10., 0.;
   actual_value = path.get_path().value(0.);
-  EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
+  EXPECT_TRUE(CompareMatrices(expected_value, actual_value, 1e-3));
 
   double total_length{path.get_path().end_time()};
   // Derive s-position of the straight road segment from the number of break
@@ -173,11 +173,11 @@ GTEST_TEST(IdmControllerTest, ConstructConfluentSegments) {
   double curved_length{total_length - straight_length};
   expected_value << 10., 0., 0.;
   actual_value = path.get_path().value(curved_length);
-  EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
+  EXPECT_TRUE(CompareMatrices(expected_value, actual_value, 1e-3));
 
   expected_value << 0., 0., 0.;
   actual_value = path.get_path().value(total_length);
-  EXPECT_TRUE(test::CompareMatrices(expected_value, actual_value, 1e-3));
+  EXPECT_TRUE(CompareMatrices(expected_value, actual_value, 1e-3));
 }
 
 }  // namespace

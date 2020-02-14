@@ -11,7 +11,7 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 
@@ -86,8 +86,7 @@ GTEST_TEST(PriusVisTest, BasicTest) {
       const Isometry3<double> expected_pose =
           Eigen::Translation3d(xOffset, yOffset, zOffset) * origin_vis_poses.get_pose(i);
 
-      EXPECT_TRUE(
-          CompareMatrices(offset_pose.matrix(), expected_pose.matrix(), 1e-15, test::MatrixCompareType::absolute));
+      EXPECT_TRUE(CompareMatrices(offset_pose.matrix(), expected_pose.matrix(), 1e-15, MatrixCompareType::absolute));
 
       const FrameVelocity<double>& frame_velocity_origin = origin_vis_poses.get_velocity(i);
       const FrameVelocity<double>& frame_velocity_higher = offset_vis_poses.get_velocity(i);
@@ -118,8 +117,7 @@ GTEST_TEST(PriusVisTest, BasicTest) {
 
       const Isometry3<double>& offset_pose = offset_vis_poses.get_pose(i);
       const Isometry3<double> expected_pose = rpy.ToMatrix3ViaRotationMatrix() * origin_vis_poses.get_pose(i);
-      ASSERT_TRUE(
-          CompareMatrices(offset_pose.linear(), expected_pose.linear(), 1e-15, test::MatrixCompareType::absolute));
+      ASSERT_TRUE(CompareMatrices(offset_pose.linear(), expected_pose.linear(), 1e-15, MatrixCompareType::absolute));
 
       const FrameVelocity<double>& frame_velocity_origin = origin_vis_poses.get_velocity(i);
       const FrameVelocity<double>& frame_velocity_higher = offset_vis_poses.get_velocity(i);

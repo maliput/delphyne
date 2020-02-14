@@ -9,7 +9,7 @@
 
 #include <drake/math/roll_pitch_yaw.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {
@@ -22,7 +22,6 @@ using drake::math::IsQuaternionValid;
 using drake::multibody::SpatialVelocity;
 using Eigen::Quaternion;
 using Eigen::Vector3d;
-using test::CompareMatrices;
 
 // Checks the defaults.
 GTEST_TEST(PoseVelocityTest, Defaults) {

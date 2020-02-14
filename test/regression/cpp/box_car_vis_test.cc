@@ -7,7 +7,7 @@
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 
 using std::vector;
 
@@ -51,7 +51,7 @@ GTEST_TEST(BoxCarVisTest, BasicTest) {
     expected_pose.rotate(Eigen::Quaterniond({0, 0, 0, -1}));
   }
   // The following tolerance was empirically determined.
-  EXPECT_TRUE(test::CompareMatrices(vis_poses.get_pose(0).matrix(), expected_pose.matrix(), 1e-15 /* tolerance */));
+  EXPECT_TRUE(CompareMatrices(vis_poses.get_pose(0).matrix(), expected_pose.matrix(), 1e-15 /* tolerance */));
 
   EXPECT_EQ(vis_poses.get_model_instance_id(0), kModelInstanceId);
   EXPECT_EQ(vis_poses.get_name(0), kName);

@@ -6,7 +6,7 @@
 #include "drake/common/eigen_types.h"
 #include "drake/multibody/math/spatial_velocity.h"
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 #include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
@@ -150,9 +150,9 @@ TEST_P(IDMControllerTest, UnrestrictedUpdate) {
     EXPECT_EQ(expected_lane->id(), rp.lane->id());
     const maliput::math::Vector3 lane_position_srh{LanePosition{kEgoSPosition, 0., 0.}.srh()};
     const maliput::math::Vector3 rp_pos_srh{rp.pos.srh()};
-    EXPECT_TRUE(test::CompareMatrices(
-        drake::Vector3<double>{lane_position_srh.x(), lane_position_srh.y(), lane_position_srh.z()},
-        drake::Vector3<double>{rp_pos_srh.x(), rp_pos_srh.y(), rp_pos_srh.z()}));
+    EXPECT_TRUE(
+        CompareMatrices(drake::Vector3<double>{lane_position_srh.x(), lane_position_srh.y(), lane_position_srh.z()},
+                        drake::Vector3<double>{rp_pos_srh.x(), rp_pos_srh.y(), rp_pos_srh.z()}));
   }
 }
 

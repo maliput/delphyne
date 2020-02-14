@@ -7,7 +7,7 @@
 
 #include <dragway/road_geometry.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace test_p {
@@ -213,7 +213,7 @@ TEST_P(MobilPlannerTest, UnrestrictedUpdate) {
     dut_->CalcUnrestrictedUpdate(*context_, &state);
     const RoadPosition& rp = state.get_abstract_state<RoadPosition>(0);
     EXPECT_EQ(lane_directions_[0].lane->id(), rp.lane->id());
-    EXPECT_TRUE(test::CompareMatrices(
+    EXPECT_TRUE(CompareMatrices(
         drake::Vector3<double>{LanePosition{kEgoXPosition, 0., 0.}.s(), LanePosition{kEgoXPosition, 0., 0.}.r(),
                                LanePosition{kEgoXPosition, 0., 0.}.h()},
         drake::Vector3<double>{rp.pos.s(), rp.pos.r(), rp.pos.h()}));

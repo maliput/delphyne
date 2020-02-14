@@ -13,7 +13,7 @@
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
+#include "multilane_test_utilities/eigen_matrix_compare.h"
 #include "visualization/box_car_vis.h"
 #include "visualization/car_vis.h"
 
@@ -116,7 +116,7 @@ TEST_F(CarVisApplicatorTest, InputOutput) {
 
   const PoseBundle<double>& pose_bundle = GetOutput();
   EXPECT_EQ(pose_bundle.get_num_poses(), 1);
-  EXPECT_TRUE(test::CompareMatrices(pose_bundle.get_pose(0).matrix(), test_pose.matrix(), 1e-15));
+  EXPECT_TRUE(CompareMatrices(pose_bundle.get_pose(0).matrix(), test_pose.matrix(), 1e-15));
   EXPECT_EQ(pose_bundle.get_name(0), "Alice");
   EXPECT_EQ(pose_bundle.get_model_instance_id(0), kIdZero);
 }

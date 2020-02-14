@@ -10,8 +10,6 @@
 #include <multilane/builder.h>
 #include <multilane/road_geometry.h>
 
-#include "test_utilities/eigen_matrix_compare.h"
-
 namespace delphyne {
 namespace {
 

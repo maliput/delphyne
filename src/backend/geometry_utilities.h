@@ -19,8 +19,8 @@
 #include <drake/systems/framework/diagram_builder.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/rendering/pose_vector.h>
-#include <maliput-utilities/generate_obj.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/utilities/generate_obj.h>
 #include "backend/frame_pose_aggregator.h"
 
 namespace delphyne {

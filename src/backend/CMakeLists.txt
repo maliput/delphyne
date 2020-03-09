@@ -28,7 +28,6 @@ target_include_directories(
 ament_target_dependencies(backend
   "drake"
   "maliput"
-  "maliput-utilities"
 )
 
 target_link_libraries(
@@ -39,7 +38,7 @@ target_link_libraries(
     visualization
     drake::drake
     maliput::api
-    maliput-utilities::maliput-utilities
+    maliput::utilities
     ignition-common3::ignition-common3
     ignition-transport5::core
     ignition-transport5::log

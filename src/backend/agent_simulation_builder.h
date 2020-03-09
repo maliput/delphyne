@@ -17,9 +17,9 @@
 #include <drake/systems/rendering/pose_aggregator.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_bundle_to_draw_message.h>
-#include <maliput-utilities/generate_obj.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
+#include <maliput/utilities/generate_obj.h>
 
 #include <ignition/msgs.hh>
 

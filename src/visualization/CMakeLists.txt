@@ -19,6 +19,7 @@ target_include_directories(
 ament_target_dependencies(visualization
 "drake"
 "maliput"
+"maliput-utilities"
 "dragway"
 )
 
@@ -26,6 +27,7 @@ target_link_libraries(visualization
     public_headers
     drake::drake
     maliput::api
+    maliput-utilities::maliput-utilities
     dragway::dragway
     ignition-common3::ignition-common3
 )

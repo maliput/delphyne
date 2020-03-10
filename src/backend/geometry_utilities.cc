@@ -7,7 +7,7 @@
 #include <drake/geometry/scene_graph.h>
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
-#include <maliput-utilities/generate_urdf.h>
+#include <maliput/utilities/generate_urdf.h>
 
 #include "delphyne/macros.h"
 

@@ -43,7 +43,6 @@
 
   <depend>maliput</depend>
   <depend>multilane</depend>
-  <depend>maliput-utilities</depend>
   <depend>dragway</depend>
 
   <build_export_depend>drake_vendor</build_export_depend>

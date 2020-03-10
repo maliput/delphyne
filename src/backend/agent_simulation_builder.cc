@@ -17,8 +17,8 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/system.h>
 #include <drake/systems/primitives/constant_vector_source.h>
-#include <maliput-utilities/generate_obj.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/utilities/generate_obj.h>
 
 #include "backend/geometry_utilities.h"
 #include "backend/ign_models_assembler.h"

@@ -50,11 +50,11 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp() {
   return maliput::multilane::MultilaneOnrampMerge().BuildOnramp();
 }
 
-std::unique_ptr<const maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::string& name,
-                                                                         const std::string& file_path,
-                                                                         const std::string& road_rulebook_file_path,
-                                                                         const std::string& traffic_light_book_path,
-                                                                         const std::string& phase_ring_path) {
+std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::string& name,
+                                                                   const std::string& file_path,
+                                                                   const std::string& road_rulebook_file_path,
+                                                                   const std::string& traffic_light_book_path,
+                                                                   const std::string& phase_ring_path) {
   std::optional<std::string> road_rulebook =
       road_rulebook_file_path.empty() ? std::nullopt : std::optional<std::string>(road_rulebook_file_path);
   std::optional<std::string> traffic_light_book =

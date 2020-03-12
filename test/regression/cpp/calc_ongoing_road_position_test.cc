@@ -2,8 +2,8 @@
 
 #include <gtest/gtest.h>
 
-#include <dragway/road_geometry.h>
 #include <drake/common/autodiff.h>
+#include <maliput_dragway/road_geometry.h>
 #include <multilane/multilane_onramp_merge.h>
 
 #include "multilane_test_utilities/eigen_matrix_compare.h"

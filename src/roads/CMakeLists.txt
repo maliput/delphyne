@@ -27,15 +27,15 @@ target_include_directories(
 ament_target_dependencies(roads_utilities
   "drake"
   "maliput"
+  "maliput_dragway"
   "multilane"
-  "dragway"
 )
 
 target_link_libraries(
   roads_utilities
     drake::drake
-    dragway::dragway
     maliput::api
+    maliput_dragway::maliput_dragway
     multilane::multilane
     malidrive::utility
     malidrive::malidrive

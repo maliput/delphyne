@@ -25,10 +25,10 @@ target_include_directories(
 )
 
 ament_target_dependencies(roads_utilities
+  "dragway"
   "drake"
   "maliput"
-  "multilane"
-  "dragway"
+  "maliput_multilane"
 )
 
 target_link_libraries(
@@ -36,10 +36,10 @@ target_link_libraries(
     drake::drake
     dragway::dragway
     maliput::api
-    multilane::multilane
-    malidrive::utility
+    maliput_multilane::maliput_multilane
     malidrive::malidrive
     malidrive::opendrive
+    malidrive::utility
 )
 
 install(

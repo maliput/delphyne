@@ -12,8 +12,8 @@
 #include <dragway/road_geometry.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
-#include <multilane/loader.h>
-#include <multilane/multilane_onramp_merge.h>
+#include <maliput_multilane/loader.h>
+#include <maliput_multilane/multilane_onramp_merge.h>
 
 #include <malidrive/constants.h>
 #include <malidrive/loader.h>

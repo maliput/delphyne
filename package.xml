@@ -42,7 +42,7 @@
   <build_depend>malidrive</build_depend>
 
   <depend>maliput</depend>
-  <depend>multilane</depend>
+  <depend>maliput_multilane</depend>
   <depend>dragway</depend>
 
   <build_export_depend>drake_vendor</build_export_depend>

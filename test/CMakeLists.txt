@@ -35,7 +35,7 @@ macro(delphyne_build_tests)
         visualization
         drake::drake
         maliput::api
-        multilane::multilane
+        maliput_multilane::maliput_multilane
         dragway::dragway
         ignition-common3::ignition-common3
         ignition-transport5::ignition-transport5

@@ -7,6 +7,8 @@
 #include <drake/common/eigen_types.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "translations/drake_to_ign.h"
@@ -18,6 +20,7 @@ const unsigned int kPoseBundleVectorSize{0};
 void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const drake::systems::rendering::PoseBundle<double>& drake_message, ignition::msgs::AgentState_V* ign_message,
     int64_t time_ms) const {
+  maliput::common::unused(time_ms);
   // Clears state from the previous call.
   // @see DrakeToIgn::DoDrakeToIgnTranslation
   ign_message->Clear();

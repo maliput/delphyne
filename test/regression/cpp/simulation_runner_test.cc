@@ -38,7 +38,7 @@ class SimulationRunnerTest : public test::TestWithFiles {
   void TearDown() override { unsetenv("DELPHYNE_LOGS_PATH"); }
 
   // Callback method for handlig SceneRequest service calls
-  void SceneRequestCallback(const ignition::msgs::Scene& request) { callback_called_ = true; }
+  void SceneRequestCallback(const ignition::msgs::Scene&) { callback_called_ = true; }
 
   // Advertises a service for a given service_name, with
   // the method SceneRequestCallback as callback

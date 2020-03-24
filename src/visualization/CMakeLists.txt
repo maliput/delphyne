@@ -19,16 +19,16 @@ target_include_directories(
 ament_target_dependencies(visualization
 "drake"
 "maliput"
-"dragway"
+"maliput_dragway"
 )
 
 target_link_libraries(visualization
-    public_headers
     drake::drake
+    ignition-common3::ignition-common3
     maliput::api
     maliput::utilities
-    dragway::dragway
-    ignition-common3::ignition-common3
+    maliput_dragway::maliput_dragway
+    public_headers
 )
 
 install(TARGETS visualization

@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <dragway/road_geometry.h>
+#include <maliput_dragway/road_geometry.h>
 
 #include "test_utilities/scalar_conversion.h"
 

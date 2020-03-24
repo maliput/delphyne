@@ -29,22 +29,22 @@ macro(delphyne_build_tests)
     target_link_libraries(
       ${BINARY_NAME}
         agents
-        utility
-        translations
-        protobuf
-        visualization
-        drake::drake
-        maliput::api
-        multilane::multilane
-        dragway::dragway
-        ignition-common3::ignition-common3
-        ignition-transport5::ignition-transport5
-        ignition-msgs2::ignition-msgs2
+        backend
         delphyne_test_utilities
+        drake::drake
         gtest_main
         gtest
+        ignition-common3::ignition-common3
+        ignition-msgs2::ignition-msgs2
+        ignition-transport5::ignition-transport5
+        maliput::api
+        maliput_dragway::maliput_dragway
+        multilane::multilane
         pthread
-        backend
+        protobuf
+        translations
+        utility
+        visualization
     )
 
     # Remove a warning in GTest.

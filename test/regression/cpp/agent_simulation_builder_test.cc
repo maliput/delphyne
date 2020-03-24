@@ -11,12 +11,12 @@
 #include <string>
 #include <thread>
 
-#include <dragway/road_geometry.h>
 #include <drake/common/find_resource.h>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/diagram_context.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <maliput/api/lane.h>
+#include <maliput_dragway/road_geometry.h>
 
 #include <gtest/gtest.h>
 

@@ -9,9 +9,9 @@
 
 #include "delphyne/roads/road_builder.h"
 
-#include <dragway/road_geometry.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
+#include <maliput_dragway/road_geometry.h>
 #include <multilane/loader.h>
 #include <multilane/multilane_onramp_merge.h>
 

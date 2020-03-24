@@ -312,9 +312,9 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   auto simulator = std::make_unique<drake::systems::Simulator<T>>(*diagram);
   simulator->set_target_realtime_rate(GetTargetRealTimeRate());
   drake::systems::Context<T>& context = simulator->get_mutable_context();
-  drake::systems::RungeKutta2Integrator<T>* integrator =
-      simulator->template reset_integrator<RungeKutta2Integrator<T>>(*diagram, GetMaxStepSize(), &context);
-  integrator->set_fixed_step_mode(UsesFixedStepMode());
+  drake::systems::RungeKutta2Integrator<T>& integrator =
+      simulator->template reset_integrator<RungeKutta2Integrator<T>>(GetMaxStepSize());
+  integrator.set_fixed_step_mode(UsesFixedStepMode());
   simulator->Initialize();
 
   // Injects simulation context references into agents.

@@ -3,7 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <maliput_dragway/road_geometry.h>
-#include <multilane/builder.h>
+#include <maliput_multilane/builder.h>
 
 namespace delphyne {
 namespace {

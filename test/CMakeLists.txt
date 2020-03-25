@@ -39,7 +39,7 @@ macro(delphyne_build_tests)
         ignition-transport5::ignition-transport5
         maliput::api
         maliput_dragway::maliput_dragway
-        multilane::multilane
+        maliput_multilane::maliput_multilane
         pthread
         protobuf
         translations

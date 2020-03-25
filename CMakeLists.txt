@@ -26,7 +26,7 @@ find_package(drake_vendor REQUIRED)
 find_package(malidrive REQUIRED)
 find_package(maliput REQUIRED)
 find_package(maliput_dragway REQUIRED)
-find_package(multilane REQUIRED)
+find_package(maliput_multilane REQUIRED)
 
 find_package(ignition-common3 REQUIRED COMPONENTS graphics)
 find_package(ignition-math6 REQUIRED)
@@ -129,7 +129,8 @@ ament_export_dependencies(drake_vendor)
 ament_export_dependencies(malidrive)
 ament_export_dependencies(maliput)
 ament_export_dependencies(maliput_dragway)
-ament_export_dependencies(multilane)
+ament_export_dependencies(maliput_multilane)
+
 ament_export_interfaces(${PROJECT_NAME}-targets HAS_LIBRARY_TARGET)
 
 ament_package()

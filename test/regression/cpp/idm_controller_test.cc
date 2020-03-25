@@ -6,7 +6,8 @@
 #include "drake/multibody/math/spatial_velocity.h"
 
 #include "maliput_dragway/road_geometry.h"
-#include "multilane_test_utilities/eigen_matrix_compare.h"
+#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+
 #include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {

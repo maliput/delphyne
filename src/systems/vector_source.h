@@ -11,6 +11,8 @@
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/leaf_system.h>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "delphyne/macros.h"
 
 namespace delphyne {
@@ -93,6 +95,7 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
   void DoCalcUnrestrictedUpdate(const drake::systems::Context<T>& context,
                                 const std::vector<const drake::systems::UnrestrictedUpdateEvent<T>*>&,
                                 drake::systems::State<T>* state) const override {
+    maliput::common::unused(context);
     DELPHYNE_VALIDATE(state != nullptr, std::invalid_argument, "State pointer must not be null");
 
     T curr_val;

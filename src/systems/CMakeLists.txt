@@ -28,6 +28,7 @@ target_link_libraries(
     drake::drake
     drake_gen
     maliput::api
+    maliput::common
     maliput_dragway::maliput_dragway
     public_headers
 )

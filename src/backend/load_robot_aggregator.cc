@@ -4,6 +4,8 @@
 
 #include <vector>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "delphyne/macros.h"
 
 namespace delphyne {
@@ -15,6 +17,7 @@ LoadRobotAggregator::LoadRobotAggregator(const std::vector<drake::lcmt_viewer_lo
 
 void LoadRobotAggregator::CalcAggregatedLoadRobot(const drake::systems::Context<double>& context,
                                                   drake::lcmt_viewer_load_robot* load_robot_message) const {
+  maliput::common::unused(context);
   DELPHYNE_VALIDATE(load_robot_message != nullptr, std::invalid_argument,
                     "Load robot message pointer must not be null");
 

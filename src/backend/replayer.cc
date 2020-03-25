@@ -158,7 +158,7 @@ class Replayer {
   }
 
   // Pause service's handler.
-  void OnPauseRequestCallback(const ignition::msgs::Empty& request) {
+  void OnPauseRequestCallback(const ignition::msgs::Empty&) {
     if (!handle_->IsPaused()) {
       handle_->Pause();
       ignmsg << "Playback is now paused." << std::endl;
@@ -168,7 +168,7 @@ class Replayer {
   }
 
   // Resume service's handler.
-  void OnResumeRequestCallback(const ignition::msgs::Empty& request) {
+  void OnResumeRequestCallback(const ignition::msgs::Empty&) {
     if (handle_->IsPaused()) {
       handle_->Resume();
       ignmsg << "Playback is now running." << std::endl;
@@ -233,7 +233,7 @@ class Replayer {
   bool OnSceneRequestCallback(const ignition::msgs::SceneRequest& request,
                               // Because of ign-transport API,
                               // NOLINTNEXTLINE(runtime/references)
-                              ignition::msgs::Boolean& response) {
+                              ignition::msgs::Boolean&) {
     // Replies to the caller with the first Scene message found in logs.
     node_.Request(request.response_topic(), first_scene_message_);
     return true;

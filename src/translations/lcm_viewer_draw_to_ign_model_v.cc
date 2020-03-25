@@ -4,12 +4,16 @@
 
 #include <map>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "translations/time_conversion.h"
 
 namespace delphyne {
 
 void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_viewer_draw& lcm_message,
                                                        ignition::msgs::Model_V* ign_message, int64_t time) const {
+  maliput::common::unused(time);
+
   DELPHYNE_VALIDATE(lcm_message.link_name.size() == static_cast<unsigned int>(lcm_message.num_links),
                     std::invalid_argument, "LCM link name size must equal the number of links");
   DELPHYNE_VALIDATE(lcm_message.robot_num.size() == static_cast<unsigned int>(lcm_message.num_links),

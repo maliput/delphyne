@@ -57,7 +57,7 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(const std::string& name, cons
 
   // TODO(daniel.stonier) stop using this, make use of an initial value on
   // the pose output
-  const PoseVelocity initial_car_pose_velocity = trajectory_->value(times.front());
+  trajectory_->value(times.front());
 }
 
 std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(

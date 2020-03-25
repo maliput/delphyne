@@ -63,9 +63,9 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name, const maliput::api::
   DELPHYNE_VALIDATE(initial_parameters_.lane.segment()->junction()->road_geometry(), std::invalid_argument,
                     "The lane to be initialised on is not part of a road geometry.");
 
-  maliput::api::LanePosition initial_car_lane_position{longitudinal_position, lateral_offset, 0.0};
-  maliput::api::GeoPosition initial_car_geo_position = lane.ToGeoPosition(initial_car_lane_position);
-  maliput::api::Rotation initial_car_orientation = lane.GetOrientation(initial_car_lane_position);
+  const maliput::api::LanePosition initial_car_lane_position{longitudinal_position, lateral_offset, 0.0};
+  lane.ToGeoPosition(initial_car_lane_position);
+  lane.GetOrientation(initial_car_lane_position);
 }
 
 std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(const maliput::api::RoadGeometry* road_geometry,

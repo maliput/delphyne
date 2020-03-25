@@ -23,6 +23,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport/Node.hh>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "utility/filesystem.h"
 
 namespace delphyne {
@@ -364,6 +366,7 @@ void SimulationRunner::ProcessSceneRequest(const ignition::msgs::SceneRequest& m
 }
 
 bool SimulationRunner::OnWorldControl(const ignition::msgs::WorldControl& request, ignition::msgs::Boolean& response) {
+  maliput::common::unused(response);
   // Fill the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(ignition::msgs::SimulationInMessage::WORLDCONTROL);
@@ -378,6 +381,7 @@ bool SimulationRunner::OnWorldControl(const ignition::msgs::WorldControl& reques
 }
 
 bool SimulationRunner::OnSceneRequest(const ignition::msgs::SceneRequest& request, ignition::msgs::Boolean& response) {
+  maliput::common::unused(response);
   // Fill the new message.
   ignition::msgs::SimulationInMessage input_message;
   input_message.set_type(ignition::msgs::SimulationInMessage::SCENEREQUEST);

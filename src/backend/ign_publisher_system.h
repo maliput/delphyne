@@ -14,6 +14,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "delphyne/macros.h"
 
 namespace delphyne {
@@ -74,6 +76,7 @@ class IgnPublisherSystem : public drake::systems::LeafSystem<double> {
   // @see drake::systems::System::Publish, drake::systems::PublishEvent
   void PublishIgnMessage(const drake::systems::Context<double>& context,
                          const drake::systems::PublishEvent<double>& event) {
+    maliput::common::unused(event);
     // Retrieves the input value from the sole input port.
     const int kPortIndex = 0;
     // Publishes the message onto the specified

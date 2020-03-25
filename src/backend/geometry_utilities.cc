@@ -16,7 +16,7 @@ namespace delphyne {
 drake::lcmt_viewer_load_robot BuildLoadMessageForRoad(const maliput::api::RoadGeometry& road_geometry,
                                                       const maliput::utility::ObjFeatures& features) {
   drake::geometry::SceneGraph<double> scene_graph;
-  drake::multibody::MultibodyPlant<double> plant;
+  drake::multibody::MultibodyPlant<double> plant(0.0);
   plant.RegisterAsSourceForSceneGraph(&scene_graph);
   std::string filename = road_geometry.id().string();
   std::transform(filename.begin(), filename.end(), filename.begin(), [](char ch) { return ch == ' ' ? '_' : ch; });

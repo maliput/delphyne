@@ -2,11 +2,11 @@
 
 #include <gtest/gtest.h>
 
-#include <dragway/road_geometry.h>
 #include <drake/common/extract_double.h>
 #include <drake/math/rotation_matrix.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput_dragway/road_geometry.h>
 #include <multilane/builder.h>
 #include <multilane/road_geometry.h>
 

@@ -2,10 +2,10 @@
 
 #include <gtest/gtest.h>
 
-#include "dragway/road_geometry.h"
 #include "drake/common/eigen_types.h"
 #include "drake/multibody/math/spatial_velocity.h"
 
+#include "maliput_dragway/road_geometry.h"
 #include "multilane_test_utilities/eigen_matrix_compare.h"
 #include "test_utilities/scalar_conversion.h"
 

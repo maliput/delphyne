@@ -20,17 +20,17 @@ target_include_directories(
 ament_target_dependencies(drake_systems
   "drake"
   "maliput"
-  "dragway"
+  "maliput_dragway"
 )
 
 target_link_libraries(
   drake_systems
-    public_headers
     drake::drake
+    drake_gen
     maliput::api
     maliput::common
-    dragway::dragway
-    drake_gen
+    maliput_dragway::maliput_dragway
+    public_headers
 )
 install(
   TARGETS drake_systems

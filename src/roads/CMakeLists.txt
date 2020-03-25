@@ -25,7 +25,6 @@ target_include_directories(
 )
 
 ament_target_dependencies(roads_utilities
-  "dragway"
   "drake"
   "maliput"
   "maliput_dragway"

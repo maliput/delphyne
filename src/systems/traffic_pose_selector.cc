@@ -75,7 +75,7 @@ bool IsWithinLaneBounds(const Lane* lane, const GeoPosition& geo_position, doubl
         result.lane_position.r() <= r_bounds.max() + linear_tolerance) {
       if (nearest_lane_position != nullptr) {
         *nearest_lane_position =
-            LanePosition({result.lane_position.s(), result.lane_position.r(), result.lane_position.h()});
+            LanePosition(result.lane_position.s(), result.lane_position.r(), result.lane_position.h());
       }
       return true;
     }

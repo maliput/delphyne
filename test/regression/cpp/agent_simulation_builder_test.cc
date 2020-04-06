@@ -369,7 +369,7 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   auto alice_model = draw_message.models(0);
 
   // Checks the car ids
-  EXPECT_EQ(alice_model.id(), 0);
+  EXPECT_EQ(static_cast<int>(alice_model.id()), 0);
 
   // Look for the chassis_floor link of the first car.
   const ignition::msgs::Link& link = GetChassisFloorLink(alice_model);
@@ -663,7 +663,7 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
   // Verifies that no agent is in collision at the beginning
   // of the simulation.
   std::vector<AgentBaseCollision<double>> agent_collisions = simulation->GetCollisions();
-  EXPECT_EQ(agent_collisions.size(), 0);
+  EXPECT_EQ(static_cast<int>(agent_collisions.size()), 0);
 
   // Simulates forward in time.
   const double kTimeToCollision{5.};  // in sec
@@ -672,7 +672,7 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
   // Checks that there was a collision and that the colliding
   // agents are the expected ones.
   agent_collisions = simulation->GetCollisions();
-  ASSERT_EQ(agent_collisions.size(), 1);
+  ASSERT_EQ(static_cast<int>(agent_collisions.size()), 1);
   const AgentBaseCollision<double>& collision = agent_collisions.front();
 
   // Cannot make any assumption regarding pair order, see

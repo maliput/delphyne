@@ -97,7 +97,7 @@ std::unique_ptr<ignition::msgs::Scene> AgentSimulationBase<T>::GetVisualScene() 
 
   scene_message->CopyFrom(output->get_data(0)->template get_value<ignition::msgs::Scene>());
 
-  return std::move(scene_message);
+  return scene_message;
 }
 
 template <typename T>

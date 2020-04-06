@@ -43,6 +43,8 @@ template <typename T>
 const T RoadPath<T>::GetClosestPathPosition(const Vector3<T>& geo_pos, const T& s_guess) const {
   maliput::common::unused(geo_pos, s_guess);
   DELPHYNE_ABORT_MESSAGE("Unused.");
+  // Return statement to silence -Wreturn-type warning.
+  return T(0);
 }
 
 template <typename T>

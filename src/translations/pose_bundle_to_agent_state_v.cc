@@ -15,8 +15,6 @@
 
 namespace delphyne {
 
-const unsigned int kPoseBundleVectorSize{0};
-
 void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
     const drake::systems::rendering::PoseBundle<double>& drake_message, ignition::msgs::AgentState_V* ign_message,
     int64_t time_ms) const {

@@ -142,7 +142,7 @@ TEST_P(IDMControllerTest, UnrestrictedUpdate) {
         events.get_unrestricted_update_events();
     const auto& leaf_events =
         static_cast<const drake::systems::LeafEventCollection<drake::systems::UnrestrictedUpdateEvent<double>>&>(e);
-    EXPECT_EQ(leaf_events.get_events().size(), 1);
+    EXPECT_EQ(static_cast<int>(leaf_events.get_events().size()), 1);
 
     drake::systems::State<double>& state = context_->get_mutable_state();
     dut_->CalcUnrestrictedUpdate(*context_, &state);

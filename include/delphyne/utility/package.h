@@ -48,6 +48,8 @@ class Package {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(Package);
 
+  virtual ~Package() = default;
+
   /// Resolves a @p uri_or_path, specific to this package, into a
   /// full regular URI.
   ///
@@ -154,6 +156,8 @@ class BundledPackage : public Package {
 class PackageManager {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(PackageManager);
+
+  ~PackageManager() = default;
 
   static PackageManager* Instance();
 

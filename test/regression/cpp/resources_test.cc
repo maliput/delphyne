@@ -44,7 +44,7 @@ TEST_F(ResourceInspectionTest, ColladaMeshInspection) {
   const ResourceInspector* resource_inspector = ResourceInspector::Instance();
   ASSERT_TRUE(resource_inspector != nullptr);
   const std::vector<ignition::common::URI> dep_uris = resource_inspector->GetDependencies(mesh_uri);
-  ASSERT_EQ(dep_uris.size(), 1);
+  ASSERT_EQ(static_cast<int>(dep_uris.size()), 1);
   EXPECT_EQ(dep_uris[0].Scheme(), "file");
   const std::string path_to_dep = dep_uris[0].Path().Str();
   const std::string path_to_texture = ignition::common::joinPaths(tmpdir(), "quad.png");
@@ -70,7 +70,7 @@ TEST_F(ResourceInspectionTest, OBJMeshInspection) {
   const ResourceInspector* resource_inspector = ResourceInspector::Instance();
   ASSERT_TRUE(resource_inspector != nullptr);
   const std::vector<ignition::common::URI> dep_uris = resource_inspector->GetDependencies(mesh_uri);
-  ASSERT_EQ(dep_uris.size(), 1);
+  ASSERT_EQ(static_cast<int>(dep_uris.size()), 1);
   EXPECT_EQ(dep_uris[0].Scheme(), "file");
   const std::string path_to_dep = dep_uris[0].Path().Str();
   const std::string path_to_mtllib = ignition::common::joinPaths(tmpdir(), "quad.mtl");
@@ -102,7 +102,7 @@ TEST_F(ResourceInspectionTest, MTLMaterialInspection) {
   const ResourceInspector* resource_inspector = ResourceInspector::Instance();
   ASSERT_TRUE(resource_inspector != nullptr);
   const std::vector<ignition::common::URI> dep_uris = resource_inspector->GetDependencies(material_uri);
-  ASSERT_EQ(dep_uris.size(), 1);
+  ASSERT_EQ(static_cast<int>(dep_uris.size()), 1);
   EXPECT_EQ(dep_uris[0].Scheme(), "file");
   const std::string path_to_dep = dep_uris[0].Path().Str();
   const std::string path_to_map = ignition::common::joinPaths(tmpdir(), "green_grass.jpg");

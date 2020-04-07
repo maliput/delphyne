@@ -34,7 +34,7 @@ GTEST_TEST(Curve2Test, BasicTest) {
   const Curve2d segment{segment_waypoints};
   EXPECT_DOUBLE_EQ(segment.path_length(), M_SQRT2);
   auto waypoints = segment.waypoints();
-  EXPECT_GE(waypoints.size(), 2);
+  EXPECT_GE(static_cast<int>(waypoints.size()), 2);
   EXPECT_EQ(waypoints[0], start_point);
   EXPECT_EQ(waypoints[1], end_point);
 

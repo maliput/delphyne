@@ -546,6 +546,7 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg, const i
 std::string MakeTemporaryDirectory(const std::string& template_path) {
   char template_array[template_path.length() + 1];
   template_path.copy(template_array, template_path.length());
+  template_array[template_path.length()] = '\0';
   return mkdtemp(template_array);
 }
 

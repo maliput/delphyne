@@ -74,6 +74,7 @@ endif()
 string(TOUPPER ${CMAKE_BUILD_TYPE} CMAKE_BUILD_TYPE_UPPERCASE)
 
 include(${PROJECT_SOURCE_DIR}/cmake/DefaultCFlags.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake/SanitizersConfig.cmake)
 
 # Report out
 message(STATUS "Shared Libraries..............${BUILD_SHARED_LIBS}")

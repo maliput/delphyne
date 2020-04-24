@@ -66,13 +66,16 @@ macro(delphyne_build_tests)
 endmacro()
 
 macro(delphyne_build_python_tests)
-  # Build all python tests
-  foreach(PYTHON_TEST_file ${ARGN})
-    string(REGEX REPLACE ".py" "" PY_TEST ${PYTHON_TEST_file})
-    set(PY_TEST ${TEST_TYPE}_${PY_TEST})
+# When sanitizers are activated python scripts are disabled.
+  if (NOT ${SANITIZERS})
+    # Build all python tests
+    foreach(PYTHON_TEST_file ${ARGN})
+      string(REGEX REPLACE ".py" "" PY_TEST ${PYTHON_TEST_file})
+      set(PY_TEST ${TEST_TYPE}_${PY_TEST})
 
-    add_test(NAME ${PY_TEST} COMMAND ${PYTHON_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR})
-  endforeach()
+      add_test(NAME ${PY_TEST} COMMAND ${PYTHON_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR})
+    endforeach()
+  endif()
 endmacro()
 
 configure_file (test_config.h.in ${PROJECT_BINARY_DIR}/test/test_config.h)

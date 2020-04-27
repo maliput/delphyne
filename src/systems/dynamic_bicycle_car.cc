@@ -14,7 +14,7 @@ template <typename T>
 DynamicBicycleCar<T>::DynamicBicycleCar()
     : drake::systems::LeafSystem<T>(drake::systems::SystemTypeTag<DynamicBicycleCar>{}) {
   this->DeclareVectorInputPort(DynamicBicycleCarInput<T>());
-  this->DeclareVectorOutputPort(DynamicBicycleCarState<T>(), &DynamicBicycleCar::CopyStateOut);
+  this->DeclareVectorOutputPort(DynamicBicycleCarState<T>(), &DynamicBicycleCar::CopyStateOut, {this->xc_ticket()});
 
   // Declares that this system has a continuous state of size
   // DynamicBicycleCarState.size() and in a vector cloned from
@@ -101,8 +101,8 @@ T DynamicBicycleCar<T>::CalcLateralTireForce(const T& tire_slip_angle, const T& 
       -c_alpha * tan(tire_slip_angle) +
       ((c_alpha * c_alpha) / (3 * mu * f_z)) * abs(tan(tire_slip_angle)) * tan(tire_slip_angle) -
       (pow(c_alpha, 3) / (27 * (mu * mu) * (f_z * f_z))) * pow(tan(tire_slip_angle), 3);
-  const T f_y_saturated_tire = -mu * f_z * abs(tire_slip_angle) / tire_slip_angle;
-
+  const int tire_slip_angle_sign = ((T(0) < tire_slip_angle) ? 1 : 0) - ((tire_slip_angle < T(0)) ? 1 : 0);
+  const T f_y_saturated_tire = -mu * f_z * tire_slip_angle_sign;
   // Note: the cond function is used as an if-else statement in order to make
   // the conditional symbolic::Expression capable.
   return drake::cond(abs(tire_slip_angle) < atan2(3 * mu * f_z, c_alpha), f_y_non_saturated_tire, f_y_saturated_tire);

@@ -1,0 +1,5 @@
+/opt/drake/include/drake
+/usr/include/eigen3/Eigen
+/usr/include/google/protobuf
+build/delphyne/include/delphyne/protobuf
+src/delphyne/test/libgtest

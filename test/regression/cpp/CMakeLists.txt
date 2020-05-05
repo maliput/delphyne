@@ -75,7 +75,6 @@ set(SOURCES
   simple_car_test.cc
   simple_powertrain_test.cc
   scene_system_test.cc
-  simulation_run_stats_test.cc
   simulation_runner_test.cc
   time_conversion_test.cc
   traffic_pose_selector_test.cc
@@ -84,3 +83,10 @@ set(SOURCES
 )
 
 delphyne_build_tests(${SOURCES})
+
+# TODO(#694): Improve test suppression.
+if (NOT ${SANITIZERS})
+  # This test causes a stack overflow in CI when running asan
+  # occasioned during a EXPECT_DEATH statement.
+  delphyne_build_tests(simulation_run_stats_test.cc)
+endif()

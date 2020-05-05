@@ -84,9 +84,9 @@ set(SOURCES
 
 delphyne_build_tests(${SOURCES})
 
-# TODO(francocipollone): Improve test suppression.
+# TODO(#694): Improve test suppression.
 if (NOT ${SANITIZERS})
-  # This test accuses a stack overflow in CI when running asan
+  # This test causes a stack overflow in CI when running asan
   # occasioned during a EXPECT_DEATH statement.
   delphyne_build_tests(simulation_run_stats_test.cc)
 endif()

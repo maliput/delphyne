@@ -71,6 +71,17 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
   return malidrive::loader::Load(road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
 }
 
+std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
+                                                                   const std::string& file_path) {
+  malidrive::builder::RoadNetworkConfiguration road_network_configuration{
+      malidrive::builder::RoadGeometryConfiguration{
+          maliput::api::RoadGeometryId(name), file_path, malidrive::constants::kLinearTolerance,
+          malidrive::constants::kAngularTolerance, malidrive::constants::kScaleLength,
+          malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
+                                                 malidrive::constants::kNumIterations)}};
+  return malidrive::loader::MalidriveLoad(road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
+}
+
 /*****************************************************************************
  ** Trailers
  *****************************************************************************/

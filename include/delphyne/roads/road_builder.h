@@ -68,6 +68,13 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(
     const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path = std::string(),
     const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string());
 
+/// @brief Create a malidrive from xodr source without OpenDrive SDK.
+///
+/// @param[in] name A name for the road geometry to be created.
+/// @param[in] file_path A string pointing to the file to be loaded.
+std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(
+    const std::string& name, const std::string& file_path);
+
 /// @brief Create a multilane on-ramp.
 std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp();
 

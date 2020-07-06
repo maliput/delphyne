@@ -54,10 +54,10 @@ Trajectory Trajectory::Make(const std::vector<double>& times,
       translation = PiecewisePolynomial<double>::FirstOrderHold(times, ToVectorOfMatrixXd(knots_translation));
       break;
     case InterpolationType::kCubic:
-      translation = PiecewisePolynomial<double>::Cubic(times, ToVectorOfMatrixXd(knots_translation));
+      translation = PiecewisePolynomial<double>::CubicWithContinuousSecondDerivatives(times, ToVectorOfMatrixXd(knots_translation));
       break;
     case InterpolationType::kPchip:
-      translation = PiecewisePolynomial<double>::Pchip(times, ToVectorOfMatrixXd(knots_translation));
+      translation = PiecewisePolynomial<double>::CubicShapePreserving(times, ToVectorOfMatrixXd(knots_translation));
       break;
     default:
       throw std::logic_error("The provided interp_type is not supported.");
@@ -97,7 +97,7 @@ Trajectory Trajectory::MakeCubicFromWaypoints(const std::vector<Eigen::Quaternio
     linear_velocities[i] = rotation_matrix * Eigen::Vector3d{speeds[i], 0., 0.};
   }
   const PiecewisePolynomial<double> translation =
-      PiecewisePolynomial<double>::Cubic(times, translations, linear_velocities);
+      PiecewisePolynomial<double>::CubicHermite(times, translations, linear_velocities);
 
   return Trajectory(translation, rotation);
 }

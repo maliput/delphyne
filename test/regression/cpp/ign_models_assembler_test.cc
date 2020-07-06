@@ -73,7 +73,7 @@ GTEST_TEST(IgnModelsAssemblerTest, CalcAssembledModelVTest) {
 
     // Output model pose should match that in input states.
     const ignition::msgs::Pose& output_model_pose = output_models.models(i).pose();
-    const Isometry3<double>& pose = input_states.get_pose(i);
+    const Isometry3<double>& pose = input_states.get_transform(i).GetAsIsometry3();
     const drake::Vector3<double>& position = pose.translation();
     EXPECT_EQ(position.x(), output_model_pose.position().x());
     EXPECT_EQ(position.y(), output_model_pose.position().y());

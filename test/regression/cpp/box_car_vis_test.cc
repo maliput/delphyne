@@ -40,7 +40,7 @@ GTEST_TEST(BoxCarVisTest, BasicTest) {
   PoseVector<double> root_pose;
   root_pose.set_translation({1, 2, 3});
   root_pose.set_rotation({0, 0, 0, -1});
-  const PoseBundle<double> vis_poses = dut.CalcPoses(root_pose.get_isometry());
+  const PoseBundle<double> vis_poses = dut.CalcPoses(root_pose.get_transform().GetAsIsometry3());
   EXPECT_EQ(vis_poses.get_num_poses(), 1);
 
   Eigen::Isometry3d expected_pose = Eigen::Isometry3d::Identity();
@@ -51,7 +51,7 @@ GTEST_TEST(BoxCarVisTest, BasicTest) {
     expected_pose.rotate(Eigen::Quaterniond({0, 0, 0, -1}));
   }
   // The following tolerance was empirically determined.
-  EXPECT_TRUE(CompareMatrices(vis_poses.get_pose(0).matrix(), expected_pose.matrix(), 1e-15 /* tolerance */));
+  EXPECT_TRUE(CompareMatrices(vis_poses.get_transform(0).GetAsIsometry3().matrix(), expected_pose.matrix(), 1e-15 /* tolerance */));
 
   EXPECT_EQ(vis_poses.get_model_instance_id(0), kModelInstanceId);
   EXPECT_EQ(vis_poses.get_name(0), kName);

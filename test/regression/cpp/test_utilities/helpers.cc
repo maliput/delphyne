@@ -10,6 +10,7 @@
 #include <drake/common/eigen_types.h>
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_geometry_data.hpp>
+#include <drake/math/rigid_transform.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
 #include <ignition/msgs.hh>
@@ -171,6 +172,7 @@ using drake::AngleAxis;
 using drake::Isometry3;
 using drake::Translation3;
 using drake::Vector3;
+using drake::math::RigidTransform;
 using drake::systems::rendering::PoseBundle;
 
 PoseBundle<double> BuildPreloadedPoseBundle() {
@@ -179,7 +181,7 @@ PoseBundle<double> BuildPreloadedPoseBundle() {
     model_states.set_model_instance_id(i, i);
     model_states.set_name(i, std::string("model") + std::to_string(i));
     Isometry3<double> model_pose = AngleAxis<double>(i, Vector3<double>::UnitZ()) * Translation3<double>(i, i, i);
-    model_states.set_pose(i, model_pose);
+    model_states.set_transform(i, RigidTransform<double>(model_pose));
   }
   return model_states;
 }

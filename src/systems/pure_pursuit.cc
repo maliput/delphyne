@@ -10,6 +10,7 @@
 #include <drake/common/drake_assert.h>
 #include <drake/common/extract_double.h>
 #include <drake/common/symbolic.h>
+#include <drake/math/rigid_transform.h>
 #include <drake/math/roll_pitch_yaw.h>
 #include <drake/math/saturate.h>
 #include <maliput/api/lane.h>
@@ -54,9 +55,9 @@ const GeoPosition PurePursuit<T>::ComputeGoalPoint(const T& s_lookahead, const L
   const Lane* const lane = lane_direction.lane;
   const bool with_s = lane_direction.with_s;
   const LanePositionResult result =
-      lane->ToLanePosition({drake::ExtractDoubleOrThrow(pose.get_isometry().translation().x()),
-                            drake::ExtractDoubleOrThrow(pose.get_isometry().translation().y()),
-                            drake::ExtractDoubleOrThrow(pose.get_isometry().translation().z())});
+      lane->ToLanePosition({drake::ExtractDoubleOrThrow(pose.get_transform().translation().x()),
+                            drake::ExtractDoubleOrThrow(pose.get_transform().translation().y()),
+                            drake::ExtractDoubleOrThrow(pose.get_transform().translation().z())});
   const T s_new = with_s ? T(result.lane_position.s()) + s_lookahead : T(result.lane_position.s()) - s_lookahead;
   const T s_goal = drake::math::saturate(s_new, T(0.), T(lane->length()));
   // TODO(jadecastro): Add support for locating goal points in ongoing lanes.

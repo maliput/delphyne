@@ -5,6 +5,8 @@
 #include <drake/common/autodiff.h>
 #include <drake/common/extract_double.h>
 #include <drake/common/symbolic.h>
+#include <drake/math/rigid_transform.h>
+
 #include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/segment.h>
@@ -27,9 +29,9 @@ template <typename T>
 void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& velocity, const RoadGeometry& road,
                              RoadPosition* rp) {
   DRAKE_THROW_UNLESS(rp != nullptr);
-  const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(pose.get_isometry().translation().x()),
-                                        drake::ExtractDoubleOrThrow(pose.get_isometry().translation().y()),
-                                        drake::ExtractDoubleOrThrow(pose.get_isometry().translation().z())});
+  const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(pose.get_transform().translation().x()),
+                                        drake::ExtractDoubleOrThrow(pose.get_transform().translation().y()),
+                                        drake::ExtractDoubleOrThrow(pose.get_transform().translation().z())});
   if (!rp->lane) {
     // Do an exhaustive search.
     *rp = road.ToRoadPosition(gp).road_position;

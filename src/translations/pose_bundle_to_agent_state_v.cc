@@ -5,6 +5,7 @@
 #include <algorithm>
 
 #include <drake/common/eigen_types.h>
+#include <drake/math/rigid_transform.h>
 #include <drake/systems/rendering/pose_bundle.h>
 
 #include <maliput/common/maliput_unused.h>
@@ -25,7 +26,7 @@ void PoseBundleToAgentState_V::DoDrakeToIgnTranslation(
 
   for (int i = 0; i < drake_message.get_num_poses(); ++i) {
     // Gets the car's pose.
-    const drake::Isometry3<double>& pose = drake_message.get_pose(i);
+    const drake::Isometry3<double>& pose = drake_message.get_transform(i).GetAsIsometry3();
     // Gets the agent's orientation in the form of a vector of euler angles
     // following the x-y-z convention (roll-pitch-yaw).
     // As the transformation is an isometry, its linear part is solely comprised

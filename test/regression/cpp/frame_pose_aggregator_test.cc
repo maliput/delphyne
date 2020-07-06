@@ -45,9 +45,9 @@ GTEST_TEST(FramePoseAggregatorTest, CorrectAggregation) {
 
   EXPECT_EQ(output_frame_pose_vector.size(), 2);
   EXPECT_TRUE(output_frame_pose_vector.has_id(frame0));
-  EXPECT_TRUE(output_frame_pose_vector.value(frame0).GetAsIsometry3().isApprox(input_pose0->get_isometry()));
+  EXPECT_TRUE(output_frame_pose_vector.value(frame0).GetAsIsometry3().isApprox(input_pose0->get_transform().GetAsIsometry3()));
   EXPECT_TRUE(output_frame_pose_vector.has_id(frame1));
-  EXPECT_TRUE(output_frame_pose_vector.value(frame1).GetAsIsometry3().isApprox(input_pose1->get_isometry()));
+  EXPECT_TRUE(output_frame_pose_vector.value(frame1).GetAsIsometry3().isApprox(input_pose1->get_transform().GetAsIsometry3()));
 }
 
 }  // namespace

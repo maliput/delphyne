@@ -50,7 +50,7 @@ void IgnModelsAssembler::CalcAssembledIgnModelVMessage(const drake::systems::Con
     output_model->CopyFrom(input_model);
     output_model->set_name(input_states->get_name(index));
     ignition::msgs::Pose* ign_pose = output_model->mutable_pose();
-    const drake::Isometry3<double>& pose = input_states->get_pose(index);
+    const drake::Isometry3<double>& pose = input_states->get_transform(index).GetAsIsometry3();
     const drake::Vector3<double>& position = pose.translation();
     ign_pose->mutable_position()->set_x(position.x());
     ign_pose->mutable_position()->set_y(position.y());

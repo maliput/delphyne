@@ -9,12 +9,14 @@
 
 #include <drake/common/drake_assert.h>
 #include <drake/common/value.h>
+#include <drake/math/rigid_transform.h>
 #include <drake/multibody/shapes/visual_element.h>
 #include <drake/systems/rendering/drake_visualizer_client.h>
 
 using std::unique_ptr;
 using std::vector;
 
+using drake::math::RigidTransform;
 using drake::Value;
 using drake::systems::Context;
 using drake::systems::rendering::PoseBundle;
@@ -111,10 +113,10 @@ void CarVisApplicator<T>::CalcPoseBundleOutput(const drake::systems::Context<T>&
           "PoseBundle has invalid model name with ID " +
           std::to_string(id) + ". Expected \"" + expected_name + "\" but got \"" + name + "\".");
     }
-    const drake::Isometry3<T>& root_pose = vehicle_poses.get_pose(i);
+    const drake::Isometry3<T>& root_pose = vehicle_poses.get_transform(i).GetAsIsometry3();
     const PoseBundle<T> model_vis_poses = car_vis->CalcPoses(root_pose);
     for (int j = 0; j < model_vis_poses.get_num_poses(); ++j) {
-      visualization_poses->set_pose(index, model_vis_poses.get_pose(j));
+      visualization_poses->set_transform(index, model_vis_poses.get_transform(j));
       index++;
     }
   }

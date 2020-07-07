@@ -139,7 +139,8 @@ TEST_F(SimpleCar2Test, ZeroOutput) {
   EXPECT_EQ(0.0, state->heading());
   EXPECT_EQ(0.0, state->velocity());
 
-  EXPECT_TRUE(CompareMatrices(drake::Isometry3<double>::Identity().matrix(), pose->get_transform().GetAsIsometry3().matrix()));
+  EXPECT_TRUE(
+      CompareMatrices(drake::Isometry3<double>::Identity().matrix(), pose->get_transform().GetAsIsometry3().matrix()));
 }
 
 TEST_F(SimpleCar2Test, StateAppearsInOutput) {

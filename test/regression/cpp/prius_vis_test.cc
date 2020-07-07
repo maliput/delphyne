@@ -116,7 +116,8 @@ GTEST_TEST(PriusVisTest, BasicTest) {
       EXPECT_EQ(origin_vis_poses.get_model_instance_id(i), offset_vis_poses.get_model_instance_id(i));
 
       const Isometry3<double>& offset_pose = offset_vis_poses.get_transform(i).GetAsIsometry3();
-      const Isometry3<double> expected_pose = rpy.ToMatrix3ViaRotationMatrix() * origin_vis_poses.get_transform(i).GetAsIsometry3();
+      const Isometry3<double> expected_pose =
+          rpy.ToMatrix3ViaRotationMatrix() * origin_vis_poses.get_transform(i).GetAsIsometry3();
       ASSERT_TRUE(CompareMatrices(offset_pose.linear(), expected_pose.linear(), 1e-15, MatrixCompareType::absolute));
 
       const FrameVelocity<double>& frame_velocity_origin = origin_vis_poses.get_velocity(i);

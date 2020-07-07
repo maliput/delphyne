@@ -16,8 +16,8 @@
 using std::unique_ptr;
 using std::vector;
 
-using drake::math::RigidTransform;
 using drake::Value;
+using drake::math::RigidTransform;
 using drake::systems::Context;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;

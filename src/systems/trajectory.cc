@@ -54,7 +54,8 @@ Trajectory Trajectory::Make(const std::vector<double>& times,
       translation = PiecewisePolynomial<double>::FirstOrderHold(times, ToVectorOfMatrixXd(knots_translation));
       break;
     case InterpolationType::kCubic:
-      translation = PiecewisePolynomial<double>::CubicWithContinuousSecondDerivatives(times, ToVectorOfMatrixXd(knots_translation));
+      translation = PiecewisePolynomial<double>::CubicWithContinuousSecondDerivatives(
+          times, ToVectorOfMatrixXd(knots_translation));
       break;
     case InterpolationType::kPchip:
       translation = PiecewisePolynomial<double>::CubicShapePreserving(times, ToVectorOfMatrixXd(knots_translation));

@@ -9,8 +9,8 @@
 
 #include <drake/common/value.h>
 #include <drake/lcmt_viewer_link_data.hpp>
-#include <drake/math/rotation_matrix.h>
 #include <drake/math/rigid_transform.h>
+#include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 

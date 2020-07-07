@@ -10,6 +10,7 @@
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
 #include <drake/common/extract_double.h>
+#include <drake/math/rigid_transform.h>
 
 namespace delphyne {
 
@@ -111,9 +112,9 @@ void IDMController<T>::ImplCalcAcceleration(const PoseVector<T>& ego_pose, const
   DRAKE_DEMAND(idm_params.IsValid());
   RoadPosition ego_position = ego_rp;
   if (!ego_rp.lane) {
-    const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_isometry().translation().x()),
-                                          drake::ExtractDoubleOrThrow(ego_pose.get_isometry().translation().y()),
-                                          drake::ExtractDoubleOrThrow(ego_pose.get_isometry().translation().z())});
+    const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
+                                          drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
+                                          drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
     ego_position = road_.ToRoadPosition(gp).road_position;
   }
 

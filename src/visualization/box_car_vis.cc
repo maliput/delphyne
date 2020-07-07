@@ -1,6 +1,7 @@
 // Copyright 2018 Toyota Research Institute
 #include "visualization/box_car_vis.h"
 
+#include "drake/math/rigid_transform.h"
 #include "drake/multibody/shapes/visual_element.h"
 #include "drake/systems/rendering/drake_visualizer_client.h"
 
@@ -8,6 +9,7 @@ using std::vector;
 
 namespace delphyne {
 
+using drake::math::RigidTransform;
 using drake::systems::rendering::MakeGeometryData;
 using drake::systems::rendering::PoseBundle;
 
@@ -34,7 +36,8 @@ const vector<drake::lcmt_viewer_link_data>& BoxCarVis<T>::GetVisElements() const
 template <typename T>
 PoseBundle<T> BoxCarVis<T>::CalcPoses(const drake::Isometry3<T>& X_WM) const {
   PoseBundle<T> result(1);
-  result.set_pose(0, X_WM);
+
+  result.set_transform(0, RigidTransform<T>(X_WM));
   result.set_name(0, this->name());
   result.set_model_instance_id(0, this->id());
   return result;

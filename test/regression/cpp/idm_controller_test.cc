@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "drake/common/eigen_types.h"
+#include "drake/math/rigid_transform.h"
 #include "drake/multibody/math/spatial_velocity.h"
 
 #include "maliput_dragway/road_geometry.h"
@@ -18,6 +19,7 @@ namespace delphyne {
 namespace test_p {
 
 using drake::AutoDiffXd;
+using drake::math::RigidTransform;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
 using maliput::api::Lane;
@@ -83,12 +85,12 @@ class IDMControllerTest : public ::testing::TestWithParam<RoadPositionStrategy> 
     // Configure the traffic poses, inclusive of the ego car.
     FrameVelocity<double> lead_velocity;
     const Eigen::Translation3d translation_lead(kEgoSPosition + s_offset /* x */, 0. /* y */, 0. /* z */);
-    traffic_poses.set_pose(kLeadIndex, Eigen::Isometry3d(translation_lead));
+    traffic_poses.set_transform(kLeadIndex, RigidTransform<double>(Eigen::Isometry3d(translation_lead)));
     velocity[3] += relative_sdot;
     velocity[4] += relative_rdot;
     lead_velocity.set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
     traffic_poses.set_velocity(kLeadIndex, lead_velocity);
-    traffic_poses.set_pose(kEgoIndex, Eigen::Isometry3d(translation_ego));
+    traffic_poses.set_transform(kEgoIndex, RigidTransform<double>(Eigen::Isometry3d(translation_ego)));
     context_->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(traffic_poses));
   }
 
@@ -242,7 +244,7 @@ TEST_P(IDMControllerTest, ToAutoDiff) {
     FrameVelocity<AutoDiffXd> traffic_velocity;
     traffic_velocity.set_velocity(velocity_vector);
     poses.set_velocity(0, traffic_velocity);
-    poses.set_pose(0, drake::Isometry3<AutoDiffXd>(translation));
+    poses.set_transform(0, RigidTransform<AutoDiffXd>(drake::Isometry3<AutoDiffXd>(translation)));
     other_context->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(poses));
 
     const auto result = other_output->get_vector_data(acceleration_output_index_);

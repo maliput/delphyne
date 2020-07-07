@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include <drake/common/extract_double.h>
+#include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
@@ -33,6 +34,7 @@ using maliput::multilane::LaneLayout;
 using maliput::multilane::LineOffset;
 using maliput::multilane::StartReference;
 
+using drake::math::RigidTransform;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
@@ -120,11 +122,11 @@ static void SetDefaultDragwayPoses(PoseVector<T>* ego_pose, PoseBundle<T>* traff
   const Translation3<T> translation_just_behind(T(kJustBehindSPosition) /* s */, T(kEgoRPosition) /* r */,
                                                 T(0.) /* h */);
   const Translation3<T> translation_far_behind(T(kFarBehindSPosition) /* s */, T(kEgoRPosition) /* r */, T(0.) /* h */);
-  traffic_poses->set_pose(kFarAheadIndex, Isometry3<T>(translation_far_ahead));
+  traffic_poses->set_transform(kFarAheadIndex, RigidTransform<T>(translation_far_ahead.vector()));
   traffic_poses->set_velocity(kFarAheadIndex, velocity_far_ahead);
-  traffic_poses->set_pose(kJustAheadIndex, Isometry3<T>(translation_just_ahead));
-  traffic_poses->set_pose(kJustBehindIndex, Isometry3<T>(translation_just_behind));
-  traffic_poses->set_pose(kFarBehindIndex, Isometry3<T>(translation_far_behind));
+  traffic_poses->set_transform(kJustAheadIndex, RigidTransform<T>(translation_just_ahead.vector()));
+  traffic_poses->set_transform(kJustBehindIndex, RigidTransform<T>(translation_just_behind.vector()));
+  traffic_poses->set_transform(kFarBehindIndex, RigidTransform<T>(translation_far_behind.vector()));
 }
 
 // Sets the poses for one ego car and one traffic car, with the relative
@@ -149,7 +151,7 @@ static void SetPoses(const T& s_offset, const T& r_offset, PoseVector<T>* ego_po
   FrameVelocity<T> traffic_velocity{};
   traffic_velocity.get_mutable_value() << T(0.) /* ωx */, T(0.) /* ωy */, T(0.) /* ωz */, T(kTrafficXVelocity) /* vx */,
       T(0.) /* vy */, T(0.) /* vz */;
-  traffic_poses->set_pose(0, Isometry3<T>(translation));
+  traffic_poses->set_transform(0, RigidTransform<T>(translation));
   traffic_poses->set_velocity(0, traffic_velocity);
 }
 
@@ -206,9 +208,9 @@ TEST_F(TrafficPoseSelectorDragwayTest, TwoLaneDragway) {
   }
 
   // Bump the "just ahead" car into the lane to the left.
-  Isometry3<double> isometry_just_ahead = traffic_poses.get_pose(kJustAheadIndex);
+  Isometry3<double> isometry_just_ahead = traffic_poses.get_transform(kJustAheadIndex).GetAsIsometry3();
   isometry_just_ahead.translation().y() += kDragwayLaneWidth;
-  traffic_poses.set_pose(kJustAheadIndex, isometry_just_ahead);
+  traffic_poses.set_transform(kJustAheadIndex, RigidTransform<double>(isometry_just_ahead));
   {
     const std::map<AheadOrBehind, const ClosestPose<double>> closest_poses =
         TrafficPoseSelector<double>::FindClosestPair(get_lane(ego_pose, *road_), ego_pose, traffic_poses,
@@ -230,9 +232,9 @@ TEST_F(TrafficPoseSelectorDragwayTest, TwoLaneDragway) {
   }
 
   // Bump the "far ahead" car into the lane to the left.
-  Isometry3<double> isometry_far_ahead = traffic_poses.get_pose(kFarAheadIndex);
+  Isometry3<double> isometry_far_ahead = traffic_poses.get_transform(kFarAheadIndex).GetAsIsometry3();
   isometry_far_ahead.translation().y() += kDragwayLaneWidth;
-  traffic_poses.set_pose(kFarAheadIndex, isometry_far_ahead);
+  traffic_poses.set_transform(kFarAheadIndex, RigidTransform<double>(isometry_far_ahead));
   {
     const std::map<AheadOrBehind, const ClosestPose<double>> closest_poses =
         TrafficPoseSelector<double>::FindClosestPair(get_lane(ego_pose, *road_), ego_pose, traffic_poses,
@@ -647,7 +649,7 @@ void AddToTrafficPosesAt(int index, const Lane* traffic_lane, double traffic_s_p
   const drake::math::RollPitchYaw<double> roll_pitch_yaw(rpy.x(), rpy.y(), rpy.z());
   isometry.rotate(roll_pitch_yaw.ToQuaternion());
 
-  traffic_poses->set_pose(index, isometry);
+  traffic_poses->set_transform(index, RigidTransform<double>(isometry));
 
   FrameVelocity<double> velocity_ahead{};
   velocity_ahead.get_mutable_value().head(3) = Vector3<double>::Zero();  // ω

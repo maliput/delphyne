@@ -100,7 +100,7 @@ const PiecewisePolynomial<T> RoadPath<T>::MakePiecewisePolynomial(const LaneDire
   geo_knots.resize(s_breaks.size());
 
   // Create the resulting piecewise polynomial.
-  return PiecewisePolynomial<T>::Cubic(s_breaks, geo_knots);
+  return PiecewisePolynomial<T>::CubicWithContinuousSecondDerivatives(s_breaks, geo_knots);
 }
 
 template class RoadPath<double>;

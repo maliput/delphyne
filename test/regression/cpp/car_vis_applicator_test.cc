@@ -9,6 +9,7 @@
 
 #include <drake/common/value.h>
 #include <drake/lcmt_viewer_link_data.hpp>
+#include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
@@ -26,6 +27,7 @@ namespace delphyne {
 
 using drake::AbstractValue;
 using drake::Value;
+using drake::math::RigidTransform;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
 
@@ -107,7 +109,7 @@ TEST_F(CarVisApplicatorTest, InputOutput) {
   }
 
   PoseBundle<double> input_poses(1 /* num poses */);
-  input_poses.set_pose(0, test_pose);
+  input_poses.set_transform(0, RigidTransform<double>(test_pose));
   input_poses.set_name(0, "Alice");
   input_poses.set_model_instance_id(0, kIdZero);
   SetInput(input_poses);
@@ -116,7 +118,7 @@ TEST_F(CarVisApplicatorTest, InputOutput) {
 
   const PoseBundle<double>& pose_bundle = GetOutput();
   EXPECT_EQ(pose_bundle.get_num_poses(), 1);
-  EXPECT_TRUE(CompareMatrices(pose_bundle.get_pose(0).matrix(), test_pose.matrix(), 1e-15));
+  EXPECT_TRUE(CompareMatrices(pose_bundle.get_transform(0).GetAsIsometry3().matrix(), test_pose.matrix(), 1e-15));
   EXPECT_EQ(pose_bundle.get_name(0), "Alice");
   EXPECT_EQ(pose_bundle.get_model_instance_id(0), kIdZero);
 }
@@ -136,7 +138,7 @@ TEST_F(CarVisApplicatorTest, BadInput) {
   // Use a model instance ID that doesn't match the visualizer's ID.
   const int kBadId{kIdZero + 1};
   PoseBundle<double> input_poses(1 /* num poses */);
-  input_poses.set_pose(0, test_pose);
+  input_poses.set_transform(0, RigidTransform<double>(test_pose));
   input_poses.set_name(0, "Alice");
   input_poses.set_model_instance_id(0, kBadId);
   SetInput(input_poses);

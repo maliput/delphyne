@@ -5,6 +5,8 @@
 
 #include <gtest/gtest.h>
 
+#include <drake/math/rigid_transform.h>
+
 #include <maliput_dragway/road_geometry.h>
 
 #include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
@@ -12,6 +14,7 @@
 namespace delphyne {
 namespace test_p {
 
+using drake::math::RigidTransform;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
@@ -118,10 +121,10 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
       const Eigen::Translation3d translation(translation_ego.x() + delta_positions[i], /* x */
                                              (i - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
                                              0.);                                      /* z */
-      traffic_poses.set_pose(i, Eigen::Isometry3d(translation));
+      traffic_poses.set_transform(i, RigidTransform<double>(Eigen::Isometry3d(translation)));
       traffic_poses.set_velocity(i, all_velocity);
     }
-    traffic_poses.set_pose(num_lanes, Eigen::Isometry3d(translation_ego));
+    traffic_poses.set_transform(num_lanes, RigidTransform<double>(Eigen::Isometry3d(translation_ego)));
     traffic_poses.set_velocity(num_lanes, all_velocity);
     context_->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(traffic_poses));
   }

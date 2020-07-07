@@ -13,6 +13,7 @@
 #include <drake/common/eigen_types.h>
 #include <drake/common/value.h>
 #include <drake/geometry/geometry_ids.h>
+#include <drake/math/rigid_transform.h>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/output_port.h>
@@ -97,7 +98,7 @@ class AgentBase {
     using drake::systems::rendering::PoseVector;
     const BasicVector<T>& base_vector = port_value->template get_value<BasicVector<T>>();
     const PoseVector<T>& pose_vector = dynamic_cast<const PoseVector<T>&>(base_vector);
-    return pose_vector.get_isometry();
+    return pose_vector.get_transform().GetAsIsometry3();
   }
 
   /// Gets the agent twist in the simulation.

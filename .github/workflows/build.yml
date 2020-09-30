@@ -76,12 +76,22 @@ jobs:
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} \
           --skip-keys "ignition-transport5 ignition-msgs2 ignition-math6 ignition-common3 pybind11 PROJ4" \
           --from-paths src
-    - name: colcon build
+    - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
-        colcon build --packages-up-to ${PACKAGE_NAME} --event-handlers=console_direct+;
+        colcon build --packages-up-to ${PACKAGE_NAME} \
+          --event-handlers=console_direct+ \
+          --cmake-args -DBUILD_TESTING=OFF
+    - name: colcon build tests
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        . /opt/ros/${ROS_DISTRO}/setup.bash;
+        colcon build --packages-select ${PACKAGE_NAME} \
+          --event-handlers=console_direct+ \
+          --cmake-args -DBUILD_TESTING=ON;
     - name: colcon test
       shell: bash
       working-directory: ${{ env.ROS_WS }}

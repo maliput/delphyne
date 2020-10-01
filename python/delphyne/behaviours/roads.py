@@ -116,11 +116,14 @@ class Malidrive2(Road):
     """
 
     def __init__(self, file_path, features=delphyne.roads.ObjFeatures(),
-                 name=py_trees.common.Name.AUTO_GENERATED):
+                 name=py_trees.common.Name.AUTO_GENERATED,
+                 linear_tolerance=1e-3, angular_tolerance=1e-3):
         super().__init__(name)
         self.file_path = file_path
         self.features = features
         self.road_network = None
+        self.linear_tolerance = linear_tolerance
+        self.angular_tolerance = angular_tolerance
 
     def setup(self, *, builder):
         if self.road_network is None:
@@ -128,7 +131,9 @@ class Malidrive2(Road):
             self.road_network = builder.set_road_network(
                 delphyne.roads.create_malidrive_from_xodr(
                     name=self.name,
-                    file_path=self.file_path), self.features)
+                    file_path=self.file_path,
+                    linear_tolerance=self.linear_tolerance,
+                    angular_tolerance=self.angular_tolerance), self.features)
             self.road_geometry = self.road_network.road_geometry()
 
 

@@ -61,8 +61,8 @@ PYBIND11_MODULE(roads, m) {
         py::arg("phase_ring_file_path") = std::string());
 
   m.def("create_malidrive_from_xodr", &delphyne::roads::CreateMalidriveFromXodr,
-        "Load an OpenDrive road geometry from file (xodr) without OpenDrive SDK", py::arg("name"),
-        py::arg("file_path"));
+        "Load an OpenDrive road geometry from file (xodr) without OpenDrive SDK", py::arg("name"), py::arg("file_path"),
+        py::arg("linear_tolerance") = 1e-3, py::arg("angular_tolerance") = 1e-3);
 
   py::class_<ObjFeatures>(m, "ObjFeatures")
       .def(py::init<>())

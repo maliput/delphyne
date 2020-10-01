@@ -72,11 +72,10 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
-                                                                   const std::string& file_path) {
-  const double kLinearTolerance{1e-3};
-  const double kAngularTolerance{1e-3};
+                                                                   const std::string& file_path,
+                                                                   double linear_tolerance, double angular_tolerance) {
   malidrive::builder::RoadNetworkConfiguration road_network_configuration{malidrive::builder::RoadGeometryConfiguration{
-      maliput::api::RoadGeometryId(name), file_path, kLinearTolerance, kAngularTolerance,
+      maliput::api::RoadGeometryId(name), file_path, linear_tolerance, angular_tolerance,
       malidrive::constants::kScaleLength,
       malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                              malidrive::constants::kNumIterations)}};

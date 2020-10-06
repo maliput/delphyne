@@ -15,8 +15,10 @@
 #include <maliput_multilane/loader.h>
 #include <maliput_multilane/multilane_onramp_merge.h>
 
+#include <malidrive/builder/malidrive_road_network_builder.h>
 #include <malidrive/builder/road_geometry_configuration.h>
 #include <malidrive/builder/road_network_configuration.h>
+#include <malidrive/builder/road_network_builder.h>
 #include <malidrive/constants.h>
 #include <malidrive/loader/loader.h>
 
@@ -68,7 +70,8 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
           malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                                  malidrive::constants::kNumIterations)},
       road_rulebook, traffic_light_book, phase_ring};
-  return malidrive::loader::Load(road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
+  return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(
+      road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
@@ -79,7 +82,8 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::st
       malidrive::constants::kScaleLength,
       malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                              malidrive::constants::kNumIterations)}};
-  return malidrive::loader::MalidriveLoad(road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
+  return malidrive::loader::Load<malidrive::builder::MalidriveRoadNetworkBuilder>(
+      road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
 }
 
 /*****************************************************************************

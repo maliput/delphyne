@@ -70,7 +70,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
           malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                                  malidrive::constants::kNumIterations)},
       road_rulebook, traffic_light_book, phase_ring};
-  return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(
+  return malidrive::loader::Load<malidrive::opendrive::builder::RoadNetworkBuilder>(
       road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
 }
 

@@ -64,6 +64,10 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateMultilaneFromFile(const 
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the file to be loaded.
+/// @param[in] road_rulebook_file_path A string pointing to the Rulebook file to be loaded.
+/// @param[in] traffic_light_book_path A string pointing to the TrafficLightBook file to be loaded.
+/// @param[in] phase_ring_path A string pointing to the PhaseRingBook file to be loaded.
+/// @return A maliput::api::RoadNetwork.
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(
     const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path = std::string(),
     const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string());
@@ -74,10 +78,26 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(
 /// @param[in] file_path A string pointing to the file to be loaded.
 /// @param[in] linear_tolerance The linear RoadGeometry tolerance. Default value is 1e-3m.
 /// @param[in] angular_tolerance The angular RoadGeometry tolerance. Default value is 1e-3rad.
+/// @return A maliput::api::RoadNetwork.
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
                                                                    const std::string& file_path,
                                                                    double linear_tolerance = 1e-3,
                                                                    double angular_tolerance = 1e-3);
+
+/// @brief Create a malidrive from xodr source without OpenDrive SDK.
+///
+/// @param[in] name A name for the road geometry to be created.
+/// @param[in] file_path A string pointing to the XODR file to be loaded.
+/// @param[in] road_rulebook_file_path A string pointing to the Rulebook file to be loaded.
+/// @param[in] traffic_light_book_path A string pointing to the TrafficLightBook file to be loaded.
+/// @param[in] phase_ring_path A string pointing to the PhaseRingBook file to be loaded.
+/// @param[in] linear_tolerance The linear RoadGeometry tolerance. Default value is 1e-3m.
+/// @param[in] angular_tolerance The angular RoadGeometry tolerance. Default value is 1e-3rad.
+/// @return A maliput::api::RoadNetwork.
+std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
+    const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path = std::string(),
+    const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string(),
+    double linear_tolerance = 1e-3, double angular_tolerance = 1e-3);
 
 /// @brief Create a multilane on-ramp.
 std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp();

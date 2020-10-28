@@ -77,9 +77,9 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
                                                                    const std::string& file_path,
                                                                    double linear_tolerance, double angular_tolerance) {
-  return CreateMalidriveRoadNetworkFromXodr(
-      name, file_path, {/*road_rulebook_file_path*/}, {/*traffic_light_book_path*/}, {/*phase_ring_path*/},
-      linear_tolerance, angular_tolerance);
+  return CreateMalidriveRoadNetworkFromXodr(name, file_path, {/*road_rulebook_file_path*/},
+                                            {/*traffic_light_book_path*/}, {/*phase_ring_path*/}, linear_tolerance,
+                                            angular_tolerance);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
@@ -94,8 +94,10 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
       phase_ring_path.empty() ? std::nullopt : std::optional<std::string>(phase_ring_path);
   const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
       malidrive::builder::RoadGeometryConfiguration{
-          maliput::api::RoadGeometryId(name), file_path, linear_tolerance, angular_tolerance, malidrive::constants::kScaleLength,
-          malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius, malidrive::constants::kNumIterations)},
+          maliput::api::RoadGeometryId(name), file_path, linear_tolerance, angular_tolerance,
+          malidrive::constants::kScaleLength,
+          malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
+                                                 malidrive::constants::kNumIterations)},
       road_rulebook, traffic_light_book, phase_ring};
   return malidrive::loader::Load<malidrive::builder::MalidriveRoadNetworkBuilder>(
       road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());

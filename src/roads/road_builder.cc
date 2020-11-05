@@ -21,6 +21,7 @@
 #include <malidrive/builder/road_network_configuration.h>
 #include <malidrive/constants.h>
 #include <malidrive/loader/loader.h>
+#include <maliput_malidrive/constants.h>
 
 /*****************************************************************************
 ** Namespaces

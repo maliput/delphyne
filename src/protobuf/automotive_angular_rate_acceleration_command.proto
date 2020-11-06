@@ -1,0 +1,23 @@
+// Copyright 2020 Toyota Research Institute
+
+syntax = "proto2";
+package ignition.msgs;
+option java_package = "com.ignition.msgs";
+option java_outer_classname = "AutomotiveAngularRateAccelerationCommandProtos";
+
+/// \ingroup ignition.msgs
+/// \interface AutomotiveAngularRateAccelerationCommand
+/// \brief The ignition equivalent of the LCM command used in Drake.
+
+import "ignition/msgs/header.proto";
+import "ignition/msgs/time.proto";
+
+message AutomotiveAngularRateAccelerationCommand
+{
+  /// \brief Optional header data
+  optional Header header    = 1;
+
+  optional Time time            = 2; // Time when the data was captured
+  optional double acceleration  = 3 [default = 0];
+  optional double omega         = 4 [default = 0];
+}

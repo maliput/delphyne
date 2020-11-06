@@ -11,6 +11,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/Protobuf.cmake)
 set(PROTO_MESSAGES
   agent_state.proto
   agent_state_v.proto
+  automotive_angular_rate_acceleration_command.proto
   automotive_driving_command.proto
   playback_status.proto
   rpy_angles.proto

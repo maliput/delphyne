@@ -47,6 +47,7 @@ set(SOURCES
   curve2_test.cc
   compression_test.cc
   data_logger_test.cc
+  drake_angular_rate_acceleration_command_to_ign_translator_system_test.cc
   drake_driving_command_to_ign_translator_system_test.cc
   driving_command_mux_test.cc
   dynamic_bicycle_car_test.cc
@@ -54,6 +55,7 @@ set(SOURCES
   frame_pose_aggregator_test.cc
   idm_controller_test.cc
   idm_planner_test.cc
+  ign_angular_rate_acceleration_command_to_drake_translator_system_test.cc
   ign_driving_command_to_drake_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
   ign_models_assembler_test.cc
@@ -78,8 +80,8 @@ set(SOURCES
   traffic_pose_selector_test.cc
   trajectory_follower_test.cc
   trajectory_test.cc
+  unicycle_car_test.cc
 )
-
 delphyne_build_tests(${SOURCES})
 
 # TODO(#694): Improve test suppression.

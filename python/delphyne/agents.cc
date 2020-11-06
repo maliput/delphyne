@@ -19,6 +19,7 @@
 #include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
+#include "agents/unicycle_car.h"
 #include "delphyne/mi6/agent_base.h"
 #include "delphyne/mi6/agent_base_blueprint.h"
 #include "delphyne/mi6/agent_simulation.h"
@@ -38,6 +39,7 @@ using delphyne::RailCar;
 using delphyne::RailCarBlueprint;
 using delphyne::SimpleCarBlueprint;
 using delphyne::TrajectoryAgentBlueprint;
+using delphyne::UnicycleCarBlueprint;
 
 namespace {
 
@@ -82,6 +84,10 @@ PYBIND11_MODULE(agents, m) {
                     const std::vector<std::vector<double>>&>(),
            "Construct and configure a trajectory agent", py::arg("name"), py::arg("times"), py::arg("headings"),
            py::arg("translations"));
+
+  py::class_<UnicycleCarBlueprint, AgentBlueprint>(m, "UnicycleCarBlueprint")
+      .def(py::init<const std::string&, double, double, double, double>(), "Construct and configure a unicycle car",
+           py::arg("name"), py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));
 }
 
 /*****************************************************************************

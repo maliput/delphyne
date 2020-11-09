@@ -2,6 +2,8 @@
 # Find Packages
 ##############################################################################
 
+find_package(ament_cmake_gtest REQUIRED)
+
 # Find the Python interpreter for running the check_test_ran.py script
 find_package(PythonInterp QUIET)
 
@@ -15,7 +17,8 @@ macro(delphyne_build_tests)
     string(REGEX REPLACE ".cc" "" BINARY_NAME ${GTEST_SOURCE_file})
     set(BINARY_NAME ${TEST_TYPE}_${BINARY_NAME})
 
-    add_executable(${BINARY_NAME} ${GTEST_SOURCE_file} ${sources})
+    # add_executable(${BINARY_NAME} ${GTEST_SOURCE_file} ${sources})
+    ament_add_gtest(${BINARY_NAME} ${GTEST_SOURCE_file} TIMEOUT 240)
 
     target_include_directories(${BINARY_NAME}
       PRIVATE
@@ -25,15 +28,14 @@ macro(delphyne_build_tests)
     )
 
     # Kind of an ugly catch-all bucket
-
     target_link_libraries(
       ${BINARY_NAME}
         agents
         backend
         delphyne_test_utilities
         drake::drake
-        gtest_main
-        gtest
+        # gtest_main
+        # gtest
         ignition-common3::ignition-common3
         ignition-msgs2::ignition-msgs2
         ignition-transport5::ignition-transport5
@@ -50,10 +52,10 @@ macro(delphyne_build_tests)
     # Remove a warning in GTest.
     target_compile_options(${BINARY_NAME} PRIVATE "-Wno-sign-compare")
 
-    add_test(${BINARY_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${BINARY_NAME}
-      --gtest_output=xml:${CMAKE_BINARY_DIR}/test_results/${BINARY_NAME}.xml)
+    # add_test(${BINARY_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${BINARY_NAME}
+    #  --gtest_output=xml:${CMAKE_BINARY_DIR}/test_results/${BINARY_NAME}.xml)
 
-    set_tests_properties(${BINARY_NAME} PROPERTIES TIMEOUT 240)
+    # set_tests_properties(${BINARY_NAME} PROPERTIES TIMEOUT 240)
 
     if (PYTHONINTERP_FOUND)
       # Check that the test produced a result and create a failure if
@@ -84,7 +86,6 @@ configure_file (test_config.h.in ${PROJECT_BINARY_DIR}/test/test_config.h)
 # Testing
 ##############################################################################
 
-add_subdirectory(libgtest)
 add_subdirectory(regression)
 
 

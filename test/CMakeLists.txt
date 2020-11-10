@@ -62,7 +62,7 @@ macro(delphyne_build_tests)
       # it didn't. Guards against crashed and timed out tests.
       add_test(check_${BINARY_NAME} python
         ${PROJECT_SOURCE_DIR}/test/utils/check_test_ran.py
-        ${CMAKE_BINARY_DIR}/test_results/${BINARY_NAME}.xml)
+        ${CMAKE_BINARY_DIR}/test_results/delphyne/${BINARY_NAME}.gtest.xml)
     endif()
   endforeach()
 endmacro()

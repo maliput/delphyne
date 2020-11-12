@@ -40,6 +40,7 @@
   <build_depend>ignition-msgs2</build_depend>
   <build_depend>ignition-transport5</build_depend>
   <build_depend>malidrive</build_depend>
+  <build_depend>maliput_malidrive</build_depend>
 
   <depend>maliput</depend>
   <depend>maliput_dragway</depend>
@@ -51,6 +52,7 @@
   <build_export_depend>ignition-msgs2</build_export_depend>
   <build_export_depend>ignition-transport5</build_export_depend>
   <build_export_depend>malidrive</build_export_depend>
+  <build_export_depend>maliput_malidrive</build_export_depend>
 
   <exec_depend>ament_cmake</exec_depend>
   <exec_depend>py_trees</exec_depend>

@@ -39,7 +39,7 @@ target_link_libraries(
     maliput_multilane::maliput_multilane
     malidrive::malidrive
     malidrive::opendrive
-    malidrive::utility
+    maliput_malidrive::utility
 )
 
 install(

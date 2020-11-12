@@ -15,12 +15,12 @@
 #include <maliput_multilane/loader.h>
 #include <maliput_multilane/multilane_onramp_merge.h>
 
-#include <malidrive/builder/malidrive_road_network_builder.h>
-#include <malidrive/builder/road_geometry_configuration.h>
 #include <malidrive/builder/road_network_builder.h>
-#include <malidrive/builder/road_network_configuration.h>
 #include <malidrive/constants.h>
 #include <malidrive/loader/loader.h>
+#include <maliput_malidrive/builder/road_geometry_configuration.h>
+#include <maliput_malidrive/builder/road_network_builder.h>
+#include <maliput_malidrive/builder/road_network_configuration.h>
 #include <maliput_malidrive/constants.h>
 
 /*****************************************************************************
@@ -100,7 +100,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
           malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                                  malidrive::constants::kNumIterations)},
       road_rulebook, traffic_light_book, phase_ring};
-  return malidrive::loader::Load<malidrive::builder::MalidriveRoadNetworkBuilder>(
+  return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(
       road_network_configuration, malidrive::WorldToOpenDriveTransform::Identity());
 }
 

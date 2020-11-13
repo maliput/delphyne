@@ -33,8 +33,6 @@ macro(delphyne_build_tests)
         backend
         delphyne_test_utilities
         drake::drake
-        # gtest_main
-        # gtest
         ignition-common3::ignition-common3
         ignition-msgs2::ignition-msgs2
         ignition-transport5::ignition-transport5

@@ -23,8 +23,6 @@ ament_target_dependencies(delphyne_test_utilities
 )
 
 target_link_libraries(delphyne_test_utilities
-  # gtest
-  # gtest_main
   public_headers
   drake::drake
   maliput_multilane::maliput_multilane_test_utilities

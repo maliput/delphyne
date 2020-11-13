@@ -17,7 +17,6 @@ macro(delphyne_build_tests)
     string(REGEX REPLACE ".cc" "" BINARY_NAME ${GTEST_SOURCE_file})
     set(BINARY_NAME ${TEST_TYPE}_${BINARY_NAME})
 
-    # add_executable(${BINARY_NAME} ${GTEST_SOURCE_file} ${sources})
     ament_add_gtest(${BINARY_NAME} ${GTEST_SOURCE_file} TIMEOUT 240)
 
     target_include_directories(${BINARY_NAME}
@@ -51,11 +50,6 @@ macro(delphyne_build_tests)
 
     # Remove a warning in GTest.
     target_compile_options(${BINARY_NAME} PRIVATE "-Wno-sign-compare")
-
-    # add_test(${BINARY_NAME} ${CMAKE_CURRENT_BINARY_DIR}/${BINARY_NAME}
-    #  --gtest_output=xml:${CMAKE_BINARY_DIR}/test_results/${BINARY_NAME}.xml)
-
-    # set_tests_properties(${BINARY_NAME} PROPERTIES TIMEOUT 240)
 
     if (PYTHONINTERP_FOUND)
       # Check that the test produced a result and create a failure if

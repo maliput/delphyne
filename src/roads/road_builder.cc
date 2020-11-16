@@ -17,6 +17,7 @@
 
 #include <malidrive/builder/road_network_builder.h>
 #include <malidrive/constants.h>
+#include <malidrive/builder/road_network_builder.h>
 #include <maliput_malidrive/builder/road_geometry_configuration.h>
 #include <maliput_malidrive/builder/road_network_builder.h>
 #include <maliput_malidrive/builder/road_network_configuration.h>

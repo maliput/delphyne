@@ -1,6 +1,10 @@
-name: Compile and test
+name: clang
 
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - master
+  pull_request:
 
 env:
   PACKAGE_NAME: delphyne
@@ -9,14 +13,25 @@ env:
 
 jobs:
   compile_and_test:
-    name: Compile and test
+    name: Compile and test with sanitizer
     runs-on: ubuntu-18.04
     container:
       image: ubuntu:18.04
+    strategy:
+      matrix:
+        sanitizer: [none, asan, ubsan]
+        include:
+          - sanitizer: none
+            COMPILER_FLAG: ''
+          - sanitizer: asan
+            COMPILER_FLAG: ' -DADDRESS_SANITIZER=On'
+          - sanitizer: ubsan
+            COMPILER_FLAG: ' -DUNDEFINED_SANITIZER=On'
+    env:
+      CC: clang
+      CXX: clang++
+      LINKER_PATH: /usr/bin/llvm-ld
     steps:
-    - uses: actions/checkout@v2
-      with:
-        path: ${{ env.ROS_WS }}/src/${{ env.PACKAGE_NAME }}
     # clone private dependencies
     - uses: actions/checkout@v2
       with:
@@ -60,11 +75,14 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/delphyne
       run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
+    - name: clang 8 install
+      shell: bash
+      run: ${{ env.ROS_WS }}/src/${REPOSITORY_NAME}/.github/clang_suite_installation.sh
     # clone public dependencies
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < src/${PACKAGE_NAME}/.github/dependencies.repos
+      run: vcs import src < src/${REPOSITORY_NAME}/.github/dependencies.repos
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -82,7 +100,9 @@ jobs:
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon build --packages-up-to ${PACKAGE_NAME} \
+          --cmake-args -DCMAKE_LINKER=${LINKER_PATH} \
           --event-handlers=console_direct+ \
+          ${COMPILER_FLAG} \
           --cmake-args -DBUILD_TESTING=OFF
     - name: colcon build tests
       shell: bash
@@ -90,7 +110,9 @@ jobs:
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon build --packages-select ${PACKAGE_NAME} \
+          --cmake-args -DCMAKE_LINKER=${LINKER_PATH} \
           --event-handlers=console_direct+ \
+          ${COMPILER_FLAG} \
           --cmake-args -DBUILD_TESTING=ON;
     - name: colcon test
       shell: bash

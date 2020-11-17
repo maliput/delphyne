@@ -3,7 +3,6 @@
 #include <cmath>
 #include <memory>
 
-#include <gtest/gmock.h>
 #include <gtest/gtest.h>
 
 #include <drake/common/symbolic.h>
@@ -399,7 +398,7 @@ TEST_F(SimpleCar2Test, TestConstraints) {
 
   // Merely confirm the presence of the parameters constraint; we rely on the
   // framework test coverage to ensure the the details are correct.
-  EXPECT_THAT(params_constraint.description(), ::testing::HasSubstr("SimpleCarParams"));
+  EXPECT_NE(std::string::npos, params_constraint.description().find("SimpleCarParams"));
 
   // Test steering constraint.
   EXPECT_EQ(steering_constraint.description(), "steering angle limit");

@@ -8,11 +8,6 @@ $ ./test/run_tests.sh
 
 ## Errata
 
-### GTest
-
-Built as a shared library so that it can be used in helper libraries AND
-test executables without causing invalid pointer fun in the destructors.
-
 ### Categories
 
 Regression, performance and integration. If we get so many tests, might be worth

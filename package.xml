@@ -52,10 +52,12 @@
   <build_export_depend>ignition-msgs2</build_export_depend>
   <build_export_depend>ignition-transport5</build_export_depend>
   <build_export_depend>malidrive</build_export_depend>
+  <build_export_depend>maliput_malidrive</build_export_depend>
 
   <exec_depend>ament_cmake</exec_depend>
   <exec_depend>py_trees</exec_depend>
 
+  <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_cmake_clang_format</test_depend>
 
   <export>

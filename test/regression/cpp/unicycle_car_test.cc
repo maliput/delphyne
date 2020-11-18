@@ -3,7 +3,6 @@
 #include <cmath>
 #include <memory>
 
-#include <gtest/gmock.h>
 #include <gtest/gtest.h>
 
 #include <drake/common/symbolic.h>

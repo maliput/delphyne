@@ -163,34 +163,3 @@ class TrajectoryAgent(py_trees.behaviours.Success):
             )
         )
 
-
-class UnicycleCar(py_trees.behaviours.Success):
-    """Introduce a unicycle car in the road."""
-
-    def __init__(self, name=py_trees.common.Name.AUTO_GENERATED,
-                 initial_pose=(0., 0., 0.), speed=1.):
-        """
-        :param name: a name for the car.
-        :param initial_pose: initial car (SE2) pose in the world frame.
-            That is, its (x, y, heading) coordinates, either as a tuple of
-            floats or as a callable expression that takes a road geometry
-            and returns a tuple of floats.
-        :param speed: for the agent as measured in the world frame, in m/s.
-        """
-        super().__init__(name)
-        self.initial_pose = initial_pose
-        self.speed = speed
-
-    def setup(self, *, builder):
-        initial_x, initial_y, heading = resolve(
-            self.initial_pose, builder.get_road_geometry()
-        )
-        builder.add_agent(
-            delphyne.agents.UnicycleCarBlueprint(
-                name=self.name,
-                x=initial_x,          # initial x-coordinate (m)
-                y=initial_y,          # initial y-coordinate (m)
-                heading=heading,      # heading (radians)
-                speed=self.speed      # speed in the direction of travel (m/s)
-            )
-        )

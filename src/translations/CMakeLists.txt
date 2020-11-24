@@ -12,7 +12,14 @@ add_library(translations
   pose_bundle_to_agent_state_v.cc
   time_conversion.cc
 )
-set_target_properties(translations PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-translations)
+
+add_library(delphyne::translations ALIAS translations)
+
+set_target_properties(translations
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_translations
+)
+
 target_include_directories(
   translations
   PUBLIC
@@ -27,16 +34,18 @@ ament_target_dependencies(translations
 target_link_libraries(translations
   PUBLIC
     drake::drake
+    delphyne::protobuf_messages
+    delphyne::public_headers
     ignition-common3::ignition-common3
     ignition-msgs2::ignition-msgs2
     ignition-transport5::ignition-transport5
     maliput::common
     protobuf
-    protobuf_messages
-    public_headers
 )
 
-install(TARGETS translations
+install(
+  TARGETS translations
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

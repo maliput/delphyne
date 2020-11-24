@@ -4,6 +4,8 @@
 
 add_library(mi6 INTERFACE)
 
+add_library(delphyne::mi6 ALIAS mi6)
+
 target_include_directories(
   mi6
   INTERFACE
@@ -13,8 +15,8 @@ target_include_directories(
 
 target_link_libraries(mi6
   INTERFACE
-    public_headers
     drake::drake
+    delphyne::public_headers
 )
 
 # Install files
@@ -30,4 +32,7 @@ install(
 )
 
 # Install the exported target
-install(TARGETS mi6 EXPORT ${PROJECT_NAME}-targets)
+install(
+  TARGETS mi6
+  EXPORT ${PROJECT_NAME}-targets
+)

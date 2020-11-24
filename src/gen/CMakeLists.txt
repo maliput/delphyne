@@ -10,7 +10,14 @@ file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cc)
 
 add_library(drake_gen ${SOURCES})
 
-set_target_properties(drake_gen PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-drake-gen LINKER_LANGUAGE CXX)
+add_library(delphyne::drake_gen ALIAS drake_gen)
+
+set_target_properties(drake_gen
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_drake_gen
+    LINKER_LANGUAGE CXX
+)
+
 target_include_directories(
   drake_gen
   PUBLIC
@@ -26,10 +33,12 @@ target_link_libraries(
   drake_gen
   PUBLIC
     drake::drake
+    delphyne::public_headers
     maliput::common
-    public_headers
 )
+
 install(
   TARGETS drake_gen
+  EXPORT ${PROJECT_NAME}-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

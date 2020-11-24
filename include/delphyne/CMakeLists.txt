@@ -14,6 +14,8 @@ configure_file(version.h.in
 # we designate (in the install)?
 add_library(public_headers INTERFACE)
 
+add_library(delphyne::public_headers ALIAS public_headers)
+
 target_include_directories(
   public_headers
   INTERFACE

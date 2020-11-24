@@ -9,27 +9,29 @@ set(TEST_TYPE UNIT)
 # Helper test library.
 file(GLOB SOURCES "test_utilities/*.cc")
 
-add_library(delphyne_test_utilities ${SOURCES})
+add_library(test_utilities ${SOURCES})
+
+add_library(delphyne::test_utilities ALIAS test_utilities)
 
 target_include_directories(
-  delphyne_test_utilities
+  test_utilities
   PUBLIC
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
-ament_target_dependencies(delphyne_test_utilities
+ament_target_dependencies(test_utilities
   "maliput_multilane"
 )
 
-target_link_libraries(delphyne_test_utilities
-  public_headers
+target_link_libraries(test_utilities
   drake::drake
-  maliput_multilane::maliput_multilane_test_utilities
-  drake_gen
+  delphyne::drake_gen
+  delphyne::public_headers
   ignition-common3::ignition-common3
   ignition-msgs2::ignition-msgs2
   ignition-transport5::ignition-transport5
+  maliput_multilane::test_utilities
 )
 
 ##############################################################################

@@ -34,8 +34,8 @@ set_target_properties(agent_bindings PROPERTIES OUTPUT_NAME agents)
 
 target_link_libraries(agent_bindings
   PRIVATE
-    agents
-    backend
+    delphyne::agents
+    delphyne::backend
     pybind11::module
     ${PYTHON_LIBRARIES}
 )
@@ -54,8 +54,8 @@ set_target_properties(roads_bindings PROPERTIES OUTPUT_NAME roads)
 
 target_link_libraries(roads_bindings
   PRIVATE
-    roads_utilities
     drake::drake
+    delphyne::roads_utilities
     pybind11::module
     ${PYTHON_LIBRARIES}
 )
@@ -80,8 +80,8 @@ target_include_directories(
 
 target_link_libraries(simulation_bindings
   PRIVATE
-    backend
     drake::drake
+    delphyne::backend
     pybind11::module
     ${PYTHON_LIBRARIES}
 )

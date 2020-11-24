@@ -17,7 +17,14 @@ add_library(backend
   simulation_run_stats.cc
   simulation_runner.cc  # needs python
 )
-set_target_properties(backend PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-backend)
+
+add_library(delphyne::backend ALIAS backend)
+
+set_target_properties(backend
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_backend
+)
+
 target_include_directories(
   backend
   PUBLIC
@@ -32,22 +39,24 @@ ament_target_dependencies(backend
 
 target_link_libraries(
   backend
-    protobuf_messages
-    public_headers
-    utility
-    visualization
     drake::drake
-    maliput::api
-    maliput::utilities
+    delphyne::protobuf_messages
+    delphyne::public_headers
+    delphyne::translations
+    delphyne::utility
+    delphyne::visualization
     ignition-common3::ignition-common3
     ignition-transport5::core
     ignition-transport5::log
     ignition-msgs2::ignition-msgs2
+    maliput::api
+    maliput::utilities
     ${PYTHON_LIBRARIES}
-    translations
 )
 
-install(TARGETS backend
+install(
+  TARGETS backend
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib
@@ -61,16 +70,23 @@ add_executable(replayer
   replayer.cc
 )
 
+set_target_properties(replayer
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_replayer
+)
+
 target_link_libraries(replayer
   PRIVATE
-    protobuf_messages
-    public_headers
+    delphyne::protobuf_messages
+    delphyne::public_headers
     ${IGNITION-COMMON_LIBRARIES}
     ${IGNITION-MSGS_LIBRARIES}
     ${IGNITION-TRANSPORT_LIBRARIES}
 )
 
-install(TARGETS replayer
+install(
+  TARGETS replayer
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

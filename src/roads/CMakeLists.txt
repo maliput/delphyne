@@ -10,11 +10,12 @@ file(GLOB_RECURSE SOURCES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} *.cc)
 
 add_library(roads_utilities ${SOURCES})
 
+add_library(delphyne::roads_utilities ALIAS roads_utilities)
+
 set_target_properties(
   roads_utilities
   PROPERTIES
-    OUTPUT_NAME
-      ${PROJECT_NAME}-roads-utilities
+    OUTPUT_NAME ${PROJECT_NAME}-roads-utilities
 )
 
 target_include_directories(
@@ -45,6 +46,7 @@ target_link_libraries(
 )
 
 install(
-  TARGETS roads_utilities EXPORT ${PROJECT_NAME}-targets
+  TARGETS roads_utilities
+  EXPORT ${PROJECT_NAME}-targets
   DESTINATION ${CMAKE_INSTALL_LIBDIR}
 )

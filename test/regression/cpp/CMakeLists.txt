@@ -25,7 +25,7 @@ ament_target_dependencies(delphyne_test_utilities
 target_link_libraries(delphyne_test_utilities
   public_headers
   drake::drake
-  maliput_multilane::maliput_multilane_test_utilities
+  maliput_multilane::test_utilities
   drake_gen
   ignition-common3::ignition-common3
   ignition-msgs2::ignition-msgs2

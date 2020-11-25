@@ -15,7 +15,7 @@ add_library(delphyne::roads_utilities ALIAS roads_utilities)
 set_target_properties(
   roads_utilities
   PROPERTIES
-    OUTPUT_NAME ${PROJECT_NAME}-roads-utilities
+    OUTPUT_NAME ${PROJECT_NAME}_roads_utilities
 )
 
 target_include_directories(

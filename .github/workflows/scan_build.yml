@@ -20,7 +20,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        path: ${{ env.ROS_WS }}/src/${{ env.REPOSITORY_NAME }}
+        path: ${{ env.ROS_WS }}/src/${{ env.PACKAGE_NAME }}
     # clone private dependencies
     - uses: actions/checkout@v2
       with:
@@ -53,9 +53,7 @@ jobs:
         path: dsim-repos-index
         token: ${{ secrets.MALIPUT_TOKEN }}
     # use setup-ros action to get vcs, rosdep, and colcon
-    - uses: ros-tooling/setup-ros@0.0.25
-      env:
-        ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+    - uses: ros-tooling/setup-ros@0.0.26
     # install drake_vendor prereqs using dsim-repos-index/tools/prereqs.lib
     - name: install drake_vendor prereqs
       shell: bash
@@ -68,12 +66,12 @@ jobs:
       run: ${GITHUB_WORKSPACE}/dsim-repos-index/tools/prereqs-install -t ignition .
     - name: clang 8 install
       shell: bash
-      run: ${{ env.ROS_WS }}/src/${REPOSITORY_NAME}/.github/clang_suite_installation.sh
+      run: ${{ env.ROS_WS }}/src/${PACKAGE_NAME}/.github/clang_suite_installation.sh
     # clone public dependencies
     - name: vcs import
       shell: bash
       working-directory: ${{ env.ROS_WS }}
-      run: vcs import src < src/${REPOSITORY_NAME}/.github/dependencies.repos
+      run: vcs import src < src/${PACKAGE_NAME}/.github/dependencies.repos
     - run: colcon graph
       shell: bash
       working-directory: ${{ env.ROS_WS }}
@@ -90,7 +88,7 @@ jobs:
       working-directory: ${{ env.ROS_WS }}
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
-        ./src/${REPOSITORY_NAME}/.github/run_scan_build \
+        ./src/${PACKAGE_NAME}/.github/run_scan_build \
             --cmake-args -DCMAKE_LINKER=/usr/bin/llvm-ld \
             --packages-up-to ${PACKAGE_NAME} \
             --event-handlers=console_direct+;

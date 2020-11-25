@@ -32,6 +32,9 @@ jobs:
       CXX: clang++
       LINKER_PATH: /usr/bin/llvm-ld
     steps:
+    - uses: actions/checkout@v2
+      with:
+        path: ${{ env.ROS_WS }}/src/${{ env.PACKAGE_NAME }}
     # clone private dependencies
     - uses: actions/checkout@v2
       with:

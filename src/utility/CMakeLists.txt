@@ -12,7 +12,10 @@ add_library(utility
   signal_guard.cc
 )
 
-set_target_properties(utility PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-utility)
+add_library(delphyne::utility ALIAS utility)
+
+set_target_properties(utility PROPERTIES OUTPUT_NAME ${PROJECT_NAME}_utility)
+
 target_include_directories(
   utility
   PUBLIC
@@ -23,12 +26,14 @@ target_include_directories(
 
 target_link_libraries(utility
   PUBLIC
-    public_headers
+    delphyne::public_headers
     ignition-common3::ignition-common3
     ${LIBZIP_LIBRARIES}
 )
 
-install(TARGETS utility EXPORT ${PROJECT_NAME}-targets
+install(
+  TARGETS utility
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

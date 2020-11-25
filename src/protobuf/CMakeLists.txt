@@ -39,7 +39,14 @@ protobuf_generate_cpp_with_descriptor(
 #       protobuf::libprotobuf (currently creates a pthread_create problem)
 
 add_library(protobuf_messages ${PROTO_SOURCES})
-set_target_properties(protobuf_messages PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-protobuf-messages)
+
+add_library(delphyne::protobuf_messages ALIAS protobuf_messages)
+
+set_target_properties(protobuf_messages
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_protobuf_messages
+)
+
 target_include_directories(
   protobuf_messages
   PUBLIC
@@ -47,6 +54,7 @@ target_include_directories(
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
     ${PROTOBUF_INCLUDE_DIRS}
 )
+
 target_link_libraries(
   protobuf_messages
   PUBLIC
@@ -73,7 +81,9 @@ install(
     ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/proto
 )
 
-install(TARGETS protobuf_messages EXPORT ${PROJECT_NAME}-targets
+install(
+  TARGETS protobuf_messages
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

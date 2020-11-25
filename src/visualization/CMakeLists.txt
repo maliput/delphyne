@@ -9,7 +9,14 @@ add_library(visualization
   prius_vis.cc
   simple_prius_vis.cc
 )
-set_target_properties(visualization PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-visualization)
+
+add_library(delphyne::visualization ALIAS visualization)
+
+set_target_properties(visualization
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_visualization
+)
+
 target_include_directories(
   visualization
   PUBLIC
@@ -17,21 +24,23 @@ target_include_directories(
 )
 
 ament_target_dependencies(visualization
-"drake"
-"maliput"
-"maliput_dragway"
+  "drake"
+  "maliput"
+  "maliput_dragway"
 )
 
 target_link_libraries(visualization
-    drake::drake
-    ignition-common3::ignition-common3
-    maliput::api
-    maliput::utilities
-    maliput_dragway::maliput_dragway
-    public_headers
+  drake::drake
+  delphyne::public_headers
+  ignition-common3::ignition-common3
+  maliput::api
+  maliput::utilities
+  maliput_dragway::maliput_dragway
 )
 
-install(TARGETS visualization
+install(
+  TARGETS visualization
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION bin
   LIBRARY DESTINATION lib
   ARCHIVE DESTINATION lib

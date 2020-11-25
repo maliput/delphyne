@@ -29,10 +29,13 @@ macro(delphyne_build_tests)
     # Kind of an ugly catch-all bucket
     target_link_libraries(
       ${BINARY_NAME}
-        agents
-        backend
-        delphyne_test_utilities
         drake::drake
+        delphyne::agents
+        delphyne::backend
+        delphyne::translations
+        delphyne::utility
+        delphyne::visualization
+        delphyne::test_utilities
         ignition-common3::ignition-common3
         ignition-msgs2::ignition-msgs2
         ignition-transport5::ignition-transport5
@@ -41,9 +44,6 @@ macro(delphyne_build_tests)
         maliput_multilane::maliput_multilane
         pthread
         protobuf
-        translations
-        utility
-        visualization
     )
 
     # Remove a warning in GTest.

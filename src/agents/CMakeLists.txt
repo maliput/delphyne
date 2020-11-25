@@ -8,7 +8,13 @@ add_library(agents
   simple_car.cc
   trajectory_agent.cc
 )
-set_target_properties(agents PROPERTIES OUTPUT_NAME ${PROJECT_NAME}-agents)
+
+add_library(delphyne::agents ALIAS agents)
+
+set_target_properties(agents
+  PROPERTIES
+    OUTPUT_NAME ${PROJECT_NAME}_agents
+)
 
 target_include_directories(
   agents
@@ -23,17 +29,19 @@ ament_target_dependencies(agents
 
 target_link_libraries(
   agents
-    mi6
-    public_headers
-    roads_utilities
-    translations
-    drake_systems
     drake::drake
+    delphyne::drake_systems
+    delphyne::mi6
+    delphyne::public_headers
+    delphyne::roads_utilities
+    delphyne::translations
     maliput::api
     Eigen3::Eigen
-    translations
 )
-install(TARGETS agents
+
+install(
+  TARGETS agents
+  EXPORT ${PROJECT_NAME}-targets
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
   ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

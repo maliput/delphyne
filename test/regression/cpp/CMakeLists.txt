@@ -29,8 +29,8 @@ target_link_libraries(test_utilities
   delphyne::drake_gen
   delphyne::public_headers
   ignition-common3::ignition-common3
-  ignition-msgs2::ignition-msgs2
-  ignition-transport5::ignition-transport5
+  ignition-msgs6::ignition-msgs6
+  ignition-transport9::ignition-transport9
   maliput_multilane::test_utilities
 )
 

@@ -46,9 +46,9 @@ target_link_libraries(
     delphyne::utility
     delphyne::visualization
     ignition-common3::ignition-common3
-    ignition-transport5::core
-    ignition-transport5::log
-    ignition-msgs2::ignition-msgs2
+    ignition-transport9::core
+    ignition-transport9::log
+    ignition-msgs6::ignition-msgs6
     maliput::api
     maliput::utilities
     ${PYTHON_LIBRARIES}

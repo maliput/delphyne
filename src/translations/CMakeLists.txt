@@ -37,8 +37,8 @@ target_link_libraries(translations
     delphyne::protobuf_messages
     delphyne::public_headers
     ignition-common3::ignition-common3
-    ignition-msgs2::ignition-msgs2
-    ignition-transport5::ignition-transport5
+    ignition-msgs6::ignition-msgs6
+    ignition-transport9::ignition-transport9
     maliput::common
     protobuf
 )

@@ -46,9 +46,9 @@ target_link_libraries(
     delphyne::utility
     delphyne::visualization
     ignition-common3::ignition-common3
-    ignition-transport5::core
-    ignition-transport5::log
-    ignition-msgs2::ignition-msgs2
+    ignition-transport7::core
+    ignition-transport7::log
+    ignition-msgs4::ignition-msgs4
     maliput::api
     maliput::utilities
     ${PYTHON_LIBRARIES}
@@ -80,9 +80,9 @@ target_link_libraries(replayer
     delphyne::protobuf_messages
     delphyne::public_headers
     ignition-common3::ignition-common3
-    ignition-msgs2::ignition-msgs2
-    ignition-transport5::core
-    ignition-transport5::log
+    ignition-msgs4::ignition-msgs4
+    ignition-transport7::core
+    ignition-transport7::log
 )
 
 install(

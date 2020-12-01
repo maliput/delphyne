@@ -31,8 +31,8 @@ find_package(maliput_malidrive REQUIRED)
 
 find_package(ignition-common3 REQUIRED COMPONENTS graphics)
 find_package(ignition-math6 REQUIRED)
-find_package(ignition-msgs2 REQUIRED)
-find_package(ignition-transport5 REQUIRED COMPONENTS log)
+find_package(ignition-msgs4 REQUIRED)
+find_package(ignition-transport7 REQUIRED COMPONENTS log)
 pkg_check_modules(LIBZIP REQUIRED libzip)
 
 # Since ignition libraries are compiled using C++17 and drake is not,

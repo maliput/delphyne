@@ -32,7 +32,7 @@ popd
 if [ "$PEP8FAILED" -eq "0" ]; then
   pushd $REPO_DIR
   # Run pylint
-  grep -rl --exclude-dir={tools,utils,examples,scripts} '^#!/.*python' . | xargs pylint3 || PYLINTFAILED=1
+  grep -rl --exclude-dir={tools,utils,examples,scripts,.github} '^#!/.*python' . | xargs pylint3 || PYLINTFAILED=1
   popd
 else
   echo $'\n*** PEP8 failed, not doing pylint ***'

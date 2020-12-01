@@ -226,7 +226,7 @@ void DataLogger::CaptureMeshes(const ignition::msgs::Scene& scene_msg) {
   find_proto_messages<ignition::msgs::MeshGeom>(scene_msg, std::back_inserter(mesh_msgs));
   // Logs all meshes.
   for (const ignition::msgs::MeshGeom* msg : mesh_msgs) {
-    if (!msg->has_filename()) {
+    if (msg->filename().empty()) {
       igndbg << "Found mesh with no associated mesh file." << std::endl;
       continue;
     }

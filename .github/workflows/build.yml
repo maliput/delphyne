@@ -25,6 +25,11 @@ jobs:
         token: ${{ secrets.MALIPUT_TOKEN }}
     - uses: actions/checkout@v2
       with:
+        repository: ToyotaResearchInstitute/maliput_malidrive
+        path: ${{ env.ROS_WS }}/src/maliput_malidrive
+        token: ${{ secrets.MALIPUT_TOKEN }}
+    - uses: actions/checkout@v2
+      with:
         repository: ToyotaResearchInstitute/maliput-dragway
         path: ${{ env.ROS_WS }}/src/maliput_dragway
         token: ${{ secrets.MALIPUT_TOKEN }}

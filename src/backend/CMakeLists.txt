@@ -79,9 +79,10 @@ target_link_libraries(replayer
   PRIVATE
     delphyne::protobuf_messages
     delphyne::public_headers
-    ${IGNITION-COMMON_LIBRARIES}
-    ${IGNITION-MSGS_LIBRARIES}
-    ${IGNITION-TRANSPORT_LIBRARIES}
+    ignition-common3::ignition-common3
+    ignition-msgs2::ignition-msgs2
+    ignition-transport5::core
+    ignition-transport5::log
 )
 
 install(

@@ -5,11 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <drake/common/symbolic.h>
-#include <drake/systems/framework/system_constraint.h>
-
 #include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
-#include "test_utilities/scalar_conversion.h"
 
 #include "gen/simple_car_state.h"
 
@@ -106,7 +102,7 @@ TEST_F(UnicycleCarTest, Topology) {
   ASSERT_EQ(1, dut_->num_input_ports());
   const auto& input_port = dut_->get_input_port(0);
   EXPECT_EQ(drake::systems::kVectorValued, input_port.get_data_type());
-  EXPECT_EQ(AngularRateAccelerationCommandIndices::kNumCoordinates, input_port.size());
+  EXPECT_EQ(AngularRateAccelerationCommand<double>::num_coordinates(), input_port.size());
 
   ASSERT_EQ(3, dut_->num_output_ports());
   const auto& state_output = dut_->state_output();
@@ -120,9 +116,6 @@ TEST_F(UnicycleCarTest, Topology) {
   const auto& velocity_output = dut_->velocity_output();
   EXPECT_EQ(drake::systems::kVectorValued, velocity_output.get_data_type());
   EXPECT_EQ(FrameVelocity<double>::kSize, velocity_output.size());
-
-  // This test covers a portion of the symbolic::Expression instantiation.
-  ASSERT_FALSE(dut_->HasAnyDirectFeedthrough());
 }
 
 TEST_F(UnicycleCarTest, ZeroOutput) {

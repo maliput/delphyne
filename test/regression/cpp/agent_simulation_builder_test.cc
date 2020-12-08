@@ -31,7 +31,6 @@
 #include "systems/trajectory.h"
 #include "test/test_config.h"
 #include "test_utilities/helpers.h"
-#include "translations/ign_angular_rate_acceleration_command_to_drake.h"
 #include "visualization/prius_vis.h"
 #include "visualization/simple_prius_vis.h"
 
@@ -225,34 +224,27 @@ TEST_F(AgentSimulationTest, TestPriusUnicycleCar) {
   constexpr double kZeroY{0.0};
   constexpr double kZeroHeading{0.0};
   constexpr double kZeroSpeed{0.0};
+  const std::string kAgentName{"unicycle"};
 
   // Set up a basic simulation with just a Prius UnicycleCar on a dragway.
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
   builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
-  builder.AddAgent<UnicycleCarBlueprint>("unicycle", kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
+  builder.AddAgent<UnicycleCarBlueprint>(kAgentName, kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
+
+  UnicycleCarAgent* agent = dynamic_cast<UnicycleCarAgent*>(simulation->GetMutableAgentByName(kAgentName));
 
   // Simulate an external system sending a driving command to the car at
   // full throttle
-  using ignition::msgs::AutomotiveAngularRateAccelerationCommand;
-  const std::string kTeleopTopicName{"teleop/unicycle"};
-  ignition::transport::Node node;
-  auto publisher = node.Advertise<AutomotiveAngularRateAccelerationCommand>(kTeleopTopicName);
-
-  AutomotiveAngularRateAccelerationCommand ign_msg;
-  ign_msg.mutable_time()->set_sec(0);
-  ign_msg.mutable_time()->set_nsec(0);
-  ign_msg.set_acceleration(11.0);
-  ign_msg.set_omega(0);
-  publisher.Publish(ign_msg);
+  agent->SetAcceleration(11.0);
+  agent->SetAngularRate(0.0);
 
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
-  const std::string kStateTopicName{"/agents/state"};
+  const std::string kStateTopicName{"agents/state"};
   test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
 
-  // Shortly after starting, we should not have moved much.
   const int kStateMessagesCount{1};
   EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
                                    [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));

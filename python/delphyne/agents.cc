@@ -39,6 +39,7 @@ using delphyne::RailCar;
 using delphyne::RailCarBlueprint;
 using delphyne::SimpleCarBlueprint;
 using delphyne::TrajectoryAgentBlueprint;
+using delphyne::UnicycleCarAgent;
 using delphyne::UnicycleCarBlueprint;
 
 namespace {
@@ -58,6 +59,10 @@ PYBIND11_MODULE(agents, m) {
       .def("get_velocity", &Agent::GetVelocity);
 
   py::class_<RailCar, Agent>(m, "RailCar").def("set_speed", &RailCar::SetSpeed);
+
+  py::class_<UnicycleCarAgent, Agent>(m, "UnicycleCarAgent")
+      .def("set_acceleration", &UnicycleCarAgent::SetAcceleration)
+      .def("set_angular_rate", &UnicycleCarAgent::SetAngularRate);
 
   py::class_<AgentBlueprint>(m, "AgentBlueprint")
       .def("get_agent",

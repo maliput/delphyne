@@ -15,6 +15,8 @@
 #include <maliput/api/road_geometry.h>
 #include "delphyne/mi6/agent_base_blueprint.h"
 
+#include "systems/vector_source.h"
+
 /*****************************************************************************
 ** Namespaces
 *****************************************************************************/
@@ -25,8 +27,43 @@ namespace delphyne {
 ** Interfaces
 *****************************************************************************/
 
-/// @brief A very simple vehicle agent that can be teleoperated.
-class UnicycleCarBlueprint : public BasicAgentBlueprint {
+/// @brief An agent that follows roads as if they were railroad tracks.
+///
+/// The underlying road network has a reference line for each lane which
+/// is utilised by this agent as a railroad track.
+class UnicycleCarAgent : public Agent {
+ public:
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(UnicycleCarAgent)
+
+  /// Unicycle car agent constructor.
+  ///
+  /// @param diagram The Diagram representation of the rail car agent.
+  /// @param acceleration_setter The acceleration input to the underlying UnicycleCar
+  /// in this diagram.
+  /// @param angular_rate_setter The angular rate input to the underlying UnicycleCar
+  /// in this diagram.
+
+  explicit UnicycleCarAgent(Agent::Diagram* diagram, VectorSource<double>* acceleration_setter,
+                            VectorSource<double>* angular_rate_setter)
+      : Agent(diagram), acceleration_setter_(acceleration_setter), angular_rate_setter_(angular_rate_setter) {}
+
+  /// Sets the acceleration input to this agent.
+  ///
+  /// @param new_acceleration The new acceleration input to the agent.
+  void SetAcceleration(double new_acceleration) { acceleration_setter_->Set(new_acceleration); }
+
+  /// Sets the angular rate input to this agent.
+  ///
+  /// @param new_angular_rate The new angular rate input to the agent.
+  void SetAngularRate(double new_angular_rate) { angular_rate_setter_->Set(new_angular_rate); }
+
+ private:
+  VectorSource<double>* acceleration_setter_;
+  VectorSource<double>* angular_rate_setter_;
+};
+
+/// @brief A very simple vehicle agent with settable inputs.
+class UnicycleCarBlueprint : public TypedAgentBlueprint<UnicycleCarAgent> {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(UnicycleCarBlueprint)
 
@@ -46,7 +83,9 @@ class UnicycleCarBlueprint : public BasicAgentBlueprint {
     InitialConditions(double x, double y, double heading, double speed) : x(x), y(y), heading(heading), speed(speed) {}
   } initial_conditions_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<UnicycleCarAgent> DoBuildAgentInto(
+      const maliput::api::RoadGeometry* road_geometry,
+      drake::systems::DiagramBuilder<double>* simulator_builder) const override;
 };
 
 /*****************************************************************************

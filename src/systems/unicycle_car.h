@@ -43,8 +43,6 @@ namespace delphyne {
 ///
 /// Instantiated templates for the following ScalarTypes are provided:
 /// - double
-/// - drake::AutoDiffXd
-/// - drake::symbolic::Expression
 ///
 /// They are already available to link against in the containing library.
 ///
@@ -62,10 +60,6 @@ class UnicycleCar final : public drake::systems::LeafSystem<T> {
   ///
   /// @param initial_context_state[in] The continuous state.
   UnicycleCar(const SimpleCarState<T>& initial_context_state = SimpleCarState<T>());
-
-  /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
-  template <typename U>
-  explicit UnicycleCar(const UnicycleCar<U>&);
 
   // System<T> overrides
   void DoCalcTimeDerivatives(const drake::systems::Context<T>& context,

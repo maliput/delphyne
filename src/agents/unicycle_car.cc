@@ -1,5 +1,5 @@
 /**
- * @file src/agents/simple_car
+ * @file src/agents/unicycle_car
  *
  * Copyright 2020 Toyota Research Institute
  */
@@ -12,10 +12,11 @@
 #include <string>
 #include <utility>
 
-#include "backend/ign_subscriber_system.h"
+#include <drake/systems/primitives/multiplexer.h>
+
+#include "gen/angular_rate_acceleration_command.h"
 #include "gen/simple_car_state.h"
 #include "systems/unicycle_car.h"
-#include "translations/ign_angular_rate_acceleration_command_to_drake.h"
 
 #include <maliput/common/maliput_unused.h>
 
@@ -30,10 +31,10 @@ namespace delphyne {
  *****************************************************************************/
 
 UnicycleCarBlueprint::UnicycleCarBlueprint(const std::string& name, double x, double y, double heading, double speed)
-    : BasicAgentBlueprint(name), initial_conditions_(x, y, heading, speed) {}
+    : TypedAgentBlueprint<UnicycleCarAgent>(name), initial_conditions_(x, y, heading, speed) {}
 
-std::unique_ptr<Agent::Diagram> UnicycleCarBlueprint::DoBuildDiagram(
-    const maliput::api::RoadGeometry* road_geometry) const {
+std::unique_ptr<UnicycleCarAgent> UnicycleCarBlueprint::DoBuildAgentInto(
+    const maliput::api::RoadGeometry* road_geometry, drake::systems::DiagramBuilder<double>* simulator_builder) const {
   maliput::common::unused(road_geometry);
 
   AgentBlueprint::DiagramBuilder builder(this->name());
@@ -52,40 +53,30 @@ std::unique_ptr<Agent::Diagram> UnicycleCarBlueprint::DoBuildDiagram(
    * Unicycle Car System
    *********************/
   typedef UnicycleCar<double> UnicycleCarSystem;
-  UnicycleCarSystem* simple_car_system =
+  UnicycleCarSystem* unicycle_car_system =
       builder.AddSystem(std::make_unique<UnicycleCarSystem>(context_continuous_state));
-  simple_car_system->set_name(this->name() + "_system");
+  unicycle_car_system->set_name(this->name() + "_system");
 
-  /*********************
-   * Teleop Systems
-   *********************/
-  std::string command_channel = "teleop/" + this->name();
-  typedef IgnSubscriberSystem<ignition::msgs::AutomotiveAngularRateAccelerationCommand>
-      AngularRateAccelerationCommandSubscriber;
-  AngularRateAccelerationCommandSubscriber* input_command_subscriber =
-      builder.AddSystem(std::make_unique<AngularRateAccelerationCommandSubscriber>(command_channel));
+  auto acceleration_setter = builder.template AddSystem(std::make_unique<delphyne::VectorSource<double>>(-1));
+  auto angular_rate_setter = builder.template AddSystem(std::make_unique<delphyne::VectorSource<double>>(-1));
 
-  auto input_command_translator = builder.AddSystem(std::make_unique<IgnAngularRateAccelerationCommandToDrake>());
+  drake::systems::Multiplexer<double>* mux = builder.AddSystem<drake::systems::Multiplexer<double>>(
+      std::make_unique<drake::systems::Multiplexer<double>>(AngularRateAccelerationCommand<double>()));
+  mux->set_name(this->name() + "_mux");
 
-  // Ignition anglular rate and acceleration commands received through the subscriber are translated
-  // to Drake.
-  builder.Connect(*input_command_subscriber, *input_command_translator);
-
-  // And then the translated Drake command is sent to the car.
-  builder.Connect(*input_command_translator, *simple_car_system);
+  builder.Connect(angular_rate_setter->output(), mux->get_input_port(0));
+  builder.Connect(acceleration_setter->output(), mux->get_input_port(1));
+  builder.Connect(mux->get_output_port(0), unicycle_car_system->get_input_port(0));
 
   /*********************
    * Diagram Outputs
    *********************/
-  builder.ExportStateOutput(simple_car_system->state_output());
-  builder.ExportPoseOutput(simple_car_system->pose_output());
-  builder.ExportVelocityOutput(simple_car_system->velocity_output());
+  builder.ExportStateOutput(unicycle_car_system->state_output());
+  builder.ExportPoseOutput(unicycle_car_system->pose_output());
+  builder.ExportVelocityOutput(unicycle_car_system->velocity_output());
 
-  return builder.Build();
+  Agent::Diagram* agent_diagram = simulator_builder->AddSystem(builder.Build());
+  return std::make_unique<UnicycleCarAgent>(agent_diagram, acceleration_setter, angular_rate_setter);
 }
-
-/*****************************************************************************
- ** Trailers
- *****************************************************************************/
 
 }  // namespace delphyne

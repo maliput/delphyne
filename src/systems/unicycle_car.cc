@@ -4,19 +4,12 @@
 
 #include <algorithm>
 #include <cmath>
-#include <limits>
 #include <utility>
 
-#include <drake/common/cond.h>
-#include <drake/common/default_scalars.h>
-#include <drake/common/double_overloads.h>
 #include <drake/common/drake_assert.h>
-#include <drake/math/saturate.h>
 #include <drake/systems/framework/vector_base.h>
 
 #include <Eigen/Geometry>
-
-#include "systems/calc_smooth_acceleration.h"
 
 namespace delphyne {
 
@@ -47,18 +40,13 @@ const AngularRateAccelerationCommand<T>& get_input(const UnicycleCar<T>* unicycl
 }  // namespace
 
 template <typename T>
-UnicycleCar<T>::UnicycleCar(const SimpleCarState<T>& initial_context_state)
-    : drake::systems::LeafSystem<T>(drake::systems::SystemTypeTag<UnicycleCar>{}) {
+UnicycleCar<T>::UnicycleCar(const SimpleCarState<T>& initial_context_state) {
   this->DeclareVectorInputPort(AngularRateAccelerationCommand<T>());
   this->DeclareVectorOutputPort(&UnicycleCar::CalcStateOutput);
   this->DeclareVectorOutputPort(&UnicycleCar::CalcPose);
   this->DeclareVectorOutputPort(&UnicycleCar::CalcVelocity);
   this->DeclareContinuousState(initial_context_state);
 }
-
-template <typename T>
-template <typename U>
-UnicycleCar<T>::UnicycleCar(const UnicycleCar<U>&) : UnicycleCar() {}
 
 template <typename T>
 const drake::systems::OutputPort<T>& UnicycleCar<T>::state_output() const {
@@ -146,7 +134,6 @@ void UnicycleCar<T>::ImplCalcTimeDerivatives(const SimpleCarState<T>& state,
   rates->set_velocity(input.acceleration());
 }
 
-}  // namespace delphyne
+template class UnicycleCar<double>;
 
-// These instantiations must match the API documentation in unicycle_car.h.
-DRAKE_DEFINE_CLASS_TEMPLATE_INSTANTIATIONS_ON_DEFAULT_SCALARS(class ::delphyne::UnicycleCar)
+}  // namespace delphyne

@@ -1,36 +1,9 @@
 #####################################
 # Handle CFlags
 
-unset (CMAKE_C_FLAGS_ALL CACHE)
 unset (CMAKE_CXX_FLAGS CACHE)
 
-include (${PROJECT_SOURCE_DIR}/cmake/FindSSE.cmake)
-
-if (SSE2_FOUND)
-  set (CMAKE_C_FLAGS_ALL "-msse -msse2 ${CMAKE_C_FLAGS_ALL}")
-  set (CMAKE_C_FLAGS_ALL "-mfpmath=sse ${CMAKE_C_FLAGS_ALL}")
-endif()
-
-if (SSE3_FOUND)
-  set (CMAKE_C_FLAGS_ALL "-msse3 ${CMAKE_C_FLAGS_ALL}")
-endif()
-if (SSSE3_FOUND)
-  set (CMAKE_C_FLAGS_ALL "-mssse3 ${CMAKE_C_FLAGS_ALL}")
-endif()
-
-if (ENABLE_SSE4)
-  message(STATUS "\nSSE4 will be enabled if system supports it.\n")
-  if (SSE4_1_FOUND)
-    set (CMAKE_C_FLAGS_ALL "-msse4.1 ${CMAKE_C_FLAGS_ALL}")
-  endif()
-  if (SSE4_2_FOUND)
-    set (CMAKE_C_FLAGS_ALL "-msse4.2 ${CMAKE_C_FLAGS_ALL}")
-  endif()
-else()
-  message(STATUS "\nSSE4 disabled.\n")
-endif()
-
-set (CMAKE_C_FLAGS_RELWITHDEBINFO " -g -O2 ${CMAKE_C_FLAGS_ALL}" CACHE INTERNAL "C Flags for release with debug support" FORCE)
+set (CMAKE_C_FLAGS_RELWITHDEBINFO " -g -O2" CACHE INTERNAL "C Flags for release with debug support" FORCE)
 set (CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
 
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE_UPPERCASE}} -std=c++17")

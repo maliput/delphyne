@@ -45,6 +45,7 @@
   <depend>maliput</depend>
   <depend>maliput_dragway</depend>
   <depend>maliput_multilane</depend>
+  <depend>maliput_py</depend>
 
   <build_export_depend>drake_vendor</build_export_depend>
   <build_export_depend>ignition-common3</build_export_depend>

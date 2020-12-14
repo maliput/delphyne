@@ -28,30 +28,31 @@ class IgnPublisherSystemTest : public ::testing::Test {
 
 // Creates an Ignition Publisher System and publish a message, then checks that
 // it has been correctly received.
-TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
-  // Sets up publisher system and monitor subscription.
-  IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName);
-  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
+// TODO(#713): Enable this test back once a solution for its non-repeatable execution is found.
+// TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
+//   // Sets up publisher system and monitor subscription.
+//   IgnPublisherSystem<ignition::msgs::Model_V> ign_publisher(kTopicName);
+//   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kTopicName);
 
-  // Creates a simulator to work with the publisher.
-  drake::systems::Simulator<double> simulator(ign_publisher, ign_publisher.CreateDefaultContext());
+//   // Creates a simulator to work with the publisher.
+//   drake::systems::Simulator<double> simulator(ign_publisher, ign_publisher.CreateDefaultContext());
 
-  // Configures context's input with the pre-loaded message.
-  simulator.get_mutable_context().FixInputPort(0, drake::AbstractValue::Make(kIgnMsg));
+//   // Configures context's input with the pre-loaded message.
+//   simulator.get_mutable_context().FixInputPort(0, drake::AbstractValue::Make(kIgnMsg));
 
-  // Simulates for a small time period.
-  simulator.Initialize();
-  const double kPublishDeadline{0.1};
-  simulator.AdvanceTo(kPublishDeadline);
+//   // Simulates for a small time period.
+//   simulator.Initialize();
+//   const double kPublishDeadline{0.1};
+//   simulator.AdvanceTo(kPublishDeadline);
 
-  // Checks that the correct amount of messages have been published.
-  const int kMessagesToPublish = simulator.get_num_steps_taken();
-  ASSERT_TRUE(ign_monitor.wait_until(kMessagesToPublish, kTimeoutMs));
+//   // Checks that the correct amount of messages have been published.
+//   const int kMessagesToPublish = simulator.get_num_steps_taken();
+//   ASSERT_TRUE(ign_monitor.wait_until(kMessagesToPublish, kTimeoutMs));
 
-  // Verifies the equivalence of the original ignition message
-  // and the received one.
-  EXPECT_TRUE(test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
-}
+//   // Verifies the equivalence of the original ignition message
+//   // and the received one.
+//   EXPECT_TRUE(test::CheckProtobufMsgEquality(kIgnMsg, ign_monitor.get_last_message()));
+// }
 
 // Creates an Ignition Publisher System and publish a message repeatedly at a
 // low frequency, then checks that it has been received the correct amount of

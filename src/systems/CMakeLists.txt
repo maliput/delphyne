@@ -42,5 +42,7 @@ target_link_libraries(
 install(
   TARGETS drake_systems
   EXPORT ${PROJECT_NAME}-targets
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )

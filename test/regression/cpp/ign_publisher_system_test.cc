@@ -72,7 +72,8 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   // published.
   simulator.Initialize();
   const int kMessagesToPublish{5};
-  const double kPublishDeadline = kMessagesToPublish / kPublishRateHz;
+  // Includes an extra 20% of period to make sure all messages are published on time.
+  const double kPublishDeadline = kMessagesToPublish / kPublishRateHz + .2 / kPublishRateHz;
   simulator.AdvanceTo(kPublishDeadline);
 
   // Checks that the correct amount of messages have been published.

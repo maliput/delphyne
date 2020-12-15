@@ -48,5 +48,7 @@ target_link_libraries(
 install(
   TARGETS roads_utilities
   EXPORT ${PROJECT_NAME}-targets
-  DESTINATION ${CMAKE_INSTALL_LIBDIR}
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib
 )

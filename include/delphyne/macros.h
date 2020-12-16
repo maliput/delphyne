@@ -50,7 +50,9 @@
 /// Stringify a token
 
 #define STR_SIMPLE(x) #x
+#ifndef STR
 #define STR(x) STR_SIMPLE(x)
+#endif
 
 /// \def DELPHYNE_VALIDATE
 /// Used to validate that an argument passed into a function or method is true;

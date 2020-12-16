@@ -338,19 +338,17 @@ void SimulationRunner::SendWorldStats() {
 }
 
 void SimulationRunner::ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg) {
-  if (msg.has_pause()) {
+  if (msg.step()) {
+    RequestSimulationStepExecution(1u);
+  } else if (msg.multi_step() > 0u) {
+    RequestSimulationStepExecution(msg.multi_step());
+  } else if (msg.pause() && !IsSimulationPaused()) {
     /* If we press the play-pause button quickly,
     more than one play/pause message will be sent
     so we just ignore it. */
-    if (msg.pause() && !IsSimulationPaused()) {
-      PauseSimulation();
-    } else if (IsSimulationPaused()) {
-      UnpauseSimulation();
-    }
-  } else if (msg.has_step() && msg.step()) {
-    RequestSimulationStepExecution(1u);
-  } else if (msg.has_multi_step() && msg.multi_step() > 0u) {
-    RequestSimulationStepExecution(msg.multi_step());
+    PauseSimulation();
+  } else if (IsSimulationPaused()) {
+    UnpauseSimulation();
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }

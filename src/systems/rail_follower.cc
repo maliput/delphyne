@@ -204,7 +204,7 @@ void RailFollower<T>::CalcPose(const drake::systems::Context<T>& context,
   const LaneDirection& lane_direction = get_lane_direction(context);
 
   const maliput::api::LanePosition lane_position(state.s(), CalcR(params, lane_direction), params.h());
-  const maliput::api::GeoPosition geo_position = lane_direction.lane->ToGeoPosition(lane_position);
+  const maliput::api::InertialPosition inertial_position = lane_direction.lane->ToInertialPosition(lane_position);
   const maliput::api::Rotation rotation = lane_direction.lane->GetOrientation(lane_position);
 
   using std::atan2;
@@ -218,7 +218,7 @@ void RailFollower<T>::CalcPose(const drake::systems::Context<T>& context,
                              : maliput::api::Rotation::FromRpy(-rotation.roll(), -rotation.pitch(),
                                                                atan2(-sin(rotation.yaw()), -cos(rotation.yaw()))));
   pose->set_translation(
-      Eigen::Translation<T, 3>(drake::Vector3<T>(geo_position.x(), geo_position.y(), geo_position.z())));
+      Eigen::Translation<T, 3>(drake::Vector3<T>(inertial_position.x(), inertial_position.y(), inertial_position.z())));
   const drake::math::RollPitchYaw<T> rpy(adjusted_rotation.roll(), adjusted_rotation.pitch(), adjusted_rotation.yaw());
   pose->set_rotation(rpy.ToQuaternion());
 }

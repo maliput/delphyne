@@ -19,7 +19,7 @@ namespace delphyne {
 using drake::MatrixX;
 using drake::Vector3;
 using drake::trajectories::PiecewisePolynomial;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LaneEndSet;
@@ -40,8 +40,8 @@ const PiecewisePolynomial<T>& RoadPath<T>::get_path() const {
 }
 
 template <typename T>
-const T RoadPath<T>::GetClosestPathPosition(const Vector3<T>& geo_pos, const T& s_guess) const {
-  maliput::common::unused(geo_pos, s_guess);
+const T RoadPath<T>::GetClosestPathPosition(const Vector3<T>& inertial_pos, const T& s_guess) const {
+  maliput::common::unused(inertial_pos, s_guess);
   DELPHYNE_ABORT_MESSAGE("Unused.");
   // Return statement to silence -Wreturn-type warning.
   return T(0);
@@ -51,7 +51,7 @@ template <typename T>
 const PiecewisePolynomial<T> RoadPath<T>::MakePiecewisePolynomial(const LaneDirection& initial_lane_direction,
                                                                   const T& step_size, int num_breaks) const {
   std::vector<T> s_breaks{};
-  std::vector<MatrixX<T>> geo_knots(num_breaks, MatrixX<T>::Zero(3, 1));
+  std::vector<MatrixX<T>> inertial_knots(num_breaks, MatrixX<T>::Zero(3, 1));
 
   LaneDirection ld = initial_lane_direction;
   T s_lane{drake::cond(ld.with_s, T(0.), T(ld.lane->length()))};
@@ -62,8 +62,8 @@ const PiecewisePolynomial<T> RoadPath<T>::MakePiecewisePolynomial(const LaneDire
     s_breaks.emplace_back(s_break);
     s_break += T(step_size);
 
-    GeoPosition geo_pos = ld.lane->ToGeoPosition({s_lane /* s */, 0. /* r */, 0. /* h */});
-    geo_knots[i] << T(geo_pos.x()), T(geo_pos.y()), T(geo_pos.z());
+    InertialPosition inertial_pos = ld.lane->ToInertialPosition({s_lane /* s */, 0. /* r */, 0. /* h */});
+    inertial_knots[i] << T(inertial_pos.x()), T(inertial_pos.y()), T(inertial_pos.z());
 
     // Take a step.
     if (ld.with_s) {
@@ -82,8 +82,8 @@ const PiecewisePolynomial<T> RoadPath<T>::MakePiecewisePolynomial(const LaneDire
         if (out_distance != 0.) {
           s_breaks.emplace_back(s_break + T(step_size - out_distance));
           s_lane = drake::cond(ld.with_s, T(ld.lane->length()), T(0.));
-          geo_pos = ld.lane->ToGeoPosition({s_lane /* s */, 0. /* r */, 0. /* h */});
-          geo_knots[i + 1] << T(geo_pos.x()), T(geo_pos.y()), T(geo_pos.z());
+          inertial_pos = ld.lane->ToInertialPosition({s_lane /* s */, 0. /* r */, 0. /* h */});
+          inertial_knots[i + 1] << T(inertial_pos.x()), T(inertial_pos.y()), T(inertial_pos.z());
         }
         break;
       }
@@ -97,10 +97,10 @@ const PiecewisePolynomial<T> RoadPath<T>::MakePiecewisePolynomial(const LaneDire
     }
   }
   // Resize the vector of knot points, if necessary.
-  geo_knots.resize(s_breaks.size());
+  inertial_knots.resize(s_breaks.size());
 
   // Create the resulting piecewise polynomial.
-  return PiecewisePolynomial<T>::CubicWithContinuousSecondDerivatives(s_breaks, geo_knots);
+  return PiecewisePolynomial<T>::CubicWithContinuousSecondDerivatives(s_breaks, inertial_knots);
 }
 
 template class RoadPath<double>;

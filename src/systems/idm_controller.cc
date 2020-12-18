@@ -17,7 +17,7 @@ namespace delphyne {
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
 using maliput::api::RoadGeometry;
@@ -112,9 +112,10 @@ void IDMController<T>::ImplCalcAcceleration(const PoseVector<T>& ego_pose, const
   DRAKE_DEMAND(idm_params.IsValid());
   RoadPosition ego_position = ego_rp;
   if (!ego_rp.lane) {
-    const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
-                                          drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
-                                          drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
+    const auto gp =
+        InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
+                                   drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
+                                   drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
     ego_position = road_.ToRoadPosition(gp).road_position;
   }
 

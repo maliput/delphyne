@@ -15,7 +15,7 @@ static constexpr double kAngularTolerance{std::numeric_limits<double>::epsilon()
 using drake::AutoDiffXd;
 using drake::Translation3;
 using drake::Vector3;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::RoadGeometryId;
 using maliput::multilane::ArcOffset;
 using maliput::multilane::Builder;
@@ -200,7 +200,7 @@ TEST_F(PurePursuitTest, ComputeGoalPoint) {
   pose.set_rotation(Eigen::Quaternion<double>::Identity());
   const maliput::api::Lane* const lane = road_->junction(0)->segment(0)->lane(0);
 
-  GeoPosition goal_position =
+  InertialPosition goal_position =
       PurePursuit<double>::ComputeGoalPoint(10. /* s_lookahead */, {lane, true /* with_s */}, pose);
 
   // Expect the goal point to lie on the lane ordinate.

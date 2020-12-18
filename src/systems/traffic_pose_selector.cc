@@ -24,8 +24,8 @@ using drake::Vector3;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPosition;
 using maliput::api::HBounds;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LaneEndSet;
@@ -61,14 +61,14 @@ bool IsWithinSegmentBounds(const Lane* lane, const LanePosition& lane_position, 
   return (h >= h_bounds.min() - linear_tolerance && h <= h_bounds.max() + linear_tolerance);
 }
 
-// Returns `true` if and only if @p geo_position is within the longitudinal (s),
+// Returns `true` if and only if @p inertial_position is within the longitudinal (s),
 // lateral (r) and elevation (h) bounds of the specified @p lane (i.e. within
 // @p linear_tolerance of `lane->lane_bounds()` and `lane->elevation_bounds()`).
 // Optionally (i.e. if not nullptr), the corresponding @p nearest_lane_position
 // is returned.
-bool IsWithinLaneBounds(const Lane* lane, const GeoPosition& geo_position, double linear_tolerance,
+bool IsWithinLaneBounds(const Lane* lane, const InertialPosition& inertial_position, double linear_tolerance,
                         LanePosition* nearest_lane_position) {
-  LanePositionResult result = lane->ToLanePosition(geo_position);
+  LanePositionResult result = lane->ToLanePosition(inertial_position);
   if (result.distance < linear_tolerance) {
     const RBounds r_bounds = lane->lane_bounds(result.lane_position.s());
     if (result.lane_position.r() >= r_bounds.min() - linear_tolerance &&
@@ -214,20 +214,20 @@ ClosestPose<T> FindSingleClosestInDefaultPath(const Lane* ego_lane, const PoseVe
   DRAKE_DEMAND(ego_lane != nullptr);
   const double linear_tolerance = ego_lane->segment()->junction()->road_geometry()->linear_tolerance();
 
-  const GeoPosition ego_geo_position =
-      GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
-                            drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
-                            drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
-  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_geo_position).lane_position;
+  const InertialPosition ego_inertial_position =
+      InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
+                                 drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
+                                 drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
+  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_inertial_position).lane_position;
 
-  std::vector<GeoPosition> traffic_geo_positions;
-  traffic_geo_positions.reserve(traffic_poses.get_num_poses());
+  std::vector<InertialPosition> traffic_inertial_positions;
+  traffic_inertial_positions.reserve(traffic_poses.get_num_poses());
   for (int i = 0; i < traffic_poses.get_num_poses(); ++i) {
     const drake::math::RigidTransform<T>& traffic_transform = traffic_poses.get_transform(i);
-    traffic_geo_positions.push_back(
-        GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(traffic_transform.translation().x()),
-                              drake::ExtractDoubleOrThrow(traffic_transform.translation().y()),
-                              drake::ExtractDoubleOrThrow(traffic_transform.translation().z())}));
+    traffic_inertial_positions.push_back(
+        InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(traffic_transform.translation().x()),
+                                   drake::ExtractDoubleOrThrow(traffic_transform.translation().y()),
+                                   drake::ExtractDoubleOrThrow(traffic_transform.translation().z())}));
   }
 
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
@@ -245,14 +245,14 @@ ClosestPose<T> FindSingleClosestInDefaultPath(const Lane* ego_lane, const PoseVe
   LaneEnd next_lane_end_ahead = ego_lane_end_ahead;
   while (next_lane_end_ahead.lane && distance_scanned < scan_distance) {
     for (int i = 0; i < traffic_poses.get_num_poses(); ++i) {
-      const GeoPosition& traffic_geo_position = traffic_geo_positions[i];
+      const InertialPosition& traffic_inertial_position = traffic_inertial_positions[i];
 
       // Skip the ego car itself (also found in the traffic cars' array).
-      if (traffic_geo_position == ego_geo_position) continue;
+      if (traffic_inertial_position == ego_inertial_position) continue;
 
       // Skip traffic cars that are not in the current lane.
       LanePosition traffic_lane_position;
-      if (!IsWithinLaneBounds(next_lane_end_ahead.lane, traffic_geo_position, linear_tolerance,
+      if (!IsWithinLaneBounds(next_lane_end_ahead.lane, traffic_inertial_position, linear_tolerance,
                               &traffic_lane_position)) {
         continue;
       }
@@ -333,11 +333,11 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
   using std::abs;
   using std::min;
 
-  const GeoPosition ego_geo_position =
-      GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
-                            drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
-                            drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
-  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_geo_position).lane_position;
+  const InertialPosition ego_inertial_position =
+      InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
+                                 drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
+                                 drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
+  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_inertial_position).lane_position;
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
 
   ClosestPose<T> result;
@@ -348,17 +348,17 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
 
   for (int i = 0; i < traffic_poses.get_num_poses(); ++i) {
     const drake::Isometry3<T>& traffic_isometry = traffic_poses.get_transform(i).GetAsIsometry3();
-    const GeoPosition traffic_geo_position =
-        GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(traffic_isometry.translation().x()),
-                              drake::ExtractDoubleOrThrow(traffic_isometry.translation().y()),
-                              drake::ExtractDoubleOrThrow(traffic_isometry.translation().z())});
+    const InertialPosition traffic_inertial_position =
+        InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(traffic_isometry.translation().x()),
+                                   drake::ExtractDoubleOrThrow(traffic_isometry.translation().y()),
+                                   drake::ExtractDoubleOrThrow(traffic_isometry.translation().z())});
 
-    const RoadPosition traffic_road_position = road_geometry->ToRoadPosition(traffic_geo_position).road_position;
+    const RoadPosition traffic_road_position = road_geometry->ToRoadPosition(traffic_inertial_position).road_position;
     const Lane* traffic_lane = traffic_road_position.lane;
     // TODO(jadecastro) Supply a valid hint.
     if (!traffic_lane) continue;
 
-    const LanePosition traffic_lane_position = traffic_lane->ToLanePosition(traffic_geo_position).lane_position;
+    const LanePosition traffic_lane_position = traffic_lane->ToLanePosition(traffic_inertial_position).lane_position;
 
     // Get this traffic vehicle's velocity and travel direction in the lane it
     // is occupying.
@@ -431,11 +431,11 @@ template <typename T>
 std::vector<LaneEndDistance<T>> FindConfluentBranches(const Lane* ego_lane, const PoseVector<T>& ego_pose,
                                                       const T& scan_distance, const AheadOrBehind side) {
   DRAKE_DEMAND(ego_lane != nullptr);  // The ego car must be in a lane.
-  const GeoPosition ego_geo_position =
-      GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
-                            drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
-                            drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
-  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_geo_position).lane_position;
+  const InertialPosition ego_inertial_position =
+      InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
+                                 drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
+                                 drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
+  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_inertial_position).lane_position;
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
   const T ego_lane_progress = CalcLaneProgress(ego_lane_end_ahead, ego_lane_position);
 

@@ -24,6 +24,7 @@
 #include "agents/rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
+#include "agents/unicycle_car.h"
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "systems/lane_direction.h"
@@ -201,6 +202,49 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCar) {
   test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
 
   // Shortly after starting, we should not have moved much.
+  const int kStateMessagesCount{1};
+  EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
+                                   [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
+
+  EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
+
+  ignition::msgs::AgentState state_message = ign_monitor.get_last_message().states(0);
+  EXPECT_LT(state_message.position().x(), 0.1);
+
+  // Move a lot. Confirm that we're moving in +x.
+  simulation->StepBy(kLargeTimeStep);
+
+  state_message = ign_monitor.get_last_message().states(0);
+  EXPECT_GT(state_message.position().x(), 1.0);
+}
+
+// Covers unicycle car, Start and StepBy
+TEST_F(AgentSimulationTest, TestPriusUnicycleCar) {
+  constexpr double kZeroX{0.0};
+  constexpr double kZeroY{0.0};
+  constexpr double kZeroHeading{0.0};
+  constexpr double kZeroSpeed{0.0};
+  const std::string kAgentName{"unicycle"};
+
+  // Set up a basic simulation with just a Prius UnicycleCar on a dragway.
+  AgentSimulationBuilder builder;
+  builder.SetTargetRealTimeRate(kRealtimeFactor);
+  builder.SetRoadGeometry(CreateDragway("TestDragway", 1));
+  builder.AddAgent<UnicycleCarBlueprint>(kAgentName, kZeroX, kZeroY, kZeroHeading, kZeroSpeed);
+  std::unique_ptr<AgentSimulation> simulation = builder.Build();
+
+  UnicycleCarAgent* agent = dynamic_cast<UnicycleCarAgent*>(simulation->GetMutableAgentByName(kAgentName));
+
+  // Simulate an external system sending a driving command to the car at
+  // full throttle
+  agent->SetAcceleration(11.0);
+  agent->SetAngularRate(0.0);
+
+  // Set up a monitor to check for ignition::msgs::AgentState
+  // messages coming from the agent.
+  const std::string kStateTopicName{"agents/state"};
+  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
+
   const int kStateMessagesCount{1};
   EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
                                    [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));

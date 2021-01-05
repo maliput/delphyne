@@ -18,7 +18,7 @@
 namespace delphyne {
 
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
 using maliput::api::LanePositionResult;
@@ -34,7 +34,7 @@ T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params, const SimpleCa
   using std::pow;
   using std::sin;
 
-  const GeoPosition goal_position = ComputeGoalPoint(pp_params.s_lookahead(), lane_direction, pose);
+  const InertialPosition goal_position = ComputeGoalPoint(pp_params.s_lookahead(), lane_direction, pose);
 
   const T x = pose.get_translation().translation().x();
   const T y = pose.get_translation().translation().y();
@@ -50,8 +50,8 @@ T PurePursuit<T>::Evaluate(const PurePursuitParams<T>& pp_params, const SimpleCa
 }
 
 template <typename T>
-const GeoPosition PurePursuit<T>::ComputeGoalPoint(const T& s_lookahead, const LaneDirection& lane_direction,
-                                                   const PoseVector<T>& pose) {
+const InertialPosition PurePursuit<T>::ComputeGoalPoint(const T& s_lookahead, const LaneDirection& lane_direction,
+                                                        const PoseVector<T>& pose) {
   const Lane* const lane = lane_direction.lane;
   const bool with_s = lane_direction.with_s;
   const LanePositionResult result =
@@ -61,7 +61,7 @@ const GeoPosition PurePursuit<T>::ComputeGoalPoint(const T& s_lookahead, const L
   const T s_new = with_s ? T(result.lane_position.s()) + s_lookahead : T(result.lane_position.s()) - s_lookahead;
   const T s_goal = drake::math::saturate(s_new, T(0.), T(lane->length()));
   // TODO(jadecastro): Add support for locating goal points in ongoing lanes.
-  return lane->ToGeoPosition(
+  return lane->ToInertialPosition(
       {drake::ExtractDoubleOrThrow(s_goal), 0. * result.lane_position.r(), result.lane_position.h()});
 }
 

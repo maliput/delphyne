@@ -684,21 +684,24 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
 
   // Configures agent `Bob`.
   const maliput::api::LanePosition agent_bob_lane_position{kCarDistance, kZeroROffset, kZeroHOffset};
-  const maliput::api::GeoPosition agent_bob_geo_position = first_lane->ToGeoPosition(agent_bob_lane_position);
-  builder.AddAgent<SimpleCarBlueprint>("bob", agent_bob_geo_position.x(), agent_bob_geo_position.y(), kHeadingEast,
-                                       kCruiseSpeed);
+  const maliput::api::InertialPosition agent_bob_inertial_position =
+      first_lane->ToInertialPosition(agent_bob_lane_position);
+  builder.AddAgent<SimpleCarBlueprint>("bob", agent_bob_inertial_position.x(), agent_bob_inertial_position.y(),
+                                       kHeadingEast, kCruiseSpeed);
 
   // Configures agent `Alice`.
   const maliput::api::LanePosition agent_alice_lane_position{second_lane->length(), kZeroROffset, kZeroHOffset};
-  const maliput::api::GeoPosition agent_alice_geo_position = second_lane->ToGeoPosition(agent_alice_lane_position);
+  const maliput::api::InertialPosition agent_alice_inertial_position =
+      second_lane->ToInertialPosition(agent_alice_lane_position);
 
-  builder.AddAgent<SimpleCarBlueprint>("alice", agent_alice_geo_position.x(), agent_alice_geo_position.y(),
+  builder.AddAgent<SimpleCarBlueprint>("alice", agent_alice_inertial_position.x(), agent_alice_inertial_position.y(),
                                        kHeadingWest, kCruiseSpeed);
 
   // Configures agent `Smith`.
   const maliput::api::LanePosition agent_smith_lane_position{kZeroSOffset, kZeroROffset, kZeroHOffset};
-  const maliput::api::GeoPosition agent_smith_geo_position = first_lane->ToGeoPosition(agent_smith_lane_position);
-  builder.AddAgent<SimpleCarBlueprint>("smith", agent_smith_geo_position.x(), agent_smith_geo_position.y(),
+  const maliput::api::InertialPosition agent_smith_inertial_position =
+      first_lane->ToInertialPosition(agent_smith_lane_position);
+  builder.AddAgent<SimpleCarBlueprint>("smith", agent_smith_inertial_position.x(), agent_smith_inertial_position.y(),
                                        kHeadingEast + kHeadingDeviation, kCruiseSpeed);
 
   // Builds the simulation.

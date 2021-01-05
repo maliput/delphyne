@@ -17,7 +17,7 @@ namespace delphyne {
 
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::LaneEnd;
 using maliput::api::LaneEndSet;
 using maliput::api::LanePosition;
@@ -29,9 +29,9 @@ template <typename T>
 void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& velocity, const RoadGeometry& road,
                              RoadPosition* rp) {
   DRAKE_THROW_UNLESS(rp != nullptr);
-  const auto gp = GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(pose.get_transform().translation().x()),
-                                        drake::ExtractDoubleOrThrow(pose.get_transform().translation().y()),
-                                        drake::ExtractDoubleOrThrow(pose.get_transform().translation().z())});
+  const auto gp = InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(pose.get_transform().translation().x()),
+                                             drake::ExtractDoubleOrThrow(pose.get_transform().translation().y()),
+                                             drake::ExtractDoubleOrThrow(pose.get_transform().translation().z())});
   if (!rp->lane) {
     // Do an exhaustive search.
     *rp = road.ToRoadPosition(gp).road_position;

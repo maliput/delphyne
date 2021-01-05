@@ -14,8 +14,8 @@
 namespace delphyne {
 namespace {
 
-using maliput::api::GeoPosition;
 using maliput::api::HBounds;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LanePosition;
@@ -158,10 +158,10 @@ static void SetPoses(const T& s_offset, const T& r_offset, PoseVector<T>* ego_po
 // Returns the lane in the road associated with the provided pose.
 template <typename T>
 const Lane* get_lane(const PoseVector<T>& pose, const maliput::api::RoadGeometry& road) {
-  const GeoPosition geo_position{ExtractDoubleOrThrow(pose.get_translation().x()),
-                                 ExtractDoubleOrThrow(pose.get_translation().y()),
-                                 ExtractDoubleOrThrow(pose.get_translation().z())};
-  return road.ToRoadPosition(geo_position).road_position.lane;
+  const InertialPosition inertial_position{ExtractDoubleOrThrow(pose.get_translation().x()),
+                                           ExtractDoubleOrThrow(pose.get_translation().y()),
+                                           ExtractDoubleOrThrow(pose.get_translation().z())};
+  return road.ToRoadPosition(inertial_position).road_position.lane;
 }
 
 TEST_F(TrafficPoseSelectorDragwayTest, TwoLaneDragway) {
@@ -637,7 +637,7 @@ void AddToTrafficPosesAt(int index, const Lane* traffic_lane, double traffic_s_p
                          LanePolarity traffic_polarity, PoseBundle<double>* traffic_poses) {
   Eigen::Isometry3d isometry = Eigen::Isometry3d::Identity();
   const LanePosition srh{traffic_s_position, 0., 0.};
-  const GeoPosition traffic_xyz = traffic_lane->ToGeoPosition(srh);
+  const InertialPosition traffic_xyz = traffic_lane->ToInertialPosition(srh);
   const Eigen::Vector3d translation_ahead(traffic_xyz.x(), traffic_xyz.y(), traffic_xyz.z());
   isometry.translate(translation_ahead);
 
@@ -664,7 +664,7 @@ void SetDefaultOnrampPoses(const Lane* ego_lane, const Lane* traffic_lane, doubl
                            LanePolarity traffic_polarity) {
   // Set the ego vehicle at s = 1. in the ego_lane.
   const LanePosition srh_near_start{1., 0., 0.};
-  const GeoPosition ego_xyz = ego_lane->ToGeoPosition(srh_near_start);
+  const InertialPosition ego_xyz = ego_lane->ToInertialPosition(srh_near_start);
   ego_pose->set_translation(Eigen::Translation3d(ego_xyz.x(), ego_xyz.y(), ego_xyz.z()));
   const Rotation ego_rotation = ego_lane->GetOrientation(srh_near_start);
   const double ego_roll = (ego_polarity == LanePolarity::kWithS) ? ego_rotation.roll() : -ego_rotation.roll();
@@ -689,9 +689,9 @@ void CheckOnrampPosesInBranches(const maliput::api::RoadGeometry& road, const Po
                                 const PoseBundle<double>& traffic_poses, std::string expected_traffic_lane,
                                 double expected_s_position, double expected_distance, LanePolarity ego_polarity,
                                 const Cases& ego_cases) {
-  const GeoPosition ego_geo_position{ego_pose.get_translation().x(), ego_pose.get_translation().y(),
-                                     ego_pose.get_translation().z()};
-  const RoadPosition& ego_position = road.ToRoadPosition(ego_geo_position).road_position;
+  const InertialPosition ego_inertial_position{ego_pose.get_translation().x(), ego_pose.get_translation().y(),
+                                               ego_pose.get_translation().z()};
+  const RoadPosition& ego_position = road.ToRoadPosition(ego_inertial_position).road_position;
 
   ClosestPose<double> closest_pose_leading = TrafficPoseSelector<double>::FindSingleClosestPose(
       ego_position.lane, ego_pose, traffic_poses, 1000. /* scan_ahead_distance */, ego_cases.at(ego_polarity).first,
@@ -800,7 +800,7 @@ GTEST_TEST(TrafficPoseSelectorOnrampTest, CheckBranches) {
 
 // TODO(jadecastro) We cannot yet test against AutoDiff for multi-segment roads
 // because only the Dragway backend has AutoDiff implementations for
-// Lane::ToLanePosition() and Lane::ToGeoPosition().
+// Lane::ToLanePosition() and Lane::ToInertialPosition().
 
 }  // namespace
 }  // namespace delphyne

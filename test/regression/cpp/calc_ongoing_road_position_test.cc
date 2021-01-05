@@ -11,7 +11,7 @@ namespace delphyne {
 
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LaneEnd;
 using maliput::api::LanePosition;
@@ -29,7 +29,7 @@ enum class LanePolarity { kWithS, kAgainstS };
 template <typename T>
 void SetOnrampPoses(const Lane* lane, LanePolarity polarity, const T& speed, PoseVector<T>* pose,
                     FrameVelocity<T>* velocity) {
-  const GeoPosition xyz = lane->ToGeoPosition(kSomeLanePosition);
+  const InertialPosition xyz = lane->ToInertialPosition(kSomeLanePosition);
   pose->set_translation(drake::Translation3<T>(T(xyz.x()), T(xyz.y()), T(xyz.z())));
   const Rotation rotation = lane->GetOrientation(kSomeLanePosition);
   const double roll = rotation.roll();

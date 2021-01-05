@@ -16,8 +16,8 @@
 namespace delphyne {
 namespace {
 
-using maliput::api::GeoPosition;
 using maliput::api::HBounds;
+using maliput::api::InertialPosition;
 using maliput::api::JunctionId;
 using maliput::api::Lane;
 using maliput::api::LaneEnd;

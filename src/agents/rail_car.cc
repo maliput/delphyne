@@ -64,7 +64,7 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name, const maliput::api::
                     "The lane to be initialised on is not part of a road geometry.");
 
   const maliput::api::LanePosition initial_car_lane_position{longitudinal_position, lateral_offset, 0.0};
-  lane.ToGeoPosition(initial_car_lane_position);
+  lane.ToInertialPosition(initial_car_lane_position);
   lane.GetOrientation(initial_car_lane_position);
 }
 

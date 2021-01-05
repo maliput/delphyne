@@ -23,7 +23,7 @@ using drake::systems::BasicVector;
 using drake::systems::rendering::FrameVelocity;
 using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
-using maliput::api::GeoPosition;
+using maliput::api::InertialPosition;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
 using maliput::api::RoadGeometry;
@@ -128,10 +128,10 @@ void MobilPlanner<T>::ImplCalcLaneDirection(const PoseVector<T>& ego_pose, const
 
   RoadPosition ego_position = ego_rp;
   if (!ego_rp.lane) {
-    const GeoPosition gp =
-        GeoPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
-                              drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
-                              drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
+    const InertialPosition gp =
+        InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
+                                   drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
+                                   drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
     ego_position = road_.ToRoadPosition(gp, std::nullopt).road_position;
   }
   // Prepare a list of (possibly nullptr) Lanes to evaluate.

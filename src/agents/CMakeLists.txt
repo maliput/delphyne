@@ -7,6 +7,7 @@ add_library(agents
   rail_car.cc
   simple_car.cc
   trajectory_agent.cc
+  unicycle_car.cc
 )
 
 add_library(delphyne::agents ALIAS agents)

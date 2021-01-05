@@ -80,6 +80,7 @@ set(SOURCES
   traffic_pose_selector_test.cc
   trajectory_follower_test.cc
   trajectory_test.cc
+  unicycle_car_test.cc
 )
 
 delphyne_build_tests(${SOURCES})

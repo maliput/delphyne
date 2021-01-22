@@ -1,4 +1,5 @@
 /opt/drake
+/opt/drake
 /usr/include/eigen3
 /usr/include/google/protobuf
 build/delphyne/include/delphyne/protobuf

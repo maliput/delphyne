@@ -10,6 +10,7 @@ import delphyne.simulation
 import py_trees.trees
 from py_trees.trees import CONTINUOUS_TICK_TOCK
 
+
 class BehaviourTree(py_trees.trees.BehaviourTree):
     """
     A behaviour tree for agent-based simulations using Delphyne.
@@ -61,9 +62,9 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
                   pre_tick_handler=None,
                   post_tick_handler=None):
 
-        assert (self.runner.get_timestep() <= period),                                        \
-                "Sim runner time step ({}) must be less than or equal to tree time step ({})" \
-                .format(self.runner.get_timestep(), period)
+        assert(self.runner.get_timestep() <= period),                                     \
+            "Sim runner time step ({}) must be less than or equal to tree time step ({})" \
+            .format(self.runner.get_timestep(), period)
 
         tick_tocks = 0
         while (not self.interrupt_tick_tocking and (

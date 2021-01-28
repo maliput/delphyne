@@ -294,10 +294,6 @@ void SimulationRunner::ProcessIncomingMessages() {
         ProcessWorldControlMessage(next_msg.world_control());
         break;
 
-      case ignition::msgs::SimulationInMessage::SCENEREQUEST:
-        this->ProcessSceneRequest(next_msg.scene_request());
-        break;
-
       default:
         ignerr << "Unable to process msg of type: " << SimulationInMessage_SimMsgType_Name(next_msg.type())
                << std::endl;
@@ -352,15 +348,6 @@ void SimulationRunner::ProcessWorldControlMessage(const ignition::msgs::WorldCon
   } else {
     ignwarn << "Ignoring world control message" << std::endl;
   }
-}
-
-void SimulationRunner::ProcessSceneRequest(const ignition::msgs::SceneRequest& msg) {
-  // Sets the string from the scene request as
-  // the topic name where the scene will be published
-  const std::unique_ptr<ignition::msgs::Scene> scene = simulation_->GetVisualScene();
-  const std::string topic_name = msg.response_topic();
-
-  node_.Request(topic_name, *scene);
 }
 
 bool SimulationRunner::OnWorldControl(const ignition::msgs::WorldControl& request, ignition::msgs::Boolean& response) {

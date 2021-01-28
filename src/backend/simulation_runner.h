@@ -372,11 +372,6 @@ class SimulationRunner {
   // must be advanced.
   void StepSimulationBy(double time_step);
 
-  // @brief Process one SceneRequest message.
-  //
-  // @param[in] msg The message
-  void ProcessSceneRequest(const ignition::msgs::SceneRequest& msg);
-
   // @brief Service used to receive scene request messages.
   //
   // @param[out] response The response, which is the Scene message.

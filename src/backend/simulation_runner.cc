@@ -378,18 +378,12 @@ bool SimulationRunner::OnWorldControl(const ignition::msgs::WorldControl& reques
   return true;
 }
 
-bool SimulationRunner::OnSceneRequest(const ignition::msgs::SceneRequest& request, ignition::msgs::Boolean& response) {
-  maliput::common::unused(response);
-  // Fill the new message.
-  ignition::msgs::SimulationInMessage input_message;
-  input_message.set_type(ignition::msgs::SimulationInMessage::SCENEREQUEST);
-  input_message.mutable_scene_request()->CopyFrom(request);
-
-  {
-    // Queue the message.
-    std::lock_guard<std::mutex> lock(mutex_);
-    incoming_msgs_.push(input_message);
+bool SimulationRunner::OnSceneRequest(ignition::msgs::Scene& response) {
+  std::unique_ptr<ignition::msgs::Scene> visualScene = simulation_->GetVisualScene();
+  if (nullptr == visualScene) {
+    return false;
   }
+  response = *visualScene;
   return true;
 }
 

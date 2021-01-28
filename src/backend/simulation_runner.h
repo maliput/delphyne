@@ -326,6 +326,10 @@ class SimulationRunner {
   static constexpr char const* kClockTopic = "/clock";
 
   // @brief The service used when receiving a scene request.
+  // This service expects an ignition::msgs::SceneRequest as the request type
+  // and replies with an ignition::msgs::Boolean type.
+  //
+  // @see OnSceneRequest
   static constexpr char const* kSceneRequestServiceName = "/get_scene";
 
  private:
@@ -375,7 +379,8 @@ class SimulationRunner {
 
   // @brief Service used to receive scene request messages.
   //
-  // @param[in] request The request.
+  // @param[in] request The request, which contains the name of a service that
+  // expects an ignition::msgs::Scene message request with no reply type.
   //
   // @param[out] response The response (unused).
   // @return The result of the service.

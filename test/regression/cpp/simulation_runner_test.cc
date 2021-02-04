@@ -19,7 +19,6 @@
 #include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
 #include "delphyne/mi6/agent_simulation.h"
-#include "delphyne/protobuf/scene_request.pb.h"
 #include "test_utilities/helpers.h"
 
 namespace delphyne {
@@ -37,29 +36,12 @@ class SimulationRunnerTest : public test::TestWithFiles {
 
   void TearDown() override { unsetenv("DELPHYNE_LOGS_PATH"); }
 
-  // Callback method for handlig SceneRequest service calls
-  void SceneRequestCallback(const ignition::msgs::Scene&) { callback_called_ = true; }
-
-  // Advertises a service for a given service_name, with
-  // the method SceneRequestCallback as callback
-  void AdvertiseSceneRequest(std::string service_name) {
-    node_.Advertise(service_name, &SimulationRunnerTest::SceneRequestCallback, this);
-
-    // Calling node_.Request() immediately after Advertise() sometimes causes
-    // that call to hang: waiting fixes this.
-    // TODO(nventuro): once ign-transport issue #84 is resolved, this should be
-    // changed according to what comes out of that discussion.
-    // https://bitbucket.org/ignitionrobotics/ign-transport/issues/84/hang-when-calling-noderequest
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-  }
-
   const double kTimeStep{0.01};     // 10 millis
   const double kCarX{0.};           // 0 meters
   const double kCarY{0.};           // 0 meters
   const double kCarsDistance{50.};  // 50 meters
   const double kCarHeading{0.};     // 0 degrees
   const double kCarSpeed{10.};      // 10 meters per sec
-  bool callback_called_{false};
 
   std::unique_ptr<SimulationRunner> sim_runner_;
 
@@ -107,28 +89,27 @@ TEST_F(SimulationRunnerTest, ElapsedTimeOnStep) {
 // @brief Asserts that an incoming message has
 // been consumed from the incoming_msgs_ queue
 TEST_F(SimulationRunnerTest, ConsumedEventOnQueue) {
-  const std::string service_name{"test_service_name"};
-
-  ignition::msgs::SceneRequest scene_request_msg;
-
-  scene_request_msg.set_response_topic(service_name);
-
-  AdvertiseSceneRequest(service_name);
+  ignition::msgs::WorldControl world_control_msg;
+  world_control_msg.set_pause(true);
 
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg, timeout, response, result);
+  node_.Request(SimulationRunner::kControlService, world_control_msg, timeout, response, result);
 
   EXPECT_TRUE(result);
-  EXPECT_FALSE(callback_called_);
 
-  sim_runner_->RunSyncFor(kTimeStep);
+  // tell it to run for 1 step and wait, but it won't take any steps because it's paused
+  sim_runner_->RunAsyncFor(kTimeStep, [] {});
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+  // expect no executed steps and that it is paused
   const InteractiveSimulationStats& stats = sim_runner_->GetStats();
-  EXPECT_EQ(1, stats.TotalExecutedSteps());
+  EXPECT_EQ(0, stats.TotalExecutedSteps());
+  EXPECT_TRUE(sim_runner_->IsSimulationPaused());
 
-  EXPECT_TRUE(callback_called_);
+  // explicitly call Stop to end the RunAsyncFor thread
+  sim_runner_->Stop();
 }
 
 // @brief Asserts that an incoming message is consumed
@@ -137,24 +118,22 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   sim_runner_->Start();
   sim_runner_->PauseSimulation();
 
-  const std::string service_name{"test_service_name"};
-
-  ignition::msgs::SceneRequest scene_request_msg;
-
-  scene_request_msg.set_response_topic(service_name);
-
-  AdvertiseSceneRequest(service_name);
+  // unpause with a WorldControl message
+  ignition::msgs::WorldControl world_control_msg;
+  world_control_msg.set_pause(false);
 
   ignition::msgs::Boolean response;
   const unsigned int timeout = 100;
   bool result = false;
-  node_.Request(SimulationRunner::kSceneRequestServiceName, scene_request_msg, timeout, response, result);
+  node_.Request(SimulationRunner::kControlService, world_control_msg, timeout, response, result);
   EXPECT_TRUE(result);
 
   // Wait until the currently running step of the loop finishes.
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-  EXPECT_TRUE(callback_called_);
+  const InteractiveSimulationStats& stats = sim_runner_->GetStats();
+  EXPECT_EQ(1, stats.TotalExecutedSteps());
+  EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 }
 
 // @brief Asserts that the Pause method

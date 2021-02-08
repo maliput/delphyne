@@ -119,7 +119,8 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   sim_runner_->PauseSimulation();
 
   // Wait and ensure no steps are taken
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  const auto waitDuration = std::chrono::milliseconds(100);
+  std::this_thread::sleep_for(waitDuration);
   {
     const InteractiveSimulationStats& stats = sim_runner_->GetStats();
     EXPECT_EQ(0, stats.TotalExecutedSteps());
@@ -136,7 +137,7 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   EXPECT_TRUE(result);
 
   // Wait and ensure that it starts stepping again
-  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  std::this_thread::sleep_for(waitDuration);
 
   const InteractiveSimulationStats& stats = sim_runner_->GetStats();
   EXPECT_LE(1, stats.TotalExecutedSteps());

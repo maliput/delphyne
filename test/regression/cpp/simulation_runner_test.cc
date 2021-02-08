@@ -118,6 +118,13 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   sim_runner_->Start();
   sim_runner_->PauseSimulation();
 
+  // Wait and ensure no steps are taken
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
+  {
+    const InteractiveSimulationStats& stats = sim_runner_->GetStats();
+    EXPECT_EQ(0, stats.TotalExecutedSteps());
+  }
+
   // unpause with a WorldControl message
   ignition::msgs::WorldControl world_control_msg;
   world_control_msg.set_pause(false);
@@ -128,11 +135,11 @@ TEST_F(SimulationRunnerTest, ConsumedEventOnQueueWhenPaused) {
   node_.Request(SimulationRunner::kControlService, world_control_msg, timeout, response, result);
   EXPECT_TRUE(result);
 
-  // Wait until the currently running step of the loop finishes.
-  std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  // Wait and ensure that it starts stepping again
+  std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
   const InteractiveSimulationStats& stats = sim_runner_->GetStats();
-  EXPECT_EQ(1, stats.TotalExecutedSteps());
+  EXPECT_LE(1, stats.TotalExecutedSteps());
   EXPECT_FALSE(sim_runner_->IsSimulationPaused());
 }
 

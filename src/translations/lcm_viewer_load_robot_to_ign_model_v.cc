@@ -3,6 +3,7 @@
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 
 #include <map>
+#include <sstream>
 #include <vector>
 
 // public headers
@@ -45,6 +46,12 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_vi
     for (const auto& link : id_links_pair.second) {
       ignition::msgs::Link* new_link = new_model->add_link();
       new_link->set_name(link->name);
+
+      // Add unique integer id per link
+      std::stringstream stream;
+      stream << "model[" << new_model->id() << "]::" << link->name;
+      size_t linkId = std::hash<std::string>{}(stream.str());
+      new_link->set_id(linkId);
 
       for (const drake::lcmt_viewer_geometry_data& geometry : link->geom) {
         // The ignition counterpart for an LCM geometry is an ignition visual,

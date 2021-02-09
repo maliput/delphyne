@@ -3,6 +3,7 @@
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 
 #include <map>
+#include <sstream>
 
 #include <maliput/common/maliput_unused.h>
 
@@ -56,6 +57,14 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_viewer_
     DELPHYNE_VALIDATE(lcm_message.quaternion[i].size() == kOrientationVectorSize, std::runtime_error,
                       "Orientation vector size did not match");
     QuaternionArrayToIgnition(lcm_message.quaternion[i].data(), pose->mutable_orientation());
+
+    // Add unique integer id per link
+    std::stringstream stream;
+    stream << "model[" << robotId << "]::" << link->name();
+    size_t linkId = std::hash<std::string>{}(stream.str());
+
+    link->set_id(linkId);
+    pose->set_id(linkId);
   }
 }
 

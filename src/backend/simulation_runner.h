@@ -372,21 +372,11 @@ class SimulationRunner {
   // must be advanced.
   void StepSimulationBy(double time_step);
 
-  // @brief Process one SceneRequest message.
-  //
-  // @param[in] msg The message
-  void ProcessSceneRequest(const ignition::msgs::SceneRequest& msg);
-
   // @brief Service used to receive scene request messages.
   //
-  // @param[in] request The request, which contains the name of a service that
-  // expects an ignition::msgs::Scene message request with no reply type.
-  //
-  // @param[out] response The response (unused).
+  // @param[out] response The response, which is the Scene message.
   // @return The result of the service.
-  bool OnSceneRequest(const ignition::msgs::SceneRequest& request,
-                      // NOLINTNEXTLINE(runtime/references) due to ign-transport API
-                      ignition::msgs::Boolean& response);
+  bool OnSceneRequest(ignition::msgs::Scene& response);
 
   // @brief Processes one WorldControl message.
   //

@@ -49,10 +49,9 @@ void ChronoToIgnTime(const std::chrono::nanoseconds& src, ignition::msgs::Time* 
 //                     with respect to the playback start time
 // - */replayer/step*: expects an ignition::msgs::Duration request message,
 //                     stepping a log playback by a given time.
-// - */get_scene*: expects an ignition::msgs::SceneRequest request message
-//                 as sent by the visualizer to retrieve the whole simulation
-//                 scene. In this case, the first scene message found in the
-//                 log is returned.
+// - */get_scene*: expects an empty request message sent by the visualizer to
+//                 retrieve the whole simulation scene. In this case, the
+//                 first scene message found in the log is returned.
 class Replayer {
  public:
   // Constructs a replayer for the given @p logfile.
@@ -230,12 +229,9 @@ class Replayer {
   }
 
   // Callback for the scene request service.
-  bool OnSceneRequestCallback(const ignition::msgs::SceneRequest& request,
-                              // Because of ign-transport API,
-                              // NOLINTNEXTLINE(runtime/references)
-                              ignition::msgs::Boolean&) {
+  bool OnSceneRequestCallback(ignition::msgs::Scene& response) {
     // Replies to the caller with the first Scene message found in logs.
-    node_.Request(request.response_topic(), first_scene_message_);
+    response = first_scene_message_;
     return true;
   }
 

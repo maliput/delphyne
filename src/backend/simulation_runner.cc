@@ -294,10 +294,6 @@ void SimulationRunner::ProcessIncomingMessages() {
         ProcessWorldControlMessage(next_msg.world_control());
         break;
 
-      case ignition::msgs::SimulationInMessage::SCENEREQUEST:
-        this->ProcessSceneRequest(next_msg.scene_request());
-        break;
-
       default:
         ignerr << "Unable to process msg of type: " << SimulationInMessage_SimMsgType_Name(next_msg.type())
                << std::endl;
@@ -354,15 +350,6 @@ void SimulationRunner::ProcessWorldControlMessage(const ignition::msgs::WorldCon
   }
 }
 
-void SimulationRunner::ProcessSceneRequest(const ignition::msgs::SceneRequest& msg) {
-  // Sets the string from the scene request as
-  // the topic name where the scene will be published
-  const std::unique_ptr<ignition::msgs::Scene> scene = simulation_->GetVisualScene();
-  const std::string topic_name = msg.response_topic();
-
-  node_.Request(topic_name, *scene);
-}
-
 bool SimulationRunner::OnWorldControl(const ignition::msgs::WorldControl& request, ignition::msgs::Boolean& response) {
   maliput::common::unused(response);
   // Fill the new message.
@@ -378,18 +365,12 @@ bool SimulationRunner::OnWorldControl(const ignition::msgs::WorldControl& reques
   return true;
 }
 
-bool SimulationRunner::OnSceneRequest(const ignition::msgs::SceneRequest& request, ignition::msgs::Boolean& response) {
-  maliput::common::unused(response);
-  // Fill the new message.
-  ignition::msgs::SimulationInMessage input_message;
-  input_message.set_type(ignition::msgs::SimulationInMessage::SCENEREQUEST);
-  input_message.mutable_scene_request()->CopyFrom(request);
-
-  {
-    // Queue the message.
-    std::lock_guard<std::mutex> lock(mutex_);
-    incoming_msgs_.push(input_message);
+bool SimulationRunner::OnSceneRequest(ignition::msgs::Scene& response) {
+  std::unique_ptr<ignition::msgs::Scene> visualScene = simulation_->GetVisualScene();
+  if (nullptr == visualScene) {
+    return false;
   }
+  response = *visualScene;
   return true;
 }
 

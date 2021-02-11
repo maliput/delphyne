@@ -61,7 +61,7 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_viewer_
     // Add unique integer id per link
     std::stringstream stream;
     stream << "model[" << robotId << "]::" << link->name();
-    size_t linkId = std::hash<std::string>{}(stream.str());
+    const size_t linkId = std::hash<std::string>{}(stream.str());
 
     link->set_id(linkId);
     pose->set_id(linkId);

@@ -377,6 +377,35 @@ bool AssertUniqueModelAndLinkIds(const ignition::msgs::Model_V& ign_models) {
   return true;
 }
 
+// @brief Asserts that each link has a unique Id that does not match a model Id.
+//
+// @param ign_scene The Scene message to check.
+// @return true if each model and its links each have a unique Id.
+bool AssertUniqueModelAndLinkIds(const ignition::msgs::Scene& ign_scene) {
+  std::unordered_set<size_t> ids;
+  for (int m = 0; m < ign_scene.model_size(); ++m) {
+    if (ids.find(m) == ids.end()) {
+      ids.insert(m);
+    } else {
+      // model id is not unique
+      return false;
+    }
+
+    const ignition::msgs::Model& model = ign_scene.model(m);
+    for (int l = 0; l < model.link_size(); ++l) {
+      size_t linkId = model.link(l).id();
+      if (ids.find(linkId) == ids.end()) {
+        ids.insert(linkId);
+      } else {
+        // link id is not unique
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 // @brief Asserts that an ignition Model message is equivalent to an
 // lcmt_viewer_draw one.
 //
@@ -545,6 +574,10 @@ bool AssertUniqueModelAndLinkIds(const ignition::msgs::Model_V& ign_models) {
 
 ::testing::AssertionResult CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
                                                const ignition::msgs::Scene& scene) {
+  if (!AssertUniqueModelAndLinkIds(scene)) {
+    return ::testing::AssertionFailure() << "Non-unique Id in link or model in Model_V.\n";
+  }
+
   bool failure = false;
   std::string error_msg;
   for (int i = 0; i < lcm_msg.num_links; i++) {

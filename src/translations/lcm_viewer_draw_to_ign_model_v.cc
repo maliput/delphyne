@@ -3,10 +3,10 @@
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 
 #include <map>
-#include <sstream>
 
 #include <maliput/common/maliput_unused.h>
 
+#include "translations/generate_link_id.h"
 #include "translations/time_conversion.h"
 
 namespace delphyne {
@@ -59,9 +59,7 @@ void LcmViewerDrawToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_viewer_
     QuaternionArrayToIgnition(lcm_message.quaternion[i].data(), pose->mutable_orientation());
 
     // Add unique integer id per link
-    std::stringstream stream;
-    stream << "model[" << robotId << "]::" << link->name();
-    const size_t linkId = std::hash<std::string>{}(stream.str());
+    const size_t linkId = GenerateLinkId(robotId, link->name());
 
     link->set_id(linkId);
     pose->set_id(linkId);

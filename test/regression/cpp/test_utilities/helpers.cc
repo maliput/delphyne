@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <exception>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 #include <drake/common/eigen_types.h>
@@ -127,6 +128,7 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
   ignition::msgs::Model_V robot_models;
   robot_models.mutable_header()->mutable_stamp()->set_sec(123);
   robot_models.mutable_header()->mutable_stamp()->set_nsec(456000000);
+  size_t currentLinkId = kPreloadedModels;
 
   for (int i = 0; i < kPreloadedModels; ++i) {
     ::ignition::msgs::Model* model = robot_models.add_models();
@@ -149,6 +151,7 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
     for (int j = 0; j < kPreloadedLinks; ++j) {
       ::ignition::msgs::Link* link = model->add_link();
       link->set_name(std::to_string(i) + std::to_string(j));
+      link->set_id(currentLinkId++);
 
       ::ignition::msgs::Pose* pose = link->mutable_pose();
 
@@ -345,6 +348,35 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg, const i
   return lcm_msg.num_links == ign_links;
 }
 
+// @brief Asserts that each link has a unique Id that does not match a model Id.
+//
+// @param ign_models The Model_V message to check.
+// @return true if each model and its links each have a unique Id.
+bool AssertUniqueModelAndLinkIds(const ignition::msgs::Model_V& ign_models) {
+  std::unordered_set<size_t> ids;
+  for (int m = 0; m < ign_models.models_size(); ++m) {
+    if (ids.find(m) == ids.end()) {
+      ids.insert(m);
+    } else {
+      // model id is not unique
+      return false;
+    }
+
+    const ignition::msgs::Model& model = ign_models.models(m);
+    for (int l = 0; l < model.link_size(); ++l) {
+      size_t linkId = model.link(l).id();
+      if (ids.find(linkId) == ids.end()) {
+        ids.insert(linkId);
+      } else {
+        // link id is not unique
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
 // @brief Asserts that an ignition Model message is equivalent to an
 // lcmt_viewer_draw one.
 //
@@ -408,6 +440,9 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg, const i
     return ::testing::AssertionFailure() << "Non-matching number of links "
                                             "between the LCM and Model_V models.\n";
   }
+  if (!AssertUniqueModelAndLinkIds(ign_models)) {
+    return ::testing::AssertionFailure() << "Non-unique Id in link or model in Model_V.\n";
+  }
 
   std::string error_msg;
   bool failure = false;
@@ -444,6 +479,10 @@ bool AssertLinkNumberEquivalence(const drake::lcmt_viewer_draw& lcm_msg, const i
 
 ::testing::AssertionResult CheckMsgTranslation(const drake::lcmt_viewer_load_robot& lcm_msg,
                                                const ignition::msgs::Model_V& ign_models) {
+  if (!AssertUniqueModelAndLinkIds(ign_models)) {
+    return ::testing::AssertionFailure() << "Non-unique Id in link or model in Model_V.\n";
+  }
+
   const double kTolerance(0.001);
 
   // To check the translation between models easier, a first pass

@@ -5,6 +5,7 @@
 #include <cstdlib>
 #include <exception>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 
@@ -136,6 +137,7 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
     model->set_name("none");
 
     ::ignition::msgs::Pose* model_pose = model->mutable_pose();
+    model_pose->set_id(model->id());
 
     ::ignition::msgs::Vector3d* model_position = model_pose->mutable_position();
     model_position->set_x(i);
@@ -154,6 +156,7 @@ ignition::msgs::Model_V BuildPreloadedModelVMsg() {
       link->set_id(currentLinkId++);
 
       ::ignition::msgs::Pose* pose = link->mutable_pose();
+      pose->set_id(link->id());
 
       ignition::msgs::Vector3d* position = pose->mutable_position();
       position->set_x(i);
@@ -406,6 +409,25 @@ bool AssertUniqueModelAndLinkIds(const ignition::msgs::Scene& ign_scene) {
   return true;
 }
 
+// @brief Asserts that each pose has a unique Id.
+//
+// @param ign_poses The Pose_V message to check.
+// @return true if each pose has a unique Id.
+bool AssertUniquePoseIds(const ignition::msgs::Pose_V& ign_poses) {
+  std::unordered_set<size_t> ids;
+  for (int p = 0; p < ign_poses.pose_size(); ++p) {
+    const ignition::msgs::Pose pose = ign_poses.pose(p);
+    if (ids.find(pose.id()) == ids.end()) {
+      ids.insert(pose.id());
+    } else {
+      // pose id is not unique
+      return false;
+    }
+  }
+
+  return true;
+}
+
 // @brief Asserts that an ignition Model message is equivalent to an
 // lcmt_viewer_draw one.
 //
@@ -604,6 +626,56 @@ bool AssertUniqueModelAndLinkIds(const ignition::msgs::Scene& ign_scene) {
       failure = true;
     }
   }
+  if (failure) {
+    return ::testing::AssertionFailure() << error_msg;
+  }
+  return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult CheckMsgTranslation(const ignition::msgs::Model_V& ign_models,
+                                               const ignition::msgs::Pose_V& ign_poses) {
+  if (!AssertUniqueModelAndLinkIds(ign_models)) {
+    return ::testing::AssertionFailure() << "Non-unique Id in link or model in Model_V.\n";
+  }
+  if (!AssertUniquePoseIds(ign_poses)) {
+    return ::testing::AssertionFailure() << "Non-unique Id in Pose_V.\n";
+  }
+
+  // map of object Id to pose
+  std::unordered_map<size_t, ignition::math::Pose3d> idToPose;
+
+  // populate the map from the Model_V message
+  for (int m = 0; m < ign_models.models_size(); ++m) {
+    const ignition::msgs::Model& model = ign_models.models(m);
+    idToPose[model.id()] = ignition::msgs::Convert(model.pose());
+
+    for (int l = 0; l < model.link_size(); ++l) {
+      const ignition::msgs::Link& link = model.link(l);
+      idToPose[link.id()] = ignition::msgs::Convert(link.pose());
+    }
+  }
+
+  if (static_cast<int>(idToPose.size()) != ign_poses.pose_size()) {
+    return ::testing::AssertionFailure() << "Different number of entities in Model_V and Pose_V\n";
+  }
+
+  std::string error_msg;
+  bool failure = false;
+
+  // check that the Values of the Pose_V message match the content in the map
+  for (int p = 0; p < ign_poses.pose_size(); ++p) {
+    const ignition::msgs::Pose pose = ign_poses.pose(p);
+    if (idToPose.find(pose.id()) == idToPose.end()) {
+      error_msg += "Pose_V has entry with Id [" + std::to_string(pose.id()) + "] that is not found in Model_V\n";
+      failure = true;
+    } else {
+      if (ignition::msgs::Convert(pose) != idToPose[pose.id()]) {
+        error_msg += "Pose with Id [" + std::to_string(pose.id()) + "] does not match value in Model_V\n";
+        failure = true;
+      }
+    }
+  }
+
   if (failure) {
     return ::testing::AssertionFailure() << error_msg;
   }

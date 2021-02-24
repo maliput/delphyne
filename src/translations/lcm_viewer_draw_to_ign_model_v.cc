@@ -3,7 +3,6 @@
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 
 #include <map>
-#include <sstream>
 
 #include <maliput/common/maliput_unused.h>
 

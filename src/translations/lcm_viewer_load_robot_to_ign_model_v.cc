@@ -3,7 +3,6 @@
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 
 #include <map>
-#include <sstream>
 #include <vector>
 
 // public headers

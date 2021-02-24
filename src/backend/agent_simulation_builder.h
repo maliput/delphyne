@@ -192,6 +192,10 @@ class AgentSimulationBaseBuilder {
   // published for rendering.
   static constexpr const char* kSceneUpdatesTopicName{"visualizer/scene_update"};
 
+  // The name of the ignition transport topic over which pose updates are
+  // published for rendering.
+  static constexpr const char* kPoseUpdatesTopicName{"visualizer/pose_update"};
+
   // The name of the ignition transport topic over which agents' states are
   // published.
   static constexpr const char* kAggregatedAgentsStateTopicName{"agents/state"};

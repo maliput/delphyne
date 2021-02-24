@@ -57,6 +57,7 @@ set(SOURCES
   idm_controller_test.cc
   idm_planner_test.cc
   ign_driving_command_to_drake_translator_system_test.cc
+  ign_model_v_to_ign_pose_v_translator_system_test.cc
   ign_model_v_to_lcm_viewer_draw_translator_system_test.cc
   ign_models_assembler_test.cc
   ign_publisher_system_test.cc

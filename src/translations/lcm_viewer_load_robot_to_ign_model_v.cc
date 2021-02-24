@@ -9,6 +9,7 @@
 #include "delphyne/macros.h"
 
 // private headers
+#include "translations/generate_link_id.h"
 #include "translations/time_conversion.h"
 
 namespace delphyne {
@@ -45,6 +46,10 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_vi
     for (const auto& link : id_links_pair.second) {
       ignition::msgs::Link* new_link = new_model->add_link();
       new_link->set_name(link->name);
+
+      // Add unique integer id per link
+      const size_t linkId = GenerateLinkId(new_model->id(), link->name);
+      new_link->set_id(linkId);
 
       for (const drake::lcmt_viewer_geometry_data& geometry : link->geom) {
         // The ignition counterpart for an LCM geometry is an ignition visual,

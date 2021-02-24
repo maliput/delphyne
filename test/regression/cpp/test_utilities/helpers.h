@@ -90,6 +90,15 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 ::testing::AssertionResult CheckMsgTranslation(const drake::lcmt_viewer_draw& lcm_msg,
                                                const ignition::msgs::Scene& scene);
 
+// Asserts that the poses of all the models and links in ign_models
+// match the pose in ign_poses that has the same Id.
+//
+// @param ign_models An ignition messages Model_V with the desired values.
+// @param ign_poses An ignition messages Pose_V with the translated values.
+// @return a google test's AssertionResult.
+::testing::AssertionResult CheckMsgTranslation(const ignition::msgs::Model_V& ign_models,
+                                               const ignition::msgs::Pose_V& ign_poses);
+
 // Asserts that the position values found on an array provenient from an
 // lcm message are equivalent to those found on the ignition object.
 //

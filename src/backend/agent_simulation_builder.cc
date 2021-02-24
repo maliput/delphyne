@@ -28,6 +28,7 @@
 #include "delphyne/protobuf/agent_state_v.pb.h"
 #include "translations/agent_state_v_splitter.h"
 #include "translations/ign_driving_command_to_drake.h"
+#include "translations/ign_model_v_to_ign_pose_v.h"
 #include "translations/lcm_viewer_draw_to_ign_model_v.h"
 #include "translations/lcm_viewer_load_robot_to_ign_model_v.h"
 #include "translations/pose_bundle_to_agent_state_v.h"
@@ -213,6 +214,15 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
 
   // The translated ignition message is then published.
   builder_->Connect(*viewer_draw_translator, *model_v_publisher);
+
+  // The Model_V message is translated into an ignition Pose_V message to support visualizer2.
+  auto pose_v_translator = builder_->template AddSystem<IgnModelVToIgnPoseV>();
+  builder_->Connect(*viewer_draw_translator, *pose_v_translator);
+
+  // The Pose_V message is then published.
+  auto pose_v_publisher = builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::Pose_V>>(
+      kPoseUpdatesTopicName, kSceneUpdatesPublishRateHz);
+  builder_->Connect(*pose_v_translator, *pose_v_publisher);
 
   // An ignition scene message is built from the geometry description, and both
   // model and links' updated poses.

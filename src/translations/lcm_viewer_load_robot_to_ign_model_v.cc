@@ -10,6 +10,7 @@
 #include "delphyne/macros.h"
 
 // private headers
+#include "translations/generate_link_id.h"
 #include "translations/time_conversion.h"
 
 namespace delphyne {
@@ -48,9 +49,7 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_vi
       new_link->set_name(link->name);
 
       // Add unique integer id per link
-      std::stringstream stream;
-      stream << "model[" << new_model->id() << "]::" << link->name;
-      size_t linkId = std::hash<std::string>{}(stream.str());
+      const size_t linkId = GenerateLinkId(new_model->id(), link->name);
       new_link->set_id(linkId);
 
       for (const drake::lcmt_viewer_geometry_data& geometry : link->geom) {

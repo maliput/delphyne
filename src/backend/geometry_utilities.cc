@@ -28,7 +28,6 @@ drake::lcmt_viewer_load_robot BuildLoadMessageForRoad(const maliput::api::RoadGe
   for (drake::lcmt_viewer_link_data& link : load_message.link) {
     DELPHYNE_VALIDATE(link.geom.size() == 1, std::runtime_error, "Expected one geometry in link");
     link.name = link.name.substr(link.name.rfind("::") + 2);
-    link.geom[0].string_data.append("?culling=off");
   }
   return load_message;
 }

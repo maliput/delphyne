@@ -353,11 +353,13 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
 
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
-  // Setup an ignition transport topic monitor to listen to
-  // ignition::msgs::Model_V messages being published to
+  // Setup ignition transport topic monitors to listen to
+  // ignition::msgs::Model_V and ignition::msgs::Pose_V messages being published to
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
+  const std::string kPoseTopicName{"visualizer/pose_update"};
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
+  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
 
   // Advances the simulation to allow the MaliputRailcar to begin
   // accelerating.
@@ -366,13 +368,18 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   // Ensures that at least one draw message has arrived.
   const int kDrawMessagesCount{1};
   EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
 
   const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
   EXPECT_EQ(GetLinkCount(draw_message), 3 * GetPriusLinkCount());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
   const ignition::msgs::Link& link = GetChassisFloorLink(draw_message.models(0));
   EXPECT_GE(link.pose().position().y(), -2.);
+
+  // Check that Model_V and Pose_V messages have unique Ids and matching poses
+  EXPECT_TRUE(test::CheckMsgTranslation(draw_message, pose_message));
 }
 
 TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
@@ -393,11 +400,13 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
 
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
-  // Setup an ignition transport topic monitor to listen to
-  // ignition::msgs::Model_V messages being published to
+  // Setup ignition transport topic monitors to listen to
+  // ignition::msgs::Model_V and ignition::msgs::Pose_V messages being published to
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
+  const std::string kPoseTopicName{"visualizer/pose_update"};
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
+  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
 
   // Simulate for 10 seconds.
   simulation->StepBy(10.);
@@ -405,8 +414,10 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   // Ensures at least one draw message has arrived.
   const int kDrawMessagesCount{1};
   EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
 
   const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
 
   CheckModelLinks(draw_message);
 
@@ -425,6 +436,9 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   EXPECT_NEAR(link.pose().orientation().x(), 0, kTolerance);
   EXPECT_NEAR(link.pose().orientation().y(), 0, kTolerance);
   EXPECT_NEAR(link.pose().orientation().z(), 0, kTolerance);
+
+  // Check that Model_V and Pose_V messages have unique Ids and matching poses
+  EXPECT_TRUE(test::CheckMsgTranslation(draw_message, pose_message));
 }
 
 TEST_F(AgentSimulationTest, TestBadRailcars) {
@@ -475,26 +489,33 @@ TEST_F(AgentSimulationTest, TestMaliputRailcar) {
                                      0.0);      // nominal_speed
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
-  // Setup an ignition transport topic monitor to listen to
-  // ignition::msgs::Model_V messages being published to
+  // Setup ignition transport topic monitors to listen to
+  // ignition::msgs::Model_V and ignition::msgs::Pose_V messages being published to
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
+  const std::string kPoseTopicName{"visualizer/pose_update"};
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
+  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
 
   simulation->StepBy(kLargeTimeStep);
 
   // Ensures that at least one draw message has arrived.
   const int kDrawMessagesCount{1};
   EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
 
   // Retrieves last draw message.
   const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
 
   // Verifies the acceleration is zero.
   CheckModelLinks(draw_message);
 
   const double kPoseXTolerance{1e-8};
   EXPECT_NEAR(GetXPosition(draw_message, k_offset), 0., kPoseXTolerance);
+
+  // Check that Model_V and Pose_V messages have unique Ids and matching poses
+  EXPECT_TRUE(test::CheckMsgTranslation(draw_message, pose_message));
 }
 
 // Verifies that CarVisApplicator, PoseBundleToDrawMessage, and
@@ -508,11 +529,13 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
   builder.AddAgent<SimpleCarBlueprint>("Model2", 0.0, 0.0, 0.0, 0.0);
   std::unique_ptr<AgentSimulation> simulation = builder.Build();
 
-  // Setup an ignition transport topic monitor to listen to
-  // ignition::msgs::Model_V messages being published to
+  // Setup ignition transport topic monitors to listen to
+  // ignition::msgs::Model_V and ignition::msgs::Pose_V messages being published to
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
+  const std::string kPoseTopicName{"visualizer/pose_update"};
   test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
+  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
 
   const std::unique_ptr<const ignition::msgs::Scene> scene = simulation->GetVisualScene();
 
@@ -531,12 +554,17 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
   simulation->StepBy(kLargeTimeStep);
   const int kDrawMessagesCount{2};
   EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
 
   // Retrieves last draw message.
   const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
 
   // Checks number of links in the viewer_draw message.
   EXPECT_EQ(GetLinkCount(draw_message), 2 * GetPriusLinkCount());
+
+  // Check that Model_V and Pose_V messages have unique Ids and matching poses
+  EXPECT_TRUE(test::CheckMsgTranslation(draw_message, pose_message));
 }
 
 // Verifies that exceptions are thrown if a vehicle with a non-unique name is

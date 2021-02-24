@@ -412,8 +412,8 @@ bool AssertUniqueModelAndLinkIds(const ignition::msgs::Scene& ign_scene) {
 // @brief Asserts that each pose has a unique Id.
 //
 // @param ign_poses The Pose_V message to check.
-// @return true if each pose has a unique Id.
-bool AssertUniquePoseIds(const ignition::msgs::Pose_V& ign_poses) {
+// @return success if each pose has a unique Id.
+::testing::AssertionResult AssertUniquePoseIds(const ignition::msgs::Pose_V& ign_poses) {
   std::unordered_set<size_t> ids;
   for (int p = 0; p < ign_poses.pose_size(); ++p) {
     const ignition::msgs::Pose pose = ign_poses.pose(p);
@@ -421,11 +421,11 @@ bool AssertUniquePoseIds(const ignition::msgs::Pose_V& ign_poses) {
       ids.insert(pose.id());
     } else {
       // pose id is not unique
-      return false;
+      return ::testing::AssertionFailure() << "pose id [" + std::to_string(pose.id()) + "] is not unique\n";
     }
   }
 
-  return true;
+  return ::testing::AssertionSuccess();
 }
 
 // @brief Asserts that an ignition Model message is equivalent to an

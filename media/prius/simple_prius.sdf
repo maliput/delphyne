@@ -245,7 +245,7 @@ https://github.com/RobotLocomotion/drake/blob/master/automotive/models/prius/pri
         <use_parent_model_frame>1</use_parent_model_frame>
       </axis>
     </joint>
-    <joint name="body" type="fixed">
+    <joint name="body_joint" type="fixed">
       <parent>chassis_floor</parent>
       <child>body</child>
       <pose>0 0 0 0 0 0</pose>

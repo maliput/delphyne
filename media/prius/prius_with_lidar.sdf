@@ -509,7 +509,7 @@
         </limit>
       </axis>
     </joint>
-    <joint name="body" type="fixed">
+    <joint name="body_joint" type="fixed">
       <parent>chassis_floor</parent>
       <child>body</child>
       <pose>0 0 0 0 0 0</pose>

@@ -9,7 +9,7 @@
 #include "delphyne/macros.h"
 
 // private headers
-#include "translations/generate_link_id.h"
+#include "translations/generate_unique_id.h"
 #include "translations/time_conversion.h"
 
 namespace delphyne {
@@ -48,18 +48,23 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_vi
       new_link->set_name(link->name);
 
       // Add unique integer id per link
-      const size_t linkId = GenerateLinkId(new_model->id(), link->name);
-      new_link->set_id(linkId);
+      const size_t link_id = GenerateLinkId(new_model->id(), link->name);
+      new_link->set_id(link_id);
 
-      for (const drake::lcmt_viewer_geometry_data& geometry : link->geom) {
+      for (size_t v = 0; v < link->geom.size(); ++v) {
+        const drake::lcmt_viewer_geometry_data& geometry = link->geom[v];
+        const size_t visual_id = GenerateVisualId(new_model->id(), link->name, v);
+
         // The ignition counterpart for an LCM geometry is an ignition visual,
         // which has different fields (geometry, pose, material, etc.) in which
         // the corresponding parts of the LCM geometry are stored.
         ignition::msgs::Visual* new_visual = new_link->add_visual();
+        new_visual->set_id(visual_id);
 
         LcmGeometryToIgnition(geometry, new_visual->mutable_geometry());
 
         ignition::msgs::Pose* pose = new_visual->mutable_pose();
+        pose->set_id(visual_id);
         PositionArrayToIgnition(geometry.position, pose->mutable_position());
         QuaternionArrayToIgnition(geometry.quaternion, pose->mutable_orientation());
 

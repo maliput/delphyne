@@ -6,7 +6,7 @@
 
 #include <maliput/common/maliput_unused.h>
 
-#include "translations/generate_link_id.h"
+#include "translations/generate_unique_id.h"
 #include "translations/time_conversion.h"
 
 namespace delphyne {

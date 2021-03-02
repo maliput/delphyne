@@ -11,7 +11,6 @@
 #include <drake/common/eigen_types.h>
 #include <drake/common/text_logging.h>
 #include <drake/multibody/joints/floating_base_types.h>
-#include <drake/multibody/parsers/urdf_parser.h>
 #include <drake/multibody/rigid_body_plant/create_load_robot_message.h>
 #include <drake/systems/analysis/runge_kutta2_integrator.h>
 #include <drake/systems/framework/context.h>

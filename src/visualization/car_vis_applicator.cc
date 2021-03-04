@@ -10,8 +10,6 @@
 #include <drake/common/drake_assert.h>
 #include <drake/common/value.h>
 #include <drake/math/rigid_transform.h>
-#include <drake/multibody/shapes/visual_element.h>
-#include <drake/systems/rendering/drake_visualizer_client.h>
 
 using std::unique_ptr;
 using std::vector;

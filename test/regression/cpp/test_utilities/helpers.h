@@ -20,6 +20,8 @@
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
+#include "delphyne/macros.h"
+
 #define EXPECT_THROW_OF_TYPE(type, statement, msg)                                                           \
   do {                                                                                                       \
     try {                                                                                                    \
@@ -153,14 +155,30 @@ drake::systems::rendering::PoseBundle<double> BuildPreloadedPoseBundle();
 // A helper class to monitor publications over an ignition
 // transport topic.
 //
+// Example to get an instance of `IgnMonitor`:
+// @code{.cpp}
+//  auto ign_monitor = MakeSharedIgnMonitor<ignition::msgs::AgentState_V>(TopicName);
+// @endcode
+// Then all the public methods could be called
+//
+// @note: This class subscribes a callback method to a topic. Ignition-transport7 doesn't guarantee that the callback
+// method is executed while the instance of the class is still alive. To solve that lack of syncronization we introduce
+// a std::share_ptr of the IgnMonitor class into the callback method.
+// @remarks DO NOT COPY this implementation in production code. It will prevent an
+// instance of this class to be properly released.
+// TODO(#760) Restore previous implementation of IgnMonitor.
+//
 // @tparam IGN_TYPE A valid ignition message type.
 template <typename IGN_TYPE,
           typename std::enable_if<std::is_base_of<ignition::transport::ProtoMsg, IGN_TYPE>::value, int>::type = 0>
 class IgnMonitor {
  public:
-  // Constructs a monitor for the given topic.
+  // Creates an IgnMonitor.
+  // @tparam IGN_TYPE A valid ignition message type.
   // @param topic_name Valid ignition transport topic name.
-  explicit IgnMonitor(const std::string& topic_name) { node_.Subscribe(topic_name, &IgnMonitor::OnTopicMessage, this); }
+  // @returns An instance of IgnMonitor wrapped by std::shared_ptr.
+  template <typename IGN_TYPE_F>
+  friend std::shared_ptr<IgnMonitor<IGN_TYPE_F>> MakeSharedIgnMonitor(const std::string& topic_name);
 
   ~IgnMonitor() {}
 
@@ -208,6 +226,22 @@ class IgnMonitor {
   }
 
  private:
+  // Constructs a IgnMonitor object.
+  // @param topic_name Valid ignition transport topic name.
+  explicit IgnMonitor(const std::string& topic_name) : topic_name_(topic_name) {}
+
+  // Subscribes to the ignition transport topic.
+  // @param A pointer to this instance.
+  // @throws std::logic_error When `self_ptr.get()` != `this`.
+  void Initialize(std::shared_ptr<IgnMonitor<IGN_TYPE>> self_ptr) {
+    DELPHYNE_VALIDATE(self_ptr.get() == this, std::logic_error, "self_ptr must point to `this` instance.");
+    // A std::shared_ptr to `this` is passed to a instance variable
+    // in order to guarantee that the IgnMonitor instance hasn't been destroyed at
+    // the moment that the callback method is executed. See #760.
+    self_ptr_ = self_ptr;
+    node_.Subscribe(topic_name_, &IgnMonitor::OnTopicMessage, this);
+  }
+
   // Ignition subscriber callback, updating state
   // and notify all threads waiting on this instance.
   //
@@ -219,6 +253,12 @@ class IgnMonitor {
     cv_.notify_all();
   }
 
+  // Topic name.
+  const std::string topic_name_;
+  // Holds a pointer to this instance.
+  // This will cause that the instance of the class won't be deallocated by the SO
+  // until the execution of the unit is finished. See #760.
+  std::shared_ptr<IgnMonitor<IGN_TYPE>> self_ptr_{nullptr};
   // Received message count.
   int message_count_{0};
   // Last ignition message received.
@@ -234,6 +274,13 @@ class IgnMonitor {
   // avoiding a race where the callback for a subscribed topic can be called
   // after the member variables it needs have already been destroyed.
   ignition::transport::Node node_{};
+};
+
+template <typename IGN_TYPE_F>
+std::shared_ptr<IgnMonitor<IGN_TYPE_F>> MakeSharedIgnMonitor(const std::string& topic_name) {
+  auto ign_monitor = std::shared_ptr<IgnMonitor<IGN_TYPE_F>>(new IgnMonitor<IGN_TYPE_F>(topic_name));
+  ign_monitor->Initialize(ign_monitor);
+  return ign_monitor;
 };
 
 // Makes and returns a temporary directory out of a @p template_path,

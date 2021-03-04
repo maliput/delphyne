@@ -199,22 +199,22 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCar) {
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"/agents/state"};
-  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::AgentState_V>(kStateTopicName);
 
   // Shortly after starting, we should not have moved much.
   const int kStateMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
-                                   [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
+  EXPECT_TRUE(ign_monitor->do_until(kStateMessagesCount, kTimeoutMs,
+                                    [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
-  EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
+  EXPECT_TRUE(ign_monitor->get_last_message().states_size() > 0);
 
-  ignition::msgs::AgentState state_message = ign_monitor.get_last_message().states(0);
+  ignition::msgs::AgentState state_message = ign_monitor->get_last_message().states(0);
   EXPECT_LT(state_message.position().x(), 0.1);
 
   // Move a lot. Confirm that we're moving in +x.
   simulation->StepBy(kLargeTimeStep);
 
-  state_message = ign_monitor.get_last_message().states(0);
+  state_message = ign_monitor->get_last_message().states(0);
   EXPECT_GT(state_message.position().x(), 1.0);
 }
 
@@ -243,21 +243,21 @@ TEST_F(AgentSimulationTest, TestPriusUnicycleCar) {
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"agents/state"};
-  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::AgentState_V>(kStateTopicName);
 
   const int kStateMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
-                                   [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
+  EXPECT_TRUE(ign_monitor->do_until(kStateMessagesCount, kTimeoutMs,
+                                    [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
-  EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
+  EXPECT_TRUE(ign_monitor->get_last_message().states_size() > 0);
 
-  ignition::msgs::AgentState state_message = ign_monitor.get_last_message().states(0);
+  ignition::msgs::AgentState state_message = ign_monitor->get_last_message().states(0);
   EXPECT_LT(state_message.position().x(), 0.1);
 
   // Move a lot. Confirm that we're moving in +x.
   simulation->StepBy(kLargeTimeStep);
 
-  state_message = ign_monitor.get_last_message().states(0);
+  state_message = ign_monitor->get_last_message().states(0);
   EXPECT_GT(state_message.position().x(), 1.0);
 }
 
@@ -278,15 +278,15 @@ TEST_F(AgentSimulationTest, TestPriusSimpleCarInitialState) {
   // Set up a monitor to check for ignition::msgs::AgentState
   // messages coming from the agent.
   const std::string kStateTopicName{"agents/state"};
-  test::IgnMonitor<ignition::msgs::AgentState_V> ign_monitor(kStateTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::AgentState_V>(kStateTopicName);
 
   const int kStateMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.do_until(kStateMessagesCount, kTimeoutMs,
-                                   [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
+  EXPECT_TRUE(ign_monitor->do_until(kStateMessagesCount, kTimeoutMs,
+                                    [this, &simulation]() { simulation->StepBy(kSmallTimeStep); }));
 
-  EXPECT_TRUE(ign_monitor.get_last_message().states_size() > 0);
+  EXPECT_TRUE(ign_monitor->get_last_message().states_size() > 0);
 
-  const ignition::msgs::AgentState state_message = ign_monitor.get_last_message().states(0);
+  const ignition::msgs::AgentState state_message = ign_monitor->get_last_message().states(0);
 
   // Computations of AgentState from a PoseBundle incur minimal numerical
   // precision loss. Hence, a small tolerance is allowed when comparing the
@@ -358,8 +358,8 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
   const std::string kPoseTopicName{"visualizer/pose_update"};
-  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
-  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Model_V>(kDrawTopicName);
+  auto ign_pose_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Pose_V>(kPoseTopicName);
 
   // Advances the simulation to allow the MaliputRailcar to begin
   // accelerating.
@@ -367,11 +367,11 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
 
   // Ensures that at least one draw message has arrived.
   const int kDrawMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
-  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
 
-  const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
-  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
+  const ignition::msgs::Model_V draw_message = ign_monitor->get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor->get_last_message();
   EXPECT_EQ(GetLinkCount(draw_message), 3 * GetPriusLinkCount());
 
   // Expect the SimpleCar to start steering to the left; y value increases.
@@ -405,19 +405,19 @@ TEST_F(AgentSimulationTest, TestTrajectoryAgent) {
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
   const std::string kPoseTopicName{"visualizer/pose_update"};
-  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
-  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Model_V>(kDrawTopicName);
+  auto ign_pose_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Pose_V>(kPoseTopicName);
 
   // Simulate for 10 seconds.
   simulation->StepBy(10.);
 
   // Ensures at least one draw message has arrived.
   const int kDrawMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
-  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
 
-  const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
-  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
+  const ignition::msgs::Model_V draw_message = ign_monitor->get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor->get_last_message();
 
   CheckModelLinks(draw_message);
 
@@ -494,19 +494,19 @@ TEST_F(AgentSimulationTest, TestMaliputRailcar) {
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
   const std::string kPoseTopicName{"visualizer/pose_update"};
-  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
-  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Model_V>(kDrawTopicName);
+  auto ign_pose_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Pose_V>(kPoseTopicName);
 
   simulation->StepBy(kLargeTimeStep);
 
   // Ensures that at least one draw message has arrived.
   const int kDrawMessagesCount{1};
-  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
-  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
 
   // Retrieves last draw message.
-  const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
-  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
+  const ignition::msgs::Model_V draw_message = ign_monitor->get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor->get_last_message();
 
   // Verifies the acceleration is zero.
   CheckModelLinks(draw_message);
@@ -534,8 +534,8 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
   // the visualizer.
   const std::string kDrawTopicName{"visualizer/scene_update"};
   const std::string kPoseTopicName{"visualizer/pose_update"};
-  test::IgnMonitor<ignition::msgs::Model_V> ign_monitor(kDrawTopicName);
-  test::IgnMonitor<ignition::msgs::Pose_V> ign_pose_monitor(kPoseTopicName);
+  auto ign_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Model_V>(kDrawTopicName);
+  auto ign_pose_monitor = test::MakeSharedIgnMonitor<ignition::msgs::Pose_V>(kPoseTopicName);
 
   const std::unique_ptr<const ignition::msgs::Scene> scene = simulation->GetVisualScene();
 
@@ -553,12 +553,12 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
   // further changed.
   simulation->StepBy(kLargeTimeStep);
   const int kDrawMessagesCount{2};
-  EXPECT_TRUE(ign_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
-  EXPECT_TRUE(ign_pose_monitor.wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
+  EXPECT_TRUE(ign_pose_monitor->wait_until(kDrawMessagesCount, kTimeoutMs));
 
   // Retrieves last draw message.
-  const ignition::msgs::Model_V draw_message = ign_monitor.get_last_message();
-  const ignition::msgs::Pose_V pose_message = ign_pose_monitor.get_last_message();
+  const ignition::msgs::Model_V draw_message = ign_monitor->get_last_message();
+  const ignition::msgs::Pose_V pose_message = ign_pose_monitor->get_last_message();
 
   // Checks number of links in the viewer_draw message.
   EXPECT_EQ(GetLinkCount(draw_message), 2 * GetPriusLinkCount());

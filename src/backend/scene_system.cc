@@ -83,8 +83,18 @@ void SceneSystem::CalcSceneMessage(const drake::systems::Context<double>& contex
     }
   }
 
-  // TODO(caguero): Populate the rest of the scene fields, such as lights.
-  // See https://github.com/ToyotaResearchInstitute/delphyne/issues/204
+  // Add a directional light to the scene
+  {
+    const ignition::msgs::Color kLightColorMsg = ignition::msgs::Convert(kLightColor);
+    ignition::msgs::Light directionalLight;
+    directionalLight.set_name("directional_light");
+    directionalLight.set_type(ignition::msgs::Light_LightType_DIRECTIONAL);
+    directionalLight.mutable_diffuse()->CopyFrom(kLightColorMsg);
+    directionalLight.mutable_specular()->CopyFrom(kLightColorMsg);
+    directionalLight.mutable_direction()->CopyFrom(ignition::msgs::Convert(kLightDirection));
+    directionalLight.set_cast_shadows(kCastShadowsByDefault);
+    scene_message->add_light()->CopyFrom(directionalLight);
+  }
 }
 
 }  // namespace delphyne

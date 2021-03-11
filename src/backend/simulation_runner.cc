@@ -334,11 +334,6 @@ void SimulationRunner::SendWorldStats() {
 }
 
 void SimulationRunner::ProcessWorldControlMessage(const ignition::msgs::WorldControl& msg) {
-  std::cerr << "A world control message has arrived: " << std::endl
-            << "- pause: " << msg.pause() << std::endl
-            << "- step: " << msg.step() << std::endl
-            << "- multi_step: " << msg.multi_step() << std::endl;
-
   if (msg.step()) {
     RequestSimulationStepExecution(1u);
   } else if (msg.multi_step() > 0u) {

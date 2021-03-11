@@ -5,11 +5,11 @@
 
 #include <gtest/gtest.h>
 
+#include "delphyne/roads/road_builder.h"
+
 #include <drake/math/rigid_transform.h>
-
-#include <maliput_dragway/road_geometry.h>
-
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput/api/road_geometry.h>
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 namespace delphyne {
 namespace test_p {
@@ -20,8 +20,8 @@ using drake::systems::rendering::PoseBundle;
 using drake::systems::rendering::PoseVector;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
+using maliput::api::RoadGeometry;
 using maliput::api::RoadPosition;
-using maliput::dragway::RoadGeometry;
 
 constexpr double kEgoXPosition{10.};            // meters
 constexpr double kLaneWidth{4.};                // meters
@@ -34,10 +34,10 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     DRAKE_ASSERT(num_lanes >= 0);
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
-    road_.reset(new maliput::dragway::RoadGeometry(
-        maliput::api::RoadGeometryId("Test Dragway"), num_lanes, 100 /* length */, kLaneWidth /* lane_width */,
-        0. /* shoulder_width */, 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-        std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+    road_ = roads::CreateDragway("Test Dragway", num_lanes, 100 /* length */, kLaneWidth /* lane_width */,
+                                 0. /* shoulder_width */, 5. /* maximum_height */,
+                                 std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                                 std::numeric_limits<double>::epsilon() /* angular_tolerance */);
     segment_ = road_->junction(0)->segment(0);
     ExtractLaneDirectionsFromDragway();
     right_lane_index_ = 0;
@@ -132,7 +132,7 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
   std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<maliput::api::RoadGeometry> road_;
+  std::unique_ptr<const maliput::api::RoadGeometry> road_;
   const maliput::api::Segment* segment_;
   std::vector<LaneDirection> lane_directions_{};
 

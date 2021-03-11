@@ -2,12 +2,13 @@
 
 #include <gtest/gtest.h>
 
+#include "delphyne/roads/road_builder.h"
+
 #include <drake/common/extract_double.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput_dragway/road_geometry.h>
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/road_geometry.h>
 
@@ -91,12 +92,11 @@ class TrafficPoseSelectorDragwayTest : public ::testing::Test {
     DRAKE_ASSERT(num_lanes >= 0);
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
-    road_.reset(new maliput::dragway::RoadGeometry(maliput::api::RoadGeometryId("Test Dragway"), num_lanes, lane_length,
-                                                   kDragwayLaneWidth, 0. /* shoulder width */, 5. /* maximum_height */,
-                                                   std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-                                                   std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+    road_ = roads::CreateDragway("Test Dragway", num_lanes, lane_length, kDragwayLaneWidth, 0. /* shoulder width */,
+                                 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                                 std::numeric_limits<double>::epsilon() /* angular_tolerance */);
   }
-  std::unique_ptr<maliput::dragway::RoadGeometry> road_;
+  std::unique_ptr<const maliput::api::RoadGeometry> road_;
 };
 
 template <typename T>

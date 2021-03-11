@@ -16,7 +16,7 @@
 #include <drake/systems/framework/diagram_context.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <maliput/api/lane.h>
-#include <maliput_dragway/road_geometry.h>
+#include <maliput/api/road_geometry.h>
 
 #include <gtest/gtest.h>
 
@@ -27,6 +27,7 @@
 #include "agents/unicycle_car.h"
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"
+#include "delphyne/roads/road_builder.h"
 #include "systems/lane_direction.h"
 #include "systems/trajectory.h"
 #include "test/test_config.h"
@@ -64,13 +65,9 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
 // frequently in the tests below exists and does not need to be checked
 // for a null pointer.
 std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(const std::string& name, const int& number_of_lanes) {
-  return std::make_unique<const maliput::dragway::RoadGeometry>(
-      maliput::api::RoadGeometryId(name), number_of_lanes,
-      100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-      5 /* maximum_height */,
-      std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-      std::numeric_limits<double>::epsilon() /* angular_tolerance
-      */);
+  return roads::CreateDragway(name, number_of_lanes, 100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
+                              5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                              std::numeric_limits<double>::epsilon() /* angular_tolerance */);
 }
 
 // Retrieves the chassis floor link from the model message.
@@ -608,13 +605,10 @@ TEST_F(AgentSimulationTest, TestDuplicateVehicleNameException) {
 TEST_F(AgentSimulationTest, TestRailcarVelocityOutput) {
   AgentSimulationBuilder builder;
 
-  const maliput::api::RoadGeometry* road_geometry =
-      builder.SetRoadGeometry(std::make_unique<const maliput::dragway::RoadGeometry>(
-          maliput::api::RoadGeometryId("TestDragway"), 1 /* num lanes */, 100 /* length */, 4 /* lane width */,
-          1 /* shoulder width */, 5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance
-                                                                                                  */
-          ,
-          std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+  const maliput::api::RoadGeometry* road_geometry = builder.SetRoadGeometry(roads::CreateDragway(
+      "TestDragway", 1 /* num lanes */, 100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
+      5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+      std::numeric_limits<double>::epsilon() /* angular_tolerance */));
 
   const maliput::api::Lane& lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 

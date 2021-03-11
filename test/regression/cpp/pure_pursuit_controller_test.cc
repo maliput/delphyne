@@ -5,8 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include <maliput_dragway/road_geometry.h>
-
+#include "delphyne/roads/road_builder.h"
 #include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
@@ -14,7 +13,6 @@ namespace {
 
 using drake::AutoDiffXd;
 using drake::systems::rendering::PoseVector;
-using maliput::dragway::RoadGeometry;
 
 constexpr double kXPosition{10.};
 constexpr double kLaneWidth{4.};
@@ -23,11 +21,8 @@ class PurePursuitControllerTest : public ::testing::Test {
  protected:
   void SetUp() override {
     // Create a straight road with two lanes.
-    road_.reset(new maliput::dragway::RoadGeometry(maliput::api::RoadGeometryId("Two-Lane Dragway"), 1 /* num_lanes */,
-                                                   100 /* length */, kLaneWidth /* lane_width */,
-                                                   0. /* shoulder_width */, 5. /* maximum_height */,
-                                                   std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-                                                   std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+    road_ = roads::CreateDragway("One-Lane Dragway", 1 /* num_lanes */, 100 /* length */, kLaneWidth /* lane_width */,
+                                 0. /* shoulder_width */, 5. /* maximum_height */);
 
     // Store the LaneDirection.
     lane_direction_.reset(new LaneDirection(road_->junction(0)->segment(0)->lane(0), true));
@@ -57,7 +52,7 @@ class PurePursuitControllerTest : public ::testing::Test {
                                                         //  test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<maliput::api::RoadGeometry> road_;
+  std::unique_ptr<const maliput::api::RoadGeometry> road_;
   std::unique_ptr<LaneDirection> lane_direction_;
 };
 

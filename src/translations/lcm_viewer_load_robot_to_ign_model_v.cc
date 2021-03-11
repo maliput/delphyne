@@ -68,8 +68,10 @@ void LcmViewerLoadRobotToIgnModelV::DoDrakeToIgnTranslation(const drake::lcmt_vi
         PositionArrayToIgnition(geometry.position, pose->mutable_position());
         QuaternionArrayToIgnition(geometry.quaternion, pose->mutable_orientation());
 
-        ignition::msgs::Material* material = new_visual->mutable_material();
-        LcmColorToIgnition(geometry.color, material->mutable_diffuse());
+        if (!new_visual->geometry().has_mesh()) {
+          ignition::msgs::Material* material = new_visual->mutable_material();
+          LcmColorToIgnition(geometry.color, material->mutable_diffuse());
+        }
       }
     }
   }

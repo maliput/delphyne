@@ -577,10 +577,13 @@ bool AssertUniqueModelAndLinkIds(const ignition::msgs::Scene& ign_scene) {
         if (!are_quaternions_equivalent) {
           return ::testing::AssertionFailure() << are_quaternions_equivalent.message() << "\n";
         }
-        const ::testing::AssertionResult are_colors_equivalent =
-            CheckLcmArrayToColorEquivalence(lcm_link->geom[i].color, ign_visual.material().diffuse(), kTolerance);
-        if (!are_colors_equivalent) {
-          return ::testing::AssertionFailure() << are_colors_equivalent.message() << "\n";
+        // colors are not propagated for meshes
+        if (lcm_link->geom[i].type != drake::lcmt_viewer_geometry_data::MESH) {
+          const ::testing::AssertionResult are_colors_equivalent =
+              CheckLcmArrayToColorEquivalence(lcm_link->geom[i].color, ign_visual.material().diffuse(), kTolerance);
+          if (!are_colors_equivalent) {
+            return ::testing::AssertionFailure() << are_colors_equivalent.message() << "\n";
+          }
         }
         const ::testing::AssertionResult resultGeometryType =
             CheckGeometryTypeEquivalence(lcm_link->geom[i].type, ign_visual.geometry().type());

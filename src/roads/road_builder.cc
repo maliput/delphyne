@@ -11,6 +11,7 @@
 
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
+#include <maliput/math/vector.h>
 #include <maliput_dragway/road_geometry.h>
 #include <maliput_multilane/loader.h>
 #include <maliput_multilane/multilane_onramp_merge.h>
@@ -42,7 +43,8 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(const std::strin
                                                                 double angular_tolerance) {
   maliput::api::RoadGeometryId id(name);
   return std::make_unique<const maliput::dragway::RoadGeometry>(id, num_lanes, length, lane_width, shoulder_width,
-                                                                maximum_height, linear_tolerance, angular_tolerance);
+                                                                maximum_height, linear_tolerance, angular_tolerance,
+                                                                maliput::math::Vector3{0., 0., 0.});
 }
 
 std::unique_ptr<const maliput::api::RoadGeometry> CreateMultilaneFromFile(const std::string& file_path) {
@@ -68,6 +70,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
       malidrive::builder::RoadGeometryConfiguration{
           maliput::api::RoadGeometryId(name), file_path, malidrive::constants::kLinearTolerance,
           malidrive::constants::kAngularTolerance, malidrive::constants::kScaleLength,
+          maliput::math::Vector3{0., 0., 0.},
           malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                                  malidrive::constants::kNumIterations)},
       road_rulebook, traffic_light_book, phase_ring};
@@ -95,7 +98,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
   const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
       malidrive::builder::RoadGeometryConfiguration{
           maliput::api::RoadGeometryId(name), file_path, linear_tolerance, angular_tolerance,
-          malidrive::constants::kScaleLength,
+          malidrive::constants::kScaleLength, maliput::math::Vector3{0., 0., 0.},
           malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
                                                  malidrive::constants::kNumIterations)},
       road_rulebook, traffic_light_book, phase_ring};

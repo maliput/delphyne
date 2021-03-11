@@ -41,19 +41,19 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
 
   int get_updated_pose_models_input_port_index() const { return updated_pose_models_input_port_index_; }
 
-  // This is the color used by the directional light added to each scene.
-  const ignition::math::Color kLightColor{0.9, 0.9, 0.9};
-
-  // This is the direction of the directional light added to each scene.
-  const ignition::math::Vector3d kLightDirection{-0.5, -0.5, -1};
-
-  // Cast shadows by default.
-  bool kCastShadowsByDefault{true};
-
  private:
   // Calculates a new scene message from the geometry description and the
   // updated poses of mobile elements.
   void CalcSceneMessage(const drake::systems::Context<double>& context, ignition::msgs::Scene* scene_message) const;
+
+  // This is the color used by the directional light added to each scene.
+  static const ignition::math::Color kLightColor;
+
+  // This is the direction of the directional light added to each scene.
+  static const ignition::math::Vector3d kLightDirection;
+
+  // Cast shadows by default.
+  static const bool kCastShadowsByDefault{true};
 
   int geometry_models_input_port_index_{};
   int updated_pose_models_input_port_index_{};

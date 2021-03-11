@@ -13,6 +13,10 @@ namespace delphyne {
 template <class T>
 using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
 
+const ignition::math::Color SceneSystem::kLightColor{0.9, 0.9, 0.9};
+
+const ignition::math::Vector3d SceneSystem::kLightDirection{-0.5, -0.5, -1};
+
 SceneSystem::SceneSystem() {
   geometry_models_input_port_index_ =
       DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::Model_V>()).get_index();

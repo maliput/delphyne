@@ -8,6 +8,8 @@
 
 #include <drake/systems/framework/leaf_system.h>
 
+#include <ignition/math/Color.hh>
+#include <ignition/math/Vector3.hh>
 #include <ignition/msgs.hh>
 
 namespace delphyne {
@@ -43,6 +45,15 @@ class SceneSystem : public drake::systems::LeafSystem<double> {
   // Calculates a new scene message from the geometry description and the
   // updated poses of mobile elements.
   void CalcSceneMessage(const drake::systems::Context<double>& context, ignition::msgs::Scene* scene_message) const;
+
+  // This is the color used by the directional light added to each scene.
+  static const ignition::math::Color kLightColor;
+
+  // This is the direction of the directional light added to each scene.
+  static const ignition::math::Vector3d kLightDirection;
+
+  // Cast shadows by default.
+  static const bool kCastShadowsByDefault{true};
 
   int geometry_models_input_port_index_{};
   int updated_pose_models_input_port_index_{};

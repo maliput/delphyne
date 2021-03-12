@@ -13,6 +13,10 @@ namespace delphyne {
 template <class T>
 using ProtobufIterator = google::protobuf::internal::RepeatedPtrIterator<T>;
 
+const ignition::math::Color SceneSystem::kLightColor{0.9, 0.9, 0.9};
+
+const ignition::math::Vector3d SceneSystem::kLightDirection{-0.5, -0.5, -1};
+
 SceneSystem::SceneSystem() {
   geometry_models_input_port_index_ =
       DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::Model_V>()).get_index();
@@ -83,8 +87,18 @@ void SceneSystem::CalcSceneMessage(const drake::systems::Context<double>& contex
     }
   }
 
-  // TODO(caguero): Populate the rest of the scene fields, such as lights.
-  // See https://github.com/ToyotaResearchInstitute/delphyne/issues/204
+  // Add a directional light to the scene
+  {
+    const ignition::msgs::Color kLightColorMsg = ignition::msgs::Convert(kLightColor);
+    ignition::msgs::Light directionalLight;
+    directionalLight.set_name("directional_light");
+    directionalLight.set_type(ignition::msgs::Light_LightType_DIRECTIONAL);
+    directionalLight.mutable_diffuse()->CopyFrom(kLightColorMsg);
+    directionalLight.mutable_specular()->CopyFrom(kLightColorMsg);
+    directionalLight.mutable_direction()->CopyFrom(ignition::msgs::Convert(kLightDirection));
+    directionalLight.set_cast_shadows(kCastShadowsByDefault);
+    scene_message->add_light()->CopyFrom(directionalLight);
+  }
 }
 
 }  // namespace delphyne

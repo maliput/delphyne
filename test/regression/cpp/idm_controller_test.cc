@@ -2,11 +2,12 @@
 
 #include <gtest/gtest.h>
 
+#include "delphyne/roads/road_builder.h"
 #include "drake/common/eigen_types.h"
 #include "drake/math/rigid_transform.h"
 #include "drake/multibody/math/spatial_velocity.h"
 
-#include "maliput_dragway/road_geometry.h"
+#include "maliput/api/road_geometry.h"
 #include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
 
 #include "test_utilities/scalar_conversion.h"
@@ -25,7 +26,6 @@ using drake::systems::rendering::PoseVector;
 using maliput::api::Lane;
 using maliput::api::LanePosition;
 using maliput::api::RoadPosition;
-using maliput::dragway::RoadGeometry;
 
 static constexpr double kEgoSPosition{10.};
 static constexpr int kLeadIndex{0};
@@ -35,10 +35,10 @@ class IDMControllerTest : public ::testing::TestWithParam<RoadPositionStrategy> 
  protected:
   void SetUpIdm(ScanStrategy path_or_branches) {
     // Create a straight road with one lane.
-    road_.reset(new maliput::dragway::RoadGeometry(
-        maliput::api::RoadGeometryId("Single-Lane Dragway"), 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
-        0. /* shoulder_width */, 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-        std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+    road_ = roads::CreateDragway("Single-Lane Dragway", 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
+                                 0. /* shoulder_width */, 5. /* maximum_height */,
+                                 std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                                 std::numeric_limits<double>::epsilon() /* angular_tolerance */);
 
     cache_or_search_ = this->GetParam();
     period_sec_ = 1.;
@@ -97,7 +97,7 @@ class IDMControllerTest : public ::testing::TestWithParam<RoadPositionStrategy> 
   std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<maliput::dragway::RoadGeometry> road_;
+  std::unique_ptr<const maliput::api::RoadGeometry> road_;
 
   int ego_pose_input_index_;
   int ego_velocity_input_index_;

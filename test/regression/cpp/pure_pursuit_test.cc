@@ -2,7 +2,9 @@
 
 #include <gtest/gtest.h>
 
-#include <maliput_dragway/road_geometry.h>
+#include "delphyne/roads/road_builder.h"
+
+#include <maliput/api/road_geometry.h>
 #include <maliput_multilane/builder.h>
 
 namespace delphyne {
@@ -32,9 +34,8 @@ class PurePursuitTest : public ::testing::Test {
  protected:
   void SetUp() override {
     // Create a straight road with one lane.
-    road_.reset(new maliput::dragway::RoadGeometry(
-        maliput::api::RoadGeometryId("Single-Lane Dragway"), 1 /* num_lanes */, 100 /* length */, 4. /* lane_width */,
-        0. /* shoulder_width */, 5. /* maximum_height */, kLinearTolerance, kAngularTolerance));
+    road_ = roads::CreateDragway("Single-Lane Dragway", 1 /* num_lanes */, 100 /* length */, 4. /* lane_width */,
+                                 0. /* shoulder_width */, 5. /* maximum_height */, kLinearTolerance, kAngularTolerance);
   }
 
   void MakeQuarterCircleRoad() {

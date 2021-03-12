@@ -2,8 +2,10 @@
 
 #include <gtest/gtest.h>
 
+#include "delphyne/roads/road_builder.h"
+
 #include <drake/common/autodiff.h>
-#include <maliput_dragway/road_geometry.h>
+#include <maliput/api/road_geometry.h>
 #include <maliput_multilane/multilane_onramp_merge.h>
 #include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
@@ -129,16 +131,16 @@ GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
-  maliput::dragway::RoadGeometry rg(
-      maliput::api::RoadGeometryId("1-lane dragway"), 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
-      0. /* shoulder_width */, 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-      std::numeric_limits<double>::epsilon() /* angular_tolerance */);
+  auto rg = roads::CreateDragway("1-lane dragway", 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
+                                 0. /* shoulder_width */, 5. /* maximum_height */,
+                                 std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                                 std::numeric_limits<double>::epsilon() /* angular_tolerance */);
 
   // AutoDiffXd only appear at the inputs; only check that computation succeeds.
   const LanePolarity polarity = LanePolarity::kWithS;
   const drake::AutoDiffXd speed = 10.;
 
-  const Lane* lane = rg.junction(0)->segment(0)->lane(0);
+  const Lane* lane = rg->junction(0)->segment(0)->lane(0);
 
   // Set the hypothetical pose at s = 10.
   RoadPosition rp(lane, {10., 0., 0.});
@@ -149,7 +151,7 @@ GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
   SetOnrampPoses<drake::AutoDiffXd>(lane, polarity, speed, &pose, &velocity);
 
   // The DUT.
-  CalcOngoingRoadPosition(pose, velocity, rg, &rp);
+  CalcOngoingRoadPosition(pose, velocity, *rg, &rp);
 
   EXPECT_TRUE(
       CompareMatrices(drake::Vector3<double>{kSomeLanePosition.s(), kSomeLanePosition.r(), kSomeLanePosition.h()},

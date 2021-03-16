@@ -32,9 +32,10 @@ GTEST_TEST(IgnModelsAssemblerTest, CalcAssembledModelVTest) {
   IgnModelsAssembler models_assembler;
   std::unique_ptr<drake::systems::Context<double>> context = models_assembler.AllocateContext();
 
-  context->FixInputPort(models_assembler.get_models_input_port_index(), drake::AbstractValue::Make(input_models));
+  context->FixInputPort(models_assembler.get_models_input_port_index(),
+                        drake::Value<ignition::msgs::Model_V>(input_models));
 
-  context->FixInputPort(models_assembler.get_states_input_port_index(), drake::AbstractValue::Make(input_states));
+  context->FixInputPort(models_assembler.get_states_input_port_index(), drake::Value<PoseBundle<double>>(input_states));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output = models_assembler.AllocateOutput();
   models_assembler.CalcOutput(*context, output.get());

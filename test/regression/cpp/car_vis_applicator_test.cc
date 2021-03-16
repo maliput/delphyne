@@ -46,7 +46,7 @@ class CarVisApplicatorTest : public ::testing::Test {
     ASSERT_NE(dut_, nullptr);
     ASSERT_NE(context_, nullptr);
     const int kPoseIndex = dut_->get_car_poses_input_port().get_index();
-    context_->FixInputPort(kPoseIndex, drake::AbstractValue::Make<PoseBundle<double>>(pose_bundle));
+    context_->FixInputPort(kPoseIndex, drake::Value<PoseBundle<double>>(pose_bundle));
   }
 
   const PoseBundle<double>& GetOutput() const {

@@ -44,8 +44,10 @@ TEST_F(DrivingCommandMuxTest, Basic) {
   ASSERT_NE(nullptr, driving_command_output);
 
   // Provide input data.
-  context_->FixInputPort(mux_->steering_input().get_index(), drake::systems::BasicVector<double>::Make({42.}));
-  context_->FixInputPort(mux_->acceleration_input().get_index(), drake::systems::BasicVector<double>::Make({11.}));
+  context_->FixInputPort(mux_->steering_input().get_index(),
+                         drake::Value<drake::systems::BasicVector<double>>(drake::systems::BasicVector<double>{42.}));
+  context_->FixInputPort(mux_->acceleration_input().get_index(),
+                         drake::Value<drake::systems::BasicVector<double>>(drake::systems::BasicVector<double>{11.}));
 
   // Confirm output data.
   mux_->CalcOutput(*context_, output_.get());

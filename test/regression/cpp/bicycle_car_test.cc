@@ -48,18 +48,16 @@ class BicycleCarTest : public ::testing::Test {
     ASSERT_NE(nullptr, dut_);
     ASSERT_NE(nullptr, context_);
 
-    std::unique_ptr<drake::systems::BasicVector<double>> steering_input(
-        new drake::systems::BasicVector<double>(kSteeringInputDimension));
-    std::unique_ptr<drake::systems::BasicVector<double>> force_input(
-        new drake::systems::BasicVector<double>(kForceInputDimension));
+    drake::systems::BasicVector<double> steering_input(kSteeringInputDimension);
+    steering_input[0] = steering_angle;
 
-    (*steering_input)[0] = steering_angle;
-    (*force_input)[0] = force;
+    drake::systems::BasicVector<double> force_input(kForceInputDimension);
+    force_input[0] = force;
 
     const int kSteeringIndex = dut_->get_steering_input_port().get_index();
     const int kForceIndex = dut_->get_force_input_port().get_index();
-    context_->FixInputPort(kSteeringIndex, std::move(steering_input));
-    context_->FixInputPort(kForceIndex, std::move(force_input));
+    context_->FixInputPort(kSteeringIndex, drake::Value<drake::systems::BasicVector<double>>(steering_input));
+    context_->FixInputPort(kForceIndex, drake::Value<drake::systems::BasicVector<double>>(force_input));
   }
 
   std::unique_ptr<BicycleCar<double>> dut_;  //< The device under test.

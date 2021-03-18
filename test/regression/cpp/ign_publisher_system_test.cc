@@ -37,7 +37,7 @@ TEST_F(IgnPublisherSystemTest, ImmediatePublishTest) {
   drake::systems::Simulator<double> simulator(ign_publisher, ign_publisher.CreateDefaultContext());
 
   // Configures context's input with the pre-loaded message.
-  simulator.get_mutable_context().FixInputPort(0, drake::AbstractValue::Make(kIgnMsg));
+  simulator.get_mutable_context().FixInputPort(0, drake::Value<ignition::msgs::Model_V>(kIgnMsg));
 
   // Simulates for a small time period.
   simulator.Initialize();
@@ -66,7 +66,7 @@ TEST_F(IgnPublisherSystemTest, LowFrequencyPublishTest) {
   drake::systems::Simulator<double> simulator(ign_publisher, ign_publisher.CreateDefaultContext());
 
   // Configures context's input with the pre-loaded message.
-  simulator.get_mutable_context().FixInputPort(0, drake::AbstractValue::Make(kIgnMsg));
+  simulator.get_mutable_context().FixInputPort(0, drake::Value<ignition::msgs::Model_V>(kIgnMsg));
 
   // Simulates enough for the expected message count to get
   // published.

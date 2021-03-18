@@ -27,10 +27,10 @@ class UnicycleCarTest : public ::testing::Test {
   }
 
   void SetInputValue(double angular_rate, double acceleration) {
-    auto value = std::make_unique<AngularRateAccelerationCommand<double>>();
-    value->set_angular_rate(angular_rate);
-    value->set_acceleration(acceleration);
-    context_->FixInputPort(0, std::move(value));
+    AngularRateAccelerationCommand<double> value;
+    value.set_angular_rate(angular_rate);
+    value.set_acceleration(acceleration);
+    context_->FixInputPort(0, drake::Value<drake::systems::BasicVector<double>>(value));
   }
 
   SimpleCarState<double>* continuous_state() {

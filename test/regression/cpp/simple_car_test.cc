@@ -33,10 +33,10 @@ class SimpleCar2Test : public ::testing::Test {
 
   void SetInputValue(double steering_angle, double normalized_acceleration) {
     const SimpleCarParams<double> default_params;
-    auto value = std::make_unique<DrivingCommand<double>>();
-    value->set_steering_angle(steering_angle);
-    value->set_acceleration(normalized_acceleration * default_params.max_acceleration());
-    context_->FixInputPort(0, std::move(value));
+    DrivingCommand<double> value;
+    value.set_steering_angle(steering_angle);
+    value.set_acceleration(normalized_acceleration * default_params.max_acceleration());
+    context_->FixInputPort(0, drake::Value<drake::systems::BasicVector<double>>(value));
   }
 
   SimpleCarState<double>* continuous_state() {
@@ -351,8 +351,7 @@ TEST_F(SimpleCar2Test, TransmogrifyAutoDiff) {
     auto other_output = other_dut.AllocateOutput();
     auto other_derivatives = other_dut.AllocateTimeDerivatives();
 
-    auto input_value = std::make_unique<DrivingCommand<AutoDiffXd>>();
-    other_context->FixInputPort(0, std::move(input_value));
+    other_context->FixInputPort(0, drake::Value<drake::systems::BasicVector<AutoDiffXd>>(DrivingCommand<AutoDiffXd>()));
 
     // For now, running without exceptions is good enough.
     other_dut.CalcOutput(*other_context, other_output.get());
@@ -369,8 +368,8 @@ TEST_F(SimpleCar2Test, TransmogrifySymbolic) {
     // TODO(jwnimmer-tri) We should have a framework way to just say "make the
     // entire context symbolic variables (vs zero)" that is reusable for any
     // consumer of the framework.
-    auto input_value = std::make_unique<DrivingCommand<drake::symbolic::Expression>>();
-    other_context->FixInputPort(0, std::move(input_value));
+    other_context->FixInputPort(0, drake::Value<drake::systems::BasicVector<drake::symbolic::Expression>>(
+                                       DrivingCommand<drake::symbolic::Expression>()));
     drake::systems::VectorBase<drake::symbolic::Expression>& xc = other_context->get_mutable_continuous_state_vector();
     for (int i = 0; i < xc.size(); ++i) {
       xc[i] = drake::symbolic::Variable("xc" + std::to_string(i));

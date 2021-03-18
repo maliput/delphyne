@@ -36,16 +36,14 @@ class PurePursuitControllerTest : public ::testing::Test {
   // Create poses for one ego car and two traffic cars.
   void SetDefaultInputs(const double y_position, const double yaw) {
     // Set the LaneId.
-    context_->FixInputPort(dut_->lane_input().get_index(), drake::AbstractValue::Make(*lane_direction_));
+    context_->FixInputPort(dut_->lane_input().get_index(), drake::Value<LaneDirection>(*lane_direction_));
 
     // Set the ego car's pose.
-    auto ego_pose = std::make_unique<PoseVector<double>>();
-    const Eigen::Translation3d translation(kXPosition /* x */, y_position /* y */, 0. /* z */);
-    const Eigen::Quaternion<double> rotation(std::cos(yaw * 0.5) /* w */, 0. /* x */, 0. /* y */,
-                                             std::sin(yaw * 0.5) /* z */);
-    ego_pose->set_translation(translation);
-    ego_pose->set_rotation(rotation);
-    context_->FixInputPort(dut_->ego_pose_input().get_index(), std::move(ego_pose));
+    PoseVector<double> ego_pose(
+        Eigen::Quaternion<double>(std::cos(yaw * 0.5) /* w */, 0. /* x */, 0. /* y */, std::sin(yaw * 0.5) /* z */),
+        Eigen::Translation3d(kXPosition /* x */, y_position /* y */, 0. /* z */));
+    context_->FixInputPort(dut_->ego_pose_input().get_index(),
+                           drake::Value<drake::systems::BasicVector<double>>(ego_pose));
   }
 
   std::unique_ptr<PurePursuitController<double>> dut_;  //< The device under
@@ -76,9 +74,9 @@ TEST_F(PurePursuitControllerTest, ToAutoDiff) {
     auto other_output = other_dut.AllocateOutput();
     auto other_derivatives = other_dut.AllocateTimeDerivatives();
 
-    other_context->FixInputPort(dut_->lane_input().get_index(), drake::AbstractValue::Make(*lane_direction_));
-    auto ego_pose = std::make_unique<PoseVector<AutoDiffXd>>();
-    other_context->FixInputPort(dut_->ego_pose_input().get_index(), std::move(ego_pose));
+    other_context->FixInputPort(dut_->lane_input().get_index(), drake::Value<LaneDirection>(*lane_direction_));
+    other_context->FixInputPort(dut_->ego_pose_input().get_index(),
+                                drake::Value<drake::systems::BasicVector<AutoDiffXd>>(PoseVector<AutoDiffXd>()));
 
     other_dut.CalcOutput(*other_context, other_output.get());
   }));

@@ -65,33 +65,34 @@ class IDMControllerTest : public ::testing::TestWithParam<RoadPositionStrategy> 
     DRAKE_DEMAND(ego_velocity_input_index_ >= 0 && ego_velocity_input_index_ < dut_->num_input_ports());
     DRAKE_DEMAND(traffic_input_index_ >= 0 && traffic_input_index_ < dut_->num_input_ports());
 
-    auto ego_pose = std::make_unique<PoseVector<double>>();
-    auto ego_velocity = std::make_unique<FrameVelocity<double>>();
-    drake::systems::rendering::PoseBundle<double> traffic_poses(2);
-
     DRAKE_DEMAND(s_offset >= 0.);
     EXPECT_LE(0., ego_speed);
 
     // Configure the ego car pose and velocity.
     const Eigen::Translation3d translation_ego(kEgoSPosition /* x */, 0. /* y */, 0. /* z */);
-    ego_pose->set_translation(translation_ego);
-    context_->FixInputPort(ego_pose_input_index_, std::move(ego_pose));
+    PoseVector<double> ego_pose;
+    ego_pose.set_translation(translation_ego);
+    context_->FixInputPort(ego_pose_input_index_, drake::Value<drake::systems::BasicVector<double>>(ego_pose));
 
     drake::Vector6<double> velocity{};
     velocity << 0. /* ωx */, 0. /* ωy */, 0. /* ωz */, ego_speed /* vx */, 0. /* vy */, 0. /* vz */;
-    ego_velocity->set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
-    context_->FixInputPort(ego_velocity_input_index_, std::move(ego_velocity));
+    context_->FixInputPort(ego_velocity_input_index_,
+                           drake::Value<drake::systems::BasicVector<double>>(
+                               FrameVelocity<double>(drake::multibody::SpatialVelocity<double>(velocity))));
 
     // Configure the traffic poses, inclusive of the ego car.
     FrameVelocity<double> lead_velocity;
-    const Eigen::Translation3d translation_lead(kEgoSPosition + s_offset /* x */, 0. /* y */, 0. /* z */);
-    traffic_poses.set_transform(kLeadIndex, RigidTransform<double>(Eigen::Isometry3d(translation_lead)));
     velocity[3] += relative_sdot;
     velocity[4] += relative_rdot;
     lead_velocity.set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
+
+    drake::systems::rendering::PoseBundle<double> traffic_poses(2);
+    const Eigen::Translation3d translation_lead(kEgoSPosition + s_offset /* x */, 0. /* y */, 0. /* z */);
+    traffic_poses.set_transform(kLeadIndex, RigidTransform<double>(Eigen::Isometry3d(translation_lead)));
     traffic_poses.set_velocity(kLeadIndex, lead_velocity);
     traffic_poses.set_transform(kEgoIndex, RigidTransform<double>(Eigen::Isometry3d(translation_ego)));
-    context_->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(traffic_poses));
+    context_->FixInputPort(traffic_input_index_,
+                           drake::Value<drake::systems::rendering::PoseBundle<double>>(traffic_poses));
   }
 
   std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
@@ -226,26 +227,27 @@ TEST_P(IDMControllerTest, ToAutoDiff) {
     // derivatives.
     const AutoDiffXd kZeroDerivative{0., drake::Vector1d(0.)};
 
-    auto pose = std::make_unique<PoseVector<AutoDiffXd>>();
+    PoseVector<AutoDiffXd> pose;
     const drake::Translation3<AutoDiffXd> translation(AutoDiffXd(0., drake::Vector1d(1.)), /* x */
                                                       kZeroDerivative,                     /* y */
                                                       kZeroDerivative);                    /* z */
-    pose->set_translation(translation);
-    other_context->FixInputPort(ego_pose_input_index_, std::move(pose));
+    pose.set_translation(translation);
+    other_context->FixInputPort(ego_pose_input_index_, drake::Value<drake::systems::BasicVector<AutoDiffXd>>(pose));
 
-    auto velocity = std::make_unique<FrameVelocity<AutoDiffXd>>();
     const drake::multibody::SpatialVelocity<AutoDiffXd> velocity_vector(
         drake::Vector3<AutoDiffXd>(kZeroDerivative /* ωx */, kZeroDerivative /* ωy */, kZeroDerivative /* ωz */),
         drake::Vector3<AutoDiffXd>(kZeroDerivative /* vx */, kZeroDerivative /* vy */, kZeroDerivative /* vz */));
-    velocity->set_velocity(velocity_vector);
-    other_context->FixInputPort(ego_velocity_input_index_, std::move(velocity));
+    const FrameVelocity<AutoDiffXd> velocity(velocity_vector);
+    other_context->FixInputPort(ego_velocity_input_index_,
+                                drake::Value<drake::systems::BasicVector<drake::AutoDiffXd>>(velocity));
 
     drake::systems::rendering::PoseBundle<AutoDiffXd> poses(1);
     FrameVelocity<AutoDiffXd> traffic_velocity;
     traffic_velocity.set_velocity(velocity_vector);
     poses.set_velocity(0, traffic_velocity);
     poses.set_transform(0, RigidTransform<AutoDiffXd>(drake::Isometry3<AutoDiffXd>(translation)));
-    other_context->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(poses));
+    other_context->FixInputPort(traffic_input_index_,
+                                drake::Value<drake::systems::rendering::PoseBundle<AutoDiffXd>>(poses));
 
     const auto result = other_output->get_vector_data(acceleration_output_index_);
     other_dut.CalcOutput(*other_context, other_output.get());

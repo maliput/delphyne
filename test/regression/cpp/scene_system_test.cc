@@ -44,10 +44,10 @@ GTEST_TEST(SceneSystemTest, CalcSceneTest) {
   std::unique_ptr<drake::systems::Context<double>> context = scene_system.AllocateContext();
 
   context->FixInputPort(scene_system.get_geometry_models_input_port_index(),
-                        drake::AbstractValue::Make(geometry_models));
+                        drake::Value<ignition::msgs::Model_V>(geometry_models));
 
   context->FixInputPort(scene_system.get_updated_pose_models_input_port_index(),
-                        drake::AbstractValue::Make(updated_pose_models));
+                        drake::Value<ignition::msgs::Model_V>(updated_pose_models));
 
   std::unique_ptr<drake::systems::SystemOutput<double>> output = scene_system.AllocateOutput();
   scene_system.CalcOutput(*context, output.get());

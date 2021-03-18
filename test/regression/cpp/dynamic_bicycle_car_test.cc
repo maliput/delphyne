@@ -294,7 +294,8 @@ TEST_F(DynamicBicycleCarTest, StraightLineTest) {
 
   // Sets the input port to be pi/6 radians (~30 degrees) steering angle and
   // zero force input.
-  context_->FixInputPort(0, Vector2<double>{test_values.steer_angle, test_values.f_Cp_x});
+  context_->FixInputPort(0, drake::Value<drake::systems::BasicVector<double>>(
+                                Vector2<double>{test_values.steer_angle, test_values.f_Cp_x}));
 
   TestTireSlipAngle(test_values);
   TestNormalLoad(test_values);
@@ -314,7 +315,8 @@ TEST_F(DynamicBicycleCarTest, CurveTest) {
 
   // Sets the input port to be pi/6 radians (~30 degrees) steering angle and
   // zero force input.
-  context_->FixInputPort(0, Vector2<double>{test_values.steer_angle, test_values.f_Cp_x});
+  context_->FixInputPort(0, drake::Value<drake::systems::BasicVector<double>>(
+                                Vector2<double>{test_values.steer_angle, test_values.f_Cp_x}));
 
   TestTireSlipAngle(test_values);
   TestNormalLoad(test_values);
@@ -334,7 +336,8 @@ TEST_F(DynamicBicycleCarTest, NegativeCurveTest) {
 
   // Sets the input port to be -pi/6 radians (~30 degrees) steering angle and
   // zero force input.
-  context_->FixInputPort(0, Vector2<double>{test_values.steer_angle, test_values.f_Cp_x});
+  context_->FixInputPort(0, drake::Value<drake::systems::BasicVector<double>>(
+                                Vector2<double>{test_values.steer_angle, test_values.f_Cp_x}));
 
   TestTireSlipAngle(test_values);
   TestNormalLoad(test_values);

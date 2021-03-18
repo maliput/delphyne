@@ -89,10 +89,6 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
                                 const std::vector<double> delta_positions) {
     const int num_lanes = delta_positions.size();
     const int lane_index = get_lane_index(initial_lane_direction.lane);
-    auto ego_pose = std::make_unique<PoseVector<double>>();
-    auto ego_velocity = std::make_unique<FrameVelocity<double>>();
-    PoseBundle<double> traffic_poses(num_lanes + 1);  // Bundles the ego and
-                                                      // traffic cars.
 
     // Configure the ego car pose and velocity.
     const bool with_s = initial_lane_direction.with_s;
@@ -100,23 +96,29 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     const Eigen::Translation3d translation_ego(with_s ? kEgoXPosition : length - kEgoXPosition,   /* x */
                                                (lane_index - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
                                                0.);                                               /* z */
-    ego_pose->set_translation(translation_ego);
-    context_->FixInputPort(ego_pose_input_index_, std::move(ego_pose));
+    PoseVector<double> ego_pose;
+    ego_pose.set_translation(translation_ego);
+    context_->FixInputPort(ego_pose_input_index_, drake::Value<drake::systems::BasicVector<double>>(ego_pose));
 
     drake::Vector6<double> velocity{};
     velocity << 0., /* ωx */ 0., /* ωy */ 0., /* ωz */
         kEgoSpeed, /* vx */ 0., /* vy */ 0.;  /* vz */
-    ego_velocity->set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
-    context_->FixInputPort(ego_velocity_input_index_, std::move(ego_velocity));
+    context_->FixInputPort(ego_velocity_input_index_,
+                           drake::Value<drake::systems::BasicVector<double>>(
+                               FrameVelocity<double>(drake::multibody::SpatialVelocity<double>(velocity))));
 
     // Mock up a command acceleration for the ego car.
     context_->FixInputPort(ego_acceleration_input_index_,
-                           drake::systems::BasicVector<double>::Make(kEgoAccelerationCommand));
+                           drake::Value<drake::systems::BasicVector<double>>(
+                               drake::systems::BasicVector<double>{kEgoAccelerationCommand}));
 
     // Configure the traffic poses and velocities, inclusive of the ego car,
     // where all cars are traveling at the same x-velocity.
     FrameVelocity<double> all_velocity;
     all_velocity.set_velocity(drake::multibody::SpatialVelocity<double>(velocity));
+
+    PoseBundle<double> traffic_poses(num_lanes + 1);  // Bundles the ego and
+                                                      // traffic cars.
     for (int i = 0; i < num_lanes; ++i) {
       const Eigen::Translation3d translation(translation_ego.x() + delta_positions[i], /* x */
                                              (i - 0.5 * (num_lanes - 1)) * kLaneWidth, /* y */
@@ -126,7 +128,7 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     }
     traffic_poses.set_transform(num_lanes, RigidTransform<double>(Eigen::Isometry3d(translation_ego)));
     traffic_poses.set_velocity(num_lanes, all_velocity);
-    context_->FixInputPort(traffic_input_index_, drake::AbstractValue::Make(traffic_poses));
+    context_->FixInputPort(traffic_input_index_, drake::Value<PoseBundle<double>>(traffic_poses));
   }
 
   std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.

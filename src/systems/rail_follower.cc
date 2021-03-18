@@ -17,7 +17,7 @@
 #include <drake/common/drake_assert.h>
 #include <drake/common/value.h>
 #include <drake/math/rotation_matrix.h>
-#include <drake/multibody/math/spatial_velocity.h>
+#include <drake/multibody/math/spatial_algebra.h>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/vector_base.h>
 #include <maliput/api/branch_point.h>

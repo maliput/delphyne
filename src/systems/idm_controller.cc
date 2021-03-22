@@ -45,7 +45,7 @@ IDMController<T>::IDMController(const RoadGeometry& road, ScanStrategy path_or_b
   // a caching sceme once #4364 lands, preventing the need to use abstract
   // states and periodic sampling time.
   if (road_position_strategy == RoadPositionStrategy::kCache) {
-    this->DeclareAbstractState(*drake::AbstractValue::Make<RoadPosition>(RoadPosition()));
+    this->DeclareAbstractState(drake::Value<RoadPosition>{});
     this->DeclarePeriodicUnrestrictedUpdate(period_sec, 0);
   }
 }

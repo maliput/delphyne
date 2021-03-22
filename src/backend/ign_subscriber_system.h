@@ -39,7 +39,7 @@ class IgnSubscriberSystem : public drake::systems::LeafSystem<double> {
                                 this->IgnSubscriberSystem::CalcIgnMessage(context, out);
                               });
     DeclareAbstractState(drake::Value<IGN_TYPE>{IGN_TYPE{}});
-    DeclareAbstractState(*drake::AbstractValue::Make<int>(0));
+    DeclareAbstractState(drake::Value<int>(0));
 
     if (!node_.Subscribe(topic_name_, &IgnSubscriberSystem<IGN_TYPE>::HandleMessage, this)) {
       ignerr << "Error subscribing to topic: " << topic_name_ << "\n Ignition Subscriber will not work" << std::endl;

@@ -39,7 +39,7 @@ class VectorSource final : public drake::systems::LeafSystem<T> {
   explicit VectorSource(T defaultval) {
     output_port_index_ =
         this->DeclareVectorOutputPort(drake::systems::BasicVector<T>(1), &VectorSource::CalcOutputValue).get_index();
-    this->DeclareAbstractState(*drake::AbstractValue::Make<T>(T{defaultval}));
+    this->DeclareAbstractState(drake::Value<T>{defaultval});
     val_ = defaultval;
   }
 

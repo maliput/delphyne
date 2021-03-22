@@ -19,8 +19,8 @@ if prereqs.tag_applies "ignition|all"; then
     prereqs.apt install --no-install-recommends \
         libignition-common3-dev \
         libignition-math6-dev \
-        libignition-msgs4-dev \
-        libignition-transport7-dev
+        libignition-msgs5-dev \
+        libignition-transport8-dev
 fi
 
 prereqs.done

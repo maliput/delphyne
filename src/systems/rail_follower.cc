@@ -100,7 +100,7 @@ RailFollower<T>::RailFollower(const LaneDirection& initial_lane_direction,
   velocity_output_port_index_ =
       this->DeclareVectorOutputPort(&RailFollower::CalcVelocity, {this->xc_ticket()}).get_index();
   lane_direction_context_index_ =
-      this->DeclareAbstractState(drake::AbstractValue::Make<LaneDirection>(initial_lane_direction));
+      this->DeclareAbstractState(*drake::AbstractValue::Make<LaneDirection>(initial_lane_direction));
   rail_follower_params_context_index_ = this->DeclareNumericParameter(initial_context_parameters);
   this->DeclareContinuousState(initial_context_state);
 }

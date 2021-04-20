@@ -4,7 +4,7 @@ This is the repository for Delphyne - a traffic level simulator for autonomous d
 
 ## Build
 
-1. Setup a development workspace as described [here](https://github.com/ToyotaResearchInstitute/dsim-repos-index/tree/master/README.md).
+1. Setup a development workspace as described [here](https://github.com/ToyotaResearchInstitute/maliput-documentation/blob/main/docs/installation_quickstart.rst).
 
 2. Bring up your development workspace:
 

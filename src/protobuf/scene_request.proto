@@ -7,7 +7,7 @@ option java_outer_classname = "SceneRequestProtos";
 
 /// \ingroup ignition.msgs
 /// \interface SceneRequest
-/// \brief A message used by delphyne-gui to
+/// \brief A message used by delphyne_gui to
 /// request a scene to the backend
 
 import "ignition/msgs/header.proto";

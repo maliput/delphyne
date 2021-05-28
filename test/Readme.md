@@ -24,5 +24,5 @@ perhaps lump it with the test helper library.
 
 Similar to above, there's a test_helpers library. Probably worth
 breaking that one at some point out to the library folder and having
-a dedicated library available to assist with testing delphyne and delphyne-gui.
+a dedicated library available to assist with testing delphyne and delphyne_gui.
 

@@ -87,21 +87,27 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::st
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path,
-    const std::string& traffic_light_book_path, const std::string& phase_ring_path, double linear_tolerance,
-    double angular_tolerance) {
+    const std::string& traffic_light_book_path, const std::string& phase_ring_path, bool omit_nondrivable_lanes,
+    double linear_tolerance, double angular_tolerance) {
   const std::optional<std::string> road_rulebook =
       road_rulebook_file_path.empty() ? std::nullopt : std::optional<std::string>(road_rulebook_file_path);
   const std::optional<std::string> traffic_light_book =
       traffic_light_book_path.empty() ? std::nullopt : std::optional<std::string>(traffic_light_book_path);
   const std::optional<std::string> phase_ring =
       phase_ring_path.empty() ? std::nullopt : std::optional<std::string>(phase_ring_path);
-  const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
-      malidrive::builder::RoadGeometryConfiguration{
-          maliput::api::RoadGeometryId(name), file_path, linear_tolerance, angular_tolerance,
-          malidrive::constants::kScaleLength, maliput::math::Vector3{0., 0., 0.},
-          malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
-                                                 malidrive::constants::kNumIterations)},
-      road_rulebook, traffic_light_book, phase_ring};
+
+  malidrive::builder::RoadGeometryConfiguration rg_config{
+      maliput::api::RoadGeometryId(name),
+      file_path,
+      linear_tolerance,
+      angular_tolerance,
+      malidrive::constants::kScaleLength,
+      maliput::math::Vector3{0., 0., 0.},
+      malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
+                                             malidrive::constants::kNumIterations)};
+  rg_config.omit_nondrivable_lanes = omit_nondrivable_lanes;
+  const malidrive::builder::RoadNetworkConfiguration road_network_configuration{rg_config, road_rulebook,
+                                                                                traffic_light_book, phase_ring};
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 

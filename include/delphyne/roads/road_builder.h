@@ -91,13 +91,14 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::st
 /// @param[in] road_rulebook_file_path A string pointing to the Rulebook file to be loaded.
 /// @param[in] traffic_light_book_path A string pointing to the TrafficLightBook file to be loaded.
 /// @param[in] phase_ring_path A string pointing to the PhaseRingBook file to be loaded.
+/// @param[in] omit_nondrivable_lanes If true non-drivable lanes aren't built.
 /// @param[in] linear_tolerance The linear RoadGeometry tolerance. Default value is 1e-3m.
 /// @param[in] angular_tolerance The angular RoadGeometry tolerance. Default value is 1e-3rad.
 /// @return A maliput::api::RoadNetwork.
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path = std::string(),
     const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string(),
-    double linear_tolerance = 1e-3, double angular_tolerance = 1e-3);
+    bool omit_nondrivable_lanes = true, double linear_tolerance = 1e-3, double angular_tolerance = 1e-3);
 
 /// @brief Create a multilane on-ramp.
 std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp();

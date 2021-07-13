@@ -8,7 +8,7 @@
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/system_constraint.h>
 
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 #include "test_utilities/scalar_conversion.h"
 
 #include "gen/simple_car_state.h"

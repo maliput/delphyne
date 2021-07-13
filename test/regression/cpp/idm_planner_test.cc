@@ -5,8 +5,8 @@
 
 #include <gtest/gtest.h>
 
-#include "drake/common/autodiff.h"
-#include "drake/common/extract_double.h"
+#include <drake/common/autodiff.h>
+#include <drake/common/extract_double.h>
 
 #include "test_utilities/autodiff_test_utilities.h"
 

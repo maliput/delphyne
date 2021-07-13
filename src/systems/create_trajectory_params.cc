@@ -5,10 +5,10 @@
 #include <algorithm>
 #include <vector>
 
-#include "maliput/api/junction.h"
-#include "maliput/api/lane.h"
-#include "maliput/api/lane_data.h"
-#include "maliput/api/segment.h"
+#include <maliput/api/junction.h>
+#include <maliput/api/lane.h>
+#include <maliput/api/lane_data.h>
+#include <maliput/api/segment.h>
 
 namespace delphyne {
 

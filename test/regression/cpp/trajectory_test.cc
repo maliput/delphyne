@@ -9,7 +9,7 @@
 
 #include <drake/math/roll_pitch_yaw.h>
 
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 namespace delphyne {
 namespace {

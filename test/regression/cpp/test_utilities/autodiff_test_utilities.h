@@ -2,7 +2,7 @@
 
 #include <drake/common/autodiff.h>
 
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 namespace delphyne {
 

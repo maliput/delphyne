@@ -5,7 +5,7 @@
 
 #include <gtest/gtest.h>
 
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 #include "gen/simple_car_state.h"
 

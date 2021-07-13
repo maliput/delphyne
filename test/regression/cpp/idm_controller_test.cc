@@ -8,7 +8,7 @@
 #include <drake/multibody/math/spatial_velocity.h>
 
 #include <maliput/api/road_geometry.h>
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 #include "test_utilities/scalar_conversion.h"
 

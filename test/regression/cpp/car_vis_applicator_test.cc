@@ -14,7 +14,7 @@
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
 
-#include "maliput_multilane_test_utilities/eigen_matrix_compare.h"
+#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 #include "visualization/box_car_vis.h"
 #include "visualization/car_vis.h"
 

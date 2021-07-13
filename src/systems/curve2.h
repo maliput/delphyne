@@ -8,8 +8,8 @@
 
 #include <Eigen/Dense>
 
-#include "drake/common/autodiffxd_make_coherent.h"
-#include "drake/common/drake_copyable.h"
+#include <drake/common/autodiffxd_make_coherent.h>
+#include <drake/common/drake_copyable.h>
 
 namespace delphyne {
 

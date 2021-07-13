@@ -3,8 +3,8 @@
 
 #include <Eigen/Dense>
 
-#include "drake/math/rigid_transform.h"
-#include "drake/math/rotation_matrix.h"
+#include <drake/math/rigid_transform.h>
+#include <drake/math/rotation_matrix.h>
 
 using std::vector;
 

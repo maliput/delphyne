@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 
-#include "drake/lcmt_viewer_link_data.hpp"
-#include "drake/systems/rendering/pose_bundle.h"
+#include <drake/lcmt_viewer_link_data.hpp>
+#include <drake/systems/rendering/pose_bundle.h>
 
 namespace delphyne {
 

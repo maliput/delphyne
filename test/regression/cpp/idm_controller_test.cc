@@ -3,6 +3,7 @@
 #include <gtest/gtest.h>
 
 #include "delphyne/roads/road_builder.h"
+
 #include <drake/common/eigen_types.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/multibody/math/spatial_velocity.h>

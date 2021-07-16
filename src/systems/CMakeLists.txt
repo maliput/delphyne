@@ -23,12 +23,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 
-ament_target_dependencies(drake_systems
-  "drake"
-  "maliput"
-  "maliput_dragway"
-)
-
 target_link_libraries(
   drake_systems
     drake::drake

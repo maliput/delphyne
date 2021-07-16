@@ -20,10 +20,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/test/regression/cpp>
 )
 
-ament_target_dependencies(test_utilities
-  "maliput_multilane"
-)
-
 target_link_libraries(test_utilities
   drake::drake
   delphyne::drake_gen

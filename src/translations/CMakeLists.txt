@@ -27,11 +27,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 
-ament_target_dependencies(translations
-  PUBLIC
-    maliput
-)
-
 target_link_libraries(translations
   PUBLIC
     drake::drake

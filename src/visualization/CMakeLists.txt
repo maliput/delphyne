@@ -23,12 +23,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
 )
 
-ament_target_dependencies(visualization
-  "drake"
-  "maliput"
-  "maliput_dragway"
-)
-
 target_link_libraries(visualization
   drake::drake
   delphyne::public_headers

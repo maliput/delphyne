@@ -14,6 +14,7 @@
 #include <vector>
 
 #include <maliput/api/road_geometry.h>
+
 #include "delphyne/mi6/agent_base_blueprint.h"
 #include "systems/trajectory.h"
 

@@ -8,7 +8,6 @@
 #include <string>
 
 #include <gtest/gtest.h>
-
 #include <ignition/common/Filesystem.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport/log/Log.hh>

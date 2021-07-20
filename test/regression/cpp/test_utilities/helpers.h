@@ -11,11 +11,8 @@
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/lcmt_viewer_load_robot.hpp>
 #include <drake/systems/rendering/pose_bundle.h>
-
 #include <google/protobuf/message.h>
-
 #include <gtest/gtest.h>
-
 #include <ignition/common/Filesystem.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>

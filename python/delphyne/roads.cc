@@ -9,13 +9,12 @@
 
 #include <limits>
 
-#include <pybind11/functional.h>
-#include <pybind11/pybind11.h>
-#include <pybind11/stl.h>
-
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/utilities/generate_obj.h>
+#include <pybind11/functional.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
 
 // public headers
 #include "delphyne/roads/find_lane.h"

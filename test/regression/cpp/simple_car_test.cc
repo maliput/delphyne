@@ -3,15 +3,13 @@
 #include <cmath>
 #include <memory>
 
-#include <gtest/gtest.h>
-
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/system_constraint.h>
-
+#include <gtest/gtest.h>
 #include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
-#include "test_utilities/scalar_conversion.h"
 
 #include "gen/simple_car_state.h"
+#include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {
 

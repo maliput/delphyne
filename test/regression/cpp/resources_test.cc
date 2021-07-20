@@ -1,15 +1,13 @@
 // Copyright 2017 Toyota Research Institute
 
-#include "delphyne/utility/package.h"
-
 #include <fstream>
 #include <string>
 
 #include <gtest/gtest.h>
-
 #include <ignition/common/Filesystem.hh>
 #include <ignition/common/URI.hh>
 
+#include "delphyne/utility/package.h"
 #include "test_utilities/helpers.h"
 
 namespace delphyne {

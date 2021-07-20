@@ -1,13 +1,12 @@
 #include "systems/calc_ongoing_road_position.h"
 
-#include <gtest/gtest.h>
-
-#include "delphyne/roads/road_builder.h"
-
 #include <drake/common/autodiff.h>
+#include <gtest/gtest.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput_multilane/multilane_onramp_merge.h>
 #include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
+
+#include "delphyne/roads/road_builder.h"
 
 namespace delphyne {
 

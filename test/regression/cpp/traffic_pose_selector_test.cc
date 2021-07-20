@@ -1,16 +1,15 @@
 #include "systems/traffic_pose_selector.h"
 
-#include <gtest/gtest.h>
-
-#include "delphyne/roads/road_builder.h"
-
 #include <drake/common/extract_double.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
+#include <gtest/gtest.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput_multilane/builder.h>
 #include <maliput_multilane/road_geometry.h>
+
+#include "delphyne/roads/road_builder.h"
 
 namespace delphyne {
 namespace {

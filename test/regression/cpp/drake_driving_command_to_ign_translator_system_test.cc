@@ -3,7 +3,6 @@
 #include <memory>
 
 #include <drake/systems/framework/framework_common.h>
-
 #include <gtest/gtest.h>
 
 #include "test_utilities/helpers.h"

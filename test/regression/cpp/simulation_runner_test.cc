@@ -1,5 +1,7 @@
 // Copyright 2017 Toyota Research Institute
 
+#include "backend/simulation_runner.h"
+
 #include <chrono>
 #include <condition_variable>
 #include <csignal>
@@ -10,13 +12,11 @@
 #include <thread>
 
 #include <gtest/gtest.h>
-
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
 
 #include "agents/simple_car.h"
 #include "backend/agent_simulation_builder.h"
-#include "backend/simulation_runner.h"
 #include "delphyne/macros.h"
 #include "delphyne/mi6/agent_simulation.h"
 #include "test_utilities/helpers.h"

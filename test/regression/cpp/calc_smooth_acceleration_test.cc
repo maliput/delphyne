@@ -3,10 +3,9 @@
 #include <stdexcept>
 #include <vector>
 
-#include <gtest/gtest.h>
-
 #include <drake/common/autodiff.h>
 #include <drake/common/symbolic.h>
+#include <gtest/gtest.h>
 
 namespace delphyne {
 

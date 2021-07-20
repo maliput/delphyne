@@ -10,7 +10,6 @@
 
 #include <ignition/common/Filesystem.hh>
 #include <ignition/common/StringUtils.hh>
-
 #include <zip.h>
 
 #include "utility/filesystem.h"

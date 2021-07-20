@@ -7,12 +7,12 @@
 ** Includes
 *****************************************************************************/
 
+#include "delphyne/roads/find_lane.h"
+
 #include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/segment.h>
-
-#include "delphyne/roads/find_lane.h"
 
 /*****************************************************************************
 ** Namespaces

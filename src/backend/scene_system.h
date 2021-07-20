@@ -7,7 +7,6 @@
 #include <vector>
 
 #include <drake/systems/framework/leaf_system.h>
-
 #include <ignition/math/Color.hh>
 #include <ignition/math/Vector3.hh>
 #include <ignition/msgs.hh>

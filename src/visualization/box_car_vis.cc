@@ -2,7 +2,6 @@
 #include "visualization/box_car_vis.h"
 
 #include <Eigen/Dense>
-
 #include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
 

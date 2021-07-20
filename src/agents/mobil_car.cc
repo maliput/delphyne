@@ -15,10 +15,9 @@
 
 #include <drake/common/eigen_types.h>
 #include <drake/systems/primitives/multiplexer.h>
-#include <maliput/api/road_geometry.h>
-
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
+#include <maliput/api/road_geometry.h>
 
 // public headers
 #include "delphyne/macros.h"

@@ -7,7 +7,6 @@
 #include <string>
 
 #include <gtest/gtest.h>
-
 #include <ignition/common/Filesystem.hh>
 
 #include "test_utilities/helpers.h"

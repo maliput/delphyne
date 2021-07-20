@@ -11,10 +11,9 @@
 #include <ignition/common/StringUtils.hh>
 #include <ignition/common/URI.hh>
 
-#include "utility/filesystem.h"
-
 #include "delphyne/utility/resources/meshes.h"
 #include "delphyne/utility/resources/resources.h"
+#include "utility/filesystem.h"
 
 namespace delphyne {
 namespace utility {

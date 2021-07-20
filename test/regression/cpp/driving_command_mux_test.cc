@@ -2,11 +2,10 @@
 
 #include <memory>
 
-#include <gtest/gtest.h>
-
 #include <drake/common/autodiff.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
+#include <gtest/gtest.h>
 
 #include "gen/driving_command.h"
 #include "test_utilities/scalar_conversion.h"

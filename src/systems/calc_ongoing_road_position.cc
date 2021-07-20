@@ -6,7 +6,6 @@
 #include <drake/common/extract_double.h>
 #include <drake/common/symbolic.h>
 #include <drake/math/rigid_transform.h>
-
 #include <maliput/api/branch_point.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/segment.h>

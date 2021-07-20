@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include <Eigen/Geometry>
 #include <drake/common/cond.h>
 #include <drake/common/drake_assert.h>
 #include <drake/common/value.h>
@@ -23,8 +24,6 @@
 #include <maliput/api/branch_point.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
-
-#include <Eigen/Geometry>
 
 #include "delphyne/macros.h"
 #include "gen/rail_follower_params.h"

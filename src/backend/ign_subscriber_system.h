@@ -10,7 +10,6 @@
 #include <drake/lcmt_viewer_draw.hpp>
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/leaf_system.h>
-
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>

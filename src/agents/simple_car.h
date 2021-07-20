@@ -13,6 +13,7 @@
 #include <string>
 
 #include <maliput/api/road_geometry.h>
+
 #include "delphyne/mi6/agent_base_blueprint.h"
 
 /*****************************************************************************

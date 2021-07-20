@@ -7,9 +7,7 @@
 
 #include <drake/systems/analysis/simulator.h>
 #include <drake/systems/framework/diagram_builder.h>
-
 #include <gtest/gtest.h>
-
 #include <ignition/msgs.hh>
 
 #include "delphyne/macros.h"

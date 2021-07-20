@@ -11,7 +11,6 @@
 #include <drake/systems/framework/input_port.h>
 #include <drake/systems/framework/output_port.h>
 #include <drake/systems/rendering/pose_vector.h>
-
 #include <gtest/gtest.h>
 
 namespace delphyne {

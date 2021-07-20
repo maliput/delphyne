@@ -18,12 +18,10 @@
 
 #include "backend/data_logger.h"
 #include "backend/interactive_simulation_stats.h"
-
 #include "delphyne/macros.h"
 #include "delphyne/mi6/agent_simulation.h"
 #include "delphyne/protobuf/scene_request.pb.h"
 #include "delphyne/protobuf/simulation_in_message.pb.h"
-
 #include "utility/signal_guard.h"
 
 namespace delphyne {

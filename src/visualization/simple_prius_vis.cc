@@ -25,12 +25,10 @@
 #include <drake/multibody/parsing/parser.h>
 #include <drake/multibody/plant/multibody_plant.h>
 #include <drake/multibody/tree/multibody_tree_indexes.h>
-
 #include <ignition/common/SystemPaths.hh>
 
-#include "delphyne/macros.h"
-
 #include "backend/geometry_utilities.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

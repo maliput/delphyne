@@ -7,7 +7,6 @@
 #include <utility>
 
 #include <Eigen/Geometry>
-
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>

@@ -7,9 +7,7 @@
 
 #include <drake/common/value.h>
 #include <drake/systems/analysis/simulator.h>
-
 #include <gtest/gtest.h>
-
 #include <ignition/msgs.hh>
 
 #include "test_utilities/helpers.h"

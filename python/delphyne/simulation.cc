@@ -112,11 +112,13 @@ PYBIND11_MODULE(simulation, m) {
 
   py::class_<AgentSimulationBuilder>(m, "AgentSimulationBuilder")
       .def(py::init([](void) { return std::make_unique<AgentSimulationBuilder>(); }))
+      // clang-format off
       .def("add_agent",
            [](AgentSimulationBuilder* self, std::unique_ptr<AgentBlueprint> blueprint) {
              return self->AddAgent(std::move(blueprint));
            },
            py::return_value_policy::reference_internal)
+      // clang-format on
       .def("set_road_geometry",
            py::overload_cast<std::unique_ptr<const ::maliput::api::RoadGeometry>>(
                &AgentSimulationBuilder::SetRoadGeometry),
@@ -143,12 +145,14 @@ PYBIND11_MODULE(simulation, m) {
 
   py::class_<AgentSimulation>(m, "AgentSimulation")
       .def("get_collisions", &AgentSimulation::GetCollisions, py::return_value_policy::reference_internal)
+      // clang-format off
       .def("get_agent_by_name",
            [](AgentSimulation* self, const std::string& name) { return &self->GetAgentByName(name); },
            py::return_value_policy::reference_internal)
       .def("get_mutable_agent_by_name",
            [](AgentSimulation* self, const std::string& name) { return self->GetMutableAgentByName(name); },
            py::return_value_policy::reference_internal)
+      // clang-format on
       .def("get_diagram", &AgentSimulation::GetDiagram, py::return_value_policy::reference_internal)
       .def("get_context", &AgentSimulation::GetContext, py::return_value_policy::reference_internal)
       .def("get_mutable_context", &AgentSimulation::GetMutableContext, py::return_value_policy::reference_internal)

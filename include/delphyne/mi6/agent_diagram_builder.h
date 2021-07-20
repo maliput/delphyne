@@ -128,7 +128,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
     diagram->set_name(name_);
     diagram->set_input_names(inputs_mapping_);
     diagram->set_output_names(outputs_mapping_);
-    return std::move(diagram);
+    return diagram;
   }
 
  private:

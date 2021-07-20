@@ -52,7 +52,7 @@ macro(delphyne_build_tests)
     if (PYTHONINTERP_FOUND)
       # Check that the test produced a result and create a failure if
       # it didn't. Guards against crashed and timed out tests.
-      add_test(check_${BINARY_NAME} python
+      add_test(check_${BINARY_NAME} ${PYTHON_EXECUTABLE}
         ${PROJECT_SOURCE_DIR}/test/utils/check_test_ran.py
         ${CMAKE_BINARY_DIR}/test_results/delphyne/${BINARY_NAME}.gtest.xml)
     endif()

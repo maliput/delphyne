@@ -25,13 +25,6 @@ target_include_directories(
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-ament_target_dependencies(roads_utilities
-  "drake"
-  "maliput"
-  "maliput_dragway"
-  "maliput_multilane"
-)
-
 target_link_libraries(
   roads_utilities
     drake::drake

@@ -32,11 +32,6 @@ target_include_directories(
     $<BUILD_INTERFACE:${PYTHON_INCLUDE_DIRS}>
 )
 
-ament_target_dependencies(backend
-  "drake"
-  "maliput"
-)
-
 target_link_libraries(
   backend
     drake::drake

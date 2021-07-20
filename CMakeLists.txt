@@ -122,6 +122,7 @@ ament_export_dependencies(drake_vendor)
 ament_export_dependencies(malidrive)
 ament_export_dependencies(maliput)
 ament_export_dependencies(maliput_dragway)
+ament_export_dependencies(maliput_malidrive)
 ament_export_dependencies(maliput_multilane)
 
 ament_export_interfaces(${PROJECT_NAME}-targets HAS_LIBRARY_TARGET)

@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <Eigen/Geometry>
-
 #include <drake/common/drake_assert.h>
 #include <drake/common/value.h>
 #include <drake/math/rigid_transform.h>

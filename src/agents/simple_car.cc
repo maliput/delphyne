@@ -12,12 +12,12 @@
 #include <string>
 #include <utility>
 
+#include <maliput/common/maliput_unused.h>
+
 #include "backend/ign_subscriber_system.h"
 #include "gen/simple_car_state.h"
 #include "systems/simple_car.h"
 #include "translations/ign_driving_command_to_drake.h"
-
-#include <maliput/common/maliput_unused.h>
 
 /*****************************************************************************
  ** Namespaces

@@ -14,9 +14,8 @@
 #include <ignition/common/SystemPaths.hh>
 #include <ignition/common/URI.hh>
 
-#include "utility/filesystem.h"
-
 #include "delphyne/macros.h"
+#include "utility/filesystem.h"
 
 namespace delphyne {
 namespace utility {

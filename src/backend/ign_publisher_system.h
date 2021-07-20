@@ -9,11 +9,9 @@
 #include <vector>
 
 #include <drake/systems/framework/leaf_system.h>
-
 #include <ignition/common/Console.hh>
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
-
 #include <maliput/common/maliput_unused.h>
 
 #include "delphyne/macros.h"

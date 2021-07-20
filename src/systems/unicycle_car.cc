@@ -6,10 +6,9 @@
 #include <cmath>
 #include <utility>
 
+#include <Eigen/Geometry>
 #include <drake/common/drake_assert.h>
 #include <drake/systems/framework/vector_base.h>
-
-#include <Eigen/Geometry>
 
 namespace delphyne {
 

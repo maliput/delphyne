@@ -4,13 +4,11 @@
 #include <string>
 #include <vector>
 
-#include <gtest/gtest.h>
-
 #include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_bundle.h>
-
+#include <gtest/gtest.h>
 #include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 namespace delphyne {

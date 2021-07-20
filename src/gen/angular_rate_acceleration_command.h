@@ -12,7 +12,6 @@
 #include <vector>
 
 #include <drake/systems/framework/basic_vector.h>
-
 #include <maliput/common/maliput_never_destroyed.h>
 
 namespace delphyne {

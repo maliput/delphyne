@@ -14,7 +14,6 @@
 #include <drake/lcmt_viewer_geometry_data.hpp>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/rendering/pose_bundle.h>
-
 #include <ignition/msgs.hh>
 
 #include "delphyne/macros.h"

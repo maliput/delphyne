@@ -6,7 +6,6 @@
 
 #include <Eigen/Dense>
 #include <Eigen/Geometry>
-
 #include <drake/common/drake_copyable.h>
 #include <drake/common/trajectories/piecewise_polynomial.h>
 #include <drake/common/trajectories/piecewise_quaternion.h>

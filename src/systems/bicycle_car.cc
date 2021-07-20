@@ -7,7 +7,6 @@
 #include <utility>
 
 #include <Eigen/Geometry>
-
 #include <drake/common/default_scalars.h>
 #include <drake/common/drake_assert.h>
 

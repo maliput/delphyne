@@ -7,7 +7,6 @@
 #include <drake/common/eigen_types.h>
 #include <drake/math/rigid_transform.h>
 #include <drake/systems/rendering/pose_bundle.h>
-
 #include <maliput/common/maliput_unused.h>
 
 #include "delphyne/protobuf/agent_state.pb.h"

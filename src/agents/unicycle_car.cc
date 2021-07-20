@@ -13,12 +13,11 @@
 #include <utility>
 
 #include <drake/systems/primitives/multiplexer.h>
+#include <maliput/common/maliput_unused.h>
 
 #include "gen/angular_rate_acceleration_command.h"
 #include "gen/simple_car_state.h"
 #include "systems/unicycle_car.h"
-
-#include <maliput/common/maliput_unused.h>
 
 /*****************************************************************************
  ** Namespaces

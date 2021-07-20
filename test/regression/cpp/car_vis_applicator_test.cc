@@ -5,16 +5,15 @@
 #include <utility>
 
 #include <Eigen/Dense>
-#include <gtest/gtest.h>
-
 #include <drake/common/value.h>
 #include <drake/lcmt_viewer_link_data.hpp>
 #include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <drake/systems/rendering/pose_vector.h>
-
+#include <gtest/gtest.h>
 #include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
+
 #include "visualization/box_car_vis.h"
 #include "visualization/car_vis.h"
 

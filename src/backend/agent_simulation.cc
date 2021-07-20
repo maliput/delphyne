@@ -20,7 +20,6 @@
 #include <maliput/api/road_network.h>
 
 #include "backend/scene_system.h"
-
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/agent_state.pb.h"
 #include "delphyne/protobuf/agent_state_v.pb.h"

@@ -7,14 +7,13 @@
 #include <limits>
 #include <utility>
 
+#include <Eigen/Geometry>
 #include <drake/common/cond.h>
 #include <drake/common/default_scalars.h>
 #include <drake/common/double_overloads.h>
 #include <drake/common/drake_assert.h>
 #include <drake/math/saturate.h>
 #include <drake/systems/framework/vector_base.h>
-
-#include <Eigen/Geometry>
 
 #include "systems/calc_smooth_acceleration.h"
 

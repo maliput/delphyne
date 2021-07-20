@@ -3,9 +3,8 @@
 #include <memory>
 #include <string>
 
-#include <gtest/gtest.h>
-
 #include <drake/common/nice_type_name.h>
+#include <gtest/gtest.h>
 
 namespace delphyne {
 namespace test {

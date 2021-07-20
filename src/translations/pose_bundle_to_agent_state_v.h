@@ -3,7 +3,6 @@
 #pragma once
 
 #include <drake/systems/rendering/pose_bundle.h>
-
 #include <ignition/msgs.hh>
 
 #include "delphyne/protobuf/agent_state_v.pb.h"

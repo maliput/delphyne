@@ -21,6 +21,7 @@
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/utilities/generate_obj.h>
+
 #include "backend/frame_pose_aggregator.h"
 
 namespace delphyne {

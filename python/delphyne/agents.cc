@@ -64,12 +64,13 @@ PYBIND11_MODULE(agents, m) {
       .def("set_acceleration", &UnicycleCarAgent::SetAcceleration)
       .def("set_angular_rate", &UnicycleCarAgent::SetAngularRate);
 
+  // clang-format off
   py::class_<AgentBlueprint>(m, "AgentBlueprint")
       .def("get_agent",
            [](AgentBlueprint* self, const AgentSimulation& simulation) { return &self->GetAgent(simulation); },
            py::return_value_policy::reference_internal)
       .def("get_mutable_agent", &AgentBlueprint::GetMutableAgent, py::return_value_policy::reference_internal);
-
+  // clang-format on
   py::class_<SimpleCarBlueprint, AgentBlueprint>(m, "SimpleCarBlueprint")
       .def(py::init<const std::string&, double, double, double, double>(), "Construct and configure a simple car",
            py::arg("name"), py::arg("x"), py::arg("y"), py::arg("heading"), py::arg("speed"));

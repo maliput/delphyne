@@ -15,10 +15,9 @@
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/diagram_context.h>
 #include <drake/systems/rendering/pose_bundle.h>
+#include <gtest/gtest.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
-
-#include <gtest/gtest.h>
 
 #include "agents/mobil_car.h"
 #include "agents/rail_car.h"

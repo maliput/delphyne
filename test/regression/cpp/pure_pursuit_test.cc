@@ -1,11 +1,10 @@
 #include "systems/pure_pursuit.h"
 
 #include <gtest/gtest.h>
-
-#include "delphyne/roads/road_builder.h"
-
 #include <maliput/api/road_geometry.h>
 #include <maliput_multilane/builder.h>
+
+#include "delphyne/roads/road_builder.h"
 
 namespace delphyne {
 namespace {

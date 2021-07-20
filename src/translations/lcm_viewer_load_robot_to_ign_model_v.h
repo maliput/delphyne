@@ -5,7 +5,6 @@
 #include <cstdint>
 
 #include <drake/lcmt_viewer_load_robot.hpp>
-
 #include <ignition/msgs.hh>
 
 #include "translations/drake_to_ign.h"

@@ -3,7 +3,6 @@
 #pragma once
 
 #include <drake/lcmt_viewer_draw.hpp>
-
 #include <ignition/msgs.hh>
 
 #include "delphyne/macros.h"

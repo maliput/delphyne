@@ -3,7 +3,6 @@
 #include "backend/frame_pose_aggregator.h"
 
 #include <delphyne/macros.h>
-
 #include <drake/math/rigid_transform.h>
 #include <drake/math/rotation_matrix.h>
 #include <drake/systems/rendering/pose_vector.h>

@@ -12,16 +12,14 @@
 
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/message.h>
-
 #include <ignition/common/Filesystem.hh>
 #include <ignition/common/StringUtils.hh>
 #include <ignition/common/SystemPaths.hh>
 
-#include "utility/compression.h"
-#include "utility/filesystem.h"
-
 #include "delphyne/macros.h"
 #include "delphyne/utility/package.h"
+#include "utility/compression.h"
+#include "utility/filesystem.h"
 
 namespace delphyne {
 

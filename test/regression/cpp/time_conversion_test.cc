@@ -3,7 +3,6 @@
 #include "translations/time_conversion.h"
 
 #include <gtest/gtest.h>
-
 #include <ignition/msgs.hh>
 
 namespace delphyne {

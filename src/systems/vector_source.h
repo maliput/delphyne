@@ -10,7 +10,6 @@
 
 #include <drake/systems/framework/basic_vector.h>
 #include <drake/systems/framework/leaf_system.h>
-
 #include <maliput/common/maliput_unused.h>
 
 #include "delphyne/macros.h"

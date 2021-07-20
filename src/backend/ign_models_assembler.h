@@ -3,7 +3,6 @@
 #pragma once
 
 #include <drake/systems/framework/leaf_system.h>
-
 #include <ignition/msgs.hh>
 
 namespace delphyne {

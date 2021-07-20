@@ -13,10 +13,9 @@
 #include <drake/systems/framework/context.h>
 #include <drake/systems/framework/diagram.h>
 #include <drake/systems/rendering/pose_bundle.h>
+#include <ignition/msgs.hh>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
-
-#include <ignition/msgs.hh>
 
 // public headers
 #include "delphyne/macros.h"

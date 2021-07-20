@@ -6,7 +6,6 @@
 #include <vector>
 
 #include <Eigen/Geometry>
-
 #include <drake/common/drake_copyable.h>
 #include <drake/systems/framework/leaf_system.h>
 #include <drake/systems/rendering/pose_bundle.h>

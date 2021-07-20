@@ -13,12 +13,10 @@
 #include <vector>
 
 #include <Eigen/Core>
-
 #include <drake/common/drake_bool.h>
 #include <drake/common/dummy_value.h>
 #include <drake/common/symbolic.h>
 #include <drake/systems/framework/basic_vector.h>
-
 #include <maliput/common/maliput_never_destroyed.h>
 
 // TODO(jwnimmer-tri) Elevate this to drake/common.

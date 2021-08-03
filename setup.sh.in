@@ -52,11 +52,11 @@ add_if_not_in_var() {
 
 # Path to various resources used by shell/python scripts and demos
 #   e.g. configuration files, protos, road geometries
-add_if_not_in_var DELPHYNE_RESOURCE_ROOT $COLCON_PREFIX_PATH/share/delphyne
+add_if_not_in_var DELPHYNE_RESOURCE_ROOT $COLCON_PREFIX_PATH/delphyne/share/delphyne
 
 # Paths to resources used for rendering (see RenderWidget.hh/.cc)
 #   e.g. sdf/urdf/obj/dae/textures
 add_if_not_in_var DELPHYNE_PACKAGE_PATH @drake_RESOURCE_ROOT@/automotive/models
 
 # Path to descriptors of custom ignition messages (nec. for topic introspection)
-add_if_not_in_var IGN_DESCRIPTOR_PATH $COLCON_PREFIX_PATH/include/delphyne/protobuf
+add_if_not_in_var IGN_DESCRIPTOR_PATH $COLCON_PREFIX_PATH/delphyne/include/delphyne/protobuf

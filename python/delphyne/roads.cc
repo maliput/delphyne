@@ -38,7 +38,7 @@ PYBIND11_MODULE(roads, m) {
   py::module::import("maliput.api");
 
   // Most of the required maliput types (e.g. Lane, LaneId, RoadGeometry)
-  // already have bindings in pydrake. Take advantage of these or help
+  // already have bindings in maliput_py. Take advantage of these or help
   // contribute to them so others can take advantage of them as well.
 
   m.def("find_lane", &delphyne::roads::FindLane, "Find the lane inside the specified road geometry by id",
@@ -53,11 +53,6 @@ PYBIND11_MODULE(roads, m) {
         "Load a multilane road geometry from file (yaml)", py::arg("file_path"));
 
   m.def("create_on_ramp", &delphyne::roads::CreateOnRamp, "Create the exemplar highway on-ramp");
-
-  m.def("create_malidrive_from_file", &delphyne::roads::CreateMalidriveFromFile,
-        "Load an OpenDrive road geometry from file (xodr)", py::arg("name"), py::arg("file_path"),
-        py::arg("road_rulebook_file_path") = std::string(), py::arg("traffic_light_rulebook_file_path") = std::string(),
-        py::arg("phase_ring_file_path") = std::string());
 
   m.def("create_malidrive_from_xodr", &delphyne::roads::CreateMalidriveFromXodr,
         "Load an OpenDrive road geometry from file (xodr) without OpenDrive SDK", py::arg("name"), py::arg("file_path"),

@@ -9,6 +9,8 @@
 
 #include "delphyne/roads/road_builder.h"
 
+#include <map>
+
 #include <malidrive/builder/road_network_builder.h>
 #include <malidrive/constants.h>
 #include <maliput/api/road_geometry.h>
@@ -65,14 +67,11 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::st
       traffic_light_book_path.empty() ? std::nullopt : std::optional<std::string>(traffic_light_book_path);
   const std::optional<std::string> phase_ring =
       phase_ring_path.empty() ? std::nullopt : std::optional<std::string>(phase_ring_path);
-  malidrive::builder::RoadNetworkConfiguration road_network_configuration{
-      malidrive::builder::RoadGeometryConfiguration{
-          maliput::api::RoadGeometryId(name), file_path, malidrive::constants::kLinearTolerance,
-          malidrive::constants::kAngularTolerance, malidrive::constants::kScaleLength,
-          maliput::math::Vector3{0., 0., 0.},
-          malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
-                                                 malidrive::constants::kNumIterations)},
-      road_rulebook, traffic_light_book, phase_ring};
+  malidrive::builder::RoadGeometryConfiguration rg_config{};
+  rg_config.id = maliput::api::RoadGeometryId(name);
+  rg_config.opendrive_file = file_path;
+  malidrive::builder::RoadNetworkConfiguration road_network_configuration{rg_config, road_rulebook, traffic_light_book,
+                                                                          phase_ring, std::nullopt};
   return malidrive::loader::Load<malidrive::opendrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
@@ -88,19 +87,24 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path,
     const std::string& traffic_light_book_path, const std::string& phase_ring_path, double linear_tolerance,
     double angular_tolerance) {
-  const std::optional<std::string> road_rulebook =
-      road_rulebook_file_path.empty() ? std::nullopt : std::optional<std::string>(road_rulebook_file_path);
-  const std::optional<std::string> traffic_light_book =
-      traffic_light_book_path.empty() ? std::nullopt : std::optional<std::string>(traffic_light_book_path);
-  const std::optional<std::string> phase_ring =
-      phase_ring_path.empty() ? std::nullopt : std::optional<std::string>(phase_ring_path);
-  const malidrive::builder::RoadNetworkConfiguration road_network_configuration{
-      malidrive::builder::RoadGeometryConfiguration{
-          maliput::api::RoadGeometryId(name), file_path, linear_tolerance, angular_tolerance,
-          malidrive::constants::kScaleLength, maliput::math::Vector3{0., 0., 0.},
-          malidrive::InertialToLaneMappingConfig(malidrive::constants::kExplorationRadius,
-                                                 malidrive::constants::kNumIterations)},
-      road_rulebook, traffic_light_book, phase_ring};
+  std::map<std::string, std::string> road_network_configuration{
+      {"road_geometry_id", name},
+      {"opendrive_file", file_path},
+      {"linear_tolerance", std::to_string(linear_tolerance)},
+      {"angular_tolerance", std::to_string(angular_tolerance)},
+      {"scale_length", std::to_string(malidrive::constants::kScaleLength)},
+  };
+
+  if (!road_rulebook_file_path.empty()) {
+    road_network_configuration.emplace("road_rule_book", road_rulebook_file_path);
+  }
+  if (!traffic_light_book_path.empty()) {
+    road_network_configuration.emplace("traffic_light_book", traffic_light_book_path);
+  }
+  if (!phase_ring_path.empty()) {
+    road_network_configuration.emplace("phase_ring_path", phase_ring_path);
+  }
+
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 

@@ -96,10 +96,6 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
       run: ./drake_installer
-    - name: install ignition packages
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src
-      run: ./${PACKAGE_NAME}/.github/ignition_packages_installation.sh
     - name: colcon build up-to
       shell: bash
       working-directory: ${{ env.ROS_WS }}

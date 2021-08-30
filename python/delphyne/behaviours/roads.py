@@ -88,9 +88,9 @@ class Multilane(Road):
                 )
 
 
-class Malidrive2(Road):
+class Malidrive(Road):
     """
-    A maliput malidrive road without OpenDrive SDK.
+    A maliput malidrive road.
     """
 
     def __init__(self, file_path, features=delphyne.roads.ObjFeatures(),

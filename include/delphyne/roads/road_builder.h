@@ -60,7 +60,7 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
 /// @param[in] file_path A string pointing to the file to be loaded.
 std::unique_ptr<const maliput::api::RoadGeometry> CreateMultilaneFromFile(const std::string& file_path);
 
-/// @brief Create a malidrive from xodr source without OpenDrive SDK.
+/// @brief Create a malidrive from xodr source.
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the file to be loaded.
@@ -72,7 +72,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::st
                                                                    double linear_tolerance = 1e-3,
                                                                    double angular_tolerance = 1e-3);
 
-/// @brief Create a malidrive from xodr source without OpenDrive SDK.
+/// @brief Create a malidrive from xodr source.
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the XODR file to be loaded.

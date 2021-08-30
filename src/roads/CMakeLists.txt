@@ -28,8 +28,6 @@ target_include_directories(
 target_link_libraries(
   roads_utilities
     drake::drake
-    malidrive::builder
-    malidrive::loader
     maliput::api
     maliput_dragway::maliput_dragway
     maliput_multilane::maliput_multilane

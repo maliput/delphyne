@@ -17,7 +17,6 @@
   <build_depend>ignition-math6</build_depend>
   <build_depend>ignition-msgs5</build_depend>
   <build_depend>ignition-transport8</build_depend>
-  <build_depend>malidrive</build_depend>
   <build_depend>maliput_malidrive</build_depend>
 
   <depend>maliput</depend>
@@ -30,7 +29,6 @@
   <build_export_depend>ignition-math6</build_export_depend>
   <build_export_depend>ignition-msgs5</build_export_depend>
   <build_export_depend>ignition-transport8</build_export_depend>
-  <build_export_depend>malidrive</build_export_depend>
   <build_export_depend>maliput_malidrive</build_export_depend>
 
   <exec_depend>ament_cmake</exec_depend>

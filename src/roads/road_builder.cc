@@ -11,8 +11,6 @@
 
 #include <map>
 
-#include <malidrive/builder/road_network_builder.h>
-#include <malidrive/constants.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
 #include <maliput/math/vector.h>
@@ -54,25 +52,6 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateMultilaneFromFile(const 
 
 std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp() {
   return maliput::multilane::MultilaneOnrampMerge().BuildOnramp();
-}
-
-std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromFile(const std::string& name,
-                                                                   const std::string& file_path,
-                                                                   const std::string& road_rulebook_file_path,
-                                                                   const std::string& traffic_light_book_path,
-                                                                   const std::string& phase_ring_path) {
-  const std::optional<std::string> road_rulebook =
-      road_rulebook_file_path.empty() ? std::nullopt : std::optional<std::string>(road_rulebook_file_path);
-  const std::optional<std::string> traffic_light_book =
-      traffic_light_book_path.empty() ? std::nullopt : std::optional<std::string>(traffic_light_book_path);
-  const std::optional<std::string> phase_ring =
-      phase_ring_path.empty() ? std::nullopt : std::optional<std::string>(phase_ring_path);
-  malidrive::builder::RoadGeometryConfiguration rg_config{};
-  rg_config.id = maliput::api::RoadGeometryId(name);
-  rg_config.opendrive_file = file_path;
-  malidrive::builder::RoadNetworkConfiguration road_network_configuration{rg_config, road_rulebook, traffic_light_book,
-                                                                          phase_ring, std::nullopt};
-  return malidrive::loader::Load<malidrive::opendrive::builder::RoadNetworkBuilder>(road_network_configuration);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,

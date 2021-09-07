@@ -125,7 +125,7 @@ class SimulationRunner {
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
   ///
-  /// @param[in] realtime_rate. Desired rate relative to real time. See
+  /// @param[in] realtime_rate Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
   ///
   /// @param[in] paused A boolean value that if true, will start the
@@ -177,7 +177,7 @@ class SimulationRunner {
   /// @param[in] time_step The slot of time (seconds) simulated in each
   /// simulation step.
   ///
-  /// @param[in] realtime_rate. Desired rate relative to real time. See
+  /// @param[in] realtime_rate Desired rate relative to real time. See
   /// documentation of Simulator::set_target_realtime_rate.
   SimulationRunner(std::unique_ptr<AgentSimulation> sim, double time_step, double realtime_rate);
 

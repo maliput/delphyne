@@ -43,7 +43,7 @@ class SimplePowertrain final : public drake::systems::LinearSystem<T> {
         time_constant_(time_constant),
         gain_(gain) {}
 
-  /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
+  /// Scalar-converting copy constructor.
   template <typename U>
   explicit SimplePowertrain(const SimplePowertrain<U>& other)
       : SimplePowertrain<T>(other.get_time_constant(), other.get_gain()) {}

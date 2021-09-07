@@ -69,7 +69,7 @@ class IDMController : public drake::systems::LeafSystem<T> {
   IDMController(const maliput::api::RoadGeometry& road, ScanStrategy path_or_branches,
                 RoadPositionStrategy road_position_strategy, double period_sec);
 
-  /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
+  /// Scalar-converting copy constructor.
   template <typename U>
   explicit IDMController(const IDMController<U>& other)
       : IDMController<T>(other.road_, other.path_or_branches_, other.road_position_strategy_, other.period_sec_) {}

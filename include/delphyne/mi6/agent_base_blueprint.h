@@ -83,6 +83,7 @@ class AgentBaseBlueprint {
 
   /// Builds the agen Agent's Diagram representation into the given
   /// @p builder of the containing simulation Diagram.
+  /// @param road_geometry A maliput::api::RoadGeometry pointer.
   /// @param builder The builder for the simulation Diagram.
   /// @returns Ownership of the agent just built.
   /// @throws std::runtime_error if builder is nullptr.

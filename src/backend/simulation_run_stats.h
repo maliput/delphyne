@@ -48,9 +48,6 @@ class SimulationRunStats {
   ///
   /// @param[in] simtime The time the step was executed, in seconds, given by
   /// the simulator clock.
-  ///
-  /// @param[in] realtime The time the step was executed, given by the
-  /// wall clock.
   void StepExecuted(double simtime);
 
   /// @brief Records the current real time, typically used after a

@@ -53,10 +53,10 @@ class DataLogger {
   /// @throws std::runtime_error if it cannot start logging topic messages.
   void Start(const std::string& filename);
 
-  /// Logs all meshes found in the given @p scene to support later
+  /// Logs all meshes found in the given @p scene_msg to support later
   /// visualization during reproduction.
   ///
-  /// @param[in] scene Scene message containing meshes.
+  /// @param[in] scene_msg Scene message containing meshes.
   /// @throws std::runtime_error if the logger is not running already
   ///                            (i.e. is_logging() is false).
   /// @throws std::runtime_error if it fails to capture a mesh

@@ -1,5 +1,5 @@
 /**
- * @file src/agents/unicycle_car
+ * @file src/agents/unicycle_car.cc
  *
  * Copyright 2020 Toyota Research Institute
  */

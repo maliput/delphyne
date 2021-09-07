@@ -58,7 +58,7 @@ class UnicycleCar final : public drake::systems::LeafSystem<T> {
   /// system has been added to a diagram and the subsystem context
   /// retrieved, but before execution.
   ///
-  /// @param initial_context_state[in] The continuous state.
+  /// @param[in] initial_context_state The continuous state.
   UnicycleCar(const SimpleCarState<T>& initial_context_state = SimpleCarState<T>());
 
   // System<T> overrides

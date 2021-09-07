@@ -128,7 +128,7 @@ class TrafficPoseSelector {
   ///
   /// Note that when no car is detected in front of the ego car, the returned
   /// RoadOdometry within ClosestPose will contain an `s`-value of
-  /// `std::numeric_limits<double>::infinity()`.
+  /// std::numeric_limits<double>::infinity().
   static ClosestPose<T> FindSingleClosestPose(const maliput::api::Lane* lane,
                                               const drake::systems::rendering::PoseVector<T>& ego_pose,
                                               const drake::systems::rendering::PoseBundle<T>& traffic_poses,

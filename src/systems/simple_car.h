@@ -61,12 +61,12 @@ class SimpleCar2 final : public drake::systems::LeafSystem<T> {
   /// system has been added to a diagram and the subsystem context
   /// retrieved, but before execution.
   ///
-  /// @param initial_context_state[in] The continuous state.
-  /// @param iniital_context_parameters[in] The numeric parameterisation.
+  /// @param[in] initial_context_state The continuous state.
+  /// @param[in] initial_context_parameters The numeric parameterization.
   SimpleCar2(const SimpleCarState<T>& initial_context_state = SimpleCarState<T>(),
              const SimpleCarParams<T>& initial_context_parameters = SimpleCarParams<T>());
 
-  /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
+  /// Scalar-converting copy constructor.
   template <typename U>
   explicit SimpleCar2(const SimpleCar2<U>&);
 

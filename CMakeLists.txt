@@ -112,6 +112,22 @@ if(BUILD_TESTING)
 endif()
 
 ##############################################################################
+# Docs
+##############################################################################
+
+if(NOT DEFINED BUILD_DOCS)
+  set(BUILD_DOCS 1)
+endif()
+
+if(BUILD_DOCS)
+  find_package(ament_cmake_doxygen REQUIRED)
+  ament_doxygen_generate(doxygen_maliput_malidrive
+    CONFIG_OVERLAY doc/Doxyfile.overlay.in
+    DEPENDENCIES maliput maliput_py maliput_malidrive maliput_dragway maliput_multilane
+  )
+endif()
+
+##############################################################################
 # Export
 ##############################################################################
 

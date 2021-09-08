@@ -43,13 +43,13 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
 
   /// @brief Default constructor
   ///
-  /// @param name[in] The unique name for the agent
-  /// @param direction_of_travel[in] Designates whether the car will travel
+  /// @param[in] name The unique name for the agent
+  /// @param[in] direction_of_travel Designates whether the car will travel
   ///            with or against the flow specified by the lane's rules.
-  /// @param x[in] The scene x-coordinate.
-  /// @param y[in] The scene y-coordinate.
-  /// @param heading[in] The orientation of the car in the x-y frame.
-  /// @param speed[in] The actual initial speed.
+  /// @param[in] x The scene x-coordinate.
+  /// @param[in] y The scene y-coordinate.
+  /// @param[in] heading The orientation of the car in the x-y frame.
+  /// @param[in] speed The actual initial speed.
   explicit MobilCarBlueprint(const std::string& name, bool direction_of_travel, double x, double y, double heading,
                              double speed);
 

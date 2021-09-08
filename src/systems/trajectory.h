@@ -100,8 +100,8 @@ class Trajectory final {
   /// length must match that of @p times.
   /// @param interp_type an InterpolationType with the interpolation scheme used
   /// for building a piecewise polynomial trajectory for the translational
-  /// component.
-  /// @default InterpolationType::kFirstOrderHold.
+  /// component. Default: InterpolationType::kFirstOrderHold.
+  ///
   /// @throws std::logic_error if @p interp_type is not supported.
   /// @throws std::runtime_error if `times` and `knots` have different lengths,
   /// `times` is not strictly increasing, and the inputs are otherwise

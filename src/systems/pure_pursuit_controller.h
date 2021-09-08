@@ -44,7 +44,7 @@ class PurePursuitController : public drake::systems::LeafSystem<T> {
   /// Constructor.
   PurePursuitController();
 
-  /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
+  /// Scalar-converting copy constructor.
   template <typename U>
   explicit PurePursuitController(const PurePursuitController<U>&) : PurePursuitController<T>() {}
 

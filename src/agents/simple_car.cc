@@ -1,5 +1,5 @@
 /**
- * @file src/agents/simple_car
+ * @file src/agents/simple_car.cc
  *
  * Copyright 2017 Toyota Research Institute
  */

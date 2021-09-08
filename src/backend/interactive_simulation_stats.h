@@ -41,11 +41,11 @@ class InteractiveSimulationStats {
  public:
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(InteractiveSimulationStats);
 
-  InteractiveSimulationStats() {}
+  InteractiveSimulationStats() = default;
 
   /// @brief Creates a new simulation run, starting at `start_simtime`
   ///
-  /// @param[in] start_simtime. The time the simulation started, given by the
+  /// @param[in] start_simtime The time the simulation started, given by the
   /// simulator clock.
   ///
   /// @param[in] expected_realtime_rate The desired real time based in the
@@ -54,13 +54,13 @@ class InteractiveSimulationStats {
 
   /// @brief Creates a new simulation run, starting at `start_simtime`
   ///
-  /// @param[in] start_simtime. The time the simulation started, given by the
+  /// @param[in] start_simtime The time the simulation started, given by the
   /// simulator clock.
   ///
   /// @param[in] expected_realtime_rate The desired real time based in the
   /// simulation runner configuration.
   ///
-  /// @param[in] start_realtime. The time the simulation started, given by the
+  /// @param[in] start_realtime The time the simulation started, given by the
   /// real-time clock.
   void NewRunStartingAt(double start_simtime, double expected_realtime_rate, const TimePoint& start_realtime);
 

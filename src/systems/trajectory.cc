@@ -29,7 +29,7 @@ PoseVelocity::PoseVelocity()
                                  SpatialVelocity<double>(drake::Vector6<double>::Zero())) {}
 
 PoseVelocity::PoseVelocity(const Eigen::Quaternion<double>& rotation, const Eigen::Vector3d& translation,
-                           const SpatialVelocity<double>& velocity)
+                           const drake::multibody::SpatialVelocity<double>& velocity)
     : rotation_(rotation), translation_(translation), velocity_(velocity) {}
 
 PoseVelocity Trajectory::value(double time) const {

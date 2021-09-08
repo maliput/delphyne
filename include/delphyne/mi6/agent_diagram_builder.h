@@ -61,7 +61,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// the contract for this builder is to create a diagram with one
   /// and only one state output port.
   ///
-  /// @exception @c std::runtime_error : if this method is called more
+  /// @exception std::runtime_error if this method is called more
   /// than once before building.
   void ExportStateOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(outputs_mapping_.count("state") == 0, std::runtime_error,
@@ -76,7 +76,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// the contract for this builder is to create a diagram with one
   /// and only one pose output port.
   ///
-  /// @exception @c std::runtime_error : if this method is called more
+  /// @exception std::runtime_error if this method is called more
   /// than once before building.
   void ExportPoseOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(outputs_mapping_.count("pose") == 0, std::runtime_error,
@@ -91,7 +91,7 @@ class AgentDiagramBuilder : public drake::systems::DiagramBuilder<T> {
   /// the contract for this builder is to create a diagram with one
   /// and only one velocity output port.
   ///
-  /// @exception @c std::runtime_error : if this method is called more
+  /// @exception std::runtime_error if this method is called more
   /// than once before building.
   void ExportVelocityOutput(const drake::systems::OutputPort<T>& output) {
     DELPHYNE_VALIDATE(outputs_mapping_.count("velocity") == 0, std::runtime_error,

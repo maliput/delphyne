@@ -51,10 +51,10 @@ class TrajectoryFollower final : public drake::systems::LeafSystem<T> {
   ///
   /// @param trajectory a Trajectory containing the trajectory.
   /// @param sampling_time_sec the requested sampling time (in sec) for this
-  /// system.  @default 0.01.
+  /// system. Default: 0.01.
   TrajectoryFollower(const Trajectory& trajectory, double sampling_time_sec = 0.01);
 
-  /// Scalar-converting copy constructor.  See @ref system_scalar_conversion.
+  /// Scalar-converting copy constructor.
   template <typename U>
   explicit TrajectoryFollower(const TrajectoryFollower<U>& other) : TrajectoryFollower<T>(other.trajectory_) {}
 

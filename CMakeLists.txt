@@ -124,6 +124,7 @@ if(BUILD_DOCS)
   ament_doxygen_generate(doxygen_maliput_malidrive
     CONFIG_OVERLAY doc/Doxyfile.overlay.in
     DEPENDENCIES maliput maliput_py maliput_malidrive maliput_dragway maliput_multilane
+    TEST_ON_WARNS
   )
 endif()
 

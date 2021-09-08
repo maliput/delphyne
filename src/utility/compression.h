@@ -11,7 +11,6 @@ namespace delphyne {
 /// @p destination_path archive recursively, using the zip format. All
 /// @p source_path parent directories are stripped from archive entry
 /// names if present.
-/// @returns The compression process error code.
 /// @throws std::runtime_error if @p source_path is not an existing directory.
 /// @throws std::runtime_error if @p destination_path already exists.
 /// @throws std::runtime_error if the zipping process fails at any point.

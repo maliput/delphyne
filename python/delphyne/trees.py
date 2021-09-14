@@ -20,12 +20,15 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
         super().__init__(root=root)
         self.runner = None
 
-    def setup(self, realtime_rate, start_paused, time_step=0.01, logfile_name='', **kwargs):
+    def setup(self, realtime_rate, start_paused, time_step=0.01,
+              log=False, logfile_name='', **kwargs):
         """
         Setup a Delphyne behaviour tree for agent based simulation.
 
         :param realtime_rate:
         :param start_paused:
+        :param time_step:
+        :param log:
         :param logfile_name:
         """
         # Bear in mind that this is a local builder. Once the AgentSimulation
@@ -39,7 +42,7 @@ class BehaviourTree(py_trees.trees.BehaviourTree):
             time_step=time_step,  # (secs)
             realtime_rate=realtime_rate,
             paused=start_paused,
-            log=bool(logfile_name),
+            log=log,
             logfile_name=logfile_name
         )
 

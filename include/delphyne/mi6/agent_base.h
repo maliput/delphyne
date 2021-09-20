@@ -84,7 +84,7 @@ class AgentBase {
 
   /// Gets the agent pose in the simulation.
   /// @throws std::runtime_error if this agent lacks Context.
-  drake::Isometry3<T> GetPose() const {
+  drake::systems::rendering::PoseVector<T> GetPose() const {
     constexpr const char* const kPosePortName = "pose";
     const drake::systems::OutputPort<T>& pose_output_port = GetDiagram().get_output_port(kPosePortName);
     std::unique_ptr<drake::AbstractValue> port_value = pose_output_port.Allocate();
@@ -98,7 +98,7 @@ class AgentBase {
     using drake::systems::rendering::PoseVector;
     const BasicVector<T>& base_vector = port_value->template get_value<BasicVector<T>>();
     const PoseVector<T>& pose_vector = dynamic_cast<const PoseVector<T>&>(base_vector);
-    return pose_vector.get_transform().GetAsIsometry3();
+    return {pose_vector.get_rotation(), pose_vector.get_translation()};
   }
 
   /// Gets the agent twist in the simulation.

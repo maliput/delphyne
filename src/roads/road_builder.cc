@@ -15,9 +15,7 @@
 #include <maliput/api/road_network.h>
 #include <maliput/math/vector.h>
 #include <maliput_dragway/road_geometry.h>
-#include <maliput_malidrive/builder/road_geometry_configuration.h>
 #include <maliput_malidrive/builder/road_network_builder.h>
-#include <maliput_malidrive/builder/road_network_configuration.h>
 #include <maliput_malidrive/constants.h>
 #include <maliput_malidrive/loader/loader.h>
 #include <maliput_multilane/loader.h>

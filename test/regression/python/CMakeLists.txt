@@ -6,6 +6,8 @@ set(TEST_TYPE UNIT)
 ##############################################################################
 
 set(PY_SOURCE
-    simulation_runner_py_test.py)
+    agent_py_test.py
+    simulation_runner_py_test.py
+)
 
 delphyne_build_python_tests(${PY_SOURCE})

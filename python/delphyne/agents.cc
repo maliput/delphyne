@@ -53,7 +53,8 @@ PYBIND11_MODULE(agents, m) {
 
   py::class_<Agent>(m, "Agent")
       .def("name", &Agent::name)
-      .def("get_pose", &Agent::GetPose)
+      .def("get_pose_rotation", [](const Agent* self) { return self->GetPose().get_rotation().coeffs(); })
+      .def("get_pose_translation", [](const Agent* self) { return self->GetPose().get_translation().vector(); })
       .def("get_velocity", &Agent::GetVelocity);
 
   py::class_<RailCar, Agent>(m, "RailCar").def("set_speed", &RailCar::SetSpeed);

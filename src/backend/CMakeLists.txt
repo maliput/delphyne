@@ -40,10 +40,10 @@ target_link_libraries(
     delphyne::translations
     delphyne::utility
     delphyne::visualization
-    ignition-common3::ignition-common3
-    ignition-transport8::core
-    ignition-transport8::log
-    ignition-msgs5::ignition-msgs5
+    ignition-common4::ignition-common4
+    ignition-transport11::core
+    ignition-transport11::log
+    ignition-msgs8::ignition-msgs8
     maliput::api
     maliput::utilities
     ${PYTHON_LIBRARIES}
@@ -74,10 +74,10 @@ target_link_libraries(replayer
   PRIVATE
     delphyne::protobuf_messages
     delphyne::public_headers
-    ignition-common3::ignition-common3
-    ignition-msgs5::ignition-msgs5
-    ignition-transport8::core
-    ignition-transport8::log
+    ignition-common4::ignition-common4
+    ignition-msgs8::ignition-msgs8
+    ignition-transport11::core
+    ignition-transport11::log
 )
 
 install(

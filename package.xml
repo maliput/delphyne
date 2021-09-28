@@ -14,10 +14,10 @@
 
   <build_depend>ament_cmake_doxygen</build_depend>
   <build_depend>drake_vendor</build_depend>
-  <build_depend>ignition-common3</build_depend>
+  <build_depend>ignition-common4</build_depend>
   <build_depend>ignition-math6</build_depend>
-  <build_depend>ignition-msgs5</build_depend>
-  <build_depend>ignition-transport8</build_depend>
+  <build_depend>ignition-msgs8</build_depend>
+  <build_depend>ignition-transport11</build_depend>
   <build_depend>maliput_malidrive</build_depend>
 
   <depend>maliput</depend>
@@ -26,10 +26,10 @@
   <depend>maliput_py</depend>
 
   <build_export_depend>drake_vendor</build_export_depend>
-  <build_export_depend>ignition-common3</build_export_depend>
+  <build_export_depend>ignition-common4</build_export_depend>
   <build_export_depend>ignition-math6</build_export_depend>
-  <build_export_depend>ignition-msgs5</build_export_depend>
-  <build_export_depend>ignition-transport8</build_export_depend>
+  <build_export_depend>ignition-msgs8</build_export_depend>
+  <build_export_depend>ignition-transport11</build_export_depend>
   <build_export_depend>maliput_malidrive</build_export_depend>
 
   <exec_depend>ament_cmake</exec_depend>

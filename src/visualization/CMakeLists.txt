@@ -26,7 +26,7 @@ target_include_directories(
 target_link_libraries(visualization
   drake::drake
   delphyne::public_headers
-  ignition-common3::ignition-common3
+  ignition-common4::ignition-common4
   maliput::api
   maliput::utilities
   maliput_dragway::maliput_dragway

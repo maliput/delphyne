@@ -7,7 +7,6 @@
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput_multilane/builder.h>
-#include <maliput_multilane/road_geometry.h>
 
 #include "delphyne/roads/road_builder.h"
 

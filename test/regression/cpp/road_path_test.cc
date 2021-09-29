@@ -9,7 +9,8 @@
 #include <maliput/api/road_geometry.h>
 #include <maliput_dragway/road_geometry.h>
 #include <maliput_multilane/builder.h>
-#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
+
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 namespace {

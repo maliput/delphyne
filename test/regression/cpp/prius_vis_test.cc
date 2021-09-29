@@ -9,7 +9,8 @@
 #include <drake/systems/rendering/frame_velocity.h>
 #include <drake/systems/rendering/pose_bundle.h>
 #include <gtest/gtest.h>
-#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
+
+#include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
 

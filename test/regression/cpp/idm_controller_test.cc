@@ -5,9 +5,9 @@
 #include <drake/multibody/math/spatial_velocity.h>
 #include <gtest/gtest.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput_multilane_test_utilities/eigen_matrix_compare.h>
 
 #include "delphyne/roads/road_builder.h"
+#include "test_utilities/eigen_matrix_compare.h"
 #include "test_utilities/scalar_conversion.h"
 
 namespace delphyne {

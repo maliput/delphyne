@@ -27,7 +27,6 @@ target_link_libraries(test_utilities
   ignition-common3::ignition-common3
   ignition-msgs5::ignition-msgs5
   ignition-transport8::ignition-transport8
-  maliput_multilane::test_utilities
 )
 
 ##############################################################################

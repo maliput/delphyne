@@ -44,6 +44,7 @@ class LaneLocationProvider():
             lane_id = lane.id().string()
             step_size = self.distance_between_agents
             step_count = int(lane.length() / step_size)
+            step_count = 1 if step_count == 0 else step_count
             lane_locations[lane_id] = [
                 maliput.LanePosition(
                     s=i * step_size, r=0., h=0.

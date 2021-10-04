@@ -43,7 +43,10 @@ class LaneLocationProvider():
         for lane in lanes:
             lane_id = lane.id().string()
             step_size = self.distance_between_agents
-            step_count = int(lane.length() / step_size)
+            # When `lane.length()`` is less than `step_size` a lane position at the
+            # start of the lane is expected to be created so as to to guarantee at
+            # least one lane position per lane.
+            step_count = max(int(lane.length() / step_size), 1)
             lane_locations[lane_id] = [
                 maliput.LanePosition(
                     s=i * step_size, r=0., h=0.

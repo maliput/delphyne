@@ -79,7 +79,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     road_network_configuration.emplace("traffic_light_book", traffic_light_book_path);
   }
   if (!phase_ring_path.empty()) {
-    road_network_configuration.emplace("phase_ring_path", phase_ring_path);
+    road_network_configuration.emplace("phase_ring_book", phase_ring_path);
   }
 
   return malidrive::loader::Load<malidrive::builder::RoadNetworkBuilder>(road_network_configuration);

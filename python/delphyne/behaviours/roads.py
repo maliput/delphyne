@@ -52,8 +52,8 @@ class Dragway(Road):
 
     def setup(self, *, builder):
         if self.road_geometry is None:
-            # Setup a road geometry only the first time.
-            self.road_geometry = builder.set_road_geometry(
+            # Setup a road network only the first time.
+            self.road_geometry = builder.set_road_network(
                 delphyne.roads.create_dragway(
                     name=self.name,
                     num_lanes=self.num_lanes,
@@ -81,8 +81,8 @@ class Multilane(Road):
 
     def setup(self, *, builder):
         if self.road_geometry is None:
-            # Setup a road geometry only the first time.
-            self.road_geometry = builder.set_road_geometry(
+            # Setup a road network only the first time.
+            self.road_geometry = builder.set_road_network(
                 delphyne.roads.create_multilane_from_file(
                     self.file_path)
                 )
@@ -122,6 +122,6 @@ class OnRamp(Road):
 
     def setup(self, *, builder):
         if self.road_geometry is None:
-            self.road_geometry = builder.set_road_geometry(
+            self.road_geometry = builder.set_road_network(
                 delphyne.roads.create_on_ramp()
             )

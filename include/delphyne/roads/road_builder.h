@@ -28,6 +28,16 @@ namespace roads {
 ** Methods
 *****************************************************************************/
 
+/// @brief Creates a maliput::api::RoadNetwork based on an available maliput::plugin::RoadNetworkLoader plugin
+/// implementation.
+///
+/// @param[in] road_network_plugin_name maliput::plugin::RoadnetworkLoader plugin name to be used.
+/// @param[in] loader_parameters Parameters to be passed to the maliput::api::RoadNetwork builder.
+///
+/// @throws maliput::common::assertion_error When `road_network_plugin_name` isn't found.
+std::unique_ptr<maliput::api::RoadNetwork> CreateRoadNetwork(
+    const std::string& road_network_plugin_name, const std::map<std::string, std::string>& loader_parameters);
+
 /// @brief Creates a dragway.
 ///
 /// @param[in] name The name of the dragway. Will be used as the ID of the
@@ -50,7 +60,7 @@ namespace roads {
 ///
 /// @param[in] angular_tolerance The tolerance guaranteed for angular
 /// measurements (m).
-std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
+std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(
     const std::string& name, int num_lanes, double length, double lane_width, double shoulder_width,
     double maximum_height, double linear_tolerance = std::numeric_limits<double>::epsilon(),
     double angular_tolerance = std::numeric_limits<double>::epsilon());
@@ -58,7 +68,12 @@ std::unique_ptr<const maliput::api::RoadGeometry> CreateDragway(
 /// @brief Create a multilane from yaml source.
 ///
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<const maliput::api::RoadGeometry> CreateMultilaneFromFile(const std::string& file_path);
+std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::string& file_path);
+
+/// @brief Create a multilane from yaml description.
+///
+/// @param[in] yaml_description A serialized yaml description to be loaded.
+std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description);
 
 /// @brief Create a malidrive from xodr source.
 ///
@@ -88,7 +103,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     double linear_tolerance = 1e-3, double angular_tolerance = 1e-3);
 
 /// @brief Create a multilane on-ramp.
-std::unique_ptr<const maliput::api::RoadGeometry> CreateOnRamp();
+std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp();
 
 /*****************************************************************************
 ** Trailers

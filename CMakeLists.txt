@@ -24,9 +24,6 @@ message(STATUS "\n\n====== Finding 3rd Party Packages ======\n")
 find_package(ament_cmake REQUIRED)
 find_package(drake_vendor REQUIRED)
 find_package(maliput REQUIRED)
-find_package(maliput_dragway REQUIRED)
-find_package(maliput_multilane REQUIRED)
-find_package(maliput_malidrive REQUIRED)
 find_package(maliput_py REQUIRED)
 
 find_package(ignition-common3 REQUIRED COMPONENTS graphics)
@@ -121,9 +118,9 @@ endif()
 
 if(BUILD_DOCS)
   find_package(ament_cmake_doxygen REQUIRED)
-  ament_doxygen_generate(doxygen_maliput_malidrive
+  ament_doxygen_generate(doxygen_delphyne
     CONFIG_OVERLAY doc/Doxyfile.overlay.in
-    DEPENDENCIES maliput maliput_py maliput_malidrive maliput_dragway maliput_multilane
+    DEPENDENCIES maliput maliput_py
     TEST_ON_WARNS
   )
 endif()
@@ -136,9 +133,6 @@ ament_environment_hooks(setup.sh.in)
 ament_export_dependencies(ament_cmake)
 ament_export_dependencies(drake_vendor)
 ament_export_dependencies(maliput)
-ament_export_dependencies(maliput_dragway)
-ament_export_dependencies(maliput_malidrive)
-ament_export_dependencies(maliput_multilane)
 
 ament_export_interfaces(${PROJECT_NAME}-targets HAS_LIBRARY_TARGET)
 

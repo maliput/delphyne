@@ -2,7 +2,7 @@
 
 #include <gtest/gtest.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput_multilane/builder.h>
+#include <maliput/api/road_network.h>
 
 #include "delphyne/roads/road_builder.h"
 
@@ -18,44 +18,50 @@ using drake::Translation3;
 using drake::Vector3;
 using maliput::api::InertialPosition;
 using maliput::api::RoadGeometryId;
-using maliput::multilane::ArcOffset;
-using maliput::multilane::Builder;
-using maliput::multilane::ComputationPolicy;
-using maliput::multilane::Direction;
-using maliput::multilane::Endpoint;
-using maliput::multilane::EndpointZ;
-using maliput::multilane::EndReference;
-using maliput::multilane::GroupFactory;
-using maliput::multilane::LaneLayout;
-using maliput::multilane::StartReference;
 
 class PurePursuitTest : public ::testing::Test {
  protected:
   void SetUp() override {
     // Create a straight road with one lane.
-    road_ = roads::CreateDragway("Single-Lane Dragway", 1 /* num_lanes */, 100 /* length */, 4. /* lane_width */,
-                                 0. /* shoulder_width */, 5. /* maximum_height */, kLinearTolerance, kAngularTolerance);
+    road_network_ =
+        roads::CreateDragway("Single-Lane Dragway", 1 /* num_lanes */, 100 /* length */, 4. /* lane_width */,
+                             0. /* shoulder_width */, 5. /* maximum_height */, kLinearTolerance, kAngularTolerance);
+    road_ = road_network_->road_geometry();
   }
 
-  void MakeQuarterCircleRoad() {
-    const LaneLayout kLaneLayout(0. /* left shoulder */, 0. /* right shoulder */, 1. /* one lane */, 0 /* ref lane */,
-                                 0. /* ref r-value */);
-    const ArcOffset kCounterClockwiseArc(kArcRadius, M_PI /* arc angle */);
-    const EndpointZ kFlat(0., 0., 0., 0.);
-    const Endpoint kStartEndpoint{{0., 0., 0.}, kFlat};
-    const double kScaleLength{1.0};
-    Builder builder(4. /* lane width */, {0., 5.}, 0.01, 0.01 * M_PI, kScaleLength, ComputationPolicy::kPreferSpeed,
-                    std::make_unique<GroupFactory>());
-    builder.Connect("0", kLaneLayout, StartReference().at(kStartEndpoint, Direction::kForward), kCounterClockwiseArc,
-                    EndReference().z_at(kFlat, Direction::kForward));
-    road_ = builder.Build(RoadGeometryId{"Single-Lane Quarter Circle"});
+  void MakeSemiCircleRoad() {
+    const std::string multilane_description = R"R(
+  maliput_multilane_builder:
+    id: "single_lane_quarter_circle"
+    lane_width: 4
+    elevation_bounds: [0, 5]
+    scale_length: 1.0
+    linear_tolerance: .01
+    angular_tolerance: 0.01
+    computation_policy: prefer-speed
+    right_shoulder: 0.
+    left_shoulder: 0.
+    points:
+      start:
+        xypoint: [0, 0, 0]  # x,y, heading
+        zpoint: [0, 0, 0, 0]  # z, z_dot, theta (superelevation), theta_dot
+    connections:
+      0:
+        lanes: [1, 0, 0]
+        start: ["ref", "points.start.forward"]
+        arc: [25, 180]
+        explicit_end: ["ref", "points.start.forward"]
+  )R";
+    road_network_ = roads::CreateMultilaneFromDescription(multilane_description);
+    road_ = road_network_->road_geometry();
   }
 
   const PurePursuitParams<double> pp_params_{};
   const PurePursuitParams<AutoDiffXd> pp_params_ad_{};
   const SimpleCarParams<double> car_params_{};
   const SimpleCarParams<AutoDiffXd> car_params_ad_{};
-  std::unique_ptr<const maliput::api::RoadGeometry> road_;
+  std::unique_ptr<maliput::api::RoadNetwork> road_network_;
+  const maliput::api::RoadGeometry* road_;
 };
 
 TEST_F(PurePursuitTest, Evaluate) {
@@ -116,7 +122,7 @@ TEST_F(PurePursuitTest, Evaluate) {
 
 // Tests that rotational symmetry is preserved.
 TEST_F(PurePursuitTest, RotationalSymmetry) {
-  MakeQuarterCircleRoad();
+  MakeSemiCircleRoad();
   const maliput::api::Lane* const lane = road_->junction(0)->segment(0)->lane(0);
 
   // Situate the ego car at the START of the arc-shaped lane such that it is

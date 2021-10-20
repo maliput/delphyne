@@ -7,9 +7,9 @@
 #include <maliput/api/lane.h>
 #include <maliput/api/lane_data.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput_dragway/road_geometry.h>
-#include <maliput_multilane/builder.h>
+#include <maliput/api/road_network.h>
 
+#include "delphyne/roads/road_builder.h"
 #include "test_utilities/eigen_matrix_compare.h"
 
 namespace delphyne {
@@ -23,18 +23,6 @@ using maliput::api::LaneEnd;
 using maliput::api::LanePosition;
 using maliput::api::RoadGeometry;
 
-using maliput::multilane::ArcOffset;
-using maliput::multilane::Builder;
-using maliput::multilane::BuilderFactory;
-using maliput::multilane::ComputationPolicy;
-using maliput::multilane::Direction;
-using maliput::multilane::Endpoint;
-using maliput::multilane::EndpointZ;
-using maliput::multilane::EndReference;
-using maliput::multilane::LaneLayout;
-using maliput::multilane::LineOffset;
-using maliput::multilane::StartReference;
-
 using drake::Vector3;
 
 // The length of the straight lane segment.
@@ -42,40 +30,73 @@ const double kStraightRoadLength{10};
 
 // The arc radius, angular displacement, and length of the curved road segment.
 const double kCurvedRoadRadius{10};
-const double kCurvedRoadTheta{M_PI_2};
 const double kCurvedRoadLength{kCurvedRoadRadius * M_PI_2};
 
 const double kTotalRoadLength{kStraightRoadLength + kCurvedRoadLength};
-const EndpointZ kEndZ{0, 0, 0, 0};  // Specifies zero elevation/super-elevation.
 
 // Build a road with two lanes in series.
-std::unique_ptr<const RoadGeometry> MakeTwoLaneRoad(bool is_opposing) {
-  auto builder = BuilderFactory().Make(4. /* lane width */, HBounds(0., 5.), 0.01 /* linear tolerance */,
-                                       M_PI_2 / 180.0 /* angular tolerance */, 1. /* scale length*/,
-                                       ComputationPolicy::kPreferAccuracy /* accuracy */);
-  const LaneLayout lane_layout(2. /* left shoulder */, 2. /* right shoulder */, 1 /* number of lanes */,
-                               0 /* reference lane*/, 0. /* reference r0 */);
+// When `is_opposing` is true the second lane's direction is reversed.
+std::unique_ptr<maliput::api::RoadNetwork> MakeTwoLaneRoad(bool is_opposing) {
+  const std::string multilane_description = !is_opposing ? R"R(
+    maliput_multilane_builder:
+      id: "two_lane_stretch"
+      lane_width: 4
+      elevation_bounds: [0, 5]
+      scale_length: 1.0
+      linear_tolerance: 0.01
+      angular_tolerance: 0.01
+      computation_policy: prefer-accuracy
+      right_shoulder: 2.
+      left_shoulder: 2.
+      points:
+        start:
+          xypoint: [0, 0, 0]
+          zpoint: [0, 0, 0]
+      connections:
+        0_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start.forward"]
+          length: 10
+          z_end: ["ref", [0, 0, 0]]
+        1_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.0_fwd.end.ref.forward"]
+          arc: [10, 90]
+          z_end: ["ref", [0, 0, 0]]
+    )R"
+                                                         :
+                                                         R"R(
+    maliput_multilane_builder:
+      id: "two_lane_stretch_opposed"
+      lane_width: 4
+      elevation_bounds: [0, 5]
+      scale_length: 1.0
+      linear_tolerance: 0.01
+      angular_tolerance: 0.01
+      computation_policy: prefer-accuracy
+      right_shoulder: 2.
+      left_shoulder: 2.
+      points:
+        start:
+          xypoint: [0, 0, 0]
+          zpoint: [0, 0, 0]
+        start_rev:
+          xypoint: [20., 10, -90]
+          zpoint: [0, 0, 0]
+      connections:
+        0_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start.forward"]
+          length: 10
+          z_end: ["ref", [0, 0, 0]]
+        1_rev:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start_rev.forward"]
+          arc: [10, -90]
+          explicit_end: ["ref", "connections.0_fwd.end.ref.forward"]
 
-  builder->Connect("0_fwd", lane_layout, StartReference().at(Endpoint({0, 0, 0}, kEndZ), Direction::kForward),
-                   LineOffset(kStraightRoadLength), EndReference().z_at(kEndZ, Direction::kForward));
-
-  if (is_opposing) {
-    // Construct a curved segment that is directionally opposite the straight
-    // lane.
-    builder->Connect(
-        "1_rev", lane_layout,
-        StartReference().at(Endpoint({kStraightRoadLength + kCurvedRoadRadius, kCurvedRoadRadius, 1.5 * M_PI}, kEndZ),
-                            Direction::kForward),
-        ArcOffset(kCurvedRoadRadius, -kCurvedRoadTheta), EndReference().z_at(kEndZ, Direction::kForward));
-  } else {
-    // Construct a curved segment that is directionally confluent with the
-    // straight lane.
-    builder->Connect("1_fwd", lane_layout,
-                     StartReference().at(Endpoint({kStraightRoadLength, 0, 0}, kEndZ), Direction::kForward),
-                     ArcOffset(kCurvedRoadRadius, kCurvedRoadTheta), EndReference().z_at(kEndZ, Direction::kForward));
-  }
-
-  return builder->Build(maliput::api::RoadGeometryId("TwoLaneStretchOfRoad"));
+    )R";
+  return roads::CreateMultilaneFromDescription(multilane_description);
 }
 
 const Lane* GetLaneById(const RoadGeometry& road, const std::string& lane_id) {
@@ -99,8 +120,9 @@ GTEST_TEST(IdmControllerTest, ConstructOpposingSegments) {
   // Instantiate a road with opposing segments.
   auto road_opposing = MakeTwoLaneRoad(true);
   // Start in the straight segment and progress in the positive-s-direction.
-  const LaneDirection initial_lane_dir = LaneDirection(GetLaneById(*road_opposing, "j:0_fwd"), /* lane */
-                                                       true);                                  /* with_s */
+  const LaneDirection initial_lane_dir =
+      LaneDirection(GetLaneById(*road_opposing->road_geometry(), "j:0_fwd"), /* lane */
+                    true);                                                   /* with_s */
   // Create a finely-discretized path with a sufficient number of segments to
   // cover the full length.
   const auto path = RoadPath<double>(initial_lane_dir, /* initial_lane_direction */
@@ -149,8 +171,9 @@ GTEST_TEST(IdmControllerTest, ConstructConfluentSegments) {
   // Instantiate a road with confluent segments.
   auto road_confluent = MakeTwoLaneRoad(false);
   // Start in the curved segment, and progress in the negative-s-direction.
-  const LaneDirection initial_lane_dir = LaneDirection(GetLaneById(*road_confluent, "j:1_fwd"), /* lane */
-                                                       false);                                  /* with_s */
+  const LaneDirection initial_lane_dir =
+      LaneDirection(GetLaneById(*road_confluent->road_geometry(), "j:1_fwd"), /* lane */
+                    false);                                                   /* with_s */
   // Create a finely-discretized path with a sufficient number of segments to
   // cover the full length.
   const auto path = RoadPath<double>(initial_lane_dir, /* initial_lane_direction */

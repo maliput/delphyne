@@ -30,7 +30,6 @@ target_link_libraries(
     delphyne::public_headers
     maliput::api
     maliput::common
-    maliput_dragway::maliput_dragway
 )
 
 install(

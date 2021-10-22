@@ -3,7 +3,7 @@
 #include <drake/common/autodiff.h>
 #include <gtest/gtest.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput_multilane/multilane_onramp_merge.h>
+#include <maliput/api/road_network.h>
 
 #include "delphyne/roads/road_builder.h"
 #include "test_utilities/eigen_matrix_compare.h"
@@ -83,8 +83,8 @@ void PerformTest(const maliput::api::RoadGeometry& rg, const Lane* lane, LanePol
 
 GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
   // N.B. In this road, `post0` branches into `pre0` and `onramp1`.
-  auto merge_road = std::make_unique<maliput::multilane::MultilaneOnrampMerge>();
-  std::unique_ptr<const maliput::api::RoadGeometry> rg = merge_road->BuildOnramp();
+  auto merge_road = roads::CreateOnRamp();
+  const maliput::api::RoadGeometry* rg = merge_road->road_geometry();
 
   // Set speed to be zero and the car facing both along and against the
   // s-direction.
@@ -103,8 +103,8 @@ GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
-  auto merge_road = std::make_unique<maliput::multilane::MultilaneOnrampMerge>();
-  std::unique_ptr<const maliput::api::RoadGeometry> rg = merge_road->BuildOnramp();
+  auto merge_road = roads::CreateOnRamp();
+  const maliput::api::RoadGeometry* rg = merge_road->road_geometry();
 
   PoseVector<double> pose;
   FrameVelocity<double> velocity;
@@ -130,11 +130,11 @@ GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
 }
 
 GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
-  auto rg = roads::CreateDragway("1-lane dragway", 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
+  auto rn = roads::CreateDragway("1-lane dragway", 1 /* num_lanes */, 100. /* length */, 2. /* lane_width */,
                                  0. /* shoulder_width */, 5. /* maximum_height */,
                                  std::numeric_limits<double>::epsilon() /* linear_tolerance */,
                                  std::numeric_limits<double>::epsilon() /* angular_tolerance */);
-
+  auto rg = rn->road_geometry();
   // AutoDiffXd only appear at the inputs; only check that computation succeeds.
   const LanePolarity polarity = LanePolarity::kWithS;
   const drake::AutoDiffXd speed = 10.;

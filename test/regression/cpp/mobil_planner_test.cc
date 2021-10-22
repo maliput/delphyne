@@ -33,10 +33,11 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
     DRAKE_ASSERT(num_lanes >= 0);
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
-    road_ = roads::CreateDragway("Test Dragway", num_lanes, 100 /* length */, kLaneWidth /* lane_width */,
-                                 0. /* shoulder_width */, 5. /* maximum_height */,
-                                 std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-                                 std::numeric_limits<double>::epsilon() /* angular_tolerance */);
+    road_network_ = roads::CreateDragway("Test Dragway", num_lanes, 100 /* length */, kLaneWidth /* lane_width */,
+                                         0. /* shoulder_width */, 5. /* maximum_height */,
+                                         std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                                         std::numeric_limits<double>::epsilon() /* angular_tolerance */);
+    road_ = road_network_->road_geometry();
     segment_ = road_->junction(0)->segment(0);
     ExtractLaneDirectionsFromDragway();
     right_lane_index_ = 0;
@@ -133,8 +134,9 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
   std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<const maliput::api::RoadGeometry> road_;
-  const maliput::api::Segment* segment_;
+  std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
+  const maliput::api::RoadGeometry* road_{};
+  const maliput::api::Segment* segment_{};
   std::vector<LaneDirection> lane_directions_{};
 
   int ego_pose_input_index_{};

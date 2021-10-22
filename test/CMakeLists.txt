@@ -40,8 +40,7 @@ macro(delphyne_build_tests)
         ignition-msgs5::ignition-msgs5
         ignition-transport8::ignition-transport8
         maliput::api
-        maliput_dragway::maliput_dragway
-        maliput_multilane::maliput_multilane
+        maliput::common
         pthread
         protobuf
     )

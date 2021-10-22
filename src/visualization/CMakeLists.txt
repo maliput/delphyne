@@ -29,7 +29,6 @@ target_link_libraries(visualization
   ignition-common3::ignition-common3
   maliput::api
   maliput::utilities
-  maliput_dragway::maliput_dragway
 )
 
 install(

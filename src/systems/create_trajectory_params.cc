@@ -75,7 +75,7 @@ std::tuple<Curve2<double>, double, double> CreateTrajectoryParams(int index) {
 }
 
 std::tuple<Curve2<double>, double, double> CreateTrajectoryParamsForDragway(
-    const maliput::dragway::RoadGeometry& road_geometry, int index, double speed, double start_time) {
+    const maliput::api::RoadGeometry& road_geometry, int index, double speed, double start_time) {
   const maliput::api::Segment* segment = road_geometry.junction(0)->segment(0);
   DRAKE_DEMAND(index < segment->num_lanes());
   const maliput::api::Lane* lane = segment->lane(index);

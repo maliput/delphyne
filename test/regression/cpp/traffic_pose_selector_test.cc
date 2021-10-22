@@ -6,7 +6,7 @@
 #include <gtest/gtest.h>
 #include <maliput/api/lane.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput_multilane/builder.h>
+#include <maliput/api/road_network.h>
 
 #include "delphyne/roads/road_builder.h"
 
@@ -21,17 +21,6 @@ using maliput::api::LanePosition;
 using maliput::api::RBounds;
 using maliput::api::RoadPosition;
 using maliput::api::Rotation;
-using maliput::multilane::ArcOffset;
-using maliput::multilane::BuilderFactory;
-using maliput::multilane::ComputationPolicy;
-using maliput::multilane::Connection;
-using maliput::multilane::Endpoint;
-using maliput::multilane::EndpointXy;
-using maliput::multilane::EndpointZ;
-using maliput::multilane::EndReference;
-using maliput::multilane::LaneLayout;
-using maliput::multilane::LineOffset;
-using maliput::multilane::StartReference;
 
 using drake::math::RigidTransform;
 using drake::systems::rendering::FrameVelocity;
@@ -70,9 +59,6 @@ constexpr int kFarBehindIndex{3};
 // The length of a straight multilane segment.
 constexpr double kRoadSegmentLength{15.};
 
-// Specifies zero elevation/super-elevation.
-const EndpointZ kEndZ{0., 0., 0., 0.};
-
 static const Lane* GetLaneByLaneId(const maliput::api::RoadGeometry& road, const std::string& lane_id) {
   for (int i = 0; i < road.num_junctions(); ++i) {
     const Lane* lane = road.junction(i)->segment(0)->lane(0);
@@ -90,11 +76,14 @@ class TrafficPoseSelectorDragwayTest : public ::testing::Test {
     DRAKE_ASSERT(num_lanes >= 0);
     // Create a dragway with the specified number of lanes starting at `x = 0`
     // and centered at `y = 0`.
-    road_ = roads::CreateDragway("Test Dragway", num_lanes, lane_length, kDragwayLaneWidth, 0. /* shoulder width */,
-                                 5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-                                 std::numeric_limits<double>::epsilon() /* angular_tolerance */);
+    road_network_ =
+        roads::CreateDragway("Test Dragway", num_lanes, lane_length, kDragwayLaneWidth, 0. /* shoulder width */,
+                             5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                             std::numeric_limits<double>::epsilon() /* angular_tolerance */);
+    road_ = road_network_->road_geometry();
   }
-  std::unique_ptr<const maliput::api::RoadGeometry> road_;
+  std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
+  const maliput::api::RoadGeometry* road_{};
 };
 
 template <typename T>
@@ -436,59 +425,93 @@ TEST_F(TrafficPoseSelectorDragwayTest, TestGetSigmaVelocity) {
   EXPECT_NEAR(10. * std::sqrt(2.) / 2., sigma_v, 1e-12);
 }
 
-// Build a road with three lanes in series.  If is_opposing is true, then the
+// Build a road with three lanes in series.  If `is_opposing` is true, then the
 // middle segment is reversed.
-std::unique_ptr<const maliput::api::RoadGeometry> MakeThreeSegmentRoad(bool is_opposing) {
-  auto builder =
-      BuilderFactory().Make(2. * std::abs(kEgoRPosition) + 4. /* lane_width */, HBounds(0., 5.) /* elevation_bounds */,
-                            0.01 /* linear_tolerance */, 0.01 /* angular_tolerance */, 1.0 /* scale_length */,
-                            ComputationPolicy::kPreferAccuracy);
-  const LaneLayout lane_layout(0. /* left_shoulder */, 0. /* right_shoulder */, 1 /* num_lanes */, 0 /* ref_lane */,
-                               0. /* ref_r0 */);
-  const Connection* c0 = builder->Connect(
-      "0_fwd", lane_layout, StartReference().at(Endpoint({0., 0., 0.}, kEndZ), maliput::multilane::Direction::kForward),
-      LineOffset(kRoadSegmentLength), EndReference().z_at(kEndZ, maliput::multilane::Direction::kForward));
-  const Connection* c1{};
-  if (is_opposing) {
-    // Construct a segment in the direction opposite to the initial lane.
-    c1 = builder->Connect("1_rev", lane_layout,
-                          StartReference().at(Endpoint({2. * kRoadSegmentLength, 0., 0.}, kEndZ),
-                                              maliput::multilane::Direction::kReverse),
-                          LineOffset(kRoadSegmentLength),
-                          EndReference().z_at(kEndZ, maliput::multilane::Direction::kForward));
-  } else {
-    // Construct a segment in the direction aligned with the initial lane.
-    c1 = builder->Connect(
-        "1_fwd", lane_layout,
-        StartReference().at(Endpoint({kRoadSegmentLength, 0., 0.}, kEndZ), maliput::multilane::Direction::kForward),
-        LineOffset(kRoadSegmentLength), EndReference().z_at(kEndZ, maliput::multilane::Direction::kForward));
-  }
-  const Connection* c2 = builder->Connect(
-      "2_fwd", lane_layout,
-      StartReference().at(Endpoint({2. * kRoadSegmentLength, 0., 0.}, kEndZ), maliput::multilane::Direction::kForward),
-      LineOffset(kRoadSegmentLength), EndReference().z_at(kEndZ, maliput::multilane::Direction::kForward));
+std::unique_ptr<maliput::api::RoadNetwork> MakeThreeSegmentRoad(bool is_opposing) {
+  const std::string multilane_description = !is_opposing ? R"R(
+    maliput_multilane_builder:
+      id: "three_lane_stretch_forward"
+      lane_width: 2
+      elevation_bounds: [0, 5]
+      scale_length: 1.0
+      linear_tolerance: 0.01
+      angular_tolerance: 0.01
+      computation_policy: prefer-accuracy
+      right_shoulder: 0.
+      left_shoulder: 0.
+      points:
+        start:
+          xypoint: [0, 0, 0]
+          zpoint: [0, 0, 0]
+      connections:
+        0_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start.forward"]
+          length: 15
+          z_end: ["ref", [0, 0, 0]]
+        1_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.0_fwd.end.ref.forward"]
+          length: 15
+          z_end: ["ref", [0, 0, 0]]
+        2_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.1_fwd.end.ref.forward"]
+          length: 15
+          z_end: ["ref", [0, 0, 0]]
 
-  const int kLaneId = 0;
-  if (is_opposing) {
-    builder->SetDefaultBranch(c0, kLaneId, LaneEnd::kFinish, c1, kLaneId, LaneEnd::kFinish);
-    builder->SetDefaultBranch(c1, kLaneId, LaneEnd::kStart, c2, kLaneId, LaneEnd::kStart);
-  } else {
-    builder->SetDefaultBranch(c0, kLaneId, LaneEnd::kFinish, c1, kLaneId, LaneEnd::kStart);
-    builder->SetDefaultBranch(c1, kLaneId, LaneEnd::kFinish, c2, kLaneId, LaneEnd::kStart);
-  }
+      )R"
+                                                         :
+                                                         R"R(
+    maliput_multilane_builder:
+      id: "three_lane_stretch_forward_opposed"
+      lane_width: 2
+      elevation_bounds: [0, 5]
+      scale_length: 1.0
+      linear_tolerance: 0.01
+      angular_tolerance: 0.01
+      computation_policy: prefer-accuracy
+      right_shoulder: 0.
+      left_shoulder: 0.
+      points:
+        start:
+          xypoint: [0, 0, 0]
+          zpoint: [0, 0, 0]
+        start_rev:
+          xypoint: [30, 0, 0]
+          zpoint: [0, 0, 0]
+      connections:
+        0_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start.forward"]
+          length: 15
+          z_end: ["ref", [0, 0, 0]]
+        1_rev:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start_rev.reverse"]
+          length: 15
+          explicit_end: ["ref", "connections.0_fwd.end.ref.reverse"]
+        2_fwd:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.1_rev.start.ref.reverse"]
+          length: 15
+          z_end: ["ref", [0, 0, 0]]
 
-  return builder->Build(maliput::api::RoadGeometryId("ThreeLaneStretch"));
+    )R";
+  return roads::CreateMultilaneFromDescription(multilane_description);
 }
 
 // Verifies the soundness of the results when applied to multi-segment roads.
 GTEST_TEST(TrafficPoseSelectorTest, MultiSegmentRoad) {
   // Instantiate multilane roads with multiple segments.
-  std::vector<std::unique_ptr<const maliput::api::RoadGeometry>> roads;
-  roads.push_back(MakeThreeSegmentRoad(false));  // Road with consistent
-                                                 // with_s
-                                                 // directionality.
-  roads.push_back(MakeThreeSegmentRoad(true));   // Road constructed with
-                                                 // alternating with_s.
+  std::vector<const maliput::api::RoadGeometry*> roads;
+  const auto road_network_1 = MakeThreeSegmentRoad(false);
+  const auto road_network_2 = MakeThreeSegmentRoad(true);
+  roads.push_back(road_network_1->road_geometry());  // Road with consistent
+                                                     // with_s
+                                                     // directionality.
+  roads.push_back(road_network_2->road_geometry());  // Road constructed with
+                                                     // alternating with_s.
 
   PoseVector<double> ego_pose;
   PoseBundle<double> traffic_poses(1);
@@ -529,103 +552,90 @@ GTEST_TEST(TrafficPoseSelectorTest, MultiSegmentRoad) {
 
 // Construct a multilane road with three confluent feeder lanes corresponding to
 // three distinct branch points.
-std::unique_ptr<const maliput::api::RoadGeometry> BuildOnrampRoad() {
-  auto builder =
-      BuilderFactory().Make(4. /* lane_width */, HBounds(0., 5.), 0.01 /* linear_tolerance */,
-                            0.01 /* angular_tolerance */, 1. /* scale_length */, ComputationPolicy::kPreferAccuracy);
-  const LaneLayout lane_layout(2. /* left_shoulder */, 2. /* right_shoulder */, 1 /* num_lanes */, 0 /* ref_lane */,
-                               0. /* ref_r0 */);
-
-  // Initialize the road from the origin.
-  const EndpointXy kOriginXy{0., 0., 0.};
-  const EndpointZ kFlatZ{0., 0., 0., 0.};
-  const Endpoint kRoadOrigin{kOriginXy, kFlatZ};
-
-  const double kArcRadius = 25.;
-  const double kArcLength = 40.;
-  const auto& lane6 =
-      builder->Connect("lane6", lane_layout, StartReference().at(kRoadOrigin, maliput::multilane::Direction::kForward),
-                       ArcOffset(kArcRadius, -kArcLength / kArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& lane5 =
-      builder->Connect("lane5", lane_layout,
-                       StartReference().at(*lane6, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kArcRadius, kArcLength / kArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& lane4 =
-      builder->Connect("lane4", lane_layout,
-                       StartReference().at(*lane5, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kArcRadius, -kArcLength / kArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& lane3 =
-      builder->Connect("lane3", lane_layout,
-                       StartReference().at(*lane4, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kArcRadius, kArcLength / kArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& lane2 =
-      builder->Connect("lane2", lane_layout,
-                       StartReference().at(*lane3, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kArcRadius, -kArcLength / kArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& lane1 =
-      builder->Connect("lane1", lane_layout,
-                       StartReference().at(*lane2, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kArcRadius, kArcLength / kArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const double kLinearLength = 100.;
-  const auto& lane0 =
-      builder->Connect("lane0", lane_layout,
-                       StartReference().at(*lane1, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       LineOffset(kLinearLength), EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-
-  // Construct the three branches (working backwards from each branch point).
-  const double kBranchArcRadius = 35.;
-  const double kBranchArcLength = 50.;
-  const double kBranchLinearLength = 100.;
-  const auto& b0_lane1 =
-      builder->Connect("b0_lane1", lane_layout,
-                       StartReference().at(*lane1, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kBranchArcRadius, kBranchArcLength / kBranchArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& b0_lane0 = builder->Connect(
-      "b0_lane0", lane_layout,
-      StartReference().at(*b0_lane1, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-      LineOffset(kBranchLinearLength), EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& b1_lane1 =
-      builder->Connect("b1_lane1", lane_layout,
-                       StartReference().at(*lane3, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kBranchArcRadius, kBranchArcLength / kBranchArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& b1_lane0 = builder->Connect(
-      "b1_lane0", lane_layout,
-      StartReference().at(*b1_lane1, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-      LineOffset(kBranchLinearLength), EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& b2_lane1 =
-      builder->Connect("b2_lane1", lane_layout,
-                       StartReference().at(*lane5, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-                       ArcOffset(kBranchArcRadius, kBranchArcLength / kBranchArcRadius),
-                       EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-  const auto& b2_lane0 = builder->Connect(
-      "b2_lane0", lane_layout,
-      StartReference().at(*b2_lane1, LaneEnd::Which::kFinish, maliput::multilane::Direction::kForward),
-      LineOffset(kBranchLinearLength), EndReference().z_at(kFlatZ, maliput::multilane::Direction::kForward));
-
-  // Manually specify the default branches for all junctions in the road.
-  const int kLaneId = 0;
-  builder->SetDefaultBranch(lane0, kLaneId, LaneEnd::kStart, lane1, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(lane1, kLaneId, LaneEnd::kStart, lane2, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(lane2, kLaneId, LaneEnd::kStart, lane3, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(lane3, kLaneId, LaneEnd::kStart, lane4, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(lane4, kLaneId, LaneEnd::kStart, lane5, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(lane5, kLaneId, LaneEnd::kStart, lane6, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(b0_lane1, kLaneId, LaneEnd::kStart, lane1, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(b0_lane0, kLaneId, LaneEnd::kStart, b0_lane1, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(b1_lane1, kLaneId, LaneEnd::kStart, lane3, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(b1_lane0, kLaneId, LaneEnd::kStart, b1_lane1, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(b2_lane1, kLaneId, LaneEnd::kStart, lane5, kLaneId, LaneEnd::kFinish);
-  builder->SetDefaultBranch(b2_lane0, kLaneId, LaneEnd::kStart, b2_lane1, kLaneId, LaneEnd::kFinish);
-
-  return builder->Build(maliput::api::RoadGeometryId{"three_feeder_lanes"});
+std::unique_ptr<maliput::api::RoadNetwork> BuildOnrampRoad() {
+  const std::string multilane_description = R"R(
+    maliput_multilane_builder:
+      id: "on_ramp_road"
+      lane_width: 4.
+      elevation_bounds: [0, 5]
+      scale_length: 1.0
+      linear_tolerance: 0.001
+      angular_tolerance: 0.001
+      computation_policy: prefer-accuracy
+      right_shoulder: 2.
+      left_shoulder: 2.
+      points:
+        start:
+          xypoint: [0, 0, 0]
+          zpoint: [0, 0, 0]
+      connections:
+        lane6:
+          lanes: [1, 0, 0]
+          start: ["ref", "points.start.forward"]
+          arc: [25, -91.6732]
+          z_end: ["ref", [0, 0, 0]]
+        lane5:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane6.end.ref.forward"]
+          arc: [25, 91.6732]
+          z_end: ["ref", [0, 0, 0]]
+        lane4:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane5.end.ref.forward"]
+          arc: [25, -91.6732]
+          z_end: ["ref", [0, 0, 0]]
+        lane3:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane4.end.ref.forward"]
+          arc: [25, 91.6732]
+          z_end: ["ref", [0, 0, 0]]
+        lane2:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane3.end.ref.forward"]
+          arc: [25, -91.6732]
+          z_end: ["ref", [0, 0, 0]]
+        lane1:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane2.end.ref.forward"]
+          arc: [25, 91.6732]
+          z_end: ["ref", [0, 0, 0]]
+        lane0:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane1.end.ref.forward"]
+          length: 100
+          z_end: ["ref", [0, 0, 0]]
+        b0_lane1:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane1.end.ref.forward"]
+          arc: [35, 81.8511135902388]
+          z_end: ["ref", [0, 0, 0]]
+        b0_lane0:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.b0_lane1.end.ref.forward"]
+          length: 100
+          z_end: ["ref", [0, 0, 0]]
+        b1_lane1:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane3.end.ref.forward"]
+          arc: [35, 81.8511135902388]
+          z_end: ["ref", [0, 0, 0]]
+        b1_lane0:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.b1_lane1.end.ref.forward"]
+          length: 100
+          z_end: ["ref", [0, 0, 0]]
+        b2_lane1:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.lane5.end.ref.forward"]
+          arc: [35, 81.8511135902388]
+          z_end: ["ref", [0, 0, 0]]
+        b2_lane0:
+          lanes: [1, 0, 0]
+          start: ["ref", "connections.b2_lane1.end.ref.forward"]
+          length: 100
+          z_end: ["ref", [0, 0, 0]]
+      )R";
+  return roads::CreateMultilaneFromDescription(multilane_description);
 }
 
 enum class LanePolarity { kWithS, kAgainstS };
@@ -701,8 +711,8 @@ void CheckOnrampPosesInBranches(const maliput::api::RoadGeometry& road, const Po
     EXPECT_EQ(-kInf, closest_pose_leading.odometry.pos.s());
     EXPECT_EQ(kInf, closest_pose_leading.distance);
   } else {
-    EXPECT_NEAR(expected_s_position, closest_pose_leading.odometry.pos.s(), 1e-6);
-    EXPECT_NEAR(expected_distance, closest_pose_leading.distance, 1e-6);
+    EXPECT_NEAR(expected_s_position, closest_pose_leading.odometry.pos.s(), 1e-3);
+    EXPECT_NEAR(expected_distance, closest_pose_leading.distance, 1e-3);
   }
 
   const std::map<AheadOrBehind, const ClosestPose<double>> closest_poses = TrafficPoseSelector<double>::FindClosestPair(
@@ -723,7 +733,8 @@ void CheckOnrampPosesInBranches(const maliput::api::RoadGeometry& road, const Po
 }
 
 GTEST_TEST(TrafficPoseSelectorOnrampTest, CheckBranches) {
-  std::unique_ptr<const maliput::api::RoadGeometry> road = BuildOnrampRoad();
+  const auto road_network = BuildOnrampRoad();
+  const maliput::api::RoadGeometry* road = road_network->road_geometry();
 
   PoseVector<double> ego_pose;
   FrameVelocity<double> ego_velocity;

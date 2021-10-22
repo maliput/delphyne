@@ -101,22 +101,27 @@ jobs:
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
-        rosdep update --include-eol-distros;
+        rosdep update
         rosdep install  -i -y --rosdistro ${ROS_DISTRO} --skip-keys "pybind11" --from-paths src
     - name: install drake
       shell: bash
       working-directory: ${{ env.ROS_WS }}/src/drake_vendor
       run: ./drake_installer
-    - name: install ignition packages
-      shell: bash
-      working-directory: ${{ env.ROS_WS }}/src
-      run: ./${PACKAGE_NAME}/.github/ignition_packages_installation.sh
     - name: colcon build libraries
       shell: bash
       working-directory: ${{ env.ROS_WS }}
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
         colcon build --packages-up-to ${PACKAGE_NAME} \
+          --event-handlers=console_direct+ \
+          --cmake-args ${COMPILER_FLAG} \
+            -DBUILD_TESTING=OFF
+    - name: colcon build maliput backends
+      shell: bash
+      working-directory: ${{ env.ROS_WS }}
+      run: |
+        . /opt/ros/${ROS_DISTRO}/setup.bash;
+        colcon build --packages-up-to maliput_dragway maliput_multilane maliput_malidrive \
           --event-handlers=console_direct+ \
           --cmake-args ${COMPILER_FLAG} \
             -DBUILD_TESTING=OFF

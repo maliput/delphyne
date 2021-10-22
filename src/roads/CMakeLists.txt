@@ -29,11 +29,8 @@ target_link_libraries(
   roads_utilities
     drake::drake
     maliput::api
-    maliput_dragway::maliput_dragway
-    maliput_multilane::maliput_multilane
-    maliput_malidrive::builder
-    maliput_malidrive::loader
-    maliput_malidrive::utility
+    maliput::common
+    maliput::plugin
 )
 
 install(

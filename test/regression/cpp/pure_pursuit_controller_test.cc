@@ -51,7 +51,7 @@ class PurePursuitControllerTest : public ::testing::Test {
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
   std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
-  const maliput::api::RoadGeometry* road_;
+  const maliput::api::RoadGeometry* road_{};
   std::unique_ptr<LaneDirection> lane_direction_;
 };
 

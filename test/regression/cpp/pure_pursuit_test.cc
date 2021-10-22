@@ -61,7 +61,7 @@ class PurePursuitTest : public ::testing::Test {
   const SimpleCarParams<double> car_params_{};
   const SimpleCarParams<AutoDiffXd> car_params_ad_{};
   std::unique_ptr<maliput::api::RoadNetwork> road_network_;
-  const maliput::api::RoadGeometry* road_;
+  const maliput::api::RoadGeometry* road_{};
 };
 
 TEST_F(PurePursuitTest, Evaluate) {

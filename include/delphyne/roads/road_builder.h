@@ -65,17 +65,17 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(
     double maximum_height, double linear_tolerance = std::numeric_limits<double>::epsilon(),
     double angular_tolerance = std::numeric_limits<double>::epsilon());
 
-/// @brief Create a multilane from yaml source.
+/// @brief Creates a multilane from yaml source.
 ///
 /// @param[in] file_path A string pointing to the file to be loaded.
 std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::string& file_path);
 
-/// @brief Create a multilane from yaml description.
+/// @brief Creates a multilane from yaml description.
 ///
 /// @param[in] yaml_description A serialized yaml description to be loaded.
 std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description);
 
-/// @brief Create a malidrive from xodr source.
+/// @brief Creates a malidrive from xodr source.
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the file to be loaded.
@@ -87,7 +87,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::st
                                                                    double linear_tolerance = 1e-3,
                                                                    double angular_tolerance = 1e-3);
 
-/// @brief Create a malidrive from xodr source.
+/// @brief Creates a malidrive from xodr source.
 ///
 /// @param[in] name A name for the road geometry to be created.
 /// @param[in] file_path A string pointing to the XODR file to be loaded.
@@ -102,7 +102,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string(),
     double linear_tolerance = 1e-3, double angular_tolerance = 1e-3);
 
-/// @brief Create a multilane on-ramp.
+/// @brief Creates a multilane on-ramp.
 std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp();
 
 /*****************************************************************************

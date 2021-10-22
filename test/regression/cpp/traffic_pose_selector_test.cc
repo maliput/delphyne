@@ -83,7 +83,7 @@ class TrafficPoseSelectorDragwayTest : public ::testing::Test {
     road_ = road_network_->road_geometry();
   }
   std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
-  const maliput::api::RoadGeometry* road_;
+  const maliput::api::RoadGeometry* road_{};
 };
 
 template <typename T>

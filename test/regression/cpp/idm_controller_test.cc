@@ -97,7 +97,7 @@ class IDMControllerTest : public ::testing::TestWithParam<RoadPositionStrategy> 
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
   std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
-  const maliput::api::RoadGeometry* road_;
+  const maliput::api::RoadGeometry* road_{};
 
   int ego_pose_input_index_;
   int ego_velocity_input_index_;

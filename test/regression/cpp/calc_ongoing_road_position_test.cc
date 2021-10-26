@@ -5,6 +5,7 @@
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
 
+#include "delphyne/macros.h"
 #include "delphyne/roads/road_builder.h"
 #include "test_utilities/eigen_matrix_compare.h"
 
@@ -47,12 +48,9 @@ void SetOnrampPoses(const Lane* lane, LanePolarity polarity, const T& speed, Pos
 }
 
 const Lane* GetLaneFromId(const maliput::api::RoadGeometry& road, const std::string& lane_id) {
-  for (int i = 0; i < road.num_junctions(); ++i) {
-    if (road.junction(i)->segment(0)->lane(0)->id().string() == lane_id) {
-      return road.junction(i)->segment(0)->lane(0);
-    }
-  }
-  throw std::runtime_error("No matching lane name in the road network");
+  const Lane* lane = road.ById().GetLane(maliput::api::LaneId{lane_id});
+  DELPHYNE_VALIDATE(lane != nullptr, std::runtime_error, "No matching lane name in the road network");
+  return lane;
 }
 
 // Sets up poses in the requested lane and performs the tests based on a

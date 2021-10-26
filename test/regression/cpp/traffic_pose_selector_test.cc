@@ -8,6 +8,7 @@
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
 
+#include "delphyne/macros.h"
 #include "delphyne/roads/road_builder.h"
 
 namespace delphyne {
@@ -60,14 +61,10 @@ constexpr int kFarBehindIndex{3};
 constexpr double kRoadSegmentLength{15.};
 
 static const Lane* GetLaneByLaneId(const maliput::api::RoadGeometry& road, const std::string& lane_id) {
-  for (int i = 0; i < road.num_junctions(); ++i) {
-    const Lane* lane = road.junction(i)->segment(0)->lane(0);
-    if (lane->id().string() == lane_id) {
-      return lane;
-    }
-  }
-  throw std::runtime_error(std::string("No matching lane whose name is <") + lane_id +
-                           std::string("> in the road network"));
+  const Lane* lane = road.ById().GetLane(maliput::api::LaneId{lane_id});
+  DELPHYNE_VALIDATE(lane != nullptr, std::runtime_error,
+                    std::string("No matching lane whose name is <") + lane_id + std::string("> in the road network"));
+  return lane;
 }
 
 class TrafficPoseSelectorDragwayTest : public ::testing::Test {

@@ -7,6 +7,8 @@ A module providing basic agent behaviours.
 import delphyne.agents
 from delphyne.blackboard.providers import resolve
 
+import maliput.api
+
 import py_trees.behaviours
 import py_trees.common
 
@@ -115,7 +117,7 @@ class RailCar(py_trees.behaviours.Success):
         road_geometry = builder.get_road_geometry()
         road_index = road_geometry.ById()
         lane_id = resolve(self.lane_id, road_geometry)
-        lane = road_index.GetLane(lane_id)
+        lane = road_index.GetLane(maliput.api.LaneId(lane_id))
         longitudinal_position = resolve(
             self.longitudinal_position, road_geometry, lane
         )

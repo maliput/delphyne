@@ -1,6 +1,4 @@
-| GCC | Sanitizers(Clang) | Scan-Build |
-| --------- | --------- | -------- |
-|[![gcc](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/build.yml/badge.svg)](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/build.yml) | [![clang](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/sanitizers.yml/badge.svg)](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/sanitizers.yml) | [![scan_build](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/scan_build.yml/badge.svg)](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/scan_build.yml) |
+[![gcc](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/build.yml/badge.svg)](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/build.yml)
 
 # Delphyne
 

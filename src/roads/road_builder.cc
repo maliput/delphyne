@@ -96,14 +96,15 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp() {
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
                                                                    const std::string& file_path,
                                                                    double linear_tolerance, double angular_tolerance) {
-  return CreateMalidriveRoadNetworkFromXodr(name, file_path, {/*road_rulebook_file_path*/},
-                                            {/*traffic_light_book_path*/}, {/*phase_ring_path*/}, linear_tolerance,
-                                            angular_tolerance);
+  return CreateMalidriveRoadNetworkFromXodr(
+      name, file_path, {/*rule_registry_file_path*/}, {/*road_rulebook_file_path*/}, {/*traffic_light_book_path*/},
+      {/*phase_ring_path*/}, {/*intersection_book_path*/}, linear_tolerance, angular_tolerance);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
-    const std::string& name, const std::string& file_path, const std::string& road_rulebook_file_path,
-    const std::string& traffic_light_book_path, const std::string& phase_ring_path, double linear_tolerance,
+    const std::string& name, const std::string& file_path, const std::string& rule_registry_file_path,
+    const std::string& road_rulebook_file_path, const std::string& traffic_light_book_path,
+    const std::string& phase_ring_path, const std::string& intersection_book_path, double linear_tolerance,
     double angular_tolerance) {
   static constexpr double kScaleLength{1.};
   std::map<std::string, std::string> road_network_configuration{
@@ -114,6 +115,9 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
       {"scale_length", std::to_string(kScaleLength)},
   };
 
+  if (!rule_registry_file_path.empty()) {
+    road_network_configuration.emplace("rule_registry", rule_registry_file_path);
+  }
   if (!road_rulebook_file_path.empty()) {
     road_network_configuration.emplace("road_rule_book", road_rulebook_file_path);
   }
@@ -122,6 +126,9 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
   }
   if (!phase_ring_path.empty()) {
     road_network_configuration.emplace("phase_ring_book", phase_ring_path);
+  }
+  if (!phase_ring_path.empty()) {
+    road_network_configuration.emplace("intersection_book", intersection_book_path);
   }
 
   return CreateRoadNetwork("maliput_malidrive", road_network_configuration);

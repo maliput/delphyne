@@ -112,17 +112,17 @@ endif()
 # Docs
 ##############################################################################
 
-if(NOT DEFINED BUILD_DOCS)
-  set(BUILD_DOCS 1)
-endif()
-
 if(BUILD_DOCS)
+  message(STATUS "Doxygen generation - Enabled")
   find_package(ament_cmake_doxygen REQUIRED)
   ament_doxygen_generate(doxygen_delphyne
     CONFIG_OVERLAY doc/Doxyfile.overlay.in
     DEPENDENCIES maliput maliput_py
     TEST_ON_WARNS
   )
+  add_definitions(-DBUILD_DOCS)
+else()
+  message(STATUS "Doxygen generation - Disabled")
 endif()
 
 ##############################################################################

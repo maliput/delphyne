@@ -22,6 +22,11 @@ This is the repository for Delphyne - a traffic level simulator for autonomous d
    colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne_demos
    ```
 
+   **Note**: To build documentation a `-BUILD_DOCS` cmake flag is required:
+   ```sh
+   colcon build --packages-up-to delphyne --cmake-args " -DBUILD_DOCS=On"
+   ```
+
 ## Use
 
 1. Source your build:

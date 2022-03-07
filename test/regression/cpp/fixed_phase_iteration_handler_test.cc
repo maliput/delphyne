@@ -66,5 +66,24 @@ TEST_F(FixedPhaseIterationHandlerTest, VerifyPhasesBeingIterated) {
   EXPECT_EQ(kAllStopPhase, intersection->Phase()->state);
 }
 
+TEST_F(FixedPhaseIterationHandlerTest, GettersAndSetters) {
+  const double kNewPhaseDuration{123.};
+  FixedPhaseIterationHandler dut{rn_.get(), kPhaseDuration};
+  dut.set_phase_duration(kNewPhaseDuration);
+  EXPECT_EQ(kNewPhaseDuration, dut.get_phase_duration());
+}
+
+TEST_F(FixedPhaseIterationHandlerTest, CheckServiceForChangingPhaseDuration) {
+  const double kNewPhaseDuration{123.};
+  FixedPhaseIterationHandler dut{rn_.get(), kPhaseDuration};
+
+  ignition::transport::Node node;
+  ignition::msgs::Double new_phase_duration_req;
+  new_phase_duration_req.set_data(kNewPhaseDuration);
+  ASSERT_TRUE(node.Request(FixedPhaseIterationHandler::kSetPhaseDurationSrvName, new_phase_duration_req));
+
+  EXPECT_EQ(kNewPhaseDuration, dut.get_phase_duration());
+}
+
 }  // namespace
 }  // namespace delphyne

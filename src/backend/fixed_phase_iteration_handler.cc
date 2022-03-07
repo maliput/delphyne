@@ -1,11 +1,31 @@
 // Copyright 2022 Toyota Research Institute.
 #include "backend/fixed_phase_iteration_handler.h"
 
+#include <ignition/common/Console.hh>
 #include <maliput/base/manual_phase_provider.h>
 
 #include "delphyne/macros.h"
 
 namespace delphyne {
+
+FixedPhaseIterationHandler::FixedPhaseIterationHandler(maliput::api::RoadNetwork* road_network, double phase_duration)
+    : DynamicEnvironmentHandler(road_network), phase_duration_(phase_duration) {
+  DELPHYNE_VALIDATE(phase_duration > 0., std::invalid_argument, "Phase duration should be greater than zero.");
+
+  // Advertise a service for modifying the phase duration.
+  if (!node_.Advertise(kSetPhaseDurationSrvName, &FixedPhaseIterationHandler::SetPhaseDurationSvCb, this)) {
+    ignerr << "Error advertising service [" << kSetPhaseDurationSrvName << "]"
+           << "\n Phase duration won't be able to be modified" << std::endl;
+  }
+}
+
+void FixedPhaseIterationHandler::SetPhaseDurationSvCb(const ignition::msgs::Double& phase_duration) {
+  if (phase_duration.data() <= 0.) {
+    ignerr << "srv: " << kSetPhaseDurationSrvName << " -- Phase duration should be greater than zero." << std::endl;
+    return;
+  }
+  set_phase_duration(phase_duration.data());
+}
 
 void FixedPhaseIterationHandler::Update(double sim_time) {
   if (!(sim_time - last_sim_time_ > phase_duration_)) {
@@ -29,5 +49,12 @@ void FixedPhaseIterationHandler::Update(double sim_time) {
     phase_provider->SetPhase(phase_ring_id, new_phase_id, next_phases.front().id, next_phases.front().duration_until);
   }
 }
+
+void FixedPhaseIterationHandler::set_phase_duration(double phase_duration) {
+  DELPHYNE_VALIDATE(phase_duration > 0., std::invalid_argument, "Phase duration should be greater than zero.");
+  phase_duration_ = phase_duration;
+}
+
+double FixedPhaseIterationHandler::get_phase_duration() const { return phase_duration_; }
 
 }  // namespace delphyne

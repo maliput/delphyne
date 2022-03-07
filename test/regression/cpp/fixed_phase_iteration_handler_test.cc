@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <delphyne/roads/road_builder.h>
 #include <gtest/gtest.h>
 #include <maliput/api/intersection.h>
 #include <maliput/api/intersection_book.h>
@@ -9,8 +10,6 @@
 #include <maliput/api/rules/phase.h>
 #include <maliput/common/assertion_error.h>
 #include <maliput/common/filesystem.h>
-
-#include <delphyne/roads/road_builder.h>
 
 namespace delphyne {
 namespace {

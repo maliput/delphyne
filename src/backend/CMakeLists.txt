@@ -7,6 +7,7 @@ include(${PROJECT_SOURCE_DIR}/cmake/Python.cmake)
 add_library(backend
   agent_simulation.cc
   agent_simulation_builder.cc
+  fixed_phase_iteration_handler.cc
   frame_pose_aggregator.cc
   geometry_utilities.cc
   ign_models_assembler.cc
@@ -45,6 +46,7 @@ target_link_libraries(
     ignition-transport8::log
     ignition-msgs5::ignition-msgs5
     maliput::api
+    maliput::base
     maliput::utilities
     ${PYTHON_LIBRARIES}
 )

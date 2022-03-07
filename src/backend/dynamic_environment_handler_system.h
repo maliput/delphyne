@@ -7,9 +7,8 @@
 #include <drake/systems/framework/leaf_system.h>
 #include <maliput/api/road_network.h>
 
-#include "delphyne/macros.h"
-
 #include "backend/dynamic_environment_handler.h"
+#include "delphyne/macros.h"
 
 namespace delphyne {
 

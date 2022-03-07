@@ -17,6 +17,8 @@
 #include <maliput/api/road_geometry.h>
 #include <maliput/utilities/generate_obj.h>
 
+#include "backend/dynamic_environment_handler_system.h"
+#include "backend/fixed_phase_iteration_handler.h"
 #include "backend/geometry_utilities.h"
 #include "backend/ign_models_assembler.h"
 #include "backend/ign_publisher_system.h"
@@ -176,13 +178,13 @@ const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::SetRoadGeometry
 
 template <typename T>
 const maliput::api::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<const maliput::api::RoadNetwork> road_network) {
+    std::unique_ptr<maliput::api::RoadNetwork> road_network) {
   return SetRoadNetwork(std::move(road_network), GetDefaultFeatures());
 }
 
 template <typename T>
 const maliput::api::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<const maliput::api::RoadNetwork> road_network, const maliput::utility::ObjFeatures& features) {
+    std::unique_ptr<maliput::api::RoadNetwork> road_network, const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_network != nullptr);
   DELPHYNE_DEMAND(road_geometry_ == nullptr);
   road_network_ = std::move(road_network);
@@ -310,6 +312,10 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
 
   // Exposes simulation scene for rendering.
   SceneSystem* scene_system = AddScenePublishers();
+
+  // Adds handler of dynamic rules.
+  builder_->template AddSystem<DynamicEnvironmentHandlerSystem>(
+      std::make_unique<FixedPhaseIterationHandler>(road_network_.get()));
 
   // Builds the simulation diagram.
   std::unique_ptr<drake::systems::Diagram<T>> diagram = builder_->Build();

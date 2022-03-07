@@ -76,14 +76,14 @@ class AgentSimulationBaseBuilder {
   /// Sets the RoadNetwork for this simulation and use its road geometry
   ///
   /// @param road_network The road network to use for the simulation.
-  const maliput::api::RoadNetwork* SetRoadNetwork(std::unique_ptr<const maliput::api::RoadNetwork> road_network);
+  const maliput::api::RoadNetwork* SetRoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> road_network);
 
   /// Sets the RoadNetwork for this simulation.
   ///
   /// @param road_network The road network to use for the simulation.
   /// @param features The road features that will be shown in the simulation.
   /// @see documentation of maliput::utility::ObjFeatures
-  const maliput::api::RoadNetwork* SetRoadNetwork(std::unique_ptr<const maliput::api::RoadNetwork> road_network,
+  const maliput::api::RoadNetwork* SetRoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> road_network,
                                                   const maliput::utility::ObjFeatures& features);
 
   /// Constructs a Blueprint in-place and uses it to build and
@@ -242,7 +242,7 @@ class AgentSimulationBaseBuilder {
   // The geometry of the road for the simulation to be built.
   std::unique_ptr<const maliput::api::RoadGeometry> road_geometry_{nullptr};
 
-  std::unique_ptr<const maliput::api::RoadNetwork> road_network_{nullptr};
+  std::unique_ptr<maliput::api::RoadNetwork> road_network_{nullptr};
 
   // The features of the road for the simulation to be built.
   maliput::utility::ObjFeatures road_features_{};

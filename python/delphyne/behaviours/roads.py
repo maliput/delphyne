@@ -94,8 +94,10 @@ class Malidrive(Road):
     """
 
     def __init__(self, name=py_trees.common.Name.AUTO_GENERATED,
-                         file_path="", rule_registry_file_path="", road_rulebook_file_path="",
-                         traffic_light_book_path="", phase_ring_path="", intersection_book_path="", linear_tolerance=1e-3, angular_tolerance=1e-3, features=delphyne.roads.ObjFeatures()):
+                 file_path="", rule_registry_file_path="", road_rulebook_file_path="",
+                 traffic_light_book_path="", phase_ring_path="", intersection_book_path="",
+                 linear_tolerance=1e-3, angular_tolerance=1e-3,
+                 features=delphyne.roads.ObjFeatures()):
         super().__init__(name)
         self.road_network = None
         self.name = name
@@ -116,11 +118,11 @@ class Malidrive(Road):
                 delphyne.roads.create_malidrive_road_network_from_xodr(
                     name=self.name,
                     file_path=self.file_path,
-                    rule_registry_file_path = self.rule_registry_file_path,
-                    road_rulebook_file_path = self.road_rulebook_file_path,
-                    traffic_light_book_path = self.traffic_light_book_path,
-                    phase_ring_path = self.phase_ring_path,
-                    intersection_book_path = self.intersection_book_path,
+                    rule_registry_file_path=self.rule_registry_file_path,
+                    road_rulebook_file_path=self.road_rulebook_file_path,
+                    traffic_light_book_path=self.traffic_light_book_path,
+                    phase_ring_path=self.phase_ring_path,
+                    intersection_book_path=self.intersection_book_path,
                     linear_tolerance=self.linear_tolerance,
                     angular_tolerance=self.angular_tolerance), self.features)
             self.road_geometry = self.road_network.road_geometry()

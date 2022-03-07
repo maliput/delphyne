@@ -313,9 +313,11 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   // Exposes simulation scene for rendering.
   SceneSystem* scene_system = AddScenePublishers();
 
-  // Adds handler of dynamic rules.
-  builder_->template AddSystem<DynamicEnvironmentHandlerSystem>(
-      std::make_unique<FixedPhaseIterationHandler>(road_network_.get()));
+  if (road_network_ != nullptr) {
+    // Adds handler of dynamic rules.
+    builder_->template AddSystem<DynamicEnvironmentHandlerSystem>(
+        std::make_unique<FixedPhaseIterationHandler>(road_network_.get()));
+  }
 
   // Builds the simulation diagram.
   std::unique_ptr<drake::systems::Diagram<T>> diagram = builder_->Build();

@@ -130,16 +130,14 @@ PYBIND11_MODULE(simulation, m) {
            py::arg("road_geometry"), py::arg("features"))
       .def("get_road_geometry", &AgentSimulationBuilder::GetRoadGeometry, py::return_value_policy::reference_internal)
       .def("set_road_network",
-           py::overload_cast<std::unique_ptr<const ::maliput::api::RoadNetwork>>(
-               &AgentSimulationBuilder::SetRoadNetwork),
+           py::overload_cast<std::unique_ptr<maliput::api::RoadNetwork>>(&AgentSimulationBuilder::SetRoadNetwork),
            py::return_value_policy::reference_internal, "Sets road network for the simulation to be built",
            py::arg("road_network"))
-      .def(
-          "set_road_network",
-          py::overload_cast<std::unique_ptr<const ::maliput::api::RoadNetwork>, const ::maliput::utility::ObjFeatures&>(
-              &AgentSimulationBuilder::SetRoadNetwork),
-          py::return_value_policy::reference_internal, "Sets road network for the simulation to be built",
-          py::arg("road_network"), py::arg("features"))
+      .def("set_road_network",
+           py::overload_cast<std::unique_ptr<maliput::api::RoadNetwork>, const ::maliput::utility::ObjFeatures&>(
+               &AgentSimulationBuilder::SetRoadNetwork),
+           py::return_value_policy::reference_internal, "Sets road network for the simulation to be built",
+           py::arg("road_network"), py::arg("features"))
       .def("build", &AgentSimulationBuilder::Build);
 
   py::class_<AgentSimulation>(m, "AgentSimulation")

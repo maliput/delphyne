@@ -47,7 +47,10 @@ set(SOURCES
   drake_driving_command_to_ign_translator_system_test.cc
   driving_command_mux_test.cc
   dynamic_bicycle_car_test.cc
+  dynamic_environment_handler_test.cc
+  dynamic_environment_handler_system_test.cc
   filesystem_test.cc
+  fixed_phase_iteration_handler_test.cc
   frame_pose_aggregator_test.cc
   idm_controller_test.cc
   idm_planner_test.cc

@@ -14,7 +14,7 @@
 
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <maliput/api/lane.h>
-#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 // public headers
 #include "delphyne/macros.h"
@@ -114,7 +114,7 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<RailCar> DoBuildAgentInto(const maliput::api::RoadGeometry* road_geometry,
+  std::unique_ptr<RailCar> DoBuildAgentInto(const maliput::api::RoadNetwork* road_network,
                                             drake::systems::DiagramBuilder<double>* builder) const override;
 };
 

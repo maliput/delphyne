@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 #include "delphyne/mi6/agent_base_blueprint.h"
 
@@ -47,7 +47,7 @@ class SimpleCarBlueprint : public BasicAgentBlueprint {
     Parameters(double x, double y, double heading, double speed) : x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const override;
 };
 
 /*****************************************************************************

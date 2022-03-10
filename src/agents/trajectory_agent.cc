@@ -59,8 +59,8 @@ TrajectoryAgentBlueprint::TrajectoryAgentBlueprint(const std::string& name, cons
 }
 
 std::unique_ptr<Agent::Diagram> TrajectoryAgentBlueprint::DoBuildDiagram(
-    const maliput::api::RoadGeometry* road_geometry) const {
-  maliput::common::unused(road_geometry);
+    const maliput::api::RoadNetwork* road_network) const {
+  maliput::common::unused(road_network);
   AgentBlueprint::DiagramBuilder builder(this->name());
 
   /******************************************

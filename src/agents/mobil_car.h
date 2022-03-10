@@ -13,7 +13,7 @@
 #include <string>
 
 #include <drake/common/drake_copyable.h>
-#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 // public headers
 #include "delphyne/mi6/agent_base_blueprint.h"
@@ -65,7 +65,7 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
         : direction_of_travel(direction_of_travel), x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const override;
 };
 
 /*****************************************************************************

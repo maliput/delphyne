@@ -17,7 +17,6 @@
 #include <drake/systems/primitives/multiplexer.h>
 #include <ignition/common/Console.hh>
 #include <ignition/common/PluginMacros.hh>
-#include <maliput/api/road_geometry.h>
 
 // public headers
 #include "delphyne/macros.h"
@@ -42,9 +41,8 @@ MobilCarBlueprint::MobilCarBlueprint(const std::string& name, bool direction_of_
                                      double heading, double speed)
     : BasicAgentBlueprint(name), initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
-std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
-    const maliput::api::RoadGeometry* road_geometry) const {
-  DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
+std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const {
+  DELPHYNE_VALIDATE(road_network != nullptr && road_network->road_geometry() != nullptr, std::invalid_argument,
                     "MOBIL cars require a road geometry to run, make "
                     "sure the simulation was setup with one.");
   AgentBlueprint::DiagramBuilder builder(this->name());
@@ -65,12 +63,13 @@ std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(
    * Instantiate Systems
    *********************/
   delphyne::MobilPlanner<double>* mobil_planner = builder.AddSystem(std::make_unique<delphyne::MobilPlanner<double>>(
-      *road_geometry, initial_parameters_.direction_of_travel, RoadPositionStrategy::kExhaustiveSearch,
+      *road_network->road_geometry(), initial_parameters_.direction_of_travel, RoadPositionStrategy::kExhaustiveSearch,
       0. /* time period (unused) */));
   mobil_planner->set_name(this->name() + "_mobil_planner");
 
-  IDMController<double>* idm_controller = builder.AddSystem(std::make_unique<IDMController<double>>(
-      *road_geometry, ScanStrategy::kBranches, RoadPositionStrategy::kExhaustiveSearch, 0. /* time period (unused) */));
+  IDMController<double>* idm_controller = builder.AddSystem(
+      std::make_unique<IDMController<double>>(*road_network->road_geometry(), ScanStrategy::kBranches,
+                                              RoadPositionStrategy::kExhaustiveSearch, 0. /* time period (unused) */));
   idm_controller->set_name(this->name() + "_idm_controller");
 
   delphyne::PurePursuitController<double>* pursuit =

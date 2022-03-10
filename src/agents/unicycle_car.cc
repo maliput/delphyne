@@ -33,8 +33,8 @@ UnicycleCarBlueprint::UnicycleCarBlueprint(const std::string& name, double x, do
     : TypedAgentBlueprint<UnicycleCarAgent>(name), initial_conditions_(x, y, heading, speed) {}
 
 std::unique_ptr<UnicycleCarAgent> UnicycleCarBlueprint::DoBuildAgentInto(
-    const maliput::api::RoadGeometry* road_geometry, drake::systems::DiagramBuilder<double>* simulator_builder) const {
-  maliput::common::unused(road_geometry);
+    const maliput::api::RoadNetwork* road_network, drake::systems::DiagramBuilder<double>* simulator_builder) const {
+  maliput::common::unused(road_network);
 
   AgentBlueprint::DiagramBuilder builder(this->name());
 

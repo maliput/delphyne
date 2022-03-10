@@ -12,7 +12,7 @@
 #include <memory>
 #include <string>
 
-#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 #include "delphyne/mi6/agent_base_blueprint.h"
 #include "systems/vector_source.h"
@@ -84,7 +84,7 @@ class UnicycleCarBlueprint : public TypedAgentBlueprint<UnicycleCarAgent> {
   } initial_conditions_;
 
   std::unique_ptr<UnicycleCarAgent> DoBuildAgentInto(
-      const maliput::api::RoadGeometry* road_geometry,
+      const maliput::api::RoadNetwork* road_network,
       drake::systems::DiagramBuilder<double>* simulator_builder) const override;
 };
 

@@ -60,19 +60,6 @@ class AgentSimulationBaseBuilder {
   /// Gets the RoadGeometry from this simulation
   const maliput::api::RoadGeometry* GetRoadGeometry() const;
 
-  /// Sets the RoadGeometry for this simulation.
-  ///
-  /// @param road_geometry The road geometry to use for the simulation.
-  const maliput::api::RoadGeometry* SetRoadGeometry(std::unique_ptr<const maliput::api::RoadGeometry> road_geometry);
-
-  /// Sets the RoadGeometry for this simulation.
-  ///
-  /// @param road_geometry The road geometry to use for the simulation.
-  /// @param features The road features that will be shown in the simulation.
-  /// @see documentation of maliput::utility::ObjFeatures
-  const maliput::api::RoadGeometry* SetRoadGeometry(std::unique_ptr<const maliput::api::RoadGeometry> road_geometry,
-                                                    const maliput::utility::ObjFeatures& features);
-
   /// Sets the RoadNetwork for this simulation and use its road geometry
   ///
   /// @param road_network The road network to use for the simulation.

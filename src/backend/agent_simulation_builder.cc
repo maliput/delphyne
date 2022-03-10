@@ -102,9 +102,7 @@ void AgentSimulationBaseBuilder<T>::Reset() {
 template <typename T>
 void AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
-  const maliput::api::RoadGeometry* road_geometry =
-      road_network_ != nullptr ? road_network_->road_geometry() : road_geometry_.get();
-  std::unique_ptr<AgentBase<T>> agent = blueprint->BuildInto(road_geometry, builder_.get());
+  std::unique_ptr<AgentBase<T>> agent = blueprint->BuildInto(road_network_.get(), builder_.get());
   const int agent_id = agent_id_sequence_++;
   const std::string& agent_name = agent->name();
   DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
@@ -157,23 +155,7 @@ maliput::utility::ObjFeatures GetDefaultFeatures() {
 
 template <typename T>
 const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::GetRoadGeometry() const {
-  return road_network_ ? road_network_->road_geometry() : road_geometry_.get();
-}
-
-template <typename T>
-const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry) {
-  return SetRoadGeometry(std::move(road_geometry), GetDefaultFeatures());
-}
-
-template <typename T>
-const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::SetRoadGeometry(
-    std::unique_ptr<const maliput::api::RoadGeometry> road_geometry, const maliput::utility::ObjFeatures& features) {
-  DELPHYNE_DEMAND(road_geometry != nullptr);
-  DELPHYNE_DEMAND(road_network_ == nullptr);
-  road_geometry_ = std::move(road_geometry);
-  road_features_ = features;
-  return road_geometry_.get();
+  return road_network_->road_geometry();
 }
 
 template <typename T>

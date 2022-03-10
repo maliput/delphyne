@@ -13,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include <maliput/api/road_geometry.h>
+#include <maliput/api/road_network.h>
 
 #include "delphyne/mi6/agent_base_blueprint.h"
 #include "systems/trajectory.h"
@@ -37,7 +37,7 @@ class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
                            const std::vector<double>& headings, const std::vector<std::vector<double>>& translations);
 
  private:
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadGeometry* road_geometry) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const override;
 
   std::unique_ptr<Trajectory> trajectory_{};
 };

@@ -19,7 +19,6 @@
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <maliput/api/junction.h>
 #include <maliput/api/lane.h>
-#include <maliput/api/road_geometry.h>
 #include <maliput/api/segment.h>
 
 // public headers
@@ -67,17 +66,18 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name, const maliput::api::
   lane.GetOrientation(initial_car_lane_position);
 }
 
-std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(const maliput::api::RoadGeometry* road_geometry,
+std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(const maliput::api::RoadNetwork* road_network,
                                                             drake::systems::DiagramBuilder<double>* builder) const {
-  DELPHYNE_VALIDATE(road_geometry != nullptr, std::invalid_argument,
+  DELPHYNE_VALIDATE(road_network != nullptr && road_network->road_geometry() != nullptr, std::invalid_argument,
                     "Rail cars need a road geometry to drive on, make "
                     "sure the simulation is built with one.");
   const maliput::api::RoadGeometry* lane_road_geometry =
       initial_parameters_.lane.segment()->junction()->road_geometry();
-  DELPHYNE_VALIDATE(lane_road_geometry->id() == road_geometry->id(), std::invalid_argument,
+  DELPHYNE_VALIDATE(lane_road_geometry->id() == road_network->road_geometry()->id(), std::invalid_argument,
                     "The provided initial lane is not on the same road geometry "
                     "as that used by the simulation");
-  DELPHYNE_VALIDATE(roads::FindLane(initial_parameters_.lane.id(), *road_geometry), std::invalid_argument,
+  DELPHYNE_VALIDATE(roads::FindLane(initial_parameters_.lane.id(), *road_network->road_geometry()),
+                    std::invalid_argument,
                     "The provided initial lane is not within this simulation's "
                     "RoadGeometry.");
 

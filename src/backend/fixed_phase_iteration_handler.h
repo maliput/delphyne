@@ -2,6 +2,7 @@
 #pragma once
 
 #include <atomic>
+#include <map>
 
 #include <ignition/msgs.hh>
 #include <ignition/transport.hh>
@@ -16,6 +17,11 @@ namespace delphyne {
 /// DynamicEnvironmentHandler class implementation.
 /// Each rule state is expected to last a fixed amount of time.
 /// An ignition service is provided for modifying the phase duration.
+/// A topic is advertised for each PhaseRing and the message being published
+/// is a ignition::msgs::StringMsg.
+/// The name of topics will be differentiable by the phase ring id
+/// topic_name : "/current_phase/<PhaseRingId>"
+///
 class FixedPhaseIterationHandler : public DynamicEnvironmentHandler {
  public:
   /// Name of service for modifying phase duration.
@@ -46,6 +52,7 @@ class FixedPhaseIterationHandler : public DynamicEnvironmentHandler {
   std::atomic<double> phase_duration_{10.};
   ignition::transport::Node node_;
   double last_sim_time_{0};
+  std::map<maliput::api::rules::PhaseRing::Id, ignition::transport::Node::Publisher> pubs_{};
 };
 
 }  // namespace delphyne

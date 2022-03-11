@@ -17,6 +17,16 @@ FixedPhaseIterationHandler::FixedPhaseIterationHandler(maliput::api::RoadNetwork
     ignerr << "Error advertising service [" << kSetPhaseDurationSrvName << "]"
            << "\n Phase duration won't be able to be modified" << std::endl;
   }
+
+  // Create publishers for each phase ring
+  const auto phase_ring_book = road_network_->phase_ring_book();
+  for (const auto& phase_ring_id : phase_ring_book->GetPhaseRings()) {
+    const std::string topic{"/current_phase/" + phase_ring_id.string()};
+    pubs_.emplace(phase_ring_id, node_.Advertise<ignition::msgs::StringMsg>(topic));
+    if (!pubs_.at(phase_ring_id)) {
+      ignerr << "Error advertising topic [" << topic << "]" << std::endl;
+    }
+  }
 }
 
 void FixedPhaseIterationHandler::SetPhaseDurationSvCb(const ignition::msgs::Double& phase_duration) {
@@ -47,6 +57,14 @@ void FixedPhaseIterationHandler::Update(double sim_time) {
     const auto new_phase_id = phase_provider_result->next.value().state;
     const auto next_phases = phase_ring->GetNextPhases(new_phase_id);
     phase_provider->SetPhase(phase_ring_id, new_phase_id, next_phases.front().id, next_phases.front().duration_until);
+    // Publish current phase.
+    ignition::msgs::StringMsg msg;
+    msg.set_data(new_phase_id.string());
+    std::cout << "Set phase: " << new_phase_id.string() << std::endl;
+    const bool res = pubs_.at(phase_ring_id).Publish(msg);
+    if (!res) {
+      ignerr << "Error publishing info about phase ring id: " << phase_ring_id.string() << std::endl;
+    }
   }
 }
 

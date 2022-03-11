@@ -136,6 +136,58 @@ class RailCar(py_trees.behaviours.Success):
         )
 
 
+class RuleRailCar(py_trees.behaviours.Success):
+    """Introduce a rule rail car in the road."""
+
+    def __init__(self, lane_id, direction_of_travel=True,
+                 longitudinal_position=0., lateral_offset=0.,
+                 speed=1., nominal_speed=20.,
+                 name=py_trees.common.Name.AUTO_GENERATED):
+        """
+        :param lane_id: ID of the lane to drive on, either as a string or
+            as a callable expression that takes a road geometry and returns
+            a string.
+        :param direction_of_travel: with or against the lane s-direction.
+        :param longitudinal_position: initial s-coordinate of the car in the
+            lane frame, either as a float or as a callable expression that
+            takes a road geometry and a lane and returns a float.
+        :param lateral_offset: initial r-coordinate in the lane frame.
+        :param speed: speed of the car as measured in the world frame, in m/s.
+        :param nominal_speed: nominal speed (as in, maximum most likely speed) of
+            the agent as measured in the world frame, in m/s.
+        :param name: a name for the car.
+        """
+        super().__init__(name)
+        self.lane_id = lane_id
+        self.direction_of_travel = direction_of_travel
+        self.longitudinal_position = longitudinal_position
+        self.lateral_offset = lateral_offset
+        self.speed = speed
+        self.nominal_speed = nominal_speed
+
+    def setup(self, *, builder):
+        road_geometry = builder.get_road_geometry()
+        road_index = road_geometry.ById()
+        lane_id = resolve(self.lane_id, road_geometry)
+        lane = road_index.GetLane(maliput.api.LaneId(lane_id))
+        longitudinal_position = resolve(
+            self.longitudinal_position, road_geometry, lane
+        )
+
+        builder.add_agent(
+            delphyne.agents.RuleRailCarBlueprint(
+                name=self.name,                                   # unique name
+                lane=lane,                                        # lane
+                direction_of_travel=self.direction_of_travel,     # direction_of_travel
+                longitudinal_position=longitudinal_position,      # lane s-coordinate (m)
+                lateral_offset=self.lateral_offset,               # lane r-coordinate (m)
+                speed=self.speed,                                 # initial speed in
+                                                                  # s-direction (m/s)
+                nominal_speed=self.nominal_speed                  # nominal_speed (m/s)
+            )
+        )
+
+
 class TrajectoryAgent(py_trees.behaviours.Success):
     """Introduce a trajectory following car in the road."""
 

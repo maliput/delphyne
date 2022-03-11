@@ -41,7 +41,7 @@ MobilCarBlueprint::MobilCarBlueprint(const std::string& name, bool direction_of_
                                      double heading, double speed)
     : BasicAgentBlueprint(name), initial_parameters_(direction_of_travel, x, y, heading, speed) {}
 
-std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const {
+std::unique_ptr<Agent::Diagram> MobilCarBlueprint::DoBuildDiagram(maliput::api::RoadNetwork* road_network) const {
   DELPHYNE_VALIDATE(road_network != nullptr && road_network->road_geometry() != nullptr, std::invalid_argument,
                     "MOBIL cars require a road geometry to run, make "
                     "sure the simulation was setup with one.");

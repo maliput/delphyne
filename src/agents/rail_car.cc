@@ -66,7 +66,7 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name, const maliput::api::
   lane.GetOrientation(initial_car_lane_position);
 }
 
-std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(const maliput::api::RoadNetwork* road_network,
+std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
                                                             drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_network != nullptr && road_network->road_geometry() != nullptr, std::invalid_argument,
                     "Rail cars need a road geometry to drive on, make "

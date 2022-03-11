@@ -32,8 +32,7 @@ namespace delphyne {
 SimpleCarBlueprint::SimpleCarBlueprint(const std::string& name, double x, double y, double heading, double speed)
     : BasicAgentBlueprint(name), initial_parameters_(x, y, heading, speed) {}
 
-std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(
-    const maliput::api::RoadNetwork* road_network) const {
+std::unique_ptr<Agent::Diagram> SimpleCarBlueprint::DoBuildDiagram(maliput::api::RoadNetwork* road_network) const {
   maliput::common::unused(road_network);
 
   AgentBlueprint::DiagramBuilder builder(this->name());

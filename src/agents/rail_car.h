@@ -114,7 +114,7 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
           nominal_speed(nominal_speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<RailCar> DoBuildAgentInto(const maliput::api::RoadNetwork* road_network,
+  std::unique_ptr<RailCar> DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
                                             drake::systems::DiagramBuilder<double>* builder) const override;
 };
 

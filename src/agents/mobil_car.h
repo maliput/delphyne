@@ -65,7 +65,7 @@ class MobilCarBlueprint : public BasicAgentBlueprint {
         : direction_of_travel(direction_of_travel), x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(maliput::api::RoadNetwork* road_network) const override;
 };
 
 /*****************************************************************************

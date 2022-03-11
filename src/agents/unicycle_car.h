@@ -84,7 +84,7 @@ class UnicycleCarBlueprint : public TypedAgentBlueprint<UnicycleCarAgent> {
   } initial_conditions_;
 
   std::unique_ptr<UnicycleCarAgent> DoBuildAgentInto(
-      const maliput::api::RoadNetwork* road_network,
+      maliput::api::RoadNetwork* road_network,
       drake::systems::DiagramBuilder<double>* simulator_builder) const override;
 };
 

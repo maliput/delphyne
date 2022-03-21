@@ -96,7 +96,7 @@ class RuleRailCarBlueprint : public TypedAgentBlueprint<RuleRailCar> {
   // Container for the agent's initial configuration.
   //
   // Note: this is independent of whatever computational mechanisms
-  // are used internally and is a useful construct for recording and
+  // are internally used, it is a useful construct for recording and
   // logging / streaming to debug configuration errors.
   struct Parameters {
     const maliput::api::Lane& lane;

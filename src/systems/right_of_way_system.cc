@@ -1,5 +1,5 @@
 // Copyright 2022 Toyota Research Institute
-#include "right_of_way_system.h"
+#include "systems/right_of_way_system.h"
 
 #include <drake/common/extract_double.h>
 #include <drake/systems/rendering/pose_vector.h>
@@ -75,22 +75,19 @@ void RightOfWaySystem<T>::CalcOutputVelocity(const drake::systems::Context<T>& c
   // direct that following the intersection book path. Also, this path demands to have the phase ring defined in a
   // intersection book.
   const auto intersections = road_network_->intersection_book()->GetIntersections();
-  maliput::api::Intersection* intersection{nullptr};
-  for (const auto& i : intersections) {
-    if (i->Includes(inertial_pos, road_network_->road_geometry())) {
-      intersection = i;
-      break;
-    }
+  auto intersection_it = std::find_if(intersections.begin(), intersections.end(),
+                                      [&inertial_pos, rn = this->road_network_](const maliput::api::Intersection* i) {
+                                        return i->Includes(inertial_pos, rn->road_geometry());
+                                      });
+
+  if (intersection_it == intersections.end() || !(*intersection_it)->DiscreteValueRuleStates().has_value()) {
+    return;
   }
 
   // Set the default value to be returned, which is the input velocity being passed through.
   (*output)[0] = (*vel_input)[0];
 
-  if (!intersection || !intersection->DiscreteValueRuleStates().has_value()) {
-    return;
-  }
-
-  const auto discrete_value_rule_states = intersection->DiscreteValueRuleStates();
+  const auto discrete_value_rule_states = (*intersection_it)->DiscreteValueRuleStates();
   // Find the Right-Of-Way rule that includes the inertial position of the agent's location.
   const auto discrete_value_rule_state_itr = std::find_if(
       (*discrete_value_rule_states).begin(), (*discrete_value_rule_states).end(),

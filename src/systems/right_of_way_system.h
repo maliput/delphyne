@@ -42,7 +42,7 @@ class RightOfWaySystem final : public drake::systems::LeafSystem<T> {
   /// @param road_network Pointer to a maliput::api::RoadNetwork.
   ///
   /// @throws std::invalid_argument When road_network is nullptr.
-  RightOfWaySystem(maliput::api::RoadNetwork* road_network);
+  explicit RightOfWaySystem(maliput::api::RoadNetwork* road_network);
 
   RightOfWaySystem() = delete;
 

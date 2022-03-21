@@ -77,6 +77,7 @@ void RightOfWaySystem<T>::CalcOutputVelocity(const drake::systems::Context<T>& c
   const auto intersections = road_network_->intersection_book()->GetIntersections();
   auto intersection_it = std::find_if(intersections.begin(), intersections.end(),
                                       [&inertial_pos, rn = this->road_network_](const maliput::api::Intersection* i) {
+                                        if (i->region().empty()) return false;
                                         return i->Includes(inertial_pos, rn->road_geometry());
                                       });
 

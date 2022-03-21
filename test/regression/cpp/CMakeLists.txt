@@ -70,6 +70,7 @@ set(SOURCES
   pure_pursuit_controller_test.cc
   pure_pursuit_test.cc
   resources_test.cc
+  right_of_way_system_test.cc
   road_path_test.cc
   simple_car_test.cc
   simple_powertrain_test.cc

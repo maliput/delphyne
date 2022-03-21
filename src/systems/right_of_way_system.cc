@@ -80,12 +80,12 @@ void RightOfWaySystem<T>::CalcOutputVelocity(const drake::systems::Context<T>& c
                                         return i->Includes(inertial_pos, rn->road_geometry());
                                       });
 
+  // Set the default value to be returned, which is the input velocity being passed through.
+  (*output)[0] = (*vel_input)[0];
+
   if (intersection_it == intersections.end() || !(*intersection_it)->DiscreteValueRuleStates().has_value()) {
     return;
   }
-
-  // Set the default value to be returned, which is the input velocity being passed through.
-  (*output)[0] = (*vel_input)[0];
 
   const auto discrete_value_rule_states = (*intersection_it)->DiscreteValueRuleStates();
   // Find the Right-Of-Way rule that includes the inertial position of the agent's location.

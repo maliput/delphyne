@@ -17,6 +17,7 @@
 
 #include "agents/mobil_car.h"
 #include "agents/rail_car.h"
+#include "agents/rule_rail_car.h"
 #include "agents/simple_car.h"
 #include "agents/trajectory_agent.h"
 #include "agents/unicycle_car.h"
@@ -37,6 +38,8 @@ using delphyne::BasicAgentBlueprint;
 using delphyne::MobilCarBlueprint;
 using delphyne::RailCar;
 using delphyne::RailCarBlueprint;
+using delphyne::RuleRailCar;
+using delphyne::RuleRailCarBlueprint;
 using delphyne::SimpleCarBlueprint;
 using delphyne::TrajectoryAgentBlueprint;
 using delphyne::UnicycleCarAgent;
@@ -82,6 +85,11 @@ PYBIND11_MODULE(agents, m) {
   py::class_<RailCarBlueprint, AgentBlueprint>(m, "RailCarBlueprint")
       .def(py::init<const std::string&, const ::maliput::api::Lane&, bool, double, double, double, double>(),
            "Construct and configure a rail car", py::arg("name"), py::arg("lane"), py::arg("direction_of_travel"),
+           py::arg("longitudinal_position"), py::arg("lateral_offset"), py::arg("speed"), py::arg("nominal_speed"));
+
+  py::class_<RuleRailCarBlueprint, AgentBlueprint>(m, "RuleRailCarBlueprint")
+      .def(py::init<const std::string&, const ::maliput::api::Lane&, bool, double, double, double, double>(),
+           "Construct and configure a rule rail car", py::arg("name"), py::arg("lane"), py::arg("direction_of_travel"),
            py::arg("longitudinal_position"), py::arg("lateral_offset"), py::arg("speed"), py::arg("nominal_speed"));
 
   py::class_<TrajectoryAgentBlueprint, AgentBlueprint>(m, "TrajectoryAgentBlueprint")

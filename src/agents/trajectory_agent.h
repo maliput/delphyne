@@ -37,7 +37,7 @@ class TrajectoryAgentBlueprint : public BasicAgentBlueprint {
                            const std::vector<double>& headings, const std::vector<std::vector<double>>& translations);
 
  private:
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(maliput::api::RoadNetwork* road_network) const override;
 
   std::unique_ptr<Trajectory> trajectory_{};
 };

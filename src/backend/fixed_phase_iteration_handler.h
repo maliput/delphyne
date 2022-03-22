@@ -16,9 +16,14 @@ namespace delphyne {
 /// DynamicEnvironmentHandler class implementation.
 /// Each rule state is expected to last a fixed amount of time.
 /// An ignition service is provided for modifying the phase duration.
+/// A topic is advertised for publishing the current phase for each PhaseRing. The message being published
+/// is a ignition::msgs::StringMsg.
+/// topic_name : "/current_phase
+///
 class FixedPhaseIterationHandler : public DynamicEnvironmentHandler {
  public:
   /// Name of service for modifying phase duration.
+  static constexpr char kCurrentPhaseTopic[] = "/current_phase";
   static constexpr char kSetPhaseDurationSrvName[] = "/set_phase_duration";
 
   DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(FixedPhaseIterationHandler)
@@ -46,6 +51,7 @@ class FixedPhaseIterationHandler : public DynamicEnvironmentHandler {
   std::atomic<double> phase_duration_{10.};
   ignition::transport::Node node_;
   double last_sim_time_{0};
+  ignition::transport::Node::Publisher pub_{};
 };
 
 }  // namespace delphyne

@@ -47,7 +47,7 @@ class SimpleCarBlueprint : public BasicAgentBlueprint {
     Parameters(double x, double y, double heading, double speed) : x(x), y(y), heading(heading), speed(speed) {}
   } initial_parameters_;
 
-  std::unique_ptr<Agent::Diagram> DoBuildDiagram(const maliput::api::RoadNetwork* road_network) const override;
+  std::unique_ptr<Agent::Diagram> DoBuildDiagram(maliput::api::RoadNetwork* road_network) const override;
 };
 
 /*****************************************************************************

@@ -87,7 +87,7 @@ class AgentBaseBlueprint {
   /// @param builder The builder for the simulation Diagram.
   /// @returns Ownership of the agent just built.
   /// @throws std::runtime_error if builder is nullptr.
-  std::unique_ptr<AgentBase<T>> BuildInto(const maliput::api::RoadNetwork* road_network,
+  std::unique_ptr<AgentBase<T>> BuildInto(maliput::api::RoadNetwork* road_network,
                                           drake::systems::DiagramBuilder<T>* builder) {
     DELPHYNE_VALIDATE(builder != nullptr, std::runtime_error, "Given diagram builder is null");
     return DoBuildInto(road_network, builder);
@@ -106,7 +106,7 @@ class AgentBaseBlueprint {
 
  private:
   // Builds the Diagram representation for the agent.
-  virtual std::unique_ptr<AgentBase<T>> DoBuildInto(const maliput::api::RoadNetwork* road_network,
+  virtual std::unique_ptr<AgentBase<T>> DoBuildInto(maliput::api::RoadNetwork* road_network,
                                                     drake::systems::DiagramBuilder<T>* builder) const = 0;
 
   // The name for the agent to be built.
@@ -139,14 +139,14 @@ class TypedAgentBaseBlueprint : public AgentBaseBlueprint<T> {
   }
 
  private:
-  std::unique_ptr<AgentBase<T>> DoBuildInto(const maliput::api::RoadNetwork* road_network,
+  std::unique_ptr<AgentBase<T>> DoBuildInto(maliput::api::RoadNetwork* road_network,
                                             drake::systems::DiagramBuilder<T>* builder) const final {
     return DoBuildAgentInto(road_network, builder);
   }
 
   // DoBuildInto() variation to cope with the lack of support
   // for type covariance when dealing with smart pointers.
-  virtual std::unique_ptr<A> DoBuildAgentInto(const maliput::api::RoadNetwork* road_network,
+  virtual std::unique_ptr<A> DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
                                               drake::systems::DiagramBuilder<T>* builder) const = 0;
 };
 
@@ -162,7 +162,7 @@ class BasicTypedAgentBaseBlueprint : public TypedAgentBaseBlueprint<T, A> {
   using TypedAgentBaseBlueprint<T, A>::TypedAgentBaseBlueprint;
 
  private:
-  std::unique_ptr<A> DoBuildAgentInto(const maliput::api::RoadNetwork* road_network,
+  std::unique_ptr<A> DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
                                       drake::systems::DiagramBuilder<T>* builder) const override {
     return std::make_unique<A>(builder->AddSystem(DoBuildDiagram(road_network)));
   }
@@ -173,7 +173,7 @@ class BasicTypedAgentBaseBlueprint : public TypedAgentBaseBlueprint<T, A> {
   //                      nullptr.
   // @returns Ownership of the agent's Diagram representation.
   virtual std::unique_ptr<typename AgentBase<T>::Diagram> DoBuildDiagram(
-      const maliput::api::RoadNetwork* road_network) const = 0;
+      maliput::api::RoadNetwork* road_network) const = 0;
 };
 
 /*****************************************************************************

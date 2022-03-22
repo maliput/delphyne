@@ -1,13 +1,13 @@
 /**
- * @file src/agents/rail_car.cc
+ * @file src/agents/rule_rail_car.cc
  *
- * Copyright 2017 Toyota Research Institute
+ * Copyright 2022 Toyota Research Institute
  */
 /*****************************************************************************
  ** Includes
  *****************************************************************************/
 
-#include "agents/rail_car.h"
+#include "agents/rule_rail_car.h"
 
 #include <memory>
 #include <stdexcept>
@@ -30,6 +30,7 @@
 // private headers
 #include "systems/lane_direction.h"
 #include "systems/rail_follower.h"
+#include "systems/right_of_way_system.h"
 #include "systems/speed_system.h"
 #include "systems/vector_source.h"
 
@@ -43,11 +44,12 @@ namespace delphyne {
  ** Implementation
  *****************************************************************************/
 
-RailCarBlueprint::RailCarBlueprint(const std::string& name, const maliput::api::Lane& lane, bool direction_of_travel,
-                                   double longitudinal_position,  // s
-                                   double lateral_offset,         // r
-                                   double speed, double nominal_speed)
-    : TypedAgentBlueprint<RailCar>(name),
+RuleRailCarBlueprint::RuleRailCarBlueprint(const std::string& name, const maliput::api::Lane& lane,
+                                           bool direction_of_travel,
+                                           double longitudinal_position,  // s
+                                           double lateral_offset,         // r
+                                           double speed, double nominal_speed)
+    : TypedAgentBlueprint<RuleRailCar>(name),
       initial_parameters_(lane, direction_of_travel, longitudinal_position, lateral_offset, speed, nominal_speed) {
   /*********************
    * Checks
@@ -66,8 +68,8 @@ RailCarBlueprint::RailCarBlueprint(const std::string& name, const maliput::api::
   lane.GetOrientation(initial_car_lane_position);
 }
 
-std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
-                                                            drake::systems::DiagramBuilder<double>* builder) const {
+std::unique_ptr<RuleRailCar> RuleRailCarBlueprint::DoBuildAgentInto(
+    maliput::api::RoadNetwork* road_network, drake::systems::DiagramBuilder<double>* builder) const {
   DELPHYNE_VALIDATE(road_network != nullptr && road_network->road_geometry() != nullptr, std::invalid_argument,
                     "Rail cars need a road geometry to drive on, make "
                     "sure the simulation is built with one.");
@@ -111,15 +113,24 @@ std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(maliput::api::RoadNe
       std::make_unique<RailFollower<double>>(lane_direction, context_continuous_state, context_numeric_parameters));
   rail_follower_system->set_name(name() + "_system");
 
-  auto speed_setter = agent_diagram_builder.template AddSystem(std::make_unique<delphyne::VectorSource<double>>(-1));
+  auto speed_setter = agent_diagram_builder.template AddSystem(
+      std::make_unique<delphyne::VectorSource<double>>(initial_parameters_.speed));
+
+  auto row_system = agent_diagram_builder.template AddSystem(std::make_unique<RightOfWaySystem<double>>(road_network));
 
   SpeedSystem<double>* speed_system = agent_diagram_builder.AddSystem<SpeedSystem>();
+
+  agent_diagram_builder.Connect(speed_setter->output(), row_system->velocity_input());
+
+  agent_diagram_builder.Connect(row_system->velocity_output(), speed_system->command_input());
 
   agent_diagram_builder.Connect(speed_system->acceleration_output(), rail_follower_system->command_input());
 
   agent_diagram_builder.Connect(rail_follower_system->velocity_output(), speed_system->feedback_input());
 
-  agent_diagram_builder.Connect(speed_setter->output(), speed_system->command_input());
+  agent_diagram_builder.Connect(rail_follower_system->lane_state_output(), row_system->lane_state_input());
+
+  agent_diagram_builder.Connect(rail_follower_system->pose_output(), row_system->pose_input());
 
   /*********************
    * Diagram Outputs
@@ -129,12 +140,12 @@ std::unique_ptr<RailCar> RailCarBlueprint::DoBuildAgentInto(maliput::api::RoadNe
   agent_diagram_builder.ExportVelocityOutput(rail_follower_system->velocity_output());
 
   Agent::Diagram* agent_diagram = builder->AddSystem(agent_diagram_builder.Build());
-  return std::make_unique<RailCar>(agent_diagram, speed_setter);
+  return std::make_unique<RuleRailCar>(agent_diagram, speed_setter);
 }
 
-RailCar::RailCar(Agent::Diagram* diagram, VectorSource<double>* speed_setter)
+RuleRailCar::RuleRailCar(Agent::Diagram* diagram, VectorSource<double>* speed_setter)
     : Agent(diagram), speed_setter_(speed_setter) {}
 
-void RailCar::SetSpeed(double new_speed_mps) { speed_setter_->Set(new_speed_mps); }
+void RuleRailCar::SetSpeed(double new_speed_mps) { speed_setter_->Set(new_speed_mps); }
 
 }  // namespace delphyne

@@ -1,7 +1,7 @@
 /**
- * @file src/agents/rail_car.h
+ * @file src/agents/rule_rail_car.h
  *
- * Copyright 2017 Toyota Research Institute
+ * Copyright 2022 Toyota Research Institute
  */
 /*****************************************************************************
 ** Includes
@@ -38,16 +38,16 @@ namespace delphyne {
 ///
 /// The underlying road network has a reference line for each lane which
 /// is utilised by this agent as a railroad track.
-class RailCar : public Agent {
+class RuleRailCar : public Agent {
  public:
-  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCar)
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RuleRailCar)
 
   /// Rail car constructor.
   ///
   /// @param diagram The Diagram representation of the rail car agent.
   /// @param speed_setter The speed setting system associated to the
   ///                     rail car agent.
-  explicit RailCar(Agent::Diagram* diagram, VectorSource<double>* speed_setter);
+  explicit RuleRailCar(Agent::Diagram* diagram, VectorSource<double>* speed_setter);
 
   /// Sets the speed of this agent.
   ///
@@ -63,16 +63,19 @@ class RailCar : public Agent {
 /// @brief An agent that follows roads as if they were railroad tracks.
 ///
 /// The underlying road network has a reference line for each lane which
-/// is utilised by this agent as a railroad track.
+/// is utilized by this agent as a railroad track.
 ///
 /// Initial position is specified in the lane longitudinal co-ordinate (how far
 /// along the track) and the agent will follow this track exactly - the only
 /// variance it is permitted is the speed with which it follows the track.
-class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
+///
+/// Right-of-Way rules are evaluated by the agent, consequently the speed of the agent will toggle
+/// between the desired speed and zero according to the current rule state.
+class RuleRailCarBlueprint : public TypedAgentBlueprint<RuleRailCar> {
  public:
-  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RailCarBlueprint)
+  DELPHYNE_NO_COPY_NO_MOVE_NO_ASSIGN(RuleRailCarBlueprint)
 
-  /// Constructs a blueprint to build a RailCar into a simulation.
+  /// Constructs a blueprint to build a RuleRailCar into a simulation.
   ///
   /// @param name Unique name for the agent.
   /// @param lane The lane to start in.
@@ -84,16 +87,16 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
   ///            line (maliput lane coordinate 'r' (m)).
   /// @param speed The actual initial speed.
   /// @param nominal_speed The desired cruising speed.
-  explicit RailCarBlueprint(const std::string& name, const maliput::api::Lane& lane, bool direction_of_travel,
-                            double longitudinal_position,  // s
-                            double lateral_offset,         // r
-                            double speed, double nominal_speed);
+  explicit RuleRailCarBlueprint(const std::string& name, const maliput::api::Lane& lane, bool direction_of_travel,
+                                double longitudinal_position,  // s
+                                double lateral_offset,         // r
+                                double speed, double nominal_speed);
 
  private:
   // Container for the agent's initial configuration.
   //
   // Note: this is independent of whatever computational mechanisms
-  // are used internally and is a useful construct for recording and
+  // are internally used, it is a useful construct for recording and
   // logging / streaming to debug configuration errors.
   struct Parameters {
     const maliput::api::Lane& lane;
@@ -112,10 +115,12 @@ class RailCarBlueprint : public TypedAgentBlueprint<RailCar> {
           offset(offset),
           speed(speed),
           nominal_speed(nominal_speed) {}
-  } initial_parameters_;
+  };
 
-  std::unique_ptr<RailCar> DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
-                                            drake::systems::DiagramBuilder<double>* builder) const override;
+  std::unique_ptr<RuleRailCar> DoBuildAgentInto(maliput::api::RoadNetwork* road_network,
+                                                drake::systems::DiagramBuilder<double>* builder) const override;
+
+  Parameters initial_parameters_;
 };
 
 /*****************************************************************************

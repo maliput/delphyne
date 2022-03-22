@@ -5,6 +5,7 @@
 add_library(agents
   mobil_car.cc
   rail_car.cc
+  rule_rail_car.cc
   simple_car.cc
   trajectory_agent.cc
   unicycle_car.cc

@@ -182,6 +182,10 @@ class AgentSimulationBaseBuilder {
   // published for rendering.
   static constexpr const char* kPoseUpdatesTopicName{"visualizer/pose_update"};
 
+  // The name of the ignition transport topic over which entities ids are
+  // published to be removed.
+  static constexpr const char* kSceneDeletionTopicName{"visualizer/deletion"};
+
   // The name of the ignition transport topic over which agents' states are
   // published.
   static constexpr const char* kAggregatedAgentsStateTopicName{"agents/state"};

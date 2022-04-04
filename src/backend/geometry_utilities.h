@@ -20,6 +20,7 @@
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/road_geometry.h>
+#include <maliput/api/rules/traffic_lights.h>
 #include <maliput/utilities/generate_obj.h>
 
 #include "backend/frame_pose_aggregator.h"
@@ -126,5 +127,8 @@ drake::lcmt_viewer_load_robot BuildLoadMessage(const drake::geometry::SceneGraph
 
 drake::lcmt_viewer_load_robot BuildLoadMessageForRoad(const maliput::api::RoadGeometry& road_geometry,
                                                       const maliput::utility::ObjFeatures& features);
+
+drake::lcmt_viewer_load_robot BuildLoadMessageForTrafficLights(
+    const std::vector<const maliput::api::rules::TrafficLight*>& traffic_lights);
 
 }  // namespace delphyne

@@ -10,7 +10,10 @@ add_library(backend
   fixed_phase_iteration_handler.cc
   frame_pose_aggregator.cc
   geometry_utilities.cc
+  ign_commanded_pass_through.cc
   ign_models_assembler.cc
+  ign_models_to_ids.cc
+  ign_models_traffic_lights.cc
   data_logger.cc
   interactive_simulation_stats.cc
   load_robot_aggregator.cc

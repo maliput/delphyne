@@ -22,6 +22,8 @@ SceneSystem::SceneSystem() {
       DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::Model_V>()).get_index();
   updated_pose_models_input_port_index_ =
       DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::Model_V>()).get_index();
+  updated_visual_models_input_port_index_ =
+      DeclareAbstractInputPort(drake::systems::kUseDefaultName, drake::Value<ignition::msgs::Model_V>()).get_index();
 
   DeclareAbstractOutputPort(&SceneSystem::CalcSceneMessage);
 }
@@ -39,6 +41,9 @@ void SceneSystem::CalcSceneMessage(const drake::systems::Context<double>& contex
 
   const ignition::msgs::Model_V* updated_pose_models =
       this->template EvalInputValue<ignition::msgs::Model_V>(context, updated_pose_models_input_port_index_);
+
+  const ignition::msgs::Model_V* updated_visual_models =
+      this->template EvalInputValue<ignition::msgs::Model_V>(context, updated_visual_models_input_port_index_);
 
   // The scene timestamp is that of the poses update.
   scene_message->mutable_header()->mutable_stamp()->CopyFrom(updated_pose_models->header().stamp());
@@ -84,6 +89,44 @@ void SceneSystem::CalcSceneMessage(const drake::systems::Context<double>& contex
       // Applies the pose to the scene link.
       matching_scene_link->mutable_pose()->mutable_position()->CopyFrom(updated_pose_link.pose().position());
       matching_scene_link->mutable_pose()->mutable_orientation()->CopyFrom(updated_pose_link.pose().orientation());
+    }
+  }
+
+  if (updated_visual_models != nullptr) {
+    // And those models for which a material update exists are then updated.
+    for (const ignition::msgs::Model& updated_visual_model : updated_visual_models->models()) {
+      // Finds the matching scene model.
+      const ProtobufIterator<ignition::msgs::Model>& matching_scene_model =
+          std::find_if(scene_message->mutable_model()->begin(), scene_message->mutable_model()->end(),
+                       [&updated_visual_model](const ::ignition::msgs::Model& scene_model) {
+                         return scene_model.id() == updated_visual_model.id();
+                       });
+
+      if (matching_scene_model == scene_message->mutable_model()->end()) {
+        ignerr << "No geometry model for updated visual with model id " << updated_visual_model.id() << std::endl;
+        continue;
+      }
+      // Updates the model itself.
+      matching_scene_model->set_name(updated_visual_model.name());
+
+      // Updates each model link.
+      for (const ignition::msgs::Link& updated_light_link : updated_visual_model.link()) {
+        // Finds the corresponding link inside the scene model.
+        const ProtobufIterator<ignition::msgs::Link>& matching_scene_link =
+            std::find_if(matching_scene_model->mutable_link()->begin(), matching_scene_model->mutable_link()->end(),
+                         [&updated_light_link](const ::ignition::msgs::Link& scene_link) {
+                           return scene_link.name() == updated_light_link.name();
+                         });
+
+        if (matching_scene_link == matching_scene_model->mutable_link()->end()) {
+          ignerr << "No geometry link for updated visual with model id " << updated_visual_model.id()
+                 << " and link name " << updated_light_link.name() << std::endl;
+          continue;
+        }
+
+        // Updates the visual of the link.
+        matching_scene_link->mutable_visual()->CopyFrom(updated_light_link.visual());
+      }
     }
   }
 

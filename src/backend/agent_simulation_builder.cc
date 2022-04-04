@@ -20,7 +20,10 @@
 #include "backend/dynamic_environment_handler_system.h"
 #include "backend/fixed_phase_iteration_handler.h"
 #include "backend/geometry_utilities.h"
+#include "backend/ign_commanded_pass_through.h"
 #include "backend/ign_models_assembler.h"
+#include "backend/ign_models_to_ids.h"
+#include "backend/ign_models_traffic_lights.h"
 #include "backend/ign_publisher_system.h"
 #include "delphyne/macros.h"
 #include "delphyne/protobuf/agent_state.pb.h"
@@ -216,6 +219,14 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   if (road_geometry != nullptr) {
     messages.push_back(BuildLoadMessageForRoad(*road_geometry, road_features_));
   }
+  // Adds traffic lights models.
+  // First check whether traffic lights are present in the road network.
+  const bool traffic_light_system = road_network_ != nullptr && road_network_->traffic_light_book() != nullptr &&
+                                    !road_network_->traffic_light_book()->TrafficLights().empty();
+  if (traffic_light_system) {
+    messages.push_back(BuildLoadMessageForTrafficLights(road_network_->traffic_light_book()->TrafficLights()));
+  }
+
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
   // messages into a single one containing all models in the scene.
   auto load_robot_aggregator = builder_->template AddSystem<LoadRobotAggregator>(messages);
@@ -240,6 +251,34 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   builder_->Connect(aggregator_->get_output_port(0), models_assembler->get_states_input_port());
 
   builder_->Connect(models_assembler->get_output_port(0), scene_system->get_updated_pose_models_input_port());
+
+  if (traffic_light_system) {
+    // Update traffic lights models according to the traffic light book states.
+    auto models_traffic_lights = builder_->template AddSystem<IgnModelsTrafficLights>(road_network_.get());
+    builder_->Connect(viewer_load_robot_translator->get_output_port(0), models_traffic_lights->get_models_input_port());
+    builder_->Connect(models_traffic_lights->get_traffic_lights_models_output_port(),
+                      scene_system->get_updated_visual_models_input_port());
+
+    // We can't update just the material/color of the traffic light bulb, so we need to delete the model and re-add it
+    // to the scene. Publishing the models to be deleted to the deletion_topic alerts the render engine to delete the
+    // models. The scene message being published at scene_update topic will add the models with the new material back to
+    // the scene.
+
+    // Converts traffic lights models to ids.
+    auto traffic_lights_models_to_ids = builder_->template AddSystem<IgnModelsToIds>();
+    builder_->Connect(models_traffic_lights->get_traffic_lights_models_output_port(),
+                      traffic_lights_models_to_ids->get_models_input_port());
+    // We want to delete the traffic light models only when it changes its state.
+    // The switch is used to pass through the ids only when the models should be deleted. And that time is sync using
+    // the output port that indicates new data is available.
+    auto pass_through_switch = builder_->template AddSystem<IgnCommandedPassThrough<ignition::msgs::UInt32_V>>();
+    builder_->Connect(traffic_lights_models_to_ids->get_output_port(0), pass_through_switch->get_data_input_port());
+    builder_->Connect(models_traffic_lights->get_new_data_output_port(), pass_through_switch->get_switch_input_port());
+    // Connects the pass through switch to the publisher system to publish the ids to be deleted.
+    auto traffic_light_ids_publisher = builder_->template AddSystem<IgnPublisherSystem<ignition::msgs::UInt32_V>>(
+        kSceneDeletionTopicName, kSceneUpdatesPublishRateHz);
+    builder_->Connect(*pass_through_switch, *traffic_light_ids_publisher);
+  }
 
   // The scene is then published over a scene topic to update the scene tree
   // widget of the visualizer. Because this information is not needed at the

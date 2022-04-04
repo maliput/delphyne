@@ -21,14 +21,14 @@ namespace {
 // Creates and registers traffic lights bulbs in a given @p plant.
 // The bulb geometry is described as a rigid body in a predefined cylinder shape.
 //
-// @param plant Is the plant where the bulb will be registered.
 // @param unique_bulb_id A unique ID for the bulb to be used as name.
 // @param position Position of the bulb.
 // @param rpy Orientation of the bulg.
 // @param bulb_color Color of the bulb.
-void CreateAndRegisterBulb(drake::multibody::MultibodyPlant<double>& plant, const std::string& unique_bulb_id,
-                           const maliput::math::Vector3& position, const maliput::math::RollPitchYaw& rpy,
-                           const maliput::api::rules::BulbColor& bulb_color) {
+// @param plant Is the plant where the bulb will be registered.
+void CreateAndRegisterBulb(const std::string& unique_bulb_id, const maliput::math::Vector3& position,
+                           const maliput::math::RollPitchYaw& rpy, const maliput::api::rules::BulbColor& bulb_color,
+                           drake::multibody::MultibodyPlant<double>& plant) {
   static const Eigen::Vector4d kGreen(0.0, 1.0, 0.0, 1.0);
   static const Eigen::Vector4d kYellow(1.0, 1.0, 0.0, 1.0);
   static const Eigen::Vector4d kRed(1.0, 0.0, 0.0, 1.0);
@@ -100,8 +100,8 @@ drake::lcmt_viewer_load_robot BuildLoadMessageForTrafficLights(
         const auto bulb_position_world_frame = traffic_light_position + bulb_group_position + bulb_position;
         const auto bulb_orientation_world_frame = maliput::api::Rotation::FromQuat(maliput::math::Quaternion{
             traffic_light_orientation.matrix() * bulb_group_orientation.matrix() * bulb_orientation.matrix()});
-        CreateAndRegisterBulb(plant, bulb->unique_id().string(), bulb_position_world_frame.xyz(),
-                              bulb_orientation_world_frame.rpy(), bulb->color());
+        CreateAndRegisterBulb(bulb->unique_id().string(), bulb_position_world_frame.xyz(),
+                              bulb_orientation_world_frame.rpy(), bulb->color(), plant);
       }
     }
   }

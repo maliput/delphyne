@@ -18,7 +18,7 @@
 namespace delphyne {
 namespace {
 
-// Creates and register traffic lights bulbs in a given @p plant.
+// Creates and registers traffic lights bulbs in a given @p plant.
 // The bulb geometry is described as a rigid body in a predefined cylinder shape.
 //
 // @param plant Is the plant where the bulb will be registered.
@@ -47,7 +47,7 @@ void CreateAndRegisterBulb(drake::multibody::MultibodyPlant<double>& plant, cons
   };
 
   auto& rigid_body = plant.AddRigidBody(unique_bulb_id, drake::multibody::SpatialInertia<double>());
-  // Visual for the Cylinder
+  // Visual for the Cylinder.
   plant.RegisterVisualGeometry(
       rigid_body,
       // The cylinder should be rotated half pi radians as the default orientation is along the z-axis.

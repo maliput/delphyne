@@ -219,7 +219,7 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   if (road_geometry != nullptr) {
     messages.push_back(BuildLoadMessageForRoad(*road_geometry, road_features_));
   }
-  // Adds traffic lights models
+  // Adds traffic lights models.
   // First check whether traffic lights are present in the road network.
   const bool traffic_light_system = road_network_ != nullptr && road_network_->traffic_light_book() != nullptr &&
                                     !road_network_->traffic_light_book()->TrafficLights().empty();

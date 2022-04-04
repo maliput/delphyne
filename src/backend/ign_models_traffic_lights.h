@@ -28,7 +28,6 @@ class IgnModelsTrafficLights : public drake::systems::LeafSystem<double> {
   const drake::systems::InputPort<double>& get_models_input_port() const {
     return get_input_port(models_input_port_index_);
   }
-
   int get_models_input_port_index() const { return models_input_port_index_; }
 
   const drake::systems::OutputPort<double>& get_traffic_lights_models_output_port() const {

@@ -45,9 +45,9 @@ class IgnCommandedPassThrough : public drake::systems::LeafSystem<double> {
  private:
   void CalcOutput(const drake::systems::Context<double>& context, T* output_ids) const;
 
-  int data_input_port_index_;
-  int data_output_port_index_;
-  int switch_input_port_index_;
+  int data_input_port_index_{};
+  int data_output_port_index_{};
+  int switch_input_port_index_{};
 };
 
 }  // namespace delphyne

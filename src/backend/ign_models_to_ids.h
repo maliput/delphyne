@@ -8,10 +8,10 @@ namespace delphyne {
 
 /// Outputs the ids of the received ignition models.
 ///
-/// Input Port 0: ignition::msgs::Model_V messages to be obtained the ids from.
+/// Input Port 0: ignition::msgs::Model_V messages from which to obtain the ids.
 ///   (InputPort getter: get_models_input_port())
 ///
-/// Output Port 0: Ids of the received ignition models in a ignition::msgs::UInt32_V message.
+/// Output Port 0: Ids of the received ignition models in an ignition::msgs::UInt32_V message.
 ///   (OutputPort getter: get_ids_output_port())
 class IgnModelsToIds : public drake::systems::LeafSystem<double> {
  public:
@@ -32,9 +32,8 @@ class IgnModelsToIds : public drake::systems::LeafSystem<double> {
   void CalcIdsFromModelVMessage(const drake::systems::Context<double>& context,
                                 ignition::msgs::UInt32_V* output_ids) const;
 
-  // The index of the models' abstract input port.
-  int models_input_port_index_;
-  int ids_output_port_index_;
+  int models_input_port_index_{};
+  int ids_output_port_index_{};
 };
 
 }  // namespace delphyne

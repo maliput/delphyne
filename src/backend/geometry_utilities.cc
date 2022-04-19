@@ -33,7 +33,7 @@ void CreateAndRegisterBulb(const std::string& unique_bulb_id, const maliput::mat
   static const Eigen::Vector4d kYellow(1.0, 1.0, 0.0, 1.0);
   static const Eigen::Vector4d kRed(1.0, 0.0, 0.0, 1.0);
 
-  auto get_color = [&kRed, &kYellow, &kGreen](const maliput::api::rules::BulbColor& bulb_color) {
+  auto get_color = [](const maliput::api::rules::BulbColor& bulb_color) {
     switch (bulb_color) {
       case maliput::api::rules::BulbColor::kRed:
         return kRed;

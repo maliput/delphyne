@@ -20,7 +20,7 @@
 #include <ignition/msgs.hh>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
-#include <maliput/utilities/generate_obj.h>
+#include <maliput/utility/generate_obj.h>
 
 // public headers
 #include "delphyne/mi6/agent_base.h"

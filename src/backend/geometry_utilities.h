@@ -21,7 +21,7 @@
 #include <drake/systems/rendering/pose_vector.h>
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/rules/traffic_lights.h>
-#include <maliput/utilities/generate_obj.h>
+#include <maliput/utility/generate_obj.h>
 
 #include "backend/frame_pose_aggregator.h"
 

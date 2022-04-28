@@ -11,7 +11,7 @@
 #include <drake/multibody/plant/multibody_plant.h>
 #include <maliput/math/roll_pitch_yaw.h>
 #include <maliput/math/vector.h>
-#include <maliput/utilities/generate_urdf.h>
+#include <maliput/utility/generate_urdf.h>
 
 #include "delphyne/macros.h"
 

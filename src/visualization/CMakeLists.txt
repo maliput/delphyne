@@ -28,7 +28,7 @@ target_link_libraries(visualization
   delphyne::public_headers
   ignition-common3::ignition-common3
   maliput::api
-  maliput::utilities
+  maliput::utility
 )
 
 install(

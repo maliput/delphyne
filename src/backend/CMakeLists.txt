@@ -50,7 +50,7 @@ target_link_libraries(
     ignition-msgs5::ignition-msgs5
     maliput::api
     maliput::base
-    maliput::utilities
+    maliput::utility
     ${PYTHON_LIBRARIES}
 )
 

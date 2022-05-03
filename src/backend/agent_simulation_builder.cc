@@ -15,7 +15,7 @@
 #include <drake/systems/framework/system.h>
 #include <drake/systems/primitives/constant_vector_source.h>
 #include <maliput/api/road_geometry.h>
-#include <maliput/utilities/generate_obj.h>
+#include <maliput/utility/generate_obj.h>
 
 #include "backend/dynamic_environment_handler_system.h"
 #include "backend/fixed_phase_iteration_handler.h"

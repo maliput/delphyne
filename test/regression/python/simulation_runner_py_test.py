@@ -45,6 +45,10 @@ class TestSimulationRunnerPy(unittest.TestCase):
         # Register a step callback.
         self.runner.add_step_callback(self.callback_test)
 
+    def tearDown(self):
+        """Stop the simulation runner."""
+        self.runner.stop()
+
     def callback_test(self):
         """Sets a flag to True."""
         self.callback_called = True

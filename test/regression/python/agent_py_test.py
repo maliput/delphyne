@@ -50,6 +50,10 @@ class TestAgentPy(unittest.TestCase):
         # Gets agent.
         self.agent = self.runner.get_simulation().get_agent_by_name("simple-car")
 
+    def tearDown(self):
+        """Stop the simulation runner."""
+        self.runner.stop()
+
     def test_name_method(self):
         """
         Call name() method

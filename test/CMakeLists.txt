@@ -3,6 +3,7 @@
 ##############################################################################
 
 find_package(ament_cmake_gtest REQUIRED)
+find_package(ament_cmake_pytest REQUIRED)
 
 # Find the Python interpreter for running the check_test_ran.py script
 find_package(PythonInterp QUIET)
@@ -67,7 +68,10 @@ macro(delphyne_build_python_tests)
       string(REGEX REPLACE ".py" "" PY_TEST ${PYTHON_TEST_file})
       set(PY_TEST ${TEST_TYPE}_${PY_TEST})
 
-      add_test(NAME ${PY_TEST} COMMAND ${PYTHON_EXECUTABLE} -m pytest ${CMAKE_CURRENT_SOURCE_DIR})
+      ament_add_pytest_test(${PY_TEST}
+        ${PYTHON_TEST_file}
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+      )
     endforeach()
   endif()
 endmacro()

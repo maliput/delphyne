@@ -32,6 +32,16 @@ find_package(ignition-msgs5 REQUIRED)
 find_package(ignition-transport8 REQUIRED COMPONENTS log)
 pkg_check_modules(LIBZIP REQUIRED libzip)
 
+# Delphyne relies on drake_vendor for bringing Drake to the workspace.
+# Drake brings its own version of pybind11 (https://github.com/RobotLocomotion/pybind11) and it is installed under /opt/drake.
+# As some features from this custom pybind11 are used, delphyne depends on the same version of pybind11 as Drake.
+# Therefore, we rely directly on the version installed by Drake, to avoid having to install it from source.
+#
+# Note: As drake_vendor adds /opt/drake to the path, the immediate pybind11 version (2.6.dev0) that is obtained
+# via a regular find_package expression is the one brougth by Drake.
+# Note2: The ideal would be to use `find_package(pybind11 2.6.dev0 EXACT REQUIRED)` however the patch version can only be numerical.
+find_package(pybind11 REQUIRED)
+
 # Since ignition libraries are compiled using C++17 and drake is not,
 # we need to define the following macro
 # to avoid having undefined references from drake when we use std::variant.

@@ -90,7 +90,7 @@ jobs:
         . install/setup.bash;
         colcon build --packages-up-to ${PACKAGE_NAME} --packages-skip ament_cmake_doxygen \
             --event-handlers=console_direct+ \
-            --cmake-args -DBUILD_TESTING=OFF -DBUILD_DOCS=ON;
+            --cmake-args -DBUILD_TESTING=ON -DBUILD_DOCS=ON;
     # Test doxygen documentation.
     - name: colcon test doxygen documentation
       shell: bash

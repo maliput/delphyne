@@ -87,6 +87,7 @@ jobs:
       working-directory: ${{ env.ROS_WS }}
       run: |
         . /opt/ros/${ROS_DISTRO}/setup.bash;
+        . install/setup.bash;
         colcon build --packages-up-to ${PACKAGE_NAME} --packages-skip ament_cmake_doxygen \
             --event-handlers=console_direct+ \
             --cmake-args -DBUILD_TESTING=OFF -DBUILD_DOCS=ON;

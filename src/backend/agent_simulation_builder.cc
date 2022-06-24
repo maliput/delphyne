@@ -133,7 +133,8 @@ void AgentSimulationBaseBuilder<T>::Reset() {
 template <typename T>
 void AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
-  std::unique_ptr<AgentBase<T>> agent = blueprint->BuildInto(road_network_.get(), builder_.get());
+  std::unique_ptr<AgentBase<T>> agent =
+      blueprint->BuildInto(road_network_ == nullptr ? nullptr : road_network_->road_network(), builder_.get());
   const int agent_id = agent_id_sequence_++;
   const std::string& agent_name = agent->name();
   DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
@@ -190,14 +191,14 @@ const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::GetRoadGeometry
 }
 
 template <typename T>
-const maliput::api::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<maliput::api::RoadNetwork> road_network) {
+const delphyne::roads::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+    std::unique_ptr<delphyne::roads::RoadNetwork> road_network) {
   return SetRoadNetwork(std::move(road_network), GetDefaultFeatures());
 }
 
 template <typename T>
-const maliput::api::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<maliput::api::RoadNetwork> road_network, const maliput::utility::ObjFeatures& features) {
+const delphyne::roads::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+    std::unique_ptr<delphyne::roads::RoadNetwork> road_network, const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_network != nullptr);
   DELPHYNE_DEMAND(road_geometry_ == nullptr);
   road_network_ = std::move(road_network);
@@ -282,7 +283,7 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
 
   if (traffic_light_system) {
     // Update traffic lights models according to the traffic light book states.
-    auto models_traffic_lights = builder_->template AddSystem<IgnModelsTrafficLights>(road_network_.get());
+    auto models_traffic_lights = builder_->template AddSystem<IgnModelsTrafficLights>(road_network_->road_network());
     builder_->Connect(viewer_load_robot_translator->get_output_port(0), models_traffic_lights->get_models_input_port());
     builder_->Connect(models_traffic_lights->get_traffic_lights_models_output_port(),
                       scene_system->get_updated_visual_models_input_port());
@@ -358,14 +359,13 @@ template <typename T>
 std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   // Exposes all agents' state for inspection.
   AddAgentStatePublishers();
-
   // Exposes simulation scene for rendering.
   SceneSystem* scene_system = AddScenePublishers();
 
   if (road_network_ != nullptr) {
     // Adds handler of dynamic rules.
     builder_->template AddSystem<DynamicEnvironmentHandlerSystem>(
-        std::make_unique<FixedPhaseIterationHandler>(road_network_.get()));
+        std::make_unique<FixedPhaseIterationHandler>(road_network_->road_network()));
   }
 
   // Builds the simulation diagram.
@@ -396,9 +396,10 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
     return std::make_unique<AgentSimulationBase<T>>(std::move(simulator), std::move(diagram), std::move(agents_),
                                                     std::move(road_geometry_), scene_graph_, scene_system);
   }
-
-  return std::make_unique<AgentSimulationBase<T>>(std::move(simulator), std::move(diagram), std::move(agents_),
-                                                  std::move(road_network_), scene_graph_, scene_system);
+  return std::make_unique<AgentSimulationBase<T>>(
+      std::move(simulator), std::move(diagram), std::move(agents_),
+      road_network_ == nullptr ? nullptr : std::unique_ptr<maliput::api::RoadNetwork>(road_network_->release()),
+      scene_graph_, scene_system);
 }
 
 template class AgentSimulationBaseBuilder<double>;

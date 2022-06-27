@@ -58,8 +58,8 @@ namespace api = maliput::api;
 ** Implementation
 *****************************************************************************/
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateRoadNetwork(
-    const std::string& road_network_plugin_name, const std::map<std::string, std::string>& loader_parameters) {
+std::unique_ptr<RoadNetwork> CreateRoadNetwork(const std::string& road_network_plugin_name,
+                                               const std::map<std::string, std::string>& loader_parameters) {
   // The MaliputPluginManager instance must be alive until the program is terminated, otherwise
   // the RoadNetwork instance could lead to undesired behavior.
   static maliput::plugin::MaliputPluginManager manager{};
@@ -73,14 +73,13 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateRoadNetwork(
   // Use smart pointers to gracefully manage heap allocation.
   std::unique_ptr<maliput::plugin::RoadNetworkLoader> road_network_loader{
       reinterpret_cast<maliput::plugin::RoadNetworkLoader*>(rn_loader_ptr)};
-  // Generates the maliput::api::RoadNetwork.
-  return (*road_network_loader)(loader_parameters);
+  // Generates the RoadNetwork.
+  return std::make_unique<RoadNetwork>((*road_network_loader)(loader_parameters));
 }
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(const std::string& name, int num_lanes, double length,
-                                                         double lane_width, double shoulder_width,
-                                                         double maximum_height, double linear_tolerance,
-                                                         double angular_tolerance) {
+std::unique_ptr<RoadNetwork> CreateDragway(const std::string& name, int num_lanes, double length, double lane_width,
+                                           double shoulder_width, double maximum_height, double linear_tolerance,
+                                           double angular_tolerance) {
   const std::map<std::string, std::string> parameters{
       {"road_geometry_id", name},
       {"linear_tolerance", std::to_string(linear_tolerance)},
@@ -95,7 +94,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(const std::string& name
   return CreateRoadNetwork("maliput_dragway", parameters);
 }
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::string& file_path) {
+std::unique_ptr<RoadNetwork> CreateMultilaneFromFile(const std::string& file_path) {
   const std::map<std::string, std::string> parameters{
       {"road_network_source", "yaml"},
       {"yaml_file", file_path},
@@ -103,7 +102,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::st
   return CreateRoadNetwork("maliput_multilane", parameters);
 }
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description) {
+std::unique_ptr<RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description) {
   const std::map<std::string, std::string> parameters{
       {"road_network_source", "yaml"},
       {"yaml_description", yaml_description},
@@ -111,26 +110,27 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const 
   return CreateRoadNetwork("maliput_multilane", parameters);
 }
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp() {
+std::unique_ptr<RoadNetwork> CreateOnRamp() {
   const std::map<std::string, std::string> parameters{
       {"road_network_source", "on_ramp_merge"},
   };
   return CreateRoadNetwork("maliput_multilane", parameters);
 }
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
-                                                                   const std::string& file_path,
-                                                                   double linear_tolerance, double angular_tolerance) {
+std::unique_ptr<RoadNetwork> CreateMalidriveFromXodr(const std::string& name, const std::string& file_path,
+                                                     double linear_tolerance, double angular_tolerance) {
   return CreateMalidriveRoadNetworkFromXodr(
       name, file_path, {/*rule_registry_file_path*/}, {/*road_rulebook_file_path*/}, {/*traffic_light_book_path*/},
       {/*phase_ring_path*/}, {/*intersection_book_path*/}, linear_tolerance, angular_tolerance);
 }
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
-    const std::string& name, const std::string& file_path, const std::string& rule_registry_file_path,
-    const std::string& road_rulebook_file_path, const std::string& traffic_light_book_path,
-    const std::string& phase_ring_path, const std::string& intersection_book_path, double linear_tolerance,
-    double angular_tolerance) {
+std::unique_ptr<RoadNetwork> CreateMalidriveRoadNetworkFromXodr(const std::string& name, const std::string& file_path,
+                                                                const std::string& rule_registry_file_path,
+                                                                const std::string& road_rulebook_file_path,
+                                                                const std::string& traffic_light_book_path,
+                                                                const std::string& phase_ring_path,
+                                                                const std::string& intersection_book_path,
+                                                                double linear_tolerance, double angular_tolerance) {
   static constexpr double kScaleLength{1.};
   std::map<std::string, std::string> road_network_configuration{
       {"road_geometry_id", name},

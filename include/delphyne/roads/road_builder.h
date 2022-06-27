@@ -42,8 +42,8 @@
 #include <memory>
 #include <string>
 
-#include <maliput/api/road_geometry.h>
-#include <maliput/api/road_network.h>
+#include "delphyne/macros.h"
+#include "delphyne/roads/road_network.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -59,12 +59,12 @@ namespace roads {
 /// @brief Creates a maliput::api::RoadNetwork based on an available maliput::plugin::RoadNetworkLoader plugin
 /// implementation.
 ///
-/// @param[in] road_network_plugin_name maliput::plugin::RoadnetworkLoader plugin name to be used.
+/// @param[in] road_network_plugin_name maliput::plugin::RoadNetworkLoader plugin name to be used.
 /// @param[in] loader_parameters Parameters to be passed to the maliput::api::RoadNetwork builder.
 ///
 /// @throws maliput::common::assertion_error When `road_network_plugin_name` isn't found.
-std::unique_ptr<maliput::api::RoadNetwork> CreateRoadNetwork(
-    const std::string& road_network_plugin_name, const std::map<std::string, std::string>& loader_parameters);
+std::unique_ptr<RoadNetwork> CreateRoadNetwork(const std::string& road_network_plugin_name,
+                                               const std::map<std::string, std::string>& loader_parameters);
 
 /// @brief Creates a dragway.
 ///
@@ -88,20 +88,20 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateRoadNetwork(
 ///
 /// @param[in] angular_tolerance The tolerance guaranteed for angular
 /// measurements (m).
-std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(
-    const std::string& name, int num_lanes, double length, double lane_width, double shoulder_width,
-    double maximum_height, double linear_tolerance = std::numeric_limits<double>::epsilon(),
-    double angular_tolerance = std::numeric_limits<double>::epsilon());
+std::unique_ptr<RoadNetwork> CreateDragway(const std::string& name, int num_lanes, double length, double lane_width,
+                                           double shoulder_width, double maximum_height,
+                                           double linear_tolerance = std::numeric_limits<double>::epsilon(),
+                                           double angular_tolerance = std::numeric_limits<double>::epsilon());
 
 /// @brief Creates a multilane from yaml source.
 ///
 /// @param[in] file_path A string pointing to the file to be loaded.
-std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::string& file_path);
+std::unique_ptr<RoadNetwork> CreateMultilaneFromFile(const std::string& file_path);
 
 /// @brief Creates a multilane from yaml description.
 ///
 /// @param[in] yaml_description A serialized yaml description to be loaded.
-std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description);
+std::unique_ptr<RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description);
 
 /// @brief Creates a malidrive from xodr source.
 ///
@@ -109,11 +109,9 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const 
 /// @param[in] file_path A string pointing to the file to be loaded.
 /// @param[in] linear_tolerance The linear RoadGeometry tolerance. Default value is 1e-3m.
 /// @param[in] angular_tolerance The angular RoadGeometry tolerance. Default value is 1e-3rad.
-/// @return A maliput::api::RoadNetwork.
-std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
-                                                                   const std::string& file_path,
-                                                                   double linear_tolerance = 1e-3,
-                                                                   double angular_tolerance = 1e-3);
+/// @return A RoadNetwork.
+std::unique_ptr<RoadNetwork> CreateMalidriveFromXodr(const std::string& name, const std::string& file_path,
+                                                     double linear_tolerance = 1e-3, double angular_tolerance = 1e-3);
 
 /// @brief Creates a malidrive from xodr source.
 ///
@@ -126,8 +124,8 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::st
 /// @param[in] intersection_book_path A string pointing to the IntersectionBook file to be loaded.
 /// @param[in] linear_tolerance The linear RoadGeometry tolerance. Default value is 1e-3m.
 /// @param[in] angular_tolerance The angular RoadGeometry tolerance. Default value is 1e-3rad.
-/// @return A maliput::api::RoadNetwork.
-std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
+/// @return A RoadNetwork.
+std::unique_ptr<RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     const std::string& name, const std::string& file_path, const std::string& rule_registry_file_path = std::string(),
     const std::string& road_rulebook_file_path = std::string(),
     const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string(),
@@ -135,7 +133,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     double angular_tolerance = 1e-3);
 
 /// @brief Creates a multilane on-ramp.
-std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp();
+std::unique_ptr<RoadNetwork> CreateOnRamp();
 
 /*****************************************************************************
 ** Trailers

@@ -7,39 +7,27 @@
 namespace delphyne {
 namespace roads {
 
+/// Wrapper around a maliput::api::RoadNetwork.
+/// This implementation is needed for the python bindings due to a lack of support when handling smart pointers.
+/// For more information see:
+/// - https://github.com/maliput/delphyne/issues/846
+/// - https://github.com/maliput/maliput_infrastructure/issues/225
+///
+/// TODO(https://github.com/maliput/delphyne/issues/847): Remove this wrapper once the above issues are resolved.
 class RoadNetwork {
  public:
-  RoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> maliput_rn) { rn_ = std::move(maliput_rn); }
+  explicit RoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> rn) : rn_(std::move(rn)) {
+    DELPHYNE_DEMAND(rn_ != nullptr);
+  }
 
-  maliput::api::RoadNetwork* road_network() const { return rn_.get(); }
+  /// @returns A pointer to the maliput::api::RoadNetwork.
+  maliput::api::RoadNetwork* get() { return rn_.get(); }
+
+  /// Releases the unique_ptr to the maliput::api::RoadNetwork.
+  /// Note: The unique_ptr object is released from the responsibility of deleting the object. Some other entity must
+  /// take responsibility for deleting the object at some point.
+  /// @returns A pointer to the maliput::api::RoadNetwork.
   maliput::api::RoadNetwork* release() { return rn_.release(); }
-  bool Contains(const maliput::api::RoadPosition& road_position) const { return rn_->Contains(road_position); }
-
-  bool Contains(const maliput::api::LaneId& lane_id) const { return rn_->Contains(lane_id); }
-
-  const maliput::api::RoadGeometry* road_geometry() const { return rn_->road_geometry(); }
-
-  const maliput::api::rules::RoadRulebook* rulebook() const { return rn_->rulebook(); }
-
-  const maliput::api::rules::TrafficLightBook* traffic_light_book() const { return rn_->traffic_light_book(); }
-
-  maliput::api::IntersectionBook* intersection_book() { return rn_->intersection_book(); }
-
-  const maliput::api::rules::PhaseRingBook* phase_ring_book() const { return rn_->phase_ring_book(); }
-  maliput::api::rules::RightOfWayRuleStateProvider* right_of_way_rule_state_provider() {
-    return rn_->right_of_way_rule_state_provider();
-  }
-  maliput::api::rules::PhaseProvider* phase_provider() { return rn_->phase_provider(); }
-
-  const maliput::api::rules::RuleRegistry* rule_registry() const { return rn_->rule_registry(); }
-
-  maliput::api::rules::DiscreteValueRuleStateProvider* discrete_value_rule_state_provider() {
-    return rn_->discrete_value_rule_state_provider();
-  }
-
-  maliput::api::rules::RangeValueRuleStateProvider* range_value_rule_state_provider() {
-    return rn_->range_value_rule_state_provider();
-  }
 
  private:
   std::unique_ptr<maliput::api::RoadNetwork> rn_;

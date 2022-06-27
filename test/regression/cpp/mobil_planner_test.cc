@@ -66,7 +66,7 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
                                          0. /* shoulder_width */, 5. /* maximum_height */,
                                          std::numeric_limits<double>::epsilon() /* linear_tolerance */,
                                          std::numeric_limits<double>::epsilon() /* angular_tolerance */);
-    road_ = road_network_->road_geometry();
+    road_ = road_network_->get()->road_geometry();
     segment_ = road_->junction(0)->segment(0);
     ExtractLaneDirectionsFromDragway();
     right_lane_index_ = 0;
@@ -163,7 +163,7 @@ class MobilPlannerTest : public ::testing::TestWithParam<RoadPositionStrategy> {
   std::unique_ptr<drake::systems::System<double>> dut_;  //< The device under test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
+  std::unique_ptr<delphyne::roads::RoadNetwork> road_network_;
   const maliput::api::RoadGeometry* road_{};
   const maliput::api::Segment* segment_{};
   std::vector<LaneDirection> lane_directions_{};

@@ -65,7 +65,7 @@ const double kTotalRoadLength{kStraightRoadLength + kCurvedRoadLength};
 
 // Build a road with two lanes in series.
 // When `is_opposing` is true the second lane's direction is reversed.
-std::unique_ptr<maliput::api::RoadNetwork> MakeTwoLaneRoad(bool is_opposing) {
+std::unique_ptr<delphyne::roads::RoadNetwork> MakeTwoLaneRoad(bool is_opposing) {
   const std::string multilane_description = !is_opposing ? R"R(
     maliput_multilane_builder:
       id: "two_lane_stretch"
@@ -150,8 +150,8 @@ GTEST_TEST(IdmControllerTest, ConstructOpposingSegments) {
   auto road_opposing = MakeTwoLaneRoad(true);
   // Start in the straight segment and progress in the positive-s-direction.
   const LaneDirection initial_lane_dir =
-      LaneDirection(GetLaneById(*road_opposing->road_geometry(), "j:0_fwd"), /* lane */
-                    true);                                                   /* with_s */
+      LaneDirection(GetLaneById(*road_opposing->get()->road_geometry(), "j:0_fwd"), /* lane */
+                    true);                                                          /* with_s */
   // Create a finely-discretized path with a sufficient number of segments to
   // cover the full length.
   const auto path = RoadPath<double>(initial_lane_dir, /* initial_lane_direction */
@@ -201,8 +201,8 @@ GTEST_TEST(IdmControllerTest, ConstructConfluentSegments) {
   auto road_confluent = MakeTwoLaneRoad(false);
   // Start in the curved segment, and progress in the negative-s-direction.
   const LaneDirection initial_lane_dir =
-      LaneDirection(GetLaneById(*road_confluent->road_geometry(), "j:1_fwd"), /* lane */
-                    false);                                                   /* with_s */
+      LaneDirection(GetLaneById(*road_confluent->get()->road_geometry(), "j:1_fwd"), /* lane */
+                    false);                                                          /* with_s */
   // Create a finely-discretized path with a sufficient number of segments to
   // cover the full length.
   const auto path = RoadPath<double>(initial_lane_dir, /* initial_lane_direction */

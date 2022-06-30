@@ -134,7 +134,7 @@ template <typename T>
 void AgentSimulationBaseBuilder<T>::DoAddAgent(AgentBaseBlueprint<T>* blueprint) {
   // Builds and validates the agent.
   std::unique_ptr<AgentBase<T>> agent =
-      blueprint->BuildInto(road_network_ == nullptr ? nullptr : road_network_->get(), builder_.get());
+      blueprint->BuildInto(road_network_ == nullptr ? nullptr : road_network_->operator->(), builder_.get());
   const int agent_id = agent_id_sequence_++;
   const std::string& agent_name = agent->name();
   DELPHYNE_VALIDATE(agents_.count(agent_name) == 0, std::runtime_error,
@@ -187,18 +187,18 @@ maliput::utility::ObjFeatures GetDefaultFeatures() {
 
 template <typename T>
 const maliput::api::RoadGeometry* AgentSimulationBaseBuilder<T>::GetRoadGeometry() const {
-  return road_network_ == nullptr ? nullptr : road_network_->get()->road_geometry();
+  return road_network_ == nullptr ? nullptr : (*road_network_)->road_geometry();
 }
 
 template <typename T>
-const delphyne::roads::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<delphyne::roads::RoadNetwork> road_network) {
+const delphyne::roads::RoadNetworkWrapper* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+    std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network) {
   return SetRoadNetwork(std::move(road_network), GetDefaultFeatures());
 }
 
 template <typename T>
-const delphyne::roads::RoadNetwork* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
-    std::unique_ptr<delphyne::roads::RoadNetwork> road_network, const maliput::utility::ObjFeatures& features) {
+const delphyne::roads::RoadNetworkWrapper* AgentSimulationBaseBuilder<T>::SetRoadNetwork(
+    std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network, const maliput::utility::ObjFeatures& features) {
   DELPHYNE_DEMAND(road_network != nullptr);
   DELPHYNE_DEMAND(road_geometry_ == nullptr);
   road_network_ = std::move(road_network);
@@ -244,16 +244,16 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
   // load robot messages, so those need to be aggregated.
   std::vector<drake::lcmt_viewer_load_robot> messages{car_vis_applicator_->get_load_robot_message()};
   const maliput::api::RoadGeometry* road_geometry =
-      road_network_ != nullptr ? road_network_->get()->road_geometry() : road_geometry_.get();
+      road_network_ != nullptr ? (*road_network_)->road_geometry() : road_geometry_.get();
   if (road_geometry != nullptr) {
     messages.push_back(BuildLoadMessageForRoad(*road_geometry, road_features_));
   }
   // Adds traffic lights models.
   // First check whether traffic lights are present in the road network.
-  const bool traffic_light_system = road_network_ != nullptr && road_network_->get()->traffic_light_book() != nullptr &&
-                                    !road_network_->get()->traffic_light_book()->TrafficLights().empty();
+  const bool traffic_light_system = road_network_ != nullptr && (*road_network_)->traffic_light_book() != nullptr &&
+                                    !(*road_network_)->traffic_light_book()->TrafficLights().empty();
   if (traffic_light_system) {
-    messages.push_back(BuildLoadMessageForTrafficLights(road_network_->get()->traffic_light_book()->TrafficLights()));
+    messages.push_back(BuildLoadMessageForTrafficLights((*road_network_)->traffic_light_book()->TrafficLights()));
   }
 
   // Adds an aggregator system to aggregate multiple lcmt_viewer_load_robot
@@ -283,7 +283,7 @@ SceneSystem* AgentSimulationBaseBuilder<T>::AddScenePublishers() {
 
   if (traffic_light_system) {
     // Update traffic lights models according to the traffic light book states.
-    auto models_traffic_lights = builder_->template AddSystem<IgnModelsTrafficLights>(road_network_->get());
+    auto models_traffic_lights = builder_->template AddSystem<IgnModelsTrafficLights>(road_network_->operator->());
     builder_->Connect(viewer_load_robot_translator->get_output_port(0), models_traffic_lights->get_models_input_port());
     builder_->Connect(models_traffic_lights->get_traffic_lights_models_output_port(),
                       scene_system->get_updated_visual_models_input_port());
@@ -365,7 +365,7 @@ std::unique_ptr<AgentSimulationBase<T>> AgentSimulationBaseBuilder<T>::Build() {
   if (road_network_ != nullptr) {
     // Adds handler of dynamic rules.
     builder_->template AddSystem<DynamicEnvironmentHandlerSystem>(
-        std::make_unique<FixedPhaseIterationHandler>(road_network_->get()));
+        std::make_unique<FixedPhaseIterationHandler>(road_network_->operator->()));
   }
 
   // Builds the simulation diagram.

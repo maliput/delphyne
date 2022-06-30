@@ -62,13 +62,13 @@ class FixedPhaseIterationHandlerTest : public ::testing::Test {
                                                     kYamlFilePath, kYamlFilePath);
   }
 
-  std::unique_ptr<delphyne::roads::RoadNetwork> rn_;
+  std::unique_ptr<delphyne::roads::RoadNetworkWrapper> rn_;
 };
 
 TEST_F(FixedPhaseIterationHandlerTest, Constructor) {
-  EXPECT_THROW(FixedPhaseIterationHandler(rn_->get(), -5.), std::invalid_argument);
+  EXPECT_THROW(FixedPhaseIterationHandler(rn_->operator->(), -5.), std::invalid_argument);
   EXPECT_THROW(FixedPhaseIterationHandler(nullptr, 2.), std::invalid_argument);
-  EXPECT_NO_THROW(FixedPhaseIterationHandler(rn_->get(), kPhaseDuration));
+  EXPECT_NO_THROW(FixedPhaseIterationHandler(rn_->operator->(), kPhaseDuration));
 }
 
 TEST_F(FixedPhaseIterationHandlerTest, VerifyPhasesBeingIterated) {
@@ -76,13 +76,13 @@ TEST_F(FixedPhaseIterationHandlerTest, VerifyPhasesBeingIterated) {
   const maliput::api::rules::Phase::Id kAllStopPhase{"AllStopPhase"};
 
   // Obtains the intersection to be used for the analysis.
-  maliput::api::IntersectionBook* intersection_book = rn_->get()->intersection_book();
+  maliput::api::IntersectionBook* intersection_book = (*rn_)->intersection_book();
   ASSERT_NE(intersection_book, nullptr);
   const maliput::api::Intersection* intersection =
       intersection_book->GetIntersection(maliput::api::Intersection::Id("PedestrianCrosswalkIntersection"));
   ASSERT_NE(intersection, nullptr);
 
-  FixedPhaseIterationHandler dut{rn_->get(), kPhaseDuration};
+  FixedPhaseIterationHandler dut{rn_->operator->(), kPhaseDuration};
   double sim_time = 0.;
   dut.Update(sim_time);
   // According to the IntersectionBook yaml file the initial phase is: AllGoPhase.
@@ -96,14 +96,14 @@ TEST_F(FixedPhaseIterationHandlerTest, VerifyPhasesBeingIterated) {
 
 TEST_F(FixedPhaseIterationHandlerTest, GettersAndSetters) {
   const double kNewPhaseDuration{123.};
-  FixedPhaseIterationHandler dut{rn_->get(), kPhaseDuration};
+  FixedPhaseIterationHandler dut{rn_->operator->(), kPhaseDuration};
   dut.set_phase_duration(kNewPhaseDuration);
   EXPECT_EQ(kNewPhaseDuration, dut.get_phase_duration());
 }
 
 TEST_F(FixedPhaseIterationHandlerTest, CheckServiceForChangingPhaseDuration) {
   const double kNewPhaseDuration{123.};
-  FixedPhaseIterationHandler dut{rn_->get(), kPhaseDuration};
+  FixedPhaseIterationHandler dut{rn_->operator->(), kPhaseDuration};
 
   ignition::transport::Node node;
   ignition::msgs::Double new_phase_duration_req;

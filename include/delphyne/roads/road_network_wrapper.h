@@ -14,20 +14,23 @@ namespace roads {
 /// - https://github.com/maliput/maliput_infrastructure/issues/225
 ///
 /// TODO(https://github.com/maliput/delphyne/issues/847): Remove this wrapper once the above issues are resolved.
-class RoadNetwork {
+class RoadNetworkWrapper {
  public:
-  explicit RoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> rn) : rn_(std::move(rn)) {
+  explicit RoadNetworkWrapper(std::unique_ptr<maliput::api::RoadNetwork> rn) : rn_(std::move(rn)) {
     DELPHYNE_DEMAND(rn_ != nullptr);
   }
-
-  /// @returns A pointer to the maliput::api::RoadNetwork.
-  maliput::api::RoadNetwork* get() { return rn_.get(); }
 
   /// Releases the unique_ptr to the maliput::api::RoadNetwork.
   /// Note: The unique_ptr object is released from the responsibility of deleting the object. Some other entity must
   /// take responsibility for deleting the object at some point.
   /// @returns A pointer to the maliput::api::RoadNetwork.
   maliput::api::RoadNetwork* release() { return rn_.release(); }
+
+  /// @returns A pointer to the underlying maliput::api::RoadNetwork.
+  maliput::api::RoadNetwork* operator->() const noexcept { return rn_.get(); }
+
+  /// @returns A reference to the underlying maliput::api::RoadNetwork.
+  maliput::api::RoadNetwork& operator*() const noexcept { return *rn_; }
 
  private:
   std::unique_ptr<maliput::api::RoadNetwork> rn_;

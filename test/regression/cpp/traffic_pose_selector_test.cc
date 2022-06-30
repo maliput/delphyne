@@ -39,7 +39,7 @@
 
 #include "delphyne/macros.h"
 #include "delphyne/roads/road_builder.h"
-#include "delphyne/roads/road_network.h"
+#include "delphyne/roads/road_network_wrapper.h"
 
 namespace delphyne {
 namespace {
@@ -107,9 +107,9 @@ class TrafficPoseSelectorDragwayTest : public ::testing::Test {
         roads::CreateDragway("Test Dragway", num_lanes, lane_length, kDragwayLaneWidth, 0. /* shoulder width */,
                              5. /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
                              std::numeric_limits<double>::epsilon() /* angular_tolerance */);
-    road_ = road_network_->get()->road_geometry();
+    road_ = (*road_network_)->road_geometry();
   }
-  std::unique_ptr<delphyne::roads::RoadNetwork> road_network_;
+  std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network_;
   const maliput::api::RoadGeometry* road_{};
 };
 
@@ -454,7 +454,7 @@ TEST_F(TrafficPoseSelectorDragwayTest, TestGetSigmaVelocity) {
 
 // Build a road with three lanes in series.  If `is_opposing` is true, then the
 // middle segment is reversed.
-std::unique_ptr<delphyne::roads::RoadNetwork> MakeThreeSegmentRoad(bool is_opposing) {
+std::unique_ptr<delphyne::roads::RoadNetworkWrapper> MakeThreeSegmentRoad(bool is_opposing) {
   const std::string multilane_description = !is_opposing ? R"R(
     maliput_multilane_builder:
       id: "three_lane_stretch_forward"
@@ -534,11 +534,11 @@ GTEST_TEST(TrafficPoseSelectorTest, MultiSegmentRoad) {
   std::vector<const maliput::api::RoadGeometry*> roads;
   const auto road_network_1 = MakeThreeSegmentRoad(false);
   const auto road_network_2 = MakeThreeSegmentRoad(true);
-  roads.push_back(road_network_1->get()->road_geometry());  // Road with consistent
-                                                            // with_s
-                                                            // directionality.
-  roads.push_back(road_network_2->get()->road_geometry());  // Road constructed with
-                                                            // alternating with_s.
+  roads.push_back((*road_network_1)->road_geometry());  // Road with consistent
+                                                        // with_s
+                                                        // directionality.
+  roads.push_back((*road_network_2)->road_geometry());  // Road constructed with
+                                                        // alternating with_s.
 
   PoseVector<double> ego_pose;
   PoseBundle<double> traffic_poses(1);
@@ -579,7 +579,7 @@ GTEST_TEST(TrafficPoseSelectorTest, MultiSegmentRoad) {
 
 // Construct a multilane road with three confluent feeder lanes corresponding to
 // three distinct branch points.
-std::unique_ptr<delphyne::roads::RoadNetwork> BuildOnrampRoad() {
+std::unique_ptr<delphyne::roads::RoadNetworkWrapper> BuildOnrampRoad() {
   const std::string multilane_description = R"R(
     maliput_multilane_builder:
       id: "on_ramp_road"
@@ -761,7 +761,7 @@ void CheckOnrampPosesInBranches(const maliput::api::RoadGeometry& road, const Po
 
 GTEST_TEST(TrafficPoseSelectorOnrampTest, CheckBranches) {
   const auto road_network = BuildOnrampRoad();
-  const maliput::api::RoadGeometry* road = road_network->get()->road_geometry();
+  const maliput::api::RoadGeometry* road = (*road_network)->road_geometry();
 
   PoseVector<double> ego_pose;
   FrameVelocity<double> ego_velocity;

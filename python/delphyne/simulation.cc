@@ -41,7 +41,7 @@
 
 // public headers
 #include "delphyne/mi6/agent_simulation.h"
-#include "delphyne/roads/road_network.h"
+#include "delphyne/roads/road_network_wrapper.h"
 
 // private headers
 #include "backend/agent_simulation_builder.h"
@@ -146,12 +146,13 @@ PYBIND11_MODULE(simulation, m) {
       // clang-format on
       .def("get_road_geometry", &AgentSimulationBuilder::GetRoadGeometry, py::return_value_policy::reference_internal)
       .def("set_road_network",
-           py::overload_cast<std::unique_ptr<delphyne::roads::RoadNetwork>>(&AgentSimulationBuilder::SetRoadNetwork),
+           py::overload_cast<std::unique_ptr<delphyne::roads::RoadNetworkWrapper>>(
+               &AgentSimulationBuilder::SetRoadNetwork),
            py::return_value_policy::reference_internal, "Sets road network for the simulation to be built",
            py::arg("road_network"))
       .def("set_road_network",
-           py::overload_cast<std::unique_ptr<delphyne::roads::RoadNetwork>, const ::maliput::utility::ObjFeatures&>(
-               &AgentSimulationBuilder::SetRoadNetwork),
+           py::overload_cast<std::unique_ptr<delphyne::roads::RoadNetworkWrapper>,
+                             const ::maliput::utility::ObjFeatures&>(&AgentSimulationBuilder::SetRoadNetwork),
            py::return_value_policy::reference_internal, "Sets road network for the simulation to be built",
            py::arg("road_network"), py::arg("features"))
       .def("build", &AgentSimulationBuilder::Build);

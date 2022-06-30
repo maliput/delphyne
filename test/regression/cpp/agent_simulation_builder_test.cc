@@ -91,7 +91,8 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
 // such as road_geometry->junction(0)->segment(0)->lane(0) which is used
 // frequently in the tests below exists and does not need to be checked
 // for a null pointer.
-std::unique_ptr<delphyne::roads::RoadNetwork> CreateDragway(const std::string& name, const int& number_of_lanes) {
+std::unique_ptr<delphyne::roads::RoadNetworkWrapper> CreateDragway(const std::string& name,
+                                                                   const int& number_of_lanes) {
   return roads::CreateDragway(name, number_of_lanes, 100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
                               5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
                               std::numeric_limits<double>::epsilon() /* angular_tolerance */);
@@ -470,7 +471,7 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
   AgentSimulationBuilder builder;
 
   auto road_network = CreateDragway("TestDragway", 1);
-  const maliput::api::Lane& first_lane = *(road_network->get()->road_geometry()->junction(0)->segment(0)->lane(0));
+  const maliput::api::Lane& first_lane = *((*road_network)->road_geometry()->junction(0)->segment(0)->lane(0));
 
   EXPECT_ARGUMENT_THROW(
       {

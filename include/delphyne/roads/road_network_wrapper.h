@@ -4,6 +4,8 @@
 
 #include <maliput/api/road_network.h>
 
+#include "delphyne/macros.h"
+
 namespace delphyne {
 namespace roads {
 
@@ -17,7 +19,7 @@ namespace roads {
 class RoadNetworkWrapper {
  public:
   explicit RoadNetworkWrapper(std::unique_ptr<maliput::api::RoadNetwork> rn) : rn_(std::move(rn)) {
-    DELPHYNE_DEMAND(rn_ != nullptr);
+    DELPHYNE_VALIDATE(rn_ != nullptr, std::runtime_error, "RoadNetworkWrapper: nullptr RoadNetwork");
   }
 
   /// Releases the unique_ptr to the maliput::api::RoadNetwork.

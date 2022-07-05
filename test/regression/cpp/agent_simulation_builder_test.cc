@@ -91,7 +91,8 @@ int GetLinkCount(const ignition::msgs::Model_V& message) {
 // such as road_geometry->junction(0)->segment(0)->lane(0) which is used
 // frequently in the tests below exists and does not need to be checked
 // for a null pointer.
-std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(const std::string& name, const int& number_of_lanes) {
+std::unique_ptr<delphyne::roads::RoadNetworkWrapper> CreateDragway(const std::string& name,
+                                                                   const int& number_of_lanes) {
   return roads::CreateDragway(name, number_of_lanes, 100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
                               5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
                               std::numeric_limits<double>::epsilon() /* angular_tolerance */);
@@ -343,8 +344,8 @@ TEST_F(AgentSimulationTest, TestMobilControlledSimpleCar) {
   // Set up a basic simulation with a MOBIL- and IDM-controlled SimpleCar.
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
-  const maliput::api::RoadNetwork* road_network = builder.SetRoadNetwork(CreateDragway("TestDragway", 2));
-  const maliput::api::RoadGeometry* road_geometry = road_network->road_geometry();
+  builder.SetRoadNetwork(CreateDragway("TestDragway", 2));
+  const maliput::api::RoadGeometry* road_geometry = builder.GetRoadGeometry();
   const maliput::api::Lane& first_lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 
   // Create one MOBIL car and two stopped cars arranged as follows:
@@ -470,7 +471,7 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
   AgentSimulationBuilder builder;
 
   auto road_network = CreateDragway("TestDragway", 1);
-  const maliput::api::Lane& first_lane = *(road_network->road_geometry()->junction(0)->segment(0)->lane(0));
+  const maliput::api::Lane& first_lane = *((*road_network)->road_geometry()->junction(0)->segment(0)->lane(0));
 
   EXPECT_ARGUMENT_THROW(
       {
@@ -503,8 +504,8 @@ TEST_F(AgentSimulationTest, TestBadRailcars) {
 TEST_F(AgentSimulationTest, TestMaliputRailcar) {
   AgentSimulationBuilder builder;
   builder.SetTargetRealTimeRate(kRealtimeFactor);
-  const maliput::api::RoadNetwork* road_network = builder.SetRoadNetwork(CreateDragway("TestDragway", 1));
-  const maliput::api::RoadGeometry* road_geometry = road_network->road_geometry();
+  builder.SetRoadNetwork(CreateDragway("TestDragway", 1));
+  const maliput::api::RoadGeometry* road_geometry = builder.GetRoadGeometry();
   const maliput::api::Lane& lane = *(road_geometry->junction(0)->segment(0)->lane(0));
   const double k_offset{0.5};
   builder.AddAgent<RailCarBlueprint>("railcar", lane,
@@ -598,8 +599,8 @@ TEST_F(AgentSimulationTest, TestLcmOutput) {
 TEST_F(AgentSimulationTest, TestDuplicateVehicleNameException) {
   AgentSimulationBuilder builder;
 
-  const maliput::api::RoadNetwork* road_network = builder.SetRoadNetwork(CreateDragway("TestDragway", 1));
-  const maliput::api::RoadGeometry* road_geometry = road_network->road_geometry();
+  builder.SetRoadNetwork(CreateDragway("TestDragway", 1));
+  const maliput::api::RoadGeometry* road_geometry = builder.GetRoadGeometry();
 
   EXPECT_NO_THROW(builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0));
   EXPECT_RUNTIME_THROW(builder.AddAgent<SimpleCarBlueprint>("Model1", 0.0, 0.0, 0.0, 0.0),
@@ -635,12 +636,12 @@ TEST_F(AgentSimulationTest, TestDuplicateVehicleNameException) {
 TEST_F(AgentSimulationTest, TestRailcarVelocityOutput) {
   AgentSimulationBuilder builder;
 
-  const maliput::api::RoadNetwork* road_network = builder.SetRoadNetwork(roads::CreateDragway(
-      "TestDragway", 1 /* num lanes */, 100 /* length */, 4 /* lane width */, 1 /* shoulder width */,
-      5 /* maximum_height */, std::numeric_limits<double>::epsilon() /* linear_tolerance */,
-      std::numeric_limits<double>::epsilon() /* angular_tolerance */));
+  builder.SetRoadNetwork(roads::CreateDragway("TestDragway", 1 /* num lanes */, 100 /* length */, 4 /* lane width */,
+                                              1 /* shoulder width */, 5 /* maximum_height */,
+                                              std::numeric_limits<double>::epsilon() /* linear_tolerance */,
+                                              std::numeric_limits<double>::epsilon() /* angular_tolerance */));
 
-  const maliput::api::RoadGeometry* road_geometry = road_network->road_geometry();
+  const maliput::api::RoadGeometry* road_geometry = builder.GetRoadGeometry();
   const maliput::api::Lane& lane = *(road_geometry->junction(0)->segment(0)->lane(0));
 
   const double kR{0.5};
@@ -728,8 +729,8 @@ TEST_F(AgentSimulationTest, TestGetCollisions) {
 
   // Builds a two (2) lane dragway to populate the
   // simulation world with.
-  const maliput::api::RoadNetwork* road_network = builder.SetRoadNetwork(CreateDragway("TestDragway", kNumLanes));
-  const maliput::api::RoadGeometry* road = road_network->road_geometry();
+  builder.SetRoadNetwork(CreateDragway("TestDragway", kNumLanes));
+  const maliput::api::RoadGeometry* road = builder.GetRoadGeometry();
 
   // Retrieves references to both lanes. Below's indirections
   // are guaranteed to be safe by Maliput's Dragway implementation.

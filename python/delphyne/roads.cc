@@ -44,6 +44,7 @@
 // public headers
 #include "delphyne/roads/find_lane.h"
 #include "delphyne/roads/road_builder.h"
+#include "delphyne/roads/road_network_wrapper.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -104,6 +105,9 @@ PYBIND11_MODULE(roads, m) {
       .def_readwrite("lane_haze_elevation", &ObjFeatures::lane_haze_elevation)
       .def_readwrite("branch_point_elevation", &ObjFeatures::branch_point_elevation)
       .def_readwrite("branch_point_height", &ObjFeatures::branch_point_height);
+
+  py::class_<delphyne::roads::RoadNetworkWrapper>(m, "RoadNetworkWrapper")
+      .def("get", [](const delphyne::roads::RoadNetworkWrapper* self) { return self->operator->(); });
 }
 
 /*****************************************************************************

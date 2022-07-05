@@ -55,7 +55,7 @@ class PurePursuitTest : public ::testing::Test {
     road_network_ =
         roads::CreateDragway("Single-Lane Dragway", 1 /* num_lanes */, 100 /* length */, 4. /* lane_width */,
                              0. /* shoulder_width */, 5. /* maximum_height */, kLinearTolerance, kAngularTolerance);
-    road_ = road_network_->road_geometry();
+    road_ = (*road_network_)->road_geometry();
   }
 
   void MakeSemiCircleRoad() {
@@ -82,14 +82,14 @@ class PurePursuitTest : public ::testing::Test {
         explicit_end: ["ref", "points.start.forward"]
   )R";
     road_network_ = roads::CreateMultilaneFromDescription(multilane_description);
-    road_ = road_network_->road_geometry();
+    road_ = (*road_network_)->road_geometry();
   }
 
   const PurePursuitParams<double> pp_params_{};
   const PurePursuitParams<AutoDiffXd> pp_params_ad_{};
   const SimpleCarParams<double> car_params_{};
   const SimpleCarParams<AutoDiffXd> car_params_ad_{};
-  std::unique_ptr<maliput::api::RoadNetwork> road_network_;
+  std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network_;
   const maliput::api::RoadGeometry* road_{};
 };
 

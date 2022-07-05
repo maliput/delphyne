@@ -111,7 +111,7 @@ void PerformTest(const maliput::api::RoadGeometry& rg, const Lane* lane, LanePol
 GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
   // N.B. In this road, `post0` branches into `pre0` and `onramp1`.
   auto merge_road = roads::CreateOnRamp();
-  const maliput::api::RoadGeometry* rg = merge_road->road_geometry();
+  const maliput::api::RoadGeometry* rg = (*merge_road)->road_geometry();
 
   // Set speed to be zero and the car facing both along and against the
   // s-direction.
@@ -131,7 +131,7 @@ GTEST_TEST(CalcOngoingRoadPosition, TestOngoingLanes) {
 
 GTEST_TEST(CalcOngoingRoadPosition, TestInvalidLanes) {
   auto merge_road = roads::CreateOnRamp();
-  const maliput::api::RoadGeometry* rg = merge_road->road_geometry();
+  const maliput::api::RoadGeometry* rg = (*merge_road)->road_geometry();
 
   PoseVector<double> pose;
   FrameVelocity<double> velocity;
@@ -161,7 +161,7 @@ GTEST_TEST(CalcOngoingRoadPosition, TestAutoDiff) {
                                  0. /* shoulder_width */, 5. /* maximum_height */,
                                  std::numeric_limits<double>::epsilon() /* linear_tolerance */,
                                  std::numeric_limits<double>::epsilon() /* angular_tolerance */);
-  auto rg = rn->road_geometry();
+  auto rg = (*rn)->road_geometry();
   // AutoDiffXd only appear at the inputs; only check that computation succeeds.
   const LanePolarity polarity = LanePolarity::kWithS;
   const drake::AutoDiffXd speed = 10.;

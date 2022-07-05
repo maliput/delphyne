@@ -107,7 +107,9 @@ PYBIND11_MODULE(roads, m) {
       .def_readwrite("branch_point_height", &ObjFeatures::branch_point_height);
 
   py::class_<delphyne::roads::RoadNetworkWrapper>(m, "RoadNetworkWrapper")
-      .def("get", [](const delphyne::roads::RoadNetworkWrapper* self) { return self->operator->(); });
+      .def(
+          "get", [](const delphyne::roads::RoadNetworkWrapper* self) { return self->operator->(); },
+          py::return_value_policy::reference_internal);
 }
 
 /*****************************************************************************

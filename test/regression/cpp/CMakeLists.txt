@@ -27,7 +27,6 @@ target_link_libraries(test_utilities
   ignition-common3::ignition-common3
   ignition-msgs5::ignition-msgs5
   ignition-transport8::ignition-transport8
-  maliput::test_utilities
 )
 
 ##############################################################################
@@ -72,7 +71,6 @@ set(SOURCES
   pure_pursuit_test.cc
   resources_test.cc
   right_of_way_system_test.cc
-  road_network_wrapper_test.cc
   road_path_test.cc
   simple_car_test.cc
   simple_powertrain_test.cc

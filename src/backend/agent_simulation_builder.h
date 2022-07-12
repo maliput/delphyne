@@ -54,7 +54,6 @@
 #include "delphyne/mi6/agent_base.h"
 #include "delphyne/mi6/agent_base_blueprint.h"
 #include "delphyne/mi6/agent_simulation.h"
-#include "delphyne/roads/road_network_wrapper.h"
 #include "systems/curve2.h"
 #include "systems/lane_direction.h"
 #include "visualization/car_vis_applicator.h"
@@ -92,16 +91,15 @@ class AgentSimulationBaseBuilder {
   /// Sets the RoadNetwork for this simulation and use its road geometry
   ///
   /// @param road_network The road network to use for the simulation.
-  const delphyne::roads::RoadNetworkWrapper* SetRoadNetwork(
-      std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network);
+  const maliput::api::RoadNetwork* SetRoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> road_network);
 
   /// Sets the RoadNetwork for this simulation.
   ///
   /// @param road_network The road network to use for the simulation.
   /// @param features The road features that will be shown in the simulation.
   /// @see documentation of maliput::utility::ObjFeatures
-  const delphyne::roads::RoadNetworkWrapper* SetRoadNetwork(
-      std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network, const maliput::utility::ObjFeatures& features);
+  const maliput::api::RoadNetwork* SetRoadNetwork(std::unique_ptr<maliput::api::RoadNetwork> road_network,
+                                                  const maliput::utility::ObjFeatures& features);
 
   /// Constructs a Blueprint in-place and uses it to build and
   /// take ownership of an agent, which is to be wired into the
@@ -263,7 +261,7 @@ class AgentSimulationBaseBuilder {
   // The geometry of the road for the simulation to be built.
   std::unique_ptr<const maliput::api::RoadGeometry> road_geometry_{nullptr};
 
-  std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network_{nullptr};
+  std::unique_ptr<maliput::api::RoadNetwork> road_network_{nullptr};
 
   // The features of the road for the simulation to be built.
   maliput::utility::ObjFeatures road_features_{};

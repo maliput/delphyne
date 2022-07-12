@@ -33,6 +33,7 @@ A module providing road composites.
 """
 
 import delphyne.roads
+import delphyne.maliput as maliput
 
 import py_trees.composites
 import py_trees.common

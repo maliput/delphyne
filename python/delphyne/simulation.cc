@@ -68,8 +68,6 @@ namespace {
 *****************************************************************************/
 
 PYBIND11_MODULE(simulation, m) {
-  py::module::import("maliput.api");
-
   py::class_<InteractiveSimulationStats>(m, "InteractiveSimulationStats")
       .def(py::init<>())
       .def("total_elapsed_simtime", &InteractiveSimulationStats::TotalElapsedSimtime)

@@ -55,7 +55,7 @@ namespace {
 ** Implementation
 *****************************************************************************/
 
-// TODO(@francocipollone): Removes bindings once maliput_py's bindings can be used here directly.
+// TODO(#847): Removes bindings once maliput_py's bindings can be used here directly.
 //                         These bindings are inspired on
 //                         https://github.com/maliput/maliput_py/blob/0d91d3aec3fbe87c86d432c895eac7e4053d17bd/src/bindings/api_py.cc
 PYBIND11_MODULE(maliput, m) {

@@ -34,7 +34,7 @@ A module that holds data providers for scenario configuration.
 
 import random
 
-import maliput.api as maliput
+import delphyne.maliput as maliput
 
 
 def resolve(expression, *args, **kwargs):

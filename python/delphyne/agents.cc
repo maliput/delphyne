@@ -77,8 +77,6 @@ namespace {
 *****************************************************************************/
 
 PYBIND11_MODULE(agents, m) {
-  py::module::import("maliput.api");
-
   py::class_<Agent>(m, "Agent")
       .def("name", &Agent::name)
       .def("get_pose_rotation", [](const Agent* self) { return self->GetPose().get_rotation().coeffs(); })

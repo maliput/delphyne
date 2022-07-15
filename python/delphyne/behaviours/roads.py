@@ -153,7 +153,7 @@ class Malidrive(Road):
                     intersection_book_path=self.intersection_book_path,
                     linear_tolerance=self.linear_tolerance,
                     angular_tolerance=self.angular_tolerance), self.features)
-            self.road_geometry = self.road_network.get().road_geometry()
+            self.road_geometry = self.road_network.road_geometry()
 
 
 class OnRamp(Road):

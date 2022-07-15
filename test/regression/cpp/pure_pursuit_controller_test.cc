@@ -52,7 +52,7 @@ class PurePursuitControllerTest : public ::testing::Test {
     // Create a straight road with two lanes.
     road_network_ = roads::CreateDragway("One-Lane Dragway", 1 /* num_lanes */, 100 /* length */,
                                          kLaneWidth /* lane_width */, 0. /* shoulder_width */, 5. /* maximum_height */);
-    road_ = (*road_network_)->road_geometry();
+    road_ = road_network_->road_geometry();
     // Store the LaneDirection.
     lane_direction_.reset(new LaneDirection(road_->junction(0)->segment(0)->lane(0), true));
 
@@ -79,7 +79,7 @@ class PurePursuitControllerTest : public ::testing::Test {
                                                         //  test.
   std::unique_ptr<drake::systems::Context<double>> context_;
   std::unique_ptr<drake::systems::SystemOutput<double>> output_;
-  std::unique_ptr<delphyne::roads::RoadNetworkWrapper> road_network_;
+  std::unique_ptr<const maliput::api::RoadNetwork> road_network_;
   const maliput::api::RoadGeometry* road_{};
   std::unique_ptr<LaneDirection> lane_direction_;
 };

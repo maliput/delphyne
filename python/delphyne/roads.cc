@@ -44,7 +44,6 @@
 // public headers
 #include "delphyne/roads/find_lane.h"
 #include "delphyne/roads/road_builder.h"
-#include "delphyne/roads/road_network_wrapper.h"
 
 /*****************************************************************************
 ** Namespaces
@@ -61,8 +60,6 @@ namespace {
 *****************************************************************************/
 
 PYBIND11_MODULE(roads, m) {
-  py::module::import("maliput.api");
-
   // Most of the required maliput types (e.g. Lane, LaneId, RoadGeometry)
   // already have bindings in maliput_py. Take advantage of these or help
   // contribute to them so others can take advantage of them as well.
@@ -105,11 +102,6 @@ PYBIND11_MODULE(roads, m) {
       .def_readwrite("lane_haze_elevation", &ObjFeatures::lane_haze_elevation)
       .def_readwrite("branch_point_elevation", &ObjFeatures::branch_point_elevation)
       .def_readwrite("branch_point_height", &ObjFeatures::branch_point_height);
-
-  py::class_<delphyne::roads::RoadNetworkWrapper>(m, "RoadNetworkWrapper")
-      .def(
-          "get", [](const delphyne::roads::RoadNetworkWrapper* self) { return self->operator->(); },
-          py::return_value_policy::reference_internal);
 }
 
 /*****************************************************************************

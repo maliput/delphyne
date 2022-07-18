@@ -1,53 +1,89 @@
-[![gcc](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/build.yml/badge.svg)](https://github.com/ToyotaResearchInstitute/delphyne/actions/workflows/build.yml)
+[![GCC](https://github.com/maliput/delphyne/actions/workflows/build.yml/badge.svg)](https://github.com/maliput/delphyne/actions/workflows/build.yml)
 
-# Delphyne
+# delphyne
+## Description
 
-This is the repository for Delphyne - a traffic level simulator for autonomous driving.
+Delphyne is a traffic level simulator for autonomous driving.
 
-## Build
+Road network model is provided by [`Maliput`](https://maliput.readthedocs.io/en/latest/index.html) libraries.
 
-1. Setup a development workspace as described [here](https://github.com/ToyotaResearchInstitute/maliput_documentation/blob/main/docs/installation_quickstart.rst).
+Related packages:
+ - [delphyne_gui](https://github.com/maliput/delphyne_gui): Provides a visualizer for `delphyne`.
+ - [delphyne_demos](https://github.com/maliput/delphyne_demos): Provides demos for `delphyne`.
 
-2. Build Delphyne packages and their dependencies:
+## API Documentation
 
-  - If not building drake from source:
+Refer to [Delphyne's Online API Documentation](https://maliput.readthedocs.io/en/latest/html/deps/delphyne/html/index.html).
 
-   ```sh
-   colcon build --packages-up-to delphyne_demos
-   ```
+## Examples
 
-  - If building drake from source:
+Visit [delphyne_demos](https://github.com/maliput/delphyne_demos).
 
-   ```sh
-   colcon build --cmake-args -DWITH_PYTHON_VERSION=3 --packages-up-to delphyne_demos
-   ```
+## Installation
 
-   **Note**: To build documentation a `-BUILD_DOCS` cmake flag is required:
-   ```sh
-   colcon build --packages-up-to delphyne --cmake-args " -DBUILD_DOCS=On"
-   ```
+### Supported platforms
 
-## Use
+Ubuntu Focal Fossa 20.04 LTS.
 
-1. Source your build:
+### Source Installation on Ubuntu
 
-```sh
-source ./install/setup.bash
+#### Prerequisites
+
+```
+sudo apt install python3-rosdep python3-colcon-common-extensions
 ```
 
-3. Run any demo, for instance:
+#### Build
 
-```sh
-delphyne_gazoo
-```
+1. Create colcon workspace if you don't have one yet.
+    ```sh
+    mkdir colcon_ws/src -p
+    ```
 
-You can checkout any other example by typing delphyne and pressing TAB to trigger autocompletion.
+2. Clone dependencies in the `src` folder
+    ```sh
+    cd colcon_ws/src
+    git clone https://github.com/maliput/drake_vendor.git
+    ```
 
-## Learn and Contribute
+3. Clone this repository in the `src` folder
+    ```sh
+    cd colcon_ws/src
+    git clone https://github.com/maliput/delphyne.git
+    ```
 
-User and developer instructions can be found in the
-[Delphyne Guide](https://docs.google.com/document/d/1tQ9vDp084pMuHjYmtScLB3F1tdr4iP9w7_OTcoSM1zQ).
+4. Install package dependencies via `rosdep`
+    ```
+    export ROS_DISTRO=foxy
+    ```
+    ```sh
+    rosdep update
+    rosdep install -i -y --rosdistro $ROS_DISTRO --from-paths src
+    ```
+5. Follow instructions to install drake via [`drake_vendor`](https://github.com/maliput/drake_vendor) package.
 
-* [Delphyne Guide#Development](https://docs.google.com/document/d/1tQ9vDp084pMuHjYmtScLB3F1tdr4iP9w7_OTcoSM1zQ/edit#heading=h.6wa9ubx28pkv)
+6. Build the package
+    ```sh
+    colcon build --packages-up-to delphyne
+    ```
 
-If submitting pull requests pay particular attention to the relevant sections in [Delphyne Guide#Development](https://docs.google.com/document/d/1tQ9vDp084pMuHjYmtScLB3F1tdr4iP9w7_OTcoSM1zQ/edit#heading=h.6wa9ubx28pkv).
+    **Note**: To build documentation a `-BUILD_DOCS` cmake flag is required:
+    ```sh
+    colcon build --packages-select delphyne --cmake-args " -DBUILD_DOCS=On"
+    ```
+    More info at [Building Documentation](https://maliput.readthedocs.io/en/latest/developer_guidelines.html#building-the-documentation).
+
+For further info refer to [Source Installation on Ubuntu](https://maliput.readthedocs.io/en/latest/installation.html#source-installation-on-ubuntu)
+
+
+### For development
+
+It is recommended to follow the guidelines for setting up a development workspace as described [here](https://maliput.readthedocs.io/en/latest/developer_setup.html).
+
+## Contributing
+
+Please see [CONTRIBUTING](https://maliput.readthedocs.io/en/latest/contributing.html) page.
+
+## License
+
+[![License](https://img.shields.io/badge/License-BSD_3--Clause-blue.svg)](https://github.com/maliput/delphyne/blob/main/LICENSE)

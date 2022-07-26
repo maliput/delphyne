@@ -40,8 +40,7 @@
 #include <maliput/api/road_network.h>
 #include <maliput/common/assertion_error.h>
 #include <maliput/math/vector.h>
-#include <maliput/plugin/maliput_plugin_manager.h>
-#include <maliput/plugin/road_network_loader.h>
+#include <maliput/plugin/create_road_network.h>
 
 #include "delphyne/macros.h"
 
@@ -58,25 +57,6 @@ namespace api = maliput::api;
 ** Implementation
 *****************************************************************************/
 
-std::unique_ptr<maliput::api::RoadNetwork> CreateRoadNetwork(
-    const std::string& road_network_plugin_name, const std::map<std::string, std::string>& loader_parameters) {
-  // The MaliputPluginManager instance must be alive until the program is terminated, otherwise
-  // the RoadNetwork instance could lead to undesired behavior.
-  static maliput::plugin::MaliputPluginManager manager{};
-  const maliput::plugin::MaliputPlugin* plugin =
-      manager.GetPlugin(maliput::plugin::MaliputPlugin::Id{road_network_plugin_name});
-  DELPHYNE_VALIDATE(plugin != nullptr, maliput::common::assertion_error,
-                    road_network_plugin_name + " plugin can't be obtained.");
-
-  maliput::plugin::RoadNetworkLoaderPtr rn_loader_ptr =
-      plugin->ExecuteSymbol<maliput::plugin::RoadNetworkLoaderPtr>(maliput::plugin::RoadNetworkLoader::GetEntryPoint());
-  // Use smart pointers to gracefully manage heap allocation.
-  std::unique_ptr<maliput::plugin::RoadNetworkLoader> road_network_loader{
-      reinterpret_cast<maliput::plugin::RoadNetworkLoader*>(rn_loader_ptr)};
-  // Generates the maliput::api::RoadNetwork.
-  return (*road_network_loader)(loader_parameters);
-}
-
 std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(const std::string& name, int num_lanes, double length,
                                                          double lane_width, double shoulder_width,
                                                          double maximum_height, double linear_tolerance,
@@ -92,7 +72,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(const std::string& name
       {"maximum_height", std::to_string(maximum_height)},
       {"inertial_to_backend_frame_translation", "{0., 0., 0.}"},
   };
-  return CreateRoadNetwork("maliput_dragway", parameters);
+  return maliput::plugin::CreateRoadNetwork("maliput_dragway", parameters);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::string& file_path) {
@@ -100,7 +80,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::st
       {"road_network_source", "yaml"},
       {"yaml_file", file_path},
   };
-  return CreateRoadNetwork("maliput_multilane", parameters);
+  return maliput::plugin::CreateRoadNetwork("maliput_multilane", parameters);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description) {
@@ -108,14 +88,14 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const 
       {"road_network_source", "yaml"},
       {"yaml_description", yaml_description},
   };
-  return CreateRoadNetwork("maliput_multilane", parameters);
+  return maliput::plugin::CreateRoadNetwork("maliput_multilane", parameters);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp() {
   const std::map<std::string, std::string> parameters{
       {"road_network_source", "on_ramp_merge"},
   };
-  return CreateRoadNetwork("maliput_multilane", parameters);
+  return maliput::plugin::CreateRoadNetwork("maliput_multilane", parameters);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,
@@ -156,7 +136,7 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
     road_network_configuration.emplace("intersection_book", intersection_book_path);
   }
 
-  return CreateRoadNetwork("maliput_malidrive", road_network_configuration);
+  return maliput::plugin::CreateRoadNetwork("maliput_malidrive", road_network_configuration);
 }
 
 /*****************************************************************************

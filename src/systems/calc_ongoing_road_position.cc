@@ -66,7 +66,7 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
   }
 
   const double tol = rp->lane->segment()->junction()->road_geometry()->linear_tolerance();
-  LanePositionResult lpr = rp->lane->ToLanePosition(gp);
+  LanePositionResult lpr = rp->lane->ToSegmentPosition(gp);
   if (lpr.distance <= tol) {  // Our current lane is good; just update position.
     rp->pos = lpr.lane_position;
     return;
@@ -85,7 +85,7 @@ void CalcOngoingRoadPosition(const PoseVector<T>& pose, const FrameVelocity<T>& 
     if (!branches) continue;
     for (int i{0}; i < branches->size(); ++i) {
       const LaneEnd lane_end = branches->get(i);
-      lpr = lane_end.lane->ToLanePosition(gp);
+      lpr = lane_end.lane->ToSegmentPosition(gp);
       if (lpr.distance <= tol) {  // Update both the lane and position.
         rp->pos = lpr.lane_position;
         rp->lane = lane_end.lane;

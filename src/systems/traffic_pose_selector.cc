@@ -96,7 +96,7 @@ bool IsWithinSegmentBounds(const Lane* lane, const LanePosition& lane_position, 
 // is returned.
 bool IsWithinLaneBounds(const Lane* lane, const InertialPosition& inertial_position, double linear_tolerance,
                         LanePosition* nearest_lane_position) {
-  LanePositionResult result = lane->ToLanePosition(inertial_position);
+  LanePositionResult result = lane->ToSegmentPosition(inertial_position);
   if (result.distance < linear_tolerance) {
     const RBounds r_bounds = lane->lane_bounds(result.lane_position.s());
     if (result.lane_position.r() >= r_bounds.min() - linear_tolerance &&
@@ -246,7 +246,7 @@ ClosestPose<T> FindSingleClosestInDefaultPath(const Lane* ego_lane, const PoseVe
       InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
                                  drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
                                  drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
-  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_inertial_position).lane_position;
+  const LanePosition ego_lane_position = ego_lane->ToSegmentPosition(ego_inertial_position).lane_position;
 
   std::vector<InertialPosition> traffic_inertial_positions;
   traffic_inertial_positions.reserve(traffic_poses.get_num_poses());
@@ -365,7 +365,7 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
       InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
                                  drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
                                  drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
-  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_inertial_position).lane_position;
+  const LanePosition ego_lane_position = ego_lane->ToSegmentPosition(ego_inertial_position).lane_position;
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
 
   ClosestPose<T> result;
@@ -386,7 +386,7 @@ ClosestPose<T> FindSingleClosestInBranches(const Lane* ego_lane, const PoseVecto
     // TODO(jadecastro) Supply a valid hint.
     if (!traffic_lane) continue;
 
-    const LanePosition traffic_lane_position = traffic_lane->ToLanePosition(traffic_inertial_position).lane_position;
+    const LanePosition traffic_lane_position = traffic_lane->ToSegmentPosition(traffic_inertial_position).lane_position;
 
     // Get this traffic vehicle's velocity and travel direction in the lane it
     // is occupying.
@@ -463,7 +463,7 @@ std::vector<LaneEndDistance<T>> FindConfluentBranches(const Lane* ego_lane, cons
       InertialPosition::FromXyz({drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().x()),
                                  drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().y()),
                                  drake::ExtractDoubleOrThrow(ego_pose.get_transform().translation().z())});
-  const LanePosition ego_lane_position = ego_lane->ToLanePosition(ego_inertial_position).lane_position;
+  const LanePosition ego_lane_position = ego_lane->ToSegmentPosition(ego_inertial_position).lane_position;
   const LaneEnd ego_lane_end_ahead = FindLaneEnd(ego_lane, ego_lane_position, ego_pose.get_rotation(), side);
   const T ego_lane_progress = CalcLaneProgress(ego_lane_end_ahead, ego_lane_position);
 

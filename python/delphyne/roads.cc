@@ -87,6 +87,12 @@ PYBIND11_MODULE(roads, m) {
         py::arg("phase_ring_path"), py::arg("intersection_book_path"), py::arg("linear_tolerance") = 1e-3,
         py::arg("angular_tolerance") = 1e-3);
 
+  m.def("create_maliput_osm_road_network", &delphyne::roads::CreateMaliputOSMRoadNetwork,
+        "Load an full RoadNetwork based on maliput_osm backend", py::arg("name"), py::arg("file_path"),
+        py::arg("origin"), py::arg("rule_registry_file_path"), py::arg("road_rulebook_file_path"),
+        py::arg("traffic_light_book_path"), py::arg("phase_ring_path"), py::arg("intersection_book_path"),
+        py::arg("linear_tolerance") = 1e-3, py::arg("angular_tolerance") = 1e-3);
+
   py::class_<ObjFeatures>(m, "ObjFeatures")
       .def(py::init<>())
       .def_readwrite("max_grid_unit", &ObjFeatures::max_grid_unit)

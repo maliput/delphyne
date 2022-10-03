@@ -139,6 +139,42 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
   return maliput::plugin::CreateRoadNetwork("maliput_malidrive", road_network_configuration);
 }
 
+std::unique_ptr<maliput::api::RoadNetwork> CreateMaliputOSMRoadNetwork(
+    const std::string& name, const std::string& file_path, const std::string& origin,
+    const std::string& rule_registry_file_path, const std::string& road_rulebook_file_path,
+    const std::string& traffic_light_book_path, const std::string& phase_ring_path,
+    const std::string& intersection_book_path, double linear_tolerance, double angular_tolerance) {
+  static constexpr double kScaleLength{1.};
+  std::map<std::string, std::string> config{
+      {"road_geometry_id", name},
+      {"osm_file", file_path},
+      {"linear_tolerance", std::to_string(linear_tolerance)},
+      {"angular_tolerance", std::to_string(angular_tolerance)},
+      {"scale_length", std::to_string(kScaleLength)},
+  };
+
+  if (!origin.empty()) {
+    config.emplace("origin", origin);
+  }
+  if (!rule_registry_file_path.empty()) {
+    config.emplace("rule_registry", rule_registry_file_path);
+  }
+  if (!road_rulebook_file_path.empty()) {
+    config.emplace("road_rule_book", road_rulebook_file_path);
+  }
+  if (!traffic_light_book_path.empty()) {
+    config.emplace("traffic_light_book", traffic_light_book_path);
+  }
+  if (!phase_ring_path.empty()) {
+    config.emplace("phase_ring_book", phase_ring_path);
+  }
+  if (!phase_ring_path.empty()) {
+    config.emplace("intersection_book", intersection_book_path);
+  }
+
+  return maliput::plugin::CreateRoadNetwork("maliput_osm", config);
+}
+
 /*****************************************************************************
  ** Trailers
  *****************************************************************************/

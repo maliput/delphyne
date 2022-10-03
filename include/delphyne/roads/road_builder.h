@@ -137,6 +137,27 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveRoadNetworkFromXodr(
 /// @brief Creates a multilane on-ramp.
 std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp();
 
+/// @brief Creates a maliput_osm based RoadNetwork from osm source.
+///
+/// @param[in] name A name for the road geometry to be created.
+/// @param[in] file_path A string pointing to the OSM file to be loaded.
+/// @param[in] origin A 2D-vector representing the origin(lat-long) of the OSM map.
+/// @param[in] rule_registry_file_path A string pointing to the RuleRegistry file to be loaded.
+/// @param[in] road_rulebook_file_path A string pointing to the Rulebook file to be loaded.
+/// @param[in] traffic_light_book_path A string pointing to the TrafficLightBook file to be loaded.
+/// @param[in] phase_ring_path A string pointing to the PhaseRingBook file to be loaded.
+/// @param[in] intersection_book_path A string pointing to the IntersectionBook file to be loaded.
+/// @param[in] linear_tolerance The linear RoadGeometry tolerance. Default value is 1e-3m.
+/// @param[in] angular_tolerance The angular RoadGeometry tolerance. Default value is 1e-3rad.
+/// @return A maliput::api::RoadNetwork.
+std::unique_ptr<maliput::api::RoadNetwork> CreateMaliputOSMRoadNetwork(
+    const std::string& name, const std::string& file_path, const std::string& origin = std::string(),
+    const std::string& rule_registry_file_path = std::string(),
+    const std::string& road_rulebook_file_path = std::string(),
+    const std::string& traffic_light_book_path = std::string(), const std::string& phase_ring_path = std::string(),
+    const std::string& intersection_book_path = std::string(), double linear_tolerance = 1e-3,
+    double angular_tolerance = 1e-3);
+
 /*****************************************************************************
 ** Trailers
 *****************************************************************************/

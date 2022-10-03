@@ -155,6 +155,46 @@ class Malidrive(Road):
                     angular_tolerance=self.angular_tolerance), self.features)
             self.road_geometry = self.road_network.road_geometry()
 
+class MaliputOSM(Road):
+    """
+    A maliput osm road.
+    """
+
+    def __init__(self, name=py_trees.common.Name.AUTO_GENERATED,
+                 file_path="", origin="", rule_registry_file_path="", road_rulebook_file_path="",
+                 traffic_light_book_path="", phase_ring_path="", intersection_book_path="",
+                 linear_tolerance=1e-3, angular_tolerance=1e-3,
+                 features=delphyne.roads.ObjFeatures()):
+        super().__init__(name)
+        self.road_network = None
+        self.name = name
+        self.file_path = file_path
+        self.origin = origin
+        self.rule_registry_file_path = rule_registry_file_path
+        self.road_rulebook_file_path = road_rulebook_file_path
+        self.traffic_light_book_path = traffic_light_book_path
+        self.phase_ring_path = phase_ring_path
+        self.intersection_book_path = intersection_book_path
+        self.linear_tolerance = linear_tolerance
+        self.angular_tolerance = angular_tolerance
+        self.features = features
+
+    def setup(self, *, builder):
+        if self.road_network is None:
+            # Setup a road network only the first time.
+            self.road_network = builder.set_road_network(
+                delphyne.roads.create_maliput_osm_road_network(
+                    name=self.name,
+                    file_path=self.file_path,
+                    origin = self.origin,
+                    rule_registry_file_path=self.rule_registry_file_path,
+                    road_rulebook_file_path=self.road_rulebook_file_path,
+                    traffic_light_book_path=self.traffic_light_book_path,
+                    phase_ring_path=self.phase_ring_path,
+                    intersection_book_path=self.intersection_book_path,
+                    linear_tolerance=self.linear_tolerance,
+                    angular_tolerance=self.angular_tolerance), self.features)
+            self.road_geometry = self.road_network.road_geometry()
 
 class OnRamp(Road):
     """

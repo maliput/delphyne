@@ -155,6 +155,7 @@ class Malidrive(Road):
                     angular_tolerance=self.angular_tolerance), self.features)
             self.road_geometry = self.road_network.road_geometry()
 
+
 class MaliputOSM(Road):
     """
     A maliput osm road.
@@ -186,7 +187,7 @@ class MaliputOSM(Road):
                 delphyne.roads.create_maliput_osm_road_network(
                     name=self.name,
                     file_path=self.file_path,
-                    origin = self.origin,
+                    origin=self.origin,
                     rule_registry_file_path=self.rule_registry_file_path,
                     road_rulebook_file_path=self.road_rulebook_file_path,
                     traffic_light_book_path=self.traffic_light_book_path,
@@ -195,6 +196,7 @@ class MaliputOSM(Road):
                     linear_tolerance=self.linear_tolerance,
                     angular_tolerance=self.angular_tolerance), self.features)
             self.road_geometry = self.road_network.road_geometry()
+
 
 class OnRamp(Road):
     """

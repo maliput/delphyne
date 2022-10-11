@@ -34,6 +34,7 @@
   <exec_depend>maliput_dragway</exec_depend>
   <exec_depend>maliput_malidrive</exec_depend>
   <exec_depend>maliput_multilane</exec_depend>
+  <exec_depend>maliput_osm</exec_depend>
 
   <test_depend>ament_cmake_clang_format</test_depend>
   <test_depend>ament_cmake_flake8</test_depend>

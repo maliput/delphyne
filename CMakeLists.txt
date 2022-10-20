@@ -100,7 +100,6 @@ message(STATUS "\n----------------------------------------\n")
 # Sources
 ##############################################################################
 
-add_subdirectory(include)
 add_subdirectory(src)
 add_subdirectory(python)
 add_subdirectory(media)
@@ -138,6 +137,17 @@ endif()
 ##############################################################################
 # Export
 ##############################################################################
+
+configure_file(include/delphyne/version.h.in
+  ${PROJECT_BINARY_DIR}/include/${PROJECT_NAME}/version.h
+)
+
+install(
+  DIRECTORY include/
+  DESTINATION include
+)
+
+ament_export_include_directories(include)
 
 ament_environment_hooks(setup.sh.in)
 ament_export_dependencies(ament_cmake)

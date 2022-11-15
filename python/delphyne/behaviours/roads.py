@@ -98,22 +98,24 @@ class Multilane(Road):
     A maliput multilane road.
     """
 
-    def __init__(self, file_path, name=py_trees.common.Name.AUTO_GENERATED):
+    def __init__(self, file_path, name=py_trees.common.Name.AUTO_GENERATED,
+                 features=delphyne.roads.ObjFeatures()):
         """
         :param file_path: path to the YAML description file of a maliput
             multilane road geometry.
         :param name: for the road geometry to be loaded.
+        :param features: features to be used for the mesh creation.
         """
         super().__init__(name)
         self.file_path = file_path
+        self.features = features
 
     def setup(self, *, builder):
         if self.road_geometry is None:
             # Setup a road network only the first time.
             self.road_geometry = builder.set_road_network(
                 delphyne.roads.create_multilane_from_file(
-                    self.file_path)
-                )
+                    self.file_path), self.features)
 
 
 class Malidrive(Road):

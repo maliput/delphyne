@@ -77,7 +77,6 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateDragway(const std::string& name
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::string& file_path) {
   const std::map<std::string, std::string> parameters{
-      {"road_network_source", "yaml"},
       {"yaml_file", file_path},
   };
   return maliput::plugin::CreateRoadNetwork("maliput_multilane", parameters);
@@ -85,17 +84,13 @@ std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromFile(const std::st
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMultilaneFromDescription(const std::string& yaml_description) {
   const std::map<std::string, std::string> parameters{
-      {"road_network_source", "yaml"},
       {"yaml_description", yaml_description},
   };
   return maliput::plugin::CreateRoadNetwork("maliput_multilane", parameters);
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateOnRamp() {
-  const std::map<std::string, std::string> parameters{
-      {"road_network_source", "on_ramp_merge"},
-  };
-  return maliput::plugin::CreateRoadNetwork("maliput_multilane", parameters);
+  return maliput::plugin::CreateRoadNetwork("maliput_multilane_on_ramp", {});
 }
 
 std::unique_ptr<maliput::api::RoadNetwork> CreateMalidriveFromXodr(const std::string& name,

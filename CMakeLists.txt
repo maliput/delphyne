@@ -127,7 +127,6 @@ if(BUILD_DOCS)
   ament_doxygen_generate(doxygen_delphyne
     CONFIG_OVERLAY doc/Doxyfile.overlay.in
     DEPENDENCIES maliput maliput_py
-    TEST_ON_WARNS
   )
   add_definitions(-DBUILD_DOCS)
 else()

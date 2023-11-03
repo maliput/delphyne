@@ -106,6 +106,15 @@ const drake::systems::InputPort<T>& WirePriusGeometry(const std::string& frame_r
   const Translation3<T> kPriusCarToChassisTranslation(0., 0., 0.69785);
   const Quaternion<T> kPriusCarToChassisRotation{Quaternion<T>::Identity()};
 
+  // Here we make a explicit call to get_new_id() to ensure that the static variable in
+  // drake::common::Identifier (underlying type of drake::geometry::FrameId) is initialized.
+  // If we don't do this here, each get_new_id() call used in RegisterFrame method will attach
+  // the same id to all the frames. This is a bug in Drake that is raised only when using clang compiler.
+  // See https://github.com/maliput/delphyne_demos/issues/60
+  //
+  // TODO(https://github.com/maliput/delphyne_demos/issues/60): Remove this when a new version of Drake is used.
+  FrameId::get_new_id();
+
   // Registers a source for the given scene graph.
   const SourceId source_id = scene_graph->RegisterSource(frame_root);
   // Registers the Prius car frame.

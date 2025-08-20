@@ -33,7 +33,7 @@
 
 #include <drake/systems/analysis/simulator.h>
 #include <gtest/gtest.h>
-#include <maliput/common/assertion_error.h>
+#include <maliput/common/error.h>
 #include <maliput/test_utilities/mock.h>
 
 #include "backend/dynamic_environment_handler.h"

@@ -37,7 +37,7 @@
 #include <maliput/api/intersection_book.h>
 #include <maliput/api/road_network.h>
 #include <maliput/api/rules/phase.h>
-#include <maliput/common/assertion_error.h>
+#include <maliput/common/error.h>
 #include <maliput/common/filesystem.h>
 
 namespace delphyne {

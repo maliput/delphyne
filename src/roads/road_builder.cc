@@ -38,7 +38,7 @@
 
 #include <maliput/api/road_geometry.h>
 #include <maliput/api/road_network.h>
-#include <maliput/common/assertion_error.h>
+#include <maliput/common/error.h>
 #include <maliput/math/vector.h>
 #include <maliput/plugin/create_road_network.h>
 

@@ -122,7 +122,7 @@ void RightOfWaySystem<T>::CalcOutputVelocity(const drake::systems::Context<T>& c
       (*discrete_value_rule_states).begin(), (*discrete_value_rule_states).end(),
       [&inertial_pos, rn = this->road_network_](const std::pair<Rule::Id, DiscreteValueRule::DiscreteValue>& id_value) {
         const auto rule = rn->rulebook()->GetDiscreteValueRule(id_value.first);
-        return maliput::api::IsIncluded(inertial_pos, rule.zone().ranges(), rn->road_geometry());
+        return maliput::api::IsIncluded(inertial_pos, rule.value().zone().ranges(), rn->road_geometry());
       });
 
   if (discrete_value_rule_state_itr == (*discrete_value_rule_states).end()) {
